@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -91,16 +91,16 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                     .graphIds(graphIdsCSV)
                     .userRequestingAdminUsage(op instanceof IFederationOperation && ((IFederationOperation) op).isUserRequestingAdminUsage())
                     .build();
-            Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, graphIdsCSV, clonedOp);
-            for (final Graph graph : graphs) {
-                String graphId = graph.getGraphId();
+            Collection<GraphSerialisable> graphSerialisables = ((FederatedStore) store).getGraphs(user, graphIdsCSV, clonedOp);
+            for (final GraphSerialisable graphSerialisable : graphSerialisables) {
+                String graphId = graphSerialisable.getGraphId();
                 final boolean graphIdValid = ((FederatedStore) store).getAllGraphIds(user).contains(graphId);
                 // If graphId is not valid, then there is no schema to validate a view against.
                 if (graphIdValid) {
                     currentResult = new ValidationResult();
                     clonedOp.graphIdsCSV(graphId);
                     // Deprecated function still in use due to Federated GetTraits bug with DYNAMIC_SCHEMA
-                    if (!graph.getStoreTraits().contains(StoreTrait.DYNAMIC_SCHEMA)) {
+                    if (!graphSerialisable.getGraph().getStoreTraits().contains(StoreTrait.DYNAMIC_SCHEMA)) {
                         super.validateViews(clonedOp, user, store, currentResult);
                     }
                     if (currentResult.isValid()) {

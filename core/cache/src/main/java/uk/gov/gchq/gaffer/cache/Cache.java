@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 Crown Copyright
+ * Copyright 2018-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Set;
 
 /**
  * Type safe cache, adding and getting is guaranteed to be same type.
+ *
  * @param <V> The type of values to add and get.
  */
 public class Cache<V> {
@@ -56,13 +57,17 @@ public class Cache<V> {
     }
 
     public Set<String> getAllKeys() {
-        final Set<String> allKeysFromCache;
         try {
-            allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
-        } catch (final NullPointerException e) {
-            throw new GafferRuntimeException("Error getting all keys, check Cache was Initialised.", e);
+            final Set<String> allKeysFromCache;
+            if (CacheServiceLoader.isEnabled()) {
+                allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
+            } else {
+                throw new GafferRuntimeException("Cache is not enabled, check it was Initialised");
+            }
+            return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
+        } catch (final Exception e) {
+            throw new GafferRuntimeException("Error getting all keys", e);
         }
-        return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
     }
 
     /**

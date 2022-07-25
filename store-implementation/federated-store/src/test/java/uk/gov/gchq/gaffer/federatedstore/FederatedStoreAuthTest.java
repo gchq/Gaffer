@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.IFederationOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -81,9 +81,9 @@ public class FederatedStoreAuthTest {
         addGraphWith(AUTH_1, new Schema(), testUser());
 
         //when
-        Collection<Graph> testUserGraphs = federatedStore.getGraphs(testUser(), null, mock);
-        Collection<Graph> authUserGraphs = federatedStore.getGraphs(authUser(), null, mock);
-        Collection<Graph> blankUserGraphs = federatedStore.getGraphs(blankUser(), null, ignore);
+        Collection<GraphSerialisable> testUserGraphs = federatedStore.getGraphs(testUser(), null, mock);
+        Collection<GraphSerialisable> authUserGraphs = federatedStore.getGraphs(authUser(), null, mock);
+        Collection<GraphSerialisable> blankUserGraphs = federatedStore.getGraphs(blankUser(), null, ignore);
 
         //then
         assertThat(authUserGraphs).hasSize(1);
@@ -123,7 +123,8 @@ public class FederatedStoreAuthTest {
         final OperationException e = assertThrows(OperationException.class, () -> addGraphWith("nonMatchingAuth", schema, testUser()));
 
         assertThat(e).message()
-                .contains(String.format("Error adding graph %s to storage due to: User is attempting to overwrite a graph within FederatedStore. GraphId: %s", GRAPH_ID_ACCUMULO, GRAPH_ID_ACCUMULO))
+                .contains("Error adding graph " + GRAPH_ID_ACCUMULO + " to storage due to:")
+                .contains("User is attempting to overwrite a graph within FederatedStore. GraphId: " + GRAPH_ID_ACCUMULO)
                 .withFailMessage("error message should not contain details about schema")
                 .doesNotContain(unusualType)
                 .doesNotContain(groupEdge)

@@ -23,8 +23,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -48,32 +48,39 @@ import static java.util.Objects.nonNull;
 @JsonDeserialize(builder = GraphSerialisable.Builder.class)
 public final class GraphSerialisable implements Serializable {
     private static final long serialVersionUID = 2684203367656032583L;
-
-    private transient Schema deserialisedSchema;
-    private final byte[] schema;
-
-    private transient StoreProperties deserialisedProperties;
-    private final Properties properties;
-
-    private final byte[] config;
-    private transient GraphConfig deserialisedConfig;
+    private final byte[] serialisedSchema;
+    private final byte[] serialisedProperties;
+    private final byte[] serialisedConfig;
+    private transient Schema schema;
+    private transient StoreProperties storeProperties;
+    private transient GraphConfig config;
 
     private transient Graph graph;
 
+    private GraphSerialisable(final GraphConfig config, final Schema schema, final StoreProperties storeProperties) {
+        this(config, schema, storeProperties.getProperties());
+    }
+
     private GraphSerialisable(final GraphConfig config, final Schema schema, final Properties properties) {
         try {
-            this.schema = isNull(schema) ? null : JSONSerialiser.serialise(schema, true);
+            this.serialisedSchema = isNull(schema) ? null : JSONSerialiser.serialise(schema, true);
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Unable to serialise schema", e);
         }
 
         try {
-            this.config = isNull(config) ? null : JSONSerialiser.serialise(config, true);
+            this.serialisedConfig = isNull(config) ? null : JSONSerialiser.serialise(config, true);
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Unable to serialise config", e);
         }
-        this.properties = properties;
+
+        try {
+            this.serialisedProperties = isNull(properties) ? null : JSONSerialiser.serialise(properties, true);
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Unable to serialise properties", e);
+        }
     }
+
 
     /**
      * @return returns a new {@link Graph} built from the contents of a this
@@ -97,9 +104,9 @@ public final class GraphSerialisable implements Serializable {
             //graph = GraphDelegate.createGraph(
 
             graph = new Graph.Builder()
-                    .addSchema(getDeserialisedSchema())
-                    .addStoreProperties(getDeserialisedProperties())
-                    .config(getDeserialisedConfig())
+                    .addSchema(getSchema())
+                    .addStoreProperties(getStoreProperties())
+                    .config(getConfig())
                     .config(new GraphConfig.Builder()
                             .library(library)
                             .build())
@@ -119,7 +126,7 @@ public final class GraphSerialisable implements Serializable {
             rtn = new EqualsBuilder()
                     .append(this.getConfig(), that.getConfig())
                     .append(this.getSchema(), that.getSchema())
-                    .append(this.getProperties(), that.getProperties())
+                    .append(this.getStoreProperties(), that.getStoreProperties())
                     .build();
         }
         return rtn;
@@ -128,9 +135,9 @@ public final class GraphSerialisable implements Serializable {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("config", StringUtil.toString(this.getConfig()))
-                .append("schema", StringUtil.toString(this.getSchema()))
-                .append("properties", this.getProperties())
+                .append("config", getConfig())
+                .append("schema", getSchema())
+                .append("properties", getStoreProperties().getProperties())
                 .build();
     }
 
@@ -139,29 +146,29 @@ public final class GraphSerialisable implements Serializable {
         return new HashCodeBuilder(13, 31)
                 .append(this.getConfig())
                 .append(this.getSchema())
-                .append(this.getProperties())
+                .append(this.getStoreProperties().getProperties())
                 .build();
     }
 
     @JsonIgnore
     private Schema _getDeserialisedSchema() {
-        if (isNull(deserialisedSchema)) {
+        if (isNull(schema)) {
             if (isNull(graph)) {
-                deserialisedSchema = null != schema ? Schema.fromJson(schema) : null;
+                schema = null != serialisedSchema ? Schema.fromJson(serialisedSchema) : null;
             } else {
-                deserialisedSchema = graph.getSchema();
+                schema = graph.getSchema();
             }
         }
-        return deserialisedSchema;
+        return schema;
     }
 
     @JsonIgnore
-    public Schema getDeserialisedSchema() {
-        return getDeserialisedSchema(null);
+    public Schema getSchema() {
+        return getSchema(null);
     }
 
     @JsonIgnore
-    public Schema getDeserialisedSchema(final GraphLibrary graphLibrary) {
+    public Schema getSchema(final GraphLibrary graphLibrary) {
         Schema schema = _getDeserialisedSchema();
         if (isNull(schema) && nonNull(graphLibrary)) {
             schema = graphLibrary.getSchema(graph.getGraphId());
@@ -171,65 +178,64 @@ public final class GraphSerialisable implements Serializable {
 
     @JsonIgnore
     public String getGraphId() {
-        GraphConfig deserialisedConfig = getDeserialisedConfig();
-        return nonNull(deserialisedConfig)
-                ? deserialisedConfig.getGraphId()
+        GraphConfig graphConfig = getConfig();
+        return nonNull(graphConfig)
+                ? graphConfig.getGraphId()
                 : null;
     }
 
-    public byte[] getSchema() {
-        return schema;
+    public byte[] getSerialisedSchema() {
+        return serialisedSchema;
     }
 
     @JsonIgnore
-    private StoreProperties _getDeserialisedProperties() {
-        if (isNull(deserialisedProperties)) {
+    private StoreProperties _getDeserialisedStoreProperties() {
+        if (isNull(storeProperties)) {
             if (isNull(graph)) {
-                deserialisedProperties = null != properties ? StoreProperties.loadStoreProperties(properties) : null;
+                try {
+                    storeProperties = null != serialisedProperties ? StoreProperties.loadStoreProperties(JSONSerialiser.deserialise(serialisedProperties, Properties.class)) : null;
+                } catch (SerialisationException e) {
+                    throw new GafferRuntimeException("Unable to deserialise properties");
+                }
             } else {
-                deserialisedProperties = graph.getStoreProperties();
+                storeProperties = graph.getStoreProperties();
             }
         }
-        return deserialisedProperties;
+        return storeProperties;
     }
 
     @JsonIgnore
-    public StoreProperties getDeserialisedProperties() {
-        return getDeserialisedProperties(null);
+    public StoreProperties getStoreProperties() {
+        return getStoreProperties(null);
     }
 
     @JsonIgnore
-    public StoreProperties getDeserialisedProperties(final GraphLibrary graphLibrary) {
-        StoreProperties properties = _getDeserialisedProperties();
+    public StoreProperties getStoreProperties(final GraphLibrary graphLibrary) {
+        StoreProperties properties = _getDeserialisedStoreProperties();
         if (isNull(properties) && nonNull(graphLibrary)) {
             properties = graphLibrary.getProperties(graph.getGraphId());
         }
         return properties;
     }
 
-    public Properties getProperties() {
-        return properties;
+    public byte[] getSerialisedProperties() {
+        return serialisedProperties;
     }
 
     @JsonIgnore
-    public GraphConfig getDeserialisedConfig() {
-        if (isNull(deserialisedConfig)) {
+    public GraphConfig getConfig() {
+        if (isNull(config)) {
             if (isNull(graph)) {
-                deserialisedConfig = null != config ? new GraphConfig.Builder().json(config).build() : null;
+                config = null != serialisedConfig ? new GraphConfig.Builder().json(serialisedConfig).build() : null;
             } else {
-                deserialisedConfig = graph.getConfig();
+                config = graph.getConfig();
             }
         }
-        return deserialisedConfig;
-    }
-
-    @JsonIgnore
-    public String getGraphId() {
-        return getDeserialisedConfig().getGraphId();
-    }
-
-    public byte[] getConfig() {
         return config;
+    }
+
+    public byte[] getSerialisedConfig() {
+        return serialisedConfig;
     }
 
     @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
@@ -238,6 +244,25 @@ public final class GraphSerialisable implements Serializable {
         private Schema schema;
         private Properties properties;
         private GraphConfig config;
+
+        public Builder() {
+        }
+
+        @JsonIgnore
+        public Builder(final Graph graph) {
+            this();
+            schema(graph.getSchema());
+            properties(graph.getStoreProperties().getProperties());
+            config(graph.getConfig());
+        }
+
+        public Builder(final GraphSerialisable graphSerialisable) {
+            this();
+            //TODO FS this deserialises just to re-serialise in the constructor at build.
+            schema(graphSerialisable.getSchema());
+            properties(graphSerialisable.getStoreProperties());
+            config(graphSerialisable.getConfig());
+        }
 
         public Builder schema(final Schema schema) {
             this.schema = schema;
@@ -279,24 +304,6 @@ public final class GraphSerialisable implements Serializable {
                     .build();
 
             return _self();
-        }
-
-        public Builder() {
-        }
-
-        @JsonIgnore
-        public Builder(final Graph graph) {
-            this();
-            schema(graph.getSchema());
-            properties(graph.getStoreProperties().getProperties());
-            config(graph.getConfig());
-        }
-
-        public Builder(final GraphSerialisable graphSerialisable) {
-            this();
-            schema(graphSerialisable.getDeserialisedSchema());
-            properties(graphSerialisable.getProperties());
-            config(graphSerialisable.deserialisedConfig);
         }
 
         private Builder _self() {

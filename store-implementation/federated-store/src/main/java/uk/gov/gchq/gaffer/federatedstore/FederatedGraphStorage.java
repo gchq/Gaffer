@@ -30,9 +30,9 @@ import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
@@ -44,6 +44,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,7 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 
 public class FederatedGraphStorage {
     public static final boolean DEFAULT_DISABLED_BY_DEFAULT = false;
@@ -114,7 +116,7 @@ public class FederatedGraphStorage {
                 }
 
                 if (null != graphLibrary) {
-                    graphLibrary.checkExisting(graphId, graph.getDeserialisedSchema(graphLibrary), graph.getDeserialisedProperties(graphLibrary));
+                    graphLibrary.checkExisting(graphId, graph.getSchema(graphLibrary), graph.getStoreProperties(graphLibrary));
                 }
 
                 validateExisting(graphId);
@@ -249,7 +251,7 @@ public class FederatedGraphStorage {
                     }
                 });
             } else {
-                graphs.forEach(g -> schemaBuilder.merge(g.getDeserialisedSchema(graphLibrary)));
+                graphs.forEach(g -> schemaBuilder.merge(g.getSchema(graphLibrary)));
             }
         } catch (final SchemaException e) {
             final List<String> resultGraphIds = getStream(context.getUser(), graphIds).map(GraphSerialisable::getGraphId).collect(Collectors.toList());
@@ -341,10 +343,10 @@ public class FederatedGraphStorage {
 
         GraphSerialisable fromCache = federatedStoreCache.getGraphSerialisableFromCache(graphId);
 
-        if (!newGraph.getDeserialisedProperties(graphLibrary).getProperties().equals(fromCache.getDeserialisedProperties(graphLibrary))) {
+        if (!newGraph.getStoreProperties(graphLibrary).getProperties().equals(fromCache.getStoreProperties(graphLibrary))) {
             throw new RuntimeException(String.format(ERROR_ADDING_GRAPH_TO_CACHE, GraphConfigEnum.PROPERTIES.toString(), graphId));
         }
-        if (!JsonUtil.equals(newGraph.getDeserialisedSchema(graphLibrary).toJson(false), fromCache.getDeserialisedSchema(graphLibrary).toJson(false))) {
+        if (!JsonUtil.equals(newGraph.getSchema(graphLibrary).toJson(false), fromCache.getSchema(graphLibrary).toJson(false))) {
             throw new RuntimeException(String.format(ERROR_ADDING_GRAPH_TO_CACHE, GraphConfigEnum.SCHEMA.toString(), graphId));
         }
         if (!newGraph.getGraphId().equals(fromCache.getGraphId())) {
@@ -354,17 +356,6 @@ public class FederatedGraphStorage {
 
     public void setGraphLibrary(final GraphLibrary graphLibrary) {
         this.graphLibrary = graphLibrary;
-    }
-
-    private Boolean isCacheEnabled() {
-        boolean rtn = false;
-        if (isCacheEnabled) {
-            if (federatedStoreCache.getCache() == null) {
-                throw new RuntimeException("No cache has been set, please initialise the FederatedStore instance");
-            }
-            rtn = true;
-        }
-        return rtn;
     }
 
     protected Map<String, Object> getAllGraphsAndAccess(final User user, final List<String> graphIds) {
@@ -399,13 +390,13 @@ public class FederatedGraphStorage {
 
     private boolean changeGraphAccess(final String graphId, final FederatedAccess newFederatedAccess, final Predicate<FederatedAccess> accessPredicate) throws StorageException {
         boolean rtn;
-        final GraphSerialisable graphToMove = getGraphToMove(graphId, accessPredicate);
+        final GraphSerialisable graphToUpdate = getGraphToUpdate(graphId, accessPredicate);
 
-        if (nonNull(graphToMove)) {
+        if (nonNull(graphToUpdate)) {
             //remove graph to be moved
             remove(graphId, federatedAccess -> true);
 
-            updateCacheWithNewAccess(graphId, newFederatedAccess, graphToMove);
+            updateCacheWithNewAccess(graphId, newFederatedAccess, graphToUpdate);
 
             rtn = true;
         } else {
@@ -414,9 +405,9 @@ public class FederatedGraphStorage {
         return rtn;
     }
 
-    private void updateCacheWithNewAccess(final String graphId, final FederatedAccess newFederatedAccess, final GraphSerialisable graphToMove) throws StorageException {
+    private void updateCacheWithNewAccess(final String graphId, final FederatedAccess newFederatedAccess, final GraphSerialisable graphToUpdate) throws StorageException {
         try {
-            this.put(new GraphSerialisable.Builder(graphToMove).build(), newFederatedAccess);
+            this.put(new GraphSerialisable.Builder(graphToUpdate).build(), newFederatedAccess);
         } catch (final Exception e) {
             //TODO FS recovery
             String s = "Error occurred updating graphAccess. GraphStorage=updated, Cache=outdated. graphId:" + graphId;
@@ -435,17 +426,17 @@ public class FederatedGraphStorage {
 
     private boolean changeGraphId(final String graphId, final String newGraphId, final Predicate<FederatedAccess> accessPredicate) throws StorageException {
         boolean rtn;
-        final GraphSerialisable graphToMove = getGraphToMove(graphId, accessPredicate);
+        final GraphSerialisable graphToUpdate = getGraphToUpdate(graphId, accessPredicate);
 
-        if (nonNull(graphToMove)) {
+        if (nonNull(graphToUpdate)) {
             //get access before removing old graphId.
             FederatedAccess access = federatedStoreCache.getAccessFromCache(graphId);
             //Removed first, to stop a sync issue when sharing the cache with another store.
             remove(graphId, federatedAccess -> true);
 
-            updateTablesWithNewGraphId(newGraphId, graphToMove);
+            updateTablesWithNewGraphId(newGraphId, graphToUpdate);
 
-            updateCacheWithNewGraphId(newGraphId, graphToMove, access);
+            updateCacheWithNewGraphId(newGraphId, graphToUpdate, access);
 
             rtn = true;
         } else {
@@ -453,10 +444,10 @@ public class FederatedGraphStorage {
         }
         return rtn;
     }
-    private void updateCacheWithNewGraphId(final String newGraphId, final GraphSerialisable graphToMove, final FederatedAccess access) throws StorageException {
+    private void updateCacheWithNewGraphId(final String newGraphId, final GraphSerialisable graphToUpdate, final FederatedAccess access) throws StorageException {
         //rename graph
-        GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder(graphToMove)
-                .config(cloneGraphConfigWithNewGraphId(newGraphId, graphToMove))
+        GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder(graphToUpdate)
+                .config(cloneGraphConfigWithNewGraphId(newGraphId, graphToUpdate))
                 .build();
 
         try {
@@ -464,15 +455,15 @@ public class FederatedGraphStorage {
         } catch (final Exception e) {
             //TODO FS recovery
             String s = "Contact Admin for recovery. Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId.";
-            LOGGER.error("{} graphStorage graphId:{} cache graphId:{}", s, newGraphId, graphToMove.getGraphId());
+            LOGGER.error("{} graphStorage graphId:{} cache graphId:{}", s, newGraphId, graphToUpdate.getGraphId());
             throw new StorageException(s, e);
         }
     }
 
-    private void updateTablesWithNewGraphId(final String newGraphId, final GraphSerialisable graphToMove) throws StorageException {
+    private void updateTablesWithNewGraphId(final String newGraphId, final GraphSerialisable graphToUpdate) throws StorageException {
         //Update Tables
-        String graphId = graphToMove.getGraphId();
-        String storeClass = graphToMove.getDeserialisedProperties(graphLibrary).getStoreClass();
+        String graphId = graphToUpdate.getGraphId();
+        String storeClass = graphToUpdate.getStoreProperties(graphLibrary).getStoreClass();
         if (nonNull(storeClass) && storeClass.startsWith(AccumuloStore.class.getPackage().getName())) {
             /*
              * This logic is only for Accumulo derived stores Only.
@@ -482,7 +473,7 @@ public class FederatedGraphStorage {
              * MiniAccumuloStore, SingleUseMiniAccumuloStore]
              */
             try {
-                AccumuloProperties tmpAccumuloProps = (AccumuloProperties) graphToMove.getDeserialisedProperties();
+                AccumuloProperties tmpAccumuloProps = (AccumuloProperties) graphToUpdate.getStoreProperties();
                 Connector connection = TableUtils.getConnector(tmpAccumuloProps.getInstance(),
                         tmpAccumuloProps.getZookeepers(),
                         tmpAccumuloProps.getUser(),
@@ -494,20 +485,20 @@ public class FederatedGraphStorage {
                     connection.tableOperations().online(newGraphId);
                 }
             } catch (final Exception e) {
-                String message = String.format("Contact Admin for recovery. Error trying to update tables for graphID:%s graphToMove:%s", newGraphId, graphToMove.getGraphId());
+                String message = String.format("Contact Admin for recovery. Error trying to update tables for graphID:%s graphToUpdate:%s", newGraphId, graphToUpdate.getGraphId());
                 LOGGER.error(message, e);
                 throw new StorageException(message, e);
             }
         }
     }
-    private GraphConfig cloneGraphConfigWithNewGraphId(final String newGraphId, final Graph graphToMove) {
+    private GraphConfig cloneGraphConfigWithNewGraphId(final String newGraphId, final GraphSerialisable graphToUpdate) {
         return new GraphConfig.Builder()
-                .json(new GraphSerialisable.Builder().graph(graphToMove).build().getConfig())
+                .json(new GraphSerialisable.Builder(graphToUpdate).build().getSerialisedConfig())
                 .graphId(newGraphId)
                 .build();
     }
 
-    private GraphSerialisable getGraphToMove(final String graphId, final Predicate<FederatedAccess> accessPredicate) {
+    private GraphSerialisable getGraphToUpdate(final String graphId, final Predicate<FederatedAccess> accessPredicate) {
         Pair<GraphSerialisable, FederatedAccess> fromCache = federatedStoreCache.getFromCache(graphId);
         return accessPredicate.test(fromCache.getSecond())
                 ? fromCache.getFirst()

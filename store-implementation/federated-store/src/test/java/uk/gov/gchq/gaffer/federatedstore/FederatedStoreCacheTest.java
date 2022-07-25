@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 
 import java.util.Properties;
 import java.util.Set;
@@ -74,14 +73,14 @@ public class FederatedStoreCacheTest {
         federatedStoreCache.addGraphToCache(testGraph, null, false);
 
         //when
-        Graph cached = federatedStoreCache.getGraphFromCache(GRAPH_ID_ACCUMULO);
+        GraphSerialisable cached = federatedStoreCache.getGraphFromCache(GRAPH_ID_ACCUMULO);
 
         //then
         assertThat(cached)
                 .isNotNull()
                 .returns(testGraph.getGraphId(), from(GraphSerialisable::getGraphId))
-                .returns(testGraph.getSchema(), from(GraphSerialisable::getDeserialisedSchema))
-                .returns(testGraph.getStoreProperties(), from(GraphSerialisable::getDeserialisedProperties));
+                .returns(testGraph.getSchema(), from(GraphSerialisable::getSchema))
+                .returns(testGraph.getStoreProperties(), from(GraphSerialisable::getStoreProperties));
     }
 
     @Test
@@ -133,7 +132,7 @@ public class FederatedStoreCacheTest {
         //given
         federatedStoreCache.addGraphToCache(testGraph, null, false);
         //when
-        final Graph graphFromCache = assertDoesNotThrow(() -> federatedStoreCache.getGraphFromCache(null));
+        final GraphSerialisable graphFromCache = assertDoesNotThrow(() -> federatedStoreCache.getGraphFromCache(null));
         //then
         assertThat(graphFromCache).isNull();
     }

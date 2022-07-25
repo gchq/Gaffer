@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -71,6 +72,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -87,13 +89,15 @@ public class FederatedOperationHandlerTest {
     private Store mockStore2;
     private Store mockStore3;
     private Store mockStore4;
-    private Graph graph1;
-    private Graph graph2;
-    private Graph graph3;
-    private Graph graph4;
+    private GraphSerialisable graph1;
+    private GraphSerialisable graph2;
+    private GraphSerialisable graph3;
+    private GraphSerialisable graph4;
 
     @BeforeEach
     public void setUp() throws Exception {
+        resetForFederatedTests();
+
         testUser = testUser();
         context = new Context(testUser);
 
@@ -152,11 +156,13 @@ public class FederatedOperationHandlerTest {
         validateMergeResultsFromFieldObjects(results, output1, output3);
     }
 
-    private Graph getGraphWithMockStore(final Store mockStore) {
-        return new Graph.Builder()
+    private GraphSerialisable getGraphWithMockStore(final Store mockStore) {
+
+        final Graph build = new Graph.Builder()
                 .config(new GraphConfig(TEST_GRAPH_ID))
                 .store(mockStore)
                 .build();
+        return new GraphSerialisable.Builder(build).build();
     }
 
     private Store getMockStoreThatAlwaysReturns(final Schema schema, final StoreProperties storeProperties, final Object willReturn) throws uk.gov.gchq.gaffer.operation.OperationException {
@@ -275,11 +281,11 @@ public class FederatedOperationHandlerTest {
         Store mockStore1 = getMockStore(unusedSchema, storeProperties);
         Store mockStore2 = getMockStore(concreteSchema, storeProperties);
 
-        Graph graph1 = getGraphWithMockStore(mockStore1);
-        Graph graph2 = getGraphWithMockStore(mockStore2);
+        GraphSerialisable graph1 = getGraphWithMockStore(mockStore1);
+        GraphSerialisable graph2 = getGraphWithMockStore(mockStore2);
 
         FederatedStore mockStore = mock(FederatedStore.class);
-        LinkedHashSet<Graph> linkedGraphs = Sets.newLinkedHashSet();
+        LinkedHashSet<GraphSerialisable> linkedGraphs = Sets.newLinkedHashSet();
         linkedGraphs.add(graph1);
         linkedGraphs.add(graph2);
 
@@ -315,7 +321,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(null);
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStore));
+        HashSet<GraphSerialisable> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStore));
         given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(filteredGraphs);
 
         // When
@@ -340,7 +346,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(Lists.newArrayList(true));
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        HashSet<Graph> threeGraphsOfBoolean = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        HashSet<GraphSerialisable> threeGraphsOfBoolean = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
         given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(threeGraphsOfBoolean);
 
         // When
@@ -362,7 +368,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(true);
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        HashSet<Graph> threeGraphsOfBoolean = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        HashSet<GraphSerialisable> threeGraphsOfBoolean = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
         given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(threeGraphsOfBoolean);
 
         // When
@@ -387,7 +393,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(Lists.newArrayList(123));
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        HashSet<Graph> threeGraphsOfBoolean = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        HashSet<GraphSerialisable> threeGraphsOfBoolean = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
         given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(threeGraphsOfBoolean);
 
         // When
@@ -412,7 +418,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(Lists.newArrayList((Object) null));
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        HashSet<Graph> threeGraphsOfNull = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        HashSet<GraphSerialisable> threeGraphsOfNull = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
         given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(threeGraphsOfNull);
 
         // When
@@ -438,7 +444,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(null);
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        HashSet<Graph> threeGraphsOfNull = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        HashSet<GraphSerialisable> threeGraphsOfNull = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
         given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(threeGraphsOfNull);
 
         // When

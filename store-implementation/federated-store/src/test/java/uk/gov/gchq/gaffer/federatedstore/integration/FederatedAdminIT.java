@@ -54,7 +54,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("AdminAuth"));
     public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("NotAdminAuth"));
 
-    private static final AccumuloProperties ACCUMULO_PROPERTIES =  loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
+    private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
 
     @Override
     protected Schema createSchema() {
@@ -470,16 +470,17 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         assertThat(graph.execute(new GetAllGraphIds(), user)).contains(GRAPH_ID_A);
 
         //when
+        final String graphIdB = GRAPH_ID_B + 17456; //TODO FS this hides a issue of graphId persisting for tests.
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
                 .graphId(GRAPH_ID_A)
-                .newGraphId(GRAPH_ID_B)
+                .newGraphId(graphIdB)
                 .userRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
         assertThat(changed).isTrue();
         assertThat(graph.execute(new GetAllGraphIds(), user)).doesNotContain(GRAPH_ID_A)
-                .contains(GRAPH_ID_B);
+                .contains(graphIdB);
 
     }
 
@@ -571,19 +572,20 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldChangeGraphIdInCache() throws Exception {
         //given
-        String newName = "newName";
+        String newName = "newName" + 23452335; //TODO FS this hides a issue of graphId persisting for tests.
         FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
-        final String graphA = GRAPH_ID_A;
+
         graph.execute(new AddGraph.Builder()
-                .graphId(graphA)
+                .graphId(GRAPH_ID_A)
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertThat(graph.execute(new GetAllGraphIds(), user)).contains(graphA);
+
+        assertThat(graph.execute(new GetAllGraphIds(), user)).contains(GRAPH_ID_A);
 
         //when
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
-                .graphId(graphA)
+                .graphId(GRAPH_ID_A)
                 .newGraphId(newName)
                 .build(), user);
 

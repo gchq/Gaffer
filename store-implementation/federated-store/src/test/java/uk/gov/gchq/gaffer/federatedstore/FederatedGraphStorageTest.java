@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.ICacheService;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -43,7 +42,6 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -56,6 +54,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.EDGES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ENTITIES;
@@ -65,7 +64,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextAu
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextBlankUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_2;
@@ -100,6 +99,7 @@ public class FederatedGraphStorageTest {
 
     @BeforeEach
     public void setUp() throws Exception {
+        resetForFederatedTests();
         FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
         CacheServiceLoader.initialise(federatedStoreProperties.getProperties());
@@ -196,7 +196,7 @@ public class FederatedGraphStorageTest {
         //when
         final Collection<GraphSerialisable> allGraphs = graphStorage.getAll(testUser());
         //then
-        assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
+        assertThat(allGraphs).containsExactly(graphSerialisableA);
     }
 
     @Test
@@ -214,9 +214,9 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
-        final Collection<Graph> allGraphs = graphStorage.getAll(authUser());
+        final Collection<GraphSerialisable> allGraphs = graphStorage.getAll(authUser());
         //then
-        assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
+        assertThat(allGraphs).containsExactly(graphSerialisableA);
     }
 
     @Test
@@ -224,9 +224,9 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, disabledByDefaultAccess);
         //when
-        final Collection<Graph> allGraphs = graphStorage.getAll(authUser()); //TODO FS disabledByDefault: has auths but still getting the graph so when and why is it disabled?
+        final Collection<GraphSerialisable> allGraphs = graphStorage.getAll(authUser()); //TODO FS disabledByDefault: has auths but still getting the graph so when and why is it disabled?
         //then
-        assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
+        assertThat(allGraphs).containsExactly(graphSerialisableA);
     }
 
     @Test
@@ -244,9 +244,9 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, permissiveReadAccess);
         //then
-        final Collection<Graph> allGraphs = graphStorage.getAll(blankUser());
+        final Collection<GraphSerialisable> allGraphs = graphStorage.getAll(blankUser());
         //then
-        assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
+        assertThat(allGraphs).containsExactly(graphSerialisableA);
     }
 
     @Test
@@ -254,9 +254,9 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
-        final Collection<Graph> allGraphs = graphStorage.get(testUser(), Lists.newArrayList(GRAPH_ID_A));
+        final Collection<GraphSerialisable> allGraphs = graphStorage.get(testUser(), Lists.newArrayList(GRAPH_ID_A));
         //then
-        assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
+        assertThat(allGraphs).containsExactly(graphSerialisableA);
     }
 
     @Test
@@ -274,9 +274,9 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
-        final Collection<Graph> allGraphs = graphStorage.get(authUser(), Lists.newArrayList(GRAPH_ID_A));
+        final Collection<GraphSerialisable> allGraphs = graphStorage.get(authUser(), Lists.newArrayList(GRAPH_ID_A));
         //then
-        assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
+        assertThat(allGraphs).containsExactly(graphSerialisableA);
     }
 
     @Test
@@ -284,9 +284,9 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, disabledByDefaultAccess);
         //when
-        final Collection<Graph> allGraphs = graphStorage.get(authUser(), Lists.newArrayList(GRAPH_ID_A));
+        final Collection<GraphSerialisable> allGraphs = graphStorage.get(authUser(), Lists.newArrayList(GRAPH_ID_A));
         //then
-        assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
+        assertThat(allGraphs).containsExactly(graphSerialisableA);
     }
 
     @Test
@@ -314,9 +314,9 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, permissiveReadAccess);
         //when
-        final Collection<Graph> allGraphs = graphStorage.get(blankUser(), Lists.newArrayList(GRAPH_ID_A));
+        final Collection<GraphSerialisable> allGraphs = graphStorage.get(blankUser(), Lists.newArrayList(GRAPH_ID_A));
         //then
-        assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
+        assertThat(allGraphs).containsExactly(graphSerialisableA);
     }
 
     @Test
@@ -431,7 +431,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
         final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser());
-        final Collection<Graph> graphs = graphStorage.getAll(testUser());
+        final Collection<GraphSerialisable> graphs = graphStorage.getAll(testUser());
         //when
         assertTrue(remove);
         assertThat(graphs).isEmpty();
@@ -443,10 +443,10 @@ public class FederatedGraphStorageTest {
         graphStorage.put(graphSerialisableA, blockingWriteAccess);
         //when
         final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser());
-        final Collection<Graph> graphs = graphStorage.getAll(testUser());
+        final Collection<GraphSerialisable> graphs = graphStorage.getAll(testUser());
         //then
         assertFalse(remove);
-        assertThat(graphs).containsExactly(graphSerialisableA.getGraph());
+        assertThat(graphs).containsExactly(graphSerialisableA);
     }
 
     @Test
@@ -492,9 +492,9 @@ public class FederatedGraphStorageTest {
 
         // Then
         // A B
-        assertThat(graphsAB).containsExactly(graphSerialisableA.getGraph(), graphSerialisableB.getGraph());
+        assertThat(graphsAB).containsExactly(graphSerialisableA, graphSerialisableB);
         // B A
-        assertThat(graphsBA).containsExactly(graphSerialisableB.getGraph(), graphSerialisableA.getGraph());
+        assertThat(graphsBA).containsExactly(graphSerialisableB, graphSerialisableA);
     }
 
     @Test
@@ -504,7 +504,7 @@ public class FederatedGraphStorageTest {
         String testMockException = "testMockException";
         Mockito.doThrow(new RuntimeException(testMockException))
                 .when(mock)
-                .checkExisting(GRAPH_ID_A, graphSerialisableA.getDeserialisedSchema(), graphSerialisableA.getDeserialisedProperties());
+                .checkExisting(GRAPH_ID_A, graphSerialisableA.getSchema(), graphSerialisableA.getStoreProperties());
         graphStorage.setGraphLibrary(mock);
 
         final StorageException storageException = assertThrows(StorageException.class, () -> graphStorage.put(graphSerialisableA, auth1Access));
@@ -560,7 +560,8 @@ public class FederatedGraphStorageTest {
 
         assertThat(storageException)
                 .message()
-                .isEqualTo("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A))
+                .contains("Error adding graph " + GRAPH_ID_A + " to storage due to: ")
+                .contains(String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A))
                 .withFailMessage("error message should not contain details about schema")
                 .doesNotContain(UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
     }
@@ -595,7 +596,8 @@ public class FederatedGraphStorageTest {
 
         assertThat(storageException)
                 .message()
-                .isEqualTo("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A))
+                .contains("Error adding graph " + GRAPH_ID_A + " to storage due to: ")
+                .contains(String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A))
                 .withFailMessage("error message should not contain details about schema")
                 .doesNotContain(UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
     }
@@ -639,7 +641,8 @@ public class FederatedGraphStorageTest {
 
         assertThat(storageException)
                 .message()
-                .isEqualTo("Error adding graph " + GRAPH_ID_B + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_B))
+                .contains("Error adding graph " + GRAPH_ID_B + " to storage due to: ")
+                .contains(String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_B))
                 .withFailMessage("error message should not contain details about schema")
                 .doesNotContain(UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
 
@@ -677,8 +680,8 @@ public class FederatedGraphStorageTest {
         final ICacheService cacheService = CacheServiceLoader.getService();
 
         //when
-        graphStorage.put(a, access);
-        final Collection<String> allIds = graphStorage.getAllIds(testUser);
+        graphStorage.put(graphSerialisableA, auth1Access);
+        final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
         //then
         assertEquals(1, cacheService.getCache("federatedStoreGraphs").getAllValues().size());
@@ -699,8 +702,8 @@ public class FederatedGraphStorageTest {
 
         //when
         otherGraphStorage.startCacheServiceLoader();
-        otherGraphStorage.put(a, access);
-        final Collection<String> allIds = graphStorage.getAllIds(testUser);
+        otherGraphStorage.put(graphSerialisableA, auth1Access);
+        final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
         //then
         assertEquals(1, cacheService.getCache("federatedStoreGraphs").getAllValues().size());

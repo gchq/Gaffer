@@ -27,6 +27,8 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
+
 public abstract class AbstractStandaloneFederatedStoreIT {
 
     protected Graph graph;
@@ -43,6 +45,7 @@ public abstract class AbstractStandaloneFederatedStoreIT {
 
     @BeforeEach
     public void setUp() throws Exception {
+        resetForFederatedTests();
         createGraph();
         _setUp();
     }
