@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,6 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
 /**
  * An Operation to get all the graphIds within scope of the FederatedStore.
  */
@@ -36,13 +34,10 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @Since("1.0.0")
 @Summary("Gets the ids of all available Graphs from a federated store")
 public class GetAllGraphIds implements
-        FederatedOperation,
+        IFederationOperation,
         Output<Iterable<? extends String>> {
     private Map<String, String> options;
-
-    public GetAllGraphIds() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
+    private boolean userRequestingAdminUsage;
 
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
@@ -53,6 +48,7 @@ public class GetAllGraphIds implements
     public GetAllGraphIds shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
+                .userRequestingAdminUsage(userRequestingAdminUsage)
                 .build();
     }
 
@@ -62,12 +58,22 @@ public class GetAllGraphIds implements
     }
 
     @Override
+    public boolean isUserRequestingAdminUsage() {
+        return userRequestingAdminUsage;
+    }
+
+    @Override
+    public GetAllGraphIds isUserRequestingAdminUsage(final boolean adminRequest) {
+        userRequestingAdminUsage = adminRequest;
+        return this;
+    }
+
+    @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
     }
 
-    public static class Builder extends BaseBuilder<GetAllGraphIds, Builder> {
-
+    public static class Builder extends IFederationOperation.BaseBuilder<GetAllGraphIds, Builder> {
         public Builder() {
             super(new GetAllGraphIds());
         }

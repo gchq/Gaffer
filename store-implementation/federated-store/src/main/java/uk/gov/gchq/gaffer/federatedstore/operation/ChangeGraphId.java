@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,21 +31,16 @@ import uk.gov.gchq.koryphe.Summary;
 import java.util.HashMap;
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
 @JsonPropertyOrder(value = {"class", "graphId", "newGraphId"}, alphabetic = true)
 @Since("1.12.0")
 @Summary("Changes the Id of a graph")
 @JsonInclude(Include.NON_DEFAULT)
-public class ChangeGraphId implements Output<Boolean> {
+public class ChangeGraphId implements Output<Boolean>, IFederationOperation {
     @Required
     private String graphId;
     private String newGraphId;
     private Map<String, String> options = new HashMap<>();
-
-    public ChangeGraphId() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
+    private boolean userRequestingAdminUsage;
 
     public String getGraphId() {
         return graphId;
@@ -67,14 +62,27 @@ public class ChangeGraphId implements Output<Boolean> {
     public ChangeGraphId shallowClone() throws CloneFailedException {
 
         return new Builder()
-                .graphId(graphId)
-                .newGraphId(newGraphId)
-                .options(this.options).build();
+                .graphId(this.graphId)
+                .newGraphId(this.newGraphId)
+                .options(this.options)
+                .userRequestingAdminUsage(this.userRequestingAdminUsage)
+                .build();
     }
 
     @Override
     public Map<String, String> getOptions() {
         return options;
+    }
+
+    @Override
+    public boolean isUserRequestingAdminUsage() {
+        return userRequestingAdminUsage;
+    }
+
+    @Override
+    public ChangeGraphId isUserRequestingAdminUsage(final boolean adminRequest) {
+        userRequestingAdminUsage = adminRequest;
+        return this;
     }
 
     @Override
@@ -87,10 +95,10 @@ public class ChangeGraphId implements Output<Boolean> {
         return new TypeReferenceImpl.Boolean();
     }
 
-    public static class Builder extends BaseBuilder<ChangeGraphId, ChangeGraphId.Builder> {
+    public static class Builder extends IFederationOperation.BaseBuilder<ChangeGraphId, ChangeGraphId.Builder> {
 
         public Builder() {
-            super(new ChangeGraphId());
+            this(new ChangeGraphId());
         }
 
         protected Builder(final ChangeGraphId addGraph) {
