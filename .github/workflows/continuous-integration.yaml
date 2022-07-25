@@ -41,7 +41,8 @@ jobs:
       matrix:
         # The below line does the following, check if the branch name contains the words 'windows' or 'release'.
         # If these words are present it runs the tests on Windows AND Ubuntu. If the words aren't present it runs the tests on Ubuntu ONLY
-        os: ${{ fromJSON( (contains( github.head_ref, 'windows') || contains( github.head_ref, 'release') )  && '["ubuntu-latest", "windows-latest"]' || '["ubuntu-latest"]' ) }}
+        # The 'release' keyword is currently disabled. Change 'release-disabled-for-now' to 'release' once the tests have been fixed to reenable this.
+        os: ${{ fromJSON( (contains( github.head_ref, 'windows') || contains( github.head_ref, 'release-disabled-for-now') )  && '["ubuntu-latest", "windows-latest"]' || '["ubuntu-latest"]' ) }}
         modules:
         - name: Core
           values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
