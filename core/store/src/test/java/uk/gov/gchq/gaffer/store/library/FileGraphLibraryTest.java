@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
 
     private static final String TEST_FILE_PATH = "src/test/resources/graphLibrary";
-    private static final String TEST_INVALID_FINAL_PATH = "inv@lidP@th";
+    private static final String TEST_INVALID_FILE_PATH = "\0";
 
     @Override
     public GraphLibrary createGraphLibraryInstance() {
@@ -45,6 +45,6 @@ public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
     @Test
     public void shouldThrowExceptionWithInvalidPath() {
         // When / Then
-        assertThatIllegalArgumentException().isThrownBy(() -> new FileGraphLibrary(TEST_INVALID_FINAL_PATH)).extracting("message").isNotNull();
+        assertThatIllegalArgumentException().isThrownBy(() -> new FileGraphLibrary(TEST_INVALID_FILE_PATH)).extracting("message").isNotNull();
     }
 }

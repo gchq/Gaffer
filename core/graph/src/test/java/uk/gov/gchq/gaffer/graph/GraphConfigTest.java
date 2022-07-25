@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,11 +76,11 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
                 "  \"hooks\": [" +
                 "    {" +
                 "      \"class\": \"uk.gov.gchq.gaffer.graph.hook.GraphHookPath\"," +
-                "      \"path\": \"" + hook1Path.getAbsolutePath() + "\"" +
+                "      \"path\": \"" + hook1Path.getAbsolutePath().replace('\\', '/') + "\"" +
                 "    }, " +
                 "    {" +
                 "      \"class\": \"uk.gov.gchq.gaffer.graph.hook.GraphHookPath\"," +
-                "      \"path\": \"" + hook2Path.getAbsolutePath() + "\"" +
+                "      \"path\": \"" + hook2Path.getAbsolutePath().replace('\\', '/') + "\"" +
                 "    }," +
                 "    {" +
                 "      \"class\": \"uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver\"" +
