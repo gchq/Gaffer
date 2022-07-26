@@ -39,14 +39,9 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 
 /**
- * Generates an openCypher formatted CSV string for each {@link Element}, based on the fields and constants provided.
- * <p>
- * For example, if you provide:<pre>
- *  fields=[prop1, SOURCE, DESTINATION, prop2, GROUP] and constants=["constant1", "constant2"]
- * </pre>
- * The output will be:<pre>
- *  prop1Value,sourceValue,destinationValue,prop2,groupValue,constant1,constant2
- * </pre>
+ * Generates an openCypher formatted CSV string for each {@link Element}. An Elements Vertex, Source, Destination
+ * and Group are mapped to their openCypher equivalents, either AWS Neptune or Neo4j depending on whether the flag is set.
+ * An Elements properties and their respective types are taken from the schema.
  */
 @Since("2.0.0")
 @Summary("Generates an openCypher formatted CSV string for each element")
@@ -64,7 +59,7 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
         for (final String field : fields.keySet()) {
             final Object value = getFieldValue(element, field);
 
-            if (null != value) {
+            if (value != null) {
                 strBuilder.append(quoteString(value));
             }
             strBuilder.append(COMMA);
@@ -94,7 +89,7 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
         if (null == idType) {
             if (entityGroup.equals(key) && element.getClassName().contains("Entity")) {
                 value = element.getGroup();
-            } else  if (edgeGroup.equals(key) && element.getClassName().contains("Edge")) {
+            } else if (edgeGroup.equals(key) && element.getClassName().contains("Edge")) {
                 value = element.getGroup();
             } else {
                 value = element.getProperty(key);

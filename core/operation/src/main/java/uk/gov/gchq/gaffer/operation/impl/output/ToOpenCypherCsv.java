@@ -56,6 +56,7 @@ public class ToOpenCypherCsv implements
         this.input = input;
     }
 
+
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableString();
