@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.integration;
+
+import uk.gov.gchq.gaffer.store.StoreTrait;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,7 +25,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface VisibilityUser {
+public @interface TraitRequirement {
 
-    String value();
+    StoreTrait[] value();
 }

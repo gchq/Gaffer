@@ -46,8 +46,6 @@ public abstract class AbstractStoreITs {
         this.skipTestMethods = AbstractStoreIT.getSkipTestMethods();
         AbstractStoreIT.setStoreSchema(schema);
         AbstractStoreIT.setStoreProperties(storeProperties);
-        System.out.println(storeProperties);
-        System.out.println(schema);
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties) {

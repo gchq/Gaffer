@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@link SchemaLoader} implementation to load a {@link uk.gov.gchq.gaffer.store.schema.Schema}s
- * featuring a visibility property for testing purposes.
+ * {@link SchemaLoader} implementation to load basic {@link uk.gov.gchq.gaffer.store.schema.Schema}s
+ * for testing purposes.
  */
-public class VisibilitySchemaLoader implements SchemaLoader {
+public class BasicSchemaLoader implements SchemaLoader {
 
     @Override
     public Map<EdgeId, Edge> createEdges() {
@@ -43,7 +43,6 @@ public class VisibilitySchemaLoader implements SchemaLoader {
                         .dest(VERTEX_PREFIXES[j] + i)
                         .directed(false)
                         .property(TestPropertyNames.COUNT, 1L)
-                        .property(TestPropertyNames.VISIBILITY, "public")
                         .build();
                 addToMap(edge, edges);
 
@@ -53,7 +52,6 @@ public class VisibilitySchemaLoader implements SchemaLoader {
                         .dest(VERTEX_PREFIXES[j] + i)
                         .directed(true)
                         .property(TestPropertyNames.COUNT, 1L)
-                        .property(TestPropertyNames.VISIBILITY, "private")
                         .build();
                 addToMap(edgeDir, edges);
             }
@@ -64,7 +62,6 @@ public class VisibilitySchemaLoader implements SchemaLoader {
                     .dest(DEST + i)
                     .directed(false)
                     .property(TestPropertyNames.COUNT, 1L)
-                    .property(TestPropertyNames.VISIBILITY, "private")
                     .build();
             addToMap(edge, edges);
 
@@ -74,7 +71,6 @@ public class VisibilitySchemaLoader implements SchemaLoader {
                     .dest(DEST_DIR + i)
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 1L)
-                    .property(TestPropertyNames.VISIBILITY, "public")
                     .build();
             addToMap(edgeDir, edges);
         }
@@ -89,28 +85,23 @@ public class VisibilitySchemaLoader implements SchemaLoader {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
                 final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
                 entity.putProperty(TestPropertyNames.COUNT, 1L);
-                entity.putProperty(TestPropertyNames.VISIBILITY, "public");
                 addToMap(entity, entities);
             }
 
             final Entity secondEntity = new Entity(TestGroups.ENTITY, SOURCE + i);
             secondEntity.putProperty(TestPropertyNames.COUNT, 1L);
-            secondEntity.putProperty(TestPropertyNames.VISIBILITY, "private");
             addToMap(secondEntity, entities);
 
             final Entity thirdEntity = new Entity(TestGroups.ENTITY, DEST + i);
             thirdEntity.putProperty(TestPropertyNames.COUNT, 1L);
-            thirdEntity.putProperty(TestPropertyNames.VISIBILITY, "public");
             addToMap(thirdEntity, entities);
 
             final Entity fourthEntity = new Entity(TestGroups.ENTITY, SOURCE_DIR + i);
             fourthEntity.putProperty(TestPropertyNames.COUNT, 1L);
-            fourthEntity.putProperty(TestPropertyNames.VISIBILITY, "public");
             addToMap(fourthEntity, entities);
 
             final Entity fifthEntity = new Entity(TestGroups.ENTITY, DEST_DIR + i);
             fifthEntity.putProperty(TestPropertyNames.COUNT, 1L);
-            fifthEntity.putProperty(TestPropertyNames.VISIBILITY, "private");
             addToMap(fifthEntity, entities);
         }
 
