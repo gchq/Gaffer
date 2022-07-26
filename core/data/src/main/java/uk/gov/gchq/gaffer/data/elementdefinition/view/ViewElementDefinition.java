@@ -220,6 +220,10 @@ public class ViewElementDefinition implements ElementDefinition {
         return null != postTransformFilter && !postTransformFilter.getComponents().isEmpty();
     }
 
+    public boolean hasTransform() {
+        return null != transformer && !transformer.getComponents().isEmpty();
+    }
+
     @JsonIgnore
     public ElementTransformer getTransformer() {
         return transformer;

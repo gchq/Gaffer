@@ -46,7 +46,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
 public class FederatedOutputIterableHandler<PAYLOAD extends Output<? extends Iterable<? extends ITERABLE_ELEMENTS>>, ITERABLE_ELEMENTS>
         implements OutputOperationHandler<PAYLOAD, Iterable<? extends ITERABLE_ELEMENTS>> {
 
-    private BiFunction handlerConfiguredMergeFunction;
+    private BiFunction handlerConfiguredMergeFunction; //TODO FS if not set then the MergeMap will take control, which can be admin configured
 
     public FederatedOutputIterableHandler() {
         this(null);

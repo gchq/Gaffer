@@ -1,0 +1,12 @@
+{
+  "class": "FederatedStore",
+  "adminConfiguredDefaultGraphIdsCSV": "defaultJsonGraphId",
+  "configuredDefaultMergeFunctions" : {
+    "uk.gov.gchq.gaffer.store.operation.GetTraits" : {
+      "class" : "uk.gov.gchq.gaffer.federatedstore.util.DefaultBestEffortsMergeFunction"
+    },
+    "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements" : {
+      "class" : "uk.gov.gchq.gaffer.federatedstore.util.Funky"
+    }
+  }
+}

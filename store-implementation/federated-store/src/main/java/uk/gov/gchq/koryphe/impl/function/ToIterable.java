@@ -23,7 +23,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.util.Arrays;
 
-public class ToIterable extends KorypheFunction<Object, Iterable<Object>> {
+public class ToIterable extends KorypheFunction<Object, Iterable<Object>> { //TODO FS move to Koryphe
     public ToIterable() {
     }
 

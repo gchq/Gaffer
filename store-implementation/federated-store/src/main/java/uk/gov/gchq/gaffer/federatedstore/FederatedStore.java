@@ -16,7 +16,9 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Sets;
+import org.apache.htrace.fasterxml.jackson.annotation.JsonCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,11 +54,15 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperati
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
+import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
+import uk.gov.gchq.gaffer.federatedstore.util.ContextSpecificMergeFunction;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
@@ -80,10 +86,12 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionIntersect;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -122,14 +130,30 @@ public class FederatedStore extends Store {
     private static final List<Integer> ALL_IDS = new ArrayList<>();
     private final int id;
     private String adminConfiguredDefaultGraphIdsCSV;
-    private BiFunction adminConfiguredDefaultMergeFunction;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
+    private Map<String, BiFunction> configuredDefaultMergeFunctions;
 
-    public FederatedStore() {
+    @JsonCreator
+    public FederatedStore(final Set<String> customPropertiesAuths, final Boolean isPublicAccessAllowed, final String adminConfiguredDefaultGraphIdsCSV, final Map<String, BiFunction> configuredDefaultMergeFunctions) {
         Integer i = null;
         while (isNull(i) || ALL_IDS.contains(i)) {
             i = new Random().nextInt();
         }
         ALL_IDS.add(id = i);
+
+        this.customPropertiesAuths = customPropertiesAuths;
+        this.isPublicAccessAllowed = (null == isPublicAccessAllowed) ? Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT) : isPublicAccessAllowed;
+        this.adminConfiguredDefaultGraphIdsCSV = adminConfiguredDefaultGraphIdsCSV;
+        this.configuredDefaultMergeFunctions = (null == configuredDefaultMergeFunctions) ? new HashMap<>() : configuredDefaultMergeFunctions;
+
+        //TODO FS better location or process for hard coded default merges, Admin vs Dev default.
+        this.configuredDefaultMergeFunctions.putIfAbsent(GetTraits.class.getCanonicalName(), new CollectionIntersect<Object>());
+        this.configuredDefaultMergeFunctions.putIfAbsent(GetAllElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
+        this.configuredDefaultMergeFunctions.putIfAbsent(GetElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
+    }
+
+    public FederatedStore() {
+        this(null, null, null, null);
     }
 
     /**
@@ -448,7 +472,6 @@ public class FederatedStore extends Store {
         addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
         addOperationHandler(ChangeGraphId.class, new FederatedChangeGraphIdHandler());
         addOperationHandler(FederatedOperation.class, new FederatedOperationHandler());
-        //TODO FS 1 re-add FedOpChain
     }
 
     @Override
@@ -463,7 +486,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
-        return new FederatedOutputIterableHandler<>(/*default merge function*/);
+        return new FederatedOutputIterableHandler<>(/*default merge function*/); //TODO FS here is merge, but if not set then the MergeMap will take control.
     }
 
     @Override
@@ -563,14 +586,35 @@ public class FederatedStore extends Store {
         return isNullOrEmpty(getGraphId()) ? FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY : getGraphId();
     }
 
-    public FederatedStore setAdminConfiguredDefaultMergeFunction(final BiFunction adminConfiguredDefaultMergeFunction) {
-        this.adminConfiguredDefaultMergeFunction = adminConfiguredDefaultMergeFunction;
-        return this;
+    public BiFunction getDefaultMergeFunction(final FederatedOperation federatedOperation, final Operation payload, final Context context) {
+        BiFunction rtn;
+        if (isNull(configuredDefaultMergeFunctions) || isNull(payload)) {
+            rtn = getHardCodedDefaultMergeFunction();
+        } else {
+            rtn = configuredDefaultMergeFunctions.getOrDefault(payload.getClass().getCanonicalName(), getHardCodedDefaultMergeFunction());
+            if (rtn instanceof ContextSpecificMergeFunction) {
+                final Schema schema;
+                try {
+                    schema = (Schema) this.execute(new FederatedOperation.Builder()
+                            .op(new GetSchema())
+                            .graphIds(null == federatedOperation ? null : federatedOperation.getGraphIdsCSV())
+                            .build(), context);
+                } catch (final OperationException e) {
+                    //TODO FS tidy up
+                    throw new RuntimeException(e);
+                }
+                HashMap<String, Object> functionContext = new HashMap<>();
+                functionContext.put("schema", schema);
+                functionContext.put("view", ((OperationView) payload).getView());
+
+                rtn = ((ContextSpecificMergeFunction) rtn).createFunctionWithContext(functionContext);
+            }
+        }
+        return rtn;
     }
 
-    public BiFunction getDefaultMergeFunction() {
-        return isNull(adminConfiguredDefaultMergeFunction)
-                ? getHardCodedDefaultMergeFunction()
-                : adminConfiguredDefaultMergeFunction;
+    public Map<String, BiFunction> getConfiguredDefaultMergeFunctions() {
+        return configuredDefaultMergeFunctions;
     }
+
 }

@@ -48,7 +48,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
     public Object doOperation(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final Store store) throws OperationException {
         final Iterable<?> allGraphResults = getAllGraphResults(operation, context, (FederatedStore) store);
 
-        return mergeResults(allGraphResults, operation, (FederatedStore) store);
+        return mergeResults(allGraphResults, operation, (FederatedStore) store, context);
     }
 
     private Iterable getAllGraphResults(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) throws OperationException {
@@ -85,12 +85,12 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
     }
 
-    private Object mergeResults(final Iterable resultsFromAllGraphs, final FederatedOperation operation, final FederatedStore store) throws OperationException {
+    private Object mergeResults(final Iterable resultsFromAllGraphs, final FederatedOperation operation, final FederatedStore store, final Context context) throws OperationException {
         try {
             Object rtn = null;
 
             //TODO FS map of merge
-            final BiFunction mergeFunction = nonNull(operation.getMergeFunction()) ? operation.getMergeFunction() : store.getDefaultMergeFunction();
+            final BiFunction mergeFunction = nonNull(operation.getMergeFunction()) ? operation.getMergeFunction() : store.getDefaultMergeFunction(operation, operation.getPayloadOperation(), context);
 
             //Reduce
             for (final Object resultFromAGraph : resultsFromAllGraphs) {

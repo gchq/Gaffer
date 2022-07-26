@@ -58,6 +58,7 @@ public final class FederatedStoreUtil {
     public static final String DEPRECATED_GRAPH_IDS_FLAG = "gaffer.federatedstore.operation.graphIds";
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreUtil.class);
     private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
+    public static final DefaultBestEffortsMergeFunction DEFAULT_BEST_EFFORTS_MERGE_FUNCTION = new DefaultBestEffortsMergeFunction();
 
     private FederatedStoreUtil() {
     }
@@ -224,7 +225,7 @@ public final class FederatedStoreUtil {
     }
 
     public static BiFunction getHardCodedDefaultMergeFunction() {
-        return new DefaultBestEffortsMergeFunction();
+        return DEFAULT_BEST_EFFORTS_MERGE_FUNCTION;
     }
 
     public static <INPUT> FederatedOperation<INPUT, Void> getFederatedOperation(final Operation operation) {

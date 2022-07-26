@@ -163,6 +163,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return hasFilters(ViewElementDefinition::hasPostTransformFilters);
     }
 
+    public boolean hasTransform() {
+        return hasFilters(ViewElementDefinition::hasTransform);
+    }
+
     public boolean hasEntityFilters() {
         return hasEntityFilters(ViewElementDefinition::hasPostAggregationFilters)
                 || hasEntityFilters(ViewElementDefinition::hasPostTransformFilters)
@@ -385,8 +389,8 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
-        public CHILD_CLASS allEntities(final boolean allEntites) {
-            getThisView().allEntities = allEntites;
+        public CHILD_CLASS allEntities(final boolean allEntities) {
+            getThisView().allEntities = allEntities;
             return self();
         }
 

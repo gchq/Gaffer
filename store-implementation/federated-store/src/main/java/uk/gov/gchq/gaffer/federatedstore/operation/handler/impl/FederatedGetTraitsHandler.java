@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionIntersect;
 
 import java.util.Set;
 
@@ -43,7 +42,7 @@ public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTrai
             return (Set<StoreTrait>) store.execute(
                     new FederatedOperation.Builder()
                             .op(operation)
-                            .mergeFunction(new CollectionIntersect<Object>())
+                            //.mergeFunction(new CollectionIntersect<Object>()) TODO FS let default merge map handle this
                             .graphIds(getDeprecatedGraphIds(operation)) // deprecate this line.
                             .build(), context);
         } catch (final Exception e) {
