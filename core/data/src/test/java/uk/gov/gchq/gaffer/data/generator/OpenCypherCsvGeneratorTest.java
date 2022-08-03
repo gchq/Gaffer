@@ -19,32 +19,17 @@ package uk.gov.gchq.gaffer.data.generator;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
 
 import java.util.LinkedHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.DESTINATION;
-import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.EDGE_GROUP;
-import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.ENTITY_GROUP;
-import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.SOURCE;
-import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.VERTEX;
 
 class OpenCypherCsvGeneratorTest {
 
     @Test
     public void builderShouldCreatePopulatedGenerator() {
         // Given
-        final LinkedHashMap<String, String> fields = new LinkedHashMap<>();
-        fields.put(String.valueOf(IdentifierType.VERTEX), VERTEX);
-        fields.put("ENTITY_GROUP", ENTITY_GROUP);
-        fields.put("EDGE_GROUP", EDGE_GROUP);
-        fields.put(String.valueOf(IdentifierType.SOURCE), SOURCE);
-        fields.put(String.valueOf(IdentifierType.DESTINATION), DESTINATION);
         final OpenCypherCsvGenerator openCypherCsvGenerator = new OpenCypherCsvGenerator.Builder()
-                .headers(fields)
-                .neo4jFormat(false)
                 .build();
 
         // Then
