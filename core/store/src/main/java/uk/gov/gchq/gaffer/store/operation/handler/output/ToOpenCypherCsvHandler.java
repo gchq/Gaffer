@@ -54,23 +54,21 @@ public class ToOpenCypherCsvHandler implements OutputOperationHandler<ToOpenCyph
         Schema schema = store.getSchema();
         LinkedHashMap<String, String> headersFromSchema = new LinkedHashMap<>();
         for (final SchemaEntityDefinition schemaEntityDefinition : schema.getEntities().values()) {
-            for (final IdentifierType identifierType:schemaEntityDefinition.getIdentifiers()) {
-                if (identifierType.toString() == "DIRECTED") {
-                    headersFromSchema.put(identifierType.toString(), schemaEntityDefinition.getIdentifierTypeName(identifierType));
-                }
-            }
             for (final String propertyName:schemaEntityDefinition.getProperties()) {
-                headersFromSchema.put(propertyName, schemaEntityDefinition.getPropertyTypeName(propertyName));
+                String typeName = schemaEntityDefinition.getPropertyTypeName(propertyName);
+                headersFromSchema.put(propertyName, schema.getType(typeName).getClazz().getSimpleName());
             }
         }
         for (final SchemaEdgeDefinition schemaEdgeDefinition : schema.getEdges().values()) {
             for (final IdentifierType identifierType:schemaEdgeDefinition.getIdentifiers()) {
-                if (identifierType.toString() == "DIRECTED") {
-                    headersFromSchema.put(identifierType.toString(), schemaEdgeDefinition.getIdentifierTypeName(identifierType));
+                if (identifierType.toString().equals(identifierType.DIRECTED.toString())) {
+                    String typeName = schemaEdgeDefinition.getIdentifierTypeName(identifierType);
+                    headersFromSchema.put(identifierType.toString(), schema.getType(typeName).getClazz().getSimpleName());
                 }
             }
             for (final String propertyName:schemaEdgeDefinition.getProperties()) {
-                headersFromSchema.put(propertyName, schemaEdgeDefinition.getPropertyTypeName(propertyName));
+                String typeName = schemaEdgeDefinition.getPropertyTypeName(propertyName);
+                headersFromSchema.put(propertyName, schema.getType(typeName).getClazz().getSimpleName());
             }
         }
         return headersFromSchema;

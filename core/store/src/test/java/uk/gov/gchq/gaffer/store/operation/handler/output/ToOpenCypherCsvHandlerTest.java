@@ -61,9 +61,6 @@ public class ToOpenCypherCsvHandlerTest {
                 makeEdge("source2")
         );
 
-        Schema schema = makeSchema();
-        Iterable<String> propertyNames = getPropertiesFromSchema(schema);
-
         final ToOpenCypherCsv operation = new ToOpenCypherCsv.Builder()
                 .input(elements)
                 .neo4jFormat(false)
@@ -78,11 +75,11 @@ public class ToOpenCypherCsvHandlerTest {
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
-                ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:int,DIRECTED:boolean",
-                "vertex1,Foo,,,,1,",
-                "vertex2,Foo,,,,,",
-                ",,Bar,source1,dest1,1,true",
-                ",,Bar,source2,dest2,,true"
+                ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Integer,DIRECTED:Boolean",
+                "vertex1,BasicEntity,,,,1,",
+                "vertex2,BasicEntity2,,,,,",
+                ",,BasicEdge,source1,dest1,1,true",
+                ",,BasicEdge2,source2,dest2,,true"
         );
         assertThat(expected).isEqualTo(resultList);
     }
@@ -96,9 +93,6 @@ public class ToOpenCypherCsvHandlerTest {
                 makeEdge("source1", "count", 1),
                 makeEdge("source2")
         );
-
-        Schema schema = makeSchema();
-        Iterable<String> propertyNames = getPropertiesFromSchema(schema);
 
         final ToOpenCypherCsv operation = new ToOpenCypherCsv.Builder()
                 .input(elements)
@@ -114,18 +108,18 @@ public class ToOpenCypherCsvHandlerTest {
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
-                "_id,_labels,_type,_start,_end,count:int,DIRECTED:boolean",
-                "vertex1,Foo,,,,1,",
-                "vertex2,Foo,,,,,",
-                ",,Bar,source1,dest1,1,true",
-                ",,Bar,source2,dest2,,true"
+                "_id,_labels,_type,_start,_end,count:Integer,DIRECTED:Boolean",
+                "vertex1,BasicEntity,,,,1,",
+                "vertex2,BasicEntity2,,,,,",
+                ",,BasicEdge,source1,dest1,1,true",
+                ",,BasicEdge2,source2,dest2,,true"
         );
         assertThat(expected).isEqualTo(resultList);
     }
 
     private Entity makeEntity(final String vertex, final String propertyName, final int propertyValue) {
         return new Entity.Builder()
-                .group("Foo")
+                .group(TestGroups.ENTITY)
                 .vertex(vertex)
                 .property(propertyName, propertyValue)
                 .build();
@@ -133,14 +127,14 @@ public class ToOpenCypherCsvHandlerTest {
 
     private Entity makeEntity(final String vertex) {
         return new Entity.Builder()
-                .group("Foo")
+                .group(TestGroups.ENTITY_2)
                 .vertex(vertex)
                 .build();
     }
 
     private Edge makeEdge(final String source, final String propertyName, final int propertyValue) {
         return new Edge.Builder()
-                .group("Bar")
+                .group(TestGroups.EDGE)
                 .source(source)
                 .dest("dest1")
                 .directed(true)
@@ -150,7 +144,7 @@ public class ToOpenCypherCsvHandlerTest {
 
     private Edge makeEdge(final String source) {
         return new Edge.Builder()
-                .group("Bar")
+                .group(TestGroups.EDGE_2)
                 .source(source)
                 .dest("dest2")
                 .directed(true)
@@ -160,35 +154,32 @@ public class ToOpenCypherCsvHandlerTest {
     private Schema makeSchema() {
         Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .groupBy("bar")
                         .source("string")
                         .destination("string")
                         .description("anEdge")
-                        .directed("boolean")
+                        .directed("true")
                         .property("count", "int")
                         .build())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
-                        .groupBy("bar")
                         .source("string")
                         .destination("string")
                         .description("anotherEdge")
-                        .directed("boolean")
+                        .directed("true")
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex("string")
-                        .groupBy("Foo")
                         .property("count", "int")
                         .description("anEntity")
                         .build())
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
                         .vertex("string")
-                        .groupBy("Foo")
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .serialiser(new StringSerialiser())
                         .aggregateFunction(new StringConcat())
                         .build())
+                .type("int", Integer.class)
                 .type("true", Boolean.class)
                 .build();
         return schema;
