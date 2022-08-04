@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,9 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -36,29 +33,18 @@ import java.util.Map;
  * and uses a {@link uk.gov.gchq.gaffer.data.generator.CsvGenerator} to convert
  * each item into a CSV String.
  *
- * @see ToCsv.Builder
+ * @see ToOpenCypherCsv.Builder
  */
 @JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
-@Since("1.0.0")
+@Since("2.0.0")
 @Summary("Converts elements to CSV Strings")
-public class ToCsv implements
+public class ToOpenCypherCsv implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends String>>,
         MultiInput<Element> {
 
-    @Required
-    private CsvGenerator elementGenerator;
     private Iterable<? extends Element> input;
-    private boolean includeHeader = true;
+    private boolean neo4jFormat = false;
     private Map<String, String> options;
-
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public CsvGenerator getElementGenerator() {
-        return elementGenerator;
-    }
-
-    void setElementGenerator(final CsvGenerator elementGenerator) {
-        this.elementGenerator = elementGenerator;
-    }
 
     @Override
     public Iterable<? extends Element> getInput() {
@@ -70,13 +56,6 @@ public class ToCsv implements
         this.input = input;
     }
 
-    public boolean isIncludeHeader() {
-        return includeHeader;
-    }
-
-    public void setIncludeHeader(final boolean includeHeader) {
-        this.includeHeader = includeHeader;
-    }
 
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
@@ -84,12 +63,10 @@ public class ToCsv implements
     }
 
     @Override
-    public ToCsv shallowClone() {
-        return new ToCsv.Builder()
-                .generator(elementGenerator)
+    public ToOpenCypherCsv shallowClone() {
+        return new ToOpenCypherCsv.Builder()
                 .input(input)
-                .includeHeader(includeHeader)
-                .options(options)
+                .neo4jFormat(neo4jFormat)
                 .build();
     }
 
@@ -103,25 +80,24 @@ public class ToCsv implements
         this.options = options;
     }
 
-    public static final class Builder extends BaseBuilder<ToCsv, Builder>
-            implements InputOutput.Builder<ToCsv, Iterable<? extends Element>, Iterable<? extends String>, Builder>,
-            MultiInput.Builder<ToCsv, Element, Builder> {
+    public void setNeo4jFormat(final boolean neo4jFormat) {
+        this.neo4jFormat = neo4jFormat;
+    }
+    public boolean isNeo4jFormat() {
+        return neo4jFormat;
+    }
+
+    public static final class Builder extends BaseBuilder<ToOpenCypherCsv, Builder>
+            implements InputOutput.Builder<ToOpenCypherCsv, Iterable<? extends Element>, Iterable<? extends String>, Builder>,
+            MultiInput.Builder<ToOpenCypherCsv, Element, Builder> {
         public Builder() {
-            super(new ToCsv());
+            super(new ToOpenCypherCsv());
         }
 
-        /**
-         * @param generator the {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to set on the operation
-         * @return this Builder
-         */
-        public ToCsv.Builder generator(final CsvGenerator generator) {
-            _getOp().setElementGenerator(generator);
+        public ToOpenCypherCsv.Builder neo4jFormat(final boolean neo4jFormat) {
+            _getOp().setNeo4jFormat(neo4jFormat);
             return _self();
         }
 
-        public ToCsv.Builder includeHeader(final boolean includeHeader) {
-            _getOp().setIncludeHeader(includeHeader);
-            return _self();
-        }
     }
 }
