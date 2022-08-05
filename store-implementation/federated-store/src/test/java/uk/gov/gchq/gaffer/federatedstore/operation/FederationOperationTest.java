@@ -19,4 +19,5 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 public abstract class FederationOperationTest<T extends IFederationOperation> extends OperationTest<T> {
+    // this test is used for Federation Operation and has parent tests within OperationTest.
 }
