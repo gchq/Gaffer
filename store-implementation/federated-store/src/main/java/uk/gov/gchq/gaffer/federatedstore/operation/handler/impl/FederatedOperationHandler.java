@@ -59,7 +59,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             for (final Graph graph : graphs) {
 
                 final Operation updatedOp = FederatedStoreUtil.updateOperationForGraph(operation.getUnClonedPayload(), graph);
-                if (null != updatedOp) {
+                if (updatedOp != null) {
                     try {
                         if (updatedOp instanceof Output) {
                             results.add(graph.execute((Output) updatedOp, context));
