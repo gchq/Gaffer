@@ -14,32 +14,31 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.handler.output;
+package uk.gov.gchq.gaffer.operation.impl.export.localfile;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.output.ToFile;
-import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.operation.export.Exporter;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 /**
- * A {@code ToFileHandler} handles {@link ToFile} operations writing an Iterable of Strings to a file
+ * Implementation of the {@link Exporter} interface for exporting an Iterable of strings to a local file.
  */
-public class ToFileHandler implements OutputOperationHandler<ToFile, File> {
+public class LocalFileExporter implements Exporter {
+
     @Override
-    public File doOperation(final ToFile operation, final Context context, final Store store) throws OperationException {
-        Iterable<? extends String> lines = operation.getInput();
+    public void add(String filePath, Iterable<?> results) throws OperationException {
         try {
-            Files.write(Paths.get(operation.getFilePath()), lines);
+            Files.write(Paths.get(filePath), (Iterable<? extends CharSequence>) results);
         } catch (final IOException e) {
             throw new OperationException(e.getMessage());
         }
+    }
 
-        return null;
+    @Override
+    public Iterable<?> get(final String key) throws OperationException {
+        throw new UnsupportedOperationException("Getting export from local file is not supported");
     }
 }
