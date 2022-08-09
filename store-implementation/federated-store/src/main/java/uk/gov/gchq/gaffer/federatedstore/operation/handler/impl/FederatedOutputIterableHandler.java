@@ -54,7 +54,7 @@ public class FederatedOutputIterableHandler<PAYLOAD extends Output<? extends Ite
 
     @JsonCreator
     public FederatedOutputIterableHandler(@JsonProperty("handlerConfiguredMergeFunction") final BiFunction mergeFunction) {
-        this.handlerConfiguredMergeFunction = mergeFunction;
+        this.handlerConfiguredMergeFunction = mergeFunction; // TODO FS PR very redundant when merge mapping is added.
     }
 
     @Override

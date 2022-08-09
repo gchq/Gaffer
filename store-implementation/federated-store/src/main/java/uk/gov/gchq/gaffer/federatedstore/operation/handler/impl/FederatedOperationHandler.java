@@ -109,6 +109,6 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
         return nonNull(graphs) ?
                 graphs
-                : store.getDefaultGraphs(context.getUser(), operation);
+                : store.getDefaultGraphs(context.getUser(), operation);  //TODO FS PR WHY IS THIS HERE!!!!!!!!!!
     }
 }
