@@ -31,9 +31,9 @@ import uk.gov.gchq.koryphe.Since;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -99,8 +99,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
             return rtn;
         } catch (final Exception e) {
-            String message = e.getMessage();
-            throw new OperationException(String.format("Error while merging results. %s", isNull(message) ? "" : message), e);
+            throw new OperationException(String.format("Error while merging results. %s", Objects.toString(e.getMessage(),""), e));
         }
     }
 
