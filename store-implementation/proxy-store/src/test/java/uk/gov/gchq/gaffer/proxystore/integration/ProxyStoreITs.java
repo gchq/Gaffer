@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.proxystore.integration;
 
+import org.apache.commons.collections4.SetUtils;
 import org.junit.AfterClass;
 import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.ExcludeClassNamePatterns;
@@ -24,15 +25,33 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.SingleUseMapProxyStore;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @ExcludeClassNamePatterns({"uk.gov.gchq.gaffer.integration.impl.JoinIT",
                            "uk.gov.gchq.gaffer.integration.impl.GeneratorsIT"}) // Skipped because: The output type reference doesn't deserialise the output correctly
 @ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.proxystore.integration.ProxyStoreITs")
 public class ProxyStoreITs extends AbstractStoreITs {
-    private static final ProxyProperties STORE_PROPERTIES = ProxyProperties.loadStoreProperties(StreamUtil.openStream(ProxyStoreITs.class, "/mock-proxy-store.properties"));
 
-    public ProxyStoreITs() {
-        super(STORE_PROPERTIES);
+    private static final ProxyProperties STORE_PROPERTIES = ProxyProperties
+            .loadStoreProperties(StreamUtil.openStream(ProxyStoreITs.class, "/mock-proxy-store.properties"));
+
+    private static final Set<Object> OBJECTS = SetUtils.unmodifiableSet(new Schema(), STORE_PROPERTIES);
+
+    private static final Map<String, String> SKIP_TEST_METHODS = Collections.emptyMap();
+
+    @Override
+    public Optional<Set<Object>> getObjects() {
+        return Optional.of(OBJECTS);
+    }
+
+    @Override
+    public Optional<Map<String, String>> getSkipTestMethods() {
+        return Optional.of(SKIP_TEST_METHODS);
     }
 
     @AfterClass

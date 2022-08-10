@@ -21,11 +21,7 @@ import com.google.common.collect.Lists;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.ConditionEvaluationResult;
-import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.ExtensionContext;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -40,6 +36,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View.Builder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension;
+import uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteInstance;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -78,15 +76,13 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
-import static org.junit.platform.commons.support.ReflectionSupport.newInstance;
-import static org.junit.platform.commons.support.ReflectionSupport.tryToLoadClass;
 
 /**
  * Logic/config for setting up and running store integration tests.
  * The storeProperties variable must have been set by a Suite initialisation class
  * (an extension of {@link AbstractStoreITs}) prior to running the tests.
  */
-@ExtendWith({AbstractStoreIT.SkipTestMethodsExtension.class, AbstractStoreIT.SuiteInitialisationExtension.class})
+@ExtendWith(IntegrationTestSuiteExtension.class)
 public abstract class AbstractStoreIT {
     protected static final int DUPLICATES = 2;
 
@@ -114,6 +110,9 @@ public abstract class AbstractStoreIT {
     public static final String DEST_3 = DEST + 3;
 
     public static final String SOURCE_DIR_0 = SOURCE_DIR + 0;
+    /*
+     * Not used. Remove?
+     */
     public static final String DEST_DIR_0 = DEST_DIR + 0;
 
     public static final String SOURCE_DIR_1 = SOURCE_DIR + 1;
@@ -125,8 +124,12 @@ public abstract class AbstractStoreIT {
     public static final String SOURCE_DIR_3 = SOURCE_DIR + 3;
     public static final String DEST_DIR_3 = DEST_DIR + 3;
 
-    protected static Schema storeSchema = new Schema();
-    protected static StoreProperties storeProperties;
+    @IntegrationTestSuiteInstance
+    protected Schema storeSchema;
+
+    @IntegrationTestSuiteInstance
+    protected StoreProperties storeProperties;
+
     protected Map<EntityId, Entity> entities;
     protected List<Entity> duplicateEntities;
 
@@ -137,30 +140,7 @@ public abstract class AbstractStoreIT {
     protected static Graph graph;
     protected User user = new User();
 
-    private static Map<Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods = new HashMap<>();
-    private static String initialisationError;
-    private static Class suiteClass;
     private Method method;
-
-    public static void setStoreProperties(final StoreProperties storeProperties) {
-        AbstractStoreIT.storeProperties = storeProperties;
-    }
-
-    public static StoreProperties getStoreProperties() {
-        return storeProperties.clone();
-    }
-
-    public static Schema getStoreSchema() {
-        return storeSchema.clone();
-    }
-
-    public static void setStoreSchema(final Schema storeSchema) {
-        AbstractStoreIT.storeSchema = storeSchema;
-    }
-
-    public static Map<Class<? extends AbstractStoreIT>, Map<String, String>> getSkipTestMethods() {
-        return skipTestMethods;
-    }
 
     /**
      * Setup the Parameterised Graph for each type of Store.
@@ -179,13 +159,21 @@ public abstract class AbstractStoreIT {
         validateTraits();
     }
 
-    protected void _setup() throws Exception {
-        // Override if required;
-    }
-
     @AfterAll
     public static void tearDown() {
         graph = null;
+    }
+
+    public StoreProperties getStoreProperties() {
+        return storeProperties.clone();
+    }
+
+    public Schema getStoreSchema() {
+        return storeSchema.clone();
+    }
+
+    protected void _setup() throws Exception {
+        // Override if required;
     }
 
     protected void initialise(final TestInfo name) throws Exception {
@@ -195,12 +183,16 @@ public abstract class AbstractStoreIT {
         edges = createEdges();
         duplicateEdges = duplicate(edges.values());
 
-        method = name.getTestMethod().get();
+        method = name.getTestMethod().orElseThrow(IllegalArgumentException::new);
     }
 
     protected void validateTest() {
-        assertThat(initialisationError).withFailMessage("Problem initialising @Suite, %s", initialisationError).isNull();
-        assertThat(storeProperties).withFailMessage("No store properties were defined by the initialising class constructor").isNotNull();
+        assertThat(storeSchema)
+                .withFailMessage("No store schema were defined by the initialising class constructor")
+                .isNotNull();
+        assertThat(storeProperties)
+                .withFailMessage("No store properties were defined by the initialising class constructor")
+                .isNotNull();
     }
 
     protected void validateTraits() throws OperationException {
@@ -219,7 +211,7 @@ public abstract class AbstractStoreIT {
 
     protected void applyVisibilityUser() {
         if (!userMap.isEmpty()) {
-            if (null != method.getDeclaredAnnotations()) {
+            if (method.getDeclaredAnnotations() != null) {
                 for (final Annotation annotation : method.getDeclaredAnnotations()) {
                     if (annotation.annotationType().equals(VisibilityUser.class)) {
                         final VisibilityUser userAnnotation = (VisibilityUser) annotation;
@@ -263,6 +255,9 @@ public abstract class AbstractStoreIT {
         applyVisibilityUser();
     }
 
+    /*
+     * Not used. Remove?
+     */
     public void createGraph(final Schema schema, final StoreProperties properties) {
         graph = new Graph.Builder()
                 .config(createGraphConfig())
@@ -292,10 +287,16 @@ public abstract class AbstractStoreIT {
                 .addSchema(getStoreSchema());
     }
 
+    /*
+     * Not used. Remove?
+     */
     protected void addStoreProperties(final StoreProperties storeProperties) {
         graph = getGraphBuilder().addStoreProperties(storeProperties).build();
     }
 
+    /*
+     * Not used. Remove?
+     */
     protected void addGraphConfig(final GraphConfig graphConfig) {
         graph = getGraphBuilder().config(graphConfig).build();
     }
@@ -384,11 +385,15 @@ public abstract class AbstractStoreIT {
         return entities;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public List<Entity> getIngestSummarisedEntities() {
         final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
         return (List) Lists.newArrayList((Iterable) AggregatorUtil.ingestAggregate(jsonClone(duplicateEntities), schema));
     }
 
+    /*
+     * Not used. Remove?
+     */
     public List<Entity> getQuerySummarisedEntities() {
         final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
         final View view = new Builder()
@@ -398,6 +403,7 @@ public abstract class AbstractStoreIT {
         return getQuerySummarisedEntities(view);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public List<Entity> getQuerySummarisedEntities(final View view) {
         final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
         final List<Entity> ingestSummarisedEntities = getIngestSummarisedEntities();
@@ -408,11 +414,15 @@ public abstract class AbstractStoreIT {
         return edges;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public List<Edge> getIngestSummarisedEdges() {
         final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
         return (List) Lists.newArrayList((Iterable) AggregatorUtil.ingestAggregate(jsonClone(duplicateEdges), schema));
     }
 
+    /*
+     * Not used. Remove?
+     */
     public List<Edge> getQuerySummarisedEdges() {
         final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
         final View view = new Builder()
@@ -422,6 +432,7 @@ public abstract class AbstractStoreIT {
         return getQuerySummarisedEdges(view);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public List<Edge> getQuerySummarisedEdges(final View view) {
         final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
         final List<Edge> ingestSummarisedEdges = getIngestSummarisedEdges();
@@ -447,11 +458,11 @@ public abstract class AbstractStoreIT {
     public static Map<EdgeId, Edge> createDefaultEdges() {
         final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
-            for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
+            for (final String vertexPrefix : VERTEX_PREFIXES) {
                 final Edge edge = new Edge.Builder()
                         .group(TestGroups.EDGE)
                         .source(VERTEX_PREFIXES[0] + i)
-                        .dest(VERTEX_PREFIXES[j] + i)
+                        .dest(vertexPrefix + i)
                         .directed(false)
                         .property(TestPropertyNames.INT, 1)
                         .property(TestPropertyNames.COUNT, 1L)
@@ -461,7 +472,7 @@ public abstract class AbstractStoreIT {
                 final Edge edgeDir = new Edge.Builder()
                         .group(TestGroups.EDGE)
                         .source(VERTEX_PREFIXES[0] + i)
-                        .dest(VERTEX_PREFIXES[j] + i)
+                        .dest(vertexPrefix + i)
                         .directed(true)
                         .property(TestPropertyNames.INT, 1)
                         .property(TestPropertyNames.COUNT, 1L)
@@ -512,8 +523,8 @@ public abstract class AbstractStoreIT {
     public static Map<EntityId, Entity> createDefaultEntities() {
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
-            for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
-                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
+            for (final String vertexPrefix : VERTEX_PREFIXES) {
+                final Entity entity = new Entity(TestGroups.ENTITY, vertexPrefix + i);
                 entity.putProperty(TestPropertyNames.COUNT, 1L);
                 entity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
                 addToMap(entity, entities);
@@ -555,6 +566,7 @@ public abstract class AbstractStoreIT {
         return Streams.toStream(items).map(this::jsonClone).collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unchecked")
     protected <T> T jsonClone(final T item) {
         try {
             return (T) JSONSerialiser.deserialise(JSONSerialiser.serialise(item), item.getClass());
@@ -573,41 +585,5 @@ public abstract class AbstractStoreIT {
 
     public <T> T execute(final Output<T> op) throws OperationException {
         return graph.execute(op, user);
-    }
-
-    public static class SkipTestMethodsExtension implements ExecutionCondition {
-
-        @Override
-        public ConditionEvaluationResult evaluateExecutionCondition(final ExtensionContext context) {
-            final Class<?> currentClassName = context.getTestClass().get();
-            final boolean evaluatingMethod = context.getTestMethod().isPresent();
-
-            if (evaluatingMethod) {
-                final String currentMethodName = context.getTestMethod().get().getName();
-                final Map<String, String> skippedMethods = AbstractStoreIT.getSkipTestMethods().get(currentClassName);
-                if (skippedMethods != null && skippedMethods.containsKey(currentMethodName)) {
-                    return ConditionEvaluationResult.disabled(skippedMethods.get(currentMethodName));
-                }
-            }
-            return ConditionEvaluationResult.enabled("Test enabled");
-        }
-    }
-
-    public static class SuiteInitialisationExtension implements BeforeAllCallback {
-
-        @Override
-        public void beforeAll(final ExtensionContext context) {
-            final String initialisationClassName = context.getConfigurationParameter("initClass").orElse("missing");
-            final Class<?> initialisationClass = tryToLoadClass(initialisationClassName).toOptional().orElse(null);
-
-            if (initialisationClassName.equals("missing")) {
-                initialisationError = "missing the 'initClass' @ConfigurationParameter (required to initialise)";
-            } else if (initialisationClass == null) {
-                initialisationError = "'initClass' @ConfigurationParameter is invalid (required to initialise)";
-            } else if (suiteClass != initialisationClass) {
-                suiteClass = initialisationClass;
-                newInstance(initialisationClass);
-            }
-        }
     }
 }

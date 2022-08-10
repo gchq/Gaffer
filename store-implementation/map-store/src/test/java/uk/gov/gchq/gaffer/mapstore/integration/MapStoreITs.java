@@ -16,18 +16,36 @@
 
 package uk.gov.gchq.gaffer.mapstore.integration;
 
+import org.apache.commons.collections4.SetUtils;
 import org.junit.platform.suite.api.ConfigurationParameter;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.mapstore.integration.MapStoreITs")
 public class MapStoreITs extends AbstractStoreITs {
+
     private static final MapStoreProperties STORE_PROPERTIES =
             MapStoreProperties.loadStoreProperties(StreamUtil.storeProps(MapStoreITs.class));
 
-    public MapStoreITs() {
-        super(STORE_PROPERTIES);
+    private static final Set<Object> OBJECTS = SetUtils.unmodifiableSet(new Schema(), STORE_PROPERTIES);
+
+    private static final Map<String, String> SKIP_TEST_METHODS = Collections.emptyMap();
+
+    @Override
+    public Optional<Set<Object>> getObjects() {
+        return Optional.of(OBJECTS);
+    }
+
+    @Override
+    public Optional<Map<String, String>> getSkipTestMethods() {
+        return Optional.of(SKIP_TEST_METHODS);
     }
 }

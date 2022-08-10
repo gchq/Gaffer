@@ -16,24 +16,38 @@
 
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
+import org.apache.commons.collections4.SetUtils;
 import org.junit.platform.suite.api.ConfigurationParameter;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.integration.impl.GetWalksIT;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs")
 public class FederatedStoreITs extends AbstractStoreITs {
+
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
             StreamUtil.openStream(FederatedStoreITs.class, "publicAccessPredefinedFederatedStore.properties"));
 
-    public FederatedStoreITs() {
-        this(STORE_PROPERTIES);
+    private static final Set<Object> OBJECTS = SetUtils.unmodifiableSet(new Schema(), STORE_PROPERTIES);
+
+    private static final Map<String, String> SKIP_TEST_METHODS =
+            Collections.singletonMap("shouldReturnNoResultsWhenNoEntityResults",
+                    "Fails due to the way we split the entities and edges into 2 graphs");
+
+    @Override
+    public Optional<Set<Object>> getObjects() {
+        return Optional.of(OBJECTS);
     }
 
-    protected FederatedStoreITs(final FederatedStoreProperties storeProperties) {
-        super(storeProperties);
-        skipTestMethod(GetWalksIT.class, "shouldReturnNoResultsWhenNoEntityResults", "Fails due to the way we split the entities and edges into 2 graphs");
+    @Override
+    public Optional<Map<String, String>> getSkipTestMethods() {
+        return Optional.of(SKIP_TEST_METHODS);
     }
 }

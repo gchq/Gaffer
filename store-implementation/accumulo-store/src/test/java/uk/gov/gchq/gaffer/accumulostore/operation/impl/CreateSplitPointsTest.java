@@ -65,7 +65,7 @@ public class CreateSplitPointsTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsTest.class);
 
     @TempDir
-    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
+    public File testFolder = CommonTestConstants.TMP_DIRECTORY;
 
     private FileSystem fs;
 

@@ -45,7 +45,7 @@ import static java.util.stream.Collectors.toList;
 
 public abstract class FlinkTest {
     @TempDir
-    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
+    public File testFolder = CommonTestConstants.TMP_DIRECTORY;
 
     public static final Schema SCHEMA = new Schema.Builder()
             .type(TestTypes.ID_STRING, new TypeDefinition.Builder()

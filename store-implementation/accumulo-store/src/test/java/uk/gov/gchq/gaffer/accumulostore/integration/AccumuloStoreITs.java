@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
+import org.apache.commons.collections4.SetUtils;
 import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.SelectClasses;
 
@@ -23,18 +24,30 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hdfs.integration.loader.AddElementsFromHdfsLoaderIT;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.accumulostore.integration.AccumuloStoreITs")
 @SelectClasses(AddElementsFromHdfsLoaderIT.class) // Extra test to add
 public class AccumuloStoreITs extends AbstractStoreITs {
+
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
 
+    private static final Set<Object> OBJECTS = SetUtils.unmodifiableSet(new Schema(), STORE_PROPERTIES);
 
-    public AccumuloStoreITs() {
-        this(STORE_PROPERTIES);
+    private static final Map<String, String> SKIP_TEST_METHODS = Collections.emptyMap();
+
+    @Override
+    public Optional<Set<Object>> getObjects() {
+        return Optional.of(OBJECTS);
     }
 
-    protected AccumuloStoreITs(final AccumuloProperties storeProperties) {
-        super(storeProperties);
+    @Override
+    public Optional<Map<String, String>> getSkipTestMethods() {
+        return Optional.of(SKIP_TEST_METHODS);
     }
 }
