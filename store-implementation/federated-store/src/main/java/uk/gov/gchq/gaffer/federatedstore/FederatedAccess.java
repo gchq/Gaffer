@@ -78,7 +78,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     private static final long serialVersionUID = 1399629017857618033L;
     private static final boolean NOT_DISABLED_BY_DEFAULT = false;
     private final boolean isPublic;
-    private final Set<String> graphAuths;
+    private final Set<String> graphAuths; //TODO fs explore the need for unmodSet
     private final String addingUserId;
     private final boolean disabledByDefault;
     private final String readAccessPredicate;

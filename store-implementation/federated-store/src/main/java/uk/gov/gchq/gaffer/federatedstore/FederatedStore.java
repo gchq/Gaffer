@@ -332,7 +332,7 @@ public class FederatedStore extends Store {
     public Collection<Graph> getGraphs(final User user, final String graphIdsCsv, final IFederationOperation operation) {
         Collection<Graph> rtn = new ArrayList<>();
         if (nonNull(operation)) {
-            String optionKey = getFedStoreProcessedKey();
+            String optionKey = getKeyForProcessedFedStore();
             boolean isFedStoreIdPreexisting = addFedStoreId(operation, optionKey);
             if (isFedStoreIdPreexisting) {
                 List<String> federatedStoreIds = operation.getOptions()
@@ -359,7 +359,7 @@ public class FederatedStore extends Store {
         return rtn;
     }
 
-    private String getFedStoreProcessedKey() {
+    private String getKeyForProcessedFedStore() {
         return FEDERATED_STORE_PROCESSED + id;
     }
 
@@ -376,7 +376,7 @@ public class FederatedStore extends Store {
             }
 
             //Add FedStoreId to current Operation.
-            operation.addOption(optionKey, getFedStoreProcessedValue());
+            operation.addOption(optionKey, getValueForProcessedFedStore());
             rtn = hasOperationPreexistingFedStoreId || hasPayloadPreexistingFedStoreId;
         }
         return rtn;
@@ -431,13 +431,13 @@ public class FederatedStore extends Store {
                         && !AddNamedView.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedNoOutputHandler()));
 
-        addOperationHandler(GetSchema.class, new FederatedGetSchemaHandler());
+        addOperationHandler(GetSchema.class, new FederatedGetSchemaHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
 
-        addOperationHandler(Filter.class, new FederatedFilterHandler());
-        addOperationHandler(Aggregate.class, new FederatedAggregateHandler());
-        addOperationHandler(Transform.class, new FederatedTransformHandler());
+        addOperationHandler(Filter.class, new FederatedFilterHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
+        addOperationHandler(Aggregate.class, new FederatedAggregateHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
+        addOperationHandler(Transform.class, new FederatedTransformHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
 
-        addOperationHandler(Validate.class, new FederatedValidateHandler());
+        addOperationHandler(Validate.class, new FederatedValidateHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
 
         //FederationOperations
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
@@ -449,7 +449,6 @@ public class FederatedStore extends Store {
         addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
         addOperationHandler(ChangeGraphId.class, new FederatedChangeGraphIdHandler());
         addOperationHandler(FederatedOperation.class, new FederatedOperationHandler());
-        //TODO FS 1 re-add FedOpChain
     }
 
     @Override
@@ -539,7 +538,7 @@ public class FederatedStore extends Store {
         return this;
     }
 
-    public Collection<Graph> getDefaultGraphs(final User user, final IFederationOperation operation) {
+    public Collection<Graph> getDefaultGraphs(final User user, final IFederationOperation operation) { //TODO FS very likely should be private
 
         boolean isAdminRequestingOverridingDefaultGraphs =
                 operation.isUserRequestingAdminUsage()
@@ -551,16 +550,16 @@ public class FederatedStore extends Store {
             return graphStorage.get(user, null, (operation.isUserRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
         } else {
             //This operation has already been processes once, by this store.
-            String fedStoreProcessedKey = getFedStoreProcessedKey();
-            operation.addOption(fedStoreProcessedKey, null); // value is null, but key is still found.
+            String keyForProcessedFedStore = getKeyForProcessedFedStore();
+            operation.addOption(keyForProcessedFedStore, null); // value is null, but key is still found.
             Collection<Graph> graphs = getGraphs(user, adminConfiguredDefaultGraphIdsCSV, operation);
             //put it back
-            operation.addOption(fedStoreProcessedKey, getFedStoreProcessedValue());
+            operation.addOption(keyForProcessedFedStore, getValueForProcessedFedStore());
             return graphs;
         }
     }
 
-    private String getFedStoreProcessedValue() {
+    private String getValueForProcessedFedStore() {
         return isNullOrEmpty(getGraphId()) ? FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY : getGraphId();
     }
 

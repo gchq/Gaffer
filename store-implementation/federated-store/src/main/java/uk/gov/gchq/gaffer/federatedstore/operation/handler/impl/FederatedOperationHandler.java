@@ -108,6 +108,6 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
         return nonNull(graphs) ?
                 graphs
-                : store.getDefaultGraphs(context.getUser(), operation);  //TODO FS PR WHY IS THIS HERE!!!!!!!!!!
+                : store.getDefaultGraphs(context.getUser(), operation);  //TODO FS PR WHY IS THIS HERE!!!!!!!!!! Is this the only public reason for this method? !!! this happens already within line 107
     }
 }
