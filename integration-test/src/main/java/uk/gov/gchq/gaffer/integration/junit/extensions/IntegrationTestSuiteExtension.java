@@ -90,6 +90,8 @@ public class IntegrationTestSuiteExtension implements ParameterResolver, BeforeA
             final IntegrationTestSuite integrationTestSuite = getIntegrationTestSuite(initClassOptional.get());
             this.suiteCache = getSuiteObjects(integrationTestSuite);
             this.skipTestMethods = getSkipTestMethods(integrationTestSuite);
+        } else {
+            throw new IllegalArgumentException("The initClass @ConfigurationParameter has not been set");
         }
     }
 
