@@ -364,7 +364,7 @@ public class FederatedStore extends Store {
     }
 
     private boolean addFedStoreId(final Operation operation, final String optionKey) {
-        boolean rtn = false;
+        boolean hasOperationOrPayloadPreexistingFedStoreId = false;
         if (nonNull(operation) && !isNullOrEmpty(optionKey)) {
             //Keep Order v
             boolean hasOperationPreexistingFedStoreId = !isNullOrEmpty(operation.getOption(optionKey, null)); //There is a difference between value null and key not found.
@@ -377,9 +377,9 @@ public class FederatedStore extends Store {
 
             //Add FedStoreId to current Operation.
             operation.addOption(optionKey, getValueForProcessedFedStore());
-            rtn = hasOperationPreexistingFedStoreId || hasPayloadPreexistingFedStoreId;
+            hasOperationOrPayloadPreexistingFedStoreId = hasOperationPreexistingFedStoreId || hasPayloadPreexistingFedStoreId;
         }
-        return rtn;
+        return hasOperationOrPayloadPreexistingFedStoreId;
     }
 
     public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv) {
