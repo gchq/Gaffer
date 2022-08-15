@@ -32,7 +32,7 @@ import java.util.List;
 public interface IFederatedOperation extends Operation {
 
     @JsonProperty("graphIds")
-    IFederatedOperation graphIdsCSV(final String graphIds);
+    IFederatedOperation graphIdsCSV(final String graphIds); //TODO FS request for this to be list.
 
     @JsonProperty("graphIds")
     String getGraphIdsCSV();

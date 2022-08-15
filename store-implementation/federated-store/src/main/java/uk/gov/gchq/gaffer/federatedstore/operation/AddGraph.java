@@ -222,9 +222,9 @@ public class AddGraph implements IFederationOperation {
         return this;
     }
 
-    public abstract static class GraphBuilder<OP extends AddGraph, B extends GraphBuilder<OP, ?>> extends BaseBuilder<OP, B> {
+    public abstract static class AddGraphBuilder<OP extends AddGraph, B extends AddGraphBuilder<OP, ?>> extends IFederationOperation.BaseBuilder<OP, B> {
 
-        protected GraphBuilder(final OP addGraph) {
+        protected AddGraphBuilder(final OP addGraph) {
             super(addGraph);
         }
 
@@ -283,7 +283,7 @@ public class AddGraph implements IFederationOperation {
         }
     }
 
-    public static class Builder extends GraphBuilder<AddGraph, Builder> {
+    public static class Builder extends AddGraphBuilder<AddGraph, Builder> {
         public Builder() {
             super(new AddGraph());
         }

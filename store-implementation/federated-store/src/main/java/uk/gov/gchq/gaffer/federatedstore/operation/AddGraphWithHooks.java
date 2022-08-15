@@ -63,7 +63,7 @@ public class AddGraphWithHooks extends AddGraph {
         this.hooks = hooks;
     }
 
-    public static class Builder extends GraphBuilder<AddGraphWithHooks, Builder> {
+    public static class Builder extends AddGraphBuilder<AddGraphWithHooks, Builder> {
         public Builder() {
             super(new AddGraphWithHooks());
         }
