@@ -31,7 +31,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-@ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.accumulostore.integration.AccumuloStoreITs")
+import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
+
+@ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.accumulostore.integration.AccumuloStoreITs")
 @SelectClasses(AddElementsFromHdfsLoaderIT.class) // Extra test to add
 public class AccumuloStoreITs extends AbstractStoreITs {
 
@@ -47,7 +49,7 @@ public class AccumuloStoreITs extends AbstractStoreITs {
     }
 
     @Override
-    public Optional<Map<String, String>> getSkipTestMethods() {
+    public Optional<Map<String, String>> getTestsToSkip() {
         return Optional.of(SKIP_TEST_METHODS);
     }
 }

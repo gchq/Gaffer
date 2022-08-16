@@ -29,7 +29,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-@ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.mapstore.integration.MapStoreITs")
+import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
+
+@ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.mapstore.integration.MapStoreITs")
 public class MapStoreITs extends AbstractStoreITs {
 
     private static final MapStoreProperties STORE_PROPERTIES =
@@ -45,7 +47,7 @@ public class MapStoreITs extends AbstractStoreITs {
     }
 
     @Override
-    public Optional<Map<String, String>> getSkipTestMethods() {
+    public Optional<Map<String, String>> getTestsToSkip() {
         return Optional.of(SKIP_TEST_METHODS);
     }
 }

@@ -32,9 +32,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
+
 @ExcludeClassNamePatterns({"uk.gov.gchq.gaffer.integration.impl.JoinIT",
                            "uk.gov.gchq.gaffer.integration.impl.GeneratorsIT"}) // Skipped because: The output type reference doesn't deserialise the output correctly
-@ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.proxystore.integration.ProxyStoreITs")
+@ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.proxystore.integration.ProxyStoreITs")
 public class ProxyStoreITs extends AbstractStoreITs {
 
     private static final ProxyProperties STORE_PROPERTIES = ProxyProperties
@@ -50,7 +52,7 @@ public class ProxyStoreITs extends AbstractStoreITs {
     }
 
     @Override
-    public Optional<Map<String, String>> getSkipTestMethods() {
+    public Optional<Map<String, String>> getTestsToSkip() {
         return Optional.of(SKIP_TEST_METHODS);
     }
 
