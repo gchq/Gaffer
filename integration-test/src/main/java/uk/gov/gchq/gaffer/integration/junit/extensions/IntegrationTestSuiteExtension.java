@@ -41,6 +41,58 @@ import static org.junit.platform.commons.support.ReflectionSupport.tryToLoadClas
 import static org.junit.platform.commons.util.AnnotationUtils.findAnnotatedFields;
 import static org.junit.platform.commons.util.ReflectionUtils.makeAccessible;
 
+/**
+ * <p>
+ * The {@link IntegrationTestSuiteExtension} retrieves the {@link Object} {@link Set} and the {@code tests-to-skip}
+ * {@link Map} from the {@link IntegrationTestSuite} class.
+ * This is then used {@link org.junit.jupiter.api.Test} classes in the {@link org.junit.jupiter.api.Test}
+ * {@link org.junit.platform.suite.api.Suite} on execution.
+ * </p>
+ * <p>
+ * For the required {@link Set} of {@link Object}s, the {@link IntegrationTestSuiteExtension} injects
+ * them into the {@link org.junit.jupiter.api.Test} instance before each {@link org.junit.jupiter.api.Test}
+ * is run. This is either at field level (see {@link #beforeEach(ExtensionContext)})
+ * or as {@link java.lang.reflect.Method} parameters (see {@link #resolveParameter(ParameterContext, ExtensionContext)}).
+ * </p>
+ * <p>
+ * For the {@code tests-to-skip} {@link Map}, each {@link org.junit.jupiter.api.Test} {@link java.lang.reflect.Method}
+ * is checked before execution and if the {@link java.lang.reflect.Method} {@link Map#containsKey(Object)} then the test
+ * is omitted.
+ * </p>
+ * <p>
+ * In order to find the {@link Class} containing the {@link Object} {@link Set} and {@code tests-to-skip} {@link Map},
+ * the {@link IntegrationTestSuiteExtension} must be able to look up the {@link Class} and instantiate. Therefore,
+ * the {@link org.junit.platform.suite.api.Suite} must advertise the {@link Class} name using a
+ * {@link org.junit.platform.suite.api.ConfigurationParameter}. The {@link Class} must also implement
+ * {@link IntegrationTestSuite} and {@link Override} the mandatory methods so the data can be retrieved by the
+ * {@link IntegrationTestSuiteExtension}. For example:
+ * <pre>
+ * {@code
+ * package integration.tests
+ *
+ * import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
+ *
+ * @Suite
+ * @SelectPackages("root.test.packages.to.search")
+ * @IncludeClassNamePatterns(".*IT")
+ * @ConfigurationParameter(key = INIT_CLASS, value = "integration.tests.IntegrationTestSuiteITs")
+ * public class IntegrationTestSuiteITs implements IntegrationTestSuite {
+ *     @Override
+ *     public Optional<Set<Object>> getObjects() {
+ *         ...
+ *     }
+ *     @Override
+ *     public Optional<Map<String, String>> getSkipTestMethods() {
+ *         ...
+ *     }
+ * }
+ * }
+ * </pre>
+ * In this example, the {@link IntegrationTestSuite} {@link Class} advertised is the same as the
+ * {@link org.junit.platform.suite.api.Suite} {@link Class}. However, you can advertise any {@link Class}
+ * as long as it implements {@link IntegrationTestSuite}.
+ * </p>
+ */
 public class IntegrationTestSuiteExtension implements ParameterResolver, BeforeAllCallback, BeforeEachCallback, ExecutionCondition {
 
     static {
@@ -57,31 +109,21 @@ public class IntegrationTestSuiteExtension implements ParameterResolver, BeforeA
 
     private Map<String, String> skipTestMethods;
 
-    @Override
-    public boolean supportsParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext)
-            throws ParameterResolutionException {
-        return suiteCache.stream()
-                .anyMatch(o -> parameterContext.getParameter().getType().isAssignableFrom(o.getClass()));
-    }
-
-    @Override
-    public Object resolveParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext)
-            throws ParameterResolutionException {
-        final Class<?> type = parameterContext.getParameter().getType();
-        return getObject(type);
-    }
-
-    @Override
-    public ConditionEvaluationResult evaluateExecutionCondition(final ExtensionContext context) {
-        if (context.getTestMethod().isPresent()) {
-            final String currentMethodName = context.getTestMethod().get().getName();
-            if (this.skipTestMethods.containsKey(currentMethodName)) {
-                return ConditionEvaluationResult.disabled(this.skipTestMethods.get(currentMethodName));
-            }
-        }
-        return ConditionEvaluationResult.enabled("Test enabled");
-    }
-
+    /**
+     * <p>
+     * The {@code beforeAll} {@link java.lang.reflect.Method} is used to load the {@link Class} implementing
+     * {@link IntegrationTestSuite} which is required for injecting the {@link Object}s and checking whether
+     * the {@link org.junit.jupiter.api.Test}s are enabled using the {@code tests-to-skip} {@link Map}.
+     * </p>
+     * <p>
+     * The {@code beforeAll} {@link java.lang.reflect.Method} first checks that the {@code INIT_CLASS} has been set
+     * and if so attempts to retrieve the {@link Object} from the cache or instantiate if not in the cache. If there
+     * there are errors during the instantiation then {@link Exception}s are thrown and the {@link org.junit.platform.suite.api.Suite}
+     * fails.
+     * </p>
+     *
+     * @param extensionContext the current extension context; never {@code null}
+     */
     @Override
     public void beforeAll(final ExtensionContext extensionContext) {
         final Optional<String> initClassOptional = extensionContext.getConfigurationParameter(INIT_CLASS);
@@ -95,11 +137,97 @@ public class IntegrationTestSuiteExtension implements ParameterResolver, BeforeA
         }
     }
 
+    /**
+     * The {@code beforeEach} {@link java.lang.reflect.Method} is called before each {@link org.junit.jupiter.api.Test} method is run.
+     * In the case of the {@link IntegrationTestSuiteExtension}, if any of the fields are annotated with the
+     * {@code IntegrationTestSuiteInstance} annotation, the {@link Object} is checked against the {@link Object}
+     * {@link Set} and if found the {@link Object} is made accessible before the test is run. If the
+     * {@link Object} is not found the an {@link ParameterResolutionException} is thrown. Example:
+     * <pre>
+     * {@code
+     * class TestIT {
+     *     @IntegrationTestSuiteInstance
+     *     String string;
+     *     @Test
+     *     void test() {
+     *         ....
+     *     }
+     * }
+     * }
+     * </pre>
+     *
+     * @param context the current extension context; never {@code null}
+     */
     @Override
     public void beforeEach(final ExtensionContext context) {
         context.getRequiredTestInstances()
                 .getAllInstances()
                 .forEach(this::injectInstanceFields);
+    }
+
+    /**
+     * The {@code supportsParameter} {@link java.lang.reflect.Method} checks whether a parameter is in the {@link Object}
+     * {@link Set}}, hence is supported.
+     *
+     * @param parameterContext the context for the parameter for which an argument should
+     *                         be resolved; never {@code null}
+     * @param extensionContext the extension context for the {@code Executable}
+     *                         about to be invoked; never {@code null}
+     * @return true if the parameter is found, false otherwise
+     */
+    @Override
+    public boolean supportsParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) {
+        return suiteCache.stream()
+                .anyMatch(o -> parameterContext.getParameter().getType().isAssignableFrom(o.getClass()));
+    }
+
+    /**
+     * The {@code resolveParameter} {@link java.lang.reflect.Method} is called everytime a parameter passes the
+     * {@link #supportsParameter(ParameterContext, ExtensionContext)} check. The {@link ParameterResolver} type is
+     * checked against the {@link Object} {@link Set} and the {@link Object} returned if found. An
+     * {@link ParameterResolutionException} is thrown if none match. The parameters should be annotated with
+     * {@code @IntegrationTestSuiteInstance} {@link java.lang.annotation.Annotation}. For example:
+     * <pre>
+     * {@code
+     * void test(@IntegrationTestSuiteInstance final String string) {
+     *     ....
+     * }
+     * }
+     * </pre>
+     *
+     * @param parameterContext the context for the parameter for which an argument should
+     *                         be resolved; never {@code null}
+     * @param extensionContext the extension context for the {@code Executable}
+     *                         about to be invoked; never {@code null}
+     * @return the {@link Object} matching the {@link ParameterResolver} type
+     * @throws ParameterResolutionException if the {@link Object} matching the {@link ParameterResolver} type cannot
+     *                                      be found
+     */
+    @Override
+    public Object resolveParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext)
+            throws ParameterResolutionException {
+        final Class<?> type = parameterContext.getParameter().getType();
+        return getObject(type);
+    }
+
+    /**
+     * The {@code evaluateExecutionCondition} allows the disabling of a {@link org.junit.jupiter.api.Test} if some condition is
+     * met. In this case this is whether the {@link org.junit.jupiter.api.Test} {@link java.lang.reflect.Method} is in the
+     * {@code tests-to-skip} {@link Map} provided the {@link Class} implementing {@link IntegrationTestSuite}.
+     *
+     * @param context the current extension context; never {@code null}
+     * @return a {@link ConditionEvaluationResult#enabled(String)} or {@link ConditionEvaluationResult#disabled(String)}
+     * {@link Object} for the {@link org.junit.jupiter.api.Test} in question
+     */
+    @Override
+    public ConditionEvaluationResult evaluateExecutionCondition(final ExtensionContext context) {
+        if (context.getTestMethod().isPresent()) {
+            final String currentMethodName = context.getTestMethod().get().getName();
+            if (this.skipTestMethods.containsKey(currentMethodName)) {
+                return ConditionEvaluationResult.disabled(this.skipTestMethods.get(currentMethodName));
+            }
+        }
+        return ConditionEvaluationResult.enabled("Test enabled");
     }
 
     private static Set<Object> getSuiteObjects(final IntegrationTestSuite integrationTestSuite) {
@@ -110,7 +238,7 @@ public class IntegrationTestSuiteExtension implements ParameterResolver, BeforeA
     }
 
     private Map<String, String> getSkipTestMethods(final IntegrationTestSuite integrationTestSuite) {
-        final Map<String, String> skipTestMethods = integrationTestSuite.getSkipTestMethods().orElse(Collections.emptyMap());
+        final Map<String, String> skipTestMethods = integrationTestSuite.getTestsToSkip().orElse(Collections.emptyMap());
         LOGGER.debug("Retrieved the following skip-test methods from the IntegrationTestSuite: [{}]",
                 StringUtils.join(skipTestMethods));
         return skipTestMethods;
@@ -149,15 +277,19 @@ public class IntegrationTestSuiteExtension implements ParameterResolver, BeforeA
                 if (INTEGRATION_TEST_SUITE_CLASS_MAP.containsKey(initClass)) {
                     integrationTestSuite = INTEGRATION_TEST_SUITE_CLASS_MAP.get(initClass);
                 } else {
-                    final Class<?> initialisationClass = tryToLoadClass(initClass).toOptional().orElseThrow(IllegalArgumentException::new);
-                    final Object object = ReflectionUtils.newInstance(initialisationClass);
-                    if (object instanceof IntegrationTestSuite) {
-                        integrationTestSuite = (IntegrationTestSuite) object;
+                    final Optional<Class<?>> classOptional = tryToLoadClass(initClass).toOptional();
+                    if (classOptional.isPresent()) {
+                        final Object object = ReflectionUtils.newInstance(classOptional.get());
+                        if (object instanceof IntegrationTestSuite) {
+                            integrationTestSuite = (IntegrationTestSuite) object;
+                        } else {
+                            throw new ParameterResolutionException(String.format("The object was not of required type: [%s]. Actual object type: [%s]",
+                                    IntegrationTestSuite.class.getName(), object.getClass().getName()));
+                        }
+                        INTEGRATION_TEST_SUITE_CLASS_MAP.put(initClass, integrationTestSuite);
                     } else {
-                        throw new ParameterResolutionException(String.format("The object was not op type: [%s]. Actual object type: [%s]",
-                                IntegrationTestSuite.class.getName(), object.getClass().getName()));
+                        throw new ParameterResolutionException(String.format("A class could not be loaded for initClass [%s]", initClass));
                     }
-                    INTEGRATION_TEST_SUITE_CLASS_MAP.put(initClass, integrationTestSuite);
                 }
             }
         }
