@@ -188,11 +188,16 @@ public class AccumuloStore extends Store {
      * using the properties found in properties file associated with the
      * AccumuloStore.
      *
+     * TODO By default uses Kerberos, falls back to password (instead could use bool property?)
+     *
      * @return A new {@link Connector}.
      * @throws StoreException If there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
-        if (isNull(connection)) {
+        if (isNull(connection) && !isNull(getProperties().getPrincipal())) {
+            connection = TableUtils.getConnectorKerberos(getProperties().getInstance(), getProperties().getZookeepers(),
+                    getProperties().getPrincipal(), getProperties().getKeytabPath());
+        } else if (isNull(connection)) {
             connection = TableUtils.getConnector(getProperties().getInstance(), getProperties().getZookeepers(),
                     getProperties().getUser(), getProperties().getPassword());
         }

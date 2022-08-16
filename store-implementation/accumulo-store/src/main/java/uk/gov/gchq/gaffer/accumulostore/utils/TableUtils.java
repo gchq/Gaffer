@@ -27,12 +27,15 @@ import org.apache.accumulo.core.client.NamespaceExistsException;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
+import org.apache.accumulo.core.client.security.tokens.KerberosToken;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +46,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+import java.io.IOException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -200,8 +204,8 @@ public final class TableUtils {
     }
 
     /**
-     * Creates a connection to an accumulo instance using the provided
-     * parameters
+     * Creates a connection (using password-based authentication) to
+     * an accumulo instance using the provided parameters
      *
      * @param instanceName the instance name
      * @param zookeepers   the zoo keepers
@@ -216,7 +220,47 @@ public final class TableUtils {
         try {
             return instance.getConnector(userName, new PasswordToken(password));
         } catch (final AccumuloException | AccumuloSecurityException e) {
-            throw new StoreException("Failed to create accumulo connection", e);
+            throw new StoreException("Failed to create accumulo connection (using password-based authentication)", e);
+        }
+    }
+
+    /**
+     * Creates a connection (using Kerberos authentication) to
+     * an accumulo instance using the provided parameters
+     *
+     * @param instanceName the instance name
+     * @param zookeepers   the zoo keepers
+     * @param principal    the Kerberos principal
+     * @param keytabPath   the path to the Kerberos keytab
+     * @return A connection to an accumulo instance
+     * @throws StoreException failure to create an accumulo connection
+     */
+    public static Connector getConnectorKerberos(final String instanceName, final String zookeepers,
+                                                 final String principal, final String keytabPath) throws StoreException {
+        final Instance instance = new ZooKeeperInstance(instanceName, zookeepers);
+        try {
+            // Configure Hadoop UGI to use Kerberos (if it's not already)
+            if (!UserGroupInformation.isSecurityEnabled()){
+                Configuration conf = new Configuration();
+                conf.set("hadoop.security.authentication", "kerberos");
+                conf.set("hadoop.security.authorization", "true");
+                UserGroupInformation.setConfiguration(conf);
+            }
+            // If already logged in with Keytab, then check if it needs renewal, else do initial login
+            if (UserGroupInformation.isLoginKeytabBased()){
+                UserGroupInformation.getCurrentUser().checkTGTAndReloginFromKeytab();
+                LOGGER.info("Already logged into Kerberos, TGT rechecked for principal '{}'", UserGroupInformation.getCurrentUser().getUserName());
+            } else {
+                LOGGER.info("Attempting Kerberos login with principal '{}' & keytab path '{}'", principal, keytabPath);
+                UserGroupInformation.loginUserFromKeytab(principal, keytabPath);
+                //TODO Potential problem where path may be invalid but no error is thrown - requiring manual path check
+                LOGGER.info("Successfully logged into Kerberos with principal '{}'", UserGroupInformation.getCurrentUser().getUserName());
+            }
+            KerberosToken token = new KerberosToken();
+            Connector conn = instance.getConnector(token.getPrincipal(), token);
+            return conn;
+        } catch (final AccumuloException | AccumuloSecurityException | IOException e) {
+            throw new StoreException("Failed to create accumulo connection (using Kerberos authentication)", e);
         }
     }
 
