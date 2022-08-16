@@ -194,10 +194,10 @@ public class AccumuloStore extends Store {
      * @throws StoreException If there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
-        if (isNull(connection) && !isNull(getProperties().getPrincipal())) {
+        if (getProperties().getPrincipal() != null) {
             connection = TableUtils.getConnectorKerberos(getProperties().getInstance(), getProperties().getZookeepers(),
                     getProperties().getPrincipal(), getProperties().getKeytabPath());
-        } else if (isNull(connection)) {
+        } else if (connection == null) {
             connection = TableUtils.getConnector(getProperties().getInstance(), getProperties().getZookeepers(),
                     getProperties().getUser(), getProperties().getPassword());
         }
