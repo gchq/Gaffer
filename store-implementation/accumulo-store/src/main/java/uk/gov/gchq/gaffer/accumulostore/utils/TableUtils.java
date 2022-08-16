@@ -240,14 +240,14 @@ public final class TableUtils {
         final Instance instance = new ZooKeeperInstance(instanceName, zookeepers);
         try {
             // Configure Hadoop UGI to use Kerberos (if it's not already)
-            if (!UserGroupInformation.isSecurityEnabled()){
+            if (!UserGroupInformation.isSecurityEnabled()) {
                 Configuration conf = new Configuration();
                 conf.set("hadoop.security.authentication", "kerberos");
                 conf.set("hadoop.security.authorization", "true");
                 UserGroupInformation.setConfiguration(conf);
             }
             // If already logged in with Keytab, then check if it needs renewal, else do initial login
-            if (UserGroupInformation.isLoginKeytabBased()){
+            if (UserGroupInformation.isLoginKeytabBased()) {
                 UserGroupInformation.getCurrentUser().checkTGTAndReloginFromKeytab();
                 LOGGER.info("Already logged into Kerberos, TGT rechecked for principal '{}'", UserGroupInformation.getCurrentUser().getUserName());
             } else {
