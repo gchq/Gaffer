@@ -103,6 +103,9 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
+import static uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction.SCHEMA;
+import static uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction.VIEW;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.DEPRECATED_GRAPH_IDS_FLAG;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
@@ -146,8 +149,7 @@ public class FederatedStore extends Store {
         this.adminConfiguredDefaultGraphIdsCSV = adminConfiguredDefaultGraphIdsCSV;
         this.configuredDefaultMergeFunctions = (null == configuredDefaultMergeFunctions) ? new HashMap<>() : configuredDefaultMergeFunctions;
 
-        //TODO FS better location or process for hard coded default merges, Admin vs Dev default.
-        this.configuredDefaultMergeFunctions.putIfAbsent(GetTraits.class.getCanonicalName(), new CollectionIntersect<Object>());
+        this.configuredDefaultMergeFunctions.putIfAbsent(GetTraits.class.getCanonicalName(), new CollectionIntersect<>());
         this.configuredDefaultMergeFunctions.putIfAbsent(GetAllElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
         this.configuredDefaultMergeFunctions.putIfAbsent(GetElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
     }
@@ -456,11 +458,11 @@ public class FederatedStore extends Store {
 
         addOperationHandler(GetSchema.class, new FederatedGetSchemaHandler());
 
-        addOperationHandler(Filter.class, new FederatedFilterHandler());
-        addOperationHandler(Aggregate.class, new FederatedAggregateHandler());
-        addOperationHandler(Transform.class, new FederatedTransformHandler());
+        addOperationHandler(Filter.class, new FederatedFilterHandler()); //TODO FS review testing
+        addOperationHandler(Aggregate.class, new FederatedAggregateHandler()); //TODO FS review testing
+        addOperationHandler(Transform.class, new FederatedTransformHandler()); //TODO FS review testing
 
-        addOperationHandler(Validate.class, new FederatedValidateHandler());
+        addOperationHandler(Validate.class, new FederatedValidateHandler()); //TODO FS review testing
 
         //FederationOperations
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
@@ -481,23 +483,23 @@ public class FederatedStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
-        return new FederatedOutputIterableHandler<>(/*default merge function*/);
+        return new FederatedOutputIterableHandler<>();
     }
 
     @Override
     protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
-        return new FederatedOutputIterableHandler<>(/*default merge function*/); //TODO FS here is merge, but if not set then the MergeMap will take control.
+        return new FederatedOutputIterableHandler<>();
     }
 
     @Override
     protected OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
-        return new FederatedOutputIterableHandler<>(/*default merge function*/);
+        return new FederatedOutputIterableHandler<>();
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return new FederatedNoOutputHandler<AddElements>();
+        return new FederatedNoOutputHandler<>();
     }
 
     @Override
@@ -593,21 +595,34 @@ public class FederatedStore extends Store {
         } else {
             rtn = configuredDefaultMergeFunctions.getOrDefault(payload.getClass().getCanonicalName(), getHardCodedDefaultMergeFunction());
             if (rtn instanceof ContextSpecificMergeFunction) {
-                final Schema schema;
-                try {
-                    schema = (Schema) this.execute(new FederatedOperation.Builder()
-                            .op(new GetSchema())
-                            .graphIds(null == federatedOperation ? null : federatedOperation.getGraphIdsCSV())
-                            .build(), context);
-                } catch (final OperationException e) {
-                    //TODO FS tidy up
-                    throw new RuntimeException(e);
-                }
+                final ContextSpecificMergeFunction specificMergeFunction = (ContextSpecificMergeFunction) rtn;
                 HashMap<String, Object> functionContext = new HashMap<>();
-                functionContext.put("schema", schema);
-                functionContext.put("view", ((OperationView) payload).getView());
+                if (specificMergeFunction.isRequired(SCHEMA)) {
+                    if (payload instanceof GetSchema) {
+                        throw new UnsupportedOperationException(String.format("Infinite Loop Error: %s Operation can not be configured " +
+                                "with a merge that internally performs the same operation, check the Admin configuredDefaultMergeFunctions. Configured MergeFunction:%s", GetSchema.class.getSimpleName(), specificMergeFunction.getClass()));
+                    }
 
-                rtn = ((ContextSpecificMergeFunction) rtn).createFunctionWithContext(functionContext);
+                    final Schema schema;
+                    try {
+                        schema = (Schema) this.execute(new GetSchema.Builder()
+                                .option(DEPRECATED_GRAPH_IDS_FLAG, federatedOperation.getGraphIdsCSV())
+                                .build(), context);
+//
+//                        schema = (Schema) this.execute(new FederatedOperation.Builder()
+//                                .op(new GetSchema())
+//                                .graphIds(null == federatedOperation ? null : federatedOperation.getGraphIdsCSV())
+//                                .build(), context);
+                    } catch (final OperationException e) {
+                        //TODO FS tidy up
+                        throw new RuntimeException(e);
+                    }
+                    functionContext.put(SCHEMA, schema);
+                }
+                if (specificMergeFunction.isRequired(VIEW)) {
+                    functionContext.put(VIEW, ((OperationView) payload).getView());
+                }
+                rtn = specificMergeFunction.createFunctionWithContext(functionContext);
             }
         }
         return rtn;

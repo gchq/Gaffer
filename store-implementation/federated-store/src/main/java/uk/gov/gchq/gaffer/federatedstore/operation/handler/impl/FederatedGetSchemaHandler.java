@@ -47,7 +47,9 @@ public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSche
 
             try {
                 Schema.Builder builder = new Schema.Builder();
-                schemas.forEach(builder::merge);
+                if (schemas != null) {
+                    schemas.forEach(builder::merge);
+                }
                 return builder.build();
             } catch (final Exception e) {
                 throw new SchemaException("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds.", e);

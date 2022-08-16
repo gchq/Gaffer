@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import static avro.shaded.com.google.common.collect.Iterables.isEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -89,8 +90,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         try {
             Object rtn = null;
 
-            //TODO FS map of merge
-            final BiFunction mergeFunction = nonNull(operation.getMergeFunction()) ? operation.getMergeFunction() : store.getDefaultMergeFunction(operation, operation.getPayloadOperation(), context);
+            final BiFunction mergeFunction = isEmpty(resultsFromAllGraphs) ? null : nonNull(operation.getMergeFunction()) ? operation.getMergeFunction() : store.getDefaultMergeFunction(operation, operation.getPayloadOperation(), context);
 
             //Reduce
             for (final Object resultFromAGraph : resultsFromAllGraphs) {
