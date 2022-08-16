@@ -32,7 +32,7 @@ public abstract class AbstractTestSuite implements IntegrationTestSuite {
     }
 
     @Override
-    public Optional<Map<String, String>> getSkipTestMethods() {
+    public Optional<Map<String, String>> getTestsToSkip() {
         return Optional.of(Collections.emptyMap());
     }
 }
