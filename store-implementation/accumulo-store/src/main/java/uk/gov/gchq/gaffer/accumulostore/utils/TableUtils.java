@@ -246,15 +246,13 @@ public final class TableUtils {
                 conf.set("hadoop.security.authorization", "true");
                 UserGroupInformation.setConfiguration(conf);
             }
-            // If already logged in with Keytab, then check if it needs renewal, else do initial login
+            // If already logged in with Keytab, then check if ticket needs renewal, else do initial login
             if (UserGroupInformation.isLoginKeytabBased()) {
                 UserGroupInformation.getCurrentUser().checkTGTAndReloginFromKeytab();
-                LOGGER.info("Already logged into Kerberos, TGT rechecked for principal '{}'", UserGroupInformation.getCurrentUser().getUserName());
+                LOGGER.debug("Already logged into Kerberos, TGT rechecked for principal '{}'", UserGroupInformation.getCurrentUser().getUserName());
             } else {
                 LOGGER.info("Attempting Kerberos login with principal '{}' & keytab path '{}'", principal, keytabPath);
                 UserGroupInformation.loginUserFromKeytab(principal, keytabPath);
-                //TODO Potential problem where path may be invalid but no error is thrown - requiring manual path check
-                LOGGER.info("Successfully logged into Kerberos with principal '{}'", UserGroupInformation.getCurrentUser().getUserName());
             }
             KerberosToken token = new KerberosToken();
             Connector conn = instance.getConnector(token.getPrincipal(), token);
