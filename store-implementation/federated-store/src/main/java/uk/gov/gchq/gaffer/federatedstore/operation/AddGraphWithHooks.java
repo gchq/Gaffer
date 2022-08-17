@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ public class AddGraphWithHooks extends AddGraph {
                 .isPublic(getIsPublic())
                 .readAccessPredicate(getReadAccessPredicate())
                 .writeAccessPredicate(getWriteAccessPredicate())
+                .userRequestingAdminUsage(isUserRequestingAdminUsage())
                 .hooks(hooks);
 
         if (null != getGraphAuths()) {
@@ -62,7 +63,7 @@ public class AddGraphWithHooks extends AddGraph {
         this.hooks = hooks;
     }
 
-    public static class Builder extends GraphBuilder<AddGraphWithHooks, Builder> {
+    public static class Builder extends AddGraphBuilder<AddGraphWithHooks, Builder> {
         public Builder() {
             super(new AddGraphWithHooks());
         }
