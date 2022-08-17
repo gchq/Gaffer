@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Lists;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_EDGE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_2;
@@ -53,7 +54,7 @@ import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class FederatedGetSchemaHandlerTest {
     private static final String ACC_PROP_ID = "accProp";
-    private static final String  EDGE_SCHEMA_ID = "edgeSchema";
+    private static final String EDGE_SCHEMA_ID = "edgeSchema";
     private static final String TEST_FED_STORE = "testFedStore";
     private static final Schema STRING_SCHEMA = new Schema.Builder()
             .type(STRING, new TypeDefinition.Builder()
@@ -64,7 +65,7 @@ public class FederatedGetSchemaHandlerTest {
             .build();
     private static final AccumuloProperties PROPERTIES = loadAccumuloStoreProperties("properties/accumuloStore.properties");
     private final HashMapGraphLibrary library = new HashMapGraphLibrary();
-    private FederatedGetSchemaHandler handler;
+    private FederatedOutputHandler handler;
     private FederatedStore federatedStore;
     private StoreProperties properties;
 
@@ -72,7 +73,7 @@ public class FederatedGetSchemaHandlerTest {
     public void setup() throws StoreException {
         resetForFederatedTests();
 
-        handler = new FederatedGetSchemaHandler();
+        handler = new FederatedOutputHandler<>(new Schema());
         properties = new FederatedStoreProperties();
         properties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
 
@@ -118,7 +119,7 @@ public class FederatedGetSchemaHandlerTest {
                 .build();
 
         // When
-        final Schema result = handler.doOperation(operation, contextTestUser(), federatedStore);
+        final Schema result = (Schema) handler.doOperation(operation, contextTestUser(), federatedStore);
 
         // Then
         assertNotNull(result);
@@ -179,7 +180,7 @@ public class FederatedGetSchemaHandlerTest {
                 .build();
 
         // When
-        final Schema result = handler.doOperation(operation, contextTestUser(), federatedStore);
+        final Schema result = (Schema) handler.doOperation(operation, contextTestUser(), federatedStore);
 
         // Then
         assertNotNull(result);
@@ -193,10 +194,7 @@ public class FederatedGetSchemaHandlerTest {
 
         final GetSchema operation = null;
 
-        try {
-            handler.doOperation(operation, contextTestUser(), federatedStore);
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Operation cannot be null"));
-        }
+        final Exception e = assertThrows(Exception.class, () -> handler.doOperation(operation, contextTestUser(), federatedStore));
+        Assertions.assertThat(e).hasStackTraceContaining("Operation cannot be null");
     }
 }

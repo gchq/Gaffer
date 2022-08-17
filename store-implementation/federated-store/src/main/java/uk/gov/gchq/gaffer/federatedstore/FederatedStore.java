@@ -47,15 +47,15 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeG
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphIdHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphInfoHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetSchemaHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedNoOutputHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.ContextSpecificMergeFunction;
+import uk.gov.gchq.gaffer.federatedstore.util.MergeSchema;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
@@ -124,14 +124,14 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardC
  * @see Graph
  */
 public class FederatedStore extends Store {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
     public static final String FEDERATED_STORE_PROCESSED = "FederatedStore.processed.";
     public static final String FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY = "FedStoreGraphId_value_null_or_empty";
+    private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
+    private static final List<Integer> ALL_IDS = new ArrayList<>();
     private final FederatedGraphStorage graphStorage = new FederatedGraphStorage();
+    private final int id;
     private Set<String> customPropertiesAuths;
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
-    private static final List<Integer> ALL_IDS = new ArrayList<>();
-    private final int id;
     private String adminConfiguredDefaultGraphIdsCSV;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private Map<String, BiFunction> configuredDefaultMergeFunctions;
@@ -152,6 +152,7 @@ public class FederatedStore extends Store {
         this.configuredDefaultMergeFunctions.putIfAbsent(GetTraits.class.getCanonicalName(), new CollectionIntersect<>());
         this.configuredDefaultMergeFunctions.putIfAbsent(GetAllElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
         this.configuredDefaultMergeFunctions.putIfAbsent(GetElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
+        this.configuredDefaultMergeFunctions.putIfAbsent(GetSchema.class.getCanonicalName(), new MergeSchema());
     }
 
     public FederatedStore() {
@@ -456,7 +457,7 @@ public class FederatedStore extends Store {
                         && !AddNamedView.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedNoOutputHandler()));
 
-        addOperationHandler(GetSchema.class, new FederatedGetSchemaHandler());
+        addOperationHandler(GetSchema.class, new FederatedOutputHandler<>(new Schema()));
 
         addOperationHandler(Filter.class, new FederatedFilterHandler()); //TODO FS review testing
         addOperationHandler(Aggregate.class, new FederatedAggregateHandler()); //TODO FS review testing
@@ -504,7 +505,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-        return new FederatedGetTraitsHandler();
+        return new FederatedOutputHandler<>(/*default null value*/);
     }
 
     @SuppressWarnings("rawtypes")
@@ -606,13 +607,8 @@ public class FederatedStore extends Store {
                     final Schema schema;
                     try {
                         schema = (Schema) this.execute(new GetSchema.Builder()
-                                .option(DEPRECATED_GRAPH_IDS_FLAG, federatedOperation.getGraphIdsCSV())
+                                .option(DEPRECATED_GRAPH_IDS_FLAG, federatedOperation == null ? null : federatedOperation.getGraphIdsCSV())
                                 .build(), context);
-//
-//                        schema = (Schema) this.execute(new FederatedOperation.Builder()
-//                                .op(new GetSchema())
-//                                .graphIds(null == federatedOperation ? null : federatedOperation.getGraphIdsCSV())
-//                                .build(), context);
                     } catch (final OperationException e) {
                         //TODO FS tidy up
                         throw new RuntimeException(e);

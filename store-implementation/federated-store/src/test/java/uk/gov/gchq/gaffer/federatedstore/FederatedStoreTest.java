@@ -71,14 +71,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES_ALT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
@@ -1239,8 +1237,7 @@ public class FederatedStoreTest {
         //when
         OperationException e = assertThrows(OperationException.class, () -> store.execute(new GetSchema.Builder().build(), blankUserContext));
         //then
-        assertTrue(Pattern.compile(".*Unable to merge the schemas for all of your federated graphs\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\..*").matcher(e.getMessage()).matches(),
-                e.getMessage());
+        assertThat(e).hasStackTraceContaining("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds");
 
         // when
         final Iterable<? extends Element> responseGraphsWithNoView = store.execute(new GetAllElements.Builder().build(), blankUserContext);
@@ -1264,8 +1261,7 @@ public class FederatedStoreTest {
         OperationException e = assertThrows(OperationException.class, () -> store.execute(new GetSchema.Builder().build(), blankUserContext));
 
         //then
-        assertTrue(Pattern.compile(".*Unable to merge the schemas for all of your federated graphs\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\..*").matcher(e.getMessage()).matches(),
-                e.getMessage());
+        assertThat(e).hasStackTraceContaining("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds");
 
         // when
         final Iterable<? extends Element> responseGraphA = store.execute(getFederatedOperation(new GetAllElements.Builder().build()).graphIdsCSV("graphA"), blankUserContext);
@@ -1290,8 +1286,7 @@ public class FederatedStoreTest {
         //when
         OperationException e = assertThrows(OperationException.class, () -> store.execute(new GetSchema.Builder().build(), blankUserContext));
         //then
-        assertTrue(Pattern.compile(".*Unable to merge the schemas for all of your federated graphs\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\..*").matcher(e.getMessage()).matches(),
-                e.getMessage());
+        assertThat(e).hasStackTraceContaining("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds");
 
         // when
         final Iterable<? extends Element> responseGraphAWithAView = store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphA"), blankUserContext);
