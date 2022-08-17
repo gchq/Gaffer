@@ -37,6 +37,7 @@ public class AccumuloProperties extends StoreProperties {
     public static final String ZOOKEEPERS = "accumulo.zookeepers";
     public static final String USER = "accumulo.user";
     public static final String PASSWORD = "accumulo.password";
+    public static final String ENABLE_KERBEROS = "accumulo.kerberos.enable";
     public static final String PRINCIPAL = "accumulo.kerberos.principal";
     public static final String KEYTAB_PATH = "accumulo.kerberos.keytab";
     public static final String NAMESPACE = "accumulo.namespace";
@@ -62,6 +63,7 @@ public class AccumuloProperties extends StoreProperties {
     private static final String MAX_TIME_OUT_FOR_BATCH_WRITER_DEFAULT = "1000";
     private static final String THREADS_FOR_BATCH_SCANNER_DEFAULT = "10";
     public static final String ENABLE_VALIDATOR_ITERATOR_DEFAULT = "true";
+    public static final String ENABLE_KERBEROS_DEFAULT = "false";
 
     public AccumuloProperties() {
         super(AccumuloStore.class);
@@ -218,6 +220,26 @@ public class AccumuloProperties extends StoreProperties {
      */
     public void setPassword(final String password) {
         set(PASSWORD, password);
+    }
+
+    /**
+     * Gets the flag determining whether Kerberos should be enabled and used
+     * for Accumulo connections.
+     *
+     * @return true if Kerberos should be enabled.
+     */
+    public boolean getEnableKerberos() {
+        return Boolean.parseBoolean(get(ENABLE_KERBEROS, ENABLE_KERBEROS_DEFAULT));
+    }
+
+    /**
+     * Sets the flag determining whether Kerberos should be enabled and used
+     * for Accumulo connections.
+     *
+     * @param enableKerberos true if Kerberos should be enabled.
+     */
+    public void setEnableKerberos(final boolean enableKerberos) {
+        set(ENABLE_VALIDATOR_ITERATOR, Boolean.toString(enableKerberos));
     }
 
     /**
