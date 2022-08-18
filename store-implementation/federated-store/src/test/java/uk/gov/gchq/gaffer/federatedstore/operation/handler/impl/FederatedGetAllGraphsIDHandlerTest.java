@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
-public class FederatedGetAllGraphsIDHandlerTest {
+public class FederatedGetAllGraphIDsHandlerTest {
 
 
     private User testUser;
