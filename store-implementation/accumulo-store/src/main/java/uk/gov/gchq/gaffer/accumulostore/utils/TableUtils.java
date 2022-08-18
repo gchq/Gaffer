@@ -39,6 +39,7 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
@@ -259,6 +260,24 @@ public final class TableUtils {
             return conn;
         } catch (final AccumuloException | AccumuloSecurityException | IOException e) {
             throw new StoreException("Failed to create accumulo connection (using Kerberos authentication)", e);
+        }
+    }
+
+    /**
+     * Creates a connection to an accumulo instance using parameters
+     * from the provided {@link AccumuloProperties}.
+     *
+     * @param accumuloProperties the configuration properties
+     * @return A connection to an accumulo instance
+     * @throws StoreException failure to create an accumulo connection
+     */
+    public static Connector getConnector(final AccumuloProperties accumuloProperties) throws StoreException {
+        if (accumuloProperties.getEnableKerberos()) {
+            return getConnectorKerberos(accumuloProperties.getInstance(), accumuloProperties.getZookeepers(),
+                    accumuloProperties.getPrincipal(), accumuloProperties.getKeytabPath());
+        } else {
+            return getConnector(accumuloProperties.getInstance(), accumuloProperties.getZookeepers(),
+                    accumuloProperties.getUser(), accumuloProperties.getPassword());
         }
     }
 
