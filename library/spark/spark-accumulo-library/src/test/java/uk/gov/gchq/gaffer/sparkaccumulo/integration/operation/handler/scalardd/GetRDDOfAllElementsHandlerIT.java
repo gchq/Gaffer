@@ -21,15 +21,10 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.admin.CompactionConfig;
-import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.file.blockfile.impl.CachableBlockFile;
 import org.apache.accumulo.core.file.rfile.RFile;
-import org.apache.accumulo.core.file.rfile.bcfile.Compression;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.spark.rdd.RDD;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -45,6 +40,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccum
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -488,13 +484,6 @@ public final class GetRDDOfAllElementsHandlerIT {
     private void writeFile(final KeyPackage keyPackage, final Schema schema, final String file)
             throws IllegalArgumentException, IOException {
         final Configuration conf = new Configuration();
-        final CachableBlockFile.Writer blockFileWriter = new CachableBlockFile.Writer(
-                FileSystem.get(conf),
-                new Path(file),
-                Compression.COMPRESSION_NONE,
-                null,
-                conf,
-                AccumuloConfiguration.getDefaultConfiguration());
         final AccumuloElementConverter converter;
         switch (keyPackage) {
             case BYTE_ENTITY:
@@ -509,7 +498,7 @@ public final class GetRDDOfAllElementsHandlerIT {
         final Entity entity = (Entity) getElementsForIngestAggregationChecking().get(0);
         final Key key = converter.getKeyFromEntity((Entity) getElementsForIngestAggregationChecking().get(0));
         final Value value = converter.getValueFromProperties(entity.getGroup(), entity.getProperties());
-        final RFile.Writer writer = new RFile.Writer(blockFileWriter, 1000);
+        final RFile.Writer writer = LegacySupport.BackwardsCompatibleRFileWriter.create(file, conf, 1000);
         writer.startDefaultLocalityGroup();
         writer.append(key, value);
         writer.close();

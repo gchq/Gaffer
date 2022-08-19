@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.rest.model.OperationDetail;
 import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -54,6 +53,16 @@ public interface IOperationController {
             summary = "Returns the details of every operation supported by the store"
     )
     Set<OperationDetail> getAllOperationDetails();
+
+    @RequestMapping(
+            method = GET,
+            path = "/details/all",
+            produces = APPLICATION_JSON_VALUE
+    )
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Returns the details of every operation"
+    )
+    Set<OperationDetail> getAllOperationDetailsIncludingUnsupported();
 
     @RequestMapping(
             method = GET,
@@ -90,7 +99,7 @@ public interface IOperationController {
             method = POST,
             path = "/execute",
             consumes = APPLICATION_JSON_VALUE,
-            produces = { TEXT_PLAIN_VALUE, APPLICATION_JSON_VALUE }
+            produces = APPLICATION_JSON_VALUE
     )
     @io.swagger.v3.oas.annotations.Operation(
             summary = "Executes an operation against a Store"
@@ -101,7 +110,7 @@ public interface IOperationController {
             method = POST,
             path = "/execute/chunked",
             consumes = APPLICATION_JSON_VALUE,
-            produces = { TEXT_PLAIN_VALUE, APPLICATION_JSON_VALUE }
+            produces = APPLICATION_JSON_VALUE
     )
     @io.swagger.v3.oas.annotations.Operation(
             summary = "Executes an operation against a Store, returning a chunked output"

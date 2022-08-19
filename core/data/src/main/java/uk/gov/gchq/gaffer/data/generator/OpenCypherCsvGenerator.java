@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package uk.gov.gchq.gaffer.data.generator;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -117,8 +116,8 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
          * @return a new {@link OpenCypherCsvGenerator.Builder}
          */
         public OpenCypherCsvGenerator.Builder headers(final LinkedHashMap<String, String> headersFromSchema) {
-            this.headers = headersFromSchema;
-            return this;
+           this.headers = headersFromSchema;
+           return this;
         }
 
         /**

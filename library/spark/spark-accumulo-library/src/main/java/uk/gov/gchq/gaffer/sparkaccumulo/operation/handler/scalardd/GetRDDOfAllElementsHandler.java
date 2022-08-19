@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.conf.Configuration;
@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
+import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
@@ -110,7 +111,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
         addIterators(accumuloStore, conf, context.getUser(), operation);
         final String useBatchScannerRDD = operation.getOption(USE_BATCH_SCANNER_RDD);
         if (Boolean.parseBoolean(useBatchScannerRDD)) {
-            InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
+            LegacySupport.InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
         }
         final RDD<Tuple2<Element, NullWritable>> pairRDD = SparkContextUtil.getSparkSession(context, accumuloStore.getProperties()).sparkContext().newAPIHadoopRDD(conf,
                 ElementInputFormat.class,
@@ -163,7 +164,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
                 LOGGER.info("Not adding validation iterator as no validation functions are defined in the schema");
             } else {
                 LOGGER.info("Adding validation iterator");
-                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, itrSetting);
+                LegacySupport.InputConfigurator.addIterator(AccumuloInputFormat.class, conf, itrSetting);
             }
         }
     }
@@ -175,7 +176,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
             LOGGER.info("Adding aggregator iterator");
             final IteratorSetting itrSetting = accumuloStore
                     .getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(accumuloStore);
-            InputConfigurator.addIterator(AccumuloInputFormat.class, conf, itrSetting);
+            LegacySupport.InputConfigurator.addIterator(AccumuloInputFormat.class, conf, itrSetting);
         } else {
             LOGGER.info("Not adding aggregator iterator as aggregation is not enabled");
         }

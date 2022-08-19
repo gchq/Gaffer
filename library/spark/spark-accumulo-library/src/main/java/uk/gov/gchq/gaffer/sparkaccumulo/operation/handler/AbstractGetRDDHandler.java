@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler;
 
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.data.Range;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -29,6 +29,7 @@ import scala.runtime.AbstractFunction1;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
+import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -81,13 +82,13 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
                     .getIteratorFactory()
                     .getQueryTimeAggregatorIteratorSetting(operation.getView(), accumuloStore);
             if (null != queryTimeAggregator) {
-                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, queryTimeAggregator);
+                LegacySupport.InputConfigurator.addIterator(AccumuloInputFormat.class, conf, queryTimeAggregator);
             }
             final IteratorSetting propertyFilter = accumuloStore.getKeyPackage()
                     .getIteratorFactory()
                     .getElementPropertyRangeQueryFilter(derivedOperation);
             if (null != propertyFilter) {
-                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, propertyFilter);
+                LegacySupport.InputConfigurator.addIterator(AccumuloInputFormat.class, conf, propertyFilter);
             }
         } catch (final StoreException | IteratorSettingException e) {
             throw new OperationException("Failed to update configuration", e);
@@ -117,7 +118,7 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
                 throw new OperationException("Failed to add ranges to configuration", e);
             }
         }
-        InputConfigurator.setRanges(AccumuloInputFormat.class, conf, ranges);
+        LegacySupport.InputConfigurator.setRanges(AccumuloInputFormat.class, conf, ranges);
     }
 
     public <INPUT_OP extends Operation & GraphFilters & Input<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>>>
@@ -135,7 +136,7 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
                 throw new OperationException("Failed to add ranges to configuration", e);
             }
         }
-        InputConfigurator.setRanges(AccumuloInputFormat.class, conf, ranges);
+        LegacySupport.InputConfigurator.setRanges(AccumuloInputFormat.class, conf, ranges);
     }
 
     protected Configuration getConfiguration(final OP operation) throws OperationException {

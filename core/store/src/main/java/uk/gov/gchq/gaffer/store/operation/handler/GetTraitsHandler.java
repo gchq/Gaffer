@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import static java.util.Objects.nonNull;
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>> {
     private final Set<StoreTrait> storeTraits;
