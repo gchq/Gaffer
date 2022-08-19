@@ -60,21 +60,21 @@ public class AccumuloPropertiesTest {
     @Test
     public void getEnabledKerberosShouldReturnFalseIfSetFalse() {
         final AccumuloProperties props = new AccumuloProperties();
-        final boolean setEnabled = false;
+        final boolean ENABLE_KERBEROS = false;
 
-        props.setEnableKerberos(setEnabled);
+        props.setEnableKerberos(ENABLE_KERBEROS);
 
-        assertEquals(setEnabled, props.getEnableKerberos());
+        assertEquals(ENABLE_KERBEROS, props.getEnableKerberos());
     }
 
     @Test
     public void getEnabledKerberosShouldReturnTrueIfSetTrue() {
         final AccumuloProperties props = new AccumuloProperties();
-        final boolean setEnabled = true;
+        final boolean ENABLE_KERBEROS = true;
 
-        props.setEnableKerberos(setEnabled);
+        props.setEnableKerberos(ENABLE_KERBEROS);
 
-        assertEquals(setEnabled, props.getEnableKerberos());
+        assertEquals(ENABLE_KERBEROS, props.getEnableKerberos());
     }
 
     @Test
@@ -104,11 +104,11 @@ public class AccumuloPropertiesTest {
     @Test
     public void getKeytabPathShouldReturnKeytabPathWhenSet() {
         final AccumuloProperties props = new AccumuloProperties();
-        final String KEYTABPATH = "path/to/keytab";
+        final String KEYTAB_PATH = "path/to/keytab";
 
-        props.setKeytabPath(KEYTABPATH);
+        props.setKeytabPath(KEYTAB_PATH);
 
-        assertEquals(KEYTABPATH, props.getKeytabPath());
+        assertEquals(KEYTAB_PATH, props.getKeytabPath());
     }
 
     @Test
