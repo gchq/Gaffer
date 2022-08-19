@@ -29,7 +29,7 @@ public class ExportToLocalFileHandler extends ExportToHandler<ExportToLocalFile,
     }
 
     @Override
-    protected LocalFileExporter createExporter(ExportToLocalFile export, Context context, Store store) {
+    protected LocalFileExporter createExporter(final ExportToLocalFile export, final Context context, final Store store) {
         return new LocalFileExporter();
     }
 }

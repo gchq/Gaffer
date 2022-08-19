@@ -29,7 +29,7 @@ import java.nio.file.Paths;
 public class LocalFileExporter implements Exporter {
 
     @Override
-    public void add(String filePath, Iterable<?> results) throws OperationException {
+    public void add(final String filePath, final Iterable<?> results) throws OperationException {
         try {
             Files.write(Paths.get(filePath), (Iterable<? extends CharSequence>) results);
         } catch (final IOException e) {

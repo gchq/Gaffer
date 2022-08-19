@@ -19,18 +19,15 @@ package uk.gov.gchq.gaffer.operation.impl.export.localfile;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.Operation;
+
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A {@code ExportToLocalFile} operation that takes an Iterable of Strings
@@ -47,11 +44,11 @@ public class ExportToLocalFile implements ExportTo<Iterable<String>> {
     private Iterable<String> input;
     private Map<String, String> options;
 
-    public String getFilePath() {
+    public final String getFilePath() {
         return filePath;
     }
 
-    public void setFilePath(String filePath) {
+    public void setFilePath(final String filePath) {
         this.filePath = filePath;
         setKey(filePath);
     }
@@ -70,28 +67,28 @@ public class ExportToLocalFile implements ExportTo<Iterable<String>> {
     }
 
     @Override
-    public void setOptions(Map<String, String> options) {
+    public void setOptions(final Map<String, String> options) {
         this.options = options;
     }
 
     @Override
-    public String getKey() {
+    public final String getKey() {
         return filePath;
     }
 
     @Override
-    public void setKey(String key) {
+    public void setKey(final String key) {
         // key is not used
     }
 
 
     @Override
-    public Iterable<String> getInput() {
+    public final Iterable<String> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(Iterable<String> input) {
+    public void setInput(final Iterable<String> input) {
         this.input = input;
     }
 

@@ -20,6 +20,7 @@ import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.LocalFileExporter;
 
@@ -54,12 +55,11 @@ public class ExportToLocalFileHandlerTest {
     @BeforeEach
     public void setUp() {
         try {
-            path = tempDir.resolve( "testfile.txt" );
-        }
-        catch( InvalidPathException ipe ) {
+            path = tempDir.resolve("testfile.txt");
+        } catch (InvalidPathException ipe) {
             System.err.println(
                     "error creating temporary test file in " +
-                            this.getClass().getSimpleName() );
+                            this.getClass().getSimpleName());
         }
 
         file = path.toFile();
