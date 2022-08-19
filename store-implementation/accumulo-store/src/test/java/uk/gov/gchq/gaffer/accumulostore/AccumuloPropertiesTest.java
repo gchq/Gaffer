@@ -59,62 +59,80 @@ public class AccumuloPropertiesTest {
 
     @Test
     public void getEnabledKerberosShouldReturnFalseIfSetFalse() {
+        // Given
         final AccumuloProperties props = new AccumuloProperties();
         final boolean ENABLE_KERBEROS = false;
 
+        // When
         props.setEnableKerberos(ENABLE_KERBEROS);
 
+        // Then
         assertEquals(ENABLE_KERBEROS, props.getEnableKerberos());
     }
 
     @Test
     public void getEnabledKerberosShouldReturnTrueIfSetTrue() {
+        // Given
         final AccumuloProperties props = new AccumuloProperties();
         final boolean ENABLE_KERBEROS = true;
 
+        // When
         props.setEnableKerberos(ENABLE_KERBEROS);
 
+        // Then
         assertEquals(ENABLE_KERBEROS, props.getEnableKerberos());
     }
 
     @Test
     public void getEnabledKerberosShouldDefaultToFalse() {
+        // Given
         final AccumuloProperties props = new AccumuloProperties();
 
+        // Then
         assertFalse(props.getEnableKerberos());
     }
 
     @Test
     public void getPrincipalShouldReturnPrincipal() {
+        // Given
         final AccumuloProperties props = new AccumuloProperties();
         final String PRINCIPAL = "test.principal";
 
+        // When
         props.setPrincipal(PRINCIPAL);
 
+        // Then
         assertEquals(PRINCIPAL, props.getPrincipal());
     }
 
     @Test
     public void getPrincipalShouldReturnNullWhenPrincipalNotSet() {
+        // Given
         final AccumuloProperties props = new AccumuloProperties();
 
+        // Then
         assertNull(props.getPrincipal());
     }
 
     @Test
     public void getKeytabPathShouldReturnKeytabPathWhenSet() {
+        // Given
         final AccumuloProperties props = new AccumuloProperties();
         final String KEYTAB_PATH = "path/to/keytab";
 
+        // When
         props.setKeytabPath(KEYTAB_PATH);
 
+        // Then
         assertEquals(KEYTAB_PATH, props.getKeytabPath());
     }
 
     @Test
     public void getKeytabPathShouldReturnNullWhenNotSet() {
+        // Given
         final AccumuloProperties props = new AccumuloProperties();
 
+        // Then
         assertNull(props.getKeytabPath());
     }
 
