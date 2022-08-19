@@ -239,7 +239,7 @@ public class AccumuloProperties extends StoreProperties {
      * @param enableKerberos true if Kerberos should be enabled.
      */
     public void setEnableKerberos(final boolean enableKerberos) {
-        set(ENABLE_VALIDATOR_ITERATOR, Boolean.toString(enableKerberos));
+        set(ENABLE_KERBEROS, Boolean.toString(enableKerberos));
     }
 
     /**
