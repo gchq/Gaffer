@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.generator;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.commons.lang3.StringUtils;
+package uk.gov.gchq.gaffer.data.generator;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -35,7 +33,6 @@ import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.NE
 import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.SOURCE;
 import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.VERTEX;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 
 /**
@@ -46,31 +43,11 @@ import java.util.LinkedHashMap;
 @Since("2.0.0")
 @Summary("Generates an openCypher formatted CSV string for each element")
 public class OpenCypherCsvGenerator extends CsvGenerator {
-    private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
 
     /**
      * When set to true, the headers will be formatted to match those used by neo4j.
      */
     private boolean neo4jFormat = false;
-
-    @Override
-    public String _apply(final Element element) {
-        final StringBuilder strBuilder = new StringBuilder();
-        for (final String field : fields.keySet()) {
-            final Object value = getFieldValue(element, field);
-
-            if (value != null) {
-                strBuilder.append(quoteString(value));
-            }
-            strBuilder.append(COMMA);
-        }
-
-        if (strBuilder.length() < 1) {
-            return "";
-        }
-
-        return strBuilder.substring(0, strBuilder.length() - 1);
-    }
 
     /**
      * Attempts to find the value of a field from a given {@link Element},
@@ -81,7 +58,8 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
      * @return the value of the field
      */
 
-    private Object getFieldValue(final Element element, final String key) {
+    @Override
+    protected Object getFieldValue(final Element element, final String key) {
         final IdentifierType idType = IdentifierType.fromName(key);
         final Object value;
         String entityGroup = isNeo4jFormat() ? "NEO4J_ENTITY_GROUP" : "ENTITY_GROUP";
@@ -100,6 +78,7 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
         return value;
     }
 
+    @Override
     public void setFields(final LinkedHashMap<String, String> headersFromSchema) {
         if (neo4jFormat) {
             this.fields.put(String.valueOf(IdentifierType.VERTEX), NEO4J_VERTEX);
@@ -127,22 +106,8 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
         this.neo4jFormat = neo4jFormat;
     }
 
-    public LinkedHashMap<String, String> getFields() {
-        return fields;
-    }
-
-    @JsonIgnore
-    @Override
-    public String getHeader() {
-        LinkedHashMap<String, String> fields = getFields();
-        return getHeaderFields(fields.values());
-    }
-    private String getHeaderFields(final Collection<String> fields) {
-        return StringUtils.join(fields.stream().map(this::quoteString).toArray(), COMMA);
-    }
-
     public static class Builder {
-        private Boolean neo4jFormat;
+        private boolean neo4jFormat;
         private LinkedHashMap<String, String> headers = new LinkedHashMap<>();
 
         /**
@@ -152,8 +117,8 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
          * @return a new {@link OpenCypherCsvGenerator.Builder}
          */
         public OpenCypherCsvGenerator.Builder headers(final LinkedHashMap<String, String> headersFromSchema) {
-           this.headers = headersFromSchema;
-           return this;
+            this.headers = headersFromSchema;
+            return this;
         }
 
         /**
