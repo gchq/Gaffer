@@ -24,8 +24,7 @@ import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AccumuloPropertiesTest {
     @Test
@@ -52,6 +51,68 @@ public class AccumuloPropertiesTest {
 
         // Then
         assertEquals(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName(), modules);
+    }
+
+
+    @Test
+    public void getEnabledKerberosShouldReturnFalseIfSetFalse() {
+        final AccumuloProperties props = new AccumuloProperties();
+        final boolean setEnabled = false;
+
+        props.setEnableKerberos(setEnabled);
+
+        assertEquals(setEnabled, props.getEnableKerberos());
+    }
+
+    @Test
+    public void getEnabledKerberosShouldReturnTrueIfSetTrue() {
+        final AccumuloProperties props = new AccumuloProperties();
+        final boolean setEnabled = true;
+
+        props.setEnableKerberos(setEnabled);
+
+        assertEquals(setEnabled, props.getEnableKerberos());
+    }
+
+    @Test
+    public void getEnabledKerberosShouldDefaultToFalse() {
+        final AccumuloProperties props = new AccumuloProperties();
+
+        assertFalse(props.getEnableKerberos());
+    }
+
+    @Test
+    public void getPrincipalShouldReturnPrincipal() {
+        final AccumuloProperties props = new AccumuloProperties();
+        final String PRINCIPAL = "test.principal";
+
+        props.setPrincipal(PRINCIPAL);
+
+        assertEquals(PRINCIPAL, props.getPrincipal());
+    }
+
+    @Test
+    public void getPrincipalShouldReturnNullWhenPrincipalNotSet() {
+        final AccumuloProperties props = new AccumuloProperties();
+
+        assertNull(props.getPrincipal());
+    }
+
+    @Test
+    public void getKeytabPathShouldReturnKeytabPathWhenSet() {
+        final AccumuloProperties props = new AccumuloProperties();
+        final String KEYTABPATH = "path/to/keytab";
+
+        props.setKeytabPath(KEYTABPATH);
+
+        assertEquals(KEYTABPATH, props.getKeytabPath());
+    }
+
+    @Test
+    public void getKeytabPathShouldReturnNullWhenNotSet() {
+        final AccumuloProperties props = new AccumuloProperties();
+
+        assertNull(props.getKeytabPath());
     }
 
     @Test
