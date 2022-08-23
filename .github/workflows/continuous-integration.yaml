@@ -31,14 +31,18 @@ jobs:
 
     - name: Build Javadoc
       run: |
-        mvn -q clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
-        mvn -q javadoc:javadoc -Pquick
+        mvn -ntp clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
+        mvn -ntp javadoc:javadoc -Pquick
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       matrix:
+        # The below line does the following, check if the branch name contains the words 'windows' or 'release'.
+        # If these words are present it runs the tests on Windows AND Ubuntu. If the words aren't present it runs the tests on Ubuntu ONLY
+        # The 'release' keyword is currently disabled. Change 'release-disabled-for-now' to 'release' once the tests have been fixed to reenable this.
+        os: ${{ fromJSON( (contains( github.head_ref, 'windows') || contains( github.head_ref, 'release-disabled-for-now') )  && '["ubuntu-latest", "windows-latest"]' || '["ubuntu-latest"]' ) }}
         modules:
         - name: Core
           values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
@@ -79,14 +83,14 @@ jobs:
         key: ${{matrix.modules.name}}-gaffer-dependencies
 
     - name: Install
-      run: mvn -B -q clean install -P quick -pl ${{matrix.modules.values}} -am
+      run: mvn -B -ntp clean install -P quick -pl ${{matrix.modules.values}} -am
 
     - name: Test
-      run: mvn -B -q verify -P coverage -pl ${{matrix.modules.values}}
+      run: mvn -B -ntp verify -P coverage -pl ${{matrix.modules.values}}
 
     - name: Check Copyright Headers
       if: github.event_name == 'pull_request'
-      run: mvn -B -q spotless:check -pl ${{matrix.modules.values}}
+      run: mvn -B -ntp spotless:check -pl ${{matrix.modules.values}}
 
     - name: Upload Coverage
       uses: codecov/codecov-action@v2

@@ -116,8 +116,8 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
          * @return a new {@link OpenCypherCsvGenerator.Builder}
          */
         public OpenCypherCsvGenerator.Builder headers(final LinkedHashMap<String, String> headersFromSchema) {
-            this.headers = headersFromSchema;
-            return this;
+           this.headers = headersFromSchema;
+           return this;
         }
 
         /**
