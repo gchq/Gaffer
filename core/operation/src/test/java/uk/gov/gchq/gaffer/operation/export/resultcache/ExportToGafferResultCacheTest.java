@@ -79,7 +79,7 @@ public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferR
                 .build();
 
         // When
-       ExportToGafferResultCache clone = exportToGafferResultCache.shallowClone();
+        ExportToGafferResultCache clone = exportToGafferResultCache.shallowClone();
 
         // Then
         assertNotSame(exportToGafferResultCache, clone);
