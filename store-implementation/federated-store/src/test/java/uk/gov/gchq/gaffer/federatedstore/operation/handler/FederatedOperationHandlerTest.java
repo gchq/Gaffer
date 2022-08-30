@@ -295,5 +295,4 @@ public class FederatedOperationHandlerTest {
         assertTrue(mergedView.getEntities().entrySet().stream().allMatch(x -> x.getValue().getPostAggregationFilter() != null));
 
     }
-
 }
