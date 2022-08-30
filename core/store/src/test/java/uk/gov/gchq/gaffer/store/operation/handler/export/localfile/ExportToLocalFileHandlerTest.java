@@ -55,7 +55,7 @@ public class ExportToLocalFileHandlerTest {
     @BeforeEach
     public void setUp() {
         try {
-            path = tempDir.resolve("testfile.txt");
+            path = tempDir.resolve("testfile.csv");
         } catch (InvalidPathException ipe) {
             System.err.println(
                     "error creating temporary test file in " +
