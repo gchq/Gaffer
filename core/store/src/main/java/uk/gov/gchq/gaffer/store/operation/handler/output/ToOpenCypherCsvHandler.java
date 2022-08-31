@@ -74,11 +74,12 @@ public class ToOpenCypherCsvHandler implements OutputOperationHandler<ToOpenCyph
         return headersFromSchema;
     }
 
-     private OpenCypherCsvGenerator createGenerator(final LinkedHashMap<String, String> headersFromSchema, final boolean neo4jFormat) {
+
+    private OpenCypherCsvGenerator createGenerator(final LinkedHashMap<String, String> headersFromSchema, final boolean neo4jFormat) {
         return new OpenCypherCsvGenerator.Builder()
-                .headers(headersFromSchema)
-                .neo4jFormat(neo4jFormat)
-                .build();
+               .headers(headersFromSchema)
+               .neo4jFormat(neo4jFormat)
+               .build();
     }
     private OpenCypherCsvGenerator createGenerator(final LinkedHashMap<String, String> headersFromSchema, final ToOpenCypherCsv operation) {
         return createGenerator(headersFromSchema, operation.isNeo4jFormat());
