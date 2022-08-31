@@ -23,6 +23,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.export.LocalFileExporterTest;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.LocalFileExporter;

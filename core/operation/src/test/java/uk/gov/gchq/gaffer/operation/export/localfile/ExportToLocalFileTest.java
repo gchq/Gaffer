@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.export.localfile;
 
-import com.google.common.collect.Sets;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 
