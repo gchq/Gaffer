@@ -76,7 +76,7 @@ public class ToOpenCypherCsvHandler implements OutputOperationHandler<ToOpenCyph
 
 
     private OpenCypherCsvGenerator createGenerator(final LinkedHashMap<String, String> headersFromSchema, final boolean neo4jFormat) {
-       return new OpenCypherCsvGenerator.Builder()
+        return new OpenCypherCsvGenerator.Builder()
                .headers(headersFromSchema)
                .neo4jFormat(neo4jFormat)
                .build();
