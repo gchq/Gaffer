@@ -212,8 +212,8 @@
                                     <shadedPattern>hidden.com.fasterxml.jackson</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.apache.commons</pattern>
-                                    <shadedPattern>hidden.org.apache.commons</shadedPattern>
+                                    <pattern>org.apache.commons.lang3</pattern>
+                                    <shadedPattern>hidden.org.apache.commons.lang3</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.google</pattern>
