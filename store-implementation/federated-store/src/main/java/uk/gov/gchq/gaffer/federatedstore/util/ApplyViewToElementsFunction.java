@@ -39,19 +39,22 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
     HashMap<String, Object> context;
 
     public ApplyViewToElementsFunction() {
-        this(null);
     }
 
     public ApplyViewToElementsFunction(final HashMap<String, Object> context) {
-        this.context = context;
+        this();
+        this.context = validate(context);
     }
 
     @Override
     public ApplyViewToElementsFunction createFunctionWithContext(final HashMap<String, Object> context) {
+        return new ApplyViewToElementsFunction(context);
+    }
 
+    private static HashMap<String, Object> validate(final HashMap<String, Object> context) {
         View view = (View) context.get(VIEW);
         if (view == null) {
-            context.put(VIEW, new View());
+            context.put(VIEW, new View()); //TODO FS CAN/CAN'T HAVE EMPTY VIEW!?!?!?!
             // throw new IllegalArgumentException(String.format(MISSING_S, ApplyViewToElementsFunction.class.getCanonicalName(), VIEW));
         } else if (view.hasTransform()) {
             throw new UnsupportedOperationException("Error: can not use the default merge function with a POST AGGREGATION TRANSFORM VIEW, " +
@@ -65,7 +68,7 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
             context.put(SCHEMA, new Schema());
             // throw new IllegalArgumentException(String.format(MISSING_S, ApplyViewToElementsFunction.class.getCanonicalName(), SCHEMA));
         }
-        return new ApplyViewToElementsFunction(context);
+        return context;
     }
 
     @Override

@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.assertj.core.api.InstanceOfAssertFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -99,7 +102,8 @@ public class FederatedStoreWrongGraphIDsTest {
                         .build(), contextBlankUser());
 
         //when
-        final Iterable<? extends Element> getAllElements = federatedStore.execute(new GetAllElements.Builder().build(), contextBlankUser());
+        final Iterable<? extends String> graphs = federatedStore.execute(new GetAllGraphIds(), contextBlankUser());
+        final Iterable<? extends Element> getAllElements = federatedStore.execute(new GetAllElements(), contextBlankUser());
         final Iterable<? extends Element> getAllElementsFromAccumuloGraph = federatedStore.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(GRAPH_ID_ACCUMULO), contextBlankUser());
         final Exception gettingElementsFromWrongGraph = assertThrows(IllegalArgumentException.class, () -> federatedStore.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(WRONG_GRAPH_ID), contextBlankUser()));
         final Exception addingElementsToWrongGraph = assertThrows(IllegalArgumentException.class, () -> federatedStore.execute(new FederatedOperation.Builder()
@@ -110,20 +114,22 @@ public class FederatedStoreWrongGraphIDsTest {
                 .build(), contextBlankUser()));
 
         //then
-        assertThat(getAllElements)
-                .withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT)
-                .size().isEqualTo(1)
-                .returnToIterable()
-                .first().isEqualTo(EXPECTED_ENTITY);
-
-        assertThat(getAllElementsFromAccumuloGraph)
-                .withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT)
-                .size().isEqualTo(1)
-                .returnToIterable()
-                .first().isEqualTo(EXPECTED_ENTITY);
+        assertThat(graphs).asInstanceOf(InstanceOfAssertFactories.iterable(String.class)).containsExactly(GRAPH_ID_ACCUMULO);
 
         assertThat(gettingElementsFromWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)));
 
         assertThat(addingElementsToWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)));
+
+        assertThat(getAllElements)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT)
+                .containsExactly(EXPECTED_ENTITY);
+
+        assertThat(getAllElementsFromAccumuloGraph)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT)
+                .containsExactly(EXPECTED_ENTITY);
+
+
     }
 }
