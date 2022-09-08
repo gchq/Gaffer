@@ -61,26 +61,26 @@ public class AccumuloPropertiesTest {
     public void getEnabledKerberosShouldReturnFalseIfSetFalse() {
         // Given
         final AccumuloProperties props = new AccumuloProperties();
-        final boolean ENABLE_KERBEROS = false;
+        final boolean EnableKerberos = false;
 
         // When
-        props.setEnableKerberos(ENABLE_KERBEROS);
+        props.setEnableKerberos(EnableKerberos);
 
         // Then
-        assertEquals(ENABLE_KERBEROS, props.getEnableKerberos());
+        assertEquals(EnableKerberos, props.getEnableKerberos());
     }
 
     @Test
     public void getEnabledKerberosShouldReturnTrueIfSetTrue() {
         // Given
         final AccumuloProperties props = new AccumuloProperties();
-        final boolean ENABLE_KERBEROS = true;
+        final boolean EnableKerberos = true;
 
         // When
-        props.setEnableKerberos(ENABLE_KERBEROS);
+        props.setEnableKerberos(EnableKerberos);
 
         // Then
-        assertEquals(ENABLE_KERBEROS, props.getEnableKerberos());
+        assertEquals(EnableKerberos, props.getEnableKerberos());
     }
 
     @Test
@@ -96,13 +96,13 @@ public class AccumuloPropertiesTest {
     public void getPrincipalShouldReturnPrincipal() {
         // Given
         final AccumuloProperties props = new AccumuloProperties();
-        final String PRINCIPAL = "test.principal";
+        final String Principal = "test.principal";
 
         // When
-        props.setPrincipal(PRINCIPAL);
+        props.setPrincipal(Principal);
 
         // Then
-        assertEquals(PRINCIPAL, props.getPrincipal());
+        assertEquals(Principal, props.getPrincipal());
     }
 
     @Test
@@ -118,13 +118,13 @@ public class AccumuloPropertiesTest {
     public void getKeytabPathShouldReturnKeytabPathWhenSet() {
         // Given
         final AccumuloProperties props = new AccumuloProperties();
-        final String KEYTAB_PATH = "path/to/keytab";
+        final String KeytabPath = "path/to/keytab";
 
         // When
-        props.setKeytabPath(KEYTAB_PATH);
+        props.setKeytabPath(KeytabPath);
 
         // Then
-        assertEquals(KEYTAB_PATH, props.getKeytabPath());
+        assertEquals(KeytabPath, props.getKeytabPath());
     }
 
     @Test
