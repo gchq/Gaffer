@@ -258,7 +258,7 @@ public final class TableUtils {
             KerberosToken token = new KerberosToken();
             Connector conn = instance.getConnector(token.getPrincipal(), token);
             return conn;
-        } catch (final AccumuloException | AccumuloSecurityException | IOException e) {
+        } catch (final Exception e) {
             throw new StoreException("Failed to create accumulo connection (using Kerberos authentication)", e);
         }
     }
@@ -292,7 +292,7 @@ public final class TableUtils {
     public static Authorizations getCurrentAuthorizations(final Connector connection) throws StoreException {
         try {
             return connection.securityOperations().getUserAuthorizations(connection.whoami());
-        } catch (final AccumuloException | AccumuloSecurityException e) {
+        } catch (final Exception e) {
             throw new StoreException(e.getMessage(), e);
         }
     }
