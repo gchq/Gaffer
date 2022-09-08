@@ -28,10 +28,10 @@ import uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuite;
  * '@ConfigurationParameter(key = "initClass", value = "FQCN.of.your.class")'
  * as an annotation. This is required for JUnit to initialise values used
  * by the tests (e.g. Store Properties). You can use annotations from
- * {@link org.junit.platform.suite.api} to include/exclude integration test
- * classes or select additional classes to add to the test Suite.
+ * package {@code org.junit.platform.suite.api} to include/exclude integration
+ * test classes or select additional classes to add to the test Suite. See
+ * {@link org.junit.platform.suite.api.Suite} for more information.
  */
-
 @Suite
 @SelectPackages("uk.gov.gchq.gaffer.integration.impl")
 @IncludeClassNamePatterns(".*IT")

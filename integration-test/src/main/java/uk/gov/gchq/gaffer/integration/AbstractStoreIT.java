@@ -79,8 +79,8 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 
 /**
  * Logic/config for setting up and running store integration tests.
- * The storeProperties variable must have been set by a Suite initialisation class
- * (an extension of {@link AbstractStoreITs}) prior to running the tests.
+ * The storeSchema and storeProperties variables are injected
+ * {@link IntegrationTestSuiteExtension} on initialisation.
  */
 @ExtendWith(IntegrationTestSuiteExtension.class)
 public abstract class AbstractStoreIT {
@@ -176,14 +176,14 @@ public abstract class AbstractStoreIT {
         // Override if required;
     }
 
-    protected void initialise(final TestInfo name) throws Exception {
+    protected void initialise(final TestInfo testInfo) throws Exception {
         entities = createEntities();
         duplicateEntities = duplicate(entities.values());
 
         edges = createEdges();
         duplicateEdges = duplicate(edges.values());
 
-        method = name.getTestMethod().orElseThrow(IllegalArgumentException::new);
+        method = testInfo.getTestMethod().orElseThrow(IllegalArgumentException::new);
     }
 
     protected void validateTest() {
@@ -205,22 +205,22 @@ public abstract class AbstractStoreIT {
         }
 
         for (final StoreTrait requiredTrait : requiredTraits) {
-            assumeThat(graph.execute(new HasTrait.Builder().trait(requiredTrait).currentTraits(false).build(), new Context())).as("Skipping test as the store does not implement all required traits.").isTrue();
+            assumeThat(graph.execute(new HasTrait.Builder().trait(requiredTrait).currentTraits(false).build(), new Context()))
+                    .as("Skipping test as the store does not implement all required traits.")
+                    .isTrue();
         }
     }
 
     protected void applyVisibilityUser() {
         if (!userMap.isEmpty()) {
-            if (method.getDeclaredAnnotations() != null) {
-                for (final Annotation annotation : method.getDeclaredAnnotations()) {
-                    if (annotation.annotationType().equals(VisibilityUser.class)) {
-                        final VisibilityUser userAnnotation = (VisibilityUser) annotation;
+            for (final Annotation annotation : method.getDeclaredAnnotations()) {
+                if (annotation.annotationType().equals(VisibilityUser.class)) {
+                    final VisibilityUser userAnnotation = (VisibilityUser) annotation;
 
-                        final User user = userMap.get(userAnnotation.value());
+                    final User user = userMap.get(userAnnotation.value());
 
-                        if (null != user) {
-                            this.user = user;
-                        }
+                    if (user != null) {
+                        this.user = user;
                     }
                 }
             }

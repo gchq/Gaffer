@@ -21,26 +21,30 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Classes implementing the {@code IntegrationTestSuite} {@code Interface} must override
- * the {@link #getObjects()} and {@link #getTestsToSkip()} methods. Further information on
- * how this class is used can be found at the {@link IntegrationTestSuiteExtension}.
+ * Classes implementing the {@code IntegrationTestSuite} {@code Interface} must
+ * override the {@link #getObjects()} and {@link #getTestsToSkip()} methods.
+ * Further information on how this class is used can be found at the
+ * {@link IntegrationTestSuiteExtension}.
  */
 public interface IntegrationTestSuite {
 
     /**
-     * Returns an {@link Optional} {@link Object} {@link Set} of values used by {@link org.junit.jupiter.api.Test}
-     * classes during the execution of the {@link org.junit.jupiter.api.Test} {@link org.junit.platform.suite.api.Suite}
+     * Returns an {@link Optional} {@link Object} {@link Set} of values used by
+     * test classes during the execution of the test
+     * {@link org.junit.platform.suite.api.Suite}
      *
      * @return an {@link Optional} {@link Object} {@link Set}
      */
     Optional<Set<Object>> getObjects();
 
     /**
-     * Returns an {@link Optional} {@link Map} of {@code tests-to-skip} that is used during the {@link org.junit.jupiter.api.Test}
-     * {@link org.junit.platform.suite.api.Suite} execution to omit the tests specified.
+     * Returns an {@link Optional} {@link Map} of {@code tests-to-skip} that is
+     * used during the test {@link org.junit.platform.suite.api.Suite} execution
+     * to omit the tests specified.
      *
-     * @return an {@link Optional} {@link Map} of {@link org.junit.jupiter.api.Test} methods to skip together with the reason
-     * for skipping the test
+     * @return an {@link Optional} {@link Map} of
+     * {@link org.junit.jupiter.api.Test} methods to skip together with the
+     * reason for skipping the test
      */
     Optional<Map<String, String>> getTestsToSkip();
 }
