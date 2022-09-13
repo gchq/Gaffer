@@ -109,9 +109,6 @@ public abstract class AbstractStoreIT {
     public static final String DEST_3 = DEST + 3;
 
     public static final String SOURCE_DIR_0 = SOURCE_DIR + 0;
-    /*
-     * Not used. Remove?
-     */
     public static final String DEST_DIR_0 = DEST_DIR + 0;
 
     public static final String SOURCE_DIR_1 = SOURCE_DIR + 1;
