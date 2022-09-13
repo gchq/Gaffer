@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View.Builder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -255,19 +254,6 @@ public abstract class AbstractStoreIT {
         applyVisibilityUser();
     }
 
-    /*
-     * Not used. Remove?
-     */
-    public void createGraph(final Schema schema, final StoreProperties properties) {
-        graph = new Graph.Builder()
-                .config(createGraphConfig())
-                .storeProperties(properties)
-                .addSchema(schema)
-                .build();
-
-        applyVisibilityUser();
-    }
-
     public void createGraph(final StoreProperties properties) {
         graph = new Graph.Builder()
                 .config(createGraphConfig())
@@ -285,20 +271,6 @@ public abstract class AbstractStoreIT {
                 .storeProperties(getStoreProperties())
                 .addSchema(createSchema())
                 .addSchema(getStoreSchema());
-    }
-
-    /*
-     * Not used. Remove?
-     */
-    protected void addStoreProperties(final StoreProperties storeProperties) {
-        graph = getGraphBuilder().addStoreProperties(storeProperties).build();
-    }
-
-    /*
-     * Not used. Remove?
-     */
-    protected void addGraphConfig(final GraphConfig graphConfig) {
-        graph = getGraphBuilder().config(graphConfig).build();
     }
 
     protected Schema createSchema() {
@@ -391,18 +363,6 @@ public abstract class AbstractStoreIT {
         return (List) Lists.newArrayList((Iterable) AggregatorUtil.ingestAggregate(jsonClone(duplicateEntities), schema));
     }
 
-    /*
-     * Not used. Remove?
-     */
-    public List<Entity> getQuerySummarisedEntities() {
-        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
-        final View view = new Builder()
-                .entities(schema.getEntityGroups())
-                .edges(schema.getEdgeGroups())
-                .build();
-        return getQuerySummarisedEntities(view);
-    }
-
     @SuppressWarnings({"unchecked", "rawtypes"})
     public List<Entity> getQuerySummarisedEntities(final View view) {
         final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
@@ -418,18 +378,6 @@ public abstract class AbstractStoreIT {
     public List<Edge> getIngestSummarisedEdges() {
         final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
         return (List) Lists.newArrayList((Iterable) AggregatorUtil.ingestAggregate(jsonClone(duplicateEdges), schema));
-    }
-
-    /*
-     * Not used. Remove?
-     */
-    public List<Edge> getQuerySummarisedEdges() {
-        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
-        final View view = new Builder()
-                .entities(schema.getEntityGroups())
-                .edges(schema.getEdgeGroups())
-                .build();
-        return getQuerySummarisedEdges(view);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
