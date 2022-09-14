@@ -19,12 +19,27 @@ import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -36,22 +51,43 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
     public static final String MISSING_S = "Context is not complete for %s missing: %s";
     public static final String VIEW = "view";
     public static final String SCHEMA = "schema";
+    public static final String FEDERATED_STORE = "federatedStore";
+    public static final String CONTEXT = "context";
+    public static final String TEMP_GRAPH_NAME = "tempGraphName";
     HashMap<String, Object> context;
 
     public ApplyViewToElementsFunction() {
     }
 
-    public ApplyViewToElementsFunction(final HashMap<String, Object> context) {
+    public ApplyViewToElementsFunction(final HashMap<String, Object> context) throws GafferCheckedException {
         this();
         this.context = validate(context);
+        final FederatedStore federatedStore = (FederatedStore) context.get(FEDERATED_STORE);
+
+        final String graphId = "temp" + new Random().nextInt(1000);
+        context.put(TEMP_GRAPH_NAME, graphId);
+        try {
+            federatedStore.execute(new AddGraph.Builder().graphId(graphId).schema((Schema) context.get(SCHEMA)).storeProperties(new MapStoreProperties()).build(), (Context) context.get(CONTEXT));
+        } catch (final Exception e) {
+            throw new GafferCheckedException("Unable to create temporary MapStore of results",e);
+        }
     }
 
     @Override
-    public ApplyViewToElementsFunction createFunctionWithContext(final HashMap<String, Object> context) {
+    public ApplyViewToElementsFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
         return new ApplyViewToElementsFunction(context);
     }
 
     private static HashMap<String, Object> validate(final HashMap<String, Object> context) {
+
+        final FederatedStore federatedStore = (FederatedStore) context.get(FEDERATED_STORE);
+        if (federatedStore == null) {
+            throw new UnsupportedOperationException("This function needs a FederatedS tore to produce a temporary MapStore for results");
+        }
+        final Context storeContext = (Context) context.get(CONTEXT);
+        if (storeContext == null) {
+            throw new UnsupportedOperationException("This function needs a context to produce a temporary MapStore for results");
+        }
         View view = (View) context.get(VIEW);
         if (view == null) {
             context.put(VIEW, new View()); //TODO FS CAN/CAN'T HAVE EMPTY VIEW!?!?!?!
@@ -74,18 +110,38 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
     @Override
     public Set<String> getRequiredContextValues() {
         //TODO FS get Required/optional ContextValues too similar to Maestro
-        return ImmutableSet.copyOf(new String[]{VIEW, SCHEMA});
+        return ImmutableSet.copyOf(new String[]{VIEW, SCHEMA, FEDERATED_STORE, CONTEXT});
     }
 
     @Override
     public Iterable<Object> apply(final Object first, final Iterable<Object> next) {
         //TODO FS Test
-        final Iterable<Object> concatResults = new DefaultBestEffortsMergeFunction().apply(first, next);
+        if (next instanceof Closeable) {
+            Closeable closeable = (Closeable) next;
+            try {
+                closeable.close();
+            } catch (final IOException e) {
+                throw new GafferRuntimeException("Error closing looped iterable", e);
+            }
+        }
 
-        final HashMap<String, Object> clone = (HashMap<String, Object>) context.clone();
-        clone.put("concatResults", concatResults);
+        final FederatedStore federatedStore = (FederatedStore) context.get(FEDERATED_STORE);
+        try {
+            //TODO FS attention to Input
+            federatedStore.execute(new AddElements.Builder().input((Iterable<Element>) first).build(), (Context) context.get(CONTEXT));
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException("Error adding elements to temporary graph", e);
+        }
 
-        return new ViewFilteredIterable(clone);
+        try {
+            //TODO FS improve this horrible graph manipulation.
+            final Collection<Graph> graphs = federatedStore.getGraphs(((Context) context.get(CONTEXT)).getUser(), (String) context.get(TEMP_GRAPH_NAME), new FederatedOperation<>());
+            final Graph next1 = graphs.iterator().next();
+            //TODO FS attention to VIEW
+            return  (Iterable)    next1.execute(new GetAllElements.Builder().view((View) context.get(VIEW)).build(), (Context) context.get(CONTEXT));
+        } catch (OperationException e) {
+            throw new GafferRuntimeException("Error getting all elements from temporary graph", e);
+        }
     }
 
     @Override

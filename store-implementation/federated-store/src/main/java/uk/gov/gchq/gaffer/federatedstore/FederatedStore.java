@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.NoAccessUserPredicate;
+import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
@@ -589,7 +590,7 @@ public class FederatedStore extends Store {
         return isNullOrEmpty(getGraphId()) ? FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY : getGraphId();
     }
 
-    public BiFunction getDefaultMergeFunction(final FederatedOperation federatedOperation, final Operation payload, final Context context) {
+    public BiFunction getDefaultMergeFunction(final FederatedOperation federatedOperation, final Operation payload, final Context context) throws GafferCheckedException {
         BiFunction rtn;
         if (isNull(configuredDefaultMergeFunctions) || isNull(payload)) {
             rtn = getHardCodedDefaultMergeFunction();
@@ -615,6 +616,7 @@ public class FederatedStore extends Store {
                     }
                     functionContext.put(SCHEMA, schema);
                 }
+                //TODO FS tidy up ifs
                 if (specificMergeFunction.isRequired(VIEW)) {
                     functionContext.put(VIEW, ((OperationView) payload).getView());
                 }

@@ -15,9 +15,13 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.StoreUser;
@@ -36,6 +40,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextBl
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.edgeBasic;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
+import static uk.gov.gchq.gaffer.user.StoreUser.*;
 
 class ApplyViewToElementsFunctionTest {
 
@@ -50,7 +55,7 @@ class ApplyViewToElementsFunctionTest {
         addEdgeBasic(accumuloStore);
 
         //when
-        final AccumuloAllElementsRetriever elements = new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), StoreUser.blankUser());
+        final AccumuloAllElementsRetriever elements = new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), blankUser());
 
         //then
         assertThat(elements)
@@ -73,7 +78,7 @@ class ApplyViewToElementsFunctionTest {
         final AccumuloStore accumuloStore = getTestStore();
         addEdgeBasic(accumuloStore);
         AccumuloAllElementsRetriever[] retrievers = getRetrievers(accumuloStore);
-        final ApplyViewToElementsFunction function = new ApplyViewToElementsFunction().createFunctionWithContext(makeContext(new View.Builder().edge(GROUP_BASIC_EDGE).build(), SCHEMA.clone()));
+        final ApplyViewToElementsFunction function = new ApplyViewToElementsFunction().createFunctionWithContext(makeContext(new View.Builder().edge(GROUP_BASIC_EDGE).build(), SCHEMA.clone(), getFederatedStore(), new Context(blankUser())));
 
         //when
         Iterable<Object> iterable = null;
@@ -82,13 +87,19 @@ class ApplyViewToElementsFunctionTest {
         }
 
         //then
-        final Edge edge3 = edgeBasic();
+        final Edge edge5 = edgeBasic();
         //With aggregated property value of 5
-        edge3.putProperty(PROPERTY_1, 5);
+        edge5.putProperty(PROPERTY_1, 5);
 
         assertThat(iterable)
                 .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
-                .containsExactly(edge3);
+                .containsExactly(edge5);
+    }
+
+    private static FederatedStore getFederatedStore() throws StoreException {
+        final FederatedStore federatedStore = new FederatedStore();
+        federatedStore.initialise(FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), new FederatedStoreProperties());
+        return federatedStore;
     }
 
     @Test
@@ -107,7 +118,9 @@ class ApplyViewToElementsFunctionTest {
                                                 .execute(new IsLessThan(3))
                                                 .build())
                                         .build()).build(),
-                        SCHEMA.clone()));
+                        SCHEMA.clone(),
+                        getFederatedStore(),
+                        new Context(blankUser())));
 
         //when
         Iterable<Object> iterable = null;
@@ -123,11 +136,11 @@ class ApplyViewToElementsFunctionTest {
 
     private static AccumuloAllElementsRetriever[] getRetrievers(final AccumuloStore accumuloStore) throws IteratorSettingException, StoreException {
         return new AccumuloAllElementsRetriever[]{
-                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), StoreUser.blankUser()),
-                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), StoreUser.blankUser()),
-                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), StoreUser.blankUser()),
-                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), StoreUser.blankUser()),
-                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), StoreUser.blankUser())
+                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), blankUser()),
+                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), blankUser()),
+                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), blankUser()),
+                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), blankUser()),
+                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), blankUser())
         };
     }
 
@@ -137,10 +150,12 @@ class ApplyViewToElementsFunctionTest {
         return accumuloStore;
     }
 
-    private static HashMap<String, Object> makeContext(final View view, final Schema schema) {
+    private static HashMap<String, Object> makeContext(final View view, final Schema schema, final FederatedStore federatedStore, final Context context) {
         final HashMap<String, Object> map = new HashMap<>();
         map.put(ApplyViewToElementsFunction.VIEW, view);
         map.put(ApplyViewToElementsFunction.SCHEMA, schema);
+        map.put(ApplyViewToElementsFunction.FEDERATED_STORE,federatedStore);
+        map.put(ApplyViewToElementsFunction.CONTEXT,context);
         return map;
     }
 

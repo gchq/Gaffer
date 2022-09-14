@@ -1,5 +1,7 @@
 package uk.gov.gchq.gaffer.federatedstore.util;
 
+import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
+
 import java.util.HashMap;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -13,9 +15,9 @@ import java.util.function.BiFunction;
  * @see BiFunction
  */
 public interface ContextSpecificMergeFunction<T, U, R> extends BiFunction<T, U, R> {
-    ContextSpecificMergeFunction<T, U, R> createFunctionWithContext(final HashMap<String, Object> context);
+    ContextSpecificMergeFunction<T, U, R> createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException; //TODO FS do I want a checkedException?
 
-    default boolean isRequired(final String name){
+    default boolean isRequired(final String name) {
         return getRequiredContextValues().contains(name);
     }
 

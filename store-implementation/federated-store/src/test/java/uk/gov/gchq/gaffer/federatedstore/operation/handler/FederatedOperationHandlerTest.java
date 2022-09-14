@@ -524,7 +524,7 @@ public class FederatedOperationHandlerTest {
     }
 
     @Test
-    public void shouldMergeVariousReturnsFromGraphs() {
+    public void shouldMergeVariousReturnsFromGraphs() throws Exception {
         // Given
         final BiFunction function = new FederatedStore().getDefaultMergeFunction(null, null, context);
 
