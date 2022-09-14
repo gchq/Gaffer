@@ -25,7 +25,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
-import org.junit.platform.commons.util.ExceptionUtils;
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +38,9 @@ import java.util.stream.Collectors;
 
 import static org.junit.platform.commons.support.ReflectionSupport.tryToLoadClass;
 import static org.junit.platform.commons.util.AnnotationUtils.findAnnotatedFields;
+import static org.junit.platform.commons.util.ExceptionUtils.throwAsUncheckedException;
 import static org.junit.platform.commons.util.ReflectionUtils.makeAccessible;
+import static org.junit.platform.commons.util.ReflectionUtils.newInstance;
 
 /**
  * <p>
@@ -274,7 +275,7 @@ public class IntegrationTestSuiteExtension implements ParameterResolver, BeforeA
                 LOGGER.debug("Object [{}] found for the field", object);
                 makeAccessible(field).set(instance, object);
             } catch (final Throwable t) {
-                ExceptionUtils.throwAsUncheckedException(t);
+                throwAsUncheckedException(t);
             }
         });
     }
@@ -301,7 +302,7 @@ public class IntegrationTestSuiteExtension implements ParameterResolver, BeforeA
                 } else {
                     final Optional<Class<?>> classOptional = tryToLoadClass(initClass).toOptional();
                     if (classOptional.isPresent()) {
-                        final Object object = ReflectionUtils.newInstance(classOptional.get());
+                        final Object object = newInstance(classOptional.get());
                         if (object instanceof IntegrationTestSuite) {
                             integrationTestSuite = (IntegrationTestSuite) object;
                         } else {
