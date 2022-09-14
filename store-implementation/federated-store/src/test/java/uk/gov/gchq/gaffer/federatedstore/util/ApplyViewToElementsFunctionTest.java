@@ -1,8 +1,6 @@
 package uk.gov.gchq.gaffer.federatedstore.util;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.assertj.core.api.IterableAssert;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -21,13 +19,10 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,10 +35,9 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextBl
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.edgeBasic;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
-import static uk.gov.gchq.gaffer.user.StoreUser.*;
+import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 
 class ApplyViewToElementsFunctionTest {
-
 
     public static final Schema SCHEMA = loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON);
     public static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
@@ -51,7 +45,7 @@ class ApplyViewToElementsFunctionTest {
     @Test
     public void shouldGetFunctioningIteratorOfAccumuloElementRetriever() throws Exception {
         //given
-        final AccumuloStore accumuloStore = getTestStore();
+        final AccumuloStore accumuloStore = getTestStore("shouldGetFunctioningIteratorOfAccumuloElementRetriever");
         addEdgeBasic(accumuloStore);
 
         //when
@@ -75,10 +69,13 @@ class ApplyViewToElementsFunctionTest {
     @Test
     public void shouldAggregateEdgesFromMultipleRetrievers() throws Exception {
         //given
-        final AccumuloStore accumuloStore = getTestStore();
+        final AccumuloStore accumuloStore = getTestStore("shouldAggregateEdgesFromMultipleRetrievers");
         addEdgeBasic(accumuloStore);
         AccumuloAllElementsRetriever[] retrievers = getRetrievers(accumuloStore);
-        final ApplyViewToElementsFunction function = new ApplyViewToElementsFunction().createFunctionWithContext(makeContext(new View.Builder().edge(GROUP_BASIC_EDGE).build(), SCHEMA.clone(), getFederatedStore(), new Context(blankUser())));
+        final ApplyViewToElementsFunction function = new ApplyViewToElementsFunction().createFunctionWithContext(
+                makeContext(
+                        new View.Builder().edge(GROUP_BASIC_EDGE).build(),
+                        SCHEMA.clone()));
 
         //when
         Iterable<Object> iterable = null;
@@ -105,7 +102,7 @@ class ApplyViewToElementsFunctionTest {
     @Test
     public void shouldApplyViewToAggregatedEdgesFromMultipleRetrievers() throws Exception {
         //given
-        final AccumuloStore accumuloStore = getTestStore();
+        final AccumuloStore accumuloStore = getTestStore("shouldApplyViewToAggregatedEdgesFromMultipleRetrievers");
         addEdgeBasic(accumuloStore);
         AccumuloAllElementsRetriever[] retrievers = getRetrievers(accumuloStore);
         final ApplyViewToElementsFunction function = new ApplyViewToElementsFunction().createFunctionWithContext(
@@ -118,9 +115,7 @@ class ApplyViewToElementsFunctionTest {
                                                 .execute(new IsLessThan(3))
                                                 .build())
                                         .build()).build(),
-                        SCHEMA.clone(),
-                        getFederatedStore(),
-                        new Context(blankUser())));
+                        SCHEMA.clone()));
 
         //when
         Iterable<Object> iterable = null;
@@ -144,18 +139,18 @@ class ApplyViewToElementsFunctionTest {
         };
     }
 
-    private static AccumuloStore getTestStore() throws StoreException {
+    private static AccumuloStore getTestStore(final String instanceName) throws StoreException {
         final AccumuloStore accumuloStore = new MiniAccumuloStore();
-        accumuloStore.initialise(GRAPH_ID_ACCUMULO, SCHEMA.clone(), ACCUMULO_PROPERTIES.clone());
+        final AccumuloProperties clone = ACCUMULO_PROPERTIES.clone();
+        clone.setNamespace(instanceName); //TODO FS is there a more elegant way to have different MiniAccumuloStore? Also should I change NameSpace or GraphId because tableName = NameSpace.GraphId
+        accumuloStore.initialise(GRAPH_ID_ACCUMULO, SCHEMA.clone(), clone);
         return accumuloStore;
     }
 
-    private static HashMap<String, Object> makeContext(final View view, final Schema schema, final FederatedStore federatedStore, final Context context) {
+    private static HashMap<String, Object> makeContext(final View view, final Schema schema) {
         final HashMap<String, Object> map = new HashMap<>();
         map.put(ApplyViewToElementsFunction.VIEW, view);
         map.put(ApplyViewToElementsFunction.SCHEMA, schema);
-        map.put(ApplyViewToElementsFunction.FEDERATED_STORE,federatedStore);
-        map.put(ApplyViewToElementsFunction.CONTEXT,context);
         return map;
     }
 
