@@ -299,24 +299,18 @@ public class IntegrationTestSuiteExtension implements ParameterResolver, BeforeA
         if (INTEGRATION_TEST_SUITE_CLASS_MAP.containsKey(initClass)) {
             integrationTestSuite = INTEGRATION_TEST_SUITE_CLASS_MAP.get(initClass);
         } else {
-            synchronized (INTEGRATION_TEST_SUITE_CLASS_MAP) {
-                if (INTEGRATION_TEST_SUITE_CLASS_MAP.containsKey(initClass)) {
-                    integrationTestSuite = INTEGRATION_TEST_SUITE_CLASS_MAP.get(initClass);
+            final Optional<Class<?>> classOptional = tryToLoadClass(initClass).toOptional();
+            if (classOptional.isPresent()) {
+                final Object object = newInstance(classOptional.get());
+                if (object instanceof IntegrationTestSuite) {
+                    integrationTestSuite = (IntegrationTestSuite) object;
                 } else {
-                    final Optional<Class<?>> classOptional = tryToLoadClass(initClass).toOptional();
-                    if (classOptional.isPresent()) {
-                        final Object object = newInstance(classOptional.get());
-                        if (object instanceof IntegrationTestSuite) {
-                            integrationTestSuite = (IntegrationTestSuite) object;
-                        } else {
-                            throw new ParameterResolutionException(String.format("The object was not of required type: [%s]. Actual object type: [%s]",
-                                    IntegrationTestSuite.class.getName(), object.getClass().getName()));
-                        }
-                        INTEGRATION_TEST_SUITE_CLASS_MAP.put(initClass, integrationTestSuite);
-                    } else {
-                        throw new ParameterResolutionException(String.format("A class could not be loaded for initClass [%s]", initClass));
-                    }
+                    throw new ParameterResolutionException(String.format("The object was not of required type: [%s]. Actual object type: [%s]",
+                            IntegrationTestSuite.class.getName(), object.getClass().getName()));
                 }
+                INTEGRATION_TEST_SUITE_CLASS_MAP.put(initClass, integrationTestSuite);
+            } else {
+                throw new ParameterResolutionException(String.format("A class could not be loaded for initClass [%s]", initClass));
             }
         }
         return integrationTestSuite;
