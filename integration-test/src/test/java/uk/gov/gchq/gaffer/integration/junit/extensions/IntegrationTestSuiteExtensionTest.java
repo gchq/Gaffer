@@ -38,6 +38,7 @@ import static org.junit.platform.testkit.engine.EventConditions.finishedWithFail
 import static org.junit.platform.testkit.engine.EventConditions.skippedWithReason;
 import static org.junit.platform.testkit.engine.EventConditions.test;
 import static org.junit.platform.testkit.engine.EventConditions.uniqueIdSubstring;
+import static org.junit.platform.testkit.engine.TestExecutionResultConditions.cause;
 import static org.junit.platform.testkit.engine.TestExecutionResultConditions.message;
 import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 
@@ -248,7 +249,8 @@ class IntegrationTestSuiteExtensionTest {
                 .testEvents()
                 .assertThatEvents()
                 .haveExactly(1, event(test(FieldInjectionTestObjectNotInSetSuite.class.getName()),
-                        finishedWithFailure(message("Object of type [class java.lang.Float] not found"))))
+                        finishedWithFailure(message("Error accessing the field object"),
+                        cause(message("Object of type [class java.lang.Float] not found")))))
                 .hasSize(2);
     }
 
