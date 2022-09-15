@@ -93,7 +93,7 @@ public class ToCsvTest extends OperationTest<ToCsv> {
 
     @Override
     public Set<String> getRequiredFields() {
-        return Sets.newHashSet("elementGenerator");
+        return Sets.newHashSet("csvGenerator");
     }
 
     @Test
