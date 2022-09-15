@@ -82,8 +82,8 @@ class CreateSplitPointsTest {
         fs = createFileSystem();
 
         final String root = fs.resolvePath(new Path("/")).toString()
-                            + tempDir.getAbsolutePath()
-                            .replaceFirst("//", "/");
+            + tempDir.getAbsolutePath()
+            .replaceFirst("//", "/");
 
         LOGGER.info("using root dir: {}", root);
 

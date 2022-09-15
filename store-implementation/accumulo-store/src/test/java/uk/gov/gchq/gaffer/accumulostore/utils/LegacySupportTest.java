@@ -193,7 +193,8 @@ public class LegacySupportTest {
         }
 
         // Then
-        assertThatNoException().isThrownBy(() -> { LegacySupport.BackwardsCompatibleWriterBuilder.create(filename, fs, conf, accumuloConf); });
+        assertThatNoException().isThrownBy(() -> { LegacySupport.BackwardsCompatibleWriterBuilder
+            .create(filename, fs, conf, accumuloConf); });
         }
 
     @Test
