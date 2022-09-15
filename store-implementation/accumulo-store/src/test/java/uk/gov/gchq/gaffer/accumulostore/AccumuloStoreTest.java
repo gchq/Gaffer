@@ -459,7 +459,7 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldFailSchemaValidationWhenTimestampPropertyDoesNotHaveMaxAggregator() throws StoreException {
+    void shouldFailSchemaValidationWhenTimestampPropertyDoesNotHaveMaxAggregator() throws StoreException {
         // Given
         final AccumuloStore store = new MiniAccumuloStore();
         final Schema schema = new Schema.Builder()
@@ -485,13 +485,10 @@ public class AccumuloStoreTest {
                 .build();
 
         // When / Then
-        final String expectedMessage = "Schema is not valid. Validation errors: \n"
-                + "The aggregator for the timestamp property must be set to: uk.gov.gchq.koryphe.impl.binaryoperator.Max "
-                + "this cannot be overridden for this Accumulo Store, as you have told Accumulo to store this property "
-                + "in the timestamp column.";
+        final String expectedMessage ="The aggregator for the timestamp property must be set to: uk.gov.gchq.koryphe.impl.binaryoperator.Max";
 
         assertThatExceptionOfType(SchemaException.class)
                 .isThrownBy(() -> store.initialise("graphId", schema, PROPERTIES))
-                .withMessage(expectedMessage);
+                .withMessageContaining(expectedMessage);
     }
 }
