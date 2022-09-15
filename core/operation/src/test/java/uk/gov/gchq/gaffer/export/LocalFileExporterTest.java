@@ -21,6 +21,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.LocalFileExporter;
 
 import java.io.File;
@@ -38,11 +41,13 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LocalFileExporterTest {
+    final Logger logger = LoggerFactory.getLogger(LocalFileExporterTest.class);
     public static final ArrayList<String> INPUT = Lists.newArrayList("header", "line1", "line2");
     private Path path;
     private File file;
 
-    /* This directory and the files created in it will be deleted after
+    /**
+     *  This directory and the files created in it will be deleted after
      * tests are run, even in the event of failures or exceptions.
      */
     @TempDir
@@ -53,9 +58,7 @@ public class LocalFileExporterTest {
         try {
             path = tempDir.resolve("testfile.csv");
         } catch (InvalidPathException ipe) {
-            System.err.println(
-                    "error creating temporary test file in " +
-                            this.getClass().getSimpleName());
+            logger.error("error creating temporary test file in " + this.getClass().getSimpleName());
         }
 
         file = path.toFile();
@@ -65,16 +68,15 @@ public class LocalFileExporterTest {
     public void shouldWriteToLocalFile() throws Exception {
         // Given
         final LocalFileExporter exporter = new LocalFileExporter();
+        List<String> fileOutput = null;
 
         // When
-       exporter.add(file.getAbsolutePath(), INPUT);
-        //read file into stream, try-with-resources
+        exporter.add(file.getAbsolutePath(), INPUT);
 
-        List<String> fileOutput = null;
         try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {
             fileOutput = lines.collect(Collectors.toList());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
 
         // Then

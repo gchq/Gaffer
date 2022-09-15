@@ -33,7 +33,7 @@ public class LocalFileExporter implements Exporter {
         try {
             Files.write(Paths.get(filePath), (Iterable<? extends CharSequence>) results);
         } catch (final IOException e) {
-            throw new OperationException(e.getMessage());
+            throw new OperationException(e.getMessage(), e);
         }
     }
 

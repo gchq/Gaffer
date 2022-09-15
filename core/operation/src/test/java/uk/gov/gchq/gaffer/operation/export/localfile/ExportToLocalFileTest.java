@@ -16,22 +16,25 @@
 
 package uk.gov.gchq.gaffer.operation.export.localfile;
 
-import com.google.common.collect.Sets;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExportToLocalFileTest extends OperationTest<ExportToLocalFile>  {
 
+    @Required
     public static final String FILE_PATH = "path/to/file.csv";
     public static final ArrayList<String> INPUT = Lists.newArrayList("header", "line1", "line2");
 
@@ -85,7 +88,7 @@ public class ExportToLocalFileTest extends OperationTest<ExportToLocalFile>  {
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("filePath");
+        return new HashSet(Collections.singleton("filePath"));
     }
 
     protected ExportToLocalFile getPopulatedObject() {
