@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package uk.gov.gchq.gaffer.data.generator;
 
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
