@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -38,7 +39,7 @@ import java.util.Map;
  *
  * @see ToCsv.Builder
  */
-@JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "input", "csvGenerator"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Converts elements to CSV Strings")
 public class ToCsv implements
@@ -46,18 +47,20 @@ public class ToCsv implements
         MultiInput<Element> {
 
     @Required
-    private CsvGenerator elementGenerator;
+    private CsvGenerator csvGenerator;
     private Iterable<? extends Element> input;
     private boolean includeHeader = true;
     private Map<String, String> options;
 
+    private CsvFormat csvFormat;
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public CsvGenerator getElementGenerator() {
-        return elementGenerator;
+    public CsvGenerator getCsvGenerator() {
+        return csvGenerator;
     }
 
-    void setElementGenerator(final CsvGenerator elementGenerator) {
-        this.elementGenerator = elementGenerator;
+    void setCsvGenerator(final CsvGenerator csvGenerator) {
+        this.csvGenerator = csvGenerator;
     }
 
     @Override
@@ -78,6 +81,14 @@ public class ToCsv implements
         this.includeHeader = includeHeader;
     }
 
+    public CsvFormat getCsvFormat() {
+        return csvFormat;
+    }
+
+    public void setCsvFormat(final CsvFormat csvFormat) {
+        this.csvFormat = csvFormat;
+    }
+
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableString();
@@ -86,7 +97,7 @@ public class ToCsv implements
     @Override
     public ToCsv shallowClone() {
         return new ToCsv.Builder()
-                .generator(elementGenerator)
+                .generator(csvGenerator)
                 .input(input)
                 .includeHeader(includeHeader)
                 .options(options)
@@ -115,12 +126,17 @@ public class ToCsv implements
          * @return this Builder
          */
         public ToCsv.Builder generator(final CsvGenerator generator) {
-            _getOp().setElementGenerator(generator);
+            _getOp().setCsvGenerator(generator);
             return _self();
         }
 
         public ToCsv.Builder includeHeader(final boolean includeHeader) {
             _getOp().setIncludeHeader(includeHeader);
+            return _self();
+        }
+
+        public ToCsv.Builder csvFormat(final CsvFormat csvFormat) {
+            _getOp().setCsvFormat(csvFormat);
             return _self();
         }
     }
