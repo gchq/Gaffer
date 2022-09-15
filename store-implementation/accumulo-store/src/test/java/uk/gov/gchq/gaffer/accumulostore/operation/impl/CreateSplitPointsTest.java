@@ -18,19 +18,19 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.curator.shaded.com.google.common.io.Files;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -59,13 +59,12 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CreateSplitPointsTest {
+class CreateSplitPointsTest {
     private static final String VERTEX_ID_PREFIX = "vertexId";
     public static final int NUM_ENTITIES = 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsTest.class);
 
-    @TempDir
-    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
+    File tempDir;
 
     private FileSystem fs;
 
@@ -78,13 +77,13 @@ public class CreateSplitPointsTest {
 
     @BeforeEach
     public void setup() throws IOException {
+        tempDir = Files.createTempDir();
 
         fs = createFileSystem();
 
         final String root = fs.resolvePath(new Path("/")).toString()
-                .replaceFirst("/$", "")
-                + testFolder.getAbsolutePath();
-
+                            + tempDir.getAbsolutePath()
+                            .replaceFirst("//", "/");
 
         LOGGER.info("using root dir: {}", root);
 
@@ -93,8 +92,13 @@ public class CreateSplitPointsTest {
         splitsFile = root + "/splitsDir/splits";
     }
 
+    @AfterEach
+    public void cleanUp(){
+        tempDir.deleteOnExit();
+    }
+
     @Test
-    public void shouldAddElementsFromHdfs() throws Exception {
+    void shouldAddElementsFromHdfs() throws Exception {
         // Given
         createInputFile();
 
