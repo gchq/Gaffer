@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.curator.shaded.com.google.common.io.Files;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -81,9 +82,15 @@ class CreateSplitPointsTest {
 
         fs = createFileSystem();
 
-        final String root = fs.resolvePath(new Path("/")).toString()
-            + tempDir.getAbsolutePath()
-            .replaceFirst("//", "/");
+        String root = fs.resolvePath(new Path("/")).toString();
+
+        if (SystemUtils.IS_OS_WINDOWS){
+            root += tempDir.getAbsolutePath()
+                        .replaceFirst("//", "/");
+        } else {
+            root = root.replaceFirst("/$", "")
+                    + tempDir.getAbsolutePath(); 
+        }
 
         LOGGER.info("using root dir: {}", root);
 
