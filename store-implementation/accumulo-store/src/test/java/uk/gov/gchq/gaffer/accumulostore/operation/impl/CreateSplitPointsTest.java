@@ -60,7 +60,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class CreateSplitPointsTest {
+public class CreateSplitPointsTest {
     private static final String VERTEX_ID_PREFIX = "vertexId";
     public static final int NUM_ENTITIES = 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsTest.class);
@@ -84,12 +84,13 @@ class CreateSplitPointsTest {
 
         String root = fs.resolvePath(new Path("/")).toString();
 
-        if (SystemUtils.IS_OS_WINDOWS){
+        // String needs different handling if the test is run on windows
+        if (SystemUtils.IS_OS_WINDOWS) {
             root += tempDir.getAbsolutePath()
                         .replaceFirst("//", "/");
         } else {
             root = root.replaceFirst("/$", "")
-                    + tempDir.getAbsolutePath(); 
+                    + tempDir.getAbsolutePath();
         }
 
         LOGGER.info("using root dir: {}", root);
@@ -100,7 +101,7 @@ class CreateSplitPointsTest {
     }
 
     @AfterEach
-    public void cleanUp(){
+    public void cleanUp() {
         tempDir.deleteOnExit();
     }
 
