@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
@@ -69,46 +70,47 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
+class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
 
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
     private AccumuloStore store = new SingleUseMiniAccumuloStore();
+    final JobConf localConf = createLocalConf();
 
+    public AccumuloAddElementsFromHdfsJobFactory factory;
+    public FileSystem fs;
     public String inputDir;
     public String outputDir;
     public String splitsDir;
     public String splitsFile;
 
     @BeforeEach
-    public void setup(@TempDir java.nio.file.Path tempDir) {
+    public void setup(@TempDir java.nio.file.Path tempDir) throws IOException {
         inputDir = new File(tempDir.toString(), "inputDir").getAbsolutePath();
         outputDir = new File(tempDir.toString(), "outputDir").getAbsolutePath();
         splitsDir = new File(tempDir.toString(), "splitsDir").getAbsolutePath();
         splitsFile = new File(splitsDir, "splits").getAbsolutePath();
-    }
 
-    @Test
-    public void shouldSetupJob() throws IOException {
-        // Given
-        final JobConf localConf = createLocalConf();
-        final FileSystem fs = FileSystem.getLocal(localConf);
+        factory = getJobFactory();
+        fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
         fs.mkdirs(new Path(splitsDir));
-        try (final BufferedWriter writer =
-                new BufferedWriter(new OutputStreamWriter(fs.create(new Path(splitsFile), true)))) {
-            writer.write("1");
-        }
+    }
 
-        final AccumuloAddElementsFromHdfsJobFactory factory = getJobFactory();
+
+    @Test
+    void shouldSetupJob() throws IOException  {
+        // Given
+        writeOneToSplitsFile();
+
         final Job job = mock(Job.class);
+
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .outputPath(outputDir.toString())
-                .addInputMapperPair(inputDir.toString(), TextMapperGeneratorImpl.class.getName())
+                .outputPath(outputDir)
+                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                 .useProvidedSplits(true)
-                .splitsFilePath(splitsFile.toString())
+                .splitsFilePath(splitsFile)
                 .build();
-        final AccumuloStore store = mock(AccumuloStore.class);
 
         given(job.getConfiguration()).willReturn(localConf);
 
@@ -135,42 +137,102 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
 
         verify(job).setNumReduceTasks(2);
         verify(job).setPartitionerClass(GafferKeyRangePartitioner.class);
+
+        if (SystemUtils.IS_OS_WINDOWS) {
+            alterPathForWindows(splitsFile);
+        }
+
         assertEquals(splitsFile, job.getConfiguration().get(GafferRangePartitioner.class.getName() + ".cutFile"));
     }
 
     @Test
-    public void shouldSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsTrue() throws IOException {
-        setupAccumuloPartitionerWithGivenPartitioner(GafferKeyRangePartitioner.class);
-    }
+    void shouldSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsTrue() throws IOException {
+        final Class<? extends Partitioner> partitioner = GafferKeyRangePartitioner.class;
+        writeOneToSplitsFile();
 
-    @Test
-    public void shouldSetupAccumuloPartitionerWhenSetupJobAndPartitionerIsNull() throws IOException {
-        setupAccumuloPartitionerWithGivenPartitioner(null);
-    }
+        final Job job = mock(Job.class);
+        final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .partitioner(partitioner)
+                .useProvidedSplits(true)
+                .splitsFilePath(splitsFile)
+                .build();
+        given(job.getConfiguration()).willReturn(localConf);
 
-    @Test
-    public void shouldNotSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsFalse() throws IOException {
-        setupAccumuloPartitionerWithGivenPartitioner(NoPartitioner.class);
-    }
+        // When
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
 
-    @Test
-    public void shouldSetNoMoreThanMaxNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
-        // Given
-        store.initialise("graphId", SCHEMA, PROPERTIES);
-        final JobConf localConf = createLocalConf();
-        final FileSystem fs = FileSystem.getLocal(localConf);
-        fs.mkdirs(new Path(outputDir));
-        fs.mkdirs(new Path(splitsDir));
-        final BufferedWriter writer = new BufferedWriter(new FileWriter(splitsFile.toString()));
-        for (int i = 100; i < 200; i++) {
-            writer.write(i + "\n");
+        verify(job).setNumReduceTasks(2);
+        verify(job).setPartitionerClass(GafferKeyRangePartitioner.class);
+
+        if (SystemUtils.IS_OS_WINDOWS) {
+            alterPathForWindows(splitsFile);
         }
-        writer.close();
+        assertEquals(splitsFile, job.getConfiguration().get(GafferRangePartitioner.class.getName() + ".cutFile"));
+
+    }
+
+    @Test
+    void shouldSetupAccumuloPartitionerWhenSetupJobAndPartitionerIsNull() throws IOException {
+        // setupAccumuloPartitionerWithGivenPartitioner(null);
+        writeOneToSplitsFile();
+
+        final Job job = mock(Job.class);
+        final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .partitioner(null)
+                .useProvidedSplits(true)
+                .splitsFilePath(splitsFile)
+                .build();
+        given(job.getConfiguration()).willReturn(localConf);
+
+        // When
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
+
+        // Then
+        verify(job).setNumReduceTasks(2);
+        verify(job).setPartitionerClass(GafferKeyRangePartitioner.class);
+
+        if (SystemUtils.IS_OS_WINDOWS) {
+            alterPathForWindows(splitsFile);
+        }
+        assertEquals(splitsFile, job.getConfiguration().get(GafferRangePartitioner.class.getName() + ".cutFile"));
+    }
+
+    @Test
+    void shouldNotSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsFalse() throws IOException {
+        // setupAccumuloPartitionerWithGivenPartitioner(NoPartitioner.class);
+        writeOneToSplitsFile();
+
+        final Job job = mock(Job.class);
+        final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .partitioner(NoPartitioner.class)
+                .useProvidedSplits(true)
+                .splitsFilePath(splitsFile)
+                .build();
+        given(job.getConfiguration()).willReturn(localConf);
+
+        // When
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
+
+        // Then
+        verify(job, never()).setNumReduceTasks(Mockito.anyInt());
+        verify(job, never()).setPartitionerClass(Mockito.any(Class.class));
+        assertNull(job.getConfiguration().get(GafferRangePartitioner.class.getName() + ".cutFile"));
+
+    }
+
+    @Test
+    void shouldSetNoMoreThanMaxNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
+        // Given
+        writeManyToSplitsFile();
+        store.initialise("graphId", SCHEMA, PROPERTIES);
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile.toString())
                 .build();
         store.execute(splitTable, new Context(new User()));
-        final AccumuloAddElementsFromHdfsJobFactory factory = getJobFactory();
+
         final Job job = Job.getInstance(localConf);
 
         // When
@@ -211,23 +273,16 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
     }
 
     @Test
-    public void shouldSetNoLessThanMinNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
+    void shouldSetNoLessThanMinNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
         // Given
         store.initialise("graphId", SCHEMA, PROPERTIES);
-        final JobConf localConf = createLocalConf();
-        final FileSystem fs = FileSystem.getLocal(localConf);
-        fs.mkdirs(new Path(outputDir));
-        fs.mkdirs(new Path(splitsDir));
-        final BufferedWriter writer = new BufferedWriter(new FileWriter(splitsFile));
-        for (int i = 100; i < 200; i++) {
-            writer.write(i + "\n");
-        }
-        writer.close();
+        writeManyToSplitsFile();
+
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile)
                 .build();
         store.execute(splitTable, new Context(new User()));
-        final AccumuloAddElementsFromHdfsJobFactory factory = getJobFactory();
+
         final Job job = Job.getInstance(localConf);
 
         // When
@@ -268,23 +323,16 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
     }
 
     @Test
-    public void shouldSetNumberOfReducersBetweenMinAndMaxSpecified() throws IOException, StoreException, OperationException {
+    void shouldSetNumberOfReducersBetweenMinAndMaxSpecified() throws IOException, StoreException, OperationException {
         // Given
         store.initialise("graphId", SCHEMA, PROPERTIES);
-        final JobConf localConf = createLocalConf();
-        final FileSystem fs = FileSystem.getLocal(localConf);
-        fs.mkdirs(new Path(outputDir));
-        fs.mkdirs(new Path(splitsDir));
-        final BufferedWriter writer = new BufferedWriter(new FileWriter(splitsFile));
-        for (int i = 100; i < 200; i++) {
-            writer.write(i + "\n");
-        }
-        writer.close();
+        writeManyToSplitsFile();
+
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile)
                 .build();
         store.execute(splitTable, new Context(new User()));
-        final AccumuloAddElementsFromHdfsJobFactory factory = getJobFactory();
+
         final Job job = Job.getInstance(localConf);
 
         // When
@@ -332,23 +380,16 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
 
 
     @Test
-    public void shouldThrowExceptionWhenMaxReducersSetOutsideOfRange() throws IOException, StoreException, OperationException {
+    void shouldThrowExceptionWhenMaxReducersSetOutsideOfRange() throws IOException, StoreException, OperationException {
         // Given
         store.initialise("graphId", SCHEMA, PROPERTIES);
-        final JobConf localConf = createLocalConf();
-        final FileSystem fs = FileSystem.getLocal(localConf);
-        fs.mkdirs(new Path(outputDir));
-        fs.mkdirs(new Path(splitsDir));
-        final BufferedWriter writer = new BufferedWriter(new FileWriter(splitsFile));
-        for (int i = 100; i < 200; i++) {
-            writer.write(i + "\n");
-        }
-        writer.close();
+        writeManyToSplitsFile();
+
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile)
                 .build();
         store.execute(splitTable, new Context(new User()));
-        final AccumuloAddElementsFromHdfsJobFactory factory = getJobFactory();
+
         final Job job = Job.getInstance(localConf);
 
         // When
@@ -369,43 +410,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
         }
     }
 
-    private void setupAccumuloPartitionerWithGivenPartitioner(final Class<? extends Partitioner> partitioner) throws IOException {
-        // Given
-        final JobConf localConf = createLocalConf();
-        final FileSystem fs = FileSystem.getLocal(localConf);
-        fs.mkdirs(new Path(outputDir));
-        fs.mkdirs(new Path(splitsDir));
-        try (final BufferedWriter writer =
-                new BufferedWriter(new OutputStreamWriter(fs.create(new Path(splitsFile))))) {
-            writer.write("1");
-        }
-
-        final AccumuloAddElementsFromHdfsJobFactory factory = getJobFactory();
-        final Job job = mock(Job.class);
-        final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .outputPath(outputDir)
-                .partitioner(partitioner)
-                .useProvidedSplits(true)
-                .splitsFilePath(splitsFile)
-                .build();
-        final AccumuloStore store = mock(AccumuloStore.class);
-        given(job.getConfiguration()).willReturn(localConf);
-
-        // When
-        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
-
-        // Then
-        if (NoPartitioner.class.equals(partitioner)) {
-            verify(job, never()).setNumReduceTasks(Mockito.anyInt());
-            verify(job, never()).setPartitionerClass(Mockito.any(Class.class));
-            assertNull(job.getConfiguration().get(GafferRangePartitioner.class.getName() + ".cutFile"));
-        } else {
-            verify(job).setNumReduceTasks(2);
-            verify(job).setPartitionerClass(GafferKeyRangePartitioner.class);
-            assertEquals(splitsFile, job.getConfiguration().get(GafferRangePartitioner.class.getName() + ".cutFile"));
-        }
-    }
-
     private JobConf createLocalConf() {
         // Set up local conf
         final JobConf conf = new JobConf();
@@ -415,12 +419,8 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
         return conf;
     }
 
-    private java.nio.file.Path Paths(java.nio.file.Path tempDir, String inputDir) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     public static final class TextMapperGeneratorImpl extends TextMapperGenerator {
-        public TextMapperGeneratorImpl() {
+        TextMapperGeneratorImpl() {
             super(new ExampleGenerator());
         }
     }
@@ -439,10 +439,8 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
 
         store.initialise("graphId", SCHEMA, PROPERTIES);
 
-        final JobConf localConf = createLocalConf();
-        final FileSystem fileSystem = FileSystem.getLocal(localConf);
-        fileSystem.mkdirs(new Path(outputDir));
-        fileSystem.mkdirs(new Path(splitsDir));
+        fs.mkdirs(new Path(outputDir));
+        fs.mkdirs(new Path(splitsDir));
 
         return store;
     }
@@ -460,4 +458,30 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
                 .splitsFilePath(splitsFile)
                 .build();
     }
+
+    /*
+     * The hadoop library alters windows files paths, so they no longer work on windows,
+     * so the filepath needs to be altered if the tests are run on windows
+     */
+    public void alterPathForWindows(String path) {
+        String alteredPath = "/" + path.replace("\\", "/");
+        splitsFile = alteredPath;
+    }
+
+    public void writeOneToSplitsFile() throws IOException {
+        try (final BufferedWriter writer =
+                new BufferedWriter(new OutputStreamWriter(fs.create(new Path(splitsFile), true)))) {
+            writer.write("1");
+            writer.close();
+        }
+    }
+
+    public void writeManyToSplitsFile() throws IOException {
+        final BufferedWriter writer = new BufferedWriter(new FileWriter(splitsFile.toString()));
+        for (int i = 100; i < 200; i++) {
+            writer.write(i + "\n");
+        }
+        writer.close();
+    }
+
 }
