@@ -56,15 +56,15 @@ class LegacySupportTest {
 
     File tempDir;
     Configuration conf;
-    
+
     @BeforeEach
-    public void setUp(){
+    public void setUp() {
         conf = new Configuration();
         tempDir = Files.createTempDir();
     }
 
     @AfterEach
-    public void cleanUp(){
+    public void cleanUp() {
         tempDir.deleteOnExit();
     }
 

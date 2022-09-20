@@ -485,7 +485,7 @@ public class AccumuloStoreTest {
                 .build();
 
         // When / Then
-        final String expectedMessage ="The aggregator for the timestamp property must be set to: uk.gov.gchq.koryphe.impl.binaryoperator.Max";
+        final String expectedMessage = "The aggregator for the timestamp property must be set to: uk.gov.gchq.koryphe.impl.binaryoperator.Max";
 
         assertThatExceptionOfType(SchemaException.class)
                 .isThrownBy(() -> store.initialise("graphId", schema, PROPERTIES))

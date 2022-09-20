@@ -21,8 +21,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -134,11 +132,11 @@ class AddUpdateTableIteratorTest {
         String expectedMessage;
 
         final String[] args = {GRAPH_ID, SCHEMA_DIR, "invalid/file/path", "update", FILE_GRAPH_LIBRARY_TEST_PATH};
-        
+
         // Without the following the return message will have / instead of \ when run on Windows";
-        if(SystemUtils.IS_OS_WINDOWS){
+        if (SystemUtils.IS_OS_WINDOWS) {
             expectedMessage = "Failed to load store properties file : invalid\\file\\path";
-        } else{
+        } else {
             expectedMessage = "Failed to load store properties file : invalid/file/path";
         }
 
