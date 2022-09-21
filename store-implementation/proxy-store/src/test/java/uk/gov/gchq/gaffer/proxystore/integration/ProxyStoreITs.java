@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.proxystore.integration;
 
-import org.apache.commons.collections4.SetUtils;
 import org.junit.AfterClass;
 import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.ExcludeClassNamePatterns;
@@ -27,11 +26,6 @@ import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.SingleUseMapProxyStore;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
 import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 
 @ExcludeClassNamePatterns({"uk.gov.gchq.gaffer.integration.impl.JoinIT",
@@ -39,25 +33,18 @@ import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSui
 @ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.proxystore.integration.ProxyStoreITs")
 public class ProxyStoreITs extends AbstractStoreITs {
 
-    private static final ProxyProperties STORE_PROPERTIES = ProxyProperties
-            .loadStoreProperties(StreamUtil.openStream(ProxyStoreITs.class, "/mock-proxy-store.properties"));
-
-    private static final Set<Object> OBJECTS = SetUtils.unmodifiableSet(new Schema(), STORE_PROPERTIES);
-
-    private static final Map<String, String> SKIP_TEST_METHODS = Collections.emptyMap();
-
-    @Override
-    public Optional<Set<Object>> getObjects() {
-        return Optional.of(OBJECTS);
-    }
-
-    @Override
-    public Optional<Map<String, String>> getTestsToSkip() {
-        return Optional.of(SKIP_TEST_METHODS);
-    }
-
     @AfterClass
     public static void afterClass() {
         SingleUseMapProxyStore.cleanUp();
+    }
+
+    private static final ProxyProperties STORE_PROPERTIES = ProxyProperties
+            .loadStoreProperties(StreamUtil.openStream(ProxyStoreITs.class, "/mock-proxy-store.properties"));
+
+    private static final Schema SCHEMA = new Schema();
+
+    ProxyStoreITs() {
+        setSchema(SCHEMA);
+        setStoreProperties(STORE_PROPERTIES);
     }
 }

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
-import org.apache.commons.collections4.SetUtils;
 import org.junit.platform.suite.api.ConfigurationParameter;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -26,8 +25,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 
@@ -37,19 +34,15 @@ public class FederatedStoreITs extends AbstractStoreITs {
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
             StreamUtil.openStream(FederatedStoreITs.class, "publicAccessPredefinedFederatedStore.properties"));
 
-    private static final Set<Object> OBJECTS = SetUtils.unmodifiableSet(new Schema(), STORE_PROPERTIES);
+    private static final Schema SCHEMA = new Schema();
 
-    private static final Map<String, String> SKIP_TEST_METHODS =
+    private static final Map<String, String> TESTS_TO_SKIP =
             Collections.singletonMap("shouldReturnNoResultsWhenNoEntityResults",
                     "Fails due to the way we split the entities and edges into 2 graphs");
 
-    @Override
-    public Optional<Set<Object>> getObjects() {
-        return Optional.of(OBJECTS);
-    }
-
-    @Override
-    public Optional<Map<String, String>> getTestsToSkip() {
-        return Optional.of(SKIP_TEST_METHODS);
+    FederatedStoreITs() {
+        setSchema(SCHEMA);
+        setStoreProperties(STORE_PROPERTIES);
+        setTestsToSkip(TESTS_TO_SKIP);
     }
 }

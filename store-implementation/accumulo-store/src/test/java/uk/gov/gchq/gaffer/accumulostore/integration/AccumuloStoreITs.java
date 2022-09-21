@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
-import org.apache.commons.collections4.SetUtils;
 import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.SelectClasses;
 
@@ -26,11 +25,6 @@ import uk.gov.gchq.gaffer.hdfs.integration.loader.AddElementsFromHdfsLoaderIT;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
 import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 
 @ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.accumulostore.integration.AccumuloStoreITs")
@@ -39,17 +33,10 @@ public class AccumuloStoreITs extends AbstractStoreITs {
 
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
 
-    private static final Set<Object> OBJECTS = SetUtils.unmodifiableSet(new Schema(), STORE_PROPERTIES);
+    private static final Schema SCHEMA = new Schema();
 
-    private static final Map<String, String> SKIP_TEST_METHODS = Collections.emptyMap();
-
-    @Override
-    public Optional<Set<Object>> getObjects() {
-        return Optional.of(OBJECTS);
-    }
-
-    @Override
-    public Optional<Map<String, String>> getTestsToSkip() {
-        return Optional.of(SKIP_TEST_METHODS);
+    AccumuloStoreITs() {
+        setSchema(SCHEMA);
+        setStoreProperties(STORE_PROPERTIES);
     }
 }

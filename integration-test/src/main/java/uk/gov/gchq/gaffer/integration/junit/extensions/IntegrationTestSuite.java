@@ -16,35 +16,79 @@
 
 package uk.gov.gchq.gaffer.integration.junit.extensions;
 
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
- * Classes implementing the {@code IntegrationTestSuite} {@code Interface} must
- * override the {@link #getObjects()} and {@link #getTestsToSkip()} methods.
- * Further information on how this class is used can be found at the
+ * Getter/setter class. Used as base class for integration test suites.
+ * For further information on how this class is used see
  * {@link IntegrationTestSuiteExtension}.
  */
-public interface IntegrationTestSuite {
+public abstract class IntegrationTestSuite {
+
+    private Schema schema = null;
+
+    private StoreProperties storeProperties = null;
+
+    private Map<String, String> testsToSkip = null;
 
     /**
-     * Returns an {@link Optional} {@link Object} {@link Set} of values used by
-     * test classes during the execution of the test
-     * {@link org.junit.platform.suite.api.Suite}
+     * Returns the {@link Optional} {@link Schema}
      *
-     * @return an {@link Optional} {@link Object} {@link Set}
+     * @return an {@link Optional} {@link Schema}
      */
-    Optional<Set<Object>> getObjects();
+    public Optional<Schema> getSchema() {
+        return Optional.ofNullable(schema);
+    }
 
     /**
-     * Returns an {@link Optional} {@link Map} of {@code tests-to-skip} that is
-     * used during the test {@link org.junit.platform.suite.api.Suite} execution
-     * to omit the tests specified.
+     * Sets the {@link Optional} {@link Schema}
      *
-     * @return an {@link Optional} {@link Map} of
-     * {@link org.junit.jupiter.api.Test} methods to skip together with the
-     * reason for skipping the test
+     * @param schema the {@link Schema}
      */
-    Optional<Map<String, String>> getTestsToSkip();
+    protected void setSchema(final Schema schema) {
+        this.schema = schema;
+    }
+
+
+    /**
+     * Returns the {@link Optional} {@link StoreProperties}
+     *
+     * @return an {@link Optional} {@link StoreProperties}
+     */
+    public Optional<StoreProperties> getStoreProperties() {
+        return Optional.ofNullable(storeProperties);
+    }
+
+    /**
+     * Sets the {@link StoreProperties}
+     *
+     * @param storeProperties the {@link StoreProperties}
+     */
+    protected void setStoreProperties(final StoreProperties storeProperties) {
+        this.storeProperties = storeProperties;
+    }
+
+    /**
+     * Returns the {@link Optional} {@link Map} of {@code tests-to-skip}
+     *
+     * @return an {@link Optional} {@link Map} of test methods to skip together
+     * with the reason for skipping the test
+     */
+    public Optional<Map<String, String>> getTestsToSkip() {
+        return Optional.ofNullable(testsToSkip);
+    }
+
+    /**
+     * Sets the {@link Optional} {@link Map} of tests to skip together with the
+     * reason the skipping
+     *
+     * @param testsToSkip the {@link Map} of tests to skip and the reason
+     */
+    protected void setTestsToSkip(final Map<String, String> testsToSkip) {
+        this.testsToSkip = testsToSkip;
+    }
 }

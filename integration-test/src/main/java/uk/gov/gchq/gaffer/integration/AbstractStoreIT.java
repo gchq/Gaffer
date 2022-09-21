@@ -35,8 +35,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.integration.junit.extensions.InjectedFromStoreITsSuite;
 import uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension;
-import uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteInstance;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -120,10 +120,10 @@ public abstract class AbstractStoreIT {
     public static final String SOURCE_DIR_3 = SOURCE_DIR + 3;
     public static final String DEST_DIR_3 = DEST_DIR + 3;
 
-    @IntegrationTestSuiteInstance
+    @InjectedFromStoreITsSuite
     protected Schema storeSchema;
 
-    @IntegrationTestSuiteInstance
+    @InjectedFromStoreITsSuite
     protected StoreProperties storeProperties;
 
     protected Map<EntityId, Entity> entities;

@@ -16,18 +16,21 @@
 
 package uk.gov.gchq.gaffer.integration.junit.extensions;
 
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 import org.junit.platform.testkit.engine.EngineTestKit;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
@@ -40,38 +43,39 @@ import static org.junit.platform.testkit.engine.EventConditions.test;
 import static org.junit.platform.testkit.engine.EventConditions.uniqueIdSubstring;
 import static org.junit.platform.testkit.engine.TestExecutionResultConditions.cause;
 import static org.junit.platform.testkit.engine.TestExecutionResultConditions.message;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 
+@ExtendWith(MockitoExtension.class)
 class IntegrationTestSuiteExtensionTest {
 
     public static final String JUNIT_PLATFORM_SUITE = "junit-platform-suite";
 
-    public static final String TEST_STRING = "test";
+    public static final Schema TEST_SCHEMA = new Schema();
 
-    public static final String TEST_STRING_2 = "test 2";
+    public static final StoreProperties TEST_STORE_PROPERTIES = new StoreProperties();
 
-    public static final Integer TEST_INTEGER = 1234;
-
-    private static final String ERROR_THE_TEST_SHOULD_RUN = "The test should not be run as the IntegrationTestSuiteExtension fails first as no initClass was set";
+    private static final String ERROR_THE_TEST_SHOULD_NOT_RUN = "The test should not be run as the IntegrationTestSuiteExtension fails first as no initClass was set";
 
     @SelectClasses(value = {MethodInjectionIT.class})
     static class MethodInjectionTestSuite extends AbstractTestSuite {
-        @Override
-        public Optional<Set<Object>> getObjects() {
-            return Optional.of(SetUtils.unmodifiableSet(TEST_STRING, TEST_INTEGER));
+        MethodInjectionTestSuite() {
+            setSchema(TEST_SCHEMA);
+            setStoreProperties(TEST_STORE_PROPERTIES);
         }
     }
 
     @ExtendWith(IntegrationTestSuiteExtension.class)
     static class MethodInjectionIT {
         @Test
-        void shouldSucceedMethodInjectionString(@IntegrationTestSuiteInstance final String actualString) {
-            assertThat(actualString).isEqualTo(TEST_STRING);
+        void shouldSucceedMethodInjectionString(@InjectedFromStoreITsSuite final Schema actualSchema) {
+            assertThat(actualSchema).isEqualTo(TEST_SCHEMA);
         }
 
         @Test
-        void shouldSucceedMethodInjectionInteger(@IntegrationTestSuiteInstance final Integer actualInteger) {
-            assertThat(actualInteger).isEqualTo(TEST_INTEGER);
+        void shouldSucceedMethodInjectionInteger(@InjectedFromStoreITsSuite final StoreProperties actualStoreProperties) {
+            assertThat(actualStoreProperties).isEqualTo(TEST_STORE_PROPERTIES);
         }
     }
 
@@ -88,40 +92,11 @@ class IntegrationTestSuiteExtensionTest {
                 .hasSize(4);
     }
 
-    @SelectClasses(value = {MethodInjectionTwoObjectsSameTypeSecondUsedIT.class})
-    static class MethodInjectionTestTwoObjectsSameTypeSecondUsedSuite extends AbstractTestSuite {
-        @Override
-        public Optional<Set<Object>> getObjects() {
-            return Optional.of(SetUtils.unmodifiableSet(TEST_STRING, TEST_STRING_2));
-        }
-    }
-
-    @ExtendWith(IntegrationTestSuiteExtension.class)
-    static class MethodInjectionTwoObjectsSameTypeSecondUsedIT {
-        @Test
-        void shouldSucceedMethodInjectionString(@IntegrationTestSuiteInstance final String actualString) {
-            assertThat(actualString).isEqualTo(TEST_STRING_2);
-        }
-    }
-
-    @Test
-    void shouldSucceedMethodInjectionTestTwoObjectsSameTypeSecondUsed() {
-        EngineTestKit.engine(JUNIT_PLATFORM_SUITE)
-                .selectors(selectClass(MethodInjectionTestTwoObjectsSameTypeSecondUsedSuite.class))
-                .configurationParameter(INIT_CLASS, MethodInjectionTestTwoObjectsSameTypeSecondUsedSuite.class.getName())
-                .execute()
-                .testEvents()
-                .assertThatEvents()
-                .haveExactly(1, event(test(MethodInjectionTestTwoObjectsSameTypeSecondUsedSuite.class.getName()), finishedSuccessfully()))
-                .haveExactly(1, event(test(MethodInjectionTwoObjectsSameTypeSecondUsedIT.class.getName()), finishedSuccessfully()))
-                .hasSize(2);
-    }
-
     @SelectClasses(value = {MethodInjectionObjectNotInSetIT.class})
     static class MethodInjectionTestObjectNotInSetSuite extends AbstractTestSuite {
-        @Override
-        public Optional<Set<Object>> getObjects() {
-            return Optional.of(SetUtils.unmodifiableSet(TEST_STRING, TEST_INTEGER));
+        MethodInjectionTestObjectNotInSetSuite() {
+            setSchema(TEST_SCHEMA);
+            setStoreProperties(TEST_STORE_PROPERTIES);
         }
     }
 
@@ -129,8 +104,8 @@ class IntegrationTestSuiteExtensionTest {
     static class MethodInjectionObjectNotInSetIT {
         @SuppressWarnings("unused")
         @Test
-        void shouldFail(@IntegrationTestSuiteInstance final Float actualFloat) {
-            fail(ERROR_THE_TEST_SHOULD_RUN);
+        void shouldFail(@InjectedFromStoreITsSuite final Float actualFloat) {
+            fail(ERROR_THE_TEST_SHOULD_NOT_RUN);
         }
     }
 
@@ -151,27 +126,27 @@ class IntegrationTestSuiteExtensionTest {
 
     @SelectClasses(value = {FieldInjectionIT.class})
     static class FieldInjectionTestSuite extends AbstractTestSuite {
-        @Override
-        public Optional<Set<Object>> getObjects() {
-            return Optional.of(SetUtils.unmodifiableSet(TEST_STRING, TEST_INTEGER));
+        FieldInjectionTestSuite() {
+            setSchema(TEST_SCHEMA);
+            setStoreProperties(TEST_STORE_PROPERTIES);
         }
     }
 
     @ExtendWith(IntegrationTestSuiteExtension.class)
     static class FieldInjectionIT {
-        @IntegrationTestSuiteInstance
-        String actualString;
-        @IntegrationTestSuiteInstance
-        Integer actualInteger;
+        @InjectedFromStoreITsSuite
+        Schema actualSchema;
+        @InjectedFromStoreITsSuite
+        StoreProperties actualStoreProperties;
 
         @Test
-        void shouldSucceedFieldInjectionString() {
-            assertThat(actualString).isEqualTo(TEST_STRING);
+        void shouldSucceedFieldInjectionSchema() {
+            assertThat(actualSchema).isEqualTo(TEST_SCHEMA);
         }
 
         @Test
         void shouldSucceedFieldInjectionInteger() {
-            assertThat(actualInteger).isEqualTo(TEST_INTEGER);
+            assertThat(actualStoreProperties).isEqualTo(TEST_STORE_PROPERTIES);
         }
     }
 
@@ -188,55 +163,23 @@ class IntegrationTestSuiteExtensionTest {
                 .hasSize(4);
     }
 
-    @SelectClasses(value = {FieldInjectionTwoObjectsSameTypeSecondUsedIT.class})
-    static class FieldInjectionTestTwoObjectsSameTypeSecondUsedSuite extends AbstractTestSuite {
-        @Override
-        public Optional<Set<Object>> getObjects() {
-            return Optional.of(SetUtils.unmodifiableSet(TEST_STRING, TEST_STRING_2));
-        }
-    }
-
-    @ExtendWith(IntegrationTestSuiteExtension.class)
-    static class FieldInjectionTwoObjectsSameTypeSecondUsedIT {
-        @IntegrationTestSuiteInstance
-        String actualString;
-
-        @Test
-        void shouldSucceedFieldInjectionString() {
-            assertThat(actualString).isEqualTo(TEST_STRING_2);
-        }
-    }
-
-    @Test
-    void shouldSucceedFieldInjectionTestTwoObjectsSameTypeSecondUsed() {
-        EngineTestKit.engine(JUNIT_PLATFORM_SUITE)
-                .selectors(selectClass(FieldInjectionTestTwoObjectsSameTypeSecondUsedSuite.class))
-                .configurationParameter(INIT_CLASS, FieldInjectionTestTwoObjectsSameTypeSecondUsedSuite.class.getName())
-                .execute()
-                .testEvents()
-                .assertThatEvents()
-                .haveExactly(1, event(test(FieldInjectionTestTwoObjectsSameTypeSecondUsedSuite.class.getName()), finishedSuccessfully()))
-                .haveExactly(1, event(test(FieldInjectionTwoObjectsSameTypeSecondUsedIT.class.getName()), finishedSuccessfully()))
-                .hasSize(2);
-    }
-
     @SelectClasses(value = {FieldInjectionObjectNotInSetIT.class})
     static class FieldInjectionTestObjectNotInSetSuite extends AbstractTestSuite {
-        @Override
-        public Optional<Set<Object>> getObjects() {
-            return Optional.of(SetUtils.unmodifiableSet(TEST_STRING, TEST_INTEGER));
+        FieldInjectionTestObjectNotInSetSuite() {
+            setSchema(TEST_SCHEMA);
+            setStoreProperties(TEST_STORE_PROPERTIES);
         }
     }
 
     @ExtendWith(IntegrationTestSuiteExtension.class)
     static class FieldInjectionObjectNotInSetIT {
         @SuppressWarnings("unused")
-        @IntegrationTestSuiteInstance
+        @InjectedFromStoreITsSuite
         Float actualFloat;
 
         @Test
         void shouldFail() {
-            fail(ERROR_THE_TEST_SHOULD_RUN);
+            fail(ERROR_THE_TEST_SHOULD_NOT_RUN);
         }
     }
 
@@ -262,7 +205,7 @@ class IntegrationTestSuiteExtensionTest {
     static class InitClassNotSetIT {
         @Test
         void shouldFail() {
-            fail(ERROR_THE_TEST_SHOULD_RUN);
+            fail(ERROR_THE_TEST_SHOULD_NOT_RUN);
         }
     }
 
@@ -285,7 +228,7 @@ class IntegrationTestSuiteExtensionTest {
     static class InitClassInvalidIT {
         @Test
         void shouldFail() {
-            fail(ERROR_THE_TEST_SHOULD_RUN);
+            fail(ERROR_THE_TEST_SHOULD_NOT_RUN);
         }
     }
 
@@ -309,7 +252,7 @@ class IntegrationTestSuiteExtensionTest {
     static class InitClassNullIT {
         @Test
         void shouldFail() {
-            fail(ERROR_THE_TEST_SHOULD_RUN);
+            fail(ERROR_THE_TEST_SHOULD_NOT_RUN);
         }
     }
 
@@ -334,7 +277,7 @@ class IntegrationTestSuiteExtensionTest {
     static class InitClassDoesNotImplementIntegrationTestSuiteIT {
         @Test
         void shouldFail() {
-            fail(ERROR_THE_TEST_SHOULD_RUN);
+            fail(ERROR_THE_TEST_SHOULD_NOT_RUN);
         }
     }
 
@@ -353,9 +296,10 @@ class IntegrationTestSuiteExtensionTest {
 
     @SelectClasses(value = {TestSkippedIT.class})
     static class TestSkippedTestSuite extends AbstractTestSuite {
-        @Override
-        public Optional<Map<String, String>> getTestsToSkip() {
-            return Optional.of(MapUtils.unmodifiableMap(Collections.singletonMap("shouldSkip", "skipped test")));
+        TestSkippedTestSuite() {
+            setSchema(TEST_SCHEMA);
+            setStoreProperties(TEST_STORE_PROPERTIES);
+            setTestsToSkip(Collections.singletonMap("shouldSkip", "skipped test"));
         }
     }
 
@@ -378,5 +322,75 @@ class IntegrationTestSuiteExtensionTest {
                 .assertThatEvents()
                 .haveExactly(1, event(test(TestSkippedIT.class.getName()), skippedWithReason("skipped test")))
                 .hasSize(1);
+    }
+
+    static class Counter {
+
+        Object object = null;
+        int count = 0;
+
+        void increment(final Object object) {
+            if (this.object == null) {
+                this.object = object;
+            } else if (!this.object.equals(object)) {
+                throw new RuntimeException("UUIDs don't match. Counter UUID [" + this.object + "] " +
+                        "and UUID [" + object + "]");
+            }
+            count++;
+        }
+
+        void reset() {
+            object = null;
+            count = 0;
+        }
+
+        int getCount() {
+            return count;
+        }
+    }
+
+    static Counter COUNTER = new Counter();
+
+    static class CallCacheTestSuite extends AbstractTestSuite {
+
+        CallCacheTestSuite() {
+            setSchema(TEST_SCHEMA);
+            setStoreProperties(TEST_STORE_PROPERTIES);
+        }
+
+        @Override
+        public Optional<Schema> getSchema() {
+            COUNTER.increment(this);
+            return super.getSchema();
+        }
+
+        @Override
+        public Optional<StoreProperties> getStoreProperties() {
+            COUNTER.increment(this);
+            return super.getStoreProperties();
+        }
+
+        @Override
+        public Optional<Map<String, String>> getTestsToSkip() {
+            COUNTER.increment(this);
+            return super.getTestsToSkip();
+        }
+    }
+
+    @Test
+    void shouldSucceedCallCache(@Mock final ExtensionContext mockExtensionContext) {
+        /* setup */
+        final IntegrationTestSuiteExtension integrationTestSuiteExtension = new IntegrationTestSuiteExtension();
+        COUNTER.reset();
+
+        /* mock */
+        when(mockExtensionContext.getConfigurationParameter(anyString())).thenReturn(Optional.of(CallCacheTestSuite.class.getName()));
+
+        /* run */
+        integrationTestSuiteExtension.beforeAll(mockExtensionContext);
+        integrationTestSuiteExtension.beforeAll(mockExtensionContext);
+
+        /* verify */
+        assertThat(COUNTER.getCount()).isEqualTo(6);
     }
 }

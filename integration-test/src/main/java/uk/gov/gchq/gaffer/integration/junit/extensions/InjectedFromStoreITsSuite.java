@@ -23,6 +23,6 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface IntegrationTestSuiteInstance {
+public @interface InjectedFromStoreITsSuite {
 
 }

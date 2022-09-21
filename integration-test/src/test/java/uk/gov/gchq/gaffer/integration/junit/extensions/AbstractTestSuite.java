@@ -18,21 +18,7 @@ package uk.gov.gchq.gaffer.integration.junit.extensions;
 
 import org.junit.platform.suite.api.Suite;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
 @Suite
-public abstract class AbstractTestSuite implements IntegrationTestSuite {
+public abstract class AbstractTestSuite extends IntegrationTestSuite {
 
-    @Override
-    public Optional<Set<Object>> getObjects() {
-        return Optional.of(Collections.emptySet());
-    }
-
-    @Override
-    public Optional<Map<String, String>> getTestsToSkip() {
-        return Optional.of(Collections.emptyMap());
-    }
 }
