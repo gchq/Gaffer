@@ -349,7 +349,7 @@ class IntegrationTestSuiteExtensionTest {
         }
     }
 
-    static Counter COUNTER = new Counter();
+    static final Counter COUNTER = new Counter();
 
     static class CallCacheTestSuite extends AbstractTestSuite {
 
