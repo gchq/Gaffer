@@ -22,40 +22,22 @@ import java.util.LinkedHashMap;
 
 public class Neo4jFormat implements CsvFormat {
 
-    protected LinkedHashMap<String, String> identifiers = new LinkedHashMap<String, String>();
     public static final String NEO4J_VERTEX = "_id";
     public static final String NEO4J_ENTITY_GROUP = "_labels";
     public static final String NEO4J_SOURCE = "_start";
     public static final String NEO4J_DESTINATION = "_end";
     public static final String NEO4J_EDGE_GROUP = "_type";
-    private final String entityGroup = "NEO4J_ENTITY_GROUP";
-    private final String edgeGroup = "NEO4J_EDGE_GROUP";
 
-    public Neo4jFormat() {
-        setIdentifiers();
-    }
-
-    @Override
-    public void setIdentifiers() {
-        this.identifiers.put(String.valueOf(IdentifierType.VERTEX), NEO4J_VERTEX);
-        this.identifiers.put("NEO4J_ENTITY_GROUP", NEO4J_ENTITY_GROUP);
-        this.identifiers.put("NEO4J_EDGE_GROUP", NEO4J_EDGE_GROUP);
-        this.identifiers.put(String.valueOf(IdentifierType.SOURCE), NEO4J_SOURCE);
-        this.identifiers.put(String.valueOf(IdentifierType.DESTINATION), NEO4J_DESTINATION);
-    }
-
-    @Override
-    public String getEntityGroup() {
-        return entityGroup;
-    }
-
-    @Override
-    public String getEdgeGroup() {
-        return edgeGroup;
-    }
+    public static final LinkedHashMap<String, String> IDENTIFIERS = new LinkedHashMap<String, String>() { {
+        put(String.valueOf(IdentifierType.VERTEX), NEO4J_VERTEX);
+        put("NEO4J_ENTITY_GROUP", NEO4J_ENTITY_GROUP);
+        put("NEO4J_EDGE_GROUP", NEO4J_EDGE_GROUP);
+        put(String.valueOf(IdentifierType.SOURCE), NEO4J_SOURCE);
+        put(String.valueOf(IdentifierType.DESTINATION), NEO4J_DESTINATION);
+    } };
 
     @Override
     public LinkedHashMap<String, String> getIdentifiers() {
-        return identifiers;
+        return IDENTIFIERS;
     }
 }

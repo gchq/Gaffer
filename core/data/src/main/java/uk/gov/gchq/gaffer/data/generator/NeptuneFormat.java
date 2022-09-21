@@ -22,8 +22,6 @@ import java.util.LinkedHashMap;
 
 public class NeptuneFormat implements CsvFormat {
 
-    protected LinkedHashMap<String, String> identifiers = new LinkedHashMap<String, String>();
-
     public static final String NEPTUNE_VERTEX = ":ID";
 
     public static final String NEPTUNE_ENTITY_GROUP = ":LABEL";
@@ -33,34 +31,16 @@ public class NeptuneFormat implements CsvFormat {
     public static final String NEPTUNE_DESTINATION = ":END_ID";
 
     public static final String NEPTUNE_EDGE_GROUP = ":TYPE";
-    private static final String ENTITY_GROUP = "NEPTUNE_ENTITY_GROUP";
-    private static final String EDGE_GROUP = "NEPTUNE_EDGE_GROUP";
-
-    public NeptuneFormat() {
-        setIdentifiers();
-    }
-
-    @Override
-    public void setIdentifiers() {
-        this.identifiers.put(String.valueOf(IdentifierType.VERTEX), NEPTUNE_VERTEX);
-        this.identifiers.put("NEPTUNE_ENTITY_GROUP", NEPTUNE_ENTITY_GROUP);
-        this.identifiers.put("NEPTUNE_EDGE_GROUP", NEPTUNE_EDGE_GROUP);
-        this.identifiers.put(String.valueOf(IdentifierType.SOURCE), NEPTUNE_SOURCE);
-        this.identifiers.put(String.valueOf(IdentifierType.DESTINATION), NEPTUNE_DESTINATION);
-    }
-
-    @Override
-    public String getEntityGroup() {
-        return ENTITY_GROUP;
-    }
-
-    @Override
-    public String getEdgeGroup() {
-        return EDGE_GROUP;
-    }
+    public static final LinkedHashMap<String, String> IDENTIFIERS = new LinkedHashMap<String, String>() { {
+        put(String.valueOf(IdentifierType.VERTEX), NEPTUNE_VERTEX);
+        put("NEPTUNE_ENTITY_GROUP", NEPTUNE_ENTITY_GROUP);
+        put("NEPTUNE_EDGE_GROUP", NEPTUNE_EDGE_GROUP);
+        put(String.valueOf(IdentifierType.SOURCE), NEPTUNE_SOURCE);
+        put(String.valueOf(IdentifierType.DESTINATION), NEPTUNE_DESTINATION);
+    } };
 
     @Override
     public LinkedHashMap<String, String> getIdentifiers() {
-        return identifiers;
+        return IDENTIFIERS;
     }
 }

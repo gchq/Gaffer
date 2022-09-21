@@ -19,9 +19,5 @@ package uk.gov.gchq.gaffer.data.generator;
 import java.util.LinkedHashMap;
 
 public interface CsvFormat {
-
-    void setIdentifiers();
-    String getEntityGroup();
-    String getEdgeGroup();
     LinkedHashMap<String, String> getIdentifiers();
 }

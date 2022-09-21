@@ -98,6 +98,7 @@ public class ToCsv implements
     public ToCsv shallowClone() {
         return new ToCsv.Builder()
                 .generator(csvGenerator)
+                .csvFormat(csvFormat)
                 .input(input)
                 .includeHeader(includeHeader)
                 .options(options)

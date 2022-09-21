@@ -88,9 +88,7 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
 
     private CsvGenerator createGenerator(final CsvFormat csvFormat, final LinkedHashMap<String, String> propertyHeadersFromSchema) {
         return new CsvGenerator.Builder()
-                .entityGroup(csvFormat.getEntityGroup())
-                .edgeGroup(csvFormat.getEdgeGroup())
-                .identifiesFromFormat(csvFormat.getIdentifiers())
+                .identifiersFromFormat(csvFormat.getIdentifiers())
                 .propertyHeadersFromSchema(propertyHeadersFromSchema)
                 .build();
     }

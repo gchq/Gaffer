@@ -41,9 +41,8 @@ import java.util.regex.Pattern;
 @Since("1.0.0")
 @Summary("Generates a CSV string for each element")
 public class CsvGenerator implements OneToOneObjectGenerator<String> {
-    public static final String GROUP = "GROUP";
-    private static String entityGroup;
-    private static String edgeGroup;
+    public static final String ENTITY_GROUP = "ENTITY_GROUP";
+    public static final String EDGE_GROUP = "EDGE_GROUP";
     public static final String COMMA = ",";
     private static final Pattern COMMA_PATTERN = Pattern.compile(COMMA);
     private static final String COMMA_REPLACEMENT_DEFAULT = " ";
@@ -75,20 +74,14 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         final IdentifierType idType = IdentifierType.fromName(key);
         final Object value;
         if (null == idType) {
-            if (null == edgeGroup && null == entityGroup) {
-                if (GROUP.equals(key)) {
-                    value = element.getGroup();
-                } else {
-                    value = element.getProperty(key);
-                }
+            if (IdentifierType.GROUP.equals(key)) {
+                value = element.getGroup();
+            } else if (key.contains(ENTITY_GROUP) && element.getClassName().contains("Entity")) {
+                value = element.getGroup();
+            } else if (key.contains(EDGE_GROUP) && element.getClassName().contains("Edge")) {
+                value = element.getGroup();
             } else {
-                if (entityGroup.equals(key) && element.getClassName().contains("Entity")) {
-                    value = element.getGroup();
-                } else if (edgeGroup.equals(key) && element.getClassName().contains("Edge")) {
-                    value = element.getGroup();
-                } else {
-                    value = element.getProperty(key);
-                }
+                value = element.getProperty(key);
             }
 
         } else {
@@ -189,21 +182,6 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         return value;
     }
 
-    public String getEntityGroup() {
-        return entityGroup; }
-
-    public void setEntityGroup(final String entityGroup) {
-        this.entityGroup = entityGroup;
-    }
-
-    public String getEdgeGroup() {
-        return edgeGroup;
-    }
-
-    public void setEdgeGroup(final String edgeGroup) {
-        this.edgeGroup = edgeGroup;
-    }
-
     public boolean isQuoted() {
         return quoted;
     }
@@ -227,8 +205,6 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         private LinkedHashMap<String, String> propertiesFromSchema = new LinkedHashMap<>();
         private String commaReplacement = COMMA_REPLACEMENT_DEFAULT;
         private Boolean quoted;
-        private String entityGroup;
-        private String edgeGroup;
 
         /**
          * Stores any additional properties of an {@link Element}.
@@ -247,11 +223,11 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
          * Adds the main identifiers of an {@link Element}, ie VERTEX, GROUP, SOURCE, DEST to the fields LinkedHashMap.
          * These identifoers are predifined in a {@link CsvFormat} e.g. {@link Neo4jFormat}
          *
-         * @param identifiesFromFormat the name of the headers to be added
+         * @param identifiersFromFormat the name of the headers to be added
          * @return a new {@link CsvGenerator.Builder}
          */
-        public Builder identifiesFromFormat(final LinkedHashMap<String, String> identifiesFromFormat) {
-            this.fields = identifiesFromFormat;
+        public Builder identifiersFromFormat(final LinkedHashMap<String, String> identifiersFromFormat) {
+            this.fields = identifiersFromFormat;
             return this;
         }
 
@@ -262,9 +238,8 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
          * @return a new {@link Builder}
          */
         public Builder group(final String columnHeader) {
-            fields.put(GROUP, columnHeader);
-            return this;
-        }
+                return identifier(IdentifierType.GROUP, columnHeader);
+            }
 
         /**
          * Stores any additional properties of an {@link Element}.<br>
@@ -358,32 +333,6 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         }
 
         /**
-         * Stores the String value of the entityGroup provided by the provided {@link CsvFormat}.
-         * Gaffer provides the same GROUP independent of whether the {@link Element} is an {@link uk.gov.gchq.gaffer.data.element.Entity}
-         * or {@link uk.gov.gchq.gaffer.data.element.Edge},this is different in other formats like neo4j which expects different headers.
-         *
-         * @param entityGroup the group identifier for entities
-         * @return a new {@link Builder}
-         */
-        public Builder entityGroup(final String entityGroup) {
-            this.entityGroup = entityGroup;
-            return this;
-        }
-
-        /**
-         * Stores the String value of the edgeGroup provided by the provided {@link CsvFormat}.
-         * Gaffer provides the same GROUP independent of whether the {@link Element} is an {@link uk.gov.gchq.gaffer.data.element.Entity}
-         * or {@link uk.gov.gchq.gaffer.data.element.Edge},this is different in other formats like neo4j which expects different headers.
-         *
-         * @param edgeGroup the group identifier for entities
-         * @return a new {@link Builder}
-         */
-        public Builder edgeGroup(final String edgeGroup) {
-            this.edgeGroup = edgeGroup;
-            return this;
-        }
-
-        /**
          * Stores the flag for whether or not each distinct value should be wrapped in quotation marks.
          *
          * @param quoted true or false
@@ -408,12 +357,6 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
             if (null != quoted) {
                 generator.setQuoted(quoted);
             }
-            if (null != entityGroup && null != edgeGroup) {
-                generator.setEdgeGroup(edgeGroup);
-                generator.setEntityGroup(entityGroup);
-
-            }
-
             return generator;
         }
     }
