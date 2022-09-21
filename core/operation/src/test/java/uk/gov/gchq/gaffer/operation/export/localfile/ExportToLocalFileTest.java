@@ -81,7 +81,7 @@ public class ExportToLocalFileTest extends OperationTest<ExportToLocalFile>  {
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertThat(Object.class).isEqualTo(outputClass);
+        assertThat(Iterable.class).isEqualTo(outputClass);
     }
 
     @Override

@@ -47,17 +47,29 @@ public interface Output<O> extends Operation {
         Class<?> outputClass = Object.class;
 
         final TypeReference<O> outputType = getOutputTypeReference();
-        if (null != outputType) {
-            Type type = outputType.getType();
-            if (type instanceof ParameterizedType) {
-                type = ((ParameterizedType) type).getRawType();
-            }
-            if (type instanceof Class) {
-                outputClass = (Class) type;
-            }
+        if (null == outputType) {
+            throw new NullPointerException(String.format("Operation %s cannot have null outputTypeReference",
+                    getClass().getName()));
+        }
+        Type type = outputType.getType();
+        if (type instanceof ParameterizedType) {
+            type = ((ParameterizedType) type).getRawType();
+        }
+        if (type instanceof Class) {
+            outputClass = (Class) type;
         }
 
         return outputClass;
+    }
+
+    @JsonIgnore
+    default Type getOutputType() {
+        final TypeReference<O> outputType = getOutputTypeReference();
+        if (null == outputType) {
+            throw new NullPointerException(String.format("Operation %s cannot have null outputTypeReference",
+                    getClass().getName()));
+        }
+        return outputType.getType();
     }
 
     interface Builder<OP extends Output<O>, O, B extends Builder<OP, O, ?>> extends Operation.Builder<OP, B> {

@@ -89,7 +89,7 @@ public class OperationDetail {
     private static String getOperationOutputType(final Operation operation) {
         String outputClass = null;
         if (operation instanceof Output) {
-            outputClass = JsonSerialisationUtil.getTypeString(((Output) operation).getOutputTypeReference().getType());
+            outputClass = JsonSerialisationUtil.getTypeString(((Output) operation).getOutputType());
         }
         return outputClass;
     }
