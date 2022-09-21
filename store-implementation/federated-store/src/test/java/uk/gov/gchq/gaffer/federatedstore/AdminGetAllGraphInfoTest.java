@@ -76,17 +76,14 @@ public class AdminGetAllGraphInfoTest {
 
         final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(ADMIN_USER, null, true);
 
+        final String expected = "{\"graph1\":{\"addingUserId\":\"testuser1\",\"disabledByDefault\":false," +
+            "\"graphAuths\":[\"authA\"],\"public\":false}}";
+            
+
         assertNotNull(allGraphsAndAuths);
         assertFalse(allGraphsAndAuths.isEmpty());
         assertEquals(graph1, allGraphsAndAuths.keySet().toArray(new String[]{})[0]);
-        assertEquals("{\n" +
-                "  \"graph1\" : {\n" +
-                "    \"addingUserId\" : \"testuser1\",\n" +
-                "    \"disabledByDefault\" : false,\n" +
-                "    \"graphAuths\" : [ \"authA\" ],\n" +
-                "    \"public\" : false\n" +
-                "  }\n" +
-                "}", new String(JSONSerialiser.serialise(allGraphsAndAuths, true)));
+        assertEquals(expected, new String(JSONSerialiser.serialise(allGraphsAndAuths)));
     }
 
     @Test
