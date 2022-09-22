@@ -54,7 +54,7 @@ class DefaultGraphFactoryTest {
         File graphFile = new File(getClass().getResource("/graphConfigIncorrectLibrary.json").getFile());
         String graphConfigPath = graphFile.getAbsolutePath();
         System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath);
-        
+
         // Then
         assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(graphFactory::getGraph)
