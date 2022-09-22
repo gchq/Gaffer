@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -324,56 +323,14 @@ class IntegrationTestSuiteExtensionTest {
                 .hasSize(1);
     }
 
-    static class Counter {
-
-        Object object = null;
-        int count = 0;
-
-        void increment(final Object object) {
-            if (this.object == null) {
-                this.object = object;
-            } else if (!this.object.equals(object)) {
-                throw new RuntimeException("UUIDs don't match. Counter UUID [" + this.object + "] " +
-                        "and UUID [" + object + "]");
-            }
-            count++;
-        }
-
-        void reset() {
-            object = null;
-            count = 0;
-        }
-
-        int getCount() {
-            return count;
-        }
-    }
-
-    static final Counter COUNTER = new Counter();
-
     static class CallCacheTestSuite extends AbstractTestSuite {
 
+        static int instantiated = 0;
+
         CallCacheTestSuite() {
+            instantiated++;
             setSchema(TEST_SCHEMA);
             setStoreProperties(TEST_STORE_PROPERTIES);
-        }
-
-        @Override
-        public Optional<Schema> getSchema() {
-            COUNTER.increment(this);
-            return super.getSchema();
-        }
-
-        @Override
-        public Optional<StoreProperties> getStoreProperties() {
-            COUNTER.increment(this);
-            return super.getStoreProperties();
-        }
-
-        @Override
-        public Optional<Map<String, String>> getTestsToSkip() {
-            COUNTER.increment(this);
-            return super.getTestsToSkip();
         }
     }
 
@@ -381,7 +338,7 @@ class IntegrationTestSuiteExtensionTest {
     void shouldSucceedCallCache(@Mock final ExtensionContext mockExtensionContext) {
         /* setup */
         final IntegrationTestSuiteExtension integrationTestSuiteExtension = new IntegrationTestSuiteExtension();
-        COUNTER.reset();
+        CallCacheTestSuite.instantiated = 0;
 
         /* mock */
         when(mockExtensionContext.getConfigurationParameter(anyString())).thenReturn(Optional.of(CallCacheTestSuite.class.getName()));
@@ -391,6 +348,6 @@ class IntegrationTestSuiteExtensionTest {
         integrationTestSuiteExtension.beforeAll(mockExtensionContext);
 
         /* verify */
-        assertThat(COUNTER.getCount()).isEqualTo(6);
+        assertThat(CallCacheTestSuite.instantiated).isEqualTo(1);
     }
 }
