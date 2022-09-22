@@ -1322,8 +1322,8 @@ public class FederatedStoreTest {
         assertThatExceptionOfType(SchemaException.class).isThrownBy(() -> store.execute(new GetSchema.Builder().build(), userContext))
                 .withMessageMatching(expectedExceptionMeassageMatch);
 
-        String expectedMessageGraphA = String.format("Operation chain is invalid. Validation errors: %n" 
-                + "View is not valid for graphIds:[graphA]%n" 
+        String expectedMessageGraphA = String.format("Operation chain is invalid. Validation errors: %n"
+                + "View is not valid for graphIds:[graphA]%n"
                 + "(graphId: graphA) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. %n"
                 + "(graphId: graphA) Entity group entityB does not exist in the schema");
 

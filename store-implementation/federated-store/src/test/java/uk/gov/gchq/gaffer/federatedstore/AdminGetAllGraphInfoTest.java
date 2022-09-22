@@ -78,7 +78,6 @@ public class AdminGetAllGraphInfoTest {
 
         final String expected = "{\"graph1\":{\"addingUserId\":\"testuser1\",\"disabledByDefault\":false," +
             "\"graphAuths\":[\"authA\"],\"public\":false}}";
-            
 
         assertNotNull(allGraphsAndAuths);
         assertFalse(allGraphsAndAuths.isEmpty());
