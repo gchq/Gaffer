@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -857,8 +858,9 @@ public class FederatedStoreTest {
         // Then
         assertThat(before).isEqualTo(0);
         assertThat(after).isEqualTo(1);
-        assertThat(elements).isNotNull();
-        assertThat(elements.iterator()).hasNext();
+        assertThat(elements)
+                .isNotNull()
+                .isNotEmpty();
     }
 
     @Test
@@ -1243,6 +1245,21 @@ public class FederatedStoreTest {
         final Iterable<? extends Element> responseGraphsWithNoView = store.execute(new GetAllElements.Builder().build(), blankUserContext);
         // then
         ElementUtil.assertElementEquals(expectedAB, responseGraphsWithNoView);
+    }
+
+    @Test
+    public void shouldBasicGetAllElements() throws OperationException {
+        //given
+        final Entity entityA = getEntityA();
+
+        addElementsToNewGraph(entityA, "graphA", SCHEMA_ENTITY_A_JSON);
+
+        // when
+        final Iterable<? extends Element> elements = store.execute(new GetAllElements(), blankUserContext);
+        // then
+        assertThat(elements)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .containsExactly(entityA);
     }
 
     @Test
