@@ -52,7 +52,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
  * These tests simply check that the reflection in the legacy support
  * utility class is able to create and invoke Accumulo methods.
  */
-class LegacySupportTest {
+public class LegacySupportTest {
 
     File tempDir;
     Configuration conf;
@@ -69,35 +69,35 @@ class LegacySupportTest {
     }
 
     @Test
-    void shouldReflectForSetScanAuthorizations() {
+    public void shouldReflectForSetScanAuthorizations() {
         Authorizations authorisations = new Authorizations();
 
         assertThatNoException().isThrownBy(() -> { InputConfigurator.setScanAuthorizations(AccumuloInputFormat.class, conf, authorisations); });
     }
 
     @Test
-    void shouldReflectForSetInputTableName() {
+    public void shouldReflectForSetInputTableName() {
         String tableName = "test";
 
         assertThatNoException().isThrownBy(() -> { InputConfigurator.setInputTableName(AccumuloInputFormat.class, conf, tableName); });
     }
 
     @Test
-    void shouldReflectForFetchColumns() {
+    public void shouldReflectForFetchColumns() {
         Collection<Pair<Text, Text>> columnFamilyColumnQualifierPairs = Arrays.asList(new org.apache.accumulo.core.util.Pair<>(new Text("null"), new Text("null")));
 
         assertThatNoException().isThrownBy(() -> { InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf, columnFamilyColumnQualifierPairs); });
     }
 
     @Test
-    void shouldReflectForAddIterator() {
+    public void shouldReflectForAddIterator() {
         IteratorSetting setting = new IteratorSetting(1, "", "");
 
         assertThatNoException().isThrownBy(() -> { InputConfigurator.addIterator(AccumuloInputFormat.class, conf, setting); });
     }
 
     @Test
-    void shouldReflectForSetConnectorInfo() {
+    public void shouldReflectForSetConnectorInfo() {
         String user = "testUser";
         PasswordToken pass = new PasswordToken();
 
@@ -105,36 +105,36 @@ class LegacySupportTest {
     }
 
     @Test
-    void shouldReflectForSetZooKeeperInstance() {
+    public void shouldReflectForSetZooKeeperInstance() {
         ClientConfiguration withZkHosts = ClientConfiguration.create();
 
         assertThatNoException().isThrownBy(() -> { InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class, conf, withZkHosts); });
     }
 
     @Test
-    void shouldReflectForSetBatchScan() {
+    public void shouldReflectForSetBatchScan() {
         assertThatNoException().isThrownBy(() -> { InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, false); });
     }
 
     @Test
-    void shouldReflectForSetRanges() {
+    public void shouldReflectForSetRanges() {
         final List<Range> ranges = new ArrayList<>();
 
         assertThatNoException().isThrownBy(() -> { InputConfigurator.setRanges(AccumuloInputFormat.class, conf, ranges); });
     }
 
     @Test
-    void shouldReflectForGetIterators() {
+    public void shouldReflectForGetIterators() {
         assertThatNoException().isThrownBy(() -> { InputConfigurator.getIterators(AccumuloInputFormat.class, conf); });
     }
 
     @Test
-    void shouldReflectForGetFetchedColumns() {
+    public void shouldReflectForGetFetchedColumns() {
         assertThatNoException().isThrownBy(() -> { InputConfigurator.getFetchedColumns(AccumuloInputFormat.class, conf); });
     }
 
     @Test
-    void shouldReflectForBackwardsCompatibleReaderBuilder() throws IOException {
+    public void shouldReflectForBackwardsCompatibleReaderBuilder() throws IOException {
         FileSystem fs = FileSystem.get(conf);
         AccumuloConfiguration accumuloConf = new ConfigurationCopy(DefaultConfiguration.getInstance());
         final String filenameTemp = tempDir.getAbsolutePath();
@@ -155,7 +155,7 @@ class LegacySupportTest {
     }
 
     @Test
-    void shouldReflectForBackwardsCompatibleWriterBuilder() throws IOException {
+    public void shouldReflectForBackwardsCompatibleWriterBuilder() throws IOException {
         final FileSystem fs = FileSystem.get(conf);
         final AccumuloConfiguration accumuloConf = new ConfigurationCopy(DefaultConfiguration.getInstance());
         final String filenameTemp = tempDir.getAbsolutePath();
@@ -166,7 +166,7 @@ class LegacySupportTest {
         }
 
     @Test
-    void shouldReflectForBackwardsCompatibleCachableBlockFileReader() throws IOException {
+    public void shouldReflectForBackwardsCompatibleCachableBlockFileReader() throws IOException {
         final FileSystem fs = FileSystem.get(conf);
         final String filenameTemp = tempDir.getAbsolutePath();
         final String filename = filenameTemp + "/file.rf";
@@ -187,7 +187,7 @@ class LegacySupportTest {
     }
 
     @Test
-    void shouldReflectForBackwardsCompatibleRFileWriter() throws IOException {
+    public void shouldReflectForBackwardsCompatibleRFileWriter() throws IOException {
         final String filenameTemp = tempDir.getAbsolutePath();
         final String filename = filenameTemp + "/file.rf";
 

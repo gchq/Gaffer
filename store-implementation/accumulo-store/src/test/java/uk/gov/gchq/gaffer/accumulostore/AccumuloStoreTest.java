@@ -459,7 +459,7 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    void shouldFailSchemaValidationWhenTimestampPropertyDoesNotHaveMaxAggregator() throws StoreException {
+    public void shouldFailSchemaValidationWhenTimestampPropertyDoesNotHaveMaxAggregator() throws StoreException {
         // Given
         final AccumuloStore store = new MiniAccumuloStore();
         final Schema schema = new Schema.Builder()

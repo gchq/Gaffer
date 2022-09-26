@@ -70,7 +70,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
+public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
 
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
@@ -99,7 +99,7 @@ class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
 
 
     @Test
-    void shouldSetupJob() throws IOException  {
+    public void shouldSetupJob() throws IOException  {
         // Given
         writeOneToSplitsFile();
 
@@ -146,7 +146,7 @@ class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
     }
 
     @Test
-    void shouldSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsTrue() throws IOException {
+    public void shouldSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsTrue() throws IOException {
         final Class<? extends Partitioner> partitioner = GafferKeyRangePartitioner.class;
         writeOneToSplitsFile();
 
@@ -173,7 +173,7 @@ class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
     }
 
     @Test
-    void shouldSetupAccumuloPartitionerWhenSetupJobAndPartitionerIsNull() throws IOException {
+    public void shouldSetupAccumuloPartitionerWhenSetupJobAndPartitionerIsNull() throws IOException {
         // setupAccumuloPartitionerWithGivenPartitioner(null);
         writeOneToSplitsFile();
 
@@ -200,7 +200,7 @@ class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
     }
 
     @Test
-    void shouldNotSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsFalse() throws IOException {
+    public void shouldNotSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsFalse() throws IOException {
         // setupAccumuloPartitionerWithGivenPartitioner(NoPartitioner.class);
         writeOneToSplitsFile();
 
@@ -224,7 +224,7 @@ class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
     }
 
     @Test
-    void shouldSetNoMoreThanMaxNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
+    public void shouldSetNoMoreThanMaxNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
         // Given
         writeManyToSplitsFile();
         store.initialise("graphId", SCHEMA, PROPERTIES);
@@ -273,7 +273,7 @@ class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
     }
 
     @Test
-    void shouldSetNoLessThanMinNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
+    public void shouldSetNoLessThanMinNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
         // Given
         store.initialise("graphId", SCHEMA, PROPERTIES);
         writeManyToSplitsFile();
@@ -323,7 +323,7 @@ class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
     }
 
     @Test
-    void shouldSetNumberOfReducersBetweenMinAndMaxSpecified() throws IOException, StoreException, OperationException {
+    public void shouldSetNumberOfReducersBetweenMinAndMaxSpecified() throws IOException, StoreException, OperationException {
         // Given
         store.initialise("graphId", SCHEMA, PROPERTIES);
         writeManyToSplitsFile();
@@ -380,7 +380,7 @@ class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
 
 
     @Test
-    void shouldThrowExceptionWhenMaxReducersSetOutsideOfRange() throws IOException, StoreException, OperationException {
+    public void shouldThrowExceptionWhenMaxReducersSetOutsideOfRange() throws IOException, StoreException, OperationException {
         // Given
         store.initialise("graphId", SCHEMA, PROPERTIES);
         writeManyToSplitsFile();

@@ -106,7 +106,7 @@ public class CreateSplitPointsTest {
     }
 
     @Test
-    void shouldAddElementsFromHdfs() throws Exception {
+    public void shouldAddElementsFromHdfs() throws Exception {
         // Given
         createInputFile();
 

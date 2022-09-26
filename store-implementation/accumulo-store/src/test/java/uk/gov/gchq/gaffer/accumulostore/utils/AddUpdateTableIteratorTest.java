@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-class AddUpdateTableIteratorTest {
+public class AddUpdateTableIteratorTest {
 
     private static final String GRAPH_ID = "graphId";
     private static final String SCHEMA_DIR = "src/test/resources/schema";
@@ -58,7 +58,7 @@ class AddUpdateTableIteratorTest {
     }
 
     @Test
-    void shouldRunMainWithFileGraphLibrary() throws Exception {
+    public void shouldRunMainWithFileGraphLibrary() throws Exception {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, STORE_PROPS_PATH, "update", FILE_GRAPH_LIBRARY_TEST_PATH};
 
@@ -75,7 +75,7 @@ class AddUpdateTableIteratorTest {
     }
 
     @Test
-    void shouldOverrideExistingGraphInGraphLibrary() throws Exception {
+    public void shouldOverrideExistingGraphInGraphLibrary() throws Exception {
         // Given
         shouldRunMainWithFileGraphLibrary(); // load version graph version 1 into the library.
         final String[] args = {GRAPH_ID, SCHEMA_2_DIR, STORE_PROPS_2_PATH, "update", FILE_GRAPH_LIBRARY_TEST_PATH};
@@ -93,7 +93,7 @@ class AddUpdateTableIteratorTest {
     }
 
     @Test
-    void shouldRunMainWithNoGraphLibrary() throws Exception {
+    public void shouldRunMainWithNoGraphLibrary() throws Exception {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, STORE_PROPS_PATH, "update"};
 
@@ -106,7 +106,7 @@ class AddUpdateTableIteratorTest {
     }
 
     @Test
-    void shouldThrowKeyErrorWhenInvalidModifyKeyGiven() throws Exception {
+    public void shouldThrowKeyErrorWhenInvalidModifyKeyGiven() throws Exception {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, STORE_PROPS_PATH, "invalid key", FILE_GRAPH_LIBRARY_TEST_PATH};
 
@@ -117,7 +117,7 @@ class AddUpdateTableIteratorTest {
     }
 
     @Test
-    void shouldReturnStoreClassNameNotFoundWhenStorePropsIsEmpty() throws Exception {
+    public void shouldReturnStoreClassNameNotFoundWhenStorePropsIsEmpty() throws Exception {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, EMPTY_STORE_PROPS_PATH, "update", FILE_GRAPH_LIBRARY_TEST_PATH};
 
@@ -128,7 +128,7 @@ class AddUpdateTableIteratorTest {
     }
 
     @Test
-    void shouldReturnInvalidFilePathErrorWhenPathDoesNotExist() throws Exception {
+    public void shouldReturnInvalidFilePathErrorWhenPathDoesNotExist() throws Exception {
         String expectedMessage;
 
         final String[] args = {GRAPH_ID, SCHEMA_DIR, "invalid/file/path", "update", FILE_GRAPH_LIBRARY_TEST_PATH};

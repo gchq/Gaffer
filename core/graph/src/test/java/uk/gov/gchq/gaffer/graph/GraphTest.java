@@ -255,7 +255,7 @@ public class GraphTest {
     }
 
     @Test
-    void shouldConstructGraphFromSchemaFolderPath() throws IOException {
+    public void shouldConstructGraphFromSchemaFolderPath() throws IOException {
         // Given
         final Schema expectedSchema = new Schema.Builder()
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
@@ -280,7 +280,7 @@ public class GraphTest {
     }
 
     @Test
-    void shouldConstructGraphFromSchemaURI() throws IOException, URISyntaxException {
+    public void shouldConstructGraphFromSchemaURI() throws IOException, URISyntaxException {
         // Given
         final URI typeInputUri = getResourceUri(StreamUtil.TYPES_SCHEMA);
         final URI schemaInputUri = getResourceUri(StreamUtil.ELEMENTS_SCHEMA);

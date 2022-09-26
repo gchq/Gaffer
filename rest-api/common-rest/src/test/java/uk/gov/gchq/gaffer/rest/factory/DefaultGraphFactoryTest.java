@@ -26,18 +26,18 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.io.File;
 
-class DefaultGraphFactoryTest {
+public class DefaultGraphFactoryTest {
 
     @BeforeEach
     @AfterEach
-    void clearSystemProperties() {
+    public void clearSystemProperties() {
         System.clearProperty(SystemProperty.SCHEMA_PATHS);
         System.clearProperty(SystemProperty.STORE_PROPERTIES_PATH);
         System.clearProperty(SystemProperty.GRAPH_CONFIG_PATH);
     }
 
     @Test
-    void shouldThrowRuntimeExceptionIfGraphLibraryClassDoesNotExist() {
+    public void shouldThrowRuntimeExceptionIfGraphLibraryClassDoesNotExist() {
         // Given
         // Need to use getAbsolutePath so the test works on Windows
         File schemaFile = new File(getClass().getResource("/schema").getFile());
