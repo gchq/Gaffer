@@ -20,6 +20,8 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -196,8 +198,8 @@ public class SplitStoreFromJavaRDDOfElementsHandlerTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void canBeSuccessfullyChainedWithImport() throws Exception {
-
         graph.execute(new OperationChain.Builder()
                 .first(new SplitStoreFromJavaRDDOfElements.Builder()
                         .input(javaRDD)

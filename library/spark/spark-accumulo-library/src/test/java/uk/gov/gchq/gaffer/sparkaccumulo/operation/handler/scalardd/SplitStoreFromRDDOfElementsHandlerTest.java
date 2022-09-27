@@ -19,6 +19,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.rdd.RDD;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
@@ -200,8 +202,8 @@ public class SplitStoreFromRDDOfElementsHandlerTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void canBeSuccessfullyChainedWithImport() throws Exception {
-
         graph.execute(new OperationChain.Builder()
                 .first(new SplitStoreFromRDDOfElements.Builder()
                         .input(rdd)
