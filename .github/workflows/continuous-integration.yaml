@@ -90,14 +90,13 @@ jobs:
     - name: Install
       run: mvn -B -ntp clean install -P quick -pl ${{matrix.ubuntu-modules.values}} -am
 
-    - name: Test
-      run: |
-        if [ "OSTYPE" == 'linux-gnu' ]; then
-          mvn -B -ntp verify -P coverage -pl ${{ matrix.ubuntu-modules.values }}
-        else
-          mvn -B -ntp verify -P coverage -pl ${{ matrix.windows-modules.values }}
-        fi
-      shell: bash
+    - name: Test Ubuntu
+      if: matrix.os == 'ubuntu-latest'
+      run: mvn -B -ntp verify -P coverage -pl ${{ matrix.ubuntu-modules.values }}
+
+    - name: Test Windows
+      if: matrix.os == 'windows-latest'
+      run: mvn -B -ntp verify -P coverage -pl ${{ matrix.windows-modules.values }}
 
     - name: Check Copyright Headers
       if: github.event_name == 'pull_request'
