@@ -91,11 +91,11 @@ jobs:
       run: mvn -B -ntp clean install -P quick -pl ${{matrix.ubuntu-modules.values}} -am
 
     - name: Test
-      run: | 
-        if [ ${{ matrix.os }} == 'windows-latest'  ]; then
-          mvn -B -ntp verify -P coverage -pl ${{matrix.windows-modules.values}}
-        elif [${{ matrix.os }} == 'ubuntu-latest' ]; then
-          mvn -B -ntp verify -P coverage -pl ${{matrix.ubuntu-modules.values}}
+      run: |
+        if [ "OSTYPE" == 'linux-gnu' ]; then
+          mvn -B -ntp verify -P coverage -pl ${{ matrix.ubuntu-modules.values }}
+        else
+          mvn -B -ntp verify -P coverage -pl ${{ matrix.windows-modules.values }}
         fi
       shell: bash
 
