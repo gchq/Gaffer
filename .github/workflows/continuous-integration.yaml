@@ -46,13 +46,11 @@ jobs:
         ubuntu-modules:
         - name: Core
           values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
+        - name: Accumulo
+          values: :accumulo-store,:accumulo-rest
         windows-modules:
           - name: Core
-            values: :gaffer2,:core
-
-
-#        - name: Accumulo
-#          values: :accumulo-store,:accumulo-rest
+            values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
 
 #        - name: Federated-And-Map
 #          values: :integration-test,:federated-store,:map-store,:map-rest
@@ -103,7 +101,7 @@ jobs:
 
     - name: Check Copyright Headers
       if: github.event_name == 'pull_request'
-      run: mvn -B -ntp spotless:check -pl ${{matrix.modules.values}}
+      run: mvn -B -ntp spotless:check -pl ${{matrix.ubuntu-modules.values}}
 
     - name: Upload Coverage
       uses: codecov/codecov-action@v2
