@@ -92,9 +92,9 @@ jobs:
 
     - name: Test
       run: | 
-        if ['RUNNER_OS' == 'Windows']; then
+        if [ ${{ matrix.os }} == 'windows-latest'  ]; then
           mvn -B -ntp verify -P coverage -pl ${{matrix.windows-modules.values}}
-        elif ['RUNNER_OS' == 'Linux']; then
+        elif [${{ matrix.os }} == 'ubuntu-latest' ]; then
           mvn -B -ntp verify -P coverage -pl ${{matrix.ubuntu-modules.values}}
         fi
       shell: bash
