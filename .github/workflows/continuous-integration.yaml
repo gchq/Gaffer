@@ -43,14 +43,16 @@ jobs:
         # If these words are present it runs the tests on Windows AND Ubuntu. If the words aren't present it runs the tests on Ubuntu ONLY
         # The 'release' keyword is currently disabled. Change 'release-disabled-for-now' to 'release' once the tests have been fixed to reenable this.
         os: ${{ fromJSON( (contains( github.head_ref, 'windows') || contains( github.head_ref, 'release-disabled-for-now') )  && '["ubuntu-latest", "windows-latest"]' || '["ubuntu-latest"]' ) }}
-        modules:
+        ubuntu-modules:
         - name: Core
           values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
-        - name: Accumulo
-          values: :accumulo-store,:accumulo-rest
-        exclude:
-          - os: windows-latest
-            name: Accumulo
+        windows-modules:
+          - name: Core
+            values: :gaffer2,:core
+
+
+#        - name: Accumulo
+#          values: :accumulo-store,:accumulo-rest
 
 #        - name: Federated-And-Map
 #          values: :integration-test,:federated-store,:map-store,:map-rest
@@ -88,10 +90,16 @@ jobs:
         key: ${{matrix.modules.name}}-gaffer-dependencies
 
     - name: Install
-      run: mvn -B -ntp clean install -P quick -pl ${{matrix.modules.values}} -am
+      run: mvn -B -ntp clean install -P quick -pl ${{matrix.ubuntu-modules.values}} -am
 
     - name: Test
-      run: mvn -B -ntp verify -P coverage -pl ${{matrix.modules.values}}
+      run: | 
+        if ['RUNNER_OS' == 'Windows']; then
+          mvn -B -ntp verify -P coverage -pl ${{matrix.windows-modules.values}}
+        elif ['RUNNER_OS' == 'Linux']; then
+          mvn -B -ntp verify -P coverage -pl ${{matrix.ubuntu-modules.values}}
+        fi
+      shell: bash
 
     - name: Check Copyright Headers
       if: github.event_name == 'pull_request'
