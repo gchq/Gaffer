@@ -45,13 +45,13 @@ jobs:
         os: ${{ fromJSON( (contains( github.head_ref, 'windows') || contains( github.head_ref, 'release-disabled-for-now') )  && '["ubuntu-latest", "windows-latest"]' || '["ubuntu-latest"]' ) }}
         modules:
         - name: Core
-          with:
-            linux:
-              values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
-            windows:
-              values: :gaffer2,:core
-#        - name: Accumulo
-#          values: :accumulo-store,:accumulo-rest
+          values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
+        - name: Accumulo
+          values: :accumulo-store,:accumulo-rest
+        exclude:
+          - os: windows-latest
+            name: Accumulo
+
 #        - name: Federated-And-Map
 #          values: :integration-test,:federated-store,:map-store,:map-rest
 #        - name: REST
