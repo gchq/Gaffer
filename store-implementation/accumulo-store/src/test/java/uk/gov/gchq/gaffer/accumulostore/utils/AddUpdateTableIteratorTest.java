@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SystemUtils;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -134,7 +135,7 @@ public class AddUpdateTableIteratorTest {
         final String[] args = {GRAPH_ID, SCHEMA_DIR, "invalid/file/path", "update", FILE_GRAPH_LIBRARY_TEST_PATH};
 
         // Without the following the return message will have / instead of \ when run on Windows";
-        if (SystemUtils.IS_OS_WINDOWS) {
+        if (IS_OS_WINDOWS) {
             expectedMessage = "Failed to load store properties file : invalid\\file\\path";
         } else {
             expectedMessage = "Failed to load store properties file : invalid/file/path";

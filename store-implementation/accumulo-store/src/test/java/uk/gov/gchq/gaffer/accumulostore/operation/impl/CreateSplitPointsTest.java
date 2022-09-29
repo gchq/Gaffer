@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.SystemUtils;
-import org.apache.curator.shaded.com.google.common.io.Files;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -54,10 +52,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CreateSplitPointsTest {
@@ -78,14 +78,14 @@ public class CreateSplitPointsTest {
 
     @BeforeEach
     public void setup() throws IOException {
-        tempDir = Files.createTempDir();
+        tempDir = Files.createTempDirectory(this.getClass().getName()).toFile();
 
         fs = createFileSystem();
 
         String root = fs.resolvePath(new Path("/")).toString();
 
         // String needs different handling if the test is run on windows
-        if (SystemUtils.IS_OS_WINDOWS) {
+        if (IS_OS_WINDOWS) {
             root += tempDir.getAbsolutePath()
                         .replaceFirst("//", "/");
         } else {

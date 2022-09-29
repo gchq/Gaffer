@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
@@ -62,6 +61,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -139,7 +139,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
         verify(job).setNumReduceTasks(2);
         verify(job).setPartitionerClass(GafferKeyRangePartitioner.class);
 
-        if (SystemUtils.IS_OS_WINDOWS) {
+        if (IS_OS_WINDOWS) {
             alterPathForWindows(splitsFile);
         }
 
@@ -166,7 +166,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
         verify(job).setNumReduceTasks(2);
         verify(job).setPartitionerClass(GafferKeyRangePartitioner.class);
 
-        if (SystemUtils.IS_OS_WINDOWS) {
+        if (IS_OS_WINDOWS) {
             alterPathForWindows(splitsFile);
         }
         assertEquals(splitsFile, job.getConfiguration().get(GafferRangePartitioner.class.getName() + ".cutFile"));
@@ -175,7 +175,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
 
     @Test
     public void shouldSetupAccumuloPartitionerWhenSetupJobAndPartitionerIsNull() throws IOException {
-        // setupAccumuloPartitionerWithGivenPartitioner(null);
         writeOneToSplitsFile();
 
         final Job job = mock(Job.class);
@@ -194,7 +193,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
         verify(job).setNumReduceTasks(2);
         verify(job).setPartitionerClass(GafferKeyRangePartitioner.class);
 
-        if (SystemUtils.IS_OS_WINDOWS) {
+        if (IS_OS_WINDOWS) {
             alterPathForWindows(splitsFile);
         }
         assertEquals(splitsFile, job.getConfiguration().get(GafferRangePartitioner.class.getName() + ".cutFile"));
@@ -202,7 +201,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
 
     @Test
     public void shouldNotSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsFalse() throws IOException {
-        // setupAccumuloPartitionerWithGivenPartitioner(NoPartitioner.class);
+        //Given
         writeOneToSplitsFile();
 
         final Job job = mock(Job.class);
@@ -421,7 +420,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
     }
 
     public static final class TextMapperGeneratorImpl extends TextMapperGenerator {
-        TextMapperGeneratorImpl() {
+        private TextMapperGeneratorImpl() {
             super(new ExampleGenerator());
         }
     }
@@ -461,8 +460,8 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
     }
 
     /*
-     * The hadoop library alters windows files paths, so they no longer work on windows,
-     * so the filepath needs to be altered if the tests are run on windows
+     * The hadoop library alters Windows files paths, so they no longer work on Windows,
+     * so the filepath needs to be altered if the tests are run on Windows
      */
     public void alterPathForWindows(String path) {
         String alteredPath = "/" + path.replace("\\", "/");
