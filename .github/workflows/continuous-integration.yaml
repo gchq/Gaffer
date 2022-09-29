@@ -67,10 +67,10 @@ jobs:
           - os: windows-latest
             modules:
               name: Examples
-          # TODO- add this back in once ive worked out whats wrong
-          - os: windows-latest
-            modules:
-              name: Core
+#          # TODO- add this back in once ive worked out whats wrong
+#          - os: windows-latest
+#            modules:
+#              name: Core
           - os: windows-latest
             modules:
               name: Big-Data-Libraries

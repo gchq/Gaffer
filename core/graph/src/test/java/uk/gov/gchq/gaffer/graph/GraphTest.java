@@ -130,10 +130,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
-
 @ExtendWith(MockitoExtension.class)
 public class GraphTest {
-
     private static final String GRAPH_ID = "graphId";
     public static final String SCHEMA_ID_1 = "schemaId1";
     public static final String STORE_PROPERTIES_ID_1 = "storePropertiesId1";
@@ -2470,7 +2468,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2545,7 +2543,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2616,7 +2614,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2664,7 +2662,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
