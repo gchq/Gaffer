@@ -66,7 +66,7 @@ jobs:
               name: Accumulo
           - os: windows-latest
             modules:
-              values: :road-traffic-model
+              name: Examples
 
 
     env:
