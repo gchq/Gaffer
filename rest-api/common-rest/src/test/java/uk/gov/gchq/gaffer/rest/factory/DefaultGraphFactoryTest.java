@@ -39,7 +39,6 @@ public class DefaultGraphFactoryTest {
     @Test
     public void shouldThrowRuntimeExceptionIfGraphLibraryClassDoesNotExist() {
         // Given
-        // Need to use getAbsolutePath so the test works on Windows
         File schemaFile = new File(getClass().getResource("/schema").getFile());
         String schemaPath = schemaFile.getAbsolutePath();
         File propsFile = new File(getClass().getResource("/store.properties").getFile());
