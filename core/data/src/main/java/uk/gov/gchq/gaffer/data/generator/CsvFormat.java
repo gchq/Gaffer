@@ -16,8 +16,23 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
+
 import java.util.LinkedHashMap;
 
-public interface CsvFormat {
-    LinkedHashMap<String, String> getIdentifiers();
+public abstract class CsvFormat {
+    private static LinkedHashMap<String, String> identifiers = new LinkedHashMap<String, String>();
+    public abstract String getVertex();
+    public abstract String getEntityGroup();
+    public abstract String getEdgeGroup();
+    public abstract String getSource();
+    public abstract String getDestination();
+    public static LinkedHashMap<String, String> getIdentifiers(final CsvFormat csvFormat) {
+        identifiers.put(String.valueOf(IdentifierType.VERTEX), csvFormat.getVertex());
+        identifiers.put("ENTITY_GROUP", csvFormat.getEntityGroup());
+        identifiers.put("EDGE_GROUP", csvFormat.getEdgeGroup());
+        identifiers.put(String.valueOf(IdentifierType.SOURCE), csvFormat.getSource());
+        identifiers.put(String.valueOf(IdentifierType.DESTINATION), csvFormat.getDestination());
+        return identifiers;
+    }
 }

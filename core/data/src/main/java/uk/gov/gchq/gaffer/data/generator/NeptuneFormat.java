@@ -15,32 +15,29 @@
  */
 
 package uk.gov.gchq.gaffer.data.generator;
-
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
-
-import java.util.LinkedHashMap;
-
-public class NeptuneFormat implements CsvFormat {
-
-    public static final String NEPTUNE_VERTEX = ":ID";
-
-    public static final String NEPTUNE_ENTITY_GROUP = ":LABEL";
-
-    public static final String NEPTUNE_SOURCE = ":START_ID";
-
-    public static final String NEPTUNE_DESTINATION = ":END_ID";
-
-    public static final String NEPTUNE_EDGE_GROUP = ":TYPE";
-    public static final LinkedHashMap<String, String> IDENTIFIERS = new LinkedHashMap<String, String>() { {
-        put(String.valueOf(IdentifierType.VERTEX), NEPTUNE_VERTEX);
-        put("NEPTUNE_ENTITY_GROUP", NEPTUNE_ENTITY_GROUP);
-        put("NEPTUNE_EDGE_GROUP", NEPTUNE_EDGE_GROUP);
-        put(String.valueOf(IdentifierType.SOURCE), NEPTUNE_SOURCE);
-        put(String.valueOf(IdentifierType.DESTINATION), NEPTUNE_DESTINATION);
-    } };
+public class NeptuneFormat extends CsvFormat {
+    @Override
+    public String getVertex() {
+        return ":ID";
+    }
 
     @Override
-    public LinkedHashMap<String, String> getIdentifiers() {
-        return IDENTIFIERS;
+    public String getEntityGroup() {
+        return ":LABEL";
+    }
+
+    @Override
+    public String getEdgeGroup() {
+        return ":TYPE";
+    }
+
+    @Override
+    public String getSource() {
+        return ":START_ID";
+    }
+
+    @Override
+    public String getDestination() {
+        return ":END_ID";
     }
 }
