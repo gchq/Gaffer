@@ -61,8 +61,7 @@ jobs:
           - name: Caches
             values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
         excludes:
-          - os: 'windows-latest'
-            modules: [values('Accumulo')]
+          - os: windows-latest
 
 
     env:
