@@ -61,7 +61,7 @@ jobs:
           - name: Caches
             values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
         excludes:
-          - os: windows-latest
+          - os: "windows-latest"
 
 
     env:
@@ -86,11 +86,15 @@ jobs:
           key: ${{matrix.modules.name}}-gaffer-dependencies
 
       - name: Install
-        run: mvn -B -ntp clean install -P quick -pl ${{matrix.modules.values}} -am
+        run: |
+          echo '${{matrix.os}}'
+          echo '${{matrix.modules.name}}'
+          mvn -B -ntp clean install -P quick -pl ${{matrix.modules.values}} -am
 
       - name: Test
 #        if: startsWith(matrix.os, 'ubuntu')
-        run: mvn -B -ntp verify -P coverage -pl ${{matrix.modules.values}}
+        run: |
+          mvn -B -ntp verify -P coverage -pl ${{matrix.modules.values}}
 
 #      - name: Test Windows
 #        if: startsWith(matrix.os, 'windows')
