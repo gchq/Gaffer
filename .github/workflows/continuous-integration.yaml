@@ -74,7 +74,9 @@ jobs:
           - os: windows-latest
             modules:
               name: Big-Data-Libraries
-
+          - os: windows-latest
+            modules:
+              name: Rest
 
     env:
       MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
