@@ -130,6 +130,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
+
 @ExtendWith(MockitoExtension.class)
 public class GraphTest {
 
