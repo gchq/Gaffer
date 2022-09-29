@@ -64,6 +64,9 @@ jobs:
           - os: windows-latest
             modules:
               name: Accumulo
+          - os: windows-latest
+            modules:
+              values: :road-traffic-model
 
 
     env:
