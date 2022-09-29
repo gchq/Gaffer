@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.commons.lang3.SystemUtils;
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
