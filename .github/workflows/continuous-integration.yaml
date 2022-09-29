@@ -60,8 +60,9 @@ jobs:
             values: :library,:time-library
           - name: Caches
             values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
-        excludes:
-          - os: "windows-latest"
+        exclude:
+          - os: windows-latest
+#            modules: [name:'Accumulo']
 
 
     env:
@@ -87,8 +88,7 @@ jobs:
 
       - name: Install
         run: |
-          echo '${{matrix.os}}'
-          echo '${{matrix.modules.name}}'
+          echo '${{matrix}}'
           mvn -B -ntp clean install -P quick -pl ${{matrix.modules.values}} -am
 
       - name: Test
