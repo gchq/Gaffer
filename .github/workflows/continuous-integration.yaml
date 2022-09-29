@@ -60,21 +60,10 @@ jobs:
             values: :library,:time-library
           - name: Caches
             values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
-        windows-modules:
-          - name: Core
-            windows-values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
-          - name: Federated-And-Map
-            windows-values: :integration-test,:federated-store,:map-store,:map-rest
-          - name: REST
-            windows-values: :rest-api,:common-rest,:spring-rest,:core-rest,:store-implementation,:proxy-store
-          - name: Examples
-            windows-values: :example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
-          - name: Big-Data-Libraries
-            windows-values: :flink-library,:hdfs-library,:spark,:spark-library,:spark-accumulo-library
-          - name: Time-Library
-            windows-values: :library,:time-library
-          - name: Caches
-            windows-values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
+        excludes:
+          - os: 'windows-latest'
+            modules: [values('Accumulo')]
+
 
     env:
       MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
@@ -101,12 +90,12 @@ jobs:
         run: mvn -B -ntp clean install -P quick -pl ${{matrix.modules.values}} -am
 
       - name: Test
-        if: matrix.os == 'ubuntu-latest'
+#        if: startsWith(matrix.os, 'ubuntu')
         run: mvn -B -ntp verify -P coverage -pl ${{matrix.modules.values}}
 
-      - name: Test Windows
-        if: matrix.os == 'windows-latest'
-        run: mvn -B -ntp verify -P coverage -pl ${{matrix.windows-modules.windows-values}}
+#      - name: Test Windows
+#        if: startsWith(matrix.os, 'windows')
+#        run: mvn -B -ntp verify -P coverage -pl ${{matrix.windows-modules.windows-values}}
 
       - name: Check Copyright Headers
         if: github.event_name == 'pull_request'
