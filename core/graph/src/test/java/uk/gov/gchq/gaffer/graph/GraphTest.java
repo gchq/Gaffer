@@ -12,13 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-//comment to try to force the changes
-// and see if there is an issue with these lines
+*/
 
 package uk.gov.gchq.gaffer.graph;
-
+//comment to try to force the changes
+// and see if there is an issue with these lines
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
