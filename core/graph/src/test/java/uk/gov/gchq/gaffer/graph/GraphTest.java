@@ -382,7 +382,7 @@ public class GraphTest {
 
     @Test
     public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenExecuted(@Mock final Store store,
-            @Mock final RuntimeException exception)
+                                                                               @Mock final RuntimeException exception)
             throws OperationException, IOException {
         // Given
         given(store.execute(clonedOpChain, clonedContext)).willThrow(exception);
@@ -412,7 +412,7 @@ public class GraphTest {
 
     @Test
     public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenJobExecuted(@Mock final Store store,
-            @Mock final RuntimeException exception)
+                                                                                  @Mock final RuntimeException exception)
             throws OperationException, IOException {
         // Given
         given(store.executeJob(clonedOpChain, clonedContext)).willThrow(exception);
@@ -442,8 +442,8 @@ public class GraphTest {
 
     @Test
     public void shouldCallAllGraphHooksBeforeOperationChainExecuted(@Mock final Store store,
-            @Mock final GraphHook hook1,
-            @Mock final GraphHook hook2)
+                                                                    @Mock final GraphHook hook1,
+                                                                    @Mock final GraphHook hook2)
             throws OperationException {
         // Given
         final Schema schema = new Schema();
@@ -473,8 +473,8 @@ public class GraphTest {
 
     @Test
     public void shouldCallAllGraphHooksBeforeJobExecuted(@Mock final Store store,
-            @Mock final GraphHook hook1,
-            @Mock final GraphHook hook2)
+                                                         @Mock final GraphHook hook1,
+                                                         @Mock final GraphHook hook2)
             throws OperationException {
         // Given
         final Schema schema = new Schema();
@@ -504,11 +504,11 @@ public class GraphTest {
 
     @Test
     public void shouldCallAllGraphHooksAfterOperationExecuted(@Mock final Store store,
-            @Mock final GraphHook hook1,
-            @Mock final GraphHook hook2,
-            @Mock final JobDetail result1,
-            @Mock final JobDetail result2,
-            @Mock final JobDetail result3)
+                                                              @Mock final GraphHook hook1,
+                                                              @Mock final GraphHook hook2,
+                                                              @Mock final JobDetail result1,
+                                                              @Mock final JobDetail result2,
+                                                              @Mock final JobDetail result3)
             throws OperationException {
         // Given
         final Schema schema = new Schema();
@@ -549,11 +549,11 @@ public class GraphTest {
 
     @Test
     public void shouldCallAllGraphHooksAfterOperationChainExecuted(@Mock final Store store,
-            @Mock final GraphHook hook1,
-            @Mock final GraphHook hook2,
-            @Mock final JobDetail result1,
-            @Mock final JobDetail result2,
-            @Mock final JobDetail result3)
+                                                                   @Mock final GraphHook hook1,
+                                                                   @Mock final GraphHook hook2,
+                                                                   @Mock final JobDetail result1,
+                                                                   @Mock final JobDetail result2,
+                                                                   @Mock final JobDetail result3)
             throws OperationException {
         // Given
         final Schema schema = new Schema();
@@ -588,11 +588,11 @@ public class GraphTest {
 
     @Test
     public void shouldCallAllGraphHooksAfterJobExecuted(@Mock final Store store,
-            @Mock final GraphHook hook1,
-            @Mock final GraphHook hook2,
-            @Mock final JobDetail result1,
-            @Mock final JobDetail result2,
-            @Mock final JobDetail result3)
+                                                        @Mock final GraphHook hook1,
+                                                        @Mock final GraphHook hook2,
+                                                        @Mock final JobDetail result1,
+                                                        @Mock final JobDetail result2,
+                                                        @Mock final JobDetail result3)
             throws OperationException {
         // Given
         final Schema schema = new Schema();
@@ -627,8 +627,8 @@ public class GraphTest {
 
     @Test
     public void shouldCallAllGraphHooksOnGraphHookPreExecuteFailure(@Mock final Store store,
-            @Mock final GraphHook hook1,
-            @Mock final GraphHook hook2)
+                                                                    @Mock final GraphHook hook1,
+                                                                    @Mock final GraphHook hook2)
             throws OperationException {
         // Given
         final Schema schema = new Schema();
@@ -668,11 +668,11 @@ public class GraphTest {
 
     @Test
     public void shouldCallAllGraphHooksOnGraphHookPostExecuteFailure(@Mock final Store store,
-            @Mock final GraphHook hook1,
-            @Mock final GraphHook hook2,
-            @Mock final JobDetail result1,
-            @Mock final JobDetail result2,
-            @Mock final JobDetail result3)
+                                                                     @Mock final GraphHook hook1,
+                                                                     @Mock final GraphHook hook2,
+                                                                     @Mock final JobDetail result1,
+                                                                     @Mock final JobDetail result2,
+                                                                     @Mock final JobDetail result3)
             throws OperationException {
         // Given
         final Schema schema = new Schema();
@@ -718,8 +718,8 @@ public class GraphTest {
 
     @Test
     public void shouldCallAllGraphHooksOnExecuteFailure(@Mock final Store store,
-            @Mock final GraphHook hook1,
-            @Mock final GraphHook hook2)
+                                                        @Mock final GraphHook hook1,
+                                                        @Mock final GraphHook hook2)
             throws OperationException {
         // Given
         final Schema schema = new Schema();
@@ -764,8 +764,8 @@ public class GraphTest {
 
     @Test
     public void shouldCallAllGraphHooksOnGraphHookPreExecuteFailureWhenRunningJob(@Mock final Store store,
-            @Mock final GraphHook hook1,
-            @Mock final GraphHook hook2)
+                                                                                  @Mock final GraphHook hook1,
+                                                                                  @Mock final GraphHook hook2)
             throws OperationException {
         // Given
         final Schema schema = new Schema();
@@ -805,11 +805,11 @@ public class GraphTest {
 
     @Test
     public void shouldCallAllGraphHooksOnGraphHookPostExecuteFailureWhenRunningJob(@Mock final Store store,
-            @Mock final GraphHook hook1,
-            @Mock final GraphHook hook2,
-            @Mock final JobDetail result1,
-            @Mock final JobDetail result2,
-            @Mock final JobDetail result3)
+                                                                                   @Mock final GraphHook hook1,
+                                                                                   @Mock final GraphHook hook2,
+                                                                                   @Mock final JobDetail result1,
+                                                                                   @Mock final JobDetail result2,
+                                                                                   @Mock final JobDetail result3)
             throws OperationException {
         // Given
         final Schema schema = new Schema();
@@ -856,11 +856,11 @@ public class GraphTest {
 
     @Test
     public void shouldCallAllGraphHooksOnExecuteFailureWhenRunningJob(@Mock final Store store,
-            @Mock final GraphHook hook1,
-            @Mock final GraphHook hook2,
-            @Mock final Operation operation,
-            @Mock final OperationChain<Integer> opChain,
-            @Mock final OperationChain<Integer> clonedOpChain)
+                                                                      @Mock final GraphHook hook1,
+                                                                      @Mock final GraphHook hook2,
+                                                                      @Mock final Operation operation,
+                                                                      @Mock final OperationChain<Integer> opChain,
+                                                                      @Mock final OperationChain<Integer> clonedOpChain)
             throws OperationException {
         // Given
         given(opChain.shallowClone()).willReturn(clonedOpChain);
@@ -952,7 +952,7 @@ public class GraphTest {
 
     @Test
     public void shouldExposeGetTraitsMethod(@Mock final Store store,
-            @Mock final View view)
+                                            @Mock final View view)
             throws OperationException {
         // Given
         given(store.getSchema()).willReturn(new Schema());
@@ -978,7 +978,7 @@ public class GraphTest {
 
     @Test
     public void shouldGetSchemaFromStoreIfSchemaIsEmpty(@Mock final Store store,
-            @Mock final View view)
+                                                        @Mock final View view)
             throws OperationException {
         // Given
         final Schema schema = new Schema.Builder()
@@ -1004,8 +1004,8 @@ public class GraphTest {
 
     @Test
     public void shouldSetGraphViewOnOperationAndDelegateDoOperationToStore(@Mock final Store store,
-            @Mock final OperationChain<Integer> opChain,
-            @Mock final OperationChain<Integer> clonedOpChain)
+                                                                           @Mock final OperationChain<Integer> opChain,
+                                                                           @Mock final OperationChain<Integer> clonedOpChain)
             throws OperationException {
         // Given
         given(store.getSchema()).willReturn(new Schema());
@@ -1039,10 +1039,10 @@ public class GraphTest {
 
     @Test
     public void shouldNotSetGraphViewOnOperationWhenOperationViewIsNotNull(@Mock final Store store,
-            @Mock final View view,
-            @Mock final View opView,
-            @Mock final OperationChain<Integer> opChain,
-            @Mock final OperationChain<Integer> clonedOpChain)
+                                                                           @Mock final View view,
+                                                                           @Mock final View opView,
+                                                                           @Mock final OperationChain<Integer> opChain,
+                                                                           @Mock final OperationChain<Integer> clonedOpChain)
             throws OperationException {
         // Given
         given(store.getSchema()).willReturn(new Schema());
@@ -1070,10 +1070,10 @@ public class GraphTest {
 
     @Test
     public void shouldNotSetGraphViewOnOperationWhenOperationIsNotAGet(@Mock final Store store,
-            @Mock final View view,
-            @Mock final Operation operation,
-            @Mock final OperationChain<Integer> opChain,
-            @Mock final OperationChain<Integer> clonedOpChain)
+                                                                       @Mock final View view,
+                                                                       @Mock final Operation operation,
+                                                                       @Mock final OperationChain<Integer> opChain,
+                                                                       @Mock final OperationChain<Integer> clonedOpChain)
             throws OperationException {
         // Given
         given(store.getSchema()).willReturn(new Schema());
@@ -1157,7 +1157,7 @@ public class GraphTest {
 
     @Test
     public void shouldDelegateGetNextOperationsToStore(@Mock final Store store,
-            @Mock final Set<Class<? extends Operation>> expectedNextOperations) {
+                                                       @Mock final Set<Class<? extends Operation>> expectedNextOperations) {
         // Given
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -1199,7 +1199,7 @@ public class GraphTest {
 
     @Test
     public void shouldDelegateGetSupportedOperationsToStore(@Mock final Store store,
-            @Mock final Set<Class<? extends Operation>> expectedSupportedOperations) {
+                                                            @Mock final Set<Class<? extends Operation>> expectedSupportedOperations) {
         // Given
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -1375,7 +1375,7 @@ public class GraphTest {
 
     @Test
     public void shouldAddHooksVarArgsAndGetGraphHooks(@Mock final GraphHook graphHook1,
-            @Mock final Log4jLogger graphHook2)
+                                                      @Mock final Log4jLogger graphHook2)
             throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
@@ -1398,7 +1398,7 @@ public class GraphTest {
 
     @Test
     public void shouldAddHookAndGetGraphHooks(@Mock final GraphHook graphHook1,
-            @Mock final Log4jLogger graphHook3)
+                                              @Mock final Log4jLogger graphHook3)
             throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
@@ -1425,7 +1425,7 @@ public class GraphTest {
 
     @Test
     public void shouldAddNamedViewResolverHookAfterNamedOperationResolver(@Mock final GraphHook graphHook1,
-            @Mock final Log4jLogger graphHook2)
+                                                                          @Mock final Log4jLogger graphHook2)
             throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
@@ -2411,7 +2411,7 @@ public class GraphTest {
 
     @Test
     public void shouldExpandGlobalEdges(@Mock final Store store, @Mock final ElementFilter filter,
-            @Mock final StoreProperties mockStoreProperties)
+                                        @Mock final StoreProperties mockStoreProperties)
             throws OperationException {
 
         final Schema twoEdgesNoEntities = new Schema.Builder()
@@ -2486,7 +2486,7 @@ public class GraphTest {
 
     @Test
     public void shouldExpandAllEdges(@Mock final Store store, @Mock final ElementFilter filter,
-            @Mock final StoreProperties mockStoreProperties)
+                                     @Mock final StoreProperties mockStoreProperties)
             throws OperationException {
         final Schema twoEdgesNoEntities = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
@@ -2557,7 +2557,7 @@ public class GraphTest {
 
     @Test
     public void preserveAllEntitiesIfNoEntitiesInSchema(@Mock final Store store, @Mock final ElementFilter filter,
-            @Mock final StoreProperties mockStoreProperties)
+                                                        @Mock final StoreProperties mockStoreProperties)
             throws OperationException {
         final Schema twoEdgesNoEntities = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
@@ -2628,8 +2628,8 @@ public class GraphTest {
 
     @Test
     public void shouldNotExpandGlobalEdgesWhereNotPresentInSchema(@Mock final Store store,
-            @Mock final ElementFilter filter,
-            @Mock final StoreProperties mockStoreProperties)
+                                                                  @Mock final ElementFilter filter,
+                                                                  @Mock final StoreProperties mockStoreProperties)
             throws OperationException {
         final Schema federatedStoreSchema = new Schema.Builder().build();
 
@@ -2734,7 +2734,7 @@ public class GraphTest {
 
         @Override
         public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context,
-                final Exception e) {
+                               final Exception e) {
             return result;
         }
     }
