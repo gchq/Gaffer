@@ -15,8 +15,7 @@
 */
 
 package uk.gov.gchq.gaffer.graph;
-//comment to try to force the changes
-// and see if there is an issue with these lines
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
@@ -131,6 +130,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
+//comment to try to force the changes
+// and see if there is an issue with these lines
 @ExtendWith(MockitoExtension.class)
 public class GraphTest {
     private static final String GRAPH_ID = "graphId";
