@@ -97,11 +97,11 @@ jobs:
             !~/.m2/repository/uk
           key: ${{matrix.modules.name}}-gaffer-dependencies
 
-      - name: Install
-        run: mvn -B -ntp clean install -P quick -pl ${{matrix.modules.values}} -am
+      # - name: Install
+      #   run: mvn -B -ntp clean install -P quick -pl ${{matrix.modules.values}} -am
 
-      - name: Test
-        run: mvn -B -ntp verify -P coverage -pl ${{matrix.modules.values}}
+      # - name: Test
+      #   run: mvn -B -ntp verify -P coverage -pl ${{matrix.modules.values}}
 
       - name: Check Copyright Headers
         if: github.event_name == 'pull_request'
