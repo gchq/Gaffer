@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,125 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.graph;//comment to try to force the changes
+package uk.gov.gchq.gaffer.graph;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.common.io.Files;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
+import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
+import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
+import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
+import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
+import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
+import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
+import uk.gov.gchq.gaffer.graph.hook.UpdateViewHook;
+import uk.gov.gchq.gaffer.integration.store.TestStore;
+import uk.gov.gchq.gaffer.jobtracker.Job;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.jobtracker.Repeat;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser;
+import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+import uk.gov.gchq.koryphe.impl.function.CreateObject;
+import uk.gov.gchq.koryphe.impl.function.Identity;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
+
 @ExtendWith(MockitoExtension.class)
 public class GraphTest {
+
     private static final String GRAPH_ID = "graphId";
     public static final String SCHEMA_ID_1 = "schemaId1";
     public static final String STORE_PROPERTIES_ID_1 = "storePropertiesId1";
@@ -147,17 +263,22 @@ public class GraphTest {
 
         Graph graph = null;
         File schemaDir = null;
+        try {
+            schemaDir = createSchemaDirectory();
 
-        schemaDir = createSchemaDirectory();
-
-        // When
-        graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .build())
-                .storeProperties(StreamUtil.storeProps(getClass()))
-                .addSchema(Paths.get(schemaDir.getPath()))
-                .build();
+            // When
+            graph = new Graph.Builder()
+                    .config(new GraphConfig.Builder()
+                            .graphId(GRAPH_ID)
+                            .build())
+                    .storeProperties(StreamUtil.storeProps(getClass()))
+                    .addSchema(Paths.get(schemaDir.getPath()))
+                    .build();
+        } finally {
+            if (null != schemaDir) {
+                FileUtils.deleteDirectory(schemaDir);
+            }
+        }
 
         // Then
         JsonAssert.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
@@ -172,13 +293,25 @@ public class GraphTest {
         final Schema expectedSchema = new Schema.Builder()
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
-        Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .build())
-                .storeProperties(storeInputUri)
-                .addSchemas(typeInputUri, schemaInputUri)
-                .build();
+        Graph graph = null;
+        File schemaDir = null;
+
+        try {
+            schemaDir = createSchemaDirectory();
+
+            // When
+            graph = new Graph.Builder()
+                    .config(new GraphConfig.Builder()
+                            .graphId(GRAPH_ID)
+                            .build())
+                    .storeProperties(storeInputUri)
+                    .addSchemas(typeInputUri, schemaInputUri)
+                    .build();
+        } finally {
+            if (schemaDir != null) {
+                FileUtils.deleteDirectory(schemaDir);
+            }
+        }
 
         // Then
         JsonAssert.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
@@ -1579,8 +1712,7 @@ public class GraphTest {
         final Pair<String, String> ids = library.getIds(graphId1);
         // Check that the schemaIds are different between the parent and supplied schema
         assertEquals(graphId1, ids.getFirst());
-        // Check that the storePropsIds are different between the parent and supplied
-        // storeProps
+        // Check that the storePropsIds are different between the parent and supplied storeProps
         assertEquals(graphId1, ids.getSecond());
     }
 
@@ -1617,10 +1749,8 @@ public class GraphTest {
         // Then
         assertEquals(graphId1, graph1.getGraphId());
         JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false));
-        // Check that the schemaId = schemaId1 as both the parent and supplied schema
-        // have same id's
-        // Check that the storePropsId = storePropertiesId1 as both parent and supplied
-        // storeProps have same id's
+        // Check that the schemaId = schemaId1 as both the parent and supplied schema have same id's
+        // Check that the storePropsId = storePropertiesId1 as both parent and supplied storeProps have same id's
         assertThat(graphId1)
                 .isEqualTo(library.getIds(graphId1).getFirst())
                 .isEqualTo(library.getIds(graphId1).getSecond());
@@ -1665,8 +1795,7 @@ public class GraphTest {
         assertEquals(graphId1, graph1.getGraphId());
         JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
         // Check that the schemaId = schemaId1 as both the supplied schema id is null
-        // Check that the storePropsId = storePropertiesId1 as the supplied storeProps
-        // id is null
+        // Check that the storePropsId = storePropertiesId1 as the supplied storeProps id is null
         assertThat(graphId1)
                 .isEqualTo(library.getIds(graphId1).getFirst())
                 .isEqualTo(library.getIds(graphId1).getSecond());
@@ -2353,7 +2482,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2428,7 +2557,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2499,7 +2628,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2547,7 +2676,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2611,6 +2740,7 @@ public class GraphTest {
                 }
             }
         }
+
         @Override
         public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
             return result;
