@@ -35,8 +35,7 @@ jobs:
           mvn -ntp javadoc:javadoc -Pquick
 
   build:
-    # runs-on: ${{ matrix.os }}
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       matrix:
@@ -44,6 +43,7 @@ jobs:
         # If these words are present it runs the tests on Windows AND Ubuntu. If the words aren't present it runs the tests on Ubuntu ONLY
         # The 'release' keyword is currently disabled. Change 'release-disabled-for-now' to 'release' once the tests have been fixed to reenable this.
         # os: ${{ fromJSON( (contains( github.head_ref, 'windows') || contains( github.head_ref, 'release-disabled-for-now'))  && '["ubuntu-latest", "windows-latest"]' || '["ubuntu-latest"]' ) }}
+        os: ["windows-latest"]
         modules:
           - name: Core
             values: :graph
