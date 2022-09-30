@@ -132,7 +132,6 @@ import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 @ExtendWith(MockitoExtension.class)
 public class GraphTest {
-
     private static final String GRAPH_ID = "graphId";
     public static final String SCHEMA_ID_1 = "schemaId1";
     public static final String STORE_PROPERTIES_ID_1 = "storePropertiesId1";
@@ -263,22 +262,17 @@ public class GraphTest {
 
         Graph graph = null;
         File schemaDir = null;
-        try {
-            schemaDir = createSchemaDirectory();
 
-            // When
-            graph = new Graph.Builder()
-                    .config(new GraphConfig.Builder()
-                            .graphId(GRAPH_ID)
-                            .build())
-                    .storeProperties(StreamUtil.storeProps(getClass()))
-                    .addSchema(Paths.get(schemaDir.getPath()))
-                    .build();
-        } finally {
-            if (null != schemaDir) {
-                FileUtils.deleteDirectory(schemaDir);
-            }
-        }
+        schemaDir = createSchemaDirectory();
+
+        // When
+        graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchema(Paths.get(schemaDir.getPath()))
+                .build();
 
         // Then
         JsonAssert.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
@@ -293,25 +287,13 @@ public class GraphTest {
         final Schema expectedSchema = new Schema.Builder()
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
-        Graph graph = null;
-        File schemaDir = null;
-
-        try {
-            schemaDir = createSchemaDirectory();
-
-            // When
-            graph = new Graph.Builder()
-                    .config(new GraphConfig.Builder()
-                            .graphId(GRAPH_ID)
-                            .build())
-                    .storeProperties(storeInputUri)
-                    .addSchemas(typeInputUri, schemaInputUri)
-                    .build();
-        } finally {
-            if (schemaDir != null) {
-                FileUtils.deleteDirectory(schemaDir);
-            }
-        }
+        Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(storeInputUri)
+                .addSchemas(typeInputUri, schemaInputUri)
+                .build();
 
         // Then
         JsonAssert.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
@@ -1712,7 +1694,8 @@ public class GraphTest {
         final Pair<String, String> ids = library.getIds(graphId1);
         // Check that the schemaIds are different between the parent and supplied schema
         assertEquals(graphId1, ids.getFirst());
-        // Check that the storePropsIds are different between the parent and supplied storeProps
+        // Check that the storePropsIds are different between the parent and supplied
+        // storeProps
         assertEquals(graphId1, ids.getSecond());
     }
 
@@ -1749,8 +1732,10 @@ public class GraphTest {
         // Then
         assertEquals(graphId1, graph1.getGraphId());
         JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false));
-        // Check that the schemaId = schemaId1 as both the parent and supplied schema have same id's
-        // Check that the storePropsId = storePropertiesId1 as both parent and supplied storeProps have same id's
+        // Check that the schemaId = schemaId1 as both the parent and supplied schema
+        // have same id's
+        // Check that the storePropsId = storePropertiesId1 as both parent and supplied
+        // storeProps have same id's
         assertThat(graphId1)
                 .isEqualTo(library.getIds(graphId1).getFirst())
                 .isEqualTo(library.getIds(graphId1).getSecond());
@@ -1795,7 +1780,8 @@ public class GraphTest {
         assertEquals(graphId1, graph1.getGraphId());
         JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
         // Check that the schemaId = schemaId1 as both the supplied schema id is null
-        // Check that the storePropsId = storePropertiesId1 as the supplied storeProps id is null
+        // Check that the storePropsId = storePropertiesId1 as the supplied storeProps
+        // id is null
         assertThat(graphId1)
                 .isEqualTo(library.getIds(graphId1).getFirst())
                 .isEqualTo(library.getIds(graphId1).getSecond());
@@ -2482,7 +2468,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2557,7 +2543,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2628,7 +2614,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2676,7 +2662,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2740,7 +2726,6 @@ public class GraphTest {
                 }
             }
         }
-
         @Override
         public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
             return result;
