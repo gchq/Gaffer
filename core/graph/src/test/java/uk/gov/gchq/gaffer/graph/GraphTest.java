@@ -260,13 +260,9 @@ public class GraphTest {
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
 
-        Graph graph = null;
-        File schemaDir = null;
+        File schemaDir = createSchemaDirectory();
 
-        schemaDir = createSchemaDirectory();
-
-        // When
-        graph = new Graph.Builder()
+        Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
                         .build())
@@ -279,7 +275,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldConstructGraphFromSchemaURI() throws IOException, URISyntaxException {
+    public void shouldConstructGraphFromSchemaURI() throws URISyntaxException {
         // Given
         final URI typeInputUri = getResourceUri(StreamUtil.TYPES_SCHEMA);
         final URI schemaInputUri = getResourceUri(StreamUtil.ELEMENTS_SCHEMA);
@@ -287,6 +283,8 @@ public class GraphTest {
         final Schema expectedSchema = new Schema.Builder()
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
+
+        // When
         Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
@@ -1530,8 +1528,8 @@ public class GraphTest {
 
     @Test
     public void shouldBuildGraphFromConfigAndMergeConfigWithExistingConfig(
-            @Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
-            @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3)
+                                                                           @Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
+                                                                           @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3)
             throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
@@ -1578,8 +1576,8 @@ public class GraphTest {
 
     @Test
     public void shouldBuildGraphFromConfigAndOverrideFields(
-            @Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
-            @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3)
+                                                            @Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
+                                                            @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3)
             throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
@@ -1694,8 +1692,7 @@ public class GraphTest {
         final Pair<String, String> ids = library.getIds(graphId1);
         // Check that the schemaIds are different between the parent and supplied schema
         assertEquals(graphId1, ids.getFirst());
-        // Check that the storePropsIds are different between the parent and supplied
-        // storeProps
+        // Check that the storePropsIds are different between the parent and supplied storeProps
         assertEquals(graphId1, ids.getSecond());
     }
 
@@ -1732,10 +1729,8 @@ public class GraphTest {
         // Then
         assertEquals(graphId1, graph1.getGraphId());
         JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false));
-        // Check that the schemaId = schemaId1 as both the parent and supplied schema
-        // have same id's
-        // Check that the storePropsId = storePropertiesId1 as both parent and supplied
-        // storeProps have same id's
+        // Check that the schemaId = schemaId1 as both the parent and supplied schema have same id's
+        // Check that the storePropsId = storePropertiesId1 as both parent and supplied storeProps have same id's
         assertThat(graphId1)
                 .isEqualTo(library.getIds(graphId1).getFirst())
                 .isEqualTo(library.getIds(graphId1).getSecond());
@@ -1780,8 +1775,7 @@ public class GraphTest {
         assertEquals(graphId1, graph1.getGraphId());
         JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
         // Check that the schemaId = schemaId1 as both the supplied schema id is null
-        // Check that the storePropsId = storePropertiesId1 as the supplied storeProps
-        // id is null
+        // Check that the storePropsId = storePropertiesId1 as the supplied storeProps id is null
         assertThat(graphId1)
                 .isEqualTo(library.getIds(graphId1).getFirst())
                 .isEqualTo(library.getIds(graphId1).getSecond());
@@ -2188,7 +2182,7 @@ public class GraphTest {
 
     @Test
     public void shouldFillSchemaViewAndManipulateViewRemovingBlacklistedEdgeLeavingEmptyViewUsingUpdateViewHook(
-            @Mock final Store store)
+                                                                                                                @Mock final Store store)
             throws OperationException {
         // Given
         operation = new GetElements.Builder()
@@ -2468,7 +2462,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2543,7 +2537,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2614,7 +2608,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
@@ -2662,7 +2656,7 @@ public class GraphTest {
                 .build();
 
         graph.execute(opChain, context);
-        verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
 
         assertEquals(1, capturedOperation.getAllValues().size());
         final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
