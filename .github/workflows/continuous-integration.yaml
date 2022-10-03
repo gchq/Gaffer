@@ -63,16 +63,7 @@ jobs:
         exclude:
           - os: windows-latest
             modules:
-              name: Accumulo
-          - os: windows-latest
-            modules:
-              name: Examples
-          - os: windows-latest
-            modules:
-              name: Big-Data-Libraries
-          - os: windows-latest
-            modules:
-              name: Rest
+              name: Accumulo, Federated-And-Map, Examples, Big-Data-Libraries, Rest
 
     env:
       MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
