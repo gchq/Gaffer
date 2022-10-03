@@ -130,19 +130,11 @@ public class AddUpdateTableIteratorTest {
 
     @Test
     public void shouldReturnInvalidFilePathErrorWhenPathDoesNotExist() throws Exception {
-        String expectedMessage;
 
         final String[] args = {GRAPH_ID, SCHEMA_DIR, "invalid/file/path", "update", FILE_GRAPH_LIBRARY_TEST_PATH};
 
-        // Without the following the return message will have / instead of \ when run on Windows";
-        if (IS_OS_WINDOWS) {
-            expectedMessage = "Failed to load store properties file : invalid\\file\\path";
-        } else {
-            expectedMessage = "Failed to load store properties file : invalid/file/path";
-        }
-
         assertThatExceptionOfType(RuntimeException.class)
             .isThrownBy(() -> AddUpdateTableIterator.main(args))
-            .withMessage(expectedMessage);
+            .withMessageMatching("Failed to load store properties file : invalid.{1,2}file.{1,2}path");
     }
 }
