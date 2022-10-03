@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -28,8 +27,6 @@ import uk.gov.gchq.gaffer.data.generator.Neo4jFormat;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -116,11 +113,6 @@ public class ToCsvTest extends OperationTest<ToCsv> {
         assertFalse(clone.isIncludeHeader());
     }
 
-    @Override
-    public Set<String> getRequiredFields() {
-        return Sets.newHashSet("csvGenerator");
-    }
-
     @Test
     public void shouldGetOutputClass() {
         // When
@@ -134,4 +126,6 @@ public class ToCsvTest extends OperationTest<ToCsv> {
     protected ToCsv getTestObject() {
         return new ToCsv();
     }
+
+
 }

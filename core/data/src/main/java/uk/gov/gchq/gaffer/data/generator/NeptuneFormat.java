@@ -15,29 +15,39 @@
  */
 
 package uk.gov.gchq.gaffer.data.generator;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 public class NeptuneFormat extends CsvFormat {
+
     @Override
+    @JsonIgnore
     public String getVertex() {
         return ":ID";
     }
 
     @Override
+    @JsonIgnore
     public String getEntityGroup() {
         return ":LABEL";
     }
 
     @Override
+    @JsonIgnore
     public String getEdgeGroup() {
         return ":TYPE";
     }
 
     @Override
+    @JsonIgnore
     public String getSource() {
         return ":START_ID";
     }
 
     @Override
+    @JsonIgnore
     public String getDestination() {
         return ":END_ID";
     }
+
 }

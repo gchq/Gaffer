@@ -15,27 +15,32 @@
  */
 
 package uk.gov.gchq.gaffer.data.generator;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 public class Neo4jFormat extends CsvFormat {
+
+    @JsonIgnore
     @Override
     public String getVertex() {
         return "_id";
     }
-
+    @JsonIgnore
     @Override
     public String getEntityGroup() {
         return "_labels";
     }
-
+    @JsonIgnore
     @Override
     public String getEdgeGroup() {
         return "_type";
     }
-
+    @JsonIgnore
     @Override
     public String getSource() {
         return "_start";
     }
-
+    @JsonIgnore
     @Override
     public String getDestination() {
         return "_end";
