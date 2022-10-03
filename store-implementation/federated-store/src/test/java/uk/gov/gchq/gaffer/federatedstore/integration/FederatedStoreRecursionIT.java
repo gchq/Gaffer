@@ -66,18 +66,6 @@ public class FederatedStoreRecursionIT {
         SingleUseFederatedStore.cleanUp();
     }
 
-    protected void addEntity() throws OperationException {
-        proxyToRestServiceFederatedGraph.execute(
-                new AddElements.Builder()
-                        .input(new Entity.Builder()
-                                .group(ENT_GROUP)
-                                .vertex("e1")
-                                .property(PROPERTY_NAME, 1)
-                                .build())
-                        .build(),
-                user);
-    }
-
     @Test
     @Timeout(value = 1, unit = TimeUnit.MINUTES)
     public void shouldNotInfinityLoopWhenAddingElements() throws Exception {
@@ -107,7 +95,19 @@ public class FederatedStoreRecursionIT {
         testGetAllElements(2);
     }
 
-    protected void createEntityGraph() throws OperationException {
+    private void addEntity() throws OperationException {
+        proxyToRestServiceFederatedGraph.execute(
+                new AddElements.Builder()
+                        .input(new Entity.Builder()
+                                .group(ENT_GROUP)
+                                .vertex("e1")
+                                .property(PROPERTY_NAME, 1)
+                                .build())
+                        .build(),
+                user);
+    }
+
+    private void createEntityGraph() throws OperationException {
         proxyToRestServiceFederatedGraph.execute(new AddGraph.Builder()
                 .graphId(ENTITY_GRAPH)
                 .storeProperties(new MapStoreProperties())
@@ -127,7 +127,7 @@ public class FederatedStoreRecursionIT {
                 .build(), user);
     }
 
-    protected void testGetAllElements(final int expected) throws OperationException {
+    private void testGetAllElements(final int expected) throws OperationException {
         ArrayList<Element> elements = Lists.newArrayList(proxyToRestServiceFederatedGraph.execute(
                 new GetAllElements.Builder()
                         .build(),
@@ -136,7 +136,7 @@ public class FederatedStoreRecursionIT {
         assertThat(elements.get(0).getProperties()).containsEntry(PROPERTY_NAME, expected);
     }
 
-    protected void testInnerGetGraphIds(final String... ids) throws OperationException {
+    private void testInnerGetGraphIds(final String... ids) throws OperationException {
         ArrayList<? extends String> list = (ArrayList<? extends String>) proxyToRestServiceFederatedGraph.execute(
                 getFederatedOperation(
                         OperationChain.wrap(
@@ -149,7 +149,7 @@ public class FederatedStoreRecursionIT {
         }
     }
 
-    protected void createInnerProxyToOuterFederatedStore() throws OperationException {
+    private void createInnerProxyToOuterFederatedStore() throws OperationException {
         ProxyProperties storeProperties = new ProxyProperties();
         storeProperties.setReadTimeout(120000);
         storeProperties.setConnectTimeout(120000);
@@ -161,7 +161,7 @@ public class FederatedStoreRecursionIT {
                         .build())), user);
     }
 
-    protected void createTheInnerFederatedStore() throws
+    private void createTheInnerFederatedStore() throws
             OperationException {
         proxyToRestServiceFederatedGraph.execute(new AddGraph.Builder()
                 .graphId(INNER_FEDERATED_GRAPH)
@@ -170,7 +170,7 @@ public class FederatedStoreRecursionIT {
                 .build(), user);
     }
 
-    protected void createProxyToRestServiceFederatedGraph() {
+    private void createProxyToRestServiceFederatedGraph() {
         final Graph proxyToRestServiceFederatedGraph;
         ProxyProperties singleUseFedProperties = new ProxyProperties();
         singleUseFedProperties.setStoreClass(SingleUseFederatedStore.class);
@@ -185,7 +185,7 @@ public class FederatedStoreRecursionIT {
         this.proxyToRestServiceFederatedGraph = proxyToRestServiceFederatedGraph;
     }
 
-    protected void testOuterGetGraphIds(final String... ids) throws OperationException {
+    private void testOuterGetGraphIds(final String... ids) throws OperationException {
         ArrayList<? extends String> list = Lists.newArrayList(proxyToRestServiceFederatedGraph.execute(new GetAllGraphIds(), user));
         assertThat(list).hasSameSizeAs(ids);
         for (String id : ids) {

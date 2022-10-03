@@ -54,7 +54,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("AdminAuth"));
     public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("NotAdminAuth"));
 
-    private static final AccumuloProperties ACCUMULO_PROPERTIES =  loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
+    private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
 
     @Override
     protected Schema createSchema() {
@@ -302,9 +302,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
 
         //when
 
-        final Map<String, Object> allGraphsAndAuths =
-                (Map<String, Object>) graph.execute(new GetAllGraphInfo()
-                        .graphIdsCSV(graphB), user);
+        final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo().graphIdsCSV(graphB), user);
 
         //then
         assertThat(allGraphsAndAuths)
