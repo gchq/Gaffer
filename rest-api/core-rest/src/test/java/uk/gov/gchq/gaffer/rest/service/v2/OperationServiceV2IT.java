@@ -132,6 +132,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         // When
         final Response response = ((RestApiV2TestClient) client).getAllOperationsAsOperationDetails();
+        assertThat(response.getStatus()).withFailMessage("client responded with an error.").isEqualTo(200);
 
         // Then
         final byte[] json = response.readEntity(byte[].class);

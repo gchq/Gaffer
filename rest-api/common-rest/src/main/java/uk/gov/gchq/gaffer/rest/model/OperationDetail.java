@@ -21,6 +21,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
@@ -87,11 +88,15 @@ public class OperationDetail {
     }
 
     private static String getOperationOutputType(final Operation operation) {
-        String outputClass = null;
-        if (operation instanceof Output) {
-            outputClass = JsonSerialisationUtil.getTypeString(((Output) operation).getOutputTypeReference().getType());
+        try {
+            String outputClass = null;
+            if (operation instanceof Output) {
+                outputClass = JsonSerialisationUtil.getTypeString(((Output) operation).getOutputTypeReference().getType());
+            }
+            return outputClass;
+        } catch (Exception e) {
+            throw new GafferRuntimeException(String.format("Error getting Output Type information for Operation:%s", operation), e);
         }
-        return outputClass;
     }
 
     private static String getSummaryValue(final Class<?> opClass) {

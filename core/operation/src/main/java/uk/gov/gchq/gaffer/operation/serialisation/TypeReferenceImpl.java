@@ -127,6 +127,10 @@ public final class TypeReferenceImpl {
     public static class IterableString extends TypeReference<Iterable<? extends java.lang.String>> {
     }
 
+    //TODO THIS IS NOT THE SOLUTION
+    public static class IterableString2 extends TypeReference<Iterable< java.lang.String>> {
+    }
+
     public static class IterableObject extends TypeReference<Iterable<? extends java.lang.Object>> {
     }
 
