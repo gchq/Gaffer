@@ -58,7 +58,7 @@ public class ToCsv implements
         return csvGenerator;
     }
 
-    void setCsvGenerator(final CsvGenerator csvGenerator) {
+    public void setCsvGenerator(final CsvGenerator csvGenerator) {
         this.csvGenerator = csvGenerator;
     }
 

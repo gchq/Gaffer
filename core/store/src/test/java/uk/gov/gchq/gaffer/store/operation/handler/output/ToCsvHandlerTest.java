@@ -291,13 +291,13 @@ public class ToCsvHandlerTest {
     }
 
     private Edge makeEdge(final String source, final String propertyName, final int propertyValue) {
-            return new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source(source)
-                    .dest("dest1")
-                    .directed(true)
-                    .property(propertyName, propertyValue)
-                    .build();
+        return new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source(source)
+                .dest("dest1")
+                .directed(true)
+                .property(propertyName, propertyValue)
+                .build();
     }
     private Edge makeEdge(final String source) {
         return new Edge.Builder()
@@ -341,7 +341,7 @@ public class ToCsvHandlerTest {
                 .build();
         return schema;
     }
-    Iterable<String> getPropertiesFromSchema(Schema schema) {
+    private Iterable<String> getPropertiesFromSchema(Schema schema) {
         List<String> propertyNames = new ArrayList<String>();
         for (SchemaEntityDefinition schemaEntityDefinition : schema.getEntities().values()) {
             propertyNames.addAll(schemaEntityDefinition.getProperties());

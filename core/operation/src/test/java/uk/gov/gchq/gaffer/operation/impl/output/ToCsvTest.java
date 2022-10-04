@@ -50,23 +50,6 @@ public class ToCsvTest extends OperationTest<ToCsv> {
     }
 
     @Test
-    public void shouldCreateGeneratorIfCsvFormatIsSupplied() {
-        // Given
-        final Entity input = new Entity(TestGroups.ENTITY);
-        final CsvFormat csvFormat = new Neo4jFormat();
-        final ToCsv toCsv = new ToCsv.Builder()
-                .csvFormat(csvFormat)
-                .input(input)
-                .includeHeader(false)
-                .build();
-
-        // When
-
-        // Then
-
-    }
-
-    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
