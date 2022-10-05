@@ -34,18 +34,22 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDepre
 public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSchema, Schema> {
     @Override
     public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
-        if (null == operation) {
-            throw new OperationException("Operation cannot be null");
-        }
-
         try {
+
+            if (null == operation) {
+                throw new OperationException("Operation cannot be null");
+            }
+
             final Iterable<Schema> schemas = (Iterable<Schema>) store.execute(
                     new FederatedOperation.Builder()
                             .op(operation)
                             .graphIds(getDeprecatedGraphIds(operation)) // deprecate this line.
-                            .build(), context);
+                            .build(),
+                    context);
 
             try {
+                //TODO FS This error message when failing to merge may/will hold up what should probably be okay legal functions else where in gaffer.
+                //This is merge function.
                 Schema.Builder builder = new Schema.Builder();
                 schemas.forEach(builder::merge);
                 return builder.build();

@@ -302,9 +302,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
 
         //when
 
-        final Map<String, Object> allGraphsAndAuths =
-                (Map<String, Object>) graph.execute(new GetAllGraphInfo()
-                        .graphIdsCSV(graphB), user);
+        final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo().graphIdsCSV(graphB), user);
 
         //then
         assertThat(allGraphsAndAuths)

@@ -70,10 +70,10 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
     private boolean skipFailedFederatedExecution = DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
     private Map<String, String> options;
     private boolean userRequestingAdminUsage;
-    private boolean userRequestingDefaultGraphsOverride;
+    private boolean userRequestingDefaultGraphsOverride; //TODO FS PR more exploration of this, in pr journey.
 
     @JsonProperty("graphIds")
-    public FederatedOperation<INPUT, OUTPUT> graphIdsCSV(final String graphIds) {
+    public FederatedOperation<INPUT, OUTPUT> graphIdsCSV(final String graphIds) {  //TODO FS PR review the list request.
         this.graphIdsCsv = graphIds;
         return this;
     }
@@ -81,7 +81,7 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
     @JsonProperty("operation")
     public FederatedOperation<INPUT, OUTPUT> payloadOperation(final Operation op) {
         if (this == op) {
-            throw new GafferRuntimeException("Your attempting to add the FederatedOperation to its self as a payload, this will cause an infinite loop when cloned.");
+            throw new GafferRuntimeException("You are attempting to add the FederatedOperation to itself as a payload, this will cause an infinite loop when cloned.");
         }
         this.payloadOperation = op;
 
@@ -308,9 +308,9 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
                         throw new GafferRuntimeException("Error passing FederatedOperation input into payload operation", e);
                     }
                 } else {
-                    throw new GafferRuntimeException("Payload operation is not correct type. Expected:Input found:" + getPayloadClass());
+                    throw new GafferRuntimeException("Payload operation is not correct type. Expected:Input Found:" + getPayloadClass());
                 }
-            }
+            } //TODO FS else would you want to null the input of the payload via this route?
         } else {
             throw new GafferRuntimeException("The payloadOperation has not been set before applying Input");
         }
@@ -436,6 +436,7 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
         } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+        //TODO FS PR This is redundant as only payload is marked as required now.
         if (isNull(value) && (!field.getName().equals("mergeFunction") || !hasPayloadOperation() || payloadOperation instanceof Output)) {
             result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
         }

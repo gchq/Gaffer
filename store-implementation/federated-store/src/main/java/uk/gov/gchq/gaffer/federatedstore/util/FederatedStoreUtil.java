@@ -264,7 +264,7 @@ public final class FederatedStoreUtil {
 
     /**
      * Return a clone of the given operations with a deep clone of options.
-     * <p>
+     *
      * Because payloadOperation.shallowClone() is used it can't be guaranteed that original options won't be modified.
      * So a deep clone of the options is made for the shallow clone of the operation.
      *

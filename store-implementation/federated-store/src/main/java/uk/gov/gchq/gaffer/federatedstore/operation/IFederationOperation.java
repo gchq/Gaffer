@@ -37,7 +37,7 @@ public interface IFederationOperation extends Operation {
     }
 
     @JsonSetter("userRequestingAdminUsage")
-    Operation isUserRequestingAdminUsage(final boolean adminRequest);
+    Operation isUserRequestingAdminUsage(final boolean adminRequest); //TODO FS PR rename to "isUserRequestingAdminUsage"
 
     abstract class BaseBuilder<OP extends IFederationOperation, B extends Operation.BaseBuilder<OP, ?>> extends Operation.BaseBuilder<OP, B> {
         protected BaseBuilder(final OP op) {
