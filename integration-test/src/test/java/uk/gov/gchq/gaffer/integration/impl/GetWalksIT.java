@@ -681,7 +681,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldReturnAllWalksWhenConditionalIsNull() throws Exception {
         final Iterable<Walk> walks = executeGetWalksApplyingConditional(null);
-        assertThat(getPaths(walks)).containsExactlyInAnyOrder("AED","ABC");
+        assertThat(getPaths(walks)).containsExactlyInAnyOrder("AED", "ABC");
     }
 
     private Set<Entity> createEntitySet() {
