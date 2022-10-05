@@ -88,9 +88,11 @@ public abstract class AbstractElementFilter extends Filter {
 
         final Element element;
         if (schema.isEntity(group)) {
-            element = new LazyEntity(new Entity(group), new AccumuloEntityValueLoader(group, key, value, elementConverter, schema));
+            element = new LazyEntity(new Entity(group),
+                    new AccumuloEntityValueLoader(group, key, value, elementConverter, schema));
         } else {
-            element = new LazyEdge(new Edge(group, null, null, false), new AccumuloEdgeValueLoader(group, key, value, elementConverter, schema, true));
+            element = new LazyEdge(new Edge(group, null, null, false),
+                    new AccumuloEdgeValueLoader(group, key, value, elementConverter, schema, true));
         }
         return elementPredicate.test(element);
     }
@@ -98,7 +100,8 @@ public abstract class AbstractElementFilter extends Filter {
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source,
                      final Map<String, String> options,
-                     final IteratorEnvironment env) throws IOException {
+                     final IteratorEnvironment env)
+            throws IOException {
         super.init(source, options, env);
         schema = Schema.fromJson(StringUtil.toBytes(options.get(AccumuloStoreConstants.SCHEMA)));
         LOGGER.debug("Initialising AbstractElementFilter with Schema {}", schema);
@@ -158,7 +161,8 @@ public abstract class AbstractElementFilter extends Filter {
             return false;
         }
         if (!options.containsKey(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS)) {
-            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
+            throw new IllegalArgumentException(
+                    "Must specify the " + AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         }
         if (!options.containsKey(AccumuloStoreConstants.SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.SCHEMA);
@@ -167,12 +171,14 @@ public abstract class AbstractElementFilter extends Filter {
         return true;
     }
 
-    private void updateViewGroupsWithoutFilters(final View view, final Function<ViewElementDefinition, Boolean> hasFilters) {
+    private void updateViewGroupsWithoutFilters(final View view,
+                                                final Function<ViewElementDefinition, Boolean> hasFilters) {
         groupsWithoutFilters = new HashSet<>();
 
         ChainedIterable<Entry<String, ViewElementDefinition>> chainedIterable = null;
         try {
-            chainedIterable = new ChainedIterable<>(Arrays.asList(view.getEntities().entrySet(), view.getEdges().entrySet()));
+            chainedIterable = new ChainedIterable<>(Arrays.asList(view.getEntities().entrySet(),
+                    view.getEdges().entrySet()));
             for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
                 if (isNull(entry.getValue()) || !hasFilters.apply(entry.getValue())) {
                     groupsWithoutFilters.add(entry.getKey());
@@ -189,7 +195,8 @@ public abstract class AbstractElementFilter extends Filter {
         groupsWithoutFilters = new HashSet<>();
         ChainedIterable<Entry<String, ? extends SchemaElementDefinition>> chainedIterable = null;
         try {
-            chainedIterable = new ChainedIterable<Map.Entry<String, ? extends SchemaElementDefinition>>(schema.getEntities().entrySet(), schema.getEdges().entrySet());
+            chainedIterable = new ChainedIterable<Map.Entry<String, ? extends SchemaElementDefinition>>(schema.getEntities().entrySet(),
+                    schema.getEdges().entrySet());
             for (final Map.Entry<String, ? extends SchemaElementDefinition> entry : chainedIterable) {
                 if (isNull(entry.getValue()) || !entry.getValue().hasValidation()) {
                     groupsWithoutFilters.add(entry.getKey());
