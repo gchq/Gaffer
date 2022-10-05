@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,7 @@ public class FederatedValidateHandler  implements OutputOperationHandler<Validat
     @Override
     public Iterable<? extends Element> doOperation(final Validate operation,
                                                    final Context context,
-                                                   final Store store)
-            throws OperationException {
-        return handler.doOperation(operation, ((FederatedStore) store).getSchema(operation, context));
+                                                   final Store store) throws OperationException {
+        return handler.doOperation(operation, ((FederatedStore) store).getSchema(context));
     }
 }

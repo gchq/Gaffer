@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.federatedstore.operation.handler;
+
+package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.AfterEach;
@@ -24,14 +25,12 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
@@ -39,50 +38,47 @@ import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_EDGE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_2;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class FederatedGetSchemaHandlerTest {
-    private FederatedGetSchemaHandler handler;
-    private FederatedStore fStore;
-    private Context context;
-    private User user;
-    private StoreProperties properties;
     private static final String ACC_PROP_ID = "accProp";
-    private static final String EDGE_SCHEMA_ID = "edgeSchema";
-
+    private static final String  EDGE_SCHEMA_ID = "edgeSchema";
     private static final String TEST_FED_STORE = "testFedStore";
-    private final HashMapGraphLibrary library = new HashMapGraphLibrary();
     private static final Schema STRING_SCHEMA = new Schema.Builder()
-            .type("string", new TypeDefinition.Builder()
+            .type(STRING, new TypeDefinition.Builder()
                     .clazz(String.class)
                     .serialiser(new StringSerialiser())
                     .aggregateFunction(new StringConcat())
                     .build())
             .build();
-
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = loadAccumuloStoreProperties("properties/accumuloStore.properties");
+    private final HashMapGraphLibrary library = new HashMapGraphLibrary();
+    private FederatedGetSchemaHandler handler;
+    private FederatedStore federatedStore;
+    private StoreProperties properties;
 
     @BeforeEach
     public void setup() throws StoreException {
-        HashMapGraphLibrary.clear();
-        CacheServiceLoader.shutdown();
+        resetForFederatedTests();
 
         handler = new FederatedGetSchemaHandler();
-        user = new User("testUser");
-        context = new Context(user);
         properties = new FederatedStoreProperties();
         properties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
 
-        fStore = new FederatedStore();
-        fStore.initialise(TEST_FED_STORE, null, properties);
+        federatedStore = new FederatedStore();
+        federatedStore.initialise(TEST_FED_STORE, null, properties);
 
-        library.clear();
     }
 
     @AfterEach
@@ -94,14 +90,14 @@ public class FederatedGetSchemaHandlerTest {
     @Test
     public void shouldReturnSchema() throws OperationException {
         library.addProperties(ACC_PROP_ID, PROPERTIES);
-        fStore.setGraphLibrary(library);
+        federatedStore.setGraphLibrary(library);
 
         final Schema edgeSchema = new Schema.Builder()
-                .edge("edge", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
+                .edge(GROUP_BASIC_EDGE, new SchemaEdgeDefinition.Builder()
+                        .source(STRING)
+                        .destination(STRING)
                         .directed(DIRECTED_EITHER)
-                        .property("prop1", "string")
+                        .property(PROPERTY_1, STRING)
                         .build())
                 .vertexSerialiser(new StringSerialiser())
                 .type(DIRECTED_EITHER, Boolean.class)
@@ -110,19 +106,19 @@ public class FederatedGetSchemaHandlerTest {
 
         library.addSchema(EDGE_SCHEMA_ID, edgeSchema);
 
-        fStore.execute(OperationChain.wrap(
+        federatedStore.execute(OperationChain.wrap(
                 new AddGraph.Builder()
                         .graphId("schema")
                         .parentPropertiesId(ACC_PROP_ID)
                         .parentSchemaIds(Lists.newArrayList(EDGE_SCHEMA_ID))
-                        .build()), context);
+                        .build()), contextTestUser());
 
         final GetSchema operation = new GetSchema.Builder()
                 .compact(true)
                 .build();
 
         // When
-        final Schema result = handler.doOperation(operation, context, fStore);
+        final Schema result = handler.doOperation(operation, contextTestUser(), federatedStore);
 
         // Then
         assertNotNull(result);
@@ -132,13 +128,13 @@ public class FederatedGetSchemaHandlerTest {
     @Test
     public void shouldReturnSchemaOnlyForEnabledGraphs() throws OperationException {
         library.addProperties(ACC_PROP_ID, PROPERTIES);
-        fStore.setGraphLibrary(library);
+        federatedStore.setGraphLibrary(library);
 
         final Schema edgeSchema1 = new Schema.Builder()
                 .edge("edge", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .property("prop1", "string")
+                        .source(STRING)
+                        .destination(STRING)
+                        .property(PROPERTY_1, STRING)
                         .directed(DIRECTED_EITHER)
                         .build())
                 .vertexSerialiser(new StringSerialiser())
@@ -150,9 +146,9 @@ public class FederatedGetSchemaHandlerTest {
 
         final Schema edgeSchema2 = new Schema.Builder()
                 .edge("edge", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .property("prop2", "string")
+                        .source(STRING)
+                        .destination(STRING)
+                        .property(PROPERTY_2, STRING)
                         .directed(DIRECTED_EITHER)
                         .build())
                 .vertexSerialiser(new StringSerialiser())
@@ -162,28 +158,28 @@ public class FederatedGetSchemaHandlerTest {
 
         library.addSchema("edgeSchema2", edgeSchema2);
 
-        fStore.execute(OperationChain.wrap(
+        federatedStore.execute(OperationChain.wrap(
                 new AddGraph.Builder()
                         .graphId("schemaEnabled")
                         .parentPropertiesId(ACC_PROP_ID)
                         .parentSchemaIds(Lists.newArrayList("edgeSchema1"))
                         .disabledByDefault(false)
-                        .build()), context);
+                        .build()), contextTestUser());
 
-        fStore.execute(OperationChain.wrap(
+        federatedStore.execute(OperationChain.wrap(
                 new AddGraph.Builder()
                         .graphId("schemaDisabled")
                         .parentPropertiesId(ACC_PROP_ID)
                         .parentSchemaIds(Lists.newArrayList("edgeSchema2"))
                         .disabledByDefault(true)
-                        .build()), context);
+                        .build()), contextTestUser());
 
         final GetSchema operation = new GetSchema.Builder()
                 .compact(true)
                 .build();
 
         // When
-        final Schema result = handler.doOperation(operation, context, fStore);
+        final Schema result = handler.doOperation(operation, contextTestUser(), federatedStore);
 
         // Then
         assertNotNull(result);
@@ -193,12 +189,12 @@ public class FederatedGetSchemaHandlerTest {
     @Test
     public void shouldThrowExceptionForANullOperation() throws OperationException {
         library.addProperties(ACC_PROP_ID, PROPERTIES);
-        fStore.setGraphLibrary(library);
+        federatedStore.setGraphLibrary(library);
 
         final GetSchema operation = null;
 
         try {
-            handler.doOperation(operation, context, fStore);
+            handler.doOperation(operation, contextTestUser(), federatedStore);
         } catch (final OperationException e) {
             assertTrue(e.getMessage().contains("Operation cannot be null"));
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,125 +16,119 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Lists;
+import org.assertj.core.api.IterableAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.user.StoreUser;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static java.util.Objects.isNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextBlankUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 
 public class FederatedStorePublicAccessTest {
 
-    private static final String GRAPH_1 = "graph1";
-    private static final String PROP_1 = "prop1";
-    private static final String SCHEMA_1 = "schema1";
-    private static final String TEST_FED_STORE_ID = "testFedStore";
-    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
-    private static final Context BLANK_USER_CONTEXT = new Context(StoreUser.blankUser());
-    private static final Context TEST_USER_CONTEXT = new Context(StoreUser.testUser());
+    private static final Context BLANK_USER_CONTEXT = contextBlankUser();
+    private static final Context TEST_USER_CONTEXT = contextTestUser();
+    private static final AccumuloProperties PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
     private FederatedStore store;
-    private FederatedStoreProperties fedProps;
+    private FederatedStoreProperties federatedStoreProperties;
     private HashMapGraphLibrary library;
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static void getAllGraphsIdsIsEmpty(FederatedStore store, final boolean isEmpty) throws uk.gov.gchq.gaffer.operation.OperationException {
+        Iterable<String> results = (Iterable<String>) store.execute(new GetAllGraphIds(), BLANK_USER_CONTEXT);
 
+        final IterableAssert<String> anAssert = assertThat(results).isNotNull();
+        if (isEmpty) {
+            anAssert.isEmpty();
+        } else {
+            anAssert.isNotEmpty()
+                    .containsExactly(GRAPH_ID_ACCUMULO);
+        }
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
-        CacheServiceLoader.shutdown();
-        fedProps = new FederatedStoreProperties();
-        fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        resetForFederatedTests();
+
+        federatedStoreProperties = new FederatedStoreProperties();
+        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
         store = new FederatedStore();
-        library = new HashMapGraphLibrary();
-        HashMapGraphLibrary.clear();
-
-        library.addProperties(PROP_1, PROPERTIES);
-        library.addSchema(SCHEMA_1, new Schema.Builder().build());
-        store.setGraphLibrary(library);
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsDefaultedPrivateAndGraphIsDefaultedPrivate() throws Exception {
-        store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        store.execute(new AddGraph.Builder()
-                .graphId(GRAPH_1)
-                .parentPropertiesId(PROP_1)
-                .parentSchemaIds(Lists.newArrayList(SCHEMA_1))
-                .build(), TEST_USER_CONTEXT);
-        getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, false);
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        store.execute(addGraph(null), TEST_USER_CONTEXT);
+        getAllGraphsIdsIsEmpty(store, true);
     }
 
     @Test
     public void shouldBePublicWhenAllGraphsDefaultedPrivateAndGraphIsSetPublic() throws Exception {
-        store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        store.execute(getAddGraphOp(true), TEST_USER_CONTEXT);
-        getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, true);
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        store.execute(addGraph(true), TEST_USER_CONTEXT);
+        getAllGraphsIdsIsEmpty(store, false);
     }
-
 
     @Test
     public void shouldNotBePublicWhenAllGraphsDefaultedPrivateAndGraphIsSetPrivate() throws Exception {
-        store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        store.execute(getAddGraphOp(false), TEST_USER_CONTEXT);
-        getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, false);
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        store.execute(addGraph(false), TEST_USER_CONTEXT);
+        getAllGraphsIdsIsEmpty(store, true);
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsSetPrivateAndGraphIsSetPublic() throws Exception {
-        fedProps.setFalseGraphsCanHavePublicAccess();
-        store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        store.execute(getAddGraphOp(true), TEST_USER_CONTEXT);
-        getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, false);
+        federatedStoreProperties.setFalseGraphsCanHavePublicAccess();
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        store.execute(addGraph(true), TEST_USER_CONTEXT);
+        getAllGraphsIdsIsEmpty(store, true);
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsSetPrivateAndGraphIsSetPrivate() throws Exception {
-        fedProps.setFalseGraphsCanHavePublicAccess();
-        store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        store.execute(getAddGraphOp(false), TEST_USER_CONTEXT);
-        getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, false);
+        federatedStoreProperties.setFalseGraphsCanHavePublicAccess();
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        store.execute(addGraph(false), TEST_USER_CONTEXT);
+        getAllGraphsIdsIsEmpty(store, true);
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsSetPublicAndGraphIsSetPrivate() throws Exception {
-        fedProps.setTrueGraphsCanHavePublicAccess();
-        store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        store.execute(getAddGraphOp(false), TEST_USER_CONTEXT);
-        getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, false);
+        federatedStoreProperties.setTrueGraphsCanHavePublicAccess();
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        store.execute(addGraph(false), TEST_USER_CONTEXT);
+        getAllGraphsIdsIsEmpty(store, true);
     }
 
     @Test
     public void shouldBePublicWhenAllGraphsSetPublicAndGraphIsSetPublic() throws Exception {
-        fedProps.setTrueGraphsCanHavePublicAccess();
-        store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        store.execute(getAddGraphOp(true), TEST_USER_CONTEXT);
-        getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, true);
+        federatedStoreProperties.setTrueGraphsCanHavePublicAccess();
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        store.execute(addGraph(true), TEST_USER_CONTEXT);
+        getAllGraphsIdsIsEmpty(store, false);
     }
 
+    private AddGraph addGraph(final Boolean isPublic) {
+        final AddGraph.Builder builder = new AddGraph.Builder()
+                .graphId(GRAPH_ID_ACCUMULO)
+                .storeProperties(PROPERTIES.clone())
+                .schema(new Schema.Builder().build());
 
-    private AddGraph getAddGraphOp(final boolean isPublic) {
-        return new AddGraph.Builder()
-                .isPublic(isPublic)
-                .graphId(GRAPH_1)
-                .parentPropertiesId(PROP_1)
-                .parentSchemaIds(Lists.newArrayList(SCHEMA_1))
-                .build();
+        return (isNull(isPublic)) ? builder.build() : builder.isPublic(isPublic).build();
     }
 
-    private static void getAllGraphsIdsHasNext(FederatedStore store, Context blankUserContext, final boolean expected) throws uk.gov.gchq.gaffer.operation.OperationException {
-        Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUserContext);
-        //final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUserContext);
-        assertEquals(expected, execute.iterator().hasNext());
-    }
 }

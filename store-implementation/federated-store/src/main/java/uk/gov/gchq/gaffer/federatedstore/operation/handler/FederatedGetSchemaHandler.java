@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,16 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
-import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDeprecatedGraphIds;
 
 /**
  * A {@code FederatedGetSchemaHandler} handles the {@link uk.gov.gchq.gaffer.store.operation.GetSchema}
@@ -31,9 +34,31 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSchema, Schema> {
     @Override
     public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
-        if (null == operation) {
-            throw new OperationException("Operation cannot be null");
+        try {
+
+            if (null == operation) {
+                throw new OperationException("Operation cannot be null");
+            }
+
+            final Iterable<Schema> schemas = (Iterable<Schema>) store.execute(
+                    new FederatedOperation.Builder()
+                            .op(operation)
+                            .graphIds(getDeprecatedGraphIds(operation)) // deprecate this line.
+                            .build(),
+                    context);
+
+            try {
+                //TODO FS This error message when failing to merge may/will hold up what should probably be okay legal functions else where in gaffer.
+                //This is merge function.
+                Schema.Builder builder = new Schema.Builder();
+                schemas.forEach(builder::merge);
+                return builder.build();
+            } catch (final Exception e) {
+                throw new SchemaException("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds.", e);
+            }
+        } catch (final Exception e) {
+            throw new OperationException("Error getting Schemas for FederatedStore - " + e.getMessage(), e);
         }
-        return ((FederatedStore) store).getSchema(operation, context);
+
     }
 }
