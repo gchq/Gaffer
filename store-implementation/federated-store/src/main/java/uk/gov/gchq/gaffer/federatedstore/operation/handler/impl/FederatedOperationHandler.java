@@ -99,7 +99,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
             return rtn;
         } catch (final Exception e) {
-            throw new OperationException(String.format("Error while merging results. %s", Objects.toString(e.getMessage(),""), e));
+            throw new OperationException(String.format("Error while merging results. %s", Objects.toString(e.getMessage(), ""), e));
         }
     }
 

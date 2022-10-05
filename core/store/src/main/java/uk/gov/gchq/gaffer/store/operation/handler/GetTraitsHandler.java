@@ -30,6 +30,7 @@ import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 import java.util.Collections;
 import java.util.Set;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
@@ -43,14 +44,16 @@ public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<S
 
     @Override
     public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
+        Set<StoreTrait> rtn;
         if (!operation.isCurrentTraits()) {
-            return storeTraits;
+            rtn = storeTraits;
+        } else {
+            if (isNull(currentTraits)) {
+                currentTraits = Collections.unmodifiableSet(createCurrentTraits(store));
+            }
+            rtn = currentTraits;
         }
-
-        if (null == currentTraits) {
-            currentTraits = Collections.unmodifiableSet(createCurrentTraits(store));
-        }
-        return currentTraits;
+        return Sets.newHashSet(rtn);
     }
 
     private Set<StoreTrait> createCurrentTraits(final Store store) {
