@@ -109,6 +109,4 @@ public class ToCsvTest extends OperationTest<ToCsv> {
     protected ToCsv getTestObject() {
         return new ToCsv();
     }
-
-
 }

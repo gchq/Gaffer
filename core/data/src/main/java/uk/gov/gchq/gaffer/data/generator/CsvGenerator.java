@@ -221,7 +221,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
 
         /**
          * Adds the main identifiers of an {@link Element}, ie VERTEX, GROUP, SOURCE, DEST to the fields LinkedHashMap.
-         * These identifoers are predifined in a {@link CsvFormat} e.g. {@link Neo4jFormat}
+         * These identifiers are predefined in a {@link CsvFormat} e.g. {@link Neo4jFormat}
          *
          * @param identifiersFromFormat the name of the headers to be added
          * @return a new {@link CsvGenerator.Builder}
