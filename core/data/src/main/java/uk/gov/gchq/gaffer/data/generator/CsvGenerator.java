@@ -74,9 +74,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         final IdentifierType idType = IdentifierType.fromName(key);
         final Object value;
         if (null == idType) {
-            if (IdentifierType.GROUP.equals(key)) {
-                value = element.getGroup();
-            } else if (key.contains(ENTITY_GROUP) && element.getClassName().contains("Entity")) {
+            if (key.contains(ENTITY_GROUP) && element.getClassName().contains("Entity")) {
                 value = element.getGroup();
             } else if (key.contains(EDGE_GROUP) && element.getClassName().contains("Edge")) {
                 value = element.getGroup();
