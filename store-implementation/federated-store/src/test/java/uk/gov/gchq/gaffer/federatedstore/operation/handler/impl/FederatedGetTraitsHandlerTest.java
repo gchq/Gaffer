@@ -315,5 +315,4 @@ public class FederatedGetTraitsHandlerTest {
             return new GetTraitsHandler(STORE_TRAITS);
         }
     }
-
 }

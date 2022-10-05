@@ -55,7 +55,8 @@ import static java.util.Objects.nonNull;
  * Any fields that are required should be annotated with the {@link Required} annotation.
  * </p>
  * <p>
- * Operation implementations need to implement this Operation interface and any of the following interfaces they wish to make use of:
+ * Operation implementations need to implement this Operation interface and any of the following interfaces they wish to
+ * make use of:
  * {@link uk.gov.gchq.gaffer.operation.io.Input}
  * {@link uk.gov.gchq.gaffer.operation.io.Output}
  * {@link uk.gov.gchq.gaffer.operation.io.InputOutput} (Use this instead of Input and Output if your operation takes both input and output.)
@@ -90,11 +91,11 @@ import static java.util.Objects.nonNull;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.PROPERTY, property = "class", defaultImpl = OperationChain.class)
 @JsonSimpleClassName(includeSubtypes = true)
 public interface Operation extends Closeable {
+
     /**
-     * Operation implementations should ensure a ShallowClone method is implemented.
-     * Performs a shallow clone. Creates a new instance and copies the fields across.
-     * It does not clone the fields.
-     * If the operation contains nested operations, these must also be cloned.
+     * Operation implementations should ensure a ShallowClone method is implemented. Performs a shallow clone.
+     * Creates a new instance and copies the fields across. It does not clone the fields. If the operation
+     * contains nested operations, these must also be cloned.
      *
      * @return shallow clone
      * @throws CloneFailedException if a Clone error occurs
@@ -103,16 +104,16 @@ public interface Operation extends Closeable {
 
     /**
      * @return the operation options. This may contain store specific options such as authorisation strings or and
-     * other properties required for the operation to be executed. Note these options will probably not be interpreted
-     * in the same way by every store implementation.
+     *         other properties required for the operation to be executed. Note these options will probably not be
+     *         interpreted in the same way by every store implementation.
      */
     @JsonIgnore
     Map<String, String> getOptions();
 
     /**
-     * @param options the operation options. This may contain store specific options such as authorisation strings or and
-     *                other properties required for the operation to be executed. Note these options will probably not be interpreted
-     *                in the same way by every store implementation.
+     * @param options the operation options. This may contain store specific options such as authorisation strings or
+     *                and other properties required for the operation to be executed. Note these options will probably not
+     *                be interpreted in the same way by every store implementation.
      */
     @JsonSetter
     void setOptions(final Map<String, String> options);
@@ -129,6 +130,7 @@ public interface Operation extends Closeable {
         if (isNull(getOptions())) {
             setOptions(new HashMap<>());
         }
+
         getOptions().put(name, value);
     }
 
@@ -149,6 +151,7 @@ public interface Operation extends Closeable {
      *
      * @param name         the name of the option
      * @param defaultValue the default value to return if value is null.
+     *
      * @return the value of the option
      */
     default String getOption(final String name, final String defaultValue) {
@@ -240,7 +243,9 @@ public interface Operation extends Closeable {
         /**
          * @param name  the name of the option to add
          * @param value the value of the option to add
+         *
          * @return this Builder
+         *
          * @see Operation#addOption(String, String)
          */
         public B option(final String name, final String value) {
@@ -278,7 +283,5 @@ public interface Operation extends Closeable {
         public B _self() {
             return (B) this;
         }
-
     }
 }
-
