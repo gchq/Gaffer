@@ -94,7 +94,7 @@ public class OperationDetail {
                 outputClass = JsonSerialisationUtil.getTypeString(((Output) operation).getOutputTypeReference().getType());
             }
             return outputClass;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new GafferRuntimeException(String.format("Error getting Output Type information for Operation:%s", operation), e);
         }
     }
