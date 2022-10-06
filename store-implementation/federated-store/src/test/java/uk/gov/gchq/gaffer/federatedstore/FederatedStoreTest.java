@@ -1322,23 +1322,35 @@ public class FederatedStoreTest {
         assertThatExceptionOfType(SchemaException.class).isThrownBy(() -> store.execute(new GetSchema.Builder().build(), userContext))
                 .withMessageMatching(expectedExceptionMeassageMatch);
 
+        String expectedMessageGraphA = String.format("Operation chain is invalid. Validation errors: %n"
+                + "View is not valid for graphIds:[graphA]%n"
+                + "(graphId: graphA) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. %n"
+                + "(graphId: graphA) Entity group entityB does not exist in the schema");
+
         assertThatExceptionOfType(Exception.class)
                 .isThrownBy(() -> store.execute(new GetAllElements.Builder()
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA")
                         .view(new View.Builder().entity("entityB").build()).build(), userContext))
-                .withMessage("Operation chain is invalid. Validation errors: \n"
-                        + "View is not valid for graphIds:[graphA]\n"
-                        + "(graphId: graphA) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n"
-                        + "(graphId: graphA) Entity group entityB does not exist in the schema");
+                .withMessageStartingWith(expectedMessageGraphA);
+
+        String expectedMessageGraphB = String.format("Operation chain is invalid. Validation errors: %n"
+                + "View is not valid for graphIds:[graphB]%n"
+                + "(graphId: graphB) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. %n"
+                + "(graphId: graphB) Entity group entityA does not exist in the schema");
 
         assertThatExceptionOfType(Exception.class)
                 .isThrownBy(() -> store.execute(new GetAllElements.Builder()
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphB")
                         .view(new View.Builder().entity("entityA").build()).build(), userContext))
-                .withMessage("Operation chain is invalid. Validation errors: \n"
-                        + "View is not valid for graphIds:[graphB]\n"
-                        + "(graphId: graphB) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n"
-                        + "(graphId: graphB) Entity group entityA does not exist in the schema");
+                .withMessage(expectedMessageGraphB);
+
+
+        String expectedMessageGraphC = String.format("Operation chain is invalid. Validation errors: %n"
+                + "View is not valid for graphIds:[graphB,graphC]%n"
+                + "(graphId: graphB) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. %n"
+                + "(graphId: graphB) Entity group entityA does not exist in the schema%n"
+                + "(graphId: graphC) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. %n"
+                + "(graphId: graphC) Entity group entityA does not exist in the schema");
 
         addGraphWithPaths("graphC", PROPERTIES_1, PATH_ENTITY_B_SCHEMA_JSON);
 
@@ -1346,12 +1358,7 @@ public class FederatedStoreTest {
                 .isThrownBy(() -> store.execute(new GetAllElements.Builder()
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphB,graphC")
                         .view(new View.Builder().entity("entityA").build()).build(), userContext))
-                .withMessage("Operation chain is invalid. Validation errors: \n"
-                        + "View is not valid for graphIds:[graphB,graphC]\n"
-                        + "(graphId: graphB) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n"
-                        + "(graphId: graphB) Entity group entityA does not exist in the schema\n"
-                        + "(graphId: graphC) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n"
-                        + "(graphId: graphC) Entity group entityA does not exist in the schema");
+                .withMessage(expectedMessageGraphC);
     }
 
     protected void addElementsToNewGraph(final Entity input, final String graphName, final String pathSchemaJson)
