@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
@@ -29,7 +30,6 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Input;
@@ -43,6 +43,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,7 @@ import java.util.function.BiFunction;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 
 /**
  * This operation federates a payload operation across a given set of graphs and merges the results with a given function.
@@ -61,8 +63,8 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds", "skipFailedFederatedExecution"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("Federates a payload operation across given graphs and merges the results with a given function.")
-public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends GenericInput<INPUT>*/ implements IFederationOperation, IFederatedOperation, InputOutput<INPUT, OUTPUT> {
-    private String graphIdsCsv;
+public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, InputOutput<INPUT, OUTPUT> {
+    private List<String> graphIds;
     @Required
     private Operation payloadOperation;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
@@ -72,10 +74,17 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
     private boolean userRequestingAdminUsage;
     private boolean userRequestingDefaultGraphsOverride; //TODO FS PR more exploration of this, in pr journey.
 
+    @Override
     @JsonProperty("graphIds")
-    public FederatedOperation<INPUT, OUTPUT> graphIdsCSV(final String graphIds) {  //TODO FS PR review the list request.
-        this.graphIdsCsv = graphIds;
+    public FederatedOperation<INPUT, OUTPUT> graphIds(final List<String> graphIds) {
+        this.graphIds = graphIds == null ? null : Collections.unmodifiableList(graphIds);
         return this;
+    }
+
+    @Override
+    @JsonIgnore
+    public FederatedOperation<INPUT, OUTPUT> graphIdsCSV(final String graphIds) {
+        return graphIds(getCleanStrings(graphIds));
     }
 
     @JsonProperty("operation")
@@ -154,13 +163,8 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
     }
 
     @JsonProperty("graphIds")
-    public String getGraphIdsCSV() {
-        return graphIdsCsv;
-    }
-
-    @JsonIgnore
     public List<String> getGraphIds() {
-        return FederatedStoreUtil.getCleanStrings(graphIdsCsv);
+        return graphIds == null ? null : Lists.newArrayList(graphIds);
     }
 
 
@@ -213,7 +217,7 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
         return new FederatedOperation()
                 .payloadOperation(payloadOperation)
                 .mergeFunction(mergeFunction)
-                .graphIdsCSV(graphIdsCsv)
+                .graphIds(graphIds)
                 .isUserRequestingAdminUsage(userRequestingAdminUsage)
                 .isUserRequestingDefaultGraphsOverride(userRequestingDefaultGraphsOverride)
                 .skipFailedFederatedExecution(skipFailedFederatedExecution)
@@ -240,7 +244,7 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
         } else {
             FederatedOperation that = (FederatedOperation) o;
             EqualsBuilder equalsBuilder = new EqualsBuilder()
-                    .append(this.graphIdsCsv, that.graphIdsCsv)
+                    .append(this.graphIds, that.graphIds)
                     .append(this.mergeFunction, that.mergeFunction)
                     .append(this.skipFailedFederatedExecution, that.skipFailedFederatedExecution)
                     .append(this.options, that.options)
@@ -267,7 +271,7 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
     @Override
     public int hashCode() {
         return new HashCodeBuilder(11, 23)
-                .append(graphIdsCsv)
+                .append(graphIds)
                 .append(payloadOperation)
                 .append(mergeFunction)
                 .append(skipFailedFederatedExecution)
@@ -350,8 +354,13 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
             super(fedOp);
         }
 
-        public BuilderParent<INPUT, OUTPUT> graphIds(final String graphIds) {
-            _getOp().graphIdsCSV(graphIds);
+        public BuilderParent<INPUT, OUTPUT> graphIdsCSV(final String graphIdsCSV) {
+            _getOp().graphIdsCSV(graphIdsCSV);
+            return _self();
+        }
+
+        public BuilderParent<INPUT, OUTPUT> graphIds(final List<String> graphIds) {
+            _getOp().graphIds(graphIds);
             return _self();
         }
 

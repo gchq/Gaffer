@@ -43,7 +43,7 @@ public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSche
             final Iterable<Schema> schemas = (Iterable<Schema>) store.execute(
                     new FederatedOperation.Builder()
                             .op(operation)
-                            .graphIds(getDeprecatedGraphIds(operation)) // deprecate this line.
+                            .graphIdsCSV(getDeprecatedGraphIds(operation)) // deprecate this line.
                             .build(),
                     context);
 

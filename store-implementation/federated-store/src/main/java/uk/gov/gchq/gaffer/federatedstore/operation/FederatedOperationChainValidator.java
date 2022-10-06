@@ -29,8 +29,8 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -50,7 +50,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
     @Override
     protected Schema getSchema(final Operation operation, final User user, final Store store) {
         return (operation instanceof FederatedOperation)
-                ? ((FederatedStore) store).getSchema(getFederatedWrappedSchema().graphIdsCSV(((FederatedOperation) operation).getGraphIdsCSV()), new Context(user))
+                ? ((FederatedStore) store).getSchema(getFederatedWrappedSchema().graphIds(((FederatedOperation) operation).getGraphIds()), new Context(user))
                 : ((FederatedStore) store).getSchema(getFederatedWrappedSchema(), new Context(user));
     }
 
@@ -82,16 +82,16 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
         ValidationResult currentResult = null;
 
         if (op instanceof FederatedOperation || !(op instanceof IFederationOperation)) {
-            final String graphIdsCSV = getGraphIdsCSV(op, user, (FederatedStore) store);
+            final List<String> graphIds = getGraphIds(op, user, (FederatedStore) store);
             FederatedOperation clonedOp = op instanceof FederatedOperation
                     ? ((FederatedOperation) op).deepClone()
                     : new FederatedOperation
                     .Builder()
                     .op(shallowCloneWithDeepOptions(op))
-                    .graphIds(graphIdsCSV)
+                    .graphIds(graphIds)
                     .userRequestingAdminUsage(op instanceof IFederationOperation && ((IFederationOperation) op).isUserRequestingAdminUsage())
                     .build();
-            Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, graphIdsCSV, clonedOp);
+            Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, graphIds, clonedOp);
             for (final Graph graph : graphs) {
                 String graphId = graph.getGraphId();
                 final boolean graphIdValid = ((FederatedStore) store).getAllGraphIds(user).contains(graphId);
@@ -123,19 +123,15 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
         }
     }
 
-    private Collection<String> getGraphIds(final Operation op, final User user, final FederatedStore store) {
-        return Arrays.asList(getGraphIdsCSV(op, user, store).split(","));
-    }
-
-    private String getGraphIdsCSV(final Operation op, final User user, final FederatedStore store) {
-        String rtn = (op instanceof FederatedOperation)
-                ? ((FederatedOperation) op).getGraphIdsCSV()
+    private List<String> getGraphIds(final Operation op, final User user, final FederatedStore store) {
+        List<String> rtn = (op instanceof FederatedOperation)
+                ? ((FederatedOperation) op).getGraphIds()
                 : null;
 
         boolean userRequestingAdminUsage = (op instanceof IFederationOperation) && ((IFederationOperation) op).isUserRequestingAdminUsage();
 
         return isNull(rtn)
-                ? String.join(",", store.getAllGraphIds(user, userRequestingAdminUsage))
+                ? store.getAllGraphIds(user, userRequestingAdminUsage)
                 : rtn;
     }
 }

@@ -140,7 +140,7 @@ public class FederatedStoreViewAggregationTest {
                 .op(new AddElements.Builder()
                         .input(entity)
                         .build())
-                .graphIds(graphIdA)
+                .graphIdsCSV(graphIdA)
                 .build(), contextTestUser());
     }
 
