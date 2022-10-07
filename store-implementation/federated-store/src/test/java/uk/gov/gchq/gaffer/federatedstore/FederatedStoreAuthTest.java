@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -82,9 +81,9 @@ public class FederatedStoreAuthTest {
         addGraphWith(AUTH_1, new Schema(), testUser());
 
         //when
-        Collection<Graph> testUserGraphs = federatedStore.getGraphs(testUser(), (List<String>) null, mock);
-        Collection<Graph> authUserGraphs = federatedStore.getGraphs(authUser(), (List<String>) null, mock);
-        Collection<Graph> blankUserGraphs = federatedStore.getGraphs(blankUser(), (List<String>) null, ignore);
+        Collection<Graph> testUserGraphs = federatedStore.getGraphs(testUser(), null, mock);
+        Collection<Graph> authUserGraphs = federatedStore.getGraphs(authUser(), null, mock);
+        Collection<Graph> blankUserGraphs = federatedStore.getGraphs(blankUser(), null, ignore);
 
         //then
         assertThat(authUserGraphs).hasSize(1);
@@ -130,7 +129,7 @@ public class FederatedStoreAuthTest {
                 .doesNotContain(groupEdge)
                 .doesNotContain(groupEnt);
 
-        assertTrue(federatedStore.getGraphs(testUser(), (List<String>) null, mock).isEmpty());
+        assertTrue(federatedStore.getGraphs(testUser(), null, mock).isEmpty());
     }
 
     private void addGraphWith(final String auth, final Schema schema, final User user) throws OperationException {

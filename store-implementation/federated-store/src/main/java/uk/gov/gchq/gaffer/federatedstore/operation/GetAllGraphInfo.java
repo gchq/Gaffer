@@ -77,7 +77,7 @@ public class GetAllGraphInfo implements
         return new Builder()
                 .options(options)
                 .graphIDs(graphIds)
-                .userRequestingAdminUsage(userRequestingAdminUsage)
+                .setUserRequestingAdminUsage(userRequestingAdminUsage)
                 .build();
     }
 
@@ -118,7 +118,7 @@ public class GetAllGraphInfo implements
     }
 
     @Override
-    public GetAllGraphInfo isUserRequestingAdminUsage(final boolean adminRequest) {
+    public GetAllGraphInfo setUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }

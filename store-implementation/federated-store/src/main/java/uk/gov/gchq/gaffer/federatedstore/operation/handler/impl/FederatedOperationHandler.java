@@ -90,7 +90,6 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         try {
             Object rtn = null;
 
-            //TODO FS map of merge
             final BiFunction mergeFunction = nonNull(operation.getMergeFunction()) ? operation.getMergeFunction() : store.getDefaultMergeFunction();
 
             //Reduce

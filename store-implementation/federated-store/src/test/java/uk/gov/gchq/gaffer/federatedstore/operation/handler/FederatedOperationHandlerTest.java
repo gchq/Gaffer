@@ -120,7 +120,7 @@ public class FederatedOperationHandlerTest {
         FederatedStore federatedStore = mock(FederatedStore.class);
 
         FederatedOperation federatedOperation = getFederatedOperation(operation);
-        when(federatedStore.getGraphs(testUser, (List<String>) null, federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph2, graph3, graph4));
+        when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph2, graph3, graph4));
         when(federatedStore.getDefaultMergeFunction()).thenReturn(getHardCodedDefaultMergeFunction());
 
         // When
@@ -141,7 +141,7 @@ public class FederatedOperationHandlerTest {
         final ArrayList<String> graphIds = Lists.newArrayList("1", "3");
         federatedOperation.graphIds(graphIds);
         when(federatedStore.getGraphs(testUser, graphIds, federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph3));
-        when(federatedStore.getGraphs(testUser, (List<String>) null, federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph2, graph3, graph4));
+        when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph2, graph3, graph4));
         given(federatedStore.getDefaultMergeFunction()).willReturn(getHardCodedDefaultMergeFunction());
 
         // When
@@ -192,7 +192,7 @@ public class FederatedOperationHandlerTest {
         final ArrayList<String> graphIds = Lists.newArrayList("1", "2", "3");
         federatedOperation.graphIds(graphIds);
         when(federatedStore.getGraphs(testUser, graphIds, federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph3));
-        when(federatedStore.getGraphs(testUser, (List<String>) null, federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph2, graph3, graph4));
+        when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph2, graph3, graph4));
 
         // When
         try {
@@ -223,7 +223,7 @@ public class FederatedOperationHandlerTest {
         federatedOperation.graphIds(graphIds);
         when(federatedStore.getGraphs(testUser, getCleanStrings("1,2,3"), federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph2, graph3));
         when(federatedStore.getGraphs(testUser, graphIds, federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph2, graph3));
-        when(federatedStore.getGraphs(testUser, (List<String>) null, federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph2, graph3, graph4));
+        when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph2, graph3, graph4));
         when(federatedStore.getGraphs(testUser, getCleanStrings((String) null), federatedOperation)).thenReturn(Lists.newArrayList(graph1, graph2, graph3, graph4));
         when(federatedStore.getDefaultMergeFunction()).thenReturn(getHardCodedDefaultMergeFunction());
 
@@ -286,7 +286,7 @@ public class FederatedOperationHandlerTest {
         linkedGraphs.add(graph1);
         linkedGraphs.add(graph2);
 
-        when(mockStore.getGraphs(eq(testUser), eq((List<String>) null), any())).thenReturn(linkedGraphs);
+        when(mockStore.getGraphs(eq(testUser), eq(null), any())).thenReturn(linkedGraphs);
 
         final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
 

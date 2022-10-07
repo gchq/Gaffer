@@ -39,9 +39,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
-import uk.gov.gchq.koryphe.ValidationResult;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -72,7 +70,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     private boolean skipFailedFederatedExecution = DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
     private Map<String, String> options;
     private boolean userRequestingAdminUsage;
-    private boolean userRequestingDefaultGraphsOverride; //TODO FS PR more exploration of this, in pr journey.
+    private boolean userRequestingDefaultGraphsOverride;
 
     @Override
     @JsonProperty("graphIds")
@@ -120,7 +118,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     }
 
     @Override
-    public FederatedOperation<INPUT, OUTPUT> isUserRequestingAdminUsage(final boolean adminRequest) {
+    public FederatedOperation<INPUT, OUTPUT> setUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }
@@ -218,7 +216,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                 .payloadOperation(payloadOperation)
                 .mergeFunction(mergeFunction)
                 .graphIds(graphIds)
-                .isUserRequestingAdminUsage(userRequestingAdminUsage)
+                .setUserRequestingAdminUsage(userRequestingAdminUsage)
                 .isUserRequestingDefaultGraphsOverride(userRequestingDefaultGraphsOverride)
                 .skipFailedFederatedExecution(skipFailedFederatedExecution)
                 .options(options);
@@ -314,7 +312,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                 } else {
                     throw new GafferRuntimeException("Payload operation is not correct type. Expected:Input Found:" + getPayloadClass());
                 }
-            } //TODO FS else would you want to null the input of the payload via this route?
+            }
         } else {
             throw new GafferRuntimeException("The payloadOperation has not been set before applying Input");
         }
@@ -395,8 +393,8 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         }
 
         @Override
-        public BuilderParent<INPUT, OUTPUT> userRequestingAdminUsage(final boolean adminRequest) {
-            return super.userRequestingAdminUsage(adminRequest);
+        public BuilderParent<INPUT, OUTPUT> setUserRequestingAdminUsage(final boolean adminRequest) {
+            return super.setUserRequestingAdminUsage(adminRequest);
         }
 
         @Override
@@ -435,21 +433,5 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
             FederatedOperation<Void, Void> fedOpO = this._getOp();
             fedOpO.payloadOperation(op);
         }
-    }
-
-    @Override
-    public void validateRequiredFieldPresent(final ValidationResult result, final Field field) {
-        final Object value;
-        try {
-            value = field.get(this);
-        } catch (final IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        //TODO FS PR This is redundant as only payload is marked as required now.
-        if (isNull(value) && (!field.getName().equals("mergeFunction") || !hasPayloadOperation() || payloadOperation instanceof Output)) {
-            result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
-        }
-
-        // Merge function is allowed when payload is non output, user may want to count nulls from graphs.
     }
 }

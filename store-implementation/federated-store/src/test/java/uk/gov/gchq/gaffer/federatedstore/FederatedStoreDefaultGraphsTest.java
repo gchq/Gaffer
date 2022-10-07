@@ -32,22 +32,22 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreDefaultGraphsTest {
 
-    @Disabled //TODO FS remove ignore
+    @Disabled
     @Test
     public void testDisableByDefault() {
-        fail();
+        fail("Not yet implemented");
     }
 
-    @Disabled //TODO FS remove ignore
+    @Disabled
     @Test
     public void testDisableByDefaultAdmin() {
-        fail();
+        fail("Not yet implemented");
     }
 
-    @Disabled //TODO FS remove ignore
+    @Disabled
     @Test
     public void testDisableByDefaultButIsDefaultListOfGraphs() {
-        fail();
+        fail("Not yet implemented");
     }
 
     @Test
@@ -59,7 +59,7 @@ public class FederatedStoreDefaultGraphsTest {
                 .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getAdminConfiguredDefaultGraphIds));
 
         //when
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), getCleanStrings((String) null), new GetAllGraphInfo()));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
         //then
         assertThat(exception).message().contains("The following graphIds are not visible or do not exist: [defaultJsonGraphId]");
     }
@@ -76,7 +76,7 @@ public class FederatedStoreDefaultGraphsTest {
         federatedStore.setAdminConfiguredDefaultGraphIdsCSV("other");
 
         //then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), getCleanStrings((String) null), new GetAllGraphInfo()));
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
         assertThat(exception).message().contains("The following graphIds are not visible or do not exist: [defaultJsonGraphId]");
     }
 }

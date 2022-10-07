@@ -347,7 +347,7 @@ public class FederatedStore extends Store {
                         "This FederatedStore: {}{}" +
                         "All FederatedStore in this loop: {}", ln, this.getGraphId(), ln, federatedStoreIds.toString());
             } else if (isNull(graphIds)) {
-                LOGGER.debug("getting default graphs because requested graphIdsCSV is null");
+                LOGGER.debug("getting default graphs because requested graphIds is null");
                 rtn = getDefaultGraphs(user, operation);
             } else {
                 if (graphIds.isEmpty()) {

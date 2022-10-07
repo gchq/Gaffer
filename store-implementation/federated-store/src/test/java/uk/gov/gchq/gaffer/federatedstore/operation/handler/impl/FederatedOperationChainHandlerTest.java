@@ -109,7 +109,7 @@ public class FederatedOperationChainHandlerTest {
         // When
         final Iterable result = store.execute(opChain, context);
 
-        // Then - the result will contain just 1 element from the first graph
+        // Then - the result will contain just 1 element from the graphs
         assertThat(result)
                 .hasSize(1)
                 .containsAnyOf(elements[0], elements[1]);

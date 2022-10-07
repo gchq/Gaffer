@@ -144,9 +144,4 @@ public class FederatedStoreViewAggregationTest {
                 .build(), contextTestUser());
     }
 
-    @Disabled //TODO FS remove ignore
-    @Test
-    public void shouldBeAwareOfIssuesWithViewsThatTransformsData() throws Exception {
-        fail("TBA");
-    }
 }

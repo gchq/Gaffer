@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,7 +70,7 @@ public class FederatedRemoveGraphHandlerTest {
                 .properties(PROPERTIES)
                 .build());
 
-        assertEquals(1, store.getGraphs(testUser, (List<String>) null, new RemoveGraph()).size());
+        assertEquals(1, store.getGraphs(testUser, null, new RemoveGraph()).size());
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
@@ -80,7 +79,7 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs(testUser, (List<String>) null, new RemoveGraph());
+        Collection<Graph> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
         assertThat(graphs).isEmpty();
 
@@ -100,7 +99,7 @@ public class FederatedRemoveGraphHandlerTest {
                 .properties(PROPERTIES)
                 .build());
 
-        assertEquals(1, store.getGraphs(testUser, (List<String>) null, new RemoveGraph()).size());
+        assertEquals(1, store.getGraphs(testUser, null, new RemoveGraph()).size());
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
@@ -109,7 +108,7 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs(testUser, (List<String>) null, new RemoveGraph());
+        Collection<Graph> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
         assertThat(graphs).hasSize(1);
 
@@ -138,7 +137,7 @@ public class FederatedRemoveGraphHandlerTest {
                         .properties(PROPERTIES)
                         .build());
 
-        assertEquals(1, store.getGraphs(testUser, (List<String>) null, new RemoveGraph()).size());
+        assertEquals(1, store.getGraphs(testUser, null, new RemoveGraph()).size());
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
@@ -147,7 +146,7 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs(testUser, (List<String>) null, new RemoveGraph());
+        Collection<Graph> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
         assertThat(graphs).hasSize(1);
     }

@@ -122,7 +122,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     }
 
     public Set<String> getGraphAuths() {
-        return graphAuths != null ? unmodifiableSet(graphAuths) : null;
+        return (graphAuths != null) ? unmodifiableSet(graphAuths) : null;
     }
 
     public String getAddingUserId() {

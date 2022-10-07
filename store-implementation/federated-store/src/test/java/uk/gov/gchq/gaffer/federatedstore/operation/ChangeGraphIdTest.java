@@ -42,7 +42,7 @@ public class ChangeGraphIdTest extends FederationOperationTest<ChangeGraphId> {
     protected ChangeGraphId getTestObject() {
         return new ChangeGraphId.Builder()
                 .graphId("graphA")
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .option("a", "b")
                 .build();
     }

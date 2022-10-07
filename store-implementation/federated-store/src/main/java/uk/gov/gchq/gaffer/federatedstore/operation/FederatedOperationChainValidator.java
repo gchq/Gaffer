@@ -89,7 +89,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                     .Builder()
                     .op(shallowCloneWithDeepOptions(op))
                     .graphIds(graphIds)
-                    .userRequestingAdminUsage(op instanceof IFederationOperation && ((IFederationOperation) op).isUserRequestingAdminUsage())
+                    .setUserRequestingAdminUsage(op instanceof IFederationOperation && ((IFederationOperation) op).isUserRequestingAdminUsage())
                     .build();
             Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, graphIds, clonedOp);
             for (final Graph graph : graphs) {

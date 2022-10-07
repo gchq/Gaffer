@@ -46,7 +46,7 @@ public class GetAllGraphIds implements IFederationOperation, Output<Iterable<? e
     public GetAllGraphIds shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
-                .userRequestingAdminUsage(userRequestingAdminUsage)
+                .setUserRequestingAdminUsage(userRequestingAdminUsage)
                 .build();
     }
 
@@ -61,7 +61,7 @@ public class GetAllGraphIds implements IFederationOperation, Output<Iterable<? e
     }
 
     @Override
-    public GetAllGraphIds isUserRequestingAdminUsage(final boolean adminRequest) {
+    public GetAllGraphIds setUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }
