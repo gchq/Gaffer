@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,17 +44,20 @@ import static java.util.Objects.requireNonNull;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public abstract class CardinalityEntityGenerator<T> implements OneToManyElementGenerator<Element> {
     private final Function<Object, T> toSketch;
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    private Function<Object, Object> vertexValueConverter;
+
+    private String group = "Cardinality";
+    private String cardinalityPropertyName = "cardinality";
+    private String countProperty;
+    private String edgeGroupProperty;
+
     /**
      * The properties to copy from the Edge.
      * IMPORTANT - it does not clone the property values. You could end up with an object being shared between multiple elements.
      */
     private final Set<String> propertiesToCopy = new HashSet<>();
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    private Function<Object, Object> vertexValueConverter;
-    private String group = "Cardinality";
-    private String cardinalityPropertyName = "cardinality";
-    private String countProperty;
-    private String edgeGroupProperty;
 
     public CardinalityEntityGenerator(final Function<Object, T> toSketch) {
         this.toSketch = toSketch;

@@ -16,18 +16,23 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,18 +46,25 @@ public class GetAllGraphInfo implements
         IFederationOperation,
         IFederatedOperation {
     private Map<String, String> options;
-    private String graphIdsCsv;
+    private List<String> graphIds;
     private boolean userRequestingAdminUsage;
 
-    @JsonProperty("graphIds")
-    public GetAllGraphInfo graphIdsCSV(final String graphIds) {
-        this.graphIdsCsv = graphIds;
+    @Override
+    public GetAllGraphInfo graphIds(final List<String> graphsIds) {
+        this.graphIds = graphsIds == null ? null : Collections.unmodifiableList(graphsIds);
         return this;
     }
 
+    @Override
+    @JsonIgnore
+    public GetAllGraphInfo graphIdsCSV(final String graphIds) {
+        return graphIds(FederatedStoreUtil.getCleanStrings(graphIds));
+    }
+
+    @Override
     @JsonProperty("graphIds")
-    public String getGraphIdsCSV() {
-        return graphIdsCsv;
+    public List<String> getGraphIds() {
+        return (graphIds == null) ? null : Lists.newArrayList(graphIds);
     }
 
     @Override
@@ -64,8 +76,8 @@ public class GetAllGraphInfo implements
     public GetAllGraphInfo shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
-                .graphIDsCSV(graphIdsCsv)
-                .userRequestingAdminUsage(userRequestingAdminUsage)
+                .graphIDs(graphIds)
+                .setUserRequestingAdminUsage(userRequestingAdminUsage)
                 .build();
     }
 
@@ -83,7 +95,7 @@ public class GetAllGraphInfo implements
 
         return new EqualsBuilder()
                 .append(options, that.options)
-                .append(graphIdsCsv, that.graphIdsCsv)
+                .append(graphIds, that.graphIds)
                 .isEquals();
     }
 
@@ -91,7 +103,7 @@ public class GetAllGraphInfo implements
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(options)
-                .append(graphIdsCsv)
+                .append(graphIds)
                 .toHashCode();
     }
 
@@ -106,7 +118,7 @@ public class GetAllGraphInfo implements
     }
 
     @Override
-    public GetAllGraphInfo isUserRequestingAdminUsage(final boolean adminRequest) {
+    public GetAllGraphInfo setUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }
@@ -124,6 +136,11 @@ public class GetAllGraphInfo implements
 
         public Builder graphIDsCSV(final String graphIdsCSV) {
             this._getOp().graphIdsCSV(graphIdsCSV);
+            return this;
+        }
+
+        public Builder graphIDs(final List<String> graphIds) {
+            this._getOp().graphIds(graphIds);
             return this;
         }
     }

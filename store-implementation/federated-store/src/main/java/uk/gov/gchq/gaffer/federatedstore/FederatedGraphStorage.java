@@ -144,20 +144,21 @@ public class FederatedGraphStorage {
      * @param user to match visibility against.
      * @return visible graphIds.
      */
-    public Collection<String> getAllIds(final User user) {
+    public List<String> getAllIds(final User user) {
         return getIdsFrom(getUserGraphStream(entry -> entry.getKey().hasReadAccess(user)));
     }
 
-    public Collection<String> getAllIds(final User user, final String adminAuth) {
+    public List<String> getAllIds(final User user, final String adminAuth) {
         return getIdsFrom(getUserGraphStream(entry -> entry.getKey().hasReadAccess(user, adminAuth)));
     }
 
-    private Collection<String> getIdsFrom(final Stream<Graph> allStream) {
-        final Set<String> rtn = allStream
+    private List<String> getIdsFrom(final Stream<Graph> allStream) {
+        final List<String> rtn = allStream
                 .map(Graph::getGraphId)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .distinct()
+                .collect(Collectors.toList());
 
-        return Collections.unmodifiableSet(rtn);
+        return Collections.unmodifiableList(rtn);
     }
 
     /**
@@ -236,11 +237,11 @@ public class FederatedGraphStorage {
      * to the user.
      *
      * @param user      to match visibility against.
-     * @param graphIds  the graphIds to get graphs for.
+     * @param graphIds  the graphIds to get graphs for. List is used because it preserves order.
      * @param adminAuth adminAuths role
      * @return visible graphs from the given graphIds.
      */
-    public Collection<Graph> get(final User user, final List<String> graphIds, final String adminAuth) {
+    public List<Graph> get(final User user, final List<String> graphIds, final String adminAuth) {
         if (null == user) {
             return Collections.emptyList();
         }
@@ -248,10 +249,11 @@ public class FederatedGraphStorage {
         validateAllGivenGraphIdsAreVisibleForUser(user, graphIds, adminAuth);
         Stream<Graph> graphs = getStream(user, graphIds);
         if (null != graphIds) {
+            //This maintains order with the requested Ids.
             graphs = graphs.sorted(Comparator.comparingInt(g -> graphIds.indexOf(g.getGraphId())));
         }
-        final Set<Graph> rtn = graphs.collect(Collectors.toCollection(LinkedHashSet::new));
-        return Collections.unmodifiableCollection(rtn);
+        final List<Graph> rtn = graphs.distinct().collect(Collectors.toList());
+        return Collections.unmodifiableList(rtn);
     }
 
     @Deprecated
@@ -327,7 +329,7 @@ public class FederatedGraphStorage {
             return storage.entrySet()
                     .stream()
                     .filter(entry -> isValidToView(user, entry.getKey()))
-                    //not visible unless graphId is requested. //TODO FS disabledByDefault: Review test
+                    //not visible unless graphId is requested.
                     .filter(entry -> !entry.getKey().isDisabledByDefault())
                     .flatMap(entry -> entry.getValue().stream());
         }

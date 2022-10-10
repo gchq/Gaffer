@@ -16,26 +16,29 @@
 
 package uk.gov.gchq.koryphe.impl.function;
 
-import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 public class ToIterable extends KorypheFunction<Object, Iterable<Object>> {
     public ToIterable() {
     }
 
     public Iterable<Object> apply(final Object value) {
-
+        final Iterable<Object> rtn;
         if (null == value) {
-            return new EmptyIterable<>();
+            rtn = new EmptyIterable<>();
         } else if (value instanceof Iterable) {
             //noinspection unchecked
-            return (Iterable<Object>) value;
+            rtn = (Iterable<Object>) value;
+        } else if (value instanceof Object[]) {
+            return Arrays.asList((Object[]) value);
         } else {
-            return value instanceof Object[] ? Arrays.asList((Object[]) value) : Lists.newArrayList(value);
+            rtn = Collections.singletonList(value);
         }
+        return rtn;
     }
 }

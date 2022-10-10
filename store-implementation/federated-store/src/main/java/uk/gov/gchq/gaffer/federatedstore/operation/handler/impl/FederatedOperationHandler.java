@@ -30,10 +30,11 @@ import uk.gov.gchq.koryphe.Since;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -59,7 +60,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             for (final Graph graph : graphs) {
 
                 final Operation updatedOp = FederatedStoreUtil.updateOperationForGraph(operation.getUnClonedPayload(), graph);
-                if (null != updatedOp) {
+                if (updatedOp != null) {
                     try {
                         if (updatedOp instanceof Output) {
                             results.add(graph.execute((Output) updatedOp, context));
@@ -89,7 +90,6 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         try {
             Object rtn = null;
 
-            //TODO FS map of merge
             final BiFunction mergeFunction = nonNull(operation.getMergeFunction()) ? operation.getMergeFunction() : store.getDefaultMergeFunction();
 
             //Reduce
@@ -99,16 +99,15 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
             return rtn;
         } catch (final Exception e) {
-            String message = e.getMessage();
-            throw new OperationException(String.format("Error while merging results. %s", isNull(message) ? "" : message), e);
+            throw new OperationException(String.format("Error while merging results. %s", Objects.toString(e.getMessage(), ""), e));
         }
     }
 
-    private Collection<Graph> getGraphs(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) {
-        Collection<Graph> graphs = store.getGraphs(context.getUser(), operation.getGraphIdsCSV(), operation);
+    private List<Graph> getGraphs(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) {
+        List<Graph> graphs = store.getGraphs(context.getUser(), operation.getGraphIds(), operation);
 
         return nonNull(graphs) ?
                 graphs
-                : store.getDefaultGraphs(context.getUser(), operation);
+                : Collections.emptyList();
     }
 }

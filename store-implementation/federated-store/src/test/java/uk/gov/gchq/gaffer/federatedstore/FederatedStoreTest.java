@@ -77,10 +77,8 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES_ALT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
@@ -97,6 +95,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SOURCE_BA
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextBlankUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
@@ -590,7 +589,7 @@ public class FederatedStoreTest {
 
         // Then
         assertThat(store.getGraphs(blankUser, null, new GetAllGraphIds())).hasSize(1);
-        final Graph graph = store.getGraphs(blankUser, ACC_ID_2, new GetAllGraphIds()).iterator().next();
+        final Graph graph = store.getGraphs(blankUser, getCleanStrings(ACC_ID_2), new GetAllGraphIds()).iterator().next();
         assertThat(getSchemaFromPath(SCHEMA_ENTITY_BASIC_JSON)).isEqualTo(graph.getSchema());
         assertThat(graph.getStoreProperties()).isEqualTo(propertiesAlt);
     }
@@ -730,7 +729,7 @@ public class FederatedStoreTest {
         final Collection<GraphSerialisable> unexpectedGraphs = graphLists.get(1);
 
         // When
-        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, "mockGraphId1,mockGraphId2,mockGraphId4", new GetAllGraphIds());
+        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, getCleanStrings("mockGraphId1,mockGraphId2,mockGraphId4"), new GetAllGraphIds());
 
         // Then
         assertThat(returnedGraphs)
@@ -759,7 +758,7 @@ public class FederatedStoreTest {
         populateGraphs();
 
         // When
-        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, "mockGraphId0,mockGraphId1", new GetAllGraphIds());
+        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, getCleanStrings("mockGraphId0,mockGraphId1"), new GetAllGraphIds());
 
         // Then
         final Set<String> graphIds = returnedGraphs.stream().map(Graph::getGraphId).collect(Collectors.toSet());
@@ -774,7 +773,7 @@ public class FederatedStoreTest {
         final Collection<GraphSerialisable> expectedGraphs = graphLists.get(0);
 
         // When
-        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, "", new GetAllGraphIds());
+        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, getCleanStrings(""), new GetAllGraphIds());
 
         // Then
         assertThat(returnedGraphs).withFailMessage(returnedGraphs.toString()).isEmpty();
@@ -789,7 +788,7 @@ public class FederatedStoreTest {
         final Collection<GraphSerialisable> unexpectedGraphs = graphLists.get(1);
 
         // When
-        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, ",mockGraphId2,mockGraphId4", new GetAllGraphIds());
+        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, getCleanStrings(",mockGraphId2,mockGraphId4"), new GetAllGraphIds());
 
         // Then
         assertThat(returnedGraphs)
@@ -920,7 +919,7 @@ public class FederatedStoreTest {
         final Collection<GraphSerialisable> unexpectedGraphs = graphLists.get(1);
 
         // When
-        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, "mockGraphId1", new GetAllGraphIds());
+        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, getCleanStrings("mockGraphId1"), new GetAllGraphIds());
 
         // Then
         assertThat(returnedGraphs)
@@ -1035,7 +1034,7 @@ public class FederatedStoreTest {
         store.addGraphs(null, TEST_USER_ID, true, graphToAdd);
 
         // Then
-        assertThat(store.getGraphs(blankUser, ACC_ID_1, new GetAllGraphIds())).hasSize(1);
+        assertThat(store.getGraphs(blankUser, getCleanStrings(ACC_ID_1), new GetAllGraphIds())).hasSize(1);
 
         // When
         final Collection<Graph> storeGraphs = store.getGraphs(blankUser, null, new GetAllGraphIds());
@@ -1094,7 +1093,7 @@ public class FederatedStoreTest {
         addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_EDGE_BASIC_JSON);
 
         // Then
-        final Collection<Graph> graphs = store.getGraphs(blankUserContext.getUser(), ACC_ID_2, new GetAllGraphIds());
+        final Collection<Graph> graphs = store.getGraphs(blankUserContext.getUser(), getCleanStrings(ACC_ID_2), new GetAllGraphIds());
         assertThat(graphs).hasSize(1);
         JsonAssert.assertEquals(JSONSerialiser.serialise(Schema.fromJson(StreamUtil.openStream(getClass(), SCHEMA_EDGE_BASIC_JSON))),
                 JSONSerialiser.serialise(graphs.iterator().next().getSchema()));

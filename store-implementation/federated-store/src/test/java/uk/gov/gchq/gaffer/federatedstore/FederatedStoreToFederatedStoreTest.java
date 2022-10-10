@@ -148,7 +148,7 @@ public class FederatedStoreToFederatedStoreTest {
         restApiFederatedGraph.execute(
                 new FederatedOperation.Builder()
                         .op(new AddElements.Builder().input(entity, edge).build())
-                        .graphIds(mapStoreGraphId)
+                        .graphIdsCSV(mapStoreGraphId)
                         .build(), new User());
 
         // When

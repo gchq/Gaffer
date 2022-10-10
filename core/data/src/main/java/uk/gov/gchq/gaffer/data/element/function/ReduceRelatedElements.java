@@ -211,6 +211,19 @@ public class ReduceRelatedElements extends KorypheFunction<Iterable<Element>, It
         return visibilityAggregator.apply(visibility1, visibility2);
     }
 
+    private static final class RelatedVertices extends HashSet<Object> {
+        private static final long serialVersionUID = 2778585598526500913L;
+        private Object visibility;
+
+        public Object getVisibility() {
+            return visibility;
+        }
+
+        public void setVisibility(final Object visibility) {
+            this.visibility = visibility;
+        }
+    }
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public BinaryOperator<Object> getVisibilityAggregator() {
         return visibilityAggregator;
@@ -243,18 +256,5 @@ public class ReduceRelatedElements extends KorypheFunction<Iterable<Element>, It
 
     public void setRelatedVertexGroups(final Set<String> relatedVertexGroups) {
         this.relatedVertexGroups = relatedVertexGroups;
-    }
-
-    private static final class RelatedVertices extends HashSet<Object> {
-        private static final long serialVersionUID = 2778585598526500913L;
-        private Object visibility;
-
-        public Object getVisibility() {
-            return visibility;
-        }
-
-        public void setVisibility(final Object visibility) {
-            this.visibility = visibility;
-        }
     }
 }

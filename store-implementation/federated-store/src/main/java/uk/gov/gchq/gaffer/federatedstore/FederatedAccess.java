@@ -108,7 +108,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
             throw new IllegalArgumentException("Only one of graphAuths or readAccessPredicate should be supplied.");
         }
 
-        this.graphAuths = graphAuths;
+        this.graphAuths = (graphAuths == null) ? null : unmodifiableSet(graphAuths);
         this.addingUserId = addingUserId;
         this.isPublic = isPublic;
         this.disabledByDefault = disabledByDefault;
@@ -122,7 +122,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     }
 
     public Set<String> getGraphAuths() {
-        return graphAuths != null ? unmodifiableSet(graphAuths) : null;
+        return (graphAuths != null) ? unmodifiableSet(graphAuths) : null;
     }
 
     public String getAddingUserId() {

@@ -44,7 +44,7 @@ public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTrai
                     new FederatedOperation.Builder()
                             .op(operation)
                             .mergeFunction(new CollectionIntersect<Object>())
-                            .graphIds(getDeprecatedGraphIds(operation)) // deprecate this line.
+                            .graphIdsCSV(getDeprecatedGraphIds(operation)) // deprecate this line.
                             .build(), context);
         } catch (final Exception e) {
             throw new OperationException("Error getting federated traits.", e);

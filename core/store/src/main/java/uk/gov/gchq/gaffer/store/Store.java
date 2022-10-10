@@ -273,16 +273,6 @@ public abstract class Store {
         return newStore;
     }
 
-    public static void updateJsonSerialiser(final StoreProperties storeProperties) {
-        if (nonNull(storeProperties)) {
-            JSONSerialiser.update(storeProperties.getJsonSerialiserClass(),
-                    storeProperties.getJsonSerialiserModules(),
-                    storeProperties.getStrictJson());
-        } else {
-            JSONSerialiser.update();
-        }
-    }
-
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
         LOGGER.debug("Initialising {}", getClass().getSimpleName());
@@ -336,6 +326,16 @@ public abstract class Store {
 
         } catch (final SerialisationException exception) {
             throw new RuntimeException(exception);
+        }
+    }
+
+    public static void updateJsonSerialiser(final StoreProperties storeProperties) {
+        if (nonNull(storeProperties)) {
+            JSONSerialiser.update(storeProperties.getJsonSerialiserClass(),
+                    storeProperties.getJsonSerialiserModules(),
+                    storeProperties.getStrictJson());
+        } else {
+            JSONSerialiser.update();
         }
     }
 

@@ -35,7 +35,7 @@ jobs:
           mvn -ntp javadoc:javadoc -Pquick
 
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:

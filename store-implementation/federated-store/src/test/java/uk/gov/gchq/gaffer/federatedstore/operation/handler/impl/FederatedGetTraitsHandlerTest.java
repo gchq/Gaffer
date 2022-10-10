@@ -62,11 +62,10 @@ public class FederatedGetTraitsHandlerTest {
     public static final String ALT_STORE = "altStore";
     public static final String FED_STORE_ID = "fedStoreId";
     public static final String ACC_STORE = "accStore";
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedGetTraitsHandlerTest.class, "/properties/singleUseAccumuloStore.properties"));
     private StoreProperties storeProperties;
     private FederatedStore federatedStore;
     private FederatedStoreProperties properties;
-
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedGetTraitsHandlerTest.class, "/properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -202,8 +201,8 @@ public class FederatedGetTraitsHandlerTest {
                 getFederatedOperation(
                         new GetTraits.Builder()
                                 .currentTraits(true)
-                                .build()
-                ).graphIdsCSV(ALT_STORE),
+                                .build())
+                        .graphIdsCSV(ALT_STORE),
                 new Context(testUser()));
 
         // Then
@@ -239,8 +238,8 @@ public class FederatedGetTraitsHandlerTest {
                 getFederatedOperation(
                         new GetTraits.Builder()
                                 .currentTraits(false)
-                                .build()
-                ).graphIdsCSV(ALT_STORE),
+                                .build())
+                        .graphIdsCSV(ALT_STORE),
                 new Context(testUser()));
 
         // Then
@@ -316,5 +315,4 @@ public class FederatedGetTraitsHandlerTest {
             return new GetTraitsHandler(STORE_TRAITS);
         }
     }
-
 }
