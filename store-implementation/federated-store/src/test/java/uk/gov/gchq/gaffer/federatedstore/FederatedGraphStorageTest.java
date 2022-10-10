@@ -214,7 +214,7 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, disabledByDefaultAccess);
         //when
-        final Collection<Graph> allGraphs = graphStorage.getAll(authUser()); //TODO FS disabledByDefault: has auths but still getting the graph so when and why is it disabled?
+        final Collection<Graph> allGraphs = graphStorage.getAll(authUser());
         //then
         assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
     }
@@ -284,7 +284,7 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, disabledByDefaultAccess);
         //when
-        final Collection<Graph> allGraphs = graphStorage.get(authUser(), null); //TODO FS disabledByDefault: why only missing when get(null)
+        final Collection<Graph> allGraphs = graphStorage.get(authUser(), null);
         //then
         assertThat(allGraphs).isEmpty();
     }
@@ -340,7 +340,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    @Deprecated // TODO FS Port to FedSchema Tests, when getSchema is deleted
+    @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
     public void shouldChangeSchemaWhenAddingGraphB() throws Exception {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
@@ -360,7 +360,7 @@ public class FederatedGraphStorageTest {
 
 
     @Test
-    @Deprecated // TODO FS Port to FedSchema Tests, when getSchema is deleted
+    @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
     public void shouldGetSchemaForAddingUser() throws Exception {
         graphStorage.put(graphSerialisableA, auth1Access);
         graphStorage.put(graphSerialisableB, new FederatedAccess(Sets.newHashSet(X), X));
@@ -372,7 +372,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    @Deprecated // TODO FS Port to FedSchema Tests, when getSchema is deleted
+    @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
     public void shouldNotGetSchemaForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(graphSerialisableA, blockingReadAccess);
         graphStorage.put(graphSerialisableB, new FederatedAccess(Sets.newHashSet(X), X));
@@ -382,7 +382,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    @Deprecated // TODO FS Port to FedSchema Tests, when getSchema is deleted
+    @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
     public void shouldGetSchemaForAuthUser() throws Exception {
         graphStorage.put(graphSerialisableA, auth1Access);
         graphStorage.put(graphSerialisableB, new FederatedAccess(Sets.newHashSet(X), X));
@@ -394,7 +394,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    @Deprecated // TODO FS Port to FedSchema Tests, when getSchema is deleted
+    @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
     public void shouldNotGetSchemaForBlankUser() throws Exception {
         graphStorage.put(graphSerialisableA, auth1Access);
         graphStorage.put(graphSerialisableB, new FederatedAccess(Sets.newHashSet(X), X));
@@ -404,7 +404,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    @Deprecated // TODO FS Port to FedSchema Tests, when getSchema is deleted
+    @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
     public void shouldGetSchemaForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(graphSerialisableA, permissiveReadAccess);
         graphStorage.put(graphSerialisableB, new FederatedAccess(Sets.newHashSet(X), X));

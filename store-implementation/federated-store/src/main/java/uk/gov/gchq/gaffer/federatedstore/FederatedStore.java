@@ -121,7 +121,7 @@ public class FederatedStore extends Store {
     private final int id;
     private Set<String> customPropertiesAuths;
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
-    private String adminConfiguredDefaultGraphIdsCSV;
+    private List<String> adminConfiguredDefaultGraphIds;
     private BiFunction adminConfiguredDefaultMergeFunction;
 
     public FederatedStore() {
@@ -263,7 +263,7 @@ public class FederatedStore extends Store {
         return getAllGraphIds(user, false);
     }
 
-    public Collection<String> getAllGraphIds(final User user, final boolean userRequestingAdminUsage) {
+    public List<String> getAllGraphIds(final User user, final boolean userRequestingAdminUsage) {
         return userRequestingAdminUsage
                 ? graphStorage.getAllIds(user, this.getProperties().getAdminAuth())
                 : graphStorage.getAllIds(user);
@@ -320,17 +320,17 @@ public class FederatedStore extends Store {
      * Graphs are returned once per operation, this does not allow an infinite loop of FederatedStores to occur.
      * </p>
      * <p>
-     * if graphIdsCsv is null then all graph objects within FederatedStore
+     * if graphIdsCSV is null then all graph objects within FederatedStore
      * scope are returned.
      * </p>
      *
      * @param user        the users scope to get graphs for.
-     * @param graphIdsCsv the csv of graphIds to get, null returns all graphs.
+     * @param graphIds    the list of graphIds to get. null will return all graphs.
      * @param operation   the requesting operation, graphs are returned only once per operation.
      * @return the graph collection.
      */
-    public Collection<Graph> getGraphs(final User user, final String graphIdsCsv, final IFederationOperation operation) {
-        Collection<Graph> rtn = new ArrayList<>();
+    public List<Graph> getGraphs(final User user, final List<String> graphIds, final IFederationOperation operation) {
+        List<Graph> rtn = new ArrayList<>();
         if (nonNull(operation)) {
             String optionKey = getKeyForProcessedFedStore();
             boolean isFedStoreIdPreexisting = addFedStoreId(operation, optionKey);
@@ -346,12 +346,15 @@ public class FederatedStore extends Store {
                         "This is a symptom of an infinite loop of FederatedStores and Proxies.{}" +
                         "This FederatedStore: {}{}" +
                         "All FederatedStore in this loop: {}", ln, this.getGraphId(), ln, federatedStoreIds.toString());
-            } else if (isNull(graphIdsCsv)) {
-                LOGGER.debug("getting default graphs because requested graphIdsCsv is null");
+            } else if (isNull(graphIds)) {
+                LOGGER.debug("getting default graphs because requested graphIds is null");
                 rtn = getDefaultGraphs(user, operation);
             } else {
+                if (graphIds.isEmpty()) {
+                    LOGGER.info("A get graphs request was made with empty graphIds");
+                }
                 String adminAuth = operation.isUserRequestingAdminUsage() ? this.getProperties().getAdminAuth() : null;
-                rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv), adminAuth));
+                rtn.addAll(graphStorage.get(user, graphIds, adminAuth));
             }
         } else {
             LOGGER.warn("getGraphs was requested with null Operation, this will return no graphs.");
@@ -382,12 +385,11 @@ public class FederatedStore extends Store {
         return hasOperationOrPayloadPreexistingFedStoreId;
     }
 
-    public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv) {
-        return this.getAllGraphsAndAuths(user, graphIdsCsv, false);
+    public Map<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIdsCSV) {
+        return this.getAllGraphsAndAuths(user, graphIdsCSV, false);
     }
 
-    public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv, final boolean userRequestingAdminUsage) {
-        List<String> graphIds = getCleanStrings(graphIdsCsv);
+    public Map<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds, final boolean userRequestingAdminUsage) {
         return userRequestingAdminUsage
                 ? graphStorage.getAllGraphsAndAccessAsAdmin(user, graphIds, this.getProperties().getAdminAuth())
                 : graphStorage.getAllGraphsAndAccess(user, graphIds);
@@ -519,8 +521,8 @@ public class FederatedStore extends Store {
                 : graphStorage.changeGraphId(graphId, newGraphId, requestingUser);
     }
 
-    public String getAdminConfiguredDefaultGraphIdsCSV() {
-        return adminConfiguredDefaultGraphIdsCSV;
+    public List<String> getAdminConfiguredDefaultGraphIds() {
+        return adminConfiguredDefaultGraphIds;
     }
 
     /**
@@ -530,29 +532,32 @@ public class FederatedStore extends Store {
      * @return This Store.
      */
     public FederatedStore setAdminConfiguredDefaultGraphIdsCSV(final String adminConfiguredDefaultGraphIdsCSV) {
-        if (nonNull(this.adminConfiguredDefaultGraphIdsCSV)) {
-            LOGGER.error("Attempting to change adminConfiguredDefaultGraphIdsCSV. To change adminConfiguredDefaultGraphIdsCSV it would require to turning off, update config, turn back on. Therefore ignoring the value: {}", adminConfiguredDefaultGraphIdsCSV);
+        return setAdminConfiguredDefaultGraphIds(getCleanStrings(adminConfiguredDefaultGraphIdsCSV));
+    }
+
+    public FederatedStore setAdminConfiguredDefaultGraphIds(final List<String> adminConfiguredDefaultGraphIds) {
+        if (nonNull(this.adminConfiguredDefaultGraphIds)) {
+            LOGGER.error("Attempting to change adminConfiguredDefaultGraphIds. To change adminConfiguredDefaultGraphIds it would require to turning off, update config, turn back on. Therefore ignoring the value: {}", adminConfiguredDefaultGraphIds);
         } else {
-            this.adminConfiguredDefaultGraphIdsCSV = adminConfiguredDefaultGraphIdsCSV;
+            this.adminConfiguredDefaultGraphIds = adminConfiguredDefaultGraphIds;
         }
         return this;
     }
 
-    public Collection<Graph> getDefaultGraphs(final User user, final IFederationOperation operation) { //TODO FS very likely should be private
+    private List<Graph> getDefaultGraphs(final User user, final IFederationOperation operation) {
 
         boolean isAdminRequestingOverridingDefaultGraphs =
                 operation.isUserRequestingAdminUsage()
                         && (operation instanceof FederatedOperation)
                         && ((FederatedOperation) operation).isUserRequestingDefaultGraphsOverride();
 
-        //TODO FS Test does this preserve get graph.disabledByDefault?
-        if (isNull(adminConfiguredDefaultGraphIdsCSV) || isAdminRequestingOverridingDefaultGraphs) {
+        if (isNull(adminConfiguredDefaultGraphIds) || isAdminRequestingOverridingDefaultGraphs) {
             return graphStorage.get(user, null, (operation.isUserRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
         } else {
             //This operation has already been processes once, by this store.
             String keyForProcessedFedStore = getKeyForProcessedFedStore();
             operation.addOption(keyForProcessedFedStore, null); // value is null, but key is still found.
-            Collection<Graph> graphs = getGraphs(user, adminConfiguredDefaultGraphIdsCSV, operation);
+            List<Graph> graphs = getGraphs(user, adminConfiguredDefaultGraphIds, operation);
             //put it back
             operation.addOption(keyForProcessedFedStore, getValueForProcessedFedStore());
             return graphs;

@@ -62,7 +62,7 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
         return new RemoveGraph.Builder()
                 .graphId(graphId)
                 .options(options)
-                .userRequestingAdminUsage(userRequestingAdminUsage)
+                .setUserRequestingAdminUsage(userRequestingAdminUsage)
                 .build();
     }
 
@@ -77,7 +77,7 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
     }
 
     @Override
-    public RemoveGraph isUserRequestingAdminUsage(final boolean adminRequest) {
+    public RemoveGraph setUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }

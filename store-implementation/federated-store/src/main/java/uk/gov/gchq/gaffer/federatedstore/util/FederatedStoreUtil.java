@@ -241,7 +241,7 @@ public final class FederatedStoreUtil {
     public static <INPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, OUTPUT> addDeprecatedGraphIds(final Operation operation, final FederatedOperation.BuilderParent<INPUT, OUTPUT> builder) {
         String graphIdOption = getDeprecatedGraphIds(operation);
         if (nonNull(graphIdOption)) {
-            builder.graphIds(graphIdOption);
+            builder.graphIdsCSV(graphIdOption);
         }
         return builder;
     }

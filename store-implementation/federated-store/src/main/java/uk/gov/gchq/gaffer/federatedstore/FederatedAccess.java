@@ -78,7 +78,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     private static final long serialVersionUID = 1399629017857618033L;
     private static final boolean NOT_DISABLED_BY_DEFAULT = false;
     private final boolean isPublic;
-    private final Set<String> graphAuths; //TODO fs explore the need for unmodSet
+    private final Set<String> graphAuths;
     private final String addingUserId;
     private final boolean disabledByDefault;
     private final String readAccessPredicate;
@@ -108,7 +108,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
             throw new IllegalArgumentException("Only one of graphAuths or readAccessPredicate should be supplied.");
         }
 
-        this.graphAuths = graphAuths;
+        this.graphAuths = (graphAuths == null) ? null : unmodifiableSet(graphAuths);
         this.addingUserId = addingUserId;
         this.isPublic = isPublic;
         this.disabledByDefault = disabledByDefault;
@@ -122,7 +122,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     }
 
     public Set<String> getGraphAuths() {
-        return graphAuths != null ? unmodifiableSet(graphAuths) : null;
+        return (graphAuths != null) ? unmodifiableSet(graphAuths) : null;
     }
 
     public String getAddingUserId() {

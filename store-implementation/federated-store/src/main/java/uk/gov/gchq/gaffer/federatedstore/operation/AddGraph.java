@@ -112,7 +112,7 @@ public class AddGraph implements IFederationOperation {
                 .isPublic(this.isPublic)
                 .readAccessPredicate(this.readAccessPredicate)
                 .writeAccessPredicate(this.writeAccessPredicate)
-                .userRequestingAdminUsage(this.userRequestingAdminUsage);
+                .setUserRequestingAdminUsage(this.userRequestingAdminUsage);
 
         if (null != graphAuths) {
             builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));
@@ -217,7 +217,7 @@ public class AddGraph implements IFederationOperation {
     }
 
     @Override
-    public AddGraph isUserRequestingAdminUsage(final boolean adminRequest) {
+    public AddGraph setUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }

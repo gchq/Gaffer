@@ -289,7 +289,7 @@ public class FederatedStoreGetTraitsTest {
         final Set<StoreTrait> traits = (Set<StoreTrait>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(getTraits)
                 .mergeFunction(new CollectionIntersect<Object>())
-                .graphIds(GRAPH_ID_MAP)
+                .graphIdsCSV(GRAPH_ID_MAP)
                 .build(), testUserContext);
         // then
         assertThat(traits).withFailMessage("Returning AccumuloStore traits instead of MapStore").isNotEqualTo(ACCUMULO_TRAITS)
@@ -314,7 +314,7 @@ public class FederatedStoreGetTraitsTest {
         final Set<StoreTrait> traits = (Set<StoreTrait>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(getTraits)
                 .mergeFunction(new CollectionIntersect<Object>())
-                .graphIds(GRAPH_ID_MAP)
+                .graphIdsCSV(GRAPH_ID_MAP)
                 .build(), testUserContext);
 
         //then

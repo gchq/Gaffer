@@ -16,10 +16,8 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.Since;
 
@@ -32,13 +30,10 @@ import java.util.List;
 public interface IFederatedOperation extends Operation {
 
     @JsonProperty("graphIds")
-    IFederatedOperation graphIdsCSV(final String graphIds); //TODO FS request for this to be list.
+    IFederatedOperation graphIds(final List<String> graphsIds);
+
+    IFederatedOperation graphIdsCSV(final String graphIds);
 
     @JsonProperty("graphIds")
-    String getGraphIdsCSV();
-
-    @JsonIgnore
-    default List<String> getGraphIds() {
-        return FederatedStoreUtil.getCleanStrings(getGraphIdsCSV());
-    }
+    List<String> getGraphIds();
 }

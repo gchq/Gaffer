@@ -95,7 +95,7 @@ public class FederatedStoreWrongGraphIDsTest {
                         .op(new AddElements.Builder()
                                 .input(EXPECTED_ENTITY)
                                 .build())
-                        .graphIds(GRAPH_ID_ACCUMULO)
+                        .graphIdsCSV(GRAPH_ID_ACCUMULO)
                         .build(), contextBlankUser());
 
         //when
@@ -106,7 +106,7 @@ public class FederatedStoreWrongGraphIDsTest {
                 .op(new AddElements.Builder()
                         .input(EXPECTED_ENTITY)
                         .build())
-                .graphIds(WRONG_GRAPH_ID)
+                .graphIdsCSV(WRONG_GRAPH_ID)
                 .build(), contextBlankUser()));
 
         //then

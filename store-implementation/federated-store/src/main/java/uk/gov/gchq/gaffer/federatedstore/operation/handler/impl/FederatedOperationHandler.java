@@ -30,6 +30,7 @@ import uk.gov.gchq.koryphe.Since;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -89,7 +90,6 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         try {
             Object rtn = null;
 
-            //TODO FS map of merge
             final BiFunction mergeFunction = nonNull(operation.getMergeFunction()) ? operation.getMergeFunction() : store.getDefaultMergeFunction();
 
             //Reduce
@@ -103,11 +103,11 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         }
     }
 
-    private Collection<Graph> getGraphs(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) {
-        Collection<Graph> graphs = store.getGraphs(context.getUser(), operation.getGraphIdsCSV(), operation);
+    private List<Graph> getGraphs(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) {
+        List<Graph> graphs = store.getGraphs(context.getUser(), operation.getGraphIds(), operation);
 
         return nonNull(graphs) ?
                 graphs
-                : store.getDefaultGraphs(context.getUser(), operation);  //TODO FS PR WHY IS THIS HERE!!!!!!!!!! Is this the only public reason for this method? !!! this happens already within line 107
+                : Collections.emptyList();
     }
 }

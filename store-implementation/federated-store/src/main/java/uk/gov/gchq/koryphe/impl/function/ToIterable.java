@@ -24,20 +24,21 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class ToIterable extends KorypheFunction<Object, Iterable<Object>> {
-    //TODO FS Add to Koryphe
-    //TODO FS maybe tidy up the if's
     public ToIterable() {
     }
 
     public Iterable<Object> apply(final Object value) {
-
+        final Iterable<Object> rtn;
         if (null == value) {
-            return new EmptyIterable<>();
+            rtn = new EmptyIterable<>();
         } else if (value instanceof Iterable) {
             //noinspection unchecked
-            return (Iterable<Object>) value;
+            rtn = (Iterable<Object>) value;
+        } else if (value instanceof Object[]) {
+            return Arrays.asList((Object[]) value);
         } else {
-            return value instanceof Object[] ? Arrays.asList((Object[]) value) : Collections.singletonList(value);
+            rtn = Collections.singletonList(value);
         }
+        return rtn;
     }
 }

@@ -43,13 +43,12 @@ public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSche
             final Iterable<Schema> schemas = (Iterable<Schema>) store.execute(
                     new FederatedOperation.Builder()
                             .op(operation)
-                            .graphIds(getDeprecatedGraphIds(operation)) // deprecate this line.
+                            .graphIdsCSV(getDeprecatedGraphIds(operation)) // deprecate this line.
                             .build(),
                     context);
 
             try {
-                //TODO FS This error message when failing to merge may/will hold up what should probably be okay legal functions else where in gaffer.
-                //This is merge function.
+                //This is the merge function.
                 Schema.Builder builder = new Schema.Builder();
                 schemas.forEach(builder::merge);
                 return builder.build();

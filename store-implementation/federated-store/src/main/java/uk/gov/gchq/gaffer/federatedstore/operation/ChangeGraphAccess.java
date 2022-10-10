@@ -66,7 +66,7 @@ public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation 
                 .options(this.options)
                 .isPublic(this.isPublic)
                 .ownerUserId(this.ownerUserId)
-                .userRequestingAdminUsage(this.userRequestingAdminUsage);
+                .setUserRequestingAdminUsage(this.userRequestingAdminUsage);
 
         if (null != graphAuths) {
             builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));
@@ -111,7 +111,7 @@ public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation 
     }
 
     @Override
-    public ChangeGraphAccess isUserRequestingAdminUsage(final boolean adminRequest) {
+    public ChangeGraphAccess setUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }
