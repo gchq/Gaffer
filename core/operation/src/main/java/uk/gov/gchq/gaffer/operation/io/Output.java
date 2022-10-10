@@ -47,7 +47,7 @@ public interface Output<O> extends Operation {
         Class<?> outputClass = Object.class;
 
         final TypeReference<O> outputType = getOutputTypeReference();
-        if (null == outputType) {
+        if (outputType == null) {
             throw new NullPointerException(String.format("Operation %s cannot have null outputTypeReference",
                     getClass().getName()));
         }
@@ -65,7 +65,7 @@ public interface Output<O> extends Operation {
     @JsonIgnore
     default Type getOutputType() {
         final TypeReference<O> outputType = getOutputTypeReference();
-        if (null == outputType) {
+        if (outputType == null) {
             throw new NullPointerException(String.format("Operation %s cannot have null outputTypeReference",
                     getClass().getName()));
         }
