@@ -82,14 +82,14 @@ public class AdminGetAllGraphInfoTest {
                 .isNotNull()
                 .size().isEqualTo(1);
 
-        assertEquals("{\n" +
-                "  \"AccumuloStore\" : {\n" +
-                "    \"addingUserId\" : \"authUser\",\n" +
-                "    \"disabledByDefault\" : false,\n" +
-                "    \"graphAuths\" : [ \"auth1\" ],\n" +
-                "    \"public\" : false\n" +
-                "  }\n" +
-                "}", new String(JSONSerialiser.serialise(allGraphsAndAuths, true)));
+        assertEquals(String.format("{%n" +
+                "  \"AccumuloStore\" : {%n" +
+                "    \"addingUserId\" : \"authUser\",%n" +
+                "    \"disabledByDefault\" : false,%n" +
+                "    \"graphAuths\" : [ \"auth1\" ],%n" +
+                "    \"public\" : false%n" +
+                "  }%n" +
+                "}"), new String(JSONSerialiser.serialise(allGraphsAndAuths, true)));
     }
 
     @Test

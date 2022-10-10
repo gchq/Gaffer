@@ -531,11 +531,7 @@ public class FederatedGraphStorage {
                  * MiniAccumuloStore, SingleUseMiniAccumuloStore]
                  */
                 try {
-                    AccumuloProperties tmpAccumuloProps = (AccumuloProperties) graphToMove.getStoreProperties();
-                    Connector connection = TableUtils.getConnector(tmpAccumuloProps.getInstance(),
-                            tmpAccumuloProps.getZookeepers(),
-                            tmpAccumuloProps.getUser(),
-                            tmpAccumuloProps.getPassword());
+                    Connector connection = TableUtils.getConnector((AccumuloProperties) graphToMove.getStoreProperties());
 
                     if (connection.tableOperations().exists(graphId)) {
                         connection.tableOperations().offline(graphId);
@@ -543,8 +539,7 @@ public class FederatedGraphStorage {
                         connection.tableOperations().online(newGraphId);
                     }
                 } catch (final Exception e) {
-                    LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToMove);
-                    LOGGER.warn("Error trying to update tables.", e);
+                    LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToMove, e);
                 }
             }
 

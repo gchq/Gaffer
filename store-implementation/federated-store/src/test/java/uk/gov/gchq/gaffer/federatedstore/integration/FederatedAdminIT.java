@@ -423,10 +423,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         //given
         final String graphA = "graphTableA";
         final String graphB = "graphTableB";
-        Connector connector = TableUtils.getConnector(ACCUMULO_PROPERTIES.getInstance(),
-                ACCUMULO_PROPERTIES.getZookeepers(),
-                ACCUMULO_PROPERTIES.getUser(),
-                ACCUMULO_PROPERTIES.getPassword());
+        Connector connector = TableUtils.getConnector(ACCUMULO_PROPERTIES);
 
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)

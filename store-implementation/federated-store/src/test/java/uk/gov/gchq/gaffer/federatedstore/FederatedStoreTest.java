@@ -131,7 +131,7 @@ public class FederatedStoreTest {
     private static final String CACHE_SERVICE_NAME = "federatedStoreGraphs";
     private static AccumuloProperties properties1;
     private static AccumuloProperties properties2;
-    private static  AccumuloProperties propertiesAlt;
+    private static AccumuloProperties propertiesAlt;
     private FederatedStore store;
     private FederatedStoreProperties federatedProperties;
     private HashMapGraphLibrary library;
@@ -1323,45 +1323,32 @@ public class FederatedStoreTest {
         assertTrue(e1.getMessage().contains("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds."),
                 e1.getMessage());
 
-        try {
-            //when
-            Iterable<? extends Element> responseGraphAWithBView = store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityB").build()).build()).graphIdsCSV("graphA"), blankUserContext);
-            fail("exception expected");
-        } catch (Exception e) {
-            //then
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
-                    "View is not valid for graphIds:[graphA]\n" +
-                    "(graphId: graphA) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
-                    "(graphId: graphA) Entity group entityB does not exist in the schema", e.getMessage());
-        }
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityB").build()).build()).graphIdsCSV("graphA"), blankUserContext))
+                .withMessage(String.format("Operation chain is invalid. Validation errors: %n" +
+                        "View is not valid for graphIds:[graphA]%n" +
+                        "(graphId: graphA) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. %n" +
+                        "(graphId: graphA) Entity group entityB does not exist in the schema"));
 
-        try {
-            //when
-            final Iterable<? extends Element> responseGraphBWithAView = store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphB"), blankUserContext);
-            fail("exception expected");
-        } catch (Exception e) {
-            //then
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
-                    "View is not valid for graphIds:[graphB]\n" +
-                    "(graphId: graphB) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
-                    "(graphId: graphB) Entity group entityA does not exist in the schema", e.getMessage());
-        }
+        //when then
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphB"), blankUserContext))
+                .withMessage(String.format("Operation chain is invalid. Validation errors: %n" +
+                        "View is not valid for graphIds:[graphB]%n" +
+                        "(graphId: graphB) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. %n" +
+                        "(graphId: graphB) Entity group entityA does not exist in the schema"));
 
         addGraphWithPaths("graphC", properties1, SCHEMA_ENTITY_B_JSON);
 
-        try {
-            //when
-            final Iterable<? extends Element> responseGraphBWithAView = store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphB,graphC"), blankUserContext);
-            fail("exception expected");
-        } catch (Exception e) {
-            //then
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
-                    "View is not valid for graphIds:[graphB,graphC]\n" +
-                    "(graphId: graphB) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
-                    "(graphId: graphB) Entity group entityA does not exist in the schema\n" +
-                    "(graphId: graphC) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
-                    "(graphId: graphC) Entity group entityA does not exist in the schema", e.getMessage());
-        }
+        //when then
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphB,graphC"), blankUserContext))
+                .withMessage(String.format("Operation chain is invalid. Validation errors: %n" +
+                        "View is not valid for graphIds:[graphB,graphC]%n" +
+                        "(graphId: graphB) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. %n" +
+                        "(graphId: graphB) Entity group entityA does not exist in the schema%n" +
+                        "(graphId: graphC) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. %n" +
+                        "(graphId: graphC) Entity group entityA does not exist in the schema"));
     }
 
     protected void addElementsToNewGraph(final Entity input, final String graphName, final String pathSchemaJson)

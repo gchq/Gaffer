@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,9 @@ public class AccumuloProperties extends StoreProperties {
     public static final String ZOOKEEPERS = "accumulo.zookeepers";
     public static final String USER = "accumulo.user";
     public static final String PASSWORD = "accumulo.password";
+    public static final String ENABLE_KERBEROS = "accumulo.kerberos.enable";
+    public static final String PRINCIPAL = "accumulo.kerberos.principal";
+    public static final String KEYTAB_PATH = "accumulo.kerberos.keytab";
     public static final String NAMESPACE = "accumulo.namespace";
     public static final String THREADS_FOR_BATCH_SCANNER = "accumulo.batchScannerThreads";
     public static final String MAX_ENTRIES_FOR_BATCH_SCANNER = "accumulo.entriesForBatchScanner";
@@ -60,6 +63,7 @@ public class AccumuloProperties extends StoreProperties {
     private static final String MAX_TIME_OUT_FOR_BATCH_WRITER_DEFAULT = "1000";
     private static final String THREADS_FOR_BATCH_SCANNER_DEFAULT = "10";
     public static final String ENABLE_VALIDATOR_ITERATOR_DEFAULT = "true";
+    public static final String ENABLE_KERBEROS_DEFAULT = "false";
 
     public AccumuloProperties() {
         super(AccumuloStore.class);
@@ -216,6 +220,62 @@ public class AccumuloProperties extends StoreProperties {
      */
     public void setPassword(final String password) {
         set(PASSWORD, password);
+    }
+
+    /**
+     * Gets the flag determining whether Kerberos should be enabled and used
+     * for Accumulo connections.
+     *
+     * @return true if Kerberos should be enabled.
+     */
+    public boolean getEnableKerberos() {
+        return Boolean.parseBoolean(get(ENABLE_KERBEROS, ENABLE_KERBEROS_DEFAULT));
+    }
+
+    /**
+     * Sets the flag determining whether Kerberos should be enabled and used
+     * for Accumulo connections.
+     *
+     * @param enableKerberos true if Kerberos should be enabled.
+     */
+    public void setEnableKerberos(final boolean enableKerberos) {
+        set(ENABLE_KERBEROS, Boolean.toString(enableKerberos));
+    }
+
+    /**
+     * Gets the configured Accumulo Kerberos principal.
+     *
+     * @return Get the configured Accumulo Kerberos principal.
+     */
+    public String getPrincipal() {
+        return get(PRINCIPAL);
+    }
+
+    /**
+     * Sets the configured Accumulo Kerberos principal.
+     *
+     * @param principal the configured Accumulo Kerberos principal.
+     */
+    public void setPrincipal(final String principal) {
+        set(PRINCIPAL, principal);
+    }
+
+    /**
+     * Gets the keytab path for the Accumulo Kerberos principal.
+     *
+     * @return the keytab path for the configured Accumulo Kerberos principal.
+     */
+    public String getKeytabPath() {
+        return get(KEYTAB_PATH);
+    }
+
+    /**
+     * Sets the keytab path for the Accumulo Kerberos principal.
+     *
+     * @param keytabPath the path to a keytab to use for the Accumulo Kerberos principal.
+     */
+    public void setKeytabPath(final String keytabPath) {
+        set(KEYTAB_PATH, keytabPath);
     }
 
     /**
