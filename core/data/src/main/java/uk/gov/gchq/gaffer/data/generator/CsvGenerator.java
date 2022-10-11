@@ -41,8 +41,6 @@ import java.util.regex.Pattern;
 @Since("1.0.0")
 @Summary("Generates a CSV string for each element")
 public class CsvGenerator implements OneToOneObjectGenerator<String> {
-    public static final String ENTITY_GROUP = "ENTITY_GROUP";
-    public static final String EDGE_GROUP = "EDGE_GROUP";
     public static final String COMMA = ",";
     private static final Pattern COMMA_PATTERN = Pattern.compile(COMMA);
     private static final String COMMA_REPLACEMENT_DEFAULT = " ";
@@ -74,9 +72,9 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         final IdentifierType idType = IdentifierType.fromName(key);
         final Object value;
         if (null == idType) {
-            if (key.contains(ENTITY_GROUP) && element.getClassName().contains("Entity")) {
+            if (key.contains(CsvFormat.ENTITY_GROUP) && element.getClassName().contains("Entity")) {
                 value = element.getGroup();
-            } else if (key.contains(EDGE_GROUP) && element.getClassName().contains("Edge")) {
+            } else if (key.contains(CsvFormat.EDGE_GROUP) && element.getClassName().contains("Edge")) {
                 value = element.getGroup();
             } else {
                 value = element.getProperty(key);
