@@ -45,7 +45,7 @@ public class AddGraphWithHooks extends AddGraph {
                 .isPublic(getIsPublic())
                 .readAccessPredicate(getReadAccessPredicate())
                 .writeAccessPredicate(getWriteAccessPredicate())
-                .userRequestingAdminUsage(isUserRequestingAdminUsage())
+                .setUserRequestingAdminUsage(isUserRequestingAdminUsage())
                 .hooks(hooks);
 
         if (null != getGraphAuths()) {
@@ -63,7 +63,7 @@ public class AddGraphWithHooks extends AddGraph {
         this.hooks = hooks;
     }
 
-    public static class Builder extends GraphBuilder<AddGraphWithHooks, Builder> {
+    public static class Builder extends AddGraphBuilder<AddGraphWithHooks, Builder> {
         public Builder() {
             super(new AddGraphWithHooks());
         }

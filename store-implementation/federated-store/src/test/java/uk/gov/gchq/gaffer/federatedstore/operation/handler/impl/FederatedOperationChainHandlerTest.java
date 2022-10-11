@@ -103,21 +103,17 @@ public class FederatedOperationChainHandlerTest {
         final Context context = new Context();
 
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
-                .first(new FederatedOperation.Builder()
-                        .op(new GetAllElements())
-                        .mergeFunction(getHardCodedDefaultMergeFunction())
-                        // Ensure the elements are returned form the graphs in the right order //TODO FS Why the right order.
-                        .graphIds(GRAPH_IDS)
-                        .build())
+                .first(new GetAllElements())
                 .then(new Limit(1))
                 .build();
 
         // When
         final Iterable result = store.execute(opChain, context);
 
-        // Then - the result will contain just 1 element from the last graph
+        // Then - the result will contain just 1 element from the graphs
         assertThat(result)
-                .containsExactly(elements[1]);
+                .hasSize(1)
+                .containsAnyOf(elements[0], elements[1]);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

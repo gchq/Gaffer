@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Crown Copyright
+ * Copyright 2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.gov.gchq.gaffer.data.element.function;
 
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
@@ -31,10 +30,10 @@ import static java.util.Objects.isNull;
 @Since("1.19.0")
 @Summary("Tuple object for TypeSubTypeValue")
 public class TypeSubTypeValueTuple implements Tuple<String> {
+    private final TypeSubTypeValue tsv;
     public static final String TYPE = "type";
     public static final String SUBTYPE = "subType";
     public static final String VALUE = "value";
-    private final TypeSubTypeValue tsv;
 
     public TypeSubTypeValueTuple() {
         this.tsv = new TypeSubTypeValue();

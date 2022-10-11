@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -30,22 +31,22 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreDefaultGraphsTest {
 
-    @Disabled //TODO FS remove ignore
+    @Disabled
     @Test
     public void testDisableByDefault() {
-        fail();
+        fail("Not yet implemented");
     }
 
-    @Disabled //TODO FS remove ignore
+    @Disabled
     @Test
     public void testDisableByDefaultAdmin() {
-        fail();
+        fail("Not yet implemented");
     }
 
-    @Disabled //TODO FS remove ignore
+    @Disabled
     @Test
     public void testDisableByDefaultButIsDefaultListOfGraphs() {
-        fail();
+        fail("Not yet implemented");
     }
 
     @Test
@@ -54,7 +55,7 @@ public class FederatedStoreDefaultGraphsTest {
         FederatedStore federatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
         assertThat(federatedStore)
                 .isNotNull()
-                .returns("defaultJsonGraphId", from(FederatedStore::getAdminConfiguredDefaultGraphIdsCSV));
+                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getAdminConfiguredDefaultGraphIds));
 
         //when
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
@@ -68,7 +69,7 @@ public class FederatedStoreDefaultGraphsTest {
         FederatedStore federatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
         assertThat(federatedStore)
                 .isNotNull()
-                .returns("defaultJsonGraphId", from(FederatedStore::getAdminConfiguredDefaultGraphIdsCSV));
+                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getAdminConfiguredDefaultGraphIds));
 
         //when
         federatedStore.setAdminConfiguredDefaultGraphIdsCSV("other");

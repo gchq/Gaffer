@@ -33,9 +33,7 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Gets the ids of all available Graphs from a federated store")
-public class GetAllGraphIds implements
-        IFederationOperation,
-        Output<Iterable<? extends String>> {
+public class GetAllGraphIds implements IFederationOperation, Output<Iterable<? extends String>> {
     private Map<String, String> options;
     private boolean userRequestingAdminUsage;
 
@@ -48,7 +46,7 @@ public class GetAllGraphIds implements
     public GetAllGraphIds shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
-                .userRequestingAdminUsage(userRequestingAdminUsage)
+                .setUserRequestingAdminUsage(userRequestingAdminUsage)
                 .build();
     }
 
@@ -63,7 +61,7 @@ public class GetAllGraphIds implements
     }
 
     @Override
-    public GetAllGraphIds isUserRequestingAdminUsage(final boolean adminRequest) {
+    public GetAllGraphIds setUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }

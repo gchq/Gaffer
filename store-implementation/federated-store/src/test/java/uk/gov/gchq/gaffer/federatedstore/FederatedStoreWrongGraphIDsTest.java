@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.assertj.core.api.InstanceOfAssertFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -98,7 +97,7 @@ public class FederatedStoreWrongGraphIDsTest {
                         .op(new AddElements.Builder()
                                 .input(EXPECTED_ENTITY)
                                 .build())
-                        .graphIds(GRAPH_ID_ACCUMULO)
+                        .graphIdsCSV(GRAPH_ID_ACCUMULO)
                         .build(), contextBlankUser());
 
         //when
@@ -110,7 +109,7 @@ public class FederatedStoreWrongGraphIDsTest {
                 .op(new AddElements.Builder()
                         .input(EXPECTED_ENTITY)
                         .build())
-                .graphIds(WRONG_GRAPH_ID)
+                .graphIdsCSV(WRONG_GRAPH_ID)
                 .build(), contextBlankUser()));
 
         //then

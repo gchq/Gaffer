@@ -37,15 +37,15 @@ public interface IFederationOperation extends Operation {
     }
 
     @JsonSetter("userRequestingAdminUsage")
-    Operation isUserRequestingAdminUsage(final boolean adminRequest);
+    Operation setUserRequestingAdminUsage(final boolean adminRequest);
 
     abstract class BaseBuilder<OP extends IFederationOperation, B extends Operation.BaseBuilder<OP, ?>> extends Operation.BaseBuilder<OP, B> {
         protected BaseBuilder(final OP op) {
             super(op);
         }
 
-        public B userRequestingAdminUsage(final boolean adminRequest) {
-            this._getOp().isUserRequestingAdminUsage(adminRequest);
+        public B setUserRequestingAdminUsage(final boolean adminRequest) {
+            this._getOp().setUserRequestingAdminUsage(adminRequest);
             return _self();
         }
     }

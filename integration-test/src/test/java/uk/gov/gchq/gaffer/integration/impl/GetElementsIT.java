@@ -116,48 +116,6 @@ public class GetElementsIT extends AbstractStoreIT {
         addDefaultElements();
     }
 
-    private static Collection<ElementId> getEntityIds() {
-        final Set<ElementId> allSeeds = new HashSet<>();
-        allSeeds.addAll(ENTITY_SEEDS_EXIST);
-        allSeeds.addAll(ENTITY_SEEDS_DONT_EXIST);
-        return allSeeds;
-    }
-
-    private static Collection<ElementId> getEdgeIds() {
-        final Set<ElementId> allSeeds = new HashSet<>();
-        allSeeds.addAll(EDGE_SEEDS_EXIST);
-        allSeeds.addAll(EDGE_DIR_SEEDS_EXIST);
-        allSeeds.addAll(EDGE_SEEDS_DONT_EXIST);
-        allSeeds.addAll(EDGE_SEEDS_BOTH);
-        return allSeeds;
-    }
-
-    private static Collection<ElementId> getAllSeeds() {
-        final Set<ElementId> allSeeds = new HashSet<>();
-        allSeeds.addAll(ENTITY_SEEDS);
-        allSeeds.addAll(EDGE_SEEDS);
-        return allSeeds;
-    }
-
-    private static Collection<Object> getAllSeededVertices() {
-        final Set<Object> allSeededVertices = new HashSet<>();
-        for (final ElementId elementId : ENTITY_SEEDS_EXIST) {
-            allSeededVertices.add(((EntityId) elementId).getVertex());
-        }
-
-        for (final ElementId elementId : EDGE_SEEDS_EXIST) {
-            allSeededVertices.add(((EdgeId) elementId).getSource());
-            allSeededVertices.add(((EdgeId) elementId).getDestination());
-        }
-
-        for (final ElementId elementId : EDGE_DIR_SEEDS_EXIST) {
-            allSeededVertices.add(((EdgeId) elementId).getSource());
-            allSeededVertices.add(((EdgeId) elementId).getDestination());
-        }
-
-        return allSeededVertices;
-    }
-
     @Test
     public void shouldGetElements() {
         final List<DirectedType> directedTypes = Lists.newArrayList(DirectedType.values());
@@ -489,58 +447,6 @@ public class GetElementsIT extends AbstractStoreIT {
         assertThat(results.iterator().hasNext()).isFalse();
     }
 
-    private static Collection<Element> getElements(final Collection<ElementId> seeds, final Boolean direction) {
-        final Set<Element> elements = new HashSet<>(seeds.size());
-        for (final ElementId seed : seeds) {
-            if (seed instanceof EntityId) {
-                final Entity entity = new Entity(TestGroups.ENTITY, ((EntityId) seed).getVertex());
-                entity.putProperty(TestPropertyNames.COUNT, 1L);
-                entity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
-                elements.add(entity);
-            } else {
-                if (DirectedType.isEither(((EdgeId) seed).getDirectedType())) {
-                    if (BooleanUtils.isNotTrue(direction)) {
-                        final Edge edge = new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(((EdgeId) seed).getSource())
-                                .dest(((EdgeId) seed).getDestination())
-                                .matchedVertex(((EdgeId) seed).getMatchedVertex())
-                                .directed(false)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build();
-                        elements.add(edge);
-                    }
-                    if (BooleanUtils.isNotFalse(direction)) {
-                        final Edge edgeDir = new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(((EdgeId) seed).getSource())
-                                .dest(((EdgeId) seed).getDestination())
-                                .matchedVertex(((EdgeId) seed).getMatchedVertex())
-                                .directed(true)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build();
-                        elements.add(edgeDir);
-                    }
-                } else {
-                    final Edge edge = new Edge.Builder()
-                            .group(TestGroups.EDGE)
-                            .source(((EdgeId) seed).getSource())
-                            .dest(((EdgeId) seed).getDestination())
-                            .directed(((EdgeId) seed).isDirected())
-                            .matchedVertex(((EdgeId) seed).getMatchedVertex())
-                            .property(TestPropertyNames.INT, 1)
-                            .property(TestPropertyNames.COUNT, 1L)
-                            .build();
-                    elements.add(edge);
-                }
-            }
-        }
-
-        return elements;
-    }
-
     @Test
     @TraitRequirement(StoreTrait.VISIBILITY)
     public void shouldHaveConsistentIteratorWithVisibilityAndNoAggregation() throws Exception {
@@ -748,6 +654,100 @@ public class GetElementsIT extends AbstractStoreIT {
         // Then
         ElementUtil.assertElementEquals(expectedElements, resultsSeed, true);
         ElementUtil.assertElementEquals(expectedElements, resultsElement, true);
+    }
+
+    private static Collection<Element> getElements(final Collection<ElementId> seeds, final Boolean direction) {
+        final Set<Element> elements = new HashSet<>(seeds.size());
+        for (final ElementId seed : seeds) {
+            if (seed instanceof EntityId) {
+                final Entity entity = new Entity(TestGroups.ENTITY, ((EntityId) seed).getVertex());
+                entity.putProperty(TestPropertyNames.COUNT, 1L);
+                entity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
+                elements.add(entity);
+            } else {
+                if (DirectedType.isEither(((EdgeId) seed).getDirectedType())) {
+                    if (BooleanUtils.isNotTrue(direction)) {
+                        final Edge edge = new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(((EdgeId) seed).getSource())
+                                .dest(((EdgeId) seed).getDestination())
+                                .matchedVertex(((EdgeId) seed).getMatchedVertex())
+                                .directed(false)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build();
+                        elements.add(edge);
+                    }
+                    if (BooleanUtils.isNotFalse(direction)) {
+                        final Edge edgeDir = new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(((EdgeId) seed).getSource())
+                                .dest(((EdgeId) seed).getDestination())
+                                .matchedVertex(((EdgeId) seed).getMatchedVertex())
+                                .directed(true)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build();
+                        elements.add(edgeDir);
+                    }
+                } else {
+                    final Edge edge = new Edge.Builder()
+                            .group(TestGroups.EDGE)
+                            .source(((EdgeId) seed).getSource())
+                            .dest(((EdgeId) seed).getDestination())
+                            .directed(((EdgeId) seed).isDirected())
+                            .matchedVertex(((EdgeId) seed).getMatchedVertex())
+                            .property(TestPropertyNames.INT, 1)
+                            .property(TestPropertyNames.COUNT, 1L)
+                            .build();
+                    elements.add(edge);
+                }
+            }
+        }
+
+        return elements;
+    }
+
+    private static Collection<ElementId> getEntityIds() {
+        final Set<ElementId> allSeeds = new HashSet<>();
+        allSeeds.addAll(ENTITY_SEEDS_EXIST);
+        allSeeds.addAll(ENTITY_SEEDS_DONT_EXIST);
+        return allSeeds;
+    }
+
+    private static Collection<ElementId> getEdgeIds() {
+        final Set<ElementId> allSeeds = new HashSet<>();
+        allSeeds.addAll(EDGE_SEEDS_EXIST);
+        allSeeds.addAll(EDGE_DIR_SEEDS_EXIST);
+        allSeeds.addAll(EDGE_SEEDS_DONT_EXIST);
+        allSeeds.addAll(EDGE_SEEDS_BOTH);
+        return allSeeds;
+    }
+
+    private static Collection<ElementId> getAllSeeds() {
+        final Set<ElementId> allSeeds = new HashSet<>();
+        allSeeds.addAll(ENTITY_SEEDS);
+        allSeeds.addAll(EDGE_SEEDS);
+        return allSeeds;
+    }
+
+    private static Collection<Object> getAllSeededVertices() {
+        final Set<Object> allSeededVertices = new HashSet<>();
+        for (final ElementId elementId : ENTITY_SEEDS_EXIST) {
+            allSeededVertices.add(((EntityId) elementId).getVertex());
+        }
+
+        for (final ElementId elementId : EDGE_SEEDS_EXIST) {
+            allSeededVertices.add(((EdgeId) elementId).getSource());
+            allSeededVertices.add(((EdgeId) elementId).getDestination());
+        }
+
+        for (final ElementId elementId : EDGE_DIR_SEEDS_EXIST) {
+            allSeededVertices.add(((EdgeId) elementId).getSource());
+            allSeededVertices.add(((EdgeId) elementId).getDestination());
+        }
+
+        return allSeededVertices;
     }
 
     private Schema createSchemaVisibilityNoAggregation() {

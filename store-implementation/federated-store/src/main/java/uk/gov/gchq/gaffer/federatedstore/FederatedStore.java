@@ -133,12 +133,12 @@ public class FederatedStore extends Store {
     private final int id;
     private Set<String> customPropertiesAuths;
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
-    private String adminConfiguredDefaultGraphIdsCSV;
+    private List<String> adminConfiguredDefaultGraphIds;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
-    private Map<String, BiFunction> configuredDefaultMergeFunctions;
+    private Map<String, BiFunction> adminConfiguredDefaultMergeFunctions;
 
     @JsonCreator
-    public FederatedStore(final Set<String> customPropertiesAuths, final Boolean isPublicAccessAllowed, final String adminConfiguredDefaultGraphIdsCSV, final Map<String, BiFunction> configuredDefaultMergeFunctions) {
+    public FederatedStore(final Set<String> customPropertiesAuths, final Boolean isPublicAccessAllowed, final List<String> adminConfiguredDefaultGraphIds, final Map<String, BiFunction> adminConfiguredDefaultMergeFunctions) {
         Integer i = null;
         while (isNull(i) || ALL_IDS.contains(i)) {
             i = new Random().nextInt();
@@ -147,13 +147,13 @@ public class FederatedStore extends Store {
 
         this.customPropertiesAuths = customPropertiesAuths;
         this.isPublicAccessAllowed = (null == isPublicAccessAllowed) ? Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT) : isPublicAccessAllowed;
-        this.adminConfiguredDefaultGraphIdsCSV = adminConfiguredDefaultGraphIdsCSV;
-        this.configuredDefaultMergeFunctions = (null == configuredDefaultMergeFunctions) ? new HashMap<>() : configuredDefaultMergeFunctions;
+        this.adminConfiguredDefaultGraphIds = adminConfiguredDefaultGraphIds;
+        this.adminConfiguredDefaultMergeFunctions = (null == adminConfiguredDefaultMergeFunctions) ? new HashMap<>() : adminConfiguredDefaultMergeFunctions;
 
-        this.configuredDefaultMergeFunctions.putIfAbsent(GetTraits.class.getCanonicalName(), new CollectionIntersect<>());
-        this.configuredDefaultMergeFunctions.putIfAbsent(GetAllElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
-        this.configuredDefaultMergeFunctions.putIfAbsent(GetElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
-        this.configuredDefaultMergeFunctions.putIfAbsent(GetSchema.class.getCanonicalName(), new MergeSchema());
+        this.adminConfiguredDefaultMergeFunctions.putIfAbsent(GetTraits.class.getCanonicalName(), new CollectionIntersect<>());
+        this.adminConfiguredDefaultMergeFunctions.putIfAbsent(GetAllElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
+        this.adminConfiguredDefaultMergeFunctions.putIfAbsent(GetElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
+        this.adminConfiguredDefaultMergeFunctions.putIfAbsent(GetSchema.class.getCanonicalName(), new MergeSchema());
     }
 
     public FederatedStore() {
@@ -210,7 +210,10 @@ public class FederatedStore extends Store {
      * @param graphAuths   the access auths for the graph being added
      * @throws StorageException if unable to put graph into storage
      */
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final GraphSerialisable... graphs) throws StorageException {
+    public void addGraphs(final Set<String> graphAuths,
+                          final String addingUserId,
+                          final boolean isPublic,
+                          final GraphSerialisable... graphs) throws StorageException {
         addGraphs(graphAuths, addingUserId, isPublic, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT, graphs);
     }
 
@@ -231,23 +234,21 @@ public class FederatedStore extends Store {
      * @param graphAuths        the access auths for the graph being added
      * @throws StorageException if unable to put graph into storage
      */
-    public void addGraphs(
-            final Set<String> graphAuths,
-            final String addingUserId,
-            final boolean isPublic,
-            final boolean disabledByDefault,
-            final GraphSerialisable... graphs) throws StorageException {
+    public void addGraphs(final Set<String> graphAuths,
+                          final String addingUserId,
+                          final boolean isPublic,
+                          final boolean disabledByDefault,
+                          final GraphSerialisable... graphs) throws StorageException {
         addGraphs(graphAuths, addingUserId, isPublic, disabledByDefault, null, null, graphs);
     }
 
-    public void addGraphs(
-            final Set<String> graphAuths,
-            final String addingUserId,
-            final boolean isPublic,
-            final boolean disabledByDefault,
-            final AccessPredicate readAccessPredicate,
-            final AccessPredicate writeAccessPredicate,
-            final GraphSerialisable... graphs) throws StorageException {
+    public void addGraphs(final Set<String> graphAuths,
+                          final String addingUserId,
+                          final boolean isPublic,
+                          final boolean disabledByDefault,
+                          final AccessPredicate readAccessPredicate,
+                          final AccessPredicate writeAccessPredicate,
+                          final GraphSerialisable... graphs) throws StorageException {
         final FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic, disabledByDefault, readAccessPredicate, writeAccessPredicate);
         addGraphs(access, graphs);
     }
@@ -290,7 +291,7 @@ public class FederatedStore extends Store {
         return getAllGraphIds(user, false);
     }
 
-    public Collection<String> getAllGraphIds(final User user, final boolean userRequestingAdminUsage) {
+    public List<String> getAllGraphIds(final User user, final boolean userRequestingAdminUsage) {
         return userRequestingAdminUsage
                 ? graphStorage.getAllIds(user, this.getProperties().getAdminAuth())
                 : graphStorage.getAllIds(user);
@@ -347,19 +348,19 @@ public class FederatedStore extends Store {
      * Graphs are returned once per operation, this does not allow an infinite loop of FederatedStores to occur.
      * </p>
      * <p>
-     * if graphIdsCsv is null then all graph objects within FederatedStore
+     * if graphIdsCSV is null then all graph objects within FederatedStore
      * scope are returned.
      * </p>
      *
      * @param user        the users scope to get graphs for.
-     * @param graphIdsCsv the csv of graphIds to get, null returns all graphs.
+     * @param graphIds    the list of graphIds to get. null will return all graphs.
      * @param operation   the requesting operation, graphs are returned only once per operation.
      * @return the graph collection.
      */
-    public Collection<Graph> getGraphs(final User user, final String graphIdsCsv, final IFederationOperation operation) {
-        Collection<Graph> rtn = new ArrayList<>();
+    public List<Graph> getGraphs(final User user, final List<String> graphIds, final IFederationOperation operation) {
+        List<Graph> rtn = new ArrayList<>();
         if (nonNull(operation)) {
-            String optionKey = getFedStoreProcessedKey();
+            String optionKey = getKeyForProcessedFedStore();
             boolean isFedStoreIdPreexisting = addFedStoreId(operation, optionKey);
             if (isFedStoreIdPreexisting) {
                 List<String> federatedStoreIds = operation.getOptions()
@@ -373,12 +374,15 @@ public class FederatedStore extends Store {
                         "This is a symptom of an infinite loop of FederatedStores and Proxies.{}" +
                         "This FederatedStore: {}{}" +
                         "All FederatedStore in this loop: {}", ln, this.getGraphId(), ln, federatedStoreIds.toString());
-            } else if (isNull(graphIdsCsv)) {
-                LOGGER.debug("getting default graphs because requested graphIdsCsv is null");
+            } else if (isNull(graphIds)) {
+                LOGGER.debug("getting default graphs because requested graphIds is null");
                 rtn = getDefaultGraphs(user, operation);
             } else {
+                if (graphIds.isEmpty()) {
+                    LOGGER.info("A get graphs request was made with empty graphIds");
+                }
                 String adminAuth = operation.isUserRequestingAdminUsage() ? this.getProperties().getAdminAuth() : null;
-                rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv), adminAuth));
+                rtn.addAll(graphStorage.get(user, graphIds, adminAuth));
             }
         } else {
             LOGGER.warn("getGraphs was requested with null Operation, this will return no graphs.");
@@ -386,12 +390,12 @@ public class FederatedStore extends Store {
         return rtn;
     }
 
-    private String getFedStoreProcessedKey() {
+    private String getKeyForProcessedFedStore() {
         return FEDERATED_STORE_PROCESSED + id;
     }
 
     private boolean addFedStoreId(final Operation operation, final String optionKey) {
-        boolean rtn = false;
+        boolean hasOperationOrPayloadPreexistingFedStoreId = false;
         if (nonNull(operation) && !isNullOrEmpty(optionKey)) {
             //Keep Order v
             boolean hasOperationPreexistingFedStoreId = !isNullOrEmpty(operation.getOption(optionKey, null)); //There is a difference between value null and key not found.
@@ -403,18 +407,17 @@ public class FederatedStore extends Store {
             }
 
             //Add FedStoreId to current Operation.
-            operation.addOption(optionKey, getFedStoreProcessedValue());
-            rtn = hasOperationPreexistingFedStoreId || hasPayloadPreexistingFedStoreId;
+            operation.addOption(optionKey, getValueForProcessedFedStore());
+            hasOperationOrPayloadPreexistingFedStoreId = hasOperationPreexistingFedStoreId || hasPayloadPreexistingFedStoreId;
         }
-        return rtn;
+        return hasOperationOrPayloadPreexistingFedStoreId;
     }
 
-    public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv) {
-        return this.getAllGraphsAndAuths(user, graphIdsCsv, false);
+    public Map<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIdsCSV) {
+        return this.getAllGraphsAndAuths(user, graphIdsCSV, false);
     }
 
-    public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv, final boolean userRequestingAdminUsage) {
-        List<String> graphIds = getCleanStrings(graphIdsCsv);
+    public Map<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds, final boolean userRequestingAdminUsage) {
         return userRequestingAdminUsage
                 ? graphStorage.getAllGraphsAndAccessAsAdmin(user, graphIds, this.getProperties().getAdminAuth())
                 : graphStorage.getAllGraphsAndAccess(user, graphIds);
@@ -458,13 +461,13 @@ public class FederatedStore extends Store {
                         && !AddNamedView.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedNoOutputHandler()));
 
-        addOperationHandler(GetSchema.class, new FederatedOutputHandler<>(new Schema()));
+        addOperationHandler(GetSchema.class, new FederatedOutputHandler<>(new Schema())); //TODO FS Likely to be deleted after Default Merge Mapping
 
-        addOperationHandler(Filter.class, new FederatedFilterHandler()); //TODO FS review testing
-        addOperationHandler(Aggregate.class, new FederatedAggregateHandler()); //TODO FS review testing
-        addOperationHandler(Transform.class, new FederatedTransformHandler()); //TODO FS review testing
+        addOperationHandler(Filter.class, new FederatedFilterHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
+        addOperationHandler(Aggregate.class, new FederatedAggregateHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
+        addOperationHandler(Transform.class, new FederatedTransformHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
 
-        addOperationHandler(Validate.class, new FederatedValidateHandler()); //TODO FS review testing
+        addOperationHandler(Validate.class, new FederatedValidateHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
 
         //FederationOperations
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
@@ -546,8 +549,8 @@ public class FederatedStore extends Store {
                 : graphStorage.changeGraphId(graphId, newGraphId, requestingUser);
     }
 
-    public String getAdminConfiguredDefaultGraphIdsCSV() {
-        return adminConfiguredDefaultGraphIdsCSV;
+    public List<String> getAdminConfiguredDefaultGraphIds() {
+        return adminConfiguredDefaultGraphIds;
     }
 
     /**
@@ -557,45 +560,48 @@ public class FederatedStore extends Store {
      * @return This Store.
      */
     public FederatedStore setAdminConfiguredDefaultGraphIdsCSV(final String adminConfiguredDefaultGraphIdsCSV) {
-        if (nonNull(this.adminConfiguredDefaultGraphIdsCSV)) {
-            LOGGER.error("Attempting to change adminConfiguredDefaultGraphIdsCSV. To change adminConfiguredDefaultGraphIdsCSV it would require to turning off, update config, turn back on. Therefore ignoring the value: {}", adminConfiguredDefaultGraphIdsCSV);
+        return setAdminConfiguredDefaultGraphIds(getCleanStrings(adminConfiguredDefaultGraphIdsCSV));
+    }
+
+    public FederatedStore setAdminConfiguredDefaultGraphIds(final List<String> adminConfiguredDefaultGraphIds) {
+        if (nonNull(this.adminConfiguredDefaultGraphIds)) {
+            LOGGER.error("Attempting to change adminConfiguredDefaultGraphIds. To change adminConfiguredDefaultGraphIds it would require to turning off, update config, turn back on. Therefore ignoring the value: {}", adminConfiguredDefaultGraphIds);
         } else {
-            this.adminConfiguredDefaultGraphIdsCSV = adminConfiguredDefaultGraphIdsCSV;
+            this.adminConfiguredDefaultGraphIds = adminConfiguredDefaultGraphIds;
         }
         return this;
     }
 
-    public Collection<Graph> getDefaultGraphs(final User user, final IFederationOperation operation) {
+    private List<Graph> getDefaultGraphs(final User user, final IFederationOperation operation) {
 
         boolean isAdminRequestingOverridingDefaultGraphs =
                 operation.isUserRequestingAdminUsage()
                         && (operation instanceof FederatedOperation)
                         && ((FederatedOperation) operation).isUserRequestingDefaultGraphsOverride();
 
-        //TODO FS Test does this preserve get graph.disabledByDefault?
-        if (isNull(adminConfiguredDefaultGraphIdsCSV) || isAdminRequestingOverridingDefaultGraphs) {
+        if (isNull(adminConfiguredDefaultGraphIds) || isAdminRequestingOverridingDefaultGraphs) {
             return graphStorage.get(user, null, (/*TODO FS examine isAdminRequestingOverridingDefaultGraphs vs ->*/operation.isUserRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
         } else {
             //This operation has already been processes once, by this store.
-            String fedStoreProcessedKey = getFedStoreProcessedKey();
-            operation.addOption(fedStoreProcessedKey, null); // value is null, but key is still found.
-            Collection<Graph> graphs = getGraphs(user, adminConfiguredDefaultGraphIdsCSV, operation);
+            String keyForProcessedFedStore = getKeyForProcessedFedStore();
+            operation.addOption(keyForProcessedFedStore, null); // value is null, but key is still found.
+            List<Graph> graphs = getGraphs(user, adminConfiguredDefaultGraphIds, operation);
             //put it back
-            operation.addOption(fedStoreProcessedKey, getFedStoreProcessedValue());
+            operation.addOption(keyForProcessedFedStore, getValueForProcessedFedStore());
             return graphs;
         }
     }
 
-    private String getFedStoreProcessedValue() {
+    private String getValueForProcessedFedStore() {
         return isNullOrEmpty(getGraphId()) ? FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY : getGraphId();
     }
 
     public BiFunction getDefaultMergeFunction(final FederatedOperation federatedOperation, final Operation payload, final Context context) throws GafferCheckedException {
         BiFunction rtn;
-        if (isNull(configuredDefaultMergeFunctions) || isNull(payload)) {
+        if (isNull(adminConfiguredDefaultMergeFunctions) || isNull(payload)) {
             rtn = getHardCodedDefaultMergeFunction();
         } else {
-            rtn = configuredDefaultMergeFunctions.getOrDefault(payload.getClass().getCanonicalName(), getHardCodedDefaultMergeFunction());
+            rtn = adminConfiguredDefaultMergeFunctions.getOrDefault(payload.getClass().getCanonicalName(), getHardCodedDefaultMergeFunction());
             if (rtn instanceof ContextSpecificMergeFunction) {
                 final ContextSpecificMergeFunction specificMergeFunction = (ContextSpecificMergeFunction) rtn;
                 HashMap<String, Object> functionContext = new HashMap<>();
@@ -608,7 +614,8 @@ public class FederatedStore extends Store {
                     final Schema schema;
                     try {
                         schema = (Schema) this.execute(new GetSchema.Builder()
-                                .option(DEPRECATED_GRAPH_IDS_FLAG, federatedOperation == null ? null : federatedOperation.getGraphIdsCSV())
+                                //TODO FS remove this
+                                .option(DEPRECATED_GRAPH_IDS_FLAG, federatedOperation == null ? null : ((List<String>) federatedOperation.getGraphIds()).stream().collect(Collectors.joining(",")))
                                 .build(), context);
                     } catch (final OperationException e) {
                         //TODO FS tidy up
@@ -626,8 +633,8 @@ public class FederatedStore extends Store {
         return rtn;
     }
 
-    public Map<String, BiFunction> getConfiguredDefaultMergeFunctions() {
-        return configuredDefaultMergeFunctions;
+    public Map<String, BiFunction> getAdminConfiguredDefaultMergeFunctions() {
+        return adminConfiguredDefaultMergeFunctions;
     }
 
 }

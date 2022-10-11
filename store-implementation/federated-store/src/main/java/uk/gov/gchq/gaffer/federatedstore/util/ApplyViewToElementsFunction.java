@@ -120,7 +120,7 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
         try {
             //TODO FS attention to VIEW
             return (Iterable) resultsGraph.execute(new GetAllElements.Builder().view((View) context.get(VIEW)).build(), userContext);
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new GafferRuntimeException("Error getting all elements from temporary graph", e);
         }
     }

@@ -321,5 +321,3 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                 .build(), user);
     }
 }
-
-

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,82 +114,6 @@ public class GetElementsWithinSetHandlerTest {
 
     private final User user = new User();
 
-    private static void setupGraph(final AccumuloStore store) throws OperationException, StoreException, TableExistsException {
-        // Create table
-        // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
-        // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
-        TableUtils.createTable(store);
-
-        final List<Element> data = new ArrayList<>();
-        // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
-        final Entity entity = new Entity(TestGroups.ENTITY);
-        entity.setVertex("A0");
-        entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
-        data.add(entity);
-        for (int i = 1; i < 100; i++) {
-            data.add(new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source("A0")
-                    .dest("A" + i)
-                    .directed(true)
-                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
-                    .property(AccumuloPropertyNames.COUNT, i)
-                    .property(AccumuloPropertyNames.PROP_1, 0)
-                    .property(AccumuloPropertyNames.PROP_2, 0)
-                    .property(AccumuloPropertyNames.PROP_3, 0)
-                    .property(AccumuloPropertyNames.PROP_4, 0)
-                    .build());
-
-            data.add(new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source("A0")
-                    .dest("A" + i)
-                    .directed(true)
-                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
-                    .property(AccumuloPropertyNames.COUNT, i)
-                    .property(AccumuloPropertyNames.PROP_1, 0)
-                    .property(AccumuloPropertyNames.PROP_2, 0)
-                    .property(AccumuloPropertyNames.PROP_3, 0)
-                    .property(AccumuloPropertyNames.PROP_4, 0)
-                    .build());
-
-            data.add(new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source("A0")
-                    .dest("A" + i)
-                    .directed(true)
-                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
-                    .property(AccumuloPropertyNames.COUNT, i)
-                    .property(AccumuloPropertyNames.PROP_1, 0)
-                    .property(AccumuloPropertyNames.PROP_2, 0)
-                    .property(AccumuloPropertyNames.PROP_3, 0)
-                    .property(AccumuloPropertyNames.PROP_4, 0)
-                    .build());
-
-            data.add(new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex("A" + i)
-                    .property(AccumuloPropertyNames.COUNT, i)
-                    .build());
-        }
-        final User user = new User();
-        addElements(data, user, store);
-    }
-
-    @Test
-    public void shouldReturnElementsNoSummarisationByteEntityStore() throws OperationException {
-        shouldReturnElementsNoSummarisation(BYTE_ENTITY_STORE);
-    }
-
-    @Test
-    public void shouldReturnElementsNoSummarisationGaffer1Store() throws OperationException {
-        shouldReturnElementsNoSummarisation(GAFFER_1_KEY_STORE);
-    }
-
-    private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) throws OperationException {
-        store.execute(new AddElements.Builder().input(data).build(), new Context(user));
-    }
-
     @BeforeEach
     public void reInitialise() throws StoreException, OperationException, TableExistsException {
         expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
@@ -233,6 +157,16 @@ public class GetElementsWithinSetHandlerTest {
         GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         setupGraph(BYTE_ENTITY_STORE);
         setupGraph(GAFFER_1_KEY_STORE);
+    }
+
+    @Test
+    public void shouldReturnElementsNoSummarisationByteEntityStore() throws OperationException {
+        shouldReturnElementsNoSummarisation(BYTE_ENTITY_STORE);
+    }
+
+    @Test
+    public void shouldReturnElementsNoSummarisationGaffer1Store() throws OperationException {
+        shouldReturnElementsNoSummarisation(GAFFER_1_KEY_STORE);
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
@@ -410,5 +344,71 @@ public class GetElementsWithinSetHandlerTest {
                 .hasSize(expectedElements.length)
                 .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
                 .containsOnly(expectedElements);
+    }
+
+    private static void setupGraph(final AccumuloStore store) throws OperationException, StoreException, TableExistsException {
+        // Create table
+        // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
+        // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
+        TableUtils.createTable(store);
+
+        final List<Element> data = new ArrayList<>();
+        // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
+        final Entity entity = new Entity(TestGroups.ENTITY);
+        entity.setVertex("A0");
+        entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
+        data.add(entity);
+        for (int i = 1; i < 100; i++) {
+            data.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("A0")
+                    .dest("A" + i)
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                    .property(AccumuloPropertyNames.COUNT, i)
+                    .property(AccumuloPropertyNames.PROP_1, 0)
+                    .property(AccumuloPropertyNames.PROP_2, 0)
+                    .property(AccumuloPropertyNames.PROP_3, 0)
+                    .property(AccumuloPropertyNames.PROP_4, 0)
+                    .build());
+
+            data.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("A0")
+                    .dest("A" + i)
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
+                    .property(AccumuloPropertyNames.COUNT, i)
+                    .property(AccumuloPropertyNames.PROP_1, 0)
+                    .property(AccumuloPropertyNames.PROP_2, 0)
+                    .property(AccumuloPropertyNames.PROP_3, 0)
+                    .property(AccumuloPropertyNames.PROP_4, 0)
+                    .build());
+
+            data.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("A0")
+                    .dest("A" + i)
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
+                    .property(AccumuloPropertyNames.COUNT, i)
+                    .property(AccumuloPropertyNames.PROP_1, 0)
+                    .property(AccumuloPropertyNames.PROP_2, 0)
+                    .property(AccumuloPropertyNames.PROP_3, 0)
+                    .property(AccumuloPropertyNames.PROP_4, 0)
+                    .build());
+
+            data.add(new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("A" + i)
+                    .property(AccumuloPropertyNames.COUNT, i)
+                    .build());
+        }
+        final User user = new User();
+        addElements(data, user, store);
+    }
+
+    private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) throws OperationException {
+        store.execute(new AddElements.Builder().input(data).build(), new Context(user));
     }
 }

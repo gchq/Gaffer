@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.BASIC_VERTEX;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_A;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_B;
@@ -140,13 +139,8 @@ public class FederatedStoreViewAggregationTest {
                 .op(new AddElements.Builder()
                         .input(entity)
                         .build())
-                .graphIds(graphIdA)
+                .graphIdsCSV(graphIdA)
                 .build(), contextTestUser());
     }
 
-    @Disabled //TODO FS remove ignore
-    @Test
-    public void shouldBeAwareOfIssuesWithViewsThatTransformsData() throws Exception {
-        fail("TBA");
-    }
 }

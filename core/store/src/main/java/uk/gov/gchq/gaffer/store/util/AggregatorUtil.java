@@ -180,82 +180,6 @@ public final class AggregatorUtil {
         }
     }
 
-    public static Map<String, Set<String>> getIngestGroupBys(final Schema schema) {
-        if (isNull(schema)) {
-            throw new IllegalArgumentException("Schema is required");
-        }
-
-        final Map<String, Set<String>> groupToGroupBys = new HashMap<>();
-        for (final String group : schema.getGroups()) {
-            groupToGroupBys.put(group, getIngestGroupBy(group, schema));
-        }
-
-        return groupToGroupBys;
-    }
-
-    @Since("1.0.0")
-    @Summary("Aggregates elements, grouping the elements using the ingest key")
-    public static class IngestElementBinaryOperator extends ElementBinaryOperator {
-        public IngestElementBinaryOperator(final Schema schema) {
-            super(schema, null);
-        }
-    }
-
-    public static Map<String, Set<String>> getQueryGroupBys(final Schema schema, final View view) {
-        if (isNull(schema)) {
-            throw new IllegalArgumentException("Schema is required");
-        }
-        if (isNull(view)) {
-            throw new IllegalArgumentException("View is required");
-        }
-        final Map<String, Set<String>> groupToGroupBys = new HashMap<>();
-        for (final String group : schema.getGroups()) {
-            groupToGroupBys.put(group, getQueryGroupBy(group, schema, view));
-        }
-
-        return groupToGroupBys;
-    }
-
-    @Since("1.0.0")
-    @Summary("Aggregates properties, grouping the properties using the ingest key")
-    public static class IngestPropertiesBinaryOperator extends PropertiesBinaryOperator {
-        public IngestPropertiesBinaryOperator(final Schema schema) {
-            super(schema, null);
-        }
-    }
-
-    public static Set<String> getIngestGroupBy(final String group, final Schema schema) {
-        final SchemaElementDefinition elDef = schema.getElement(group);
-        if (isNull(elDef)) {
-            throw new IllegalArgumentException(String.format("Received group %s which was not found in the schema", group));
-        }
-        if (isNull(schema.getVisibilityProperty()) || !elDef.containsProperty(schema.getVisibilityProperty())) {
-            return elDef.getGroupBy();
-        }
-
-        final LinkedHashSet<String> groupBy = new LinkedHashSet<>(elDef.getGroupBy());
-        groupBy.add(schema.getVisibilityProperty());
-        return groupBy;
-    }
-
-    public static Set<String> getQueryGroupBy(final String group, final Schema schema, final View view) {
-        Set<String> groupBy = null;
-        if (nonNull(view)) {
-            final ViewElementDefinition elDef = view.getElement(group);
-            if (nonNull(elDef)) {
-                groupBy = elDef.getGroupBy();
-            }
-        }
-        if (isNull(groupBy)) {
-            final SchemaElementDefinition elDef = schema.getElement(group);
-            if (isNull(elDef)) {
-                throw new IllegalArgumentException(String.format("Received group %s which was not found in the schema", group));
-            }
-            groupBy = elDef.getGroupBy();
-        }
-        return groupBy;
-    }
-
     @Since("1.0.0")
     @Summary("Extracts the key of an element")
     public static class ToElementKey extends KorypheFunction<Element, Element> {
@@ -292,6 +216,14 @@ public final class AggregatorUtil {
     }
 
     @Since("1.0.0")
+    @Summary("Aggregates elements, grouping the elements using the ingest key")
+    public static class IngestElementBinaryOperator extends ElementBinaryOperator {
+        public IngestElementBinaryOperator(final Schema schema) {
+            super(schema, null);
+        }
+    }
+
+    @Since("1.0.0")
     @Summary("Aggregates elements, grouping the elements using the query time key")
     public static class QueryElementBinaryOperator extends ElementBinaryOperator {
         public QueryElementBinaryOperator(final Schema schema, final View view) {
@@ -299,6 +231,14 @@ public final class AggregatorUtil {
             if (isNull(view)) {
                 throw new IllegalArgumentException("View is required");
             }
+        }
+    }
+
+    @Since("1.0.0")
+    @Summary("Aggregates properties, grouping the properties using the ingest key")
+    public static class IngestPropertiesBinaryOperator extends PropertiesBinaryOperator {
+        public IngestPropertiesBinaryOperator(final Schema schema) {
+            super(schema, null);
         }
     }
 
@@ -386,5 +326,65 @@ public final class AggregatorUtil {
             // The aggregator will always return a so this is safe
             return a;
         }
+    }
+
+    public static Map<String, Set<String>> getIngestGroupBys(final Schema schema) {
+        if (isNull(schema)) {
+            throw new IllegalArgumentException("Schema is required");
+        }
+
+        final Map<String, Set<String>> groupToGroupBys = new HashMap<>();
+        for (final String group : schema.getGroups()) {
+            groupToGroupBys.put(group, getIngestGroupBy(group, schema));
+        }
+
+        return groupToGroupBys;
+    }
+
+    public static Map<String, Set<String>> getQueryGroupBys(final Schema schema, final View view) {
+        if (isNull(schema)) {
+            throw new IllegalArgumentException("Schema is required");
+        }
+        if (isNull(view)) {
+            throw new IllegalArgumentException("View is required");
+        }
+        final Map<String, Set<String>> groupToGroupBys = new HashMap<>();
+        for (final String group : schema.getGroups()) {
+            groupToGroupBys.put(group, getQueryGroupBy(group, schema, view));
+        }
+
+        return groupToGroupBys;
+    }
+
+    public static Set<String> getIngestGroupBy(final String group, final Schema schema) {
+        final SchemaElementDefinition elDef = schema.getElement(group);
+        if (isNull(elDef)) {
+            throw new IllegalArgumentException(String.format("Received group %s which was not found in the schema", group));
+        }
+        if (isNull(schema.getVisibilityProperty()) || !elDef.containsProperty(schema.getVisibilityProperty())) {
+            return elDef.getGroupBy();
+        }
+
+        final LinkedHashSet<String> groupBy = new LinkedHashSet<>(elDef.getGroupBy());
+        groupBy.add(schema.getVisibilityProperty());
+        return groupBy;
+    }
+
+    public static Set<String> getQueryGroupBy(final String group, final Schema schema, final View view) {
+        Set<String> groupBy = null;
+        if (nonNull(view)) {
+            final ViewElementDefinition elDef = view.getElement(group);
+            if (nonNull(elDef)) {
+                groupBy = elDef.getGroupBy();
+            }
+        }
+        if (isNull(groupBy)) {
+            final SchemaElementDefinition elDef = schema.getElement(group);
+            if (isNull(elDef)) {
+                throw new IllegalArgumentException(String.format("Received group %s which was not found in the schema", group));
+            }
+            groupBy = elDef.getGroupBy();
+        }
+        return groupBy;
     }
 }
