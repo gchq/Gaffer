@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AccumuloPropertiesTest {
@@ -52,6 +54,86 @@ public class AccumuloPropertiesTest {
 
         // Then
         assertEquals(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName(), modules);
+    }
+
+
+    @Test
+    public void getEnabledKerberosShouldReturnFalseIfSetFalse() {
+        // Given
+        final AccumuloProperties props = new AccumuloProperties();
+        final boolean EnableKerberos = false;
+
+        // When
+        props.setEnableKerberos(EnableKerberos);
+
+        // Then
+        assertEquals(EnableKerberos, props.getEnableKerberos());
+    }
+
+    @Test
+    public void getEnabledKerberosShouldReturnTrueIfSetTrue() {
+        // Given
+        final AccumuloProperties props = new AccumuloProperties();
+        final boolean EnableKerberos = true;
+
+        // When
+        props.setEnableKerberos(EnableKerberos);
+
+        // Then
+        assertEquals(EnableKerberos, props.getEnableKerberos());
+    }
+
+    @Test
+    public void getEnabledKerberosShouldDefaultToFalse() {
+        // Given
+        final AccumuloProperties props = new AccumuloProperties();
+
+        // Then
+        assertFalse(props.getEnableKerberos());
+    }
+
+    @Test
+    public void getPrincipalShouldReturnPrincipal() {
+        // Given
+        final AccumuloProperties props = new AccumuloProperties();
+        final String Principal = "test.principal";
+
+        // When
+        props.setPrincipal(Principal);
+
+        // Then
+        assertEquals(Principal, props.getPrincipal());
+    }
+
+    @Test
+    public void getPrincipalShouldReturnNullWhenPrincipalNotSet() {
+        // Given
+        final AccumuloProperties props = new AccumuloProperties();
+
+        // Then
+        assertNull(props.getPrincipal());
+    }
+
+    @Test
+    public void getKeytabPathShouldReturnKeytabPathWhenSet() {
+        // Given
+        final AccumuloProperties props = new AccumuloProperties();
+        final String KeytabPath = "path/to/keytab";
+
+        // When
+        props.setKeytabPath(KeytabPath);
+
+        // Then
+        assertEquals(KeytabPath, props.getKeytabPath());
+    }
+
+    @Test
+    public void getKeytabPathShouldReturnNullWhenNotSet() {
+        // Given
+        final AccumuloProperties props = new AccumuloProperties();
+
+        // Then
+        assertNull(props.getKeytabPath());
     }
 
     @Test
