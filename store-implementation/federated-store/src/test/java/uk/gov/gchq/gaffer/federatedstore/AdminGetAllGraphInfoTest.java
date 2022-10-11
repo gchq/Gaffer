@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
@@ -76,17 +77,13 @@ public class AdminGetAllGraphInfoTest {
 
         final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(ADMIN_USER, null, true);
 
+        final String expected = "{\"graph1\":{\"addingUserId\":\"testuser1\",\"disabledByDefault\":false," +
+            "\"graphAuths\":[\"authA\"],\"public\":false}}";
+
         assertNotNull(allGraphsAndAuths);
         assertFalse(allGraphsAndAuths.isEmpty());
         assertEquals(graph1, allGraphsAndAuths.keySet().toArray(new String[]{})[0]);
-        assertEquals("{\n" +
-                "  \"graph1\" : {\n" +
-                "    \"addingUserId\" : \"testuser1\",\n" +
-                "    \"disabledByDefault\" : false,\n" +
-                "    \"graphAuths\" : [ \"authA\" ],\n" +
-                "    \"public\" : false\n" +
-                "  }\n" +
-                "}", new String(JSONSerialiser.serialise(allGraphsAndAuths, true)));
+        assertEquals(expected, new String(JSONSerialiser.serialise(allGraphsAndAuths)));
     }
 
     @Test

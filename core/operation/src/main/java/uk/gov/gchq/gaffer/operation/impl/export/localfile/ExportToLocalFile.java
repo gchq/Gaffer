@@ -24,6 +24,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.IterableString;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
@@ -36,12 +37,12 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "input", "filePath"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("Exports elements to a local file")
-public class ExportToLocalFile implements ExportTo<Iterable<String>> {
+public class ExportToLocalFile implements ExportTo<Iterable<? extends String>> {
 
     @Required
     private String filePath;
 
-    private Iterable<String> input;
+    private Iterable<? extends String> input;
     private Map<String, String> options;
 
     public final String getFilePath() {
@@ -83,23 +84,23 @@ public class ExportToLocalFile implements ExportTo<Iterable<String>> {
 
 
     @Override
-    public final Iterable<String> getInput() {
+    public final Iterable<? extends String> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<String> input) {
+    public void setInput(final Iterable<? extends String> input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<Iterable<String>> getOutputTypeReference() {
-        return null;
+    public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
+        return new IterableString();
     }
 
 
     public static final class Builder extends BaseBuilder<ExportToLocalFile, Builder>
-            implements ExportTo.Builder<ExportToLocalFile, Iterable<String>, Builder> {
+            implements ExportTo.Builder<ExportToLocalFile, Iterable<? extends String>, Builder> {
 
         public Builder() {
             super(new ExportToLocalFile());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 
 import org.apache.hadoop.conf.Configuration;
@@ -20,6 +21,8 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -196,8 +199,8 @@ public class SplitStoreFromJavaRDDOfElementsHandlerTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void canBeSuccessfullyChainedWithImport() throws Exception {
-
         graph.execute(new OperationChain.Builder()
                 .first(new SplitStoreFromJavaRDDOfElements.Builder()
                         .input(javaRDD)
