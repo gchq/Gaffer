@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,10 @@
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.apache.commons.io.FileUtils;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -42,19 +41,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AddUpdateTableIteratorTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AddUpdateTableIteratorTest.class);
     private static final String GRAPH_ID = "graphId";
     private static final String SCHEMA_DIR = "src/test/resources/schema";
     private static final String SCHEMA_2_DIR = "src/test/resources/schema2";
     private static final String STORE_PROPS_PATH = "src/test/resources/store.properties";
     private static final String STORE_PROPS_2_PATH = "src/test/resources/store2.properties";
-    private static final String STORE_PROPS_PATH_UPDATED = "src/test/resources/current_store.properties";
-    private static final String STORE_PROPS_2_PATH_UPDATED = "src/test/resources/current_store2.properties";
     private static final String EMPTY_STORE_PROPS_PATH = "src/test/resources/empty-store.properties";
     private static final String FILE_GRAPH_LIBRARY_TEST_PATH = "target/graphLibrary";
-
-    private static final AccumuloProperties PROPERTIES_1 = AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH);
-    private static final AccumuloProperties PROPERTIES_2 = AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH);
 
     @BeforeEach
     @AfterEach
@@ -119,8 +112,8 @@ public class AddUpdateTableIteratorTest {
 
         // When / Then
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> AddUpdateTableIterator.main(args))
-                .withMessage("Supplied add or update key (invalid key) was not valid, it must either be add,remove or update.");
+            .isThrownBy(() -> AddUpdateTableIterator.main(args))
+            .withMessage("Supplied add or update key (invalid key) was not valid, it must either be add,remove or update.");
     }
 
     @Test
@@ -130,18 +123,17 @@ public class AddUpdateTableIteratorTest {
 
         // When / Then
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> AddUpdateTableIterator.main(args))
-                        .withMessage("The Store class name was not found in the store properties for key: gaffer.store.class");
+            .isThrownBy(() -> AddUpdateTableIterator.main(args))
+            .withMessage("The Store class name was not found in the store properties for key: gaffer.store.class");
     }
 
     @Test
     public void shouldReturnInvalidFilePathErrorWhenPathDoesNotExist() throws Exception {
-        // Given
+
         final String[] args = {GRAPH_ID, SCHEMA_DIR, "invalid/file/path", "update", FILE_GRAPH_LIBRARY_TEST_PATH};
 
-        // When / Then
         assertThatExceptionOfType(RuntimeException.class)
-                .isThrownBy(() -> AddUpdateTableIterator.main(args))
-                .withMessage("Failed to load store properties file : invalid/file/path");
+            .isThrownBy(() -> AddUpdateTableIterator.main(args))
+            .withMessageMatching("Failed to load store properties file : invalid.{1,2}file.{1,2}path");
     }
 }

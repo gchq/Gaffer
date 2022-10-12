@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,7 +132,6 @@ import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 @ExtendWith(MockitoExtension.class)
 public class GraphTest {
-
     private static final String GRAPH_ID = "graphId";
     public static final String SCHEMA_ID_1 = "schemaId1";
     public static final String STORE_PROPERTIES_ID_1 = "storePropertiesId1";
@@ -261,31 +260,22 @@ public class GraphTest {
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
 
-        Graph graph = null;
-        File schemaDir = null;
-        try {
-            schemaDir = createSchemaDirectory();
+        File schemaDir = createSchemaDirectory();
 
-            // When
-            graph = new Graph.Builder()
-                    .config(new GraphConfig.Builder()
-                            .graphId(GRAPH_ID)
-                            .build())
-                    .storeProperties(StreamUtil.storeProps(getClass()))
-                    .addSchema(Paths.get(schemaDir.getPath()))
-                    .build();
-        } finally {
-            if (null != schemaDir) {
-                FileUtils.deleteDirectory(schemaDir);
-            }
-        }
+        Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchema(Paths.get(schemaDir.getPath()))
+                .build();
 
         // Then
         JsonAssert.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
     }
 
     @Test
-    public void shouldConstructGraphFromSchemaURI() throws IOException, URISyntaxException {
+    public void shouldConstructGraphFromSchemaURI() throws URISyntaxException {
         // Given
         final URI typeInputUri = getResourceUri(StreamUtil.TYPES_SCHEMA);
         final URI schemaInputUri = getResourceUri(StreamUtil.ELEMENTS_SCHEMA);
@@ -293,25 +283,15 @@ public class GraphTest {
         final Schema expectedSchema = new Schema.Builder()
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
-        Graph graph = null;
-        File schemaDir = null;
 
-        try {
-            schemaDir = createSchemaDirectory();
-
-            // When
-            graph = new Graph.Builder()
-                    .config(new GraphConfig.Builder()
-                            .graphId(GRAPH_ID)
-                            .build())
-                    .storeProperties(storeInputUri)
-                    .addSchemas(typeInputUri, schemaInputUri)
-                    .build();
-        } finally {
-            if (schemaDir != null) {
-                FileUtils.deleteDirectory(schemaDir);
-            }
-        }
+        // When
+        Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(storeInputUri)
+                .addSchemas(typeInputUri, schemaInputUri)
+                .build();
 
         // Then
         JsonAssert.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
@@ -2740,7 +2720,6 @@ public class GraphTest {
                 }
             }
         }
-
         @Override
         public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
             return result;

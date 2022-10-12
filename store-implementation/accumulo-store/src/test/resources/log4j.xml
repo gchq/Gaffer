@@ -27,4 +27,7 @@
         <priority value="warn"></priority>
         <appender-ref ref="console"></appender-ref>
     </root>
+    <logger name="org.apache.hadoop.util.NativeCodeLoader">
+        <level value="DEBUG"/>
+    </logger>
 </log4j:configuration>
