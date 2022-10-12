@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2022 Crown Copyright
+ * Copyright 2015-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,7 +132,6 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         // When
         final Response response = ((RestApiV2TestClient) client).getAllOperationsAsOperationDetails();
-        assertThat(response.getStatus()).withFailMessage("client responded with an error.").isEqualTo(200);
 
         // Then
         final byte[] json = response.readEntity(byte[].class);
@@ -357,7 +356,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
         }
 
         public OperationFieldPojo(final String name, final String className, final boolean required,
-                final String summary, final Set<String> options) {
+                                  final String summary, final Set<String> options) {
             this.name = name;
             this.className = className;
             this.required = required;
