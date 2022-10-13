@@ -356,7 +356,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
         }
 
         public OperationFieldPojo(final String name, final String className, final boolean required,
-                                  final String summary, final Set<String> options) {
+                final String summary, final Set<String> options) {
             this.name = name;
             this.className = className;
             this.required = required;

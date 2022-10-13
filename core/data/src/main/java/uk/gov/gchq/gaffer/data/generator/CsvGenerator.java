@@ -234,8 +234,8 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
          * @return a new {@link Builder}
          */
         public Builder group(final String columnHeader) {
-                return identifier(IdentifierType.GROUP, columnHeader);
-            }
+            return identifier(IdentifierType.GROUP, columnHeader);
+        }
 
         /**
          * Stores any additional properties of an {@link Element}.<br>

@@ -47,6 +47,8 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
 
         if (null == operation.getCsvGenerator() && null == operation.getCsvFormat()) {
             throw new IllegalArgumentException("ToCsv operation requires a generator, supply one or provide a CsvFormat");
+        } else if (null != operation.getCsvGenerator() && null != operation.getCsvFormat()) {
+            throw new IllegalArgumentException("ToCsv operation requires either a generator or a CsvFormat not both");
         } else if (null == operation.getCsvGenerator() && null != operation.getCsvFormat()) {
             csvGenerator = createGenerator(operation.getCsvFormat(), getPropertyHeadersFromSchema(store));
         } else {

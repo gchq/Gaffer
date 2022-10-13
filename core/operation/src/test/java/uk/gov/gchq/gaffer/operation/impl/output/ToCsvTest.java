@@ -95,7 +95,6 @@ public class ToCsvTest extends OperationTest<ToCsv> {
         assertEquals(csvFormat, clone.getCsvFormat());
         assertFalse(clone.isIncludeHeader());
     }
-
     @Test
     public void shouldGetOutputClass() {
         // When

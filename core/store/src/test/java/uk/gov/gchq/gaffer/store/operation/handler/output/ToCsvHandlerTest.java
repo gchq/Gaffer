@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.data.generator.Neo4jFormat;
 import uk.gov.gchq.gaffer.data.generator.NeptuneFormat;
@@ -46,7 +47,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -88,7 +90,7 @@ public class ToCsvHandlerTest {
                 "BasicEntity,vertex1,,1,A Constant", "BasicEntity,vertex2,,,A Constant",
                 "BasicEdge,,source1,1,A Constant", "BasicEdge,,source2,,A Constant"
         );
-        assertEquals(expected, resultList);
+        assertThat(expected.equals(resultList));
     }
 
     @Test
@@ -125,7 +127,7 @@ public class ToCsvHandlerTest {
                 "\"BasicEntity\",\"vertex1\",,\"1\",\"A Constant\"", "\"BasicEntity\",\"vertex2\",,,\"A Constant\"",
                 "\"BasicEdge\",,\"source1\",\"1\",\"A Constant\"", "\"BasicEdge\",,\"source2\",,\"A Constant\""
         );
-        assertEquals(expected, resultList);
+        assertThat(expected.equals(resultList));
     }
 
     @Test
@@ -163,7 +165,7 @@ public class ToCsvHandlerTest {
                 "BasicEntity,vertex1-with comma,,1,A Constant", "BasicEntity,vertex2,,,A Constant",
                 "BasicEdge,,source1-with comma,1,A Constant", "BasicEdge,,source2,,A Constant"
         );
-        assertEquals(expected, resultList);
+        assertThat(expected.equals(resultList));
     }
 
     @Test
@@ -203,7 +205,7 @@ public class ToCsvHandlerTest {
                 "BasicEdge,,source1,1,A Constant",
                 "BasicEdge,,source2,,A Constant"
         );
-        assertEquals(expected, resultList);
+        assertThat(expected.equals(resultList));
     }
 
     @Test
@@ -274,6 +276,61 @@ public class ToCsvHandlerTest {
         assertThat(expected).isEqualTo(resultList);
     }
 
+    @Test
+    public void shouldErrorIfBothGeneratorAndCsvFormatAreSupplied() throws IllegalArgumentException {
+        // Given
+        final List<Element> elements = Lists.newArrayList(
+                makeEntity("vertex1", "count", 1),
+                makeEntity("vertex2"),
+                makeEdge("source1", "count", 1),
+                makeEdge("source2")
+        );
+        final CsvFormat csvFormat = new Neo4jFormat();
+        final CsvGenerator generator = new CsvGenerator.Builder()
+                .vertex("vertex")
+                .group("group")
+                .source("source")
+                .destination("destination")
+                .build();
+        final ToCsv operation = new ToCsv.Builder()
+                .generator(generator)
+                .csvFormat(csvFormat)
+                .input(elements)
+                .includeHeader(false)
+                .build();
+        final ToCsvHandler handler = new ToCsvHandler();
+
+        // When Then
+        assertThatThrownBy(() -> {
+            handler.doOperation(operation, new Context(), storeMock);
+        }).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("ToCsv operation requires either a generator or a CsvFormat not both");
+
+    }
+
+    @Test
+    public void shouldErrorIfNeitherGeneratorNorCsvFormatAreSupplied() throws IllegalArgumentException {
+        // Given
+        final List<Element> elements = Lists.newArrayList(
+                makeEntity("vertex1", "count", 1),
+                makeEntity("vertex2"),
+                makeEdge("source1", "count", 1),
+                makeEdge("source2")
+        );
+
+        final ToCsv operation = new ToCsv.Builder()
+                .input(elements)
+                .includeHeader(false)
+                .build();
+        final ToCsvHandler handler = new ToCsvHandler();
+
+        // When Then
+        assertThatThrownBy(() -> {
+            handler.doOperation(operation, new Context(), storeMock);
+        }).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("ToCsv operation requires a generator, supply one or provide a CsvFormat");
+
+    }
 
     private Entity makeEntity(final String vertex, final String propertyName, final int propertyValue) {
         return new Entity.Builder()
