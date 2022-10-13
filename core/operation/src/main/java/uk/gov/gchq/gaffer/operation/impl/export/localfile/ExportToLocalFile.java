@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.Required;
 
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.IterableString;
+
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
@@ -97,7 +98,6 @@ public class ExportToLocalFile implements ExportTo<Iterable<? extends String>> {
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
         return new IterableString();
     }
-
 
     public static final class Builder extends BaseBuilder<ExportToLocalFile, Builder>
             implements ExportTo.Builder<ExportToLocalFile, Iterable<? extends String>, Builder> {
