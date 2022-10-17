@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.koryphe.impl.function;
+package uk.gov.gchq.gaffer.federatedstore.impl.function;
 
 
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
@@ -22,6 +22,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 public class ToIterable extends KorypheFunction<Object, Iterable<Object>> {
     public ToIterable() {
@@ -34,8 +35,8 @@ public class ToIterable extends KorypheFunction<Object, Iterable<Object>> {
         } else if (value instanceof Iterable) {
             //noinspection unchecked
             rtn = (Iterable<Object>) value;
-        } else if (value instanceof Object[]) {
-            return Arrays.asList((Object[]) value);
+        } else if (value.getClass().isArray()) {
+            return Arrays.stream(new Object[]{value}).collect(Collectors.toList());
         } else {
             rtn = Collections.singletonList(value);
         }
