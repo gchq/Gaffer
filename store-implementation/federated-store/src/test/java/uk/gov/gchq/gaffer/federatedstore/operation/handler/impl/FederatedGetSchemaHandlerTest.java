@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +39,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_EDGE;
@@ -110,7 +110,7 @@ public class FederatedGetSchemaHandlerTest {
                 new AddGraph.Builder()
                         .graphId("schema")
                         .parentPropertiesId(ACC_PROP_ID)
-                        .parentSchemaIds(Lists.newArrayList(EDGE_SCHEMA_ID))
+                        .parentSchemaIds(singletonList(EDGE_SCHEMA_ID))
                         .build()), contextTestUser());
 
         final GetSchema operation = new GetSchema.Builder()
@@ -162,7 +162,7 @@ public class FederatedGetSchemaHandlerTest {
                 new AddGraph.Builder()
                         .graphId("schemaEnabled")
                         .parentPropertiesId(ACC_PROP_ID)
-                        .parentSchemaIds(Lists.newArrayList("edgeSchema1"))
+                        .parentSchemaIds(singletonList("edgeSchema1"))
                         .disabledByDefault(false)
                         .build()), contextTestUser());
 
@@ -170,7 +170,7 @@ public class FederatedGetSchemaHandlerTest {
                 new AddGraph.Builder()
                         .graphId("schemaDisabled")
                         .parentPropertiesId(ACC_PROP_ID)
-                        .parentSchemaIds(Lists.newArrayList("edgeSchema2"))
+                        .parentSchemaIds(singletonList("edgeSchema2"))
                         .disabledByDefault(true)
                         .build()), contextTestUser());
 

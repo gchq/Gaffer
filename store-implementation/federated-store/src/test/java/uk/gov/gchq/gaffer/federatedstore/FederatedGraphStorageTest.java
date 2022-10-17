@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,13 +40,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
@@ -245,7 +244,7 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
-        final Collection<Graph> allGraphs = graphStorage.get(testUser(), Lists.newArrayList(GRAPH_ID_A));
+        final Collection<Graph> allGraphs = graphStorage.get(testUser(), singletonList(GRAPH_ID_A));
         //then
         assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
     }
@@ -256,7 +255,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(graphSerialisableA, blockingReadAccess);
         //when
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> graphStorage.get(testUser(), Lists.newArrayList(GRAPH_ID_A)))
+                .isThrownBy(() -> graphStorage.get(testUser(), singletonList(GRAPH_ID_A)))
                 .withMessageContaining(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(GRAPH_ID_A)));
     }
 
@@ -265,7 +264,7 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
-        final Collection<Graph> allGraphs = graphStorage.get(authUser(), Lists.newArrayList(GRAPH_ID_A));
+        final Collection<Graph> allGraphs = graphStorage.get(authUser(), singletonList(GRAPH_ID_A));
         //then
         assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
     }
@@ -275,7 +274,7 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, disabledByDefaultAccess);
         //when
-        final Collection<Graph> allGraphs = graphStorage.get(authUser(), Lists.newArrayList(GRAPH_ID_A));
+        final Collection<Graph> allGraphs = graphStorage.get(authUser(), singletonList(GRAPH_ID_A));
         //then
         assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
     }
@@ -296,7 +295,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(graphSerialisableA, auth1Access);
         //when then
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> graphStorage.get(blankUser(), Lists.newArrayList(GRAPH_ID_A)))
+                .isThrownBy(() -> graphStorage.get(blankUser(), singletonList(GRAPH_ID_A)))
                 .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(GRAPH_ID_A)));
     }
 
@@ -305,7 +304,7 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, permissiveReadAccess);
         //when
-        final Collection<Graph> allGraphs = graphStorage.get(blankUser(), Lists.newArrayList(GRAPH_ID_A));
+        final Collection<Graph> allGraphs = graphStorage.get(blankUser(), singletonList(GRAPH_ID_A));
         //then
         assertThat(allGraphs).containsExactly(graphSerialisableA.getGraph());
     }
@@ -316,7 +315,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(graphSerialisableA, auth1Access);
         //then
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> graphStorage.get(testUser(), Lists.newArrayList(X)))
+                .isThrownBy(() -> graphStorage.get(testUser(), singletonList(X)))
                 .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)));
     }
 
@@ -326,7 +325,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> graphStorage.get(authUser(), Lists.newArrayList(X)))
+                .isThrownBy(() -> graphStorage.get(authUser(), singletonList(X)))
                 .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)));
     }
 
@@ -336,7 +335,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> graphStorage.get(blankUser(), Lists.newArrayList(X)))
+                .isThrownBy(() -> graphStorage.get(blankUser(), singletonList(X)))
                 .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)));
     }
 
@@ -473,7 +472,7 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldGetGraphsInOrder() throws Exception {
         // Given
-        graphStorage.put(Lists.newArrayList(graphSerialisableA, graphSerialisableB), auth1Access);
+        graphStorage.put(Arrays.asList(graphSerialisableA, graphSerialisableB), auth1Access);
         final List<String> configAB = Arrays.asList(GRAPH_ID_A, GRAPH_ID_B);
         final List<String> configBA = Arrays.asList(GRAPH_ID_B, GRAPH_ID_A);
 
@@ -501,10 +500,10 @@ public class FederatedGraphStorageTest {
         //then
         assertThatExceptionOfType(StorageException.class)
                 .isThrownBy(() -> graphStorage.put(graphSerialisableA, auth1Access))
-                .withMessage(testMockException);
+                .withMessageContaining(testMockException);
 
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> graphStorage.get(testUser(), Lists.newArrayList(GRAPH_ID_A)))
+                .isThrownBy(() -> graphStorage.get(testUser(), singletonList(GRAPH_ID_A)))
                 .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Arrays.toString(new String[]{GRAPH_ID_A})));
     }
 

@@ -16,13 +16,13 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo> {
 
-    public static final List<String> GRAPH_IDS = Lists.newArrayList("a", "b", "c");
+    public static final List<String> GRAPH_IDS = asList("a", "b", "c");
 
     @Override
     protected Set<String> getRequiredFields() {
