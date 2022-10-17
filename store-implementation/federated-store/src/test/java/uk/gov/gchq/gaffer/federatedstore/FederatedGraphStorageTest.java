@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -497,21 +498,23 @@ public class FederatedGraphStorageTest {
                 .checkExisting(GRAPH_ID_A, graphSerialisableA.getDeserialisedSchema(), graphSerialisableA.getDeserialisedProperties());
         graphStorage.setGraphLibrary(mock);
 
-        final StorageException storageException = assertThrows(StorageException.class, () -> graphStorage.put(graphSerialisableA, auth1Access));
-        assertThat(storageException).message().contains(testMockException);
+        //then
+        assertThatExceptionOfType(StorageException.class)
+                .isThrownBy(() -> graphStorage.put(graphSerialisableA, auth1Access))
+                .withMessage(testMockException);
 
-        final IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> graphStorage.get(testUser(), Lists.newArrayList(GRAPH_ID_A)));
-        assertThat(illegalArgumentException).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, Arrays.toString(new String[]{GRAPH_ID_A})));
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> graphStorage.get(testUser(), Lists.newArrayList(GRAPH_ID_A)))
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Arrays.toString(new String[]{GRAPH_ID_A})));
     }
 
     @Test
     public void shouldThrowExceptionWhenAddingNullSchema() {
         //given
         GraphSerialisable nullGraph = null;
-        //when
-        final StorageException storageException = assertThrows(StorageException.class, () -> graphStorage.put(nullGraph, auth1Access));
         //then
-        assertThat(storageException).message().isEqualTo("Graph cannot be null");
+        assertThatExceptionOfType(StorageException.class).isThrownBy(() -> graphStorage.put(nullGraph, auth1Access))
+                .withMessage("Graph cannot be null");
     }
 
     @Test
@@ -540,19 +543,18 @@ public class FederatedGraphStorageTest {
                         .build(), auth1Access);
 
         // When / Then
-        final StorageException storageException = assertThrows(StorageException.class, () ->
-                graphStorage.put(
-                        new GraphSerialisable.Builder()
-                                .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
-                                .schema(getSchema(2))
-                                .properties(PROPERTIES.clone())
-                                .build(), auth1Access));
+        assertThatExceptionOfType(StorageException.class).isThrownBy(() ->
+                        graphStorage.put(
+                                new GraphSerialisable.Builder()
+                                        .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
+                                        .schema(getSchema(2))
+                                        .properties(PROPERTIES.clone())
+                                        .build(), auth1Access))
 
-        assertThat(storageException)
-                .message()
-                .isEqualTo("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A))
+
+                .withMessage("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A))
                 .withFailMessage("error message should not contain details about schema")
-                .doesNotContain(UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
+                .withMessageNotContainingAny(UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
     }
 
     @Test
@@ -581,13 +583,11 @@ public class FederatedGraphStorageTest {
         graphStorage.put(graph, auth1Access);
 
         // When / Then
-        final StorageException storageException = assertThrows(StorageException.class, () -> graphStorage.put(graph, altAuth2Access));
-
-        assertThat(storageException)
-                .message()
-                .isEqualTo("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A))
+        assertThatExceptionOfType(StorageException.class)
+                .isThrownBy(() -> graphStorage.put(graph, altAuth2Access))
+                .withMessage("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A))
                 .withFailMessage("error message should not contain details about schema")
-                .doesNotContain(UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
+                .withMessageNotContainingAny(UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
     }
 
     @Test
@@ -625,13 +625,11 @@ public class FederatedGraphStorageTest {
         graphStorage.put(graph2, altAuth2Access);
 
         // When / Then
-        final StorageException storageException = assertThrows(StorageException.class, () -> graphStorage.put(graph2, auth1Access));
-
-        assertThat(storageException)
-                .message()
-                .isEqualTo("Error adding graph " + GRAPH_ID_B + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_B))
+        assertThatExceptionOfType(StorageException.class)
+                .isThrownBy(() -> graphStorage.put(graph2, auth1Access))
+                .withMessage("Error adding graph " + GRAPH_ID_B + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_B))
                 .withFailMessage("error message should not contain details about schema")
-                .doesNotContain(UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
+                .withMessageNotContainingAny(UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
 
     }
 

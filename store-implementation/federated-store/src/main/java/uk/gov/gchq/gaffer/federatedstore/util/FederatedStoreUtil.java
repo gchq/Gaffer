@@ -252,7 +252,6 @@ public final class FederatedStoreUtil {
         if (nonNull(deprecatedGraphIds)) {
             String simpleName = operation.getClass().getSimpleName();
             LOGGER.warn("Operation:{} has old Deprecated style of graphId selection.", simpleName);
-            //throw new GafferRuntimeException(String.format("Operation:%s has old deprecated style of graphId selection. Use FederatedOperation to perform this selection", simpleName));
         }
         return deprecatedGraphIds;
     }
