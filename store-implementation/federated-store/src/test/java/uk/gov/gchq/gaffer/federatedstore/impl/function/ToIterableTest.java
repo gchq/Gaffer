@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class ToIterableTest {
 
@@ -38,7 +39,7 @@ public class ToIterableTest {
     @Test
     public void shouldReturnEmptyIterableFromNull() {
         assertThat(TO_ITERABLE.apply(null))
-                .isInstanceOf(EmptyIterable.class);
+                .isEmpty();
     }
 
     @Test
@@ -60,12 +61,21 @@ public class ToIterableTest {
     }
 
     @Test
-    public void shouldReturnIterableFromArray() {
-        final int[] ints = {1, 2, 3, 4};
+    public void shouldReturnIterableFromObjectArray() {
+        final Object[] ints = {1, 2, 3, 4};
 
         assertThat(TO_ITERABLE.apply(ints))
-                .asInstanceOf(InstanceOfAssertFactories.iterable(Integer.class))
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
                 .containsExactlyInAnyOrder(1, 2, 3, 4);
+    }
+
+    @Test
+    public void shouldThrowFroNonObjectArray() {
+        final int[] ints = {1, 2, 3, 4};
+
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> TO_ITERABLE.apply(ints))
+                .withMessageContaining("The given array is not of type Object[]");
     }
 
     @Test
