@@ -16,12 +16,12 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.HashSet;
 
+import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
@@ -100,7 +100,7 @@ public class FederatedAccessCreatingUserTest {
     public void shouldValidateWithEmptyHookAuthCollectionII() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .addingUserId(TEST_USER_ID)
-                .graphAuths(Sets.newHashSet(""))
+                .graphAuths(singleton(""))
                 .build();
 
         assertTrue(access.hasReadAccess(testUser()));

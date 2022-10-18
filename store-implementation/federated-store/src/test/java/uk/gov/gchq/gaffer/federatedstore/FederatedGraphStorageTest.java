@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -40,6 +39,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -80,15 +80,15 @@ public class FederatedGraphStorageTest {
     private final GraphSerialisable graphSerialisableA = getGraphSerialisable(GRAPH_ID_A, 1);
     private final GraphSerialisable graphSerialisableB = getGraphSerialisable(GRAPH_ID_B, 2);
     private final User nullUser = null;
-    private final FederatedAccess altAuth2Access = new FederatedAccess(Sets.newHashSet(AUTH_2), TEST_USER_ID);
-    private final FederatedAccess disabledByDefaultAccess = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER_ID, false, true);
+    private final FederatedAccess altAuth2Access = new FederatedAccess(singleton(AUTH_2), TEST_USER_ID);
+    private final FederatedAccess disabledByDefaultAccess = new FederatedAccess(singleton(AUTH_1), TEST_USER_ID, false, true);
     private final AccessPredicate blockingAccessPredicate = new NoAccessPredicate();
     private final FederatedAccess blockingReadAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, blockingAccessPredicate, null);
     private final FederatedAccess blockingWriteAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, null, blockingAccessPredicate);
     private final AccessPredicate permissiveAccessPredicate = new UnrestrictedAccessPredicate();
     private final FederatedAccess permissiveReadAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, permissiveAccessPredicate, null);
     private final FederatedAccess permissiveWriteAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, null, permissiveAccessPredicate);
-    private final FederatedAccess auth1Access = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER_ID);
+    private final FederatedAccess auth1Access = new FederatedAccess(singleton(AUTH_1), TEST_USER_ID);
     private FederatedGraphStorage graphStorage;
 
     @BeforeEach
@@ -256,7 +256,7 @@ public class FederatedGraphStorageTest {
         //when
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> graphStorage.get(testUser(), singletonList(GRAPH_ID_A)))
-                .withMessageContaining(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(GRAPH_ID_A)));
+                .withMessageContaining(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(GRAPH_ID_A)));
     }
 
     @Test
@@ -296,7 +296,7 @@ public class FederatedGraphStorageTest {
         //when then
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> graphStorage.get(blankUser(), singletonList(GRAPH_ID_A)))
-                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(GRAPH_ID_A)));
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(GRAPH_ID_A)));
     }
 
     @Test
@@ -316,7 +316,7 @@ public class FederatedGraphStorageTest {
         //then
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> graphStorage.get(testUser(), singletonList(X)))
-                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)));
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(X)));
     }
 
     @Test
@@ -326,7 +326,7 @@ public class FederatedGraphStorageTest {
         //when
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> graphStorage.get(authUser(), singletonList(X)))
-                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)));
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(X)));
     }
 
     @Test
@@ -336,7 +336,7 @@ public class FederatedGraphStorageTest {
         //when
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> graphStorage.get(blankUser(), singletonList(X)))
-                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)));
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(X)));
     }
 
     @Test
@@ -363,7 +363,7 @@ public class FederatedGraphStorageTest {
     @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
     public void shouldGetSchemaForAddingUser() throws Exception {
         graphStorage.put(graphSerialisableA, auth1Access);
-        graphStorage.put(graphSerialisableB, new FederatedAccess(Sets.newHashSet(X), X));
+        graphStorage.put(graphSerialisableB, new FederatedAccess(singleton(X), X));
         final Schema schema = graphStorage.getSchema(null, contextTestUser());
         assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
         assertEquals(1, schema.getTypes().size());
@@ -375,7 +375,7 @@ public class FederatedGraphStorageTest {
     @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
     public void shouldNotGetSchemaForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(graphSerialisableA, blockingReadAccess);
-        graphStorage.put(graphSerialisableB, new FederatedAccess(Sets.newHashSet(X), X));
+        graphStorage.put(graphSerialisableB, new FederatedAccess(singleton(X), X));
         final Schema schema = graphStorage.getSchema(null, contextTestUser());
         assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
         assertEquals(0, schema.getTypes().size(), "Revealing hidden schema");
@@ -385,7 +385,7 @@ public class FederatedGraphStorageTest {
     @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
     public void shouldGetSchemaForAuthUser() throws Exception {
         graphStorage.put(graphSerialisableA, auth1Access);
-        graphStorage.put(graphSerialisableB, new FederatedAccess(Sets.newHashSet(X), X));
+        graphStorage.put(graphSerialisableB, new FederatedAccess(singleton(X), X));
         final Schema schema = graphStorage.getSchema(null, contextAuthUser());
         assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
         assertEquals(1, schema.getTypes().size());
@@ -397,7 +397,7 @@ public class FederatedGraphStorageTest {
     @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
     public void shouldNotGetSchemaForBlankUser() throws Exception {
         graphStorage.put(graphSerialisableA, auth1Access);
-        graphStorage.put(graphSerialisableB, new FederatedAccess(Sets.newHashSet(X), X));
+        graphStorage.put(graphSerialisableB, new FederatedAccess(singleton(X), X));
         final Schema schema = graphStorage.getSchema(null, contextBlankUser());
         assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
         assertEquals(0, schema.getTypes().size(), "Revealing hidden schema");
@@ -407,7 +407,7 @@ public class FederatedGraphStorageTest {
     @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
     public void shouldGetSchemaForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(graphSerialisableA, permissiveReadAccess);
-        graphStorage.put(graphSerialisableB, new FederatedAccess(Sets.newHashSet(X), X));
+        graphStorage.put(graphSerialisableB, new FederatedAccess(singleton(X), X));
         final Schema schema = graphStorage.getSchema(null, contextBlankUser());
         assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
         assertEquals(1, schema.getTypes().size());

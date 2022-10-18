@@ -74,6 +74,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -416,19 +417,19 @@ public class FederatedStoreTest {
                 StoreTrait.POST_TRANSFORMATION_FILTERING,
                 StoreTrait.MATCHED_VERTEX)));
         assertThat(before).withFailMessage("No traits should be found for an empty FederatedStore");
-        assertThat(afterAcc).isEqualTo(Sets.newHashSet(
+        assertThat(afterAcc).isEqualTo(new HashSet<>(Arrays.asList(
                 TRANSFORMATION,
                 PRE_AGGREGATION_FILTERING,
                 POST_AGGREGATION_FILTERING,
                 POST_TRANSFORMATION_FILTERING,
                 ORDERED,
-                MATCHED_VERTEX));
-        assertThat(afterMap).isEqualTo(Sets.newHashSet(
+                MATCHED_VERTEX)));
+        assertThat(afterMap).isEqualTo(new HashSet<>(Arrays.asList(
                 TRANSFORMATION,
                 PRE_AGGREGATION_FILTERING,
                 POST_AGGREGATION_FILTERING,
                 POST_TRANSFORMATION_FILTERING,
-                MATCHED_VERTEX));
+                MATCHED_VERTEX)));
     }
 
     @Test
@@ -1163,7 +1164,7 @@ public class FederatedStoreTest {
                     .build();
             // Odd ids are disabled by default
             final boolean disabledByDefault = 1 == Math.floorMod(i, 2);
-            store.addGraphs(Sets.newHashSet(ALL_USERS), null, true, disabledByDefault, tempGraph);
+            store.addGraphs(singleton(ALL_USERS), null, true, disabledByDefault, tempGraph);
             for (final int j : expectedIds) {
                 if (i == j) {
                     expectedGraphs.add(tempGraph);
@@ -1188,7 +1189,7 @@ public class FederatedStoreTest {
                                 .build())
                         .build(), new Context(blankUser));
 
-        return (null == elements) ? Sets.newHashSet() : Sets.newHashSet(elements);
+        return (null == elements) ? new HashSet<>() : Sets.newHashSet(elements);
     }
 
     private void assertContains(final Throwable e, final String format, final String... s) {

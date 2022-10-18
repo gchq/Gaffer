@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +31,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
@@ -122,8 +122,8 @@ public class FederatedStoreWrongGraphIDsTest {
                 .returnToIterable()
                 .first().isEqualTo(EXPECTED_ENTITY);
 
-        assertThat(gettingElementsFromWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)));
+        assertThat(gettingElementsFromWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(WRONG_GRAPH_ID)));
 
-        assertThat(addingElementsToWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)));
+        assertThat(addingElementsToWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(WRONG_GRAPH_ID)));
     }
 }

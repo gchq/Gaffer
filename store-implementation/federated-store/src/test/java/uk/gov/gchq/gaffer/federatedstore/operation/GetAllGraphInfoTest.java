@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,7 +36,7 @@ public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet();
+        return new HashSet<>();
     }
 
     @Test

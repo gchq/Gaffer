@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
@@ -33,10 +32,13 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 /**
  * <p>
@@ -262,7 +264,7 @@ public class AddGraph implements IFederationOperation {
             if (null == graphAuths) {
                 _getOp().setGraphAuths(null);
             } else {
-                _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
+                _getOp().setGraphAuths(new HashSet<>(asList(graphAuths)));
             }
             return _self();
         }

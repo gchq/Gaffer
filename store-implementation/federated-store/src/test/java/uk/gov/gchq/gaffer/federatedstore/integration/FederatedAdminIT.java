@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
-import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.Connector;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -51,8 +50,8 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccum
 
 public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
 
-    public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("AdminAuth"));
-    public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("NotAdminAuth"));
+    public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Collections.singleton("AdminAuth"));
+    public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Collections.singleton("NotAdminAuth"));
 
     private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
 

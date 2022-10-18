@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -127,7 +126,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         assertThat(graphs).hasSize(2);
         final Iterator<Graph> iterator = graphs.iterator();
-        final HashSet<String> set = Sets.newHashSet();
+        final HashSet<String> set = new HashSet<>();
         while (iterator.hasNext()) {
             set.add(iterator.next().getGraphId());
         }
@@ -176,7 +175,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         assertThat(graphs).hasSize(2);
         final Iterator<Graph> iterator = graphs.iterator();
-        final HashSet<String> set = Sets.newHashSet();
+        final HashSet<String> set = new HashSet<>();
         while (iterator.hasNext()) {
             set.add(iterator.next().getGraphId());
         }

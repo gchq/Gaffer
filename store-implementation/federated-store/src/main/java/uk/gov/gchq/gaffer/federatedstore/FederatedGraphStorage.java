@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +41,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -124,7 +124,7 @@ public class FederatedGraphStorage {
 
                 Set<Graph> existingGraphs = storage.get(access);
                 if (null == existingGraphs) {
-                    existingGraphs = Sets.newHashSet(builtGraph);
+                    existingGraphs = new HashSet<>(Arrays.asList(builtGraph));
                     storage.put(access, existingGraphs);
                 } else {
                     existingGraphs.add(builtGraph);
@@ -198,7 +198,7 @@ public class FederatedGraphStorage {
                     boolean isRemoved = false;
                     final Set<Graph> graphs = entry.getValue();
                     if (null != graphs) {
-                        HashSet<Graph> remove = Sets.newHashSet();
+                        HashSet<Graph> remove = new HashSet<>();
                         for (final Graph graph : graphs) {
                             if (graph.getGraphId().equals(graphId)) {
                                 remove.add(graph);
@@ -289,7 +289,7 @@ public class FederatedGraphStorage {
         if (null != graphIds) {
             final Collection<String> visibleIds = getAllIds(user, adminAuth);
             if (!visibleIds.containsAll(graphIds)) {
-                final Set<String> notVisibleIds = Sets.newHashSet(graphIds);
+                final Set<String> notVisibleIds = new HashSet<>(graphIds);
                 notVisibleIds.removeAll(visibleIds);
                 throw new IllegalArgumentException(String.format(GRAPH_IDS_NOT_VISIBLE, notVisibleIds));
             }

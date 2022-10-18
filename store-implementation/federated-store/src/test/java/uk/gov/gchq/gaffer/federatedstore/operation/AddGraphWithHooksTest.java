@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
@@ -29,6 +28,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Set;
 
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -44,7 +44,7 @@ public class AddGraphWithHooksTest extends FederationOperationTest<AddGraphWithH
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("graphId");
+        return singleton("graphId");
     }
 
     @Test

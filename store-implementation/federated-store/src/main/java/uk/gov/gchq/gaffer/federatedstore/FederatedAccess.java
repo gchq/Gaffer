@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -256,7 +255,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
             if (null == graphAuths) {
                 this.graphAuths = null;
             } else {
-                final HashSet<String> authSet = Sets.newHashSet(graphAuths);
+                final HashSet<String> authSet = new HashSet<>(graphAuths);
                 authSet.removeAll(asList("", null));
                 this.graphAuths = authSet;
             }
@@ -265,7 +264,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
 
         public Builder addGraphAuths(final Collection<? extends String> graphAuths) {
             if (null != graphAuths) {
-                final HashSet<String> authSet = Sets.newHashSet(graphAuths);
+                final HashSet<String> authSet = new HashSet<>(graphAuths);
                 authSet.removeAll(asList("", null));
                 if (null == this.graphAuths) {
                     this.graphAuths = authSet;
