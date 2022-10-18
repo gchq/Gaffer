@@ -16,75 +16,63 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.add;
 
-import org.apache.commons.io.FileUtils;
-
-import uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.CsvElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.add.ImportCsv;
+import uk.gov.gchq.gaffer.operation.impl.add.CsvToElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
-
 
 /**
- * An {@code ImportCsvHandler} handles the {@link ImportCsv} operation.
+ * An {@code CsvToElementsHandler} handles the {@link CsvToElements} operation.
  *
- * It opens an openCypher formatted CSV file, generates elements using the
- * {@link OpenCypherCsvElementGenerator} add elements to the graph using the
- * {@link AddElements} operation.
+ * It takes an iterable of Strings, generating from them elements using the
+ * {@link CsvElementGenerator}.
  *
  * @see <a href="https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-format-opencypher.html">openCypher</a>
  */
-public class ImportCsvHandler implements OperationHandler<ImportCsv> {
+public class CsvToElementsHandler implements OperationHandler<CsvToElements> {
 
     @Override
-    public Void doOperation(final ImportCsv operation,
+    public Void doOperation(final CsvToElements operation,
                             final Context context,
                             final Store store) throws OperationException {
-        Iterable<String> data;
-        try {
-            data = getInputData(operation.getFilename());
-        } catch (final IOException e) {
-            throw new OperationException(e.getMessage());
-        }
 
-        OpenCypherCsvElementGenerator generator = createGenerator(data, operation);
+        CsvElementGenerator generator = createGenerator(operation);
+        if (generator.getCsvFormat() == null || generator.getCsvFormat().getClass().getSuperclass() != CsvFormat.class) {
+            throw new IllegalArgumentException("CsvToElements operation requires the user to provide a supported CsvFormat");
+        }
+        final Iterable<? extends String> input = operation.getInput();
 
         return store.execute(new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
-                        .input(data)
+                        .input(input)
                         .generator(generator)
                         .build())
                 .then(new AddElements())
                 .build(), context);
     }
 
-     Iterable<String> getInputData(final String filename) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(FileUtils.openInputStream(new File(filename))))) {
-            return reader.lines().collect(Collectors.toList());
-        }
-    }
 
-    OpenCypherCsvElementGenerator createGenerator(final Iterable<String> lines, final boolean trim, final char delimiter, final String nullString) {
+
+    CsvElementGenerator createGenerator(final Iterable<? extends String> lines, final boolean trim, final char delimiter, final String nullString, final CsvFormat csvFormat) {
         String header = lines.iterator().next();
-        return new OpenCypherCsvElementGenerator.Builder()
+        return new CsvElementGenerator.Builder()
                 .header(header)
                 .delimiter(delimiter)
                 .trim(trim)
                 .nullString(nullString)
+                .csvFormat(csvFormat)
                 .build();
     }
 
-    OpenCypherCsvElementGenerator createGenerator(final Iterable<String> lines, final ImportCsv operation) {
-        return createGenerator(lines, operation.isTrim(), operation.getDelimiter(), operation.getNullString());
+    CsvElementGenerator createGenerator(final CsvToElements operation) {
+        return createGenerator(operation.getInput(), operation.isTrim(), operation.getDelimiter(), operation.getNullString(), operation.getCsvFormat());
     }
 }
+
