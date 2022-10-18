@@ -74,7 +74,7 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.add.ImportCsv;
+import uk.gov.gchq.gaffer.operation.impl.add.CsvToElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -92,6 +92,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.imprt.localfile.ImportFromLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -487,7 +488,8 @@ public class StoreTest {
                         ExportToLocalFile.class,
 
                         // Import
-                        ImportCsv.class,
+                        ImportFromLocalFile.class,
+                        CsvToElements.class,
 
                         // Jobs
                         GetJobDetails.class,
@@ -604,7 +606,8 @@ public class StoreTest {
                         ExportToLocalFile.class,
 
                         // Import
-                        ImportCsv.class,
+                        ImportFromLocalFile.class,
+                        CsvToElements.class,
 
                         // Jobs are disabled
 
