@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.impl.function;
+package uk.gov.gchq.koryphe.impl.function;
 
 
 import uk.gov.gchq.koryphe.function.KorypheFunction;
@@ -22,6 +22,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 import java.util.Arrays;
 import java.util.Collections;
 
+@Deprecated
 public class ToIterable extends KorypheFunction<Object, Iterable<Object>> {
     public ToIterable() {
     }

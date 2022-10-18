@@ -20,7 +20,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.koryphe.impl.function.IterableConcat;
-import uk.gov.gchq.gaffer.federatedstore.impl.function.ToIterable;
+import uk.gov.gchq.koryphe.impl.function.ToIterable;
 
 import java.util.function.BiFunction;
 
