@@ -324,16 +324,15 @@ public class FederatedStore extends Store {
      * scope are returned.
      * </p>
      *
-     * @param user        the users scope to get graphs for.
-     * @param graphIds    the list of graphIds to get. null will return all graphs.
-     * @param operation   the requesting operation, graphs are returned only once per operation.
+     * @param user      the users scope to get graphs for.
+     * @param graphIds  the list of graphIds to get. null will return all graphs.
+     * @param operation the requesting operation, graphs are returned only once per operation.
      * @return the graph collection.
      */
     public List<Graph> getGraphs(final User user, final List<String> graphIds, final IFederationOperation operation) {
         List<Graph> rtn = new ArrayList<>();
         if (nonNull(operation)) {
-            String optionKey = getKeyForProcessedFedStore();
-            boolean isFedStoreIdPreexisting = addFedStoreId(operation, optionKey);
+            boolean isFedStoreIdPreexisting = addFedStoreIdToOperation(operation);
             if (isFedStoreIdPreexisting) {
                 List<String> federatedStoreIds = operation.getOptions()
                         .entrySet()
@@ -362,31 +361,36 @@ public class FederatedStore extends Store {
         return rtn;
     }
 
-    private String getKeyForProcessedFedStore() {
+    private String getKeyForProcessedFedStoreId() {
         return FEDERATED_STORE_PROCESSED + id;
     }
 
-    private boolean addFedStoreId(final Operation operation, final String optionKey) {
-        boolean hasOperationOrPayloadPreexistingFedStoreId = false;
-        if (nonNull(operation) && !isNullOrEmpty(optionKey)) {
-            //Keep Order v
-            boolean hasOperationPreexistingFedStoreId = !isNullOrEmpty(operation.getOption(optionKey, null)); //There is a difference between value null and key not found.
-            //Keep Order ^
-            boolean hasPayloadPreexistingFedStoreId = false;
-            if (operation instanceof FederatedOperation) {
-                //Check and Add FedStoreId to payload
-                hasPayloadPreexistingFedStoreId = addFedStoreId(((FederatedOperation) operation).getUnClonedPayload(), optionKey);
-            }
+    private boolean addFedStoreIdToOperation(final Operation operation) {
+        final String keyForFedStoreId = getKeyForProcessedFedStoreId();
+        boolean isFedStoreIdPreexisting = false;
+        if (nonNull(operation) && !isNullOrEmpty(keyForFedStoreId)) {
+            //KEEP THIS ORDER v
+            final boolean doesOperationHavePreexistingFedStoreId = !isValueForFedStoreIdNullOrEmpty(operation, keyForFedStoreId);
+            //Check and Add FedStoreId to payload
+            final boolean doesPayloadHavePreexistingFedStoreId = (operation instanceof FederatedOperation)
+                    && addFedStoreIdToOperation(((FederatedOperation<?, ?>) operation).getUnClonedPayload());
 
             //Add FedStoreId to current Operation.
-            operation.addOption(optionKey, getValueForProcessedFedStore());
-            hasOperationOrPayloadPreexistingFedStoreId = hasOperationPreexistingFedStoreId || hasPayloadPreexistingFedStoreId;
+            operation.addOption(keyForFedStoreId, getValueForProcessedFedStoreId());
+
+            isFedStoreIdPreexisting = doesOperationHavePreexistingFedStoreId || doesPayloadHavePreexistingFedStoreId;
+            //KEEP THIS ORDER ^
         }
-        return hasOperationOrPayloadPreexistingFedStoreId;
+        return isFedStoreIdPreexisting;
     }
 
-    public Map<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIdsCSV) {
-        return this.getAllGraphsAndAuths(user, graphIdsCSV, false);
+    private static boolean isValueForFedStoreIdNullOrEmpty(final Operation operation, final String fedStoreId) {
+        final boolean isValueForFedStoreIdNullOrEmpty = isNullOrEmpty(operation.getOption(fedStoreId, null));
+        if (operation.getOptions() != null && operation.getOptions().containsKey(fedStoreId) && isValueForFedStoreIdNullOrEmpty) {
+            //There is a slight difference between value null and key not found
+            LOGGER.debug(String.format("The FederatedStoreId Key has been with null value, this means the Key has been intentionally cleared for reprocessing by this FederatedStore. Key:%s", fedStoreId));
+        }
+        return isValueForFedStoreIdNullOrEmpty;
     }
 
     public Map<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds, final boolean userRequestingAdminUsage) {
@@ -555,16 +559,16 @@ public class FederatedStore extends Store {
             return graphStorage.get(user, null, (operation.isUserRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
         } else {
             //This operation has already been processes once, by this store.
-            String keyForProcessedFedStore = getKeyForProcessedFedStore();
-            operation.addOption(keyForProcessedFedStore, null); // value is null, but key is still found.
+            String keyForProcessedFedStoreId = getKeyForProcessedFedStoreId();
+            operation.addOption(keyForProcessedFedStoreId, null); // value is null, but key is still found.
             List<Graph> graphs = getGraphs(user, adminConfiguredDefaultGraphIds, operation);
             //put it back
-            operation.addOption(keyForProcessedFedStore, getValueForProcessedFedStore());
+            operation.addOption(keyForProcessedFedStoreId, getValueForProcessedFedStoreId());
             return graphs;
         }
     }
 
-    private String getValueForProcessedFedStore() {
+    private String getValueForProcessedFedStoreId() {
         return isNullOrEmpty(getGraphId()) ? FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY : getGraphId();
     }
 
