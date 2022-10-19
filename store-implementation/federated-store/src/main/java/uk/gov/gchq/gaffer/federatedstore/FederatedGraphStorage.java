@@ -66,8 +66,8 @@ public class FederatedGraphStorage {
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
     public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
-    private Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
-    private FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+    private final Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
+    private final FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
     private Boolean isCacheEnabled = false;
     private GraphLibrary graphLibrary;
 
@@ -124,7 +124,8 @@ public class FederatedGraphStorage {
 
                 Set<Graph> existingGraphs = storage.get(access);
                 if (null == existingGraphs) {
-                    existingGraphs = new HashSet<>(Arrays.asList(builtGraph));
+                    existingGraphs = new HashSet<>();
+                    existingGraphs.add(builtGraph);
                     storage.put(access, existingGraphs);
                 } else {
                     existingGraphs.add(builtGraph);

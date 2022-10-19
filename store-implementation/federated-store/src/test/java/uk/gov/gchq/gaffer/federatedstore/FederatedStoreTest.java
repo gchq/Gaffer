@@ -1193,7 +1193,7 @@ public class FederatedStoreTest {
     }
 
     private void assertContains(final Throwable e, final String format, final String... s) {
-        final String expectedStr = String.format(format, s);
+        final String expectedStr = String.format(format, (Object[]) s);
         assertThat(e.getMessage())
                 .withFailMessage("\"" + e.getMessage() + "\" does not contain string \"" + expectedStr + "\"").contains(expectedStr);
     }
