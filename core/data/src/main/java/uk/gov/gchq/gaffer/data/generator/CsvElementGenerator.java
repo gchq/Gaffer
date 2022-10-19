@@ -31,18 +31,12 @@ import uk.gov.gchq.koryphe.impl.function.CsvLinesToMaps;
 import uk.gov.gchq.koryphe.impl.function.FunctionChain;
 import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 import uk.gov.gchq.koryphe.impl.function.MapToTuple;
-import uk.gov.gchq.koryphe.impl.function.ParseTime;
-import uk.gov.gchq.koryphe.impl.function.ToBoolean;
-import uk.gov.gchq.koryphe.impl.function.ToDouble;
-import uk.gov.gchq.koryphe.impl.function.ToFloat;
-import uk.gov.gchq.koryphe.impl.function.ToInteger;
-import uk.gov.gchq.koryphe.impl.function.ToLong;
-import uk.gov.gchq.koryphe.impl.function.ToString;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -88,40 +82,14 @@ public class CsvElementGenerator implements ElementGenerator<String>, Serializab
                 }
                 if (columnHeader.contains(":")) {
                     String typeName = columnHeader.split(":")[1];
+                    HashMap<String, KorypheFunction<?, ?>> transforms = CsvFormat.getTransforms(csvFormat);
                     KorypheFunction<?, ?> transform;
-                    switch (typeName) {
-                        case "DateTime":
-                            transform = new ParseTime();
-                            break;
-                        case "Long":
-                            transform = new ToLong();
-                            break;
-                        case "Byte":
-                        case "Short":
-                        case "Int":
-                            transform = new ToInteger();
-                            break;
-                        case "Boolean":
-                            transform = new ToBoolean();
-                            break;
-                        case "Float":
-                            transform = new ToFloat();
-                            break;
-                        case "Double":
-                            transform = new ToDouble();
-                            break;
-                        case "Char":
-                        case "Date":
-                        case "LocalDate":
-                        case "LocalDateTime":
-                        case "Duration":
-                        case "Point":
-                        case "String":
-                            transform = new ToString();
-                            break;
-                        default:
-                            throw new RuntimeException("Unsupported Type: " + typeName);
+                    if (transforms.containsKey(typeName)) {
+                        transform = transforms.get(typeName);
+                    } else {
+                        throw new RuntimeException("Unsupported Type: " + typeName);
                     }
+
                     transformTuplesBuilder = transformTuplesBuilder.execute(new String[]{columnHeader}, transform, new String[]{propertyName});
                 }
 
