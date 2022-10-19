@@ -17,25 +17,29 @@
 package uk.gov.gchq.koryphe.impl.function;
 
 
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-public class ToIterable extends KorypheFunction<Object, Iterable<Object>> { //TODO FS move to Koryphe
+@Deprecated
+public class ToIterable extends KorypheFunction<Object, Iterable<Object>> {
     public ToIterable() {
     }
 
     public Iterable<Object> apply(final Object value) {
         final Iterable<Object> rtn;
         if (null == value) {
-            rtn = new EmptyIterable<>();
+            rtn = Collections.emptyList();
         } else if (value instanceof Iterable) {
             //noinspection unchecked
             rtn = (Iterable<Object>) value;
-        } else if (value instanceof Object[]) {
-            return Arrays.asList((Object[]) value);
+        } else if (value.getClass().isArray()) {
+            try {
+                return Arrays.asList((Object[]) value);
+            } catch (final ClassCastException e) {
+                throw new UnsupportedOperationException("The given array is not of type Object[]", e);
+            }
         } else {
             rtn = Collections.singletonList(value);
         }

@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Sets;
 import org.apache.htrace.fasterxml.jackson.annotation.JsonCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +92,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -530,7 +530,7 @@ public class FederatedStore extends Store {
 
     private Set<String> getCustomPropertiesAuths() {
         final String value = getProperties().getCustomPropsValue();
-        return (isNullOrEmpty(value)) ? null : Sets.newHashSet(getCleanStrings(value));
+        return (isNullOrEmpty(value)) ? null : new HashSet<>(getCleanStrings(value));
     }
 
     private void _add(final GraphSerialisable newGraph, final FederatedAccess access) throws StorageException {

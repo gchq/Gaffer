@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -34,6 +33,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -85,7 +85,7 @@ public class FederatedOperationChainValidatorTest {
             fail("exception expected");
         } catch (final Exception e) {
             //then
-            assertEquals(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, Lists.newArrayList(missingGraph)), e.getMessage());
+            assertEquals(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, singletonList(missingGraph)), e.getMessage());
         }
 
     }

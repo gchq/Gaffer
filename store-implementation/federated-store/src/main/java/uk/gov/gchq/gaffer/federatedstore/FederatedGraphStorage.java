@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +41,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -66,8 +66,8 @@ public class FederatedGraphStorage {
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
     public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
-    private Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
-    private FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+    private final Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
+    private final FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
     private Boolean isCacheEnabled = false;
     private GraphLibrary graphLibrary;
 
@@ -124,7 +124,8 @@ public class FederatedGraphStorage {
 
                 Set<Graph> existingGraphs = storage.get(access);
                 if (null == existingGraphs) {
-                    existingGraphs = Sets.newHashSet(builtGraph);
+                    existingGraphs = new HashSet<>();
+                    existingGraphs.add(builtGraph);
                     storage.put(access, existingGraphs);
                 } else {
                     existingGraphs.add(builtGraph);
@@ -198,7 +199,7 @@ public class FederatedGraphStorage {
                     boolean isRemoved = false;
                     final Set<Graph> graphs = entry.getValue();
                     if (null != graphs) {
-                        HashSet<Graph> remove = Sets.newHashSet();
+                        HashSet<Graph> remove = new HashSet<>();
                         for (final Graph graph : graphs) {
                             if (graph.getGraphId().equals(graphId)) {
                                 remove.add(graph);
@@ -289,7 +290,7 @@ public class FederatedGraphStorage {
         if (null != graphIds) {
             final Collection<String> visibleIds = getAllIds(user, adminAuth);
             if (!visibleIds.containsAll(graphIds)) {
-                final Set<String> notVisibleIds = Sets.newHashSet(graphIds);
+                final Set<String> notVisibleIds = new HashSet<>(graphIds);
                 notVisibleIds.removeAll(visibleIds);
                 throw new IllegalArgumentException(String.format(GRAPH_IDS_NOT_VISIBLE, notVisibleIds));
             }
@@ -533,11 +534,7 @@ public class FederatedGraphStorage {
                  * MiniAccumuloStore, SingleUseMiniAccumuloStore]
                  */
                 try {
-                    AccumuloProperties tmpAccumuloProps = (AccumuloProperties) graphToMove.getStoreProperties();
-                    Connector connection = TableUtils.getConnector(tmpAccumuloProps.getInstance(),
-                            tmpAccumuloProps.getZookeepers(),
-                            tmpAccumuloProps.getUser(),
-                            tmpAccumuloProps.getPassword());
+                    Connector connection = TableUtils.getConnector((AccumuloProperties) graphToMove.getStoreProperties());
 
                     if (connection.tableOperations().exists(graphId)) {
                         connection.tableOperations().offline(graphId);
@@ -545,8 +542,7 @@ public class FederatedGraphStorage {
                         connection.tableOperations().online(newGraphId);
                     }
                 } catch (final Exception e) {
-                    LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToMove);
-                    LOGGER.warn("Error trying to update tables.", e);
+                    LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToMove, e);
                 }
             }
 

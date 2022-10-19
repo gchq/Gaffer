@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -34,6 +33,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 @JsonPropertyOrder(value = {"class", "graphId", "graphAuths", "isPublic"}, alphabetic = true)
 @Since("1.11.0")
@@ -157,7 +158,7 @@ public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation 
             if (null == graphAuths) {
                 _getOp().setGraphAuths(null);
             } else {
-                _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
+                _getOp().setGraphAuths(new HashSet<>(asList(graphAuths)));
             }
             return _self();
         }

@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -27,12 +25,14 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 
 public class FederatedOperationTest extends FederationOperationTest<FederatedOperation> {
-    private static final List<String> EXPECTED_GRAPH_IDS = Lists.newArrayList("testGraphID1", "testGraphID2");
+    private static final List<String> EXPECTED_GRAPH_IDS = asList("testGraphID1", "testGraphID2");
     public static final String JSON = "{\n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation\",\n" +
             "  \"operation\" : {\n" +
@@ -46,7 +46,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("payloadOperation");
+        return singleton("payloadOperation");
     }
 
     @Test
