@@ -116,7 +116,7 @@ public class FederatedStoreViewAggregationTest {
                 .contains(entity1)
                 .withFailMessage("should not return entity with property 99 which is more than view filter 2")
                 .doesNotContain(entity99)
-                .withFailMessage("should contain only 1 ")
+                .withFailMessage("should contain only 1")
                 .hasSize(1);
 
         assertThat(elementsWithPropertyLessThan100)

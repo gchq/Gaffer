@@ -40,8 +40,8 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_EDGE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_2;
@@ -53,7 +53,7 @@ import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class FederatedGetSchemaHandlerTest {
     private static final String ACC_PROP_ID = "accProp";
-    private static final String  EDGE_SCHEMA_ID = "edgeSchema";
+    private static final String EDGE_SCHEMA_ID = "edgeSchema";
     private static final String TEST_FED_STORE = "testFedStore";
     private static final Schema STRING_SCHEMA = new Schema.Builder()
             .type(STRING, new TypeDefinition.Builder()
@@ -193,10 +193,9 @@ public class FederatedGetSchemaHandlerTest {
 
         final GetSchema operation = null;
 
-        try {
-            handler.doOperation(operation, contextTestUser(), federatedStore);
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Operation cannot be null"));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(operation, contextTestUser(), federatedStore))
+                .withMessageContaining("Operation cannot be null");
+
     }
 }

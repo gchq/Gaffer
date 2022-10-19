@@ -31,9 +31,9 @@ import java.util.Properties;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.from;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
@@ -113,9 +113,9 @@ public class FederatedStoreCacheTest {
         //given
         federatedStoreCache.addGraphToCache(testGraph, null, false);
         //when
-        final OverwritingException exception = assertThrows(OverwritingException.class, () -> federatedStoreCache.addGraphToCache(testGraph, null, false));
-        //then
-        assertThat(exception).message().contains("Cache entry already exists");
+        assertThatExceptionOfType(OverwritingException.class)
+                .isThrownBy(() -> federatedStoreCache.addGraphToCache(testGraph, null, false))
+                .withMessageContaining("Cache entry already exists");
     }
 
     @Test

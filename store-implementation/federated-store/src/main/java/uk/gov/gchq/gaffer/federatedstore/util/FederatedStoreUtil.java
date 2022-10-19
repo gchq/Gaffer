@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.util;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -74,7 +73,7 @@ public final class FederatedStoreUtil {
         final List<String> values;
         if (value != null) {
             values = Arrays.stream(StringUtils.stripAll(value.split(SCHEMA_DEL_REGEX)))
-                    .filter(s -> !Strings.isNullOrEmpty(s))
+                    .filter(StringUtils::isNotBlank)
                     .collect(Collectors.toList());
         } else {
             values = null;
