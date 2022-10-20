@@ -82,7 +82,7 @@ public class FederatedOperationChainValidatorTest {
                                         .build())
                                 .build())
                         .graphIdsCSV(missingGraph), new Context()))
-                .withMessage(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, singletonList(missingGraph)));
+                .withStackTraceContaining(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, singletonList(missingGraph)));
     }
 
 }
