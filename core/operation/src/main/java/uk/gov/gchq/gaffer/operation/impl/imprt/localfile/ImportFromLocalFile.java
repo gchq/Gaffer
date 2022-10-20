@@ -23,7 +23,9 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 
+import uk.gov.gchq.gaffer.data.generator.CsvElementGenerator;
 import uk.gov.gchq.gaffer.operation.imprt.ImportFrom;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -37,7 +39,7 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "input", "filePath"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("Imports CSV data from a local file")
-public class ImportFromLocalFile implements ImportFrom<String> {
+public class ImportFromLocalFile implements InputOutput<String,Iterable<? extends String>> {
 
     @Required
     private String filePath;
@@ -61,15 +63,6 @@ public class ImportFromLocalFile implements ImportFrom<String> {
         this.options = options;
     }
 
-    @Override
-    public final String getKey() {
-        return filePath;
-    }
-
-    @Override
-    public void setKey(final String key) {
-        // key is not used
-    }
 
     @Override
     public final String getInput() {
@@ -78,6 +71,14 @@ public class ImportFromLocalFile implements ImportFrom<String> {
 
     @Override
     public void setInput(final String filePath) {
+        this.filePath = filePath;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
 
@@ -94,6 +95,11 @@ public class ImportFromLocalFile implements ImportFrom<String> {
         public Builder() {
             super(new ImportFromLocalFile());
         }
+    }
+
+    public CsvElementGenerator.Builder delimiter(final char delimiter) {
+        this.delimiter = delimiter;
+        return this;
     }
 }
 

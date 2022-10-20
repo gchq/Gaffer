@@ -24,11 +24,9 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
  *
  * @param <T> the type of object to export
  */
-public interface ImportFrom<T> extends
-        Import,
-        InputOutput<T, T> {
-    interface Builder<OP extends ImportFrom<T>, T, B extends Builder<OP, T, ?>>
-            extends Import.Builder<OP, B>,
-            InputOutput.Builder<OP, T, T, B> {
+public interface ImportFrom<I, O> extends
+        InputOutput<I, O> {
+    interface Builder<OP extends ImportFrom<I, O>, T, B extends Builder<OP, T, ?>>
+            extends InputOutput.Builder<OP, I, O, B> {
     }
 }
