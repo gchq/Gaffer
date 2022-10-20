@@ -40,6 +40,8 @@ public class NamedViewCacheBackwardCompatibilityTest {
     public static void setUp() {
         final Properties properties = new Properties();
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, JcsCacheService.class.getName());
+        // Note that this config causes a binary resource file containing data to be loaded into the cache
+        // This data includes ADDING_USER and VIEW_NAME
         properties.setProperty(CacheProperties.CACHE_CONFIG_FILE, "src/test/resources/gaffer-1.12.0-cache/cache.ccf");
         CacheServiceLoader.initialise(properties);
         viewCache = new NamedViewCache();
