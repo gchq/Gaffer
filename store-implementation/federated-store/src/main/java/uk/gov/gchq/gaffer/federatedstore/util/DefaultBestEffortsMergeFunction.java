@@ -20,8 +20,9 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.koryphe.impl.function.IterableConcat;
-import uk.gov.gchq.koryphe.impl.function.ToIterable;
+import uk.gov.gchq.koryphe.impl.function.ToList;
 
+import java.util.Collections;
 import java.util.function.BiFunction;
 
 import static java.util.Objects.isNull;
@@ -31,9 +32,10 @@ public class DefaultBestEffortsMergeFunction implements BiFunction<Object, Itera
 
     @Override
     public Iterable<Object> apply(final Object o, final Iterable<Object> objects) {
+        final Iterable<Object> oAsNonNullIterable = isNull(o) ? Collections.emptyList() : (Iterable<Object>) new ToList().apply(o);
         return isNull(objects)
-                ? new ToIterable().apply(o)
-                : new IterableConcat<>().apply(Lists.newArrayList(new ToIterable().apply(o), objects));
+                ? oAsNonNullIterable
+                : new IterableConcat<>().apply(Lists.newArrayList(oAsNonNullIterable, objects));
     }
 
     @Override
