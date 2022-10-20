@@ -79,8 +79,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             }
 
             return results;
-        } catch (
-                final Exception e) {
+        } catch (final Exception e) {
             throw new OperationException(ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS, e);
         }
 

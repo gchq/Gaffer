@@ -33,7 +33,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.nonNull;
+import static java.util.Objects.isNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.shallowCloneWithDeepOptions;
 
@@ -128,12 +128,10 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                 ? ((FederatedOperation) op).getGraphIds()
                 : null;
 
-        if (nonNull(rtn)) {
-            return rtn;
-        } else {
-            boolean userRequestingAdminUsage = (op instanceof IFederationOperation) && ((IFederationOperation) op).isUserRequestingAdminUsage();
-            return userRequestingAdminUsage ? store.getAllGraphIds(user, userRequestingAdminUsage) : store.getAdminConfiguredDefaultGraphIds();
-        }
+        boolean userRequestingAdminUsage = (op instanceof IFederationOperation) && ((IFederationOperation) op).isUserRequestingAdminUsage();
 
+        return isNull(rtn)
+                ? store.getAllGraphIds(user, userRequestingAdminUsage)
+                : rtn;
     }
 }
