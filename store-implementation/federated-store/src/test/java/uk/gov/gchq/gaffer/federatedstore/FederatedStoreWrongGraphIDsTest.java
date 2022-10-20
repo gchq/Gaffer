@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -35,7 +36,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
@@ -104,20 +105,21 @@ public class FederatedStoreWrongGraphIDsTest {
         final Iterable<? extends String> graphs = federatedStore.execute(new GetAllGraphIds(), contextBlankUser());
         final Iterable<? extends Element> getAllElements = federatedStore.execute(new GetAllElements(), contextBlankUser());
         final Iterable<? extends Element> getAllElementsFromAccumuloGraph = federatedStore.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(GRAPH_ID_ACCUMULO), contextBlankUser());
-        final Exception gettingElementsFromWrongGraph = assertThrows(IllegalArgumentException.class, () -> federatedStore.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(WRONG_GRAPH_ID), contextBlankUser()));
-        final Exception addingElementsToWrongGraph = assertThrows(IllegalArgumentException.class, () -> federatedStore.execute(new FederatedOperation.Builder()
-                .op(new AddElements.Builder()
-                        .input(EXPECTED_ENTITY)
-                        .build())
-                .graphIdsCSV(WRONG_GRAPH_ID)
-                .build(), contextBlankUser()));
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> federatedStore.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(WRONG_GRAPH_ID), contextBlankUser()))
+                .withStackTraceContaining(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(WRONG_GRAPH_ID)));
+
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> federatedStore.execute(new FederatedOperation.Builder()
+                        .op(new AddElements.Builder()
+                                .input(EXPECTED_ENTITY)
+                                .build())
+                        .graphIdsCSV(WRONG_GRAPH_ID)
+                        .build(), contextBlankUser()))
+                .withStackTraceContaining(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(WRONG_GRAPH_ID)));
 
         //then
         assertThat(graphs).asInstanceOf(InstanceOfAssertFactories.iterable(String.class)).containsExactly(GRAPH_ID_ACCUMULO);
-
-        assertThat(gettingElementsFromWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(WRONG_GRAPH_ID)));
-
-        assertThat(addingElementsToWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(WRONG_GRAPH_ID)));
 
         assertThat(getAllElements)
                 .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
@@ -128,9 +130,5 @@ public class FederatedStoreWrongGraphIDsTest {
                 .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
                 .withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT)
                 .containsExactly(EXPECTED_ENTITY);
-
-        assertThat(gettingElementsFromWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(WRONG_GRAPH_ID)));
-
-        assertThat(addingElementsToWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(WRONG_GRAPH_ID)));
     }
 }

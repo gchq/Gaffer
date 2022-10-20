@@ -29,11 +29,12 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.shallowCloneWithDeepOptions;
 
@@ -43,6 +44,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.shallowC
  * the merged schema based on the user context and operation options.
  */
 public class FederatedOperationChainValidator extends OperationChainValidator {
+
     public FederatedOperationChainValidator(final ViewValidator viewValidator) {
         super(viewValidator);
     }
@@ -116,7 +118,8 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
 
             //What state did the for loop exit with?
             if (currentResult != null && !currentResult.isValid()) {
-                validationResult.addError("View is not valid for graphIds:" + getGraphIds(op, user, (FederatedStore) store).stream().collect(Collectors.joining(",", "[", "]")));
+
+                validationResult.addError("View is not valid for graphIds:" + (graphIds == null ? new ArrayList<String>() : graphIds).stream().collect(Collectors.joining(",", "[", "]")));
                 //If invalid, no graphs views where valid, so add all saved errors.
                 validationResult.add(savedResult);
             }
@@ -124,14 +127,14 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
     }
 
     private List<String> getGraphIds(final Operation op, final User user, final FederatedStore store) {
-        List<String> rtn = (op instanceof FederatedOperation)
-                ? ((FederatedOperation) op).getGraphIds()
-                : null;
 
-        boolean userRequestingAdminUsage = (op instanceof IFederationOperation) && ((IFederationOperation) op).isUserRequestingAdminUsage();
+        final List<String> allGraphIds = store.getAllGraphIds(user, op instanceof IFederationOperation && ((IFederationOperation) op).isUserRequestingAdminUsage());
 
-        return isNull(rtn)
-                ? store.getAllGraphIds(user, userRequestingAdminUsage)
-                : rtn;
+        final List<String> graphIdsFromOperation = (op instanceof IFederatedOperation) ? ((IFederatedOperation) op).getGraphIds() : new ArrayList<String>();
+
+      return  (nonNull(graphIdsFromOperation) && !graphIdsFromOperation.isEmpty())
+                ? allGraphIds.stream().filter(graphIdsFromOperation::contains).collect(Collectors.toList())
+                : allGraphIds;
+
     }
 }

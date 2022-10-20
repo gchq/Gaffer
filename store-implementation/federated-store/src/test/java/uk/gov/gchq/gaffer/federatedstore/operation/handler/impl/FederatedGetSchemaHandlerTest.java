@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,9 +40,8 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_EDGE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_2;
@@ -195,7 +193,9 @@ public class FederatedGetSchemaHandlerTest {
 
         final GetSchema operation = null;
 
-        final Exception e = assertThrows(Exception.class, () -> handler.doOperation(operation, contextTestUser(), federatedStore));
-        assertThat(e).hasStackTraceContaining("Operation cannot be null");
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(operation, contextTestUser(), federatedStore))
+                .withStackTraceContaining("Operation cannot be null");
+
     }
 }

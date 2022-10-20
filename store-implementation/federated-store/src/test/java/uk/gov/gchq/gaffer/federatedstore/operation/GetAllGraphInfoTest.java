@@ -25,7 +25,6 @@ import java.util.Set;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @see uk.gov.gchq.gaffer.federatedstore.AdminGetAllGraphInfoTest
@@ -60,10 +59,14 @@ public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo
                 .build();
 
         final GetAllGraphInfo clone = operation.shallowClone();
-        assertNotNull(clone);
+
+        //Then
+        assertThat(clone)
+                .isNotNull()
+                .isEqualTo(operation);
+
         assertEquals("b", clone.getOption("a"));
         assertEquals(GRAPH_IDS, clone.getGraphIds());
-        assertEquals(operation, clone);
     }
 
     @Override

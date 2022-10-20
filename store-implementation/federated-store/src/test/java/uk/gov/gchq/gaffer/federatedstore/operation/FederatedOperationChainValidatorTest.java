@@ -34,8 +34,8 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -73,20 +73,16 @@ public class FederatedOperationChainValidatorTest {
                 .config(new GraphConfig.Builder().graphId("testFedGraph").build())
                 .build();
 
-        try {
-            //when
-            graph.execute(getFederatedOperation(
-                    new GetAllElements.Builder()
-                            .view(new View.Builder()
-                                    .entity("missingEntity")
-                                    .build())
-                            .build())
-                    .graphIdsCSV(missingGraph), new Context());
-            fail("exception expected");
-        } catch (final Exception e) {
-            //then
-            assertEquals(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, singletonList(missingGraph)), e.getMessage());
-        }
-
+        //when
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> graph.execute(getFederatedOperation(
+                        new GetAllElements.Builder()
+                                .view(new View.Builder()
+                                        .entity("missingEntity")
+                                        .build())
+                                .build())
+                        .graphIdsCSV(missingGraph), new Context()))
+                .withStackTraceContaining(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, singletonList(missingGraph)));
     }
+
 }

@@ -80,8 +80,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             }
 
             return results;
-        } catch (
-                final Exception e) {
+        } catch (final Exception e) {
             throw new OperationException(ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS, e);
         }
 
@@ -100,7 +99,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
             return rtn;
         } catch (final Exception e) {
-            throw new OperationException(String.format("Error while merging results. %s", Objects.toString(e.getMessage(), ""), e));
+            throw new OperationException(String.format("Error while merging results. %s", Objects.toString(e.getMessage(), "")), e);
         }
     }
 
