@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,8 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
     @BeforeAll
     public static void setUp() {
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, JcsCacheService.class.getName());
+        // Note that this config causes a binary resource file containing data to be loaded into the cache
+        // This data includes MAP_ID_1 and user auths
         properties.setProperty(CacheProperties.CACHE_CONFIG_FILE, "src/test/resources/gaffer-1.12.0-cache/cache.ccf");
 
         CacheServiceLoader.initialise(properties);
