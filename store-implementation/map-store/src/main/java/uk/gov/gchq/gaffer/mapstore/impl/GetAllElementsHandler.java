@@ -15,10 +15,6 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
@@ -31,32 +27,39 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Iterator;
 import java.util.stream.Stream;
 
 /**
  * An {@link OutputOperationHandler} for the {@link GetAllElements} operation on the {@link MapStore}.
  */
-public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
+public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, Iterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<? extends Element> doOperation(final GetAllElements operation,
-                                                            final Context context,
-                                                            final Store store) throws OperationException {
+    public Iterable<? extends Element> doOperation(final GetAllElements operation,
+                                                   final Context context,
+                                                   final Store store)
+            throws OperationException {
         return doOperation(operation, context, (MapStore) store);
     }
 
-    private CloseableIterable<Element> doOperation(final GetAllElements operation, final Context context, final MapStore mapStore) {
+    private Iterable<Element> doOperation(final GetAllElements operation,
+                                          final Context context,
+                                          final MapStore mapStore) {
         return new AllElementsIterable(mapStore.getMapImpl(), operation, mapStore, context.getUser());
     }
 
-    private static class AllElementsIterable extends WrappedCloseableIterable<Element> {
+    private static class AllElementsIterable implements Iterable<Element> {
         private final MapImpl mapImpl;
         private final GetAllElements getAllElements;
         private final Schema schema;
         private final User user;
         private final boolean supportsVisibility;
 
-        AllElementsIterable(final MapImpl mapImpl, final GetAllElements getAllElements, final MapStore mapStore, final User user) {
+        AllElementsIterable(final MapImpl mapImpl,
+                            final GetAllElements getAllElements,
+                            final MapStore mapStore,
+                            final User user) {
             this.mapImpl = mapImpl;
             this.getAllElements = getAllElements;
             this.schema = mapStore.getSchema();
@@ -65,7 +68,7 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
         }
 
         @Override
-        public CloseableIterator<Element> iterator() {
+        public Iterator<Element> iterator() {
             Stream<Element> elements = mapImpl.getAllElements(getAllElements.getView().getGroups());
             if (this.supportsVisibility) {
                 elements = GetElementsUtil.applyVisibilityFilter(elements, schema, user);
@@ -77,8 +80,7 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
                 ViewUtil.removeProperties(getAllElements.getView(), element);
                 return element;
             });
-            return new WrappedCloseableIterator<>(elements.iterator());
+            return elements.iterator();
         }
     }
 }
-

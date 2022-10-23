@@ -42,7 +42,6 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static java.util.Collections.emptyList;
 
@@ -145,11 +144,6 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
 
     public List<String> getWriteAccessRoles() {
         return writeAccessRoles;
-    }
-
-    @Deprecated
-    public boolean hasWriteAccess(final String userId, final Set<String> opAuths, final String adminAuth) {
-        return hasWriteAccess(new User.Builder().userId(userId).opAuths(opAuths).build(), adminAuth);
     }
 
     @Override

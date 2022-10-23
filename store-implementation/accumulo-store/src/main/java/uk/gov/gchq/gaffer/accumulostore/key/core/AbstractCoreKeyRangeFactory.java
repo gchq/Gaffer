@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 
@@ -57,10 +56,7 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
                 ranges.addAll(getRange(edgeId.getSource(), edgeId.getDestination(), directed, operation, inOutType));
             }
 
-            // Do related - if operation doesn't have seed matching or it has seed matching equal to RELATED
-            final boolean doRelated = !(operation instanceof SeedMatching)
-                    || !SeedMatching.SeedMatchingType.EQUAL.equals(((SeedMatching) operation).getSeedMatching());
-            if (doRelated && operation.getView().hasEntities()) {
+            if (operation.getView().hasEntities()) {
                 // Get Entities related to EdgeIds
                 ranges.addAll(getRange(edgeId.getSource(), operation, false));
                 ranges.addAll(getRange(edgeId.getDestination(), operation, false));

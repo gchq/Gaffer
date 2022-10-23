@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.traffic.listeners;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataLoader;
@@ -25,7 +28,6 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import java.io.File;
-import java.util.logging.Logger;
 
 /**
  * A {@link ServletContextListener} to load the road traffic dataset into the application
@@ -34,7 +36,7 @@ import java.util.logging.Logger;
 public class DataLoader implements ServletContextListener {
     public static final String DATA_PATH = "roadTraffic.dataLoader.dataPath";
 
-    private static final Logger LOGGER = Logger.getLogger(DataLoader.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataLoader.class.getName());
 
     @Override
     public void contextInitialized(final ServletContextEvent servletContextEvent) {
@@ -57,7 +59,7 @@ public class DataLoader implements ServletContextListener {
         try {
             dataLoader.load(new File(dataPath));
         } catch (final Exception e) {
-            LOGGER.info("Unable to load data: " + e.getMessage());
+            LOGGER.info("Unable to load data: {}", e.getMessage());
             throw new RuntimeException("Unable to load data", e);
         }
 

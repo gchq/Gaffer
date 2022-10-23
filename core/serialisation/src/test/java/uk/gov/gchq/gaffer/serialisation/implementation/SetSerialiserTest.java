@@ -19,9 +19,9 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -69,7 +69,7 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<? extends Ob
         set.add(3);
         set.add(11);
 
-        ((SetSerialiser) serialiser).setObjectSerialiser(new IntegerSerialiser());
+        ((SetSerialiser) serialiser).setObjectSerialiser(new OrderedIntegerSerialiser());
         ((SetSerialiser) serialiser).setSetClass(LinkedHashSet.class);
 
         byte[] b = serialiser.serialise(set);

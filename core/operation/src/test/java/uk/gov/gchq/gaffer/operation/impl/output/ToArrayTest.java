@@ -33,7 +33,7 @@ public class ToArrayTest extends OperationTest<ToArray> {
         final ToArray<String> toArray = new ToArray.Builder<String>().input("1", "2").build();
 
         // Then
-        assertThat(toArray.getInput())
+        assertThat((Iterable<String>) toArray.getInput())
                 .hasSize(2)
                 .containsOnly("1", "2");
     }

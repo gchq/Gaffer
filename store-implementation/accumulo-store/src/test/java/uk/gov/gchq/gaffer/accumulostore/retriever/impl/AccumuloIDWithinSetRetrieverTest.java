@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -396,8 +396,8 @@ public class AccumuloIDWithinSetRetrieverTest {
         }
 
         assertThat(count)
-                .isNotEqualTo(maxNumberOfTries)
-                .withFailMessage("Didn't find a false positive");
+                .withFailMessage("Didn't find a false positive")
+                .isNotEqualTo(maxNumberOfTries);
 
         // False positive is "" + count so create an edge from seeds to that
         final GetElementsWithinSet op = new GetElementsWithinSet.Builder().view(defaultView)

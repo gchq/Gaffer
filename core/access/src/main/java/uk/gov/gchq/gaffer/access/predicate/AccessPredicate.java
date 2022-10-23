@@ -39,7 +39,6 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 public class AccessPredicate implements BiPredicate<User, String>, Serializable {
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private final Predicate<User> userPredicate;
 
     public AccessPredicate(
@@ -70,6 +69,7 @@ public class AccessPredicate implements BiPredicate<User, String>, Serializable 
                 && user.getOpAuths().contains(adminAuth));
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     public Predicate<User> getUserPredicate() {
         return userPredicate;
     }

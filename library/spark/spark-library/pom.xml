@@ -19,14 +19,14 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>spark</artifactId>
-        <version>1.22.1-SNAPSHOT</version>
+        <version>2.0.0-alpha-1.3.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>spark-library</artifactId>
 
     <properties>
-        <graphframes.library.version>0.4.0</graphframes.library.version>
-        <graphframes.version>${graphframes.library.version}-spark2.1-s_${scala.version}</graphframes.version>
+        <graphframes.library.version>0.8.1</graphframes.library.version>
+        <graphframes.version>${graphframes.library.version}-spark${spark.minor.version}-s_${scala.minor.version}</graphframes.version>
     </properties>
 
     <dependencies>
@@ -44,24 +44,13 @@
 
         <!-- External libraries -->
         <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
-            <version>${hadoop.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-mapreduce-client-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_2.11</artifactId>
+            <artifactId>jackson-module-scala_${scala.minor.version}</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.version}</artifactId>
+            <artifactId>spark-core_${scala.minor.version}</artifactId>
             <version>${spark.version}</version>
             <!-- exclude server-side parts that conflict with running in a webapp -->
             <exclusions>
@@ -71,7 +60,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.11</artifactId>
+                    <artifactId>jackson-module-scala_${scala.minor.version}</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.sun.jersey</groupId>
@@ -127,12 +116,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_${scala.version}</artifactId>
+            <artifactId>spark-sql_${scala.minor.version}</artifactId>
             <version>${spark.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-graphx_${scala.version}</artifactId>
+            <artifactId>spark-graphx_${scala.minor.version}</artifactId>
             <version>${spark.version}</version>
             <exclusions>
                 <!--
@@ -141,24 +130,18 @@
                 -->
                 <exclusion>
                     <groupId>org.spire-math</groupId>
-                    <artifactId>spire_2.11</artifactId>
+                    <artifactId>spire_${scala.minor.version}</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.chuusai</groupId>
-                    <artifactId>shapeless_2.11</artifactId>
+                    <artifactId>shapeless_${scala.minor.version}</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-catalyst_${scala.version}</artifactId>
+            <artifactId>spark-catalyst_${scala.minor.version}</artifactId>
             <version>${spark.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro-mapred</artifactId>
-            <version>${avro.version}</version>
-            <classifier>hadoop2</classifier>
         </dependency>
         <dependency>
             <groupId>graphframes</groupId>

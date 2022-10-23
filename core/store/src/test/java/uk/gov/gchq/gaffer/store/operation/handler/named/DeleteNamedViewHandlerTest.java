@@ -124,7 +124,7 @@ public class DeleteNamedViewHandlerTest {
     }
 
     private boolean cacheContains(final String namedViewName) throws CacheOperationFailedException {
-        Iterable<NamedViewDetail> namedViews = namedViewCache.getAllNamedViews();
+        Iterable<NamedViewDetail> namedViews = namedViewCache.getAllNamedViews(context.getUser());
         for (final NamedViewDetail namedView : namedViews) {
             if (namedView.getName().equals(namedViewName)) {
                 return true;

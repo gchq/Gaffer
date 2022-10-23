@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -191,7 +191,6 @@ public class GraphConfigurationControllerTest {
         expectedFields.add("input");
         expectedFields.add("view");
         expectedFields.add("includeIncomingOutGoing");
-        expectedFields.add("seedMatching");
         expectedFields.add("options");
         expectedFields.add("directedType");
         expectedFields.add("views");
@@ -279,6 +278,18 @@ public class GraphConfigurationControllerTest {
 
         // When
         final Set<Class> classes = controller.getTransformFunctions();
+
+        // Then
+        assertFalse(classes.isEmpty());
+    }
+
+    @Test
+    public void shouldGetAggregationFunctions() {
+        // Given
+        GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
+
+        // When
+        final Set<Class> classes = controller.getAggregationFunctions();
 
         // Then
         assertFalse(classes.isEmpty());

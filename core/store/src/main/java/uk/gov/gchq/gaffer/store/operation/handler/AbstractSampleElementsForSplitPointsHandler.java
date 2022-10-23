@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.Iterables;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.koryphe.iterable.LimitedIterable;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,8 +61,8 @@ public abstract class AbstractSampleElementsForSplitPointsHandler<T, S extends S
                 e -> null != e && (1 == proportionToSample || random.nextFloat() <= proportionToSample)
         );
 
-        final LimitedCloseableIterable<? extends Element> limitedElements =
-                new LimitedCloseableIterable<>(cleanElements, 0, maxSampledElements, false);
+        final LimitedIterable<? extends Element> limitedElements =
+                new LimitedIterable<>(cleanElements, 0, maxSampledElements, false);
 
         final Stream<T> recordStream = process(Streams.toStream(limitedElements), typedStore);
         final Stream<T> sortedRecordStream = sort(recordStream, typedStore);

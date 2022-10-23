@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2020 Crown Copyright
+  ~ Copyright 2016-2022 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>1.22.1-SNAPSHOT</version>
+    <version>2.0.0-alpha-1.3.1-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -44,76 +44,81 @@
         <exclude.tests />
         <skip.jar-with-dependencies>false</skip.jar-with-dependencies>
         <shaded.jar.phase>package</shaded.jar.phase>
+        <war.classifier />
+        <append.shaded.classifier />
 
         <java.version>1.8</java.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <scala.version>2.11</scala.version>
-        <scala.minor.version>2.11.12</scala.minor.version>
 
         <!-- Dependency version properties -->
-        <junit5.version>5.6.0</junit5.version>
-        <junit.platform.suite.version>1.6.2</junit.platform.suite.version>
-        <mockito.version>3.3.3</mockito.version>
-        <failsafe.version>3.0.0-M5</failsafe.version>
+        <junit.version>5.8.2</junit.version>
+        <junit-suite.version>1.8.2</junit-suite.version>
+        <assertj.version>3.22.0</assertj.version>
+        <mockito.version>4.3.1</mockito.version>
+        <failsafe.version>3.0.0-M4</failsafe.version>
         <slf4j.api.version>1.7.36</slf4j.api.version>
 
-        <koryphe.version>1.14.0</koryphe.version>
-        <accumulo.version>1.9.3</accumulo.version>
-        <hbase.version>1.3.0</hbase.version>
-        <avro.version>1.7.7</avro.version>
-        <hadoop.version>2.6.5</hadoop.version>
-        <jackson.compile.version>2.6.5</jackson.compile.version>
-        <jackson.max.version>2.9.6</jackson.max.version>
-        <jackson.min.version>2.3.1</jackson.min.version>
-        <jackson.version>${jackson.compile.version}</jackson.version>
+        <scala.minor.version>2.11</scala.minor.version>
+        <scala.version>${scala.minor.version}.12</scala.version>
+        <spark.minor.version>2.4</spark.minor.version>
+        <spark.version>${spark.minor.version}.5</spark.version>
+
+        <koryphe.version>2.4.0</koryphe.version>
+        <accumulo.version>2.0.1</accumulo.version>
+        <avro.version>1.8.2</avro.version>
+        <hadoop.version>3.3.3</hadoop.version>
+        <jackson.version>2.12.6</jackson.version>
+        <jackson.minor.version>2.11</jackson.minor.version>
 
         <clearspring.version>2.7.0</clearspring.version>
         <datasketches.version>0.12.0</datasketches.version>
-        <commons-codec.version>1.6</commons-codec.version>
-        <commons-collections.version>3.2.2</commons-collections.version>
-        <commons-io.version>2.7</commons-io.version>
-        <commons-lang3.version>3.3.2</commons-lang3.version>
-        <commons-logging.version>1.1.3</commons-logging.version>
-        <commons-math.version>2.1</commons-math.version>
-        <commons-math3.version>3.4.1</commons-math3.version>
-        <commons-csv.version>1.4</commons-csv.version>
-        <curator.version>2.6.0</curator.version>
-        <findbugs.version>3.0.2</findbugs.version>
-        <guava.version>13.0.1</guava.version>
-        <httpcomponents.version>4.4</httpcomponents.version>
-        <javassist.version>3.19.0-GA</javassist.version>
+        <commons-codec.version>1.15</commons-codec.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-logging.version>1.2</commons-logging.version>
+        <commons-math.version>2.2</commons-math.version>
+        <commons-math3.version>3.6.1</commons-math3.version>
+        <commons-csv.version>1.9.0</commons-csv.version>
+        <commons-collections.version>4.4</commons-collections.version>
+        <commons-text.version>1.9</commons-text.version>
+        <curator.version>2.11.1</curator.version>
+        <guava.version>30.1.1-jre</guava.version>
+        <javassist.version>3.28.0-GA</javassist.version>
         <javax-activation.version>1.1.1</javax-activation.version>
+        <javax-annotation.version>1.3.2</javax-annotation.version>
+        <javax-xml-bind.version>2.3.1</javax-xml-bind.version>
         <jcs.version>2.1</jcs.version>
-        <jersey.version>2.25</jersey.version>
-        <json4s.version>3.2.11</json4s.version>
+        <jersey.version>2.36</jersey.version>
+        <hk2.version>2.6.1</hk2.version>
         <reload4j.version>1.2.18.3</reload4j.version>
-        <paranamer.version>2.6</paranamer.version>
-        <reflections.version>0.9.10</reflections.version>
+        <paranamer.version>2.8</paranamer.version>
+        <reflections.version>0.9.12</reflections.version>
         <servlet-api.version>3.1.0</servlet-api.version>
-        <snappy.version>1.1.2.4</snappy.version>
-        <swagger.version>1.5.15</swagger.version>
+        <swagger.version>1.6.6</swagger.version>
         <zookeeper.version>3.4.14</zookeeper.version>
         <mockserver.version>3.9.16</mockserver.version>
 
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
-        <compiler.plugin.verson>2.3.2</compiler.plugin.verson>
-        <dependency.plugin.version>2.10</dependency.plugin.version>
-        <findbugs.plugin.version>3.0.5</findbugs.plugin.version>
-        <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
-        <gpg.plugin.version>1.6</gpg.plugin.version>
-        <jacoco.plugin.version>0.7.7.201606060606</jacoco.plugin.version>
-        <jar.plugin.version>2.4</jar.plugin.version>
-        <javadoc.plugin.version>2.10.3</javadoc.plugin.version>
-        <nexus.plugin.version>1.6.7</nexus.plugin.version>
-        <release.plugin.version>2.5.3</release.plugin.version>
-        <scala.plugin.version>3.3.1</scala.plugin.version>
-        <scm.plugin.version>1.1</scm.plugin.version>
-        <shade.plugin.version>2.4.1</shade.plugin.version>
-        <source.plugin.version>2.4</source.plugin.version>
+        <compiler.plugin.verson>3.9.0</compiler.plugin.verson>
+        <dependency.plugin.version>3.2.0</dependency.plugin.version>
+        <spotbugs.plugin.version>3.1.12.2</spotbugs.plugin.version>
+        <spotless.plugin.version>2.22.1</spotless.plugin.version>
+        <war.plugin.version>3.2.3</war.plugin.version>
+        <gpg.plugin.version>3.0.1</gpg.plugin.version>
+        <install.plugin.version>3.0.0-M1</install.plugin.version>
+        <resources.plugin.version>3.2.0</resources.plugin.version>
+        <clean.plugin.version>3.1.0</clean.plugin.version>
+        <jacoco.plugin.version>0.8.7</jacoco.plugin.version>
+        <jar.plugin.version>3.2.2</jar.plugin.version>
+        <javadoc.plugin.version>3.3.1</javadoc.plugin.version>
+        <nexus.plugin.version>1.6.8</nexus.plugin.version>
+        <release.plugin.version>3.0.0-M5</release.plugin.version>
+        <scm.plugin.version>3.1.0</scm.plugin.version>
+        <shade.plugin.version>3.2.4</shade.plugin.version>
+        <source.plugin.version>3.2.1</source.plugin.version>
         <surefire.plugin.version>3.0.0-M5</surefire.plugin.version>
-        <tomcat-maven-plugin.version>2.2</tomcat-maven-plugin.version>
+        <cargo.plugin.version>1.9.10</cargo.plugin.version>
+        <enforcer.plugin.version>3.1.0</enforcer.plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>
@@ -169,35 +174,25 @@
                 <groupId>uk.gov.gchq.koryphe</groupId>
                 <artifactId>core</artifactId>
                 <version>${koryphe.version}</version>
-                <exclusions>
-                    <!-- Conflicts with Reload4j -->
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                 </exclusions>
+                <classifier>jdk8</classifier>
             </dependency>
             <dependency>
                 <groupId>uk.gov.gchq.koryphe</groupId>
                 <artifactId>core</artifactId>
                 <version>${koryphe.version}</version>
+                <classifier>tests-jdk8</classifier>
                 <type>test-jar</type>
                 <scope>test</scope>
-                <exclusions>
-                    <!-- Conflicts with Reload4j -->
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -215,11 +210,6 @@
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>${findbugs.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.thoughtworks.paranamer</groupId>
                 <artifactId>paranamer</artifactId>
                 <version>${paranamer.version}</version>
@@ -228,11 +218,6 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${commons-codec.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>${commons-collections.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -250,9 +235,24 @@
                 <version>${commons-math.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons-collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons-text.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>javax.activation</groupId>
                 <artifactId>activation</artifactId>
                 <version>${javax-activation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>${javax-annotation.version}</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.reload4j</groupId>
@@ -299,6 +299,10 @@
                     <exclusion>
                         <groupId>com.sun.jersey</groupId>
                         <artifactId>jersey-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-servlet</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>javax.servlet</groupId>
@@ -386,6 +390,55 @@
                     <exclusion>
                         <groupId>org.apache.hadoop</groupId>
                         <artifactId>hadoop-hdfs</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-hdfs</artifactId>
+                <version>${hadoop.version}</version>
+                <!-- exclude server-side parts that conflict with running in a webapp -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-grizzly2</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-json</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-server</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-client</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty-util</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.avro</groupId>
+                        <artifactId>avro-ipc</artifactId>
+                    </exclusion>
+                    <!-- Conflicts with Reload4j -->
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -626,16 +679,6 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>${httpcomponents.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpcore</artifactId>
-                <version>${httpcomponents.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
                 <version>${zookeeper.version}</version>
@@ -653,22 +696,43 @@
             <dependency>
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-compiler</artifactId>
-                <version>${scala.minor.version}</version>
+                <version>${scala.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-library</artifactId>
-                <version>${scala.minor.version}</version>
+                <version>${scala.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scalap</artifactId>
-                <version>${scala.minor.version}</version>
+                <version>${scala.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.xerial.snappy</groupId>
-                <artifactId>snappy-java</artifactId>
-                <version>${snappy.version}</version>
+                <groupId>org.apache.accumulo</groupId>
+                <artifactId>accumulo-minicluster</artifactId>
+                <version>${accumulo.version}</version>
+                <exclusions>
+                    <!-- Conflicts with Reload4j -->
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <!-- Conflicts with jersey -->
+                    <exclusion>
+                        <groupId>org.apache.accumulo</groupId>
+                        <artifactId>accumulo-monitor</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-suite</artifactId>
+                <version>${junit-suite.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -679,11 +743,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
-            <version>3.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -700,31 +759,19 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${junit5.version}</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit5.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>${junit5.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-migrationsupport</artifactId>
-            <version>${junit5.version}</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.20.2</version>
+            <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -760,6 +807,32 @@
                         <meminitial>128m</meminitial>
                         <maxmem>1024m</maxmem>
                     </configuration>
+                </plugin>
+                <!-- Required to ensure latest versions are used -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>${war.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${dependency.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>${clean.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${install.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${resources.plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -857,8 +930,6 @@
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
-                    <headerLocation>code-style/licenseHeader.txt
-                    </headerLocation>
                     <excludes>**/generated/**/*</excludes>
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}
@@ -877,8 +948,6 @@
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
-                            <headerLocation>code-style/licenseHeader.txt
-                            </headerLocation>
                         </configuration>
                         <goals>
                             <goal>check</goal>
@@ -887,9 +956,9 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs.plugin.version}</version>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.plugin.version}</version>
                 <configuration>
                     <effort>Low</effort>
                     <threshold>Low</threshold>
@@ -961,7 +1030,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>${enforcer.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>enforce-banned-dependencies</id>
@@ -981,6 +1050,26 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.plugin.version}</version>
+                <configuration>
+                    <ratchetFrom>origin/v2-alpha</ratchetFrom>
+                    <lineEndings>UNIX</lineEndings>
+                    <java>
+                        <licenseHeader>
+                            <file>code-style/licence-header-java.txt</file>
+                        </licenseHeader>
+                    </java>
+                    <pom>
+                        <licenseHeader>
+                            <file>code-style/licence-header-pom.txt</file>
+                            <delimiter>.project</delimiter>
+                        </licenseHeader>
+                    </pom>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -1063,8 +1152,8 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>analyze-compile</id>
@@ -1106,8 +1195,8 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>analyze-compile</id>
@@ -1139,8 +1228,8 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>analyze-compile</id>
@@ -1172,8 +1261,8 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>analyze-compile</id>
@@ -1197,9 +1286,9 @@
                         </configuration>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
-                        <version>${findbugs.plugin.version}</version>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
+                        <version>${spotbugs.plugin.version}</version>
                         <configuration>
                             <fork>false</fork>
                         </configuration>
@@ -1358,9 +1447,9 @@
                         </configuration>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
-                        <version>${findbugs.plugin.version}</version>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
+                        <version>${spotbugs.plugin.version}</version>
                         <configuration>
                             <fork>false</fork>
                         </configuration>
@@ -1431,22 +1520,101 @@
             </build>
         </profile>
         <profile>
-            <id>serialisation-compatibility</id>
+            <id>legacy</id>
+            <activation>
+                <property>
+                    <name>legacy</name>
+                    <value>true</value>
+                </property>
+            </activation>
             <properties>
-                <jackson.version>${jackson.min.version}</jackson.version>
+                <war.classifier>legacy</war.classifier>
+                <append.shaded.classifier>-legacy</append.shaded.classifier>
+
+                <accumulo.version>1.9.3</accumulo.version>
+                <hadoop.version>2.6.5</hadoop.version>
+                <guava.version>13.0.1</guava.version>
+
+                <!-- Required due to Maven install plugin Bug (MINSTALL-151) -->
+                <install.plugin.version>2.5.2</install.plugin.version>
             </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-war-plugin</artifactId>
+                            <configuration>
+                                <classifier>${war.classifier}</classifier>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
         </profile>
         <profile>
-            <id>serialisation-compatibility-min-version</id>
+            <id>java11</id>
+            <activation>
+                <jdk>11</jdk>
+            </activation>
             <properties>
-                <jackson.version>${jackson.min.version}</jackson.version>
+                <java.version>11</java.version>
+                <spark.minor.version>3.0</spark.minor.version>
+                <spark.version>${spark.minor.version}.3</spark.version>
+                <scala.minor.version>2.12</scala.minor.version>
+                <scala.version>${scala.minor.version}.15</scala.version>
             </properties>
-        </profile>
-        <profile>
-            <id>serialisation-compatibility-max-version</id>
-            <properties>
-                <jackson.version>${jackson.max.version}</jackson.version>
-            </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <version>${compiler.plugin.verson}</version>
+                            <configuration>
+                                <release>${java.version}</release>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${javadoc.plugin.version}</version>
+                        <configuration>
+                            <additionalOptions>
+                                <additionalOption>--frames</additionalOption>
+                            </additionalOptions>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>${enforcer.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-compatible-hadoop</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <bannedDependencies>
+                                            <excludes>
+                                                <exclude>org.apache.hadoop:*:(,2.9.9]</exclude>
+                                            </excludes>
+                                            <message>
+                                                Hadoop versions below 3.3.0 are incompatible with JDK 11, JDK 8 must be used with the legacy profile
+                                            </message>
+                                        </bannedDependencies>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

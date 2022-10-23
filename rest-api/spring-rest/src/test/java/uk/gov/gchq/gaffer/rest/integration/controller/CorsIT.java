@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ public class CorsIT extends AbstractRestApiIT {
     @Test
     public void shouldBeAbleToRequestFromADifferentOrigin() {
         // Given
-        MultiValueMap<String, String> headers = new LinkedMultiValueMap();
+        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("Origin", "http://my-ui.com/ui");
 
         HttpEntity httpEntity = new HttpEntity<>(headers);

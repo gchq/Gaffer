@@ -24,8 +24,6 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.SeedMatching;
-import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -46,17 +44,8 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
     @Override
     protected List<Range> getRange(final Object vertex, final GraphFilters operation,
                                    final boolean includeEdgesParam) throws RangeFactoryException {
-        final boolean includeEdges;
-        final boolean includeEntities;
-        final boolean seedEqual = operation instanceof SeedMatching
-                && SeedMatchingType.EQUAL.equals(((SeedMatching) operation).getSeedMatching());
-        if (seedEqual) {
-            includeEdges = false;
-            includeEntities = true;
-        } else {
-            includeEdges = includeEdgesParam;
-            includeEntities = operation.getView().hasEntities();
-        }
+        final boolean includeEdges = includeEdgesParam;
+        final boolean includeEntities = operation.getView().hasEntities();
 
         byte[] serialisedVertex;
         try {

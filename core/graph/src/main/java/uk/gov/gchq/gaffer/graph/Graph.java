@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +66,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
  * <p>
@@ -285,7 +284,7 @@ public final class Graph {
                 try {
                     result = graphHook.onFailure(result, clonedOpChain, clonedContext, e);
                 } catch (final Exception graphHookE) {
-                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
+                    LOGGER.warn("Error in graphHook {} : {}", graphHook.getClass().getSimpleName(), graphHookE.getMessage(), graphHookE);
                 }
             }
             CloseableUtil.close(clonedOpChain);
@@ -342,7 +341,7 @@ public final class Graph {
                 try {
                     result = graphHook.onFailure(result, clonedOpChain, clonedContext, e);
                 } catch (final Exception graphHookE) {
-                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
+                    LOGGER.warn("Error in graphHook {} : {}", graphHook.getClass().getSimpleName(), graphHookE.getMessage(), graphHookE);
                 }
             }
             CloseableUtil.close(clonedOpChain);
@@ -445,20 +444,13 @@ public final class Graph {
     }
 
     /**
-     * @param storeTrait the store trait to check
-     * @return true if the store has the given trait.
-     */
-    public boolean hasTrait(final StoreTrait storeTrait) {
-        return store.hasTrait(storeTrait);
-    }
-
-    /**
      * Returns all the {@link StoreTrait}s for the contained {@link Store}
      * implementation
      *
      * @return a {@link Set} of all of the {@link StoreTrait}s that the store
      *         has.
      */
+    @Deprecated
     public Set<StoreTrait> getStoreTraits() {
         return store.getTraits();
     }
@@ -526,17 +518,6 @@ public final class Graph {
         private String parentStorePropertiesId;
         private boolean addToLibrary = true;
 
-        /**
-         * @param graphId the graph id to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder graphId(final String graphId) {
-            configBuilder.graphId(graphId);
-            return this;
-        }
-
         public Builder config(final Path path) {
             configBuilder.json(path);
             return this;
@@ -564,72 +545,6 @@ public final class Graph {
 
         public Builder addToLibrary(final boolean addToLibrary) {
             this.addToLibrary = addToLibrary;
-            return this;
-        }
-
-        /**
-         * @param library the graph library to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder library(final GraphLibrary library) {
-            configBuilder.library(library);
-            return this;
-        }
-
-        /**
-         * @param view the graph view to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder view(final View view) {
-            configBuilder.view(view);
-            return this;
-        }
-
-        /**
-         * @param view the graph view path to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder view(final Path view) {
-            configBuilder.view(view);
-            return this;
-        }
-
-        /**
-         * @param view the graph view input stream to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder view(final InputStream view) {
-            configBuilder.view(view);
-            return this;
-        }
-
-        /**
-         * @param view the graph view URI to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder view(final URI view) {
-            configBuilder.view(view);
-            return this;
-        }
-
-        /**
-         * @param jsonBytes the graph view json bytes to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder view(final byte[] jsonBytes) {
-            configBuilder.view(jsonBytes);
             return this;
         }
 
@@ -882,67 +797,6 @@ public final class Graph {
 
         public Builder store(final Store store) {
             this.store = store;
-            return this;
-        }
-
-        /**
-         * @param hooksPath the graph hooks path
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder addHooks(final Path hooksPath) {
-            if (null == hooksPath || !hooksPath.toFile().exists()) {
-                throw new IllegalArgumentException("Unable to find graph hooks file: " + hooksPath);
-            }
-            final GraphHook[] hooks;
-            try {
-                hooks = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
-            } catch (final IOException e) {
-                throw new IllegalArgumentException("Unable to load graph hooks file: " + hooksPath, e);
-            }
-            return addHooks(hooks);
-        }
-
-        /**
-         * @param hookPath the graph hook path
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder addHook(final Path hookPath) {
-            if (null == hookPath || !hookPath.toFile().exists()) {
-                throw new IllegalArgumentException("Unable to find graph hook file: " + hookPath);
-            }
-
-            final GraphHook hook;
-            try {
-                hook = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hookPath.toFile()), GraphHook.class);
-            } catch (final IOException e) {
-                throw new IllegalArgumentException("Unable to load graph hook file: " + hookPath, e);
-            }
-            return addHook(hook);
-        }
-
-        /**
-         * @param graphHook the graph hook to add
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder addHook(final GraphHook graphHook) {
-            configBuilder.addHook(graphHook);
-            return this;
-        }
-
-        /**
-         * @param graphHooks the graph hooks to add
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder addHooks(final GraphHook... graphHooks) {
-            configBuilder.addHooks(graphHooks);
             return this;
         }
 

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.export;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
@@ -27,20 +26,21 @@ import uk.gov.gchq.gaffer.store.Store;
 /**
  * Abstract class describing how to handle {@link GetExport} operations.
  *
- * @param <EXPORT> the {@link GetExport} operation
+ * @param <EXPORT>   the {@link GetExport} operation
  * @param <EXPORTER> the {@link Exporter} instance
  */
-public abstract class GetExportHandler<EXPORT extends GetExport & Operation, EXPORTER extends Exporter> extends ExportOperationHandler<EXPORT, EXPORTER> {
+public abstract class GetExportHandler<EXPORT extends GetExport & Operation, EXPORTER extends Exporter>
+        extends ExportOperationHandler<EXPORT, EXPORTER> {
     @Override
-    public CloseableIterable<?> doOperation(final EXPORT export,
-                                            final Context context,
-                                            final Store store,
-                                            final EXPORTER exporter)
+    public Iterable<?> doOperation(final EXPORT export,
+                                   final Context context,
+                                   final Store store,
+                                   final EXPORTER exporter)
             throws OperationException {
         return getExport(export, exporter);
     }
 
-    protected CloseableIterable<?> getExport(final EXPORT export, final EXPORTER exporter) throws OperationException {
+    protected Iterable<?> getExport(final EXPORT export, final EXPORTER exporter) throws OperationException {
         return exporter.get(export.getKeyOrDefault());
     }
 }

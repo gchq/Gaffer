@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,26 +18,20 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.user.StoreUser;
-import uk.gov.gchq.gaffer.user.User;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 
 public class FederatedAccessPublicAccessTest {
 
 
-    User blankUser = StoreUser.blankUser();
-
     @Test
     public void shouldHavePublicAccess() throws Exception {
-
-
         final FederatedAccess access = new FederatedAccess.Builder()
                 .makePublic()
                 .build();
 
-        assertTrue(access.hasReadAccess(blankUser));
+        assertTrue(access.hasReadAccess(blankUser()));
     }
 
     @Test
@@ -47,7 +41,7 @@ public class FederatedAccessPublicAccessTest {
                 .makePrivate()
                 .build();
 
-        assertFalse(access.hasReadAccess(blankUser));
+        assertFalse(access.hasReadAccess(blankUser()));
     }
 
 }

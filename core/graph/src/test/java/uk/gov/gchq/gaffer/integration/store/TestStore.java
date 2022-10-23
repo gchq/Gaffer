@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.integration.store;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
@@ -31,6 +30,8 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
@@ -42,7 +43,8 @@ public class TestStore extends Store {
     public static Store mockStore = mock(TestStore.class);
 
     @Override
-    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
+    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context)
+            throws OperationException {
         return mockStore.executeJob(operationChain, context);
     }
 
@@ -66,23 +68,29 @@ public class TestStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
         return null;
     }
 
     @Override
-    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
         return null;
     }
 
     @Override
-    protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+    protected OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
         return null;
     }
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return null;
+    }
+
+    @Override
+    protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+        // mockStore.getGetTraitsHandler() would be better but protected
+        return new GetTraitsHandler(mockStore.getTraits());
     }
 
     @Override

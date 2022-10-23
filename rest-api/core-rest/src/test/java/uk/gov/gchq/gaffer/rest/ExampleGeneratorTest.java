@@ -67,7 +67,9 @@ public class ExampleGeneratorTest {
         FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "/schema/schema.json")));
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
 
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+        final File graphConfigFile = Files.createFile(tempDir.resolve("graphConfig.json")).toFile();
+        FileUtils.writeLines(graphConfigFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "graphConfig.json")));
+        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigFile.getAbsolutePath());
 
         // Manually inject GraphFactory
         final Field field = generator.getClass().getDeclaredField("graphFactory");

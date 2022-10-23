@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.named.operation.serialisation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 
 /**
@@ -29,6 +28,6 @@ public final class NamedOperationTypeReference {
         // Private constructor to prevent instantiation.
     }
 
-    public static class IterableNamedOperationDetail extends TypeReference<CloseableIterable<NamedOperationDetail>> {
+    public static class IterableNamedOperationDetail extends TypeReference<Iterable<NamedOperationDetail>> {
     }
 }

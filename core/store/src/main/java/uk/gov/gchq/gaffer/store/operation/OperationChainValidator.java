@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
@@ -111,18 +112,6 @@ public class OperationChainValidator {
         return firstOp;
     }
 
-    /**
-     * @param op               the operation
-     * @param validationResult the validation result
-     * @param schemaNotUsed    the unused schema
-     * @param store            the store
-     * @deprecated use {@link #validateComparables(Operation, User, Store, ValidationResult)} instead
-     */
-    @Deprecated
-    protected void validateComparables(final Operation op, final ValidationResult validationResult, final Schema schemaNotUsed, final Store store) {
-        validateComparables(op, null, store, validationResult);
-    }
-
     protected void validateComparables(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (op instanceof ElementComparison) {
             final Schema schema = getSchema(op, user, store);
@@ -145,22 +134,10 @@ public class OperationChainValidator {
         }
     }
 
-    /**
-     * @param op               the operation
-     * @param validationResult the validation result
-     * @param schemaNotUsed    the unused schema
-     * @param store            the store
-     * @deprecated use {@link #validateViews(Operation, User, Store, ValidationResult)} instead
-     */
-    @Deprecated
-    protected void validateViews(final Operation op, final ValidationResult validationResult, final Schema schemaNotUsed, final Store store) {
-        validateViews(op, null, store, validationResult);
-    }
-
     protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
-        if (op instanceof GraphFilters) {
+        if (shouldValidate(op)) {
             final Schema schema = getSchema(op, user, store);
-            final ValidationResult viewValidationResult = viewValidator.validate(((GraphFilters) op).getView(), schema, getStoreTraits(store));
+            final ValidationResult viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store));
             if (!viewValidationResult.isValid()) {
                 validationResult.addError("View for operation "
                         + op.getClass().getName()
@@ -168,6 +145,14 @@ public class OperationChainValidator {
                 validationResult.add(viewValidationResult);
             }
         }
+    }
+
+    protected View getView(final Operation op) {
+        return ((GraphFilters) op).getView();
+    }
+
+    protected boolean shouldValidate(final Operation op) {
+        return op instanceof GraphFilters;
     }
 
     protected Schema getSchema(final Operation operation, final User user, final Store store) {

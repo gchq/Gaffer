@@ -54,7 +54,7 @@ public class ByteEntityAccumuloElementConverterVisibilityTest extends ByteEntity
         };
         // An extra 0 at the end of the byte array compared to the parent method accounts for the fact that
         // this schema has one extra property: visibility, which when not set is serialised as EMPTY_BYTES
-        byte[] historicPropertyBytes = {4, 1, 0, 0, 0, 4, 2, 0, 0, 0, 4, 3, 0, 0, 0, 4, 4, 0, 0, 0, 0};
+        byte[] historicPropertyBytes = {1, 1, 1, 2, 1, 3, 1, 4, 0};
         final byte[] columnQualifierBytes = converter.buildColumnQualifier(TestGroups.EDGE, properties);
 
         // When
@@ -79,7 +79,7 @@ public class ByteEntityAccumuloElementConverterVisibilityTest extends ByteEntity
         };
         // An extra 0 at the end of the byte array compared to the parent method accounts for the fact that
         // this schema has one extra property: visibility, which when not set is serialised as EMPTY_BYTES
-        byte[] historicColumnQualifierBytes = {4, 1, 0, 0, 0, 4, -1, -1, -1, 127, 4, 3, 0, 0, 0, 4, 0, 0, 0, -128, 0};
+        byte[] historicColumnQualifierBytes = {1, 1, 5, -116, 127, -1, -1, -1, 1, 3, 5, -124, 127, -1, -1, -1, 0};
 
         // When
         final byte[] columnQualifier = converter.buildColumnQualifier(TestGroups.EDGE, properties);

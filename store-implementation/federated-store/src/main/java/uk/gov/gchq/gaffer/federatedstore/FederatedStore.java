@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,11 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.access.predicate.user.NoAccessUserPredicate;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
@@ -30,31 +28,29 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphAccess;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphId;
-import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChainValidator;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
+import uk.gov.gchq.gaffer.federatedstore.operation.IFederationOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedGetSchemaHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphWithHooksHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphAccessHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphIdHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphInfoHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetElementsHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetSchemaHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationChainHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedNoOutputHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
@@ -87,17 +83,21 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 
 /**
  * <p>
@@ -105,7 +105,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
  * against them and returns results as though it was a single graph.
  * <p>
  * To create a FederatedStore you need to initialise the store with a
- * graphId and  (if graphId is not known by the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary})
+ * graphId and (if graphId is not known by the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary})
  * the {@link Schema} and {@link StoreProperties}.
  *
  * @see #initialise(String, Schema, StoreProperties)
@@ -113,13 +113,16 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
  * @see Graph
  */
 public class FederatedStore extends Store {
+    public static final String FEDERATED_STORE_PROCESSED = "FederatedStore.processed.";
+    public static final String FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY = "FedStoreGraphId_value_null_or_empty";
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
-    private static final String FEDERATED_STORE_PROCESSED = "FederatedStore.processed.";
-    private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
+    private static final List<Integer> ALL_IDS = new ArrayList<>();
+    private final FederatedGraphStorage graphStorage = new FederatedGraphStorage();
+    private final int id;
     private Set<String> customPropertiesAuths;
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
-    private static final List<Integer> ALL_IDS = new ArrayList<>();
-    private final int id;
+    private List<String> adminConfiguredDefaultGraphIds;
+    private BiFunction adminConfiguredDefaultMergeFunction;
 
     public FederatedStore() {
         Integer i = null;
@@ -164,31 +167,6 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * <p>
-     * Within FederatedStore an {@link Operation} is executed against a
-     * collection of many graphs.
-     * </p>
-     * <p>
-     * Problem: When an Operation contains View information about an Element
-     * which is not known by the Graph; It will fail validation when executed.
-     * </p>
-     * <p>
-     * Solution: For each operation, remove all elements from the View that is
-     * unknown to the graph.
-     * </p>
-     *
-     * @param operation current operation
-     * @param graph     current graph
-     * @param <OP>      Operation type
-     * @return cloned operation with modified View for the given graph.
-     * @deprecated see {@link FederatedStoreUtil#updateOperationForGraph(Operation, Graph)}
-     */
-    @Deprecated
-    public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
-        return FederatedStoreUtil.updateOperationForGraph(operation, graph);
-    }
-
-    /**
      * Adds graphs to the scope of FederatedStore.
      * <p>
      * To be used by the FederatedStore and Handlers only. Users should add
@@ -204,7 +182,10 @@ public class FederatedStore extends Store {
      * @param graphAuths   the access auths for the graph being added
      * @throws StorageException if unable to put graph into storage
      */
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final GraphSerialisable... graphs) throws StorageException {
+    public void addGraphs(final Set<String> graphAuths,
+                          final String addingUserId,
+                          final boolean isPublic,
+                          final GraphSerialisable... graphs) throws StorageException {
         addGraphs(graphAuths, addingUserId, isPublic, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT, graphs);
     }
 
@@ -225,23 +206,21 @@ public class FederatedStore extends Store {
      * @param graphAuths        the access auths for the graph being added
      * @throws StorageException if unable to put graph into storage
      */
-    public void addGraphs(
-            final Set<String> graphAuths,
-            final String addingUserId,
-            final boolean isPublic,
-            final boolean disabledByDefault,
-            final GraphSerialisable... graphs) throws StorageException {
+    public void addGraphs(final Set<String> graphAuths,
+                          final String addingUserId,
+                          final boolean isPublic,
+                          final boolean disabledByDefault,
+                          final GraphSerialisable... graphs) throws StorageException {
         addGraphs(graphAuths, addingUserId, isPublic, disabledByDefault, null, null, graphs);
     }
 
-    public void addGraphs(
-            final Set<String> graphAuths,
-            final String addingUserId,
-            final boolean isPublic,
-            final boolean disabledByDefault,
-            final AccessPredicate readAccessPredicate,
-            final AccessPredicate writeAccessPredicate,
-            final GraphSerialisable... graphs) throws StorageException {
+    public void addGraphs(final Set<String> graphAuths,
+                          final String addingUserId,
+                          final boolean isPublic,
+                          final boolean disabledByDefault,
+                          final AccessPredicate readAccessPredicate,
+                          final AccessPredicate writeAccessPredicate,
+                          final GraphSerialisable... graphs) throws StorageException {
         final FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic, disabledByDefault, readAccessPredicate, writeAccessPredicate);
         addGraphs(access, graphs);
     }
@@ -250,11 +229,6 @@ public class FederatedStore extends Store {
         for (final GraphSerialisable graph : graphs) {
             _add(graph, access);
         }
-    }
-
-    @Deprecated
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final GraphSerialisable... graphs) throws StorageException {
-        addGraphs(graphAuths, addingUserId, false, graphs);
     }
 
     /**
@@ -289,47 +263,41 @@ public class FederatedStore extends Store {
         return getAllGraphIds(user, false);
     }
 
-    public Collection<String> getAllGraphIds(final User user, final boolean asAdmin) {
-        return asAdmin
+    public List<String> getAllGraphIds(final User user, final boolean userRequestingAdminUsage) {
+        return userRequestingAdminUsage
                 ? graphStorage.getAllIds(user, this.getProperties().getAdminAuth())
                 : graphStorage.getAllIds(user);
     }
 
+    /**
+     * @return schema
+     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetSchema Operation.
+     */
     @Override
+    @Deprecated
     public Schema getSchema() {
-        return getSchema((Map<String, String>) null, (User) null);
+        return getSchema((Context) null);
     }
 
-    public Schema getSchema(final GetSchema operation, final Context context) {
-        if (null == operation) {
-            return getSchema((Map<String, String>) null, context);
-        }
+    /**
+     * @param context context with User.
+     * @return schema
+     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetSchema Operation.
+     */
+    @Deprecated
+    public Schema getSchema(final Context context) {
+        return getSchema(getFederatedWrappedSchema(), context);
+    }
 
+    /**
+     * @param operation operation with graphIds.
+     * @param context   context with User.
+     * @return schema
+     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetSchema Operation.
+     */
+    @Deprecated
+    public Schema getSchema(final FederatedOperation operation, final Context context) {
         return graphStorage.getSchema(operation, context);
-    }
-
-    public Schema getSchema(final Operation operation, final Context context) {
-        if (null == operation) {
-            return getSchema((Map<String, String>) null, context);
-        }
-
-        return getSchema(operation.getOptions(), context);
-    }
-
-    public Schema getSchema(final Map<String, String> config, final Context context) {
-        return graphStorage.getSchema(config, context);
-    }
-
-    public Schema getSchema(final Operation operation, final User user) {
-        if (null == operation) {
-            return getSchema((Map<String, String>) null, user);
-        }
-
-        return getSchema(operation.getOptions(), user);
-    }
-
-    public Schema getSchema(final Map<String, String> config, final User user) {
-        return graphStorage.getSchema(config, user);
     }
 
     /**
@@ -344,17 +312,6 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * @param getTraits GetTrait op with graph scope.
-     * @param context   context of the query
-     * @return the set of {@link StoreTrait} that are common for all visible graphs
-     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetTraits Operation.
-     */
-    @Deprecated
-    public Set<StoreTrait> getTraits(final GetTraits getTraits, final Context context) {
-        return graphStorage.getTraits(getTraits, context);
-    }
-
-    /**
      * <p>
      * Gets a collection of graph objects within FederatedStore scope from the
      * given csv of graphIds, with visibility of the given user.
@@ -363,52 +320,92 @@ public class FederatedStore extends Store {
      * Graphs are returned once per operation, this does not allow an infinite loop of FederatedStores to occur.
      * </p>
      * <p>
-     * if graphIdsCsv is null then all graph objects within FederatedStore
+     * if graphIdsCSV is null then all graph objects within FederatedStore
      * scope are returned.
      * </p>
      *
-     * @param user        the users scope to get graphs for.
-     * @param graphIdsCsv the csv of graphIds to get, null returns all graphs.
-     * @param operation   the requesting operation, graphs are returned only once per operation.
+     * @param user      the users scope to get graphs for.
+     * @param graphIds  the list of graphIds to get. null will return all graphs.
+     * @param operation the requesting operation, graphs are returned only once per operation.
      * @return the graph collection.
      */
-    public Collection<Graph> getGraphs(final User user, final String graphIdsCsv, final Operation operation) {
-        Collection<Graph> rtn = new ArrayList<>();
+    public List<Graph> getGraphs(final User user, final List<String> graphIds, final IFederationOperation operation) {
+        List<Graph> rtn = new ArrayList<>();
         if (nonNull(operation)) {
-            String optionKey = FEDERATED_STORE_PROCESSED + id;
-            boolean isIdFound = !operation.getOption(optionKey, "").isEmpty();
-            if (!isIdFound) {
-                HashMap<String, String> updatedOptions = isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions());
-                updatedOptions.put(optionKey, getGraphId());
-                operation.setOptions(updatedOptions);
-                rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv)));
-            } else {
-                List<String> federatedStoreGraphIds = operation.getOptions()
+            boolean isFedStoreIdPreexisting = addFedStoreIdToOperation(operation);
+            if (isFedStoreIdPreexisting) {
+                List<String> federatedStoreIds = operation.getOptions()
                         .entrySet()
                         .stream()
                         .filter(e -> e.getKey().startsWith(FEDERATED_STORE_PROCESSED))
                         .map(Map.Entry::getValue)
                         .collect(Collectors.toList());
-
                 String ln = System.lineSeparator();
                 LOGGER.error("This operation has already been processed by this FederatedStore. " +
                         "This is a symptom of an infinite loop of FederatedStores and Proxies.{}" +
                         "This FederatedStore: {}{}" +
-                        "All FederatedStore in this loop: {}", ln, this.getGraphId(), ln, federatedStoreGraphIds.toString());
+                        "All FederatedStore in this loop: {}", ln, this.getGraphId(), ln, federatedStoreIds.toString());
+            } else if (isNull(graphIds)) {
+                LOGGER.debug("Getting default graphs because requested graphIds is null");
+                rtn = getDefaultGraphs(user, operation);
+            } else {
+                if (graphIds.isEmpty()) {
+                    LOGGER.info("A get graphs request was made with empty graphIds");
+                }
+                String adminAuth = operation.isUserRequestingAdminUsage() ? this.getProperties().getAdminAuth() : null;
+                rtn.addAll(graphStorage.get(user, graphIds, adminAuth));
             }
+        } else {
+            LOGGER.warn("getGraphs was requested with null Operation, this will return no graphs.");
         }
-
         return rtn;
     }
 
-    public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv) {
-        return this.getAllGraphsAndAuths(user, graphIdsCsv, false);
+    private String getKeyForProcessedFedStoreId() {
+        return FEDERATED_STORE_PROCESSED + id;
     }
 
-    public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv, final boolean isAdmin) {
-        return isAdmin
-                ? graphStorage.getAllGraphsAndAccess(user, getCleanStrings(graphIdsCsv), this.getProperties().getAdminAuth())
-                : graphStorage.getAllGraphsAndAccess(user, getCleanStrings(graphIdsCsv));
+    private boolean addFedStoreIdToOperation(final Operation operation) {
+        final String keyForFedStoreId = getKeyForProcessedFedStoreId();
+        boolean isFedStoreIdPreexisting = false;
+        if (nonNull(operation) && !isNullOrEmpty(keyForFedStoreId)) {
+            /*
+            * KEEP THIS ORDER!
+            * 1) Check operation for ID
+            * 2) Check and Add ID any payload for ID (recursion)
+            * 3) Add the ID
+            * 4) return if the ID was found.
+            *
+             */
+            // 1) Check operation for ID
+            final boolean doesOperationHavePreexistingFedStoreId = !isValueForFedStoreIdNullOrEmpty(operation, keyForFedStoreId);
+
+            // 2) Check and Add ID any payload for ID (recursion)
+            final boolean doesPayloadHavePreexistingFedStoreId = (operation instanceof FederatedOperation)
+                    && addFedStoreIdToOperation(((FederatedOperation<?, ?>) operation).getUnClonedPayload());
+
+            // 3) Add the ID
+            operation.addOption(keyForFedStoreId, getValueForProcessedFedStoreId());
+
+            // 4) return if the ID was found.
+            isFedStoreIdPreexisting = doesOperationHavePreexistingFedStoreId || doesPayloadHavePreexistingFedStoreId;
+        }
+        return isFedStoreIdPreexisting;
+    }
+
+    private static boolean isValueForFedStoreIdNullOrEmpty(final Operation operation, final String fedStoreId) {
+        final boolean isValueForFedStoreIdNullOrEmpty = isNullOrEmpty(operation.getOption(fedStoreId, null));
+        if (operation.getOptions() != null && operation.getOptions().containsKey(fedStoreId) && isValueForFedStoreIdNullOrEmpty) {
+            //There is a slight difference between value null and key not found
+            LOGGER.debug(String.format("The FederatedStoreId Key has a null Value, this means the Key has been intentionally cleared for reprocessing by this FederatedStore. Key:%s", fedStoreId));
+        }
+        return isValueForFedStoreIdNullOrEmpty;
+    }
+
+    public Map<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds, final boolean userRequestingAdminUsage) {
+        return userRequestingAdminUsage
+                ? graphStorage.getAllGraphsAndAccessAsAdmin(user, graphIds, this.getProperties().getAdminAuth())
+                : graphStorage.getAllGraphsAndAccess(user, graphIds);
     }
 
     /**
@@ -420,7 +417,16 @@ public class FederatedStore extends Store {
      * @return boolean permission
      */
     public boolean isLimitedToLibraryProperties(final User user) {
-        return (null != this.customPropertiesAuths) && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
+        return isLimitedToLibraryProperties(user, false);
+    }
+
+    public boolean isLimitedToLibraryProperties(final User user, final boolean userRequestingAdminUsage) {
+
+        boolean isAdmin = userRequestingAdminUsage && new AccessPredicate(new NoAccessUserPredicate()).test(user, this.getProperties().getAdminAuth());
+
+        return !isAdmin
+                && nonNull(this.customPropertiesAuths)
+                && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
     }
 
     @Override
@@ -428,6 +434,7 @@ public class FederatedStore extends Store {
         return FederatedStoreProperties.class;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     protected void addAdditionalOperationHandlers() {
         // Override the Operations that don't have an output
@@ -437,26 +444,26 @@ public class FederatedStore extends Store {
                         && !AddElements.class.equals(op)
                         && !AddNamedOperation.class.equals(op)
                         && !AddNamedView.class.equals(op))
-                .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
+                .forEach(op -> addOperationHandler(op, new FederatedNoOutputHandler()));
 
-        addOperationHandler(GetSchema.class, new FederatedGetSchemaHandler());
+        addOperationHandler(GetSchema.class, new FederatedGetSchemaHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
 
-        addOperationHandler(Filter.class, new FederatedFilterHandler());
-        addOperationHandler(Aggregate.class, new FederatedAggregateHandler());
-        addOperationHandler(Transform.class, new FederatedTransformHandler());
+        addOperationHandler(Filter.class, new FederatedFilterHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
+        addOperationHandler(Aggregate.class, new FederatedAggregateHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
+        addOperationHandler(Transform.class, new FederatedTransformHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
 
-        addOperationHandler(Validate.class, new FederatedValidateHandler());
+        addOperationHandler(Validate.class, new FederatedValidateHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
 
+        //FederationOperations
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
         addOperationHandler(AddGraphWithHooks.class, new FederatedAddGraphWithHooksHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
 
-        addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
-        addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
         addOperationHandler(GetAllGraphInfo.class, new FederatedGetAllGraphInfoHandler());
         addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
         addOperationHandler(ChangeGraphId.class, new FederatedChangeGraphIdHandler());
+        addOperationHandler(FederatedOperation.class, new FederatedOperationHandler());
     }
 
     @Override
@@ -465,25 +472,32 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
-        return new FederatedGetElementsHandler();
+    protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
+        return new FederatedOutputIterableHandler<>(/*default merge function*/);
     }
 
     @Override
-    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
-        return new FederatedGetAllElementsHandler();
+    protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
+        return new FederatedOutputIterableHandler<>(/*default merge function*/);
     }
 
     @Override
-    protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
-        return new FederatedGetAdjacentIdsHandler();
+    protected OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
+        return new FederatedOutputIterableHandler<>(/*default merge function*/);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return (OperationHandler) new FederatedOperationHandler();
+        return new FederatedNoOutputHandler<AddElements>();
     }
 
+    @Override
+    protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+        return new FederatedGetTraitsHandler();
+    }
+
+    @SuppressWarnings("rawtypes")
     @Override
     protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
         return Serialiser.class;
@@ -501,7 +515,7 @@ public class FederatedStore extends Store {
 
     private Set<String> getCustomPropertiesAuths() {
         final String value = getProperties().getCustomPropsValue();
-        return (Strings.isNullOrEmpty(value)) ? null : Sets.newHashSet(getCleanStrings(value));
+        return (isNullOrEmpty(value)) ? null : new HashSet<>(getCleanStrings(value));
     }
 
     private void _add(final GraphSerialisable newGraph, final FederatedAccess access) throws StorageException {
@@ -518,5 +532,63 @@ public class FederatedStore extends Store {
         return isAdmin
                 ? graphStorage.changeGraphId(graphId, newGraphId, requestingUser, this.getProperties().getAdminAuth())
                 : graphStorage.changeGraphId(graphId, newGraphId, requestingUser);
+    }
+
+    public List<String> getAdminConfiguredDefaultGraphIds() {
+        return adminConfiguredDefaultGraphIds;
+    }
+
+    /**
+     * Sets the configurable default graphIds once only. To change the adminConfiguredDefaultGraphIdsCSV it would require to turning off, update config, turning back on.
+     *
+     * @param adminConfiguredDefaultGraphIdsCSV graphID CSV to use.
+     * @return This Store.
+     */
+    public FederatedStore setAdminConfiguredDefaultGraphIdsCSV(final String adminConfiguredDefaultGraphIdsCSV) {
+        return setAdminConfiguredDefaultGraphIds(getCleanStrings(adminConfiguredDefaultGraphIdsCSV));
+    }
+
+    public FederatedStore setAdminConfiguredDefaultGraphIds(final List<String> adminConfiguredDefaultGraphIds) {
+        if (nonNull(this.adminConfiguredDefaultGraphIds)) {
+            LOGGER.error("Attempting to change adminConfiguredDefaultGraphIds. To change adminConfiguredDefaultGraphIds it would require to turning off, update config, turn back on. Therefore ignoring the value: {}", adminConfiguredDefaultGraphIds);
+        } else {
+            this.adminConfiguredDefaultGraphIds = adminConfiguredDefaultGraphIds;
+        }
+        return this;
+    }
+
+    private List<Graph> getDefaultGraphs(final User user, final IFederationOperation operation) {
+
+        boolean isAdminRequestingOverridingDefaultGraphs =
+                operation.isUserRequestingAdminUsage()
+                        && (operation instanceof FederatedOperation)
+                        && ((FederatedOperation) operation).isUserRequestingDefaultGraphsOverride();
+
+        if (isNull(adminConfiguredDefaultGraphIds) || isAdminRequestingOverridingDefaultGraphs) {
+            return graphStorage.get(user, null, (operation.isUserRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
+        } else {
+            //This operation has already been processes once, by this store.
+            String keyForProcessedFedStoreId = getKeyForProcessedFedStoreId();
+            operation.addOption(keyForProcessedFedStoreId, null); // value is null, but key is still found.
+            List<Graph> graphs = getGraphs(user, adminConfiguredDefaultGraphIds, operation);
+            //put it back
+            operation.addOption(keyForProcessedFedStoreId, getValueForProcessedFedStoreId());
+            return graphs;
+        }
+    }
+
+    private String getValueForProcessedFedStoreId() {
+        return isNullOrEmpty(getGraphId()) ? FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY : getGraphId();
+    }
+
+    public FederatedStore setAdminConfiguredDefaultMergeFunction(final BiFunction adminConfiguredDefaultMergeFunction) {
+        this.adminConfiguredDefaultMergeFunction = adminConfiguredDefaultMergeFunction;
+        return this;
+    }
+
+    public BiFunction getDefaultMergeFunction() {
+        return isNull(adminConfiguredDefaultMergeFunction)
+                ? getHardCodedDefaultMergeFunction()
+                : adminConfiguredDefaultMergeFunction;
     }
 }

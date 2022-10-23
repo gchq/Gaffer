@@ -35,7 +35,7 @@ public class PropertiesController implements IPropertiesController {
 
     @Override
     public String getProperty(@PathVariable("property") final String property) {
-        String resolvedPropertyValue = PropertiesUtil.getProperty(property);
+        final String resolvedPropertyValue = PropertiesUtil.getProperty(property);
         if (resolvedPropertyValue != null) {
             return resolvedPropertyValue;
         }

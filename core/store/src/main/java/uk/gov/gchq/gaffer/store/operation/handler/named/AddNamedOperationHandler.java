@@ -31,10 +31,13 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 
 import java.util.Map;
 
+import static java.util.Objects.nonNull;
+
 /**
  * Operation handler for AddNamedOperation which adds a Named Operation to the cache.
  */
 public class AddNamedOperationHandler implements OperationHandler<AddNamedOperation> {
+
     private final NamedOperationCache cache;
 
     public AddNamedOperationHandler() {
@@ -76,8 +79,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
 
             validate(namedOperationDetail.getOperationChainWithDefaultParams(), namedOperationDetail);
 
-            cache.addNamedOperation(namedOperationDetail, operation.isOverwriteFlag(), context
-                    .getUser(), store.getProperties().getAdminAuth());
+            cache.addNamedOperation(namedOperationDetail, operation.isOverwriteFlag(), context.getUser(), store.getProperties().getAdminAuth());
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }
@@ -91,12 +93,12 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
             }
         }
 
-        if (null != namedOperationDetail.getParameters()) {
-            String operationString = namedOperationDetail.getOperations();
+        if (nonNull(namedOperationDetail.getParameters())) {
+            final String operationString = namedOperationDetail.getOperations();
             for (final Map.Entry<String, ParameterDetail> parameterDetail : namedOperationDetail.getParameters().entrySet()) {
-                String varName = "${" + parameterDetail.getKey() + "}";
+                final String varName = String.format("${%s}", parameterDetail.getKey());
                 if (!operationString.contains(varName)) {
-                    throw new OperationException("Parameter specified in NamedOperation doesn't occur in OperationChain string for " + varName);
+                    throw new OperationException(String.format("Parameter specified in NamedOperation doesn't occur in OperationChain string for %s", varName));
                 }
             }
         }

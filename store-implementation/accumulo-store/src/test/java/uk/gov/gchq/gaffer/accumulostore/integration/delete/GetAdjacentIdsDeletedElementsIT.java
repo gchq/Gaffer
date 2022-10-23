@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.accumulostore.integration.delete;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -27,17 +26,18 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetAdjacentIdsDeletedElementsIT extends AbstractDeletedElementsIT<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
+public class GetAdjacentIdsDeletedElementsIT extends AbstractDeletedElementsIT<GetAdjacentIds, Iterable<? extends EntityId>> {
+
     @Override
     protected GetAdjacentIds createGetOperation() {
         return new GetAdjacentIds.Builder()
-                .input(VERTICES)
+                .input((Object[]) VERTICES)
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .build();
     }
 
     @Override
-    protected void assertElements(final Iterable<ElementId> expected, final CloseableIterable<? extends EntityId> actual) {
+    protected void assertElements(final Iterable<ElementId> expected, final Iterable<? extends EntityId> actual) {
         final List<ElementId> expectedIds = new ArrayList<>();
         for (final ElementId element : expected) {
             if (element instanceof EdgeId) {
