@@ -57,6 +57,7 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.getConnector;
 
 public class FederatedGraphStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedGraphStorage.class);
@@ -533,7 +534,7 @@ public class FederatedGraphStorage {
                  * MiniAccumuloStore, SingleUseMiniAccumuloStore]
                  */
                 try {
-                    Connector connection = TableUtils.getConnector((AccumuloProperties) graphToMove.getStoreProperties());
+                    Connector connection = getConnector((AccumuloProperties) graphToMove.getStoreProperties());
 
                     if (connection.tableOperations().exists(graphId)) {
                         connection.tableOperations().offline(graphId);
@@ -541,7 +542,7 @@ public class FederatedGraphStorage {
                         connection.tableOperations().online(newGraphId);
                     }
                 } catch (final Exception e) {
-                    LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToMove, e);
+                    LOGGER.error("Error trying to update tables for graphID:{} graphToMove:{}, Error:{}", graphId, graphToMove, e.getMessage());
                 }
             }
 
