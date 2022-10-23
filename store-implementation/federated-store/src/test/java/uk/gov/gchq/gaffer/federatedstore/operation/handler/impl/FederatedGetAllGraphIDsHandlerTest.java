@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
@@ -27,8 +26,9 @@ import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.Set;
+import java.util.List;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
@@ -51,8 +51,7 @@ public class FederatedGetAllGraphIDsHandlerTest {
         Context context = Mockito.mock(Context.class);
         BDDMockito.given(context.getUser()).willReturn(testUser);
         FederatedStore store = Mockito.mock(FederatedStore.class);
-        Set<String> expected = Sets.newHashSet();
-        expected.add("value1");
+        List<String> expected = singletonList("value1");
         BDDMockito.given(store.getAllGraphIds(testUser, false)).willReturn(expected);
 
         Iterable<? extends String> actual = federatedGetAllGraphIDHandler.doOperation(op, context, store);

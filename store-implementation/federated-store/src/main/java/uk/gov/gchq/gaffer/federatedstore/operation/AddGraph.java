@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
@@ -33,10 +32,13 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 /**
  * <p>
@@ -112,7 +114,7 @@ public class AddGraph implements IFederationOperation {
                 .isPublic(this.isPublic)
                 .readAccessPredicate(this.readAccessPredicate)
                 .writeAccessPredicate(this.writeAccessPredicate)
-                .userRequestingAdminUsage(this.userRequestingAdminUsage);
+                .setUserRequestingAdminUsage(this.userRequestingAdminUsage);
 
         if (null != graphAuths) {
             builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));
@@ -217,14 +219,14 @@ public class AddGraph implements IFederationOperation {
     }
 
     @Override
-    public AddGraph isUserRequestingAdminUsage(final boolean adminRequest) {
+    public AddGraph setUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }
 
-    public abstract static class GraphBuilder<OP extends AddGraph, B extends GraphBuilder<OP, ?>> extends BaseBuilder<OP, B> {
+    public abstract static class AddGraphBuilder<OP extends AddGraph, B extends AddGraphBuilder<OP, ?>> extends IFederationOperation.BaseBuilder<OP, B> {
 
-        protected GraphBuilder(final OP addGraph) {
+        protected AddGraphBuilder(final OP addGraph) {
             super(addGraph);
         }
 
@@ -262,7 +264,7 @@ public class AddGraph implements IFederationOperation {
             if (null == graphAuths) {
                 _getOp().setGraphAuths(null);
             } else {
-                _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
+                _getOp().setGraphAuths(new HashSet<>(asList(graphAuths)));
             }
             return _self();
         }
@@ -283,7 +285,7 @@ public class AddGraph implements IFederationOperation {
         }
     }
 
-    public static class Builder extends GraphBuilder<AddGraph, Builder> {
+    public static class Builder extends AddGraphBuilder<AddGraph, Builder> {
         public Builder() {
             super(new AddGraph());
         }

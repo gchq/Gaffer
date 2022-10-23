@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -93,8 +92,8 @@ public class FederatedStoreGetTraitsTest {
             POST_AGGREGATION_FILTERING,
             MATCHED_VERTEX);
     private static final Set<StoreTrait> MAP_TRAITS_EXCLUSIVE_OF_ACCUMULO = Collections.emptySet();
-    private static final FederatedAccess ACCESS_UNUSED_AUTH_AND_UNUSED_USER = new FederatedAccess(Sets.newHashSet(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING);
-    private static final FederatedAccess ACCESS_UNUSED_AUTH_WITH_TEST_USER = new FederatedAccess(Sets.newHashSet(UNUSED_AUTH_STRING), TEST_USER_ID);
+    private static final FederatedAccess ACCESS_UNUSED_AUTH_AND_UNUSED_USER = new FederatedAccess(Collections.singleton(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING);
+    private static final FederatedAccess ACCESS_UNUSED_AUTH_WITH_TEST_USER = new FederatedAccess(Collections.singleton(UNUSED_AUTH_STRING), TEST_USER_ID);
     private static final Set<StoreTrait> MAP_TRAITS = ImmutableSet.of(
             INGEST_AGGREGATION,
             MATCHED_VERTEX,
@@ -288,7 +287,7 @@ public class FederatedStoreGetTraitsTest {
         final Set<StoreTrait> traits = (Set<StoreTrait>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(getTraits)
                 .mergeFunction(new CollectionIntersect<Object>())
-                .graphIds(GRAPH_ID_MAP)
+                .graphIdsCSV(GRAPH_ID_MAP)
                 .build(), testUserContext);
         // then
         assertThat(traits).withFailMessage("Returning AccumuloStore traits instead of MapStore").isNotEqualTo(ACCUMULO_TRAITS)
@@ -312,7 +311,7 @@ public class FederatedStoreGetTraitsTest {
         final Set<StoreTrait> traits = (Set<StoreTrait>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(getTraits)
                 .mergeFunction(new CollectionIntersect<Object>())
-                .graphIds(GRAPH_ID_MAP)
+                .graphIdsCSV(GRAPH_ID_MAP)
                 .build(), testUserContext);
 
         //then
@@ -332,7 +331,7 @@ public class FederatedStoreGetTraitsTest {
     @Test
     public void shouldNotGetTraitsForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
         // given
-        federatedStore.addGraphs(new FederatedAccess(Sets.newHashSet(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING), accumuloGraphSerialised);
+        federatedStore.addGraphs(new FederatedAccess(Collections.singleton(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING), accumuloGraphSerialised);
         federatedStore.addGraphs(new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, blockingAccessPredicate, null), mapGraphSerialised);
         // when
         final Set<StoreTrait> traits = federatedStore.execute(getTraits, testUserContext);
@@ -343,8 +342,8 @@ public class FederatedStoreGetTraitsTest {
     @Test
     public void shouldGetTraitsForAuthUser() throws Exception {
         // given
-        federatedStore.addGraphs(new FederatedAccess(Sets.newHashSet(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING), accumuloGraphSerialised);
-        federatedStore.addGraphs(new FederatedAccess(Sets.newHashSet(AUTH_1), testUser.getUserId()), mapGraphSerialised);
+        federatedStore.addGraphs(new FederatedAccess(Collections.singleton(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING), accumuloGraphSerialised);
+        federatedStore.addGraphs(new FederatedAccess(Collections.singleton(AUTH_1), testUser.getUserId()), mapGraphSerialised);
         // when
         final Set<StoreTrait> traits = federatedStore.execute(getTraits, authUserContext);
         // then
@@ -354,8 +353,8 @@ public class FederatedStoreGetTraitsTest {
     @Test
     public void shouldNotGetTraitsForBlankUser() throws Exception {
         // given
-        federatedStore.addGraphs(new FederatedAccess(Sets.newHashSet(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING), accumuloGraphSerialised);
-        federatedStore.addGraphs(new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER_ID), mapGraphSerialised);
+        federatedStore.addGraphs(new FederatedAccess(Collections.singleton(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING), accumuloGraphSerialised);
+        federatedStore.addGraphs(new FederatedAccess(Collections.singleton(AUTH_1), TEST_USER_ID), mapGraphSerialised);
         // when
         final Set<StoreTrait> traits = federatedStore.execute(getTraits, blankUserContext);
         // then
@@ -365,8 +364,8 @@ public class FederatedStoreGetTraitsTest {
     @Test
     public void shouldNotGetTraitsForNonAuthUser() throws Exception {
         // given
-        federatedStore.addGraphs(new FederatedAccess(Sets.newHashSet(AUTH_1), AUTH_USER_ID), accumuloGraphSerialised);
-        federatedStore.addGraphs(new FederatedAccess(Sets.newHashSet(AUTH_1), AUTH_USER_ID), mapGraphSerialised);
+        federatedStore.addGraphs(new FederatedAccess(Collections.singleton(AUTH_1), AUTH_USER_ID), accumuloGraphSerialised);
+        federatedStore.addGraphs(new FederatedAccess(Collections.singleton(AUTH_1), AUTH_USER_ID), mapGraphSerialised);
         // when
         final Set<StoreTrait> traits = federatedStore.execute(getTraits, testUserContext);
         // then
@@ -384,7 +383,7 @@ public class FederatedStoreGetTraitsTest {
     @Test
     public void shouldGetTraitsForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws Exception {
         // given
-        federatedStore.addGraphs(new FederatedAccess(Sets.newHashSet(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING), accumuloGraphSerialised);
+        federatedStore.addGraphs(new FederatedAccess(Collections.singleton(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING), accumuloGraphSerialised);
         federatedStore.addGraphs(new FederatedAccess(NULL_GRAPH_AUTHS, UNUSED_AUTH_STRING, false, false, permissiveAccessPredicate, null), mapGraphSerialised);
         // when
         final Set<StoreTrait> traits = federatedStore.execute(getTraits, blankUserContext);
@@ -403,8 +402,8 @@ public class FederatedStoreGetTraitsTest {
     @Test
     public void shouldCombineTraitsToMin() throws Exception {
         // given
-        federatedStore.addGraphs(new FederatedAccess(Sets.newHashSet(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING, true), accumuloGraphSerialised);
-        federatedStore.addGraphs(new FederatedAccess(Sets.newHashSet(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING, true), mapGraphSerialised);
+        federatedStore.addGraphs(new FederatedAccess(Collections.singleton(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING, true), accumuloGraphSerialised);
+        federatedStore.addGraphs(new FederatedAccess(Collections.singleton(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING, true), mapGraphSerialised);
         getTraits.setCurrentTraits(false);
         // when
         final Set<StoreTrait> traits = federatedStore.execute(getTraits, testUserContext);

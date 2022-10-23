@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +32,7 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
@@ -42,9 +42,11 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +66,9 @@ public class FederatedGraphStorage {
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
     public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedGraphStorage.class);
-    private FederatedStoreCache federatedStoreCache;
+    private final Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
+    private final FederatedStoreCache federatedStoreCache;
+    private Boolean isCacheEnabled = false;
     private GraphLibrary graphLibrary;
 
     public FederatedGraphStorage() {
@@ -138,20 +142,21 @@ public class FederatedGraphStorage {
      * @param user to match visibility against.
      * @return visible graphIds.
      */
-    public Collection<String> getAllIds(final User user) {
+    public List<String> getAllIds(final User user) {
         return getIdsFrom(getUserGraphStream(federatedAccess -> federatedAccess.hasReadAccess(user)));
     }
 
-    public Collection<String> getAllIds(final User user, final String adminAuth) {
+    public List<String> getAllIds(final User user, final String adminAuth) {
         return getIdsFrom(getUserGraphStream(federatedAccess -> federatedAccess.hasReadAccess(user, adminAuth)));
     }
 
-    private Collection<String> getIdsFrom(final Stream<GraphSerialisable> allStream) {
-        final Set<String> rtn = allStream
+    private List<String> getIdsFrom(final Stream<GraphSerialisable> allStream) {
+        final List<String> rtn = allStream
                 .map(GraphSerialisable::getGraphId)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .distinct()
+                .collect(Collectors.toList());
 
-        return Collections.unmodifiableSet(rtn);
+        return Collections.unmodifiableList(rtn);
     }
 
     /**
@@ -213,11 +218,11 @@ public class FederatedGraphStorage {
      * to the user.
      *
      * @param user      to match visibility against.
-     * @param graphIds  the graphIds to get graphs for.
+     * @param graphIds  the graphIds to get graphs for. List is used because it preserves order.
      * @param adminAuth adminAuths role
      * @return visible graphs from the given graphIds.
      */
-    public Collection<GraphSerialisable> get(final User user, final List<String> graphIds, final String adminAuth) {
+    public List<GraphSerialisable> get(final User user, final List<String> graphIds, final String adminAuth) {
         if (null == user) {
             return Collections.emptyList();
         }
@@ -225,10 +230,11 @@ public class FederatedGraphStorage {
         validateAllGivenGraphIdsAreVisibleForUser(user, graphIds, adminAuth);
         Stream<GraphSerialisable> graphs = getStream(user, graphIds);
         if (null != graphIds) {
+            //This maintains order with the requested Ids.
             graphs = graphs.sorted(Comparator.comparingInt(g -> graphIds.indexOf(g.getGraphId())));
         }
-        final Set<GraphSerialisable> rtn = graphs.collect(Collectors.toCollection(LinkedHashSet::new));
-        return Collections.unmodifiableCollection(rtn);
+        final List<GraphSerialisable> rtn = graphs.distinct().collect(Collectors.toList());
+        return Collections.unmodifiableList(rtn);
     }
 
     @Deprecated
@@ -264,7 +270,7 @@ public class FederatedGraphStorage {
         if (null != graphIds) {
             final Collection<String> visibleIds = getAllIds(user, adminAuth);
             if (!visibleIds.containsAll(graphIds)) {
-                final Set<String> notVisibleIds = Sets.newHashSet(graphIds);
+                final List<String> notVisibleIds = new ArrayList<>(graphIds);
                 notVisibleIds.removeAll(visibleIds);
                 throw new IllegalArgumentException(String.format(GRAPH_IDS_NOT_VISIBLE, notVisibleIds));
             }
@@ -301,6 +307,7 @@ public class FederatedGraphStorage {
             rtn = federatedStoreCache.getAllGraphIds().stream()
                     .map(g -> federatedStoreCache.getFromCache(g))
                     .filter(pair -> isValidToView(user, pair.getSecond()))
+                    //not visible unless graphId is requested.
                     .filter(pair -> !pair.getSecond().isDisabledByDefault())
                     .map(pair -> pair.getFirst());
         } else {
@@ -409,10 +416,10 @@ public class FederatedGraphStorage {
         try {
             this.put(new GraphSerialisable.Builder(graphToUpdate).build(), newFederatedAccess);
         } catch (final Exception e) {
-            //TODO FS recovery
-            String s = "Error occurred updating graphAccess. GraphStorage=updated, Cache=outdated. graphId:" + graphId;
-            LOGGER.error("{} graphStorage access:{} cache access:{}", s, newFederatedAccess, federatedStoreCache.getAccessFromCache(graphId));
-            throw new StorageException(s, e);
+            //TODO FS review possible recovery
+            String message = String.format("Error occurred updating graphAccess. GraphStorage=updated, Cache=outdated. graphId:%s. Recovery is possible from a restart if a persistent cache is being used, otherwise contact admin", graphId);
+            LOGGER.error("{} graphStorage access:{} cache access:{}", message, newFederatedAccess, federatedStoreCache.getAccessFromCache(graphId));
+            throw new StorageException(message, e);
         }
     }
 
@@ -444,6 +451,7 @@ public class FederatedGraphStorage {
         }
         return rtn;
     }
+
     private void updateCacheWithNewGraphId(final String newGraphId, final GraphSerialisable graphToUpdate, final FederatedAccess access) throws StorageException {
         //rename graph
         GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder(graphToUpdate)
@@ -453,7 +461,7 @@ public class FederatedGraphStorage {
         try {
             this.put(updatedGraphSerialisable, access);
         } catch (final Exception e) {
-            //TODO FS recovery
+            //TODO FS review possible recovery
             String s = "Contact Admin for recovery. Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId.";
             LOGGER.error("{} graphStorage graphId:{} cache graphId:{}", s, newGraphId, graphToUpdate.getGraphId());
             throw new StorageException(s, e);
@@ -463,7 +471,7 @@ public class FederatedGraphStorage {
     private void updateTablesWithNewGraphId(final String newGraphId, final GraphSerialisable graphToUpdate) throws StorageException {
         //Update Tables
         String graphId = graphToUpdate.getGraphId();
-        String storeClass = graphToUpdate.getStoreProperties(graphLibrary).getStoreClass();
+        String storeClass = graphToUpdate.getStoreProperties().getStoreClass();
         if (nonNull(storeClass) && storeClass.startsWith(AccumuloStore.class.getPackage().getName())) {
             /*
              * This logic is only for Accumulo derived stores Only.
@@ -473,11 +481,7 @@ public class FederatedGraphStorage {
              * MiniAccumuloStore, SingleUseMiniAccumuloStore]
              */
             try {
-                AccumuloProperties tmpAccumuloProps = (AccumuloProperties) graphToUpdate.getStoreProperties();
-                Connector connection = TableUtils.getConnector(tmpAccumuloProps.getInstance(),
-                        tmpAccumuloProps.getZookeepers(),
-                        tmpAccumuloProps.getUser(),
-                        tmpAccumuloProps.getPassword());
+                Connector connection = TableUtils.getConnector((AccumuloProperties) graphToUpdate.getStoreProperties());
 
                 if (connection.tableOperations().exists(graphId)) {
                     connection.tableOperations().offline(graphId);
@@ -485,12 +489,11 @@ public class FederatedGraphStorage {
                     connection.tableOperations().online(newGraphId);
                 }
             } catch (final Exception e) {
-                String message = String.format("Contact Admin for recovery. Error trying to update tables for graphID:%s graphToUpdate:%s", newGraphId, graphToUpdate.getGraphId());
-                LOGGER.error(message, e);
-                throw new StorageException(message, e);
+                LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToUpdate, e);
             }
         }
     }
+
     private GraphConfig cloneGraphConfigWithNewGraphId(final String newGraphId, final GraphSerialisable graphToUpdate) {
         return new GraphConfig.Builder()
                 .json(new GraphSerialisable.Builder(graphToUpdate).build().getSerialisedConfig())

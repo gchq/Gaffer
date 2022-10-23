@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore.util;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,12 +47,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public final class FederatedStoreUtil {
-    public static final Collection<String> STRINGS_TO_REMOVE = Collections.unmodifiableCollection(Arrays.asList("", null));
     public static final String DEPRECATED_GRAPH_IDS_FLAG = "gaffer.federatedstore.operation.graphIds";
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreUtil.class);
     private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
@@ -63,8 +61,7 @@ public final class FederatedStoreUtil {
     }
 
     public static String createOperationErrorMsg(final Operation operation, final String graphId, final Exception e) {
-        final String additionalInfo = String.format("Set the skip and continue option: %s for operation: %s",
-                "skipFailedFederatedExecution",
+        final String additionalInfo = String.format("Set the skip and continue option: skipFailedFederatedExecution for operation: %s",
                 operation.getClass().getSimpleName());
 
         return String.format("Failed to execute %s on graph %s.%n %s.%n Error: %s",
@@ -74,8 +71,9 @@ public final class FederatedStoreUtil {
     public static List<String> getCleanStrings(final String value) {
         final List<String> values;
         if (value != null) {
-            values = Lists.newArrayList(StringUtils.stripAll(value.split(SCHEMA_DEL_REGEX)));
-            values.removeAll(STRINGS_TO_REMOVE);
+            values = Arrays.stream(StringUtils.stripAll(value.split(SCHEMA_DEL_REGEX)))
+                    .filter(StringUtils::isNotBlank)
+                    .collect(Collectors.toList());
         } else {
             values = null;
         }
@@ -241,7 +239,7 @@ public final class FederatedStoreUtil {
     public static <INPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, OUTPUT> addDeprecatedGraphIds(final Operation operation, final FederatedOperation.BuilderParent<INPUT, OUTPUT> builder) {
         String graphIdOption = getDeprecatedGraphIds(operation);
         if (nonNull(graphIdOption)) {
-            builder.graphIds(graphIdOption);
+            builder.graphIdsCSV(graphIdOption);
         }
         return builder;
     }
@@ -252,7 +250,6 @@ public final class FederatedStoreUtil {
         if (nonNull(deprecatedGraphIds)) {
             String simpleName = operation.getClass().getSimpleName();
             LOGGER.warn("Operation:{} has old Deprecated style of graphId selection.", simpleName);
-            //throw new GafferRuntimeException(String.format("Operation:%s has old deprecated style of graphId selection. Use FederatedOperation to perform this selection", simpleName));
         }
         return deprecatedGraphIds;
     }

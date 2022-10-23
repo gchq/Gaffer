@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
@@ -30,7 +29,9 @@ import uk.gov.gchq.koryphe.impl.function.CallMethod;
 import uk.gov.gchq.koryphe.impl.predicate.CollectionContains;
 import uk.gov.gchq.koryphe.predicate.AdaptedPredicate;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -123,7 +124,7 @@ public class FederatedAccessAuthTest {
         FederatedAccess deserialised = JSONSerialiser.deserialise(json, FederatedAccess.class);
 
         // Then
-        FederatedGraphReadAccessPredicate expectedReadPredicate = new FederatedGraphReadAccessPredicate(AUTH_USER_ID, Sets.newHashSet(AUTH_1, AUTH_2), true);
+        FederatedGraphReadAccessPredicate expectedReadPredicate = new FederatedGraphReadAccessPredicate(AUTH_USER_ID, new HashSet<>(Arrays.asList(AUTH_1, AUTH_2)), true);
         FederatedGraphWriteAccessPredicate expectedWritePredicate = new FederatedGraphWriteAccessPredicate(AUTH_USER_ID);
 
         assertEquals(expectedReadPredicate, deserialised.getOrDefaultReadAccessPredicate());

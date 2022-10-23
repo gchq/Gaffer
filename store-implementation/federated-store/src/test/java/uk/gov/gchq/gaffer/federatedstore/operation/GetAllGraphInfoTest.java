@@ -16,25 +16,26 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @see uk.gov.gchq.gaffer.federatedstore.AdminGetAllGraphInfoTest
  */
 public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo> {
 
-    public static final String GRAPH_IDS_CSV = "a,b,c";
+    public static final List<String> GRAPH_IDS = asList("a", "b", "c");
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet();
+        return new HashSet<>();
     }
 
     @Test
@@ -42,11 +43,11 @@ public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo
     public void builderShouldCreatePopulatedOperation() {
         GetAllGraphInfo operation = new GetAllGraphInfo.Builder()
                 .option("a", "b")
-                .graphIDsCSV(GRAPH_IDS_CSV)
+                .graphIDs(GRAPH_IDS)
                 .build();
 
         assertThat(operation.getOptions()).containsEntry("a", "b");
-        assertThat(operation.getGraphIdsCSV()).isEqualTo(GRAPH_IDS_CSV);
+        assertThat(operation.getGraphIds()).isEqualTo(GRAPH_IDS);
     }
 
     @Test
@@ -54,14 +55,18 @@ public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo
     public void shouldShallowCloneOperation() {
         GetAllGraphInfo operation = new GetAllGraphInfo.Builder()
                 .option("a", "b")
-                .graphIDsCSV(GRAPH_IDS_CSV)
+                .graphIDs(GRAPH_IDS)
                 .build();
 
         final GetAllGraphInfo clone = operation.shallowClone();
-        assertNotNull(clone);
+
+        //Then
+        assertThat(clone)
+                .isNotNull()
+                .isEqualTo(operation);
+
         assertEquals("b", clone.getOption("a"));
-        assertEquals(GRAPH_IDS_CSV, clone.getGraphIdsCSV());
-        assertEquals(operation, clone);
+        assertEquals(GRAPH_IDS, clone.getGraphIds());
     }
 
     @Override

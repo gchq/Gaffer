@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
@@ -69,7 +69,7 @@ public class FederatedAccessNullEmptyTest {
     public void shouldInValidateWithEmptyCollectionAuth() throws Exception {
 
         final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths(Sets.newHashSet())
+                .graphAuths(new HashSet<>())
                 .build();
 
         assertFalse(access.hasReadAccess(blankUser()));

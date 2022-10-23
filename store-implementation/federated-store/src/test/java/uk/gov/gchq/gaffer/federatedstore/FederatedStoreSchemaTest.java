@@ -112,7 +112,7 @@ public class FederatedStoreSchemaTest {
         final Collection<String> graphIds = federatedStore.getAllGraphIds(testUser);
 
         // Then
-        assertThat(graphIds).isEqualTo(new HashSet<>(Arrays.asList(GRAPH_ID_A, GRAPH_ID_B, GRAPH_ID_C)));
+        assertThat(graphIds).containsExactlyInAnyOrder(GRAPH_ID_A, GRAPH_ID_B, GRAPH_ID_C);
     }
 
 

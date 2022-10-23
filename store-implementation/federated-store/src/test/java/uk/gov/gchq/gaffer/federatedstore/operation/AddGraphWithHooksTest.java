@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
@@ -30,6 +28,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Set;
 
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,7 +44,7 @@ public class AddGraphWithHooksTest extends FederationOperationTest<AddGraphWithH
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("graphId");
+        return singleton("graphId");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class AddGraphWithHooksTest extends FederationOperationTest<AddGraphWithH
         final AddGraphWithHooks a = new Builder()
                 .graphId("graphId")
                 .parentPropertiesId("testPropID")
-                .parentSchemaIds(Lists.newArrayList("testSchemaID"))
+                .parentSchemaIds(singletonList("testSchemaID"))
                 .schema(new Schema.Builder()
                         .build())
                 .graphAuths("testAuth")
@@ -109,7 +109,7 @@ public class AddGraphWithHooksTest extends FederationOperationTest<AddGraphWithH
                 .parentPropertiesId(null)
                 .parentSchemaIds(null)
                 .schema(null)
-                .graphAuths(null)
+                .graphAuths((String) null)
                 .storeProperties(null)
                 .readAccessPredicate(READ_ACCESS_PREDICATE)
                 .writeAccessPredicate(WRITE_ACCESS_PREDICATE)

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -39,27 +40,27 @@ public class FederatedStoreDefaultGraphsTest {
         federatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
         assertThat(federatedStore)
                 .isNotNull()
-                .returns("defaultJsonGraphId", from(FederatedStore::getAdminConfiguredDefaultGraphIdsCSV));
+                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getAdminConfiguredDefaultGraphIds));
 
         federatedStore.initialise(FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), new FederatedStoreProperties());
     }
 
-    @Disabled //TODO FS remove ignore
+    @Disabled
     @Test
     public void testDisableByDefault() {
-        fail();
+        fail("Not yet implemented");
     }
 
-    @Disabled //TODO FS remove ignore
+    @Disabled
     @Test
     public void testDisableByDefaultAdmin() {
-        fail();
+        fail("Not yet implemented");
     }
 
-    @Disabled //TODO FS remove ignore
+    @Disabled
     @Test
     public void testDisableByDefaultButIsDefaultListOfGraphs() {
-        fail();
+        fail("Not yet implemented");
     }
 
     @Test

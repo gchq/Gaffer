@@ -65,7 +65,7 @@ public class ChangeGraphId implements Output<Boolean>, IFederationOperation {
                 .graphId(this.graphId)
                 .newGraphId(this.newGraphId)
                 .options(this.options)
-                .userRequestingAdminUsage(this.userRequestingAdminUsage)
+                .setUserRequestingAdminUsage(this.userRequestingAdminUsage)
                 .build();
     }
 
@@ -80,7 +80,7 @@ public class ChangeGraphId implements Output<Boolean>, IFederationOperation {
     }
 
     @Override
-    public ChangeGraphId isUserRequestingAdminUsage(final boolean adminRequest) {
+    public ChangeGraphId setUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }

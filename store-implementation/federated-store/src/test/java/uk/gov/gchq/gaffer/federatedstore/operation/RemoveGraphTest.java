@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -25,6 +24,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph.Builder;
 
 import java.util.Set;
 
+import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -37,7 +37,7 @@ public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
 
         RemoveGraph op = new Builder()
                 .graphId(EXPECTED_GRAPH_ID)
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build();
 
         byte[] serialise = toJson(op);
@@ -49,7 +49,7 @@ public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("graphId");
+        return singleton("graphId");
     }
 
     @Test
@@ -57,7 +57,7 @@ public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
     public void builderShouldCreatePopulatedOperation() {
         RemoveGraph op = new Builder()
                 .graphId(EXPECTED_GRAPH_ID)
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build();
 
         assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());

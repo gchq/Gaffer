@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
-import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.Connector;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -51,8 +50,8 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccum
 
 public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
 
-    public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("AdminAuth"));
-    public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("NotAdminAuth"));
+    public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Collections.singleton("AdminAuth"));
+    public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Collections.singleton("NotAdminAuth"));
 
     private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
 
@@ -134,7 +133,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         //when
         final Boolean removed = graph.execute(new RemoveGraph.Builder()
                 .graphId(GRAPH_ID_A)
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -156,7 +155,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         //when
         final Boolean removed = graph.execute(new RemoveGraph.Builder()
                 .graphId(GRAPH_ID_A)
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build(), NOT_ADMIN_USER);
 
         //then
@@ -177,7 +176,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
 
         //when
         final Iterable<? extends String> adminGraphIds = graph.execute(new GetAllGraphIds.Builder()
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -196,7 +195,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
 
         //when
         final Iterable<? extends String> adminGraphIds = graph.execute(new GetAllGraphIds.Builder()
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build(), NOT_ADMIN_USER);
 
         //then
@@ -217,7 +216,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder()
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -257,7 +256,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder()
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build(), NOT_ADMIN_USER);
 
         assertThat(allGraphsAndAuths)
@@ -302,9 +301,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
 
         //when
 
-        final Map<String, Object> allGraphsAndAuths =
-                (Map<String, Object>) graph.execute(new GetAllGraphInfo()
-                        .graphIdsCSV(graphB), user);
+        final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo().graphIdsCSV(graphB), user);
 
         //then
         assertThat(allGraphsAndAuths)
@@ -357,7 +354,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
                 .graphId(GRAPH_ID_A)
                 .ownerUserId(replacementUser.getUserId())
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -409,7 +406,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
                 .graphId(GRAPH_ID_A)
                 .ownerUserId(replacementUser.getUserId())
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build(), replacementUser);
 
         //then
@@ -423,10 +420,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         //given
         final String graphA = "graphTableA";
         final String graphB = "graphTableB";
-        Connector connector = TableUtils.getConnector(ACCUMULO_PROPERTIES.getInstance(),
-                ACCUMULO_PROPERTIES.getZookeepers(),
-                ACCUMULO_PROPERTIES.getUser(),
-                ACCUMULO_PROPERTIES.getPassword());
+        Connector connector = TableUtils.getConnector(ACCUMULO_PROPERTIES);
 
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
@@ -474,7 +468,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
                 .graphId(GRAPH_ID_A)
                 .newGraphId(graphIdB)
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -525,7 +519,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
                 .graphId(GRAPH_ID_A)
                 .newGraphId(GRAPH_ID_B)
-                .userRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build(), otherUser);
 
         //then

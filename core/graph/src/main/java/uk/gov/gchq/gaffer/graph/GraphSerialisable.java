@@ -46,7 +46,7 @@ import static java.util.Objects.nonNull;
  * @see GraphSerialisable.Builder
  */
 @JsonDeserialize(builder = GraphSerialisable.Builder.class)
-public final class GraphSerialisable implements Serializable {
+public abstract class GraphSerialisable implements Serializable {
     private static final long serialVersionUID = 2684203367656032583L;
     private final byte[] serialisedSchema;
     private final byte[] serialisedProperties;
@@ -194,7 +194,7 @@ public final class GraphSerialisable implements Serializable {
             if (isNull(graph)) {
                 try {
                     storeProperties = null != serialisedProperties ? StoreProperties.loadStoreProperties(JSONSerialiser.deserialise(serialisedProperties, Properties.class)) : null;
-                } catch (SerialisationException e) {
+                } catch (final SerialisationException e) {
                     throw new GafferRuntimeException("Unable to deserialise properties");
                 }
             } else {
@@ -258,7 +258,6 @@ public final class GraphSerialisable implements Serializable {
 
         public Builder(final GraphSerialisable graphSerialisable) {
             this();
-            //TODO FS this deserialises just to re-serialise in the constructor at build.
             schema(graphSerialisable.getSchema());
             properties(graphSerialisable.getStoreProperties());
             config(graphSerialisable.getConfig());
@@ -314,7 +313,8 @@ public final class GraphSerialisable implements Serializable {
             if (isNull(config) || isNull(config.getGraphId())) {
                 throw new IllegalArgumentException("GraphSerialisable Builder requires a graph name");
             }
-            return new GraphSerialisable(config, schema, properties);
+            //TODO FS final GraphSerialisable Test bug, Anonymous class to get it
+            return new GraphSerialisable(config, schema, properties) { };
         }
     }
 

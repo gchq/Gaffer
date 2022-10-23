@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore.util;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -139,8 +138,8 @@ public class FederatedStoreUtilTest {
         // Then
         assertNotSame(operation, updatedOp);
         assertNotSame(operation.getView(), updatedOp.getView());
-        assertEquals(Sets.newHashSet(TestGroups.ENTITY), updatedOp.getView().getEntityGroups());
-        assertEquals(Sets.newHashSet(TestGroups.EDGE), updatedOp.getView().getEdgeGroups());
+        assertEquals(Collections.singleton(TestGroups.ENTITY), updatedOp.getView().getEntityGroups());
+        assertEquals(Collections.singleton(TestGroups.EDGE), updatedOp.getView().getEdgeGroups());
         assertSame(operation.getView().getEntity(TestGroups.ENTITY), updatedOp.getView().getEntity(TestGroups.ENTITY));
         assertSame(operation.getView().getEdge(TestGroups.EDGE), updatedOp.getView().getEdge(TestGroups.EDGE));
     }
@@ -217,8 +216,8 @@ public class FederatedStoreUtilTest {
         assertNotSame(operation, updatedOperation);
         assertEquals(options2, updatedOperation.getOptions());
         assertNotSame(operation.getView(), updatedOperation.getView());
-        assertEquals(Sets.newHashSet(TestGroups.ENTITY), updatedOperation.getView().getEntityGroups());
-        assertEquals(Sets.newHashSet(TestGroups.EDGE), updatedOperation.getView().getEdgeGroups());
+        assertEquals(Collections.singleton(TestGroups.ENTITY), updatedOperation.getView().getEntityGroups());
+        assertEquals(Collections.singleton(TestGroups.EDGE), updatedOperation.getView().getEdgeGroups());
         assertSame(operation.getView().getEntity(TestGroups.ENTITY), updatedOperation.getView().getEntity(TestGroups.ENTITY));
         assertSame(operation.getView().getEdge(TestGroups.EDGE), updatedOperation.getView().getEdge(TestGroups.EDGE));
     }

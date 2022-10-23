@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,31 +43,6 @@ import static org.mockito.Mockito.verify;
 public class CountGroupsHandlerTest {
     private static final String GROUP1 = "GROUP1";
     private static final String GROUP2 = "GROUP2";
-
-    static Iterable<Element> getElements() {
-        final Entity entity1 = mock(Entity.class);
-        final Entity entity2 = mock(Entity.class);
-        final Entity entity3 = mock(Entity.class);
-        final Entity entity4 = mock(Entity.class);
-
-        final Edge edge1 = mock(Edge.class);
-        final Edge edge2 = mock(Edge.class);
-        final Edge edge3 = mock(Edge.class);
-        final Edge edge4 = mock(Edge.class);
-
-        lenient().when(entity1.getGroup()).thenReturn(GROUP1);
-        lenient().when(entity2.getGroup()).thenReturn(GROUP2);
-        lenient().when(entity3.getGroup()).thenReturn(GROUP1);
-        lenient().when(entity4.getGroup()).thenReturn(GROUP1);
-
-        lenient().when(edge1.getGroup()).thenReturn(GROUP1);
-        lenient().when(edge2.getGroup()).thenReturn(GROUP2);
-        lenient().when(edge3.getGroup()).thenReturn(GROUP2);
-        lenient().when(edge4.getGroup()).thenReturn(GROUP2);
-
-        return Arrays.asList(entity1, entity2, entity3, entity4,
-                edge1, edge2, edge3, edge4);
-    }
 
     @Test
     public void shouldReturnNoCountsIfElementsAreNull(@Mock final Store store,
@@ -168,5 +143,30 @@ public class CountGroupsHandlerTest {
         assertThat(counts.getEntityGroups().get(GROUP1)).isEqualTo(2);
         assertThat(counts.getEntityGroups().get(GROUP2)).isEqualTo(1);
         verify(countGroups).close();
+    }
+
+    static Iterable<Element> getElements() {
+        final Entity entity1 = mock(Entity.class);
+        final Entity entity2 = mock(Entity.class);
+        final Entity entity3 = mock(Entity.class);
+        final Entity entity4 = mock(Entity.class);
+
+        final Edge edge1 = mock(Edge.class);
+        final Edge edge2 = mock(Edge.class);
+        final Edge edge3 = mock(Edge.class);
+        final Edge edge4 = mock(Edge.class);
+
+        lenient().when(entity1.getGroup()).thenReturn(GROUP1);
+        lenient().when(entity2.getGroup()).thenReturn(GROUP2);
+        lenient().when(entity3.getGroup()).thenReturn(GROUP1);
+        lenient().when(entity4.getGroup()).thenReturn(GROUP1);
+
+        lenient().when(edge1.getGroup()).thenReturn(GROUP1);
+        lenient().when(edge2.getGroup()).thenReturn(GROUP2);
+        lenient().when(edge3.getGroup()).thenReturn(GROUP2);
+        lenient().when(edge4.getGroup()).thenReturn(GROUP2);
+
+        return Arrays.asList(entity1, entity2, entity3, entity4,
+                edge1, edge2, edge3, edge4);
     }
 }

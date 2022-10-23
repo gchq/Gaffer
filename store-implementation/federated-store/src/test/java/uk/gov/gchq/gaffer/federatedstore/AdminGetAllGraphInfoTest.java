@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +30,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Map;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
@@ -44,7 +44,7 @@ import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_USER_ID;
 public class AdminGetAllGraphInfoTest {
 
     private static final String ADMIN_AUTH = "AdminAuth";
-    private static final User ADMIN_USER = new User("adminUser", null, Sets.newHashSet(ADMIN_AUTH));
+    private static final User ADMIN_USER = new User("adminUser", null, singleton(ADMIN_AUTH));
     private static final AccumuloProperties PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
 
     private FederatedAccess access;
@@ -58,7 +58,7 @@ public class AdminGetAllGraphInfoTest {
     @BeforeEach
     public void setUp() throws Exception {
         resetForFederatedTests();
-        access = new FederatedAccess(Sets.newHashSet(AUTH_1), AUTH_USER_ID, false, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT);
+        access = new FederatedAccess(singleton(AUTH_1), AUTH_USER_ID, false, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT);
         store = new FederatedStore();
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.set(StoreProperties.ADMIN_AUTH, ADMIN_AUTH);
@@ -82,14 +82,14 @@ public class AdminGetAllGraphInfoTest {
                 .isNotNull()
                 .size().isEqualTo(1);
 
-        assertEquals("{\n" +
-                "  \"AccumuloStore\" : {\n" +
-                "    \"addingUserId\" : \"authUser\",\n" +
-                "    \"disabledByDefault\" : false,\n" +
-                "    \"graphAuths\" : [ \"auth1\" ],\n" +
-                "    \"public\" : false\n" +
-                "  }\n" +
-                "}", new String(JSONSerialiser.serialise(allGraphsAndAuths, true)));
+        assertEquals(String.format("{%n" +
+                "  \"AccumuloStore\" : {%n" +
+                "    \"addingUserId\" : \"authUser\",%n" +
+                "    \"disabledByDefault\" : false,%n" +
+                "    \"graphAuths\" : [ \"auth1\" ],%n" +
+                "    \"public\" : false%n" +
+                "  }%n" +
+                "}"), new String(JSONSerialiser.serialise(allGraphsAndAuths, true)));
     }
 
     @Test

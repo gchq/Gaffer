@@ -48,7 +48,7 @@ public class DoubleProxyTest {
 
     @BeforeEach
     public void setUpStores() throws OperationException {
-       FederatedStoreTestUtil.resetForFederatedTests();
+        FederatedStoreTestUtil.resetForFederatedTests();
 
         ProxyProperties proxyProperties = new ProxyProperties();
         proxyProperties.setStoreClass(SingleUseProxyMapStore.class);

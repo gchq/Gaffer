@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,33 +49,40 @@ public class GetAllNamedViewsHandlerTest {
     private final Context context = new Context(new User.Builder()
             .userId(testUserId)
             .build());
+
+    @Mock
+    private Store store;
+
     private final View view = new View.Builder()
             .edge(TestGroups.EDGE)
             .build();
+
     private final AddNamedView addNamedView = new AddNamedView.Builder()
             .name(testNamedViewName)
             .view(view)
             .overwrite(false)
             .build();
+
     private final View view2 = new View.Builder()
             .entity(TestGroups.ENTITY)
             .build();
+
     private final AddNamedView addNamedView2 = new AddNamedView.Builder()
             .name(testNamedViewName + 2)
             .view(view2)
             .overwrite(false)
             .build();
+
     private final View viewWithNoAccess = new View.Builder()
             .entity(TestGroups.ENTITY)
             .build();
+
     private final AddNamedView addNamedViewWithNoAccess = new AddNamedView.Builder()
             .name(testNamedViewName + "WithNoAccess")
             .view(viewWithNoAccess)
             .overwrite(false)
             .readAccessPredicate(new NoAccessPredicate())
             .build();
-    @Mock
-    private Store store;
 
     @AfterAll
     public static void tearDown() {

@@ -16,35 +16,37 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 
+import java.util.List;
 import java.util.Set;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 
 public class FederatedOperationTest extends FederationOperationTest<FederatedOperation> {
-    private static final String EXPECTED_GRAPH_ID = "testGraphID1,testGraphID2";
-    public static final String JSON = "{\n" +
-            "  \"class\" : \"uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation\",\n" +
-            "  \"operation\" : {\n" +
-            "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\"\n" +
-            "  },\n" +
-            "  \"mergeFunction\" : {\n" +
-            "    \"class\" : \"uk.gov.gchq.gaffer.federatedstore.util.DefaultBestEffortsMergeFunction\"\n" +
-            "  },\n" +
-            "  \"graphIds\" : \"testGraphID1,testGraphID2\"\n" +
-            "}";
+    private static final List<String> EXPECTED_GRAPH_IDS = asList("testGraphID1", "testGraphID2");
+    public static final String JSON = String.format("{%n" +
+            "  \"class\" : \"uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation\",%n" +
+            "  \"operation\" : {%n" +
+            "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\"%n" +
+            "  },%n" +
+            "  \"mergeFunction\" : {%n" +
+            "    \"class\" : \"uk.gov.gchq.gaffer.federatedstore.util.DefaultBestEffortsMergeFunction\"%n" +
+            "  },%n" +
+            "  \"graphIds\" : [ \"testGraphID1\", \"testGraphID2\" ]%n" +
+            "}");
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("payloadOperation");
+        return singleton("payloadOperation");
     }
 
     @Test
@@ -54,7 +56,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
         final FederatedOperation federatedOperation = getFederatedOperationForSerialisation();
 
         //then
-        assertEquals(EXPECTED_GRAPH_ID, federatedOperation.getGraphIdsCSV());
+        assertEquals(EXPECTED_GRAPH_IDS, federatedOperation.getGraphIds());
         assertEquals(getHardCodedDefaultMergeFunction(), federatedOperation.getMergeFunction());
         try {
             assertEquals(new String(JSONSerialiser.serialise(new GetAdjacentIds.Builder().build())), new String(JSONSerialiser.serialise(federatedOperation.getUnClonedPayload())));
@@ -69,7 +71,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
                 .op(new GetAdjacentIds.Builder()
                         .build())
                 .mergeFunction(getHardCodedDefaultMergeFunction())
-                .graphIds(EXPECTED_GRAPH_ID)
+                .graphIds(EXPECTED_GRAPH_IDS)
                 .build();
     }
 
@@ -93,7 +95,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
         FederatedOperation a = new FederatedOperation.Builder()
                 .op(new GetAdjacentIds.Builder()
                         .build())
-                .graphIds(EXPECTED_GRAPH_ID)
+                .graphIds(EXPECTED_GRAPH_IDS)
                 .mergeFunction(getHardCodedDefaultMergeFunction())
                 .option("op1", "val1")
                 .skipFailedFederatedExecution(false)

@@ -16,12 +16,13 @@
 
 package uk.gov.gchq.gaffer.federatedstore.util;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.koryphe.impl.function.IterableConcat;
-import uk.gov.gchq.koryphe.impl.function.ToIterable;
+import uk.gov.gchq.koryphe.impl.function.ToList;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.function.BiFunction;
 
 import static java.util.Objects.isNull;
@@ -30,22 +31,12 @@ import static java.util.Objects.nonNull;
 public class DefaultBestEffortsMergeFunction implements BiFunction<Object, Iterable<Object>, Iterable<Object>> {
 
     @Override
-    public Iterable<Object> apply(final Object o, final Iterable<Object> objects) {
-
-        final Iterable<Object> myIter = new ToIterable().apply(o);
-
-        if (isNull(objects)) {
-            return myIter;
-        } else {
-
-            final ArrayList<Iterable<Object>> joinUp = new ArrayList<>();
-            joinUp.add(myIter);
-            joinUp.add(objects);
-
-            final IterableConcat<Object> concat = new IterableConcat<>();
-
-            return concat.apply(joinUp);
-        }
+    public Iterable<Object> apply(final Object update, final Iterable<Object> state) {
+        //When update=null, Then this stops ToList returning an Iterable with a null in it.
+        final Iterable<Object> updateSafe = isNull(update) ? Collections.emptyList() : (Iterable<Object>) new ToList().apply(update);
+        return isNull(state)
+                ? updateSafe
+                : new IterableConcat<>().apply(Lists.newArrayList(updateSafe, state));
     }
 
     @Override

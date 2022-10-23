@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.apache.commons.io.IOUtils;
@@ -68,7 +69,7 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
     public void shouldMatchHistoricalFileSerialisation() throws IOException, GafferCheckedException {
         final String fromDisk = IOUtils.readLines(StreamUtil.openStream(getClass(), PATH))
                 .stream()
-                .collect(Collectors.joining("\n"));
+                .collect(Collectors.joining(System.lineSeparator()));
 
         final MultiSerialiser multiSerialiser = new MultiSerialiser()
                 .addSerialiser((byte) 0, new StringSerialiser(), String.class)

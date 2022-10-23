@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +51,7 @@ import java.util.Iterator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -123,7 +123,7 @@ public class FederatedAddGraphHandlerTest {
 
         assertThat(graphs).hasSize(2);
         final Iterator<GraphSerialisable> iterator = graphs.iterator();
-        final HashSet<String> set = Sets.newHashSet();
+        final HashSet<String> set = new HashSet<>();
         while (iterator.hasNext()) {
             set.add(iterator.next().getGraphId());
         }
@@ -150,7 +150,7 @@ public class FederatedAddGraphHandlerTest {
         final Collection<GraphSerialisable> enabledGraphs = store.getGraphs(testUser, null, new AddGraph());
         assertThat(enabledGraphs).isEmpty();
 
-       final Collection<GraphSerialisable> expectedGraphs = store.getGraphs(testUser, EXPECTED_GRAPH_ID, new AddGraph());
+        final Collection<GraphSerialisable> expectedGraphs = store.getGraphs(testUser, getCleanStrings(EXPECTED_GRAPH_ID), new AddGraph());
         assertThat(expectedGraphs).hasSize(1);
         assertThat(expectedGraphs.iterator().next().getGraphId()).isEqualTo(EXPECTED_GRAPH_ID);
     }
@@ -196,7 +196,7 @@ public class FederatedAddGraphHandlerTest {
 
         assertThat(graphs).hasSize(2);
         final Iterator<GraphSerialisable> iterator = graphs.iterator();
-        final HashSet<String> set = Sets.newHashSet();
+        final HashSet<String> set = new HashSet<>();
         while (iterator.hasNext()) {
             set.add(iterator.next().getGraphId());
         }

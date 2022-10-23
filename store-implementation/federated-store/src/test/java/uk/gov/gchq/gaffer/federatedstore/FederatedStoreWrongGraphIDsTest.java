@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -32,8 +32,9 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
@@ -95,19 +96,24 @@ public class FederatedStoreWrongGraphIDsTest {
                         .op(new AddElements.Builder()
                                 .input(EXPECTED_ENTITY)
                                 .build())
-                        .graphIds(GRAPH_ID_ACCUMULO)
+                        .graphIdsCSV(GRAPH_ID_ACCUMULO)
                         .build(), contextBlankUser());
 
         //when
         final Iterable<? extends Element> getAllElements = federatedStore.execute(new GetAllElements.Builder().build(), contextBlankUser());
         final Iterable<? extends Element> getAllElementsFromAccumuloGraph = federatedStore.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(GRAPH_ID_ACCUMULO), contextBlankUser());
-        final Exception gettingElementsFromWrongGraph = assertThrows(IllegalArgumentException.class, () -> federatedStore.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(WRONG_GRAPH_ID), contextBlankUser()));
-        final Exception addingElementsToWrongGraph = assertThrows(IllegalArgumentException.class, () -> federatedStore.execute(new FederatedOperation.Builder()
-                .op(new AddElements.Builder()
-                        .input(EXPECTED_ENTITY)
-                        .build())
-                .graphIds(WRONG_GRAPH_ID)
-                .build(), contextBlankUser()));
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> federatedStore.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(WRONG_GRAPH_ID), contextBlankUser()))
+                .withStackTraceContaining(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(WRONG_GRAPH_ID)));
+
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> federatedStore.execute(new FederatedOperation.Builder()
+                        .op(new AddElements.Builder()
+                                .input(EXPECTED_ENTITY)
+                                .build())
+                        .graphIdsCSV(WRONG_GRAPH_ID)
+                        .build(), contextBlankUser()))
+                .withStackTraceContaining(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(WRONG_GRAPH_ID)));
 
         //then
         assertThat(getAllElements)
@@ -122,8 +128,5 @@ public class FederatedStoreWrongGraphIDsTest {
                 .returnToIterable()
                 .first().isEqualTo(EXPECTED_ENTITY);
 
-        assertThat(gettingElementsFromWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)));
-
-        assertThat(addingElementsToWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)));
     }
 }

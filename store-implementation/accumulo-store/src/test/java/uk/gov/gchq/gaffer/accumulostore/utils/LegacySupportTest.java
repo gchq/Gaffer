@@ -30,13 +30,15 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport.InputConfigurator;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,112 +54,102 @@ import static org.assertj.core.api.Assertions.catchThrowable;
  */
 public class LegacySupportTest {
 
-    @TempDir
-    static File tempDir;
+    File tempDir;
+    Configuration conf;
+
+    @BeforeEach
+    public void setUp() throws IOException {
+        conf = new Configuration();
+        tempDir = Files.createTempDirectory(this.getClass().getName()).toFile();
+    }
+
+    @AfterEach
+    public void cleanUp() {
+        tempDir.deleteOnExit();
+    }
 
     @Test
     public void shouldReflectForSetScanAuthorizations() {
-        // Given
-        Configuration conf = new Configuration();
+        //Given
         Authorizations authorisations = new Authorizations();
 
-        // Then
+        //Then
         assertThatNoException().isThrownBy(() -> { InputConfigurator.setScanAuthorizations(AccumuloInputFormat.class, conf, authorisations); });
     }
 
     @Test
     public void shouldReflectForSetInputTableName() {
-        // Given
-        Configuration conf = new Configuration();
+        //Given
         String tableName = "test";
 
-        // Then
+        //Then
         assertThatNoException().isThrownBy(() -> { InputConfigurator.setInputTableName(AccumuloInputFormat.class, conf, tableName); });
     }
 
     @Test
     public void shouldReflectForFetchColumns() {
-        // Given
-        Configuration conf = new Configuration();
+        //Given
         Collection<Pair<Text, Text>> columnFamilyColumnQualifierPairs = Arrays.asList(new org.apache.accumulo.core.util.Pair<>(new Text("null"), new Text("null")));
 
-        // Then
+        //Then
         assertThatNoException().isThrownBy(() -> { InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf, columnFamilyColumnQualifierPairs); });
     }
 
     @Test
     public void shouldReflectForAddIterator() {
-        // Given
-        Configuration conf = new Configuration();
-        String tableName = "test";
+        //Given
         IteratorSetting setting = new IteratorSetting(1, "", "");
 
-        // Then
+        //Then
         assertThatNoException().isThrownBy(() -> { InputConfigurator.addIterator(AccumuloInputFormat.class, conf, setting); });
     }
 
     @Test
     public void shouldReflectForSetConnectorInfo() {
-        // Given
-        Configuration conf = new Configuration();
+        //Given
         String user = "testUser";
         PasswordToken pass = new PasswordToken();
 
-        // Then
+        //Then
         assertThatNoException().isThrownBy(() -> { InputConfigurator.setConnectorInfo(AccumuloInputFormat.class, conf, user, pass); });
     }
 
     @Test
     public void shouldReflectForSetZooKeeperInstance() {
-        // Given
-        Configuration conf = new Configuration();
+        //Given
         ClientConfiguration withZkHosts = ClientConfiguration.create();
 
-        // Then
+        //Then
         assertThatNoException().isThrownBy(() -> { InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class, conf, withZkHosts); });
     }
 
     @Test
     public void shouldReflectForSetBatchScan() {
-        // Given
-        Configuration conf = new Configuration();
-
-        // Then
         assertThatNoException().isThrownBy(() -> { InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, false); });
     }
 
     @Test
     public void shouldReflectForSetRanges() {
-        // Given
-        Configuration conf = new Configuration();
+        //Given
         final List<Range> ranges = new ArrayList<>();
 
-        // Then
+        //Then
         assertThatNoException().isThrownBy(() -> { InputConfigurator.setRanges(AccumuloInputFormat.class, conf, ranges); });
     }
 
     @Test
     public void shouldReflectForGetIterators() {
-        // Given
-        Configuration conf = new Configuration();
-
-        // Then
         assertThatNoException().isThrownBy(() -> { InputConfigurator.getIterators(AccumuloInputFormat.class, conf); });
     }
 
     @Test
     public void shouldReflectForGetFetchedColumns() {
-        // Given
-        Configuration conf = new Configuration();
-
-        // Then
         assertThatNoException().isThrownBy(() -> { InputConfigurator.getFetchedColumns(AccumuloInputFormat.class, conf); });
     }
 
     @Test
     public void shouldReflectForBackwardsCompatibleReaderBuilder() throws IOException {
-        // Given
-        Configuration conf = new Configuration();
+        //Given
         FileSystem fs = FileSystem.get(conf);
         AccumuloConfiguration accumuloConf = new ConfigurationCopy(DefaultConfiguration.getInstance());
         final String filenameTemp = tempDir.getAbsolutePath();
@@ -165,12 +157,12 @@ public class LegacySupportTest {
         final File file = new File(filename);
         file.createNewFile();
 
-        // When
+        //When
         Throwable thrown = catchThrowable(() -> {
             LegacySupport.BackwardsCompatibleReaderBuilder.create(filename, fs, conf, accumuloConf, false);
         });
 
-        // Then
+        //Then
         // Note we only want to check that the classes are instantiated correctly via reflection, this exception confirms the object was created OK
         assertThat(thrown)
                 .isExactlyInstanceOf(RuntimeException.class)
@@ -181,25 +173,20 @@ public class LegacySupportTest {
 
     @Test
     public void shouldReflectForBackwardsCompatibleWriterBuilder() throws IOException {
-        // Given
-        final Configuration conf = new Configuration();
+        //Given
         final FileSystem fs = FileSystem.get(conf);
         final AccumuloConfiguration accumuloConf = new ConfigurationCopy(DefaultConfiguration.getInstance());
         final String filenameTemp = tempDir.getAbsolutePath();
         final String filename = filenameTemp + "/file.rf";
-        final File file = new File(filename);
-        if (file.exists()) {
-            file.delete();
-        }
 
-        // Then
-        assertThatNoException().isThrownBy(() -> { LegacySupport.BackwardsCompatibleWriterBuilder.create(filename, fs, conf, accumuloConf); });
+        //Then
+        assertThatNoException().isThrownBy(() -> { LegacySupport.BackwardsCompatibleWriterBuilder
+            .create(filename, fs, conf, accumuloConf); });
         }
 
     @Test
     public void shouldReflectForBackwardsCompatibleCachableBlockFileReader() throws IOException {
-        // Given
-        final Configuration conf = new Configuration();
+        //Given
         final FileSystem fs = FileSystem.get(conf);
         final String filenameTemp = tempDir.getAbsolutePath();
         final String filename = filenameTemp + "/file.rf";
@@ -212,7 +199,7 @@ public class LegacySupportTest {
             LegacySupport.BackwardsCompatibleCachableBlockFileReader.create(fs, path, conf);
         });
 
-        // Then
+        //Then
         // Note we only want to check that the classes are instantiated correctly via reflection, this exception confirms the object was created OK
         assertThat(thrown)
                 .isExactlyInstanceOf(RuntimeException.class)
@@ -223,12 +210,11 @@ public class LegacySupportTest {
 
     @Test
     public void shouldReflectForBackwardsCompatibleRFileWriter() throws IOException {
-        // Given
-        final Configuration conf = new Configuration();
+        //Given
         final String filenameTemp = tempDir.getAbsolutePath();
         final String filename = filenameTemp + "/file.rf";
 
-        // Then
+        //Then
         assertThatNoException().isThrownBy(() -> { LegacySupport.BackwardsCompatibleRFileWriter.create(filename, conf, 1000); });
     }
 }
