@@ -8,8 +8,10 @@ SPRING_JAR=spring-rest-$SPRING_V-exec.jar
 SPRING_TARGET=../../rest-api/spring-rest/target/$SPRING_JAR
 PROP=federatedStore.properties
 CONF=graphConfig.json
+OP_DEC=operationDeclarations.json
 PROP_RESOURCE=../federated-demo/src/main/resources/$PROP
 CONF_RESOURCE=../federated-demo/src/main/resources/$CONF
+OP_DEC_RESOURCE=../federated-demo/src/main/resources/$OP_DEC
 
 if [[ ! -f $CONF ]] 
 then
@@ -21,6 +23,12 @@ if [[ ! -f $PROP ]]
 then
 	echo "Getting properties file: $PROP_RESOURCE"
 	cp $PROP_RESOURCE ./$PROP
+fi
+
+if [[ ! -f $OP_DEC ]]
+then
+	echo "Getting operationDeclarations file: $OP_DEC_RESOURCE"
+	cp $OP_DEC_RESOURCE ./$OP_DEC
 fi
 
 if [[ ! -f $SPRING_JAR ]]
@@ -36,4 +44,4 @@ then
 	# mvn clean -f ../../
 fi
 
-java  -Dgaffer.storeProperties=$PROP -Dgaffer.graph.config=$CONF -jar $SPRING_JAR
+java  -Dgaffer.storeProperties=$PROP -Dgaffer.graph.config=$CONF  -jar $SPRING_JAR
