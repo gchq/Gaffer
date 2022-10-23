@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Crown Copyright
+ * Copyright 2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import org.apache.accumulo.core.client.Connector;
@@ -30,21 +31,23 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getConnector;
+import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.getConnector;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.isAccumulo;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.isUserRequestingAdminUsage;
+
 
 /**
- * A handler for RemoveGraph operation for the FederatedStore and then Delete the Table in Accumulo
+ * A handler for RemoveGraph operation for the FederatedStore.
+ * And delete associated Accumulo Tables.
  * <p>
- * Does not delete the graph, just removes it from the scope of the FederatedStore.
  *
  * @see FederatedStore
- * @see FederatedRemoveGraphHandler
+ * @see RemoveGraph
  */
 public class FederatedRemoveGraphDeleteAccumuloTableHandler extends FederatedRemoveGraphHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedRemoveGraphDeleteAccumuloTableHandler.class);
@@ -53,30 +56,32 @@ public class FederatedRemoveGraphDeleteAccumuloTableHandler extends FederatedRem
     public Boolean doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
         try {
             //Get the graph before they are removed.
-            Collection<Graph> values = ((FederatedStore) store).getGraphs(context.getUser(), operation.getGraphId(), operation);
+            final List<Graph> graphsToRemove = ((FederatedStore) store).getGraphs(context.getUser(), Collections.singletonList(operation.getGraphId()), operation);
 
-            if (isUserRequestingAdminUsage(operation)) {
+            //Check graphs align.
+            if (operation.isUserRequestingAdminUsage()) {
                 final Set<String> operationGraphIds = new HashSet<>(FederatedStoreUtil.getCleanStrings(operation.getGraphId()));
-                final boolean mismatched = operationGraphIds.size() != values.size();
+                final boolean mismatched = operationGraphIds.size() != graphsToRemove.size();
                 if (mismatched) {
-                    throwErrorForMismatch(values, operationGraphIds);
+                    throwErrorForMismatch(graphsToRemove, operationGraphIds);
                 }
             }
 
-            //Remove graph from FederatedStore
-            Boolean rtn = super.doOperation(operation, context, store);
+            //Remove graphs from Federation
+            final boolean removed = super.doOperation(operation, context, store);
 
-            if (rtn) {
-                //if removed and no errors
-                //Accumulo Only
-                dropAccumuloTable(values);
+            if (removed) {
+                if (!graphsToRemove.isEmpty()) {
+                    deleteAccumuloTable(graphsToRemove);
+                } else {
+                    throw new OperationException("Error: Removing of graph returned true, but getGraphs was empty, no graphs exist to connect to accumulo and delete table.");
+                }
             }
 
-            return rtn;
+            return removed;
         } catch (final Exception e) {
             throw new OperationException(String.format("Error deleting accumulo table: %s", operation.getGraphId()), e);
         }
-
     }
 
     private void throwErrorForMismatch(final Collection<Graph> values, final Set<String> operationGraphIds) {
@@ -98,17 +103,19 @@ public class FederatedRemoveGraphDeleteAccumuloTableHandler extends FederatedRem
                 " graphsIds: " + remainder);
     }
 
-    private void dropAccumuloTable(final Collection<Graph> remove) throws GafferCheckedException {
-        for (final Graph removeGraph : remove) {
+    private static void deleteAccumuloTable(final List<Graph> graphsToRemove) throws GafferCheckedException {
+        //currently only 1 graph is supported for Remove operation, but this is just future proofing.
+        for (final Graph removeGraph : graphsToRemove) {
+            //Update Tables
             if (isAccumulo(removeGraph)) {
                 /*
                  * This logic is only for Accumulo derived stores Only.
                  * For updating table names to match graphs names.
                  *
                  * uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore,
-                 * SingleUseMockAccumuloStore, MockAccumuloStore, MiniAccumuloStore]
+                 * MiniAccumuloStore, SingleUseMiniAccumuloStore]
                  */
-                String removeId = removeGraph.getGraphId();
+                final String removeId = removeGraph.getGraphId();
                 try {
                     Connector connection = getConnector((AccumuloProperties) removeGraph.getStoreProperties());
                     if (connection.tableOperations().exists(removeId)) {
@@ -123,5 +130,4 @@ public class FederatedRemoveGraphDeleteAccumuloTableHandler extends FederatedRem
             }
         }
     }
-
 }

@@ -17,10 +17,14 @@
 package uk.gov.gchq.gaffer.federatedstore.util;
 
 import com.google.common.collect.Iterables;
+import org.apache.accumulo.core.client.Connector;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -33,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -274,5 +279,10 @@ public final class FederatedStoreUtil {
         final Map<String, String> optionsDeepClone = isNull(options) ? null : new HashMap<>(options);
         cloneForValidation.setOptions(optionsDeepClone);
         return cloneForValidation;
+    }
+
+    public static boolean isAccumulo(final Graph graph) {
+        String storeClass = graph.getStoreProperties().getStoreClass();
+        return nonNull(storeClass) && storeClass.startsWith(AccumuloStore.class.getPackage().getName());
     }
 }
