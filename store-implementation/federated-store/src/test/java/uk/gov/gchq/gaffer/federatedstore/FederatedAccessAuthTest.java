@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
@@ -30,7 +29,9 @@ import uk.gov.gchq.koryphe.impl.function.CallMethod;
 import uk.gov.gchq.koryphe.impl.predicate.CollectionContains;
 import uk.gov.gchq.koryphe.predicate.AdaptedPredicate;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -49,16 +50,13 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAccessAuthTest {
 
-    private static final User TEST_USER = testUser();
-    public static final User AUTH_USER = authUser();
-
     @Test
     public void shouldValidateUserWithMatchingAuth() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(ALL_USERS)
                 .build();
 
-        assertTrue(access.hasReadAccess(TEST_USER));
+        assertTrue(access.hasReadAccess(testUser()));
     }
 
     @Test
@@ -67,12 +65,12 @@ public class FederatedAccessAuthTest {
                 .graphAuths(ALL_USERS, AUTH_1)
                 .build();
 
-        assertTrue(access.hasReadAccess(TEST_USER));
+        assertTrue(access.hasReadAccess(testUser()));
     }
 
     @Test
     public void shouldValidateUserWithSurplusMatchingAuth() throws Exception {
-        final User user = AUTH_USER;
+        final User user = authUser();
 
         assertTrue(user.getOpAuths().contains(AUTH_1));
 
@@ -99,7 +97,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths(AUTH_1)
                 .build();
 
-        assertFalse(access.hasReadAccess(TEST_USER));
+        assertFalse(access.hasReadAccess(testUser()));
     }
 
     @Test
@@ -110,7 +108,7 @@ public class FederatedAccessAuthTest {
                 .addGraphAuths(asList(UNUSED_AUTH_STRING))
                 .build();
 
-        assertTrue(access.hasReadAccess(AUTH_USER));
+        assertTrue(access.hasReadAccess(authUser()));
     }
 
     @Test
@@ -126,7 +124,7 @@ public class FederatedAccessAuthTest {
         FederatedAccess deserialised = JSONSerialiser.deserialise(json, FederatedAccess.class);
 
         // Then
-        FederatedGraphReadAccessPredicate expectedReadPredicate = new FederatedGraphReadAccessPredicate(AUTH_USER_ID, Sets.newHashSet(AUTH_1, AUTH_2), true);
+        FederatedGraphReadAccessPredicate expectedReadPredicate = new FederatedGraphReadAccessPredicate(AUTH_USER_ID, new HashSet<>(Arrays.asList(AUTH_1, AUTH_2)), true);
         FederatedGraphWriteAccessPredicate expectedWritePredicate = new FederatedGraphWriteAccessPredicate(AUTH_USER_ID);
 
         assertEquals(expectedReadPredicate, deserialised.getOrDefaultReadAccessPredicate());

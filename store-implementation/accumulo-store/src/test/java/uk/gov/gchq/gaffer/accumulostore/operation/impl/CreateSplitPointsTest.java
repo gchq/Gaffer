@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -53,10 +52,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CreateSplitPointsTest {
@@ -64,8 +65,7 @@ public class CreateSplitPointsTest {
     public static final int NUM_ENTITIES = 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsTest.class);
 
-    @TempDir
-    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
+    File tempDir;
 
     private FileSystem fs;
 
@@ -78,19 +78,31 @@ public class CreateSplitPointsTest {
 
     @BeforeEach
     public void setup() throws IOException {
+        tempDir = Files.createTempDirectory(this.getClass().getName()).toFile();
 
         fs = createFileSystem();
 
-        final String root = fs.resolvePath(new Path("/")).toString()
-                .replaceFirst("/$", "")
-                + testFolder.getAbsolutePath();
+        String root = fs.resolvePath(new Path("/")).toString();
 
+        // String needs different handling if the test is run on windows
+        if (IS_OS_WINDOWS) {
+            root += tempDir.getAbsolutePath()
+                        .replaceFirst("//", "/");
+        } else {
+            root = root.replaceFirst("/$", "")
+                    + tempDir.getAbsolutePath();
+        }
 
-        LOGGER.info("using root dir: " + root);
+        LOGGER.info("using root dir: {}", root);
 
         inputDir = root + "/inputDir";
         outputDir = root + "/outputDir";
         splitsFile = root + "/splitsDir/splits";
+    }
+
+    @AfterEach
+    public void cleanUp() {
+        tempDir.deleteOnExit();
     }
 
     @Test

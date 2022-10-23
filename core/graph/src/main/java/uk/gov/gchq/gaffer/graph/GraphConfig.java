@@ -195,7 +195,7 @@ public final class GraphConfig {
                 if (null != config.getView()) {
                     this.config.setView(config.getView());
                 }
-                if (null != config.getLibrary()) {
+                if (null != config.getLibrary() && !(config.getLibrary() instanceof NoGraphLibrary)) {
                     this.config.setLibrary(config.getLibrary());
                 }
                 if (null != config.getDescription()) {

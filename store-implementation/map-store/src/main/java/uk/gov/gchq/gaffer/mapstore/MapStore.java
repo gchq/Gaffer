@@ -19,7 +19,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.impl.AddElementsHandler;
@@ -40,6 +39,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
@@ -49,6 +50,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
+import static java.util.Objects.isNull;
 
 /**
  * An implementation of {@link Store} that uses any class that implements Java's {@link java.util.Map} interface to
@@ -64,6 +66,7 @@ import static java.util.Arrays.asList;
  * </p>
  */
 public class MapStore extends Store {
+
     public static final Set<StoreTrait> TRAITS = new HashSet<>(asList(
             StoreTrait.VISIBILITY,
             StoreTrait.QUERY_AGGREGATION,
@@ -82,7 +85,8 @@ public class MapStore extends Store {
     }
 
     @Override
-    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties)
+            throws StoreException {
         // Initialise store
         super.initialise(graphId, schema, properties);
 
@@ -116,7 +120,7 @@ public class MapStore extends Store {
     protected MapImpl createMapImpl() {
         if (getProperties().isStaticMap()) {
             LOGGER.debug("Using static map");
-            if (null == staticMapImpl) {
+            if (isNull(staticMapImpl)) {
                 staticMapImpl = new MapImpl(getSchema(), getProperties());
             }
 
@@ -133,17 +137,17 @@ public class MapStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+    protected OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
         return new GetAdjacentIdsHandler();
     }
 
@@ -152,6 +156,12 @@ public class MapStore extends Store {
         return new AddElementsHandler();
     }
 
+    @Override
+    protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+        return new GetTraitsHandler(TRAITS);
+    }
+
+    @SuppressWarnings({"rawtypes"})
     @Override
     protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
         return Serialiser.class;

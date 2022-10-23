@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
@@ -45,28 +45,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadFederatedStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 
+@ExtendWith(MockitoExtension.class)
 public class FederatedAggregateHandlerTest {
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldDelegateToHandler() throws OperationException {
+    public void shouldDelegateToHandler(@Mock final FederatedStore store,
+                                        @Mock final AggregateHandler handler,
+                                        @Mock final Aggregate op,
+                                        @Mock final Context context,
+                                        @Mock final Iterable<Element> expectedResult,
+                                        @Mock final Schema schema)
+            throws OperationException {
         // Given
-        final FederatedStore store = mock(FederatedStore.class);
-        final AggregateHandler handler = mock(AggregateHandler.class);
-        final Aggregate op = mock(Aggregate.class);
-        final Context context = mock(Context.class);
-        final Iterable expectedResult = mock(Iterable.class);
-        final Schema schema = mock(Schema.class);
-
-        given(store.getSchema(op, context)).willReturn(schema);
-        given(handler.doOperation(op, schema)).willReturn(expectedResult);
+        given(store.getSchema(context)).willReturn(schema);
+        given(handler.doOperation(op, schema)).willReturn((Iterable) expectedResult);
 
         final FederatedAggregateHandler federatedHandler = new FederatedAggregateHandler(handler);
 
@@ -74,14 +78,13 @@ public class FederatedAggregateHandlerTest {
         final Object result = federatedHandler.doOperation(op, context, store);
 
         // Then
-        assertSame(expectedResult, result);
+        assertThat(result).isSameAs(expectedResult);
         verify(handler).doOperation(op, schema);
     }
 
     @Test
     public void shouldAggregateDuplicatesFromDiffStores() throws Exception {
-        FederatedStoreProperties federatedStoreProperties = FederatedStoreProperties.loadStoreProperties(
-                StreamUtil.openStream(currentClass, "predefinedFederatedStore.properties"));
+        final FederatedStoreProperties federatedStoreProperties = loadFederatedStoreProperties("predefinedFederatedStore.properties");
         final Graph fed = new Graph.Builder()
                 .config(new GraphConfig("fed"))
                 .addSchema(new Schema())
@@ -97,47 +100,50 @@ public class FederatedAggregateHandlerTest {
                         .graphId(graphNameA)
                         .schema(new Schema.Builder()
                                 .edge("edge", new SchemaEdgeDefinition.Builder()
-                                        .source("string")
-                                        .destination("string")
+                                        .source(STRING)
+                                        .destination(STRING)
                                         .build())
-                                .type("string", String.class)
+                                .type(STRING, String.class)
                                 .build())
-                        .storeProperties(PROPERTIES)
+                        .storeProperties(PROPERTIES.clone())
                         .build())
                 .then(new AddGraph.Builder()
                         .graphId(graphNameB)
                         .schema(new Schema.Builder()
                                 .edge("edge", new SchemaEdgeDefinition.Builder()
-                                        .source("string")
-                                        .destination("string")
+                                        .source(STRING)
+                                        .destination(STRING)
                                         .build())
-                                .type("string", String.class)
+                                .type(STRING, String.class)
                                 .build())
-                        .storeProperties(PROPERTIES)
+                        .storeProperties(PROPERTIES.clone())
                         .build())
                 .build(), context);
 
-        fed.execute(new AddElements.Builder()
+        fed.execute(getFederatedOperation(new AddElements.Builder()
                 .input(new Edge.Builder()
                         .group("edge")
                         .source("s1")
                         .dest("d1")
                         .build())
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphNameA)
-                .build(), context);
+                .build())
+                .graphIdsCSV(graphNameA)
+                .mergeFunction(getHardCodedDefaultMergeFunction()), context);
 
-        fed.execute(new AddElements.Builder()
-                .input(new Edge.Builder()
-                        .group("edge")
-                        .source("s1")
-                        .dest("d1")
+        fed.execute(getFederatedOperation(
+                new AddElements.Builder()
+                        .input(new Edge.Builder()
+                                .group("edge")
+                                .source("s1")
+                                .dest("d1")
+                                .build())
                         .build())
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphNameB)
-                .build(), context);
+                .graphIdsCSV(graphNameB)
+                .mergeFunction(getHardCodedDefaultMergeFunction()), context);
 
-        final CloseableIterable<? extends Element> getAll = fed.execute(new GetAllElements(), context);
+        final Iterable<? extends Element> getAll = fed.execute(new GetAllElements(), context);
 
-        List<Element> list = new ArrayList<>();
+        final List<Element> list = new ArrayList<>();
         getAll.forEach(list::add);
 
         assertThat(list).hasSize(2);

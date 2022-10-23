@@ -184,6 +184,34 @@ public class JsonSerialisationUtilTest {
         assertEquals(expectedValues.entrySet(), result.entrySet());
     }
 
+    @Test
+    public void testClassWithArray() {
+        // Given
+        final String className = ClassWithArray.class.getName();
+
+        // When
+        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
+
+        // Then
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("array", String[].class.getCanonicalName());
+        assertEquals(expectedValues.entrySet(), result.entrySet());
+    }
+
+    @Test
+    public void testClassWithGenericArray() {
+        // Given
+        final String className = ClassWithGenericArray.class.getName();
+
+        // When
+        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
+
+        // Then
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("genericArray", Object[].class.getCanonicalName());
+        assertEquals(expectedValues.entrySet(), result.entrySet());
+    }
+
     private Map<String, String> getExpectedIDRStringStringMap() {
         final Map<String, String> expectedValues = new HashMap<>();
         expectedValues.put("timeUnit", String.class.getName());
@@ -314,6 +342,30 @@ public class JsonSerialisationUtilTest {
 
         public void setT(final T t) {
             this.t = t;
+        }
+    }
+
+    private static final class ClassWithArray {
+        private String[] array;
+
+        public String[] getArray() {
+            return array;
+        }
+
+        public void setArray(final String[] array) {
+            this.array = array;
+        }
+    }
+
+    private static final class ClassWithGenericArray<T> {
+        private T[] genericArray;
+
+        public T[] getGenericArray() {
+            return genericArray;
+        }
+
+        public void setGenericArray(final T[] genericArray) {
+            this.genericArray = genericArray;
         }
     }
 }

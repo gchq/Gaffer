@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,11 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -35,11 +33,16 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 
 public class FederatedOperationChainValidatorTest {
     @Test
@@ -51,13 +54,14 @@ public class FederatedOperationChainValidatorTest {
         final User user = mock(User.class);
         final Operation op = mock(Operation.class);
         final Schema schema = mock(Schema.class);
-        given(store.getSchema(op, user)).willReturn(schema);
+        given(store.getSchema(eq(getFederatedWrappedSchema()), any(Context.class))).willReturn(schema);
 
         // When
         final Schema actualSchema = validator.getSchema(op, user, store);
 
+        verify(store).getSchema(eq(getFederatedWrappedSchema()), any(Context.class));
         // Then
-        assertSame(schema, actualSchema);
+        assertEquals(schema, actualSchema);
     }
 
     @Test
@@ -69,19 +73,16 @@ public class FederatedOperationChainValidatorTest {
                 .config(new GraphConfig.Builder().graphId("testFedGraph").build())
                 .build();
 
-        try {
         //when
-        graph.execute(new GetAllElements.Builder()
-                .view(new View.Builder()
-                        .entity("missingEntity")
-                        .build())
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, missingGraph)
-                .build(), new Context());
-        fail("exception expected");
-        } catch (final IllegalArgumentException e) {
-            //then
-            assertEquals(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, Lists.newArrayList(missingGraph)), e.getMessage());
-        }
-
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> graph.execute(getFederatedOperation(
+                        new GetAllElements.Builder()
+                                .view(new View.Builder()
+                                        .entity("missingEntity")
+                                        .build())
+                                .build())
+                        .graphIdsCSV(missingGraph), new Context()))
+                .withStackTraceContaining(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, singletonList(missingGraph)));
     }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2021 Crown Copyright
+ * Copyright 2015-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class JoinHandlerTest {
@@ -57,7 +57,7 @@ public class JoinHandlerTest {
         handler.doOperation(joinOp, context, store);
 
         // Then
-        assertTrue(joinOp.getInput().equals(new ArrayList<>()));
+        assertThat(joinOp.getInput()).isEqualTo(new ArrayList<>());
     }
 
     @Test
@@ -75,7 +75,7 @@ public class JoinHandlerTest {
                 .build();
 
         // When / Then
-        assertThatExceptionOfType(OperationException.class)
+        assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(() -> handler.doOperation(joinOp, context, store))
                 .withMessageContaining("exceeded");
     }

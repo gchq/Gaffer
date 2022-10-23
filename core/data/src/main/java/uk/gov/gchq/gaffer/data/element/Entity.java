@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+
+import java.util.Map;
+
+import static java.util.Objects.isNull;
 
 /**
  * An {@code Entity} in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a single vertex.
@@ -171,6 +175,16 @@ public class Entity extends Element implements EntityId {
 
         public Builder property(final String name, final Object value) {
             properties.put(name, value);
+            return this;
+        }
+
+        public Builder properties(final Map<String, String> properties) {
+            if (isNull(properties)) {
+                properties.clear();
+            } else {
+                this.properties.putAll(properties);
+                this.properties.remove(null);
+            }
             return this;
         }
 

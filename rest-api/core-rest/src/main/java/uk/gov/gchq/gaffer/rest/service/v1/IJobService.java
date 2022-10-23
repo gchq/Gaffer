@@ -20,7 +20,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 
@@ -50,7 +49,7 @@ public interface IJobService {
 
     @GET
     @ApiOperation(value = "Get the details of all jobs", response = JobDetail.class, responseContainer = "List")
-    CloseableIterable<JobDetail> details();
+    Iterable<JobDetail> details();
 
     @GET
     @Path("{id}")
@@ -60,5 +59,5 @@ public interface IJobService {
     @GET
     @Path("{id}/results")
     @ApiOperation(value = "Get the results of a job", response = Object.class, responseContainer = "List")
-    CloseableIterable results(@ApiParam(value = "a job id") @PathParam("id") final String id);
+    Iterable results(@ApiParam(value = "a job id") @PathParam("id") final String id);
 }

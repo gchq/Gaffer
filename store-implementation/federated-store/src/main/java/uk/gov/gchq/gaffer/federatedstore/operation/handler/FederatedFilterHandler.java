@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -23,6 +24,8 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
+
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 
 public class FederatedFilterHandler implements OutputOperationHandler<Filter, Iterable<? extends Element>> {
     private final FilterHandler handler;
@@ -40,6 +43,7 @@ public class FederatedFilterHandler implements OutputOperationHandler<Filter, It
                                                    final Context context,
                                                    final Store store)
             throws OperationException {
-        return handler.doOperation(operation, ((FederatedStore) store).getSchema(operation, context));
+        // wrappedSchema, is used because graphIds is required.
+        return handler.doOperation(operation, ((FederatedStore) store).getSchema(getFederatedWrappedSchema(), context));
     }
 }

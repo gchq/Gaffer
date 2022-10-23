@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2021 Crown Copyright
+ * Copyright 2021-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.federatedstore;
 
 import uk.gov.gchq.gaffer.proxystore.SingleUseProxyStore;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.MAP_STORE_SINGLE_USE_PROPERTIES;
+
 public class SingleUseProxyMapStore extends SingleUseProxyStore {
 
     protected String getPathToDelegateProperties() {
-        return "properties/singleUseMapStore.properties";
+        return MAP_STORE_SINGLE_USE_PROPERTIES;
     }
 }

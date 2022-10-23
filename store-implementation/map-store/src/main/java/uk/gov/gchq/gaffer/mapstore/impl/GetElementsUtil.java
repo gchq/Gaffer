@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.Authorisations;
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility;
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.VisibilityEvaluator;
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityParseException;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -34,7 +33,6 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
@@ -67,8 +65,7 @@ public final class GetElementsUtil {
                                                    final ElementId elementId,
                                                    final View view,
                                                    final DirectedType directedType,
-                                                   final IncludeIncomingOutgoingType inOutType,
-                                                   final SeedMatchingType seedMatchingType) {
+                                                   final IncludeIncomingOutgoingType inOutType) {
         final Set<Element> relevantElements;
 
         final Set<String> groups = view.getGroups();
@@ -92,8 +89,9 @@ public final class GetElementsUtil {
                         && ((Edge) e).isDirected()
                         && (EdgeId.MatchedVertex.DESTINATION == ((Edge) e).getMatchedVertex()));
             }
-            // Apply seedMatching option - if option is RELATED then nothing to do
-            if (seedMatchingType == SeedMatchingType.EQUAL) {
+            // TODO 2552: Can this be improved?
+            // Remove Edges if searching with EntityId and View has no Edges
+            if (view.hasEntities() && !view.hasEdges()) {
                 isFiltered = isFiltered.or(e -> e instanceof Edge);
             }
         } else {
@@ -117,9 +115,9 @@ public final class GetElementsUtil {
                     .filter(e -> e instanceof Entity)
                     .forEach(relevantElements::add);
 
-            // Apply seedMatching option
-            // If option is RELATED then nothing to do
-            if (seedMatchingType == SeedMatchingType.EQUAL) {
+            // TODO 2552: Can this be improved?
+            // Remove Entities if searching with EdgeId and View has no Entites
+            if (view.hasEdges() && !view.hasEntities()) {
                 isFiltered = isFiltered.or(e -> e instanceof Entity);
             }
         }
@@ -135,13 +133,15 @@ public final class GetElementsUtil {
         return relevantElements;
     }
 
-    public static Stream<Element> applyVisibilityFilter(final Stream<Element> elements, final Schema schema, final User user) {
+    public static Stream<Element> applyVisibilityFilter(final Stream<Element> elements, final Schema schema,
+                                                        final User user) {
         final Set<String> dataAuths = user.getDataAuths();
         final Authorisations authorisations = new Authorisations(dataAuths.toArray(new String[dataAuths.size()]));
         return elements.filter(e -> isVisible(e, schema.getVisibilityProperty(), authorisations));
     }
 
-    private static boolean isVisible(final Element e, final String visibilityProperty, final Authorisations authorisations) {
+    private static boolean isVisible(final Element e, final String visibilityProperty,
+                                     final Authorisations authorisations) {
         if (e.getProperty(visibilityProperty) != null) {
             final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator(authorisations);
             final ElementVisibility elementVisibility = new ElementVisibility((String) e.getProperty(visibilityProperty));
@@ -198,7 +198,7 @@ public final class GetElementsUtil {
         });
 
         // Apply aggregation
-        final CloseableIterable<Element> iterable = AggregatorUtil.queryAggregate(stream.collect(Collectors.toList()), schema, view, includeMatchedVertex);
+        final Iterable<Element> iterable = AggregatorUtil.queryAggregate(stream.collect(Collectors.toList()), schema, view, includeMatchedVertex);
         stream = StreamSupport.stream(iterable.spliterator(), false);
 
         // Apply post-aggregation filter
@@ -226,4 +226,3 @@ public final class GetElementsUtil {
         return stream;
     }
 }
-

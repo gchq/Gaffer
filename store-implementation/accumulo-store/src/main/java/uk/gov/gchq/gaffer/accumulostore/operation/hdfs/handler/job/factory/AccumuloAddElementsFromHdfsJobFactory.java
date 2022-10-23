@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
@@ -79,11 +80,6 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
             LOGGER.info("Set number of map tasks to {} on job conf", operation.getNumMapTasks());
         }
 
-        if (null != operation.getNumReduceTasks()) {
-            jobConf.setNumReduceTasks(operation.getNumReduceTasks());
-            LOGGER.info("Set number of reduce tasks to {} on job conf", operation.getNumReduceTasks());
-        }
-
         jobConf.set(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
 
@@ -107,7 +103,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         if (!NoPartitioner.class.equals(operation.getPartitioner())) {
             if (null != operation.getPartitioner()) {
                 operation.setPartitioner(GafferKeyRangePartitioner.class);
-                LOGGER.warn("Partitioner class " + operation.getPartitioner().getName() + " will be replaced with " + GafferKeyRangePartitioner.class.getName());
+                LOGGER.warn("Partitioner class {} will be replaced with {}", operation.getPartitioner().getName(), GafferKeyRangePartitioner.class.getName());
             }
             setupPartitioner(job, operation, (AccumuloStore) store);
         }
@@ -149,16 +145,9 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         final String splitsFilePath = operation.getSplitsFilePath();
         LOGGER.info("Creating splits file in location {} from table {}", splitsFilePath, store.getTableName());
 
-        final int minReducers;
-        final int maxReducers;
+        final int minReducers = validateValue(operation.getMinReduceTasks());
+        final int maxReducers = validateValue(operation.getMaxReduceTasks());
         int numReducers;
-        if (validateValue(operation.getNumReduceTasks()) != 0) {
-            minReducers = validateValue(operation.getNumReduceTasks());
-            maxReducers = validateValue(operation.getNumReduceTasks());
-        } else {
-            minReducers = validateValue(operation.getMinReduceTasks());
-            maxReducers = validateValue(operation.getMaxReduceTasks());
-        }
 
         try {
             numReducers = 1 + IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),

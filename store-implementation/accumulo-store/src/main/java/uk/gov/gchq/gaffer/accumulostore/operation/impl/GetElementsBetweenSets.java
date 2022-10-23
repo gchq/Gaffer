@@ -22,13 +22,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.MultiEntityIdInputB;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
@@ -50,17 +48,10 @@ import java.util.Map;
 @Since("1.0.0")
 @Summary("Gets edges that exist between 2 sets and entities in the first set")
 public class GetElementsBetweenSets implements
-        InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
+        InputOutput<Iterable<? extends EntityId>, Iterable<? extends Element>>,
         MultiEntityIdInput,
         MultiEntityIdInputB,
-        SeededGraphFilters,
-        SeedMatching {
-
-    /**
-     * @deprecated use a {@link View} instead to specify whether
-     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
-     */
-    private SeedMatchingType seedMatching;
+        SeededGraphFilters {
 
     private View view;
     private IncludeIncomingOutgoingType includeIncomingOutGoing;
@@ -68,21 +59,6 @@ public class GetElementsBetweenSets implements
     private Iterable<? extends EntityId> input;
     private Iterable<? extends EntityId> inputB;
     private Map<String, String> options;
-
-    /**
-     * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
-     *                     matched to the identifiers in the graph.
-     * @see SeedMatchingType
-     */
-    @Override
-    public void setSeedMatching(final SeedMatchingType seedMatching) {
-        this.seedMatching = seedMatching;
-    }
-
-    @Override
-    public SeedMatchingType getSeedMatching() {
-        return seedMatching;
-    }
 
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
@@ -131,8 +107,8 @@ public class GetElementsBetweenSets implements
     }
 
     @Override
-    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElement();
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableElement();
     }
 
     @Override
@@ -164,7 +140,6 @@ public class GetElementsBetweenSets implements
     @Override
     public GetElementsBetweenSets shallowClone() {
         return new GetElementsBetweenSets.Builder()
-                .seedMatching(seedMatching)
                 .view(view)
                 .inOutType(includeIncomingOutGoing)
                 .directedType(directedType)
@@ -175,11 +150,11 @@ public class GetElementsBetweenSets implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElementsBetweenSets, Builder>
-            implements InputOutput.Builder<GetElementsBetweenSets, Iterable<? extends EntityId>, CloseableIterable<? extends Element>, Builder>,
+            implements
+            InputOutput.Builder<GetElementsBetweenSets, Iterable<? extends EntityId>, Iterable<? extends Element>, Builder>,
             MultiEntityIdInput.Builder<GetElementsBetweenSets, Builder>,
             MultiEntityIdInputB.Builder<GetElementsBetweenSets, Builder>,
-            SeededGraphFilters.Builder<GetElementsBetweenSets, Builder>,
-            SeedMatching.Builder<GetElementsBetweenSets, Builder> {
+            SeededGraphFilters.Builder<GetElementsBetweenSets, Builder> {
         public Builder() {
             super(new GetElementsBetweenSets());
         }

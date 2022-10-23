@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         if (null == operation.getSplitsFilePath()) {
             final String splitsFilePath = getPathWithSlashSuffix(operation.getWorkingPath()) + context.getJobId() + "/splits";
-            LOGGER.info("Using working directory for splits files: " + splitsFilePath);
+            LOGGER.info("Using working directory for splits files: {}", splitsFilePath);
             operation.setSplitsFilePath(splitsFilePath);
         }
 
@@ -94,10 +94,6 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         if (null != operation.getMaxMapTasks()) {
             LOGGER.warn("maxMapTasks field will be ignored");
-        }
-
-        if (null != operation.getNumReduceTasks() && (null != operation.getMinReduceTasks() || null != operation.getMaxReduceTasks())) {
-            throw new IllegalArgumentException("minReduceTasks and/or maxReduceTasks should not be set if numReduceTasks is");
         }
 
         if (null != operation.getMinReduceTasks() && null != operation.getMaxReduceTasks()) {

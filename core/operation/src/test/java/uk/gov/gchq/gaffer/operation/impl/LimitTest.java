@@ -45,7 +45,7 @@ public class LimitTest extends OperationTest<Limit> {
         assertThat(limit.getInput())
                 .hasSize(2);
         assertThat(limit.getResultLimit()).isEqualTo(1);
-        assertThat(limit.getInput()).containsOnly("1", "2");
+        assertThat((Iterable<String>) limit.getInput()).containsOnly("1", "2");
     }
 
     @Test

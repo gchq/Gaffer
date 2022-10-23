@@ -1,4 +1,4 @@
-Copyright 2016-2020 Crown Copyright
+Copyright 2016-2022 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -39,12 +39,12 @@ Introduction
 
 Gaffer contains a store implemented using Apache Accumulo. This offers the following functionality:
 
-- Scalability to large volumes of data;
-- Resilience to failures of hardware;
-- The ability to store any properties (subject to serialisers being provided if Gaffer is not aware of the objects);
-- User-configured persistent aggregation of properties for the same vertices and edges;
-- Flexibly query-time filtering, aggregation and transformation;
-- Integration with Apache Spark to allow Gaffer data stored in Accumulo to be analysed as either an RDD or a Dataframe.
+- Scalability to large volumes of data
+- Resilience to failures of hardware
+- The ability to store any properties (subject to serialisers being provided if Gaffer is not aware of the objects)
+- User-configured persistent aggregation of properties for the same vertices and edges
+- Flexibly query-time filtering, aggregation and transformation
+- Integration with Apache Spark to allow Gaffer data stored in Accumulo to be analysed as either an RDD or a Dataframe
 
 Use cases
 -----------------------------------------------
@@ -54,7 +54,7 @@ Gaffer's `AccumuloStore` is particularly well-suited to graphs where the propert
 Accumulo set up
 -----------------------------------------------
 
-Gaffer has been extensively tested with Accumulo version 1.8.1. It is recommended to use this version, although it should work with any of the 1.8.* versions of Accumulo as well.
+As of Gaffer 2.0, Accumulo 2.0.1 is supported. Accumulo 1.x.x versions can also be used (by using artifacts with the "legacy" classifier). Gaffer has been tested with Accumulo version 1.9.0 & previously 1.8.1. It should also work with any of the 1.8.* & 1.9.* versions of Accumulo as well.
 
 Gaffer can also be used with a `MiniAccumuloCluster`. This is an Accumulo cluster that runs in one JVM. To set up a `MiniAccumuloCluster` with Gaffer support, see the [mini-accumulo-cluster](https://github.com/gchq/gaffer-tools/tree/master/mini-accumulo-cluster) project in the Gaffer tools repository.
 
@@ -65,7 +65,7 @@ All real applications of Gaffer's `AccumuloStore` will use an Accumulo cluster r
 To use Gaffer's Accumulo store, it is necessary to add a jar file to the class path of all of Accumulo's tablet servers. This jar contains Gaffer code that runs inside Accumulo's tablet servers to provide functionality such as aggregation and filtering at ingest and query time. 
 
 The Accumulo store iterators.jar required can be downloaded from [maven central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22uk.gov.gchq.gaffer%22%20AND%20a%3A%22accumulo-store%22). 
-This jar file will then need to be installed on Accumulo's tablet servers by putting it in the `lib/ext` folder within the Accumulo distribution on each tablet server. Accumulo should load this jar file without needing to be restarted, but if you see error messages due to classes not being found, try restarting Accumulo. Alternatively, these files can be put into the `lib` directory and Accumulo can be restarted.
+This jar file will then need to be installed on Accumulo's tablet servers by adding it to the classpath. For Accumulo 1.x.x it can be placed in the `lib/ext` folder within the Accumulo distribution on each tablet server, Accumulo should load this jar file without needing to be restarted. For Accumulo 2.x.x [this dynamic reloading classpath directory functionality has been deprecated](https://accumulo.apache.org/release/accumulo-2.0.0/#removed-default-dynamic-reloading-classpath-directory-libext). The jar can instead be put into the `lib` directory and Accumulo restarted. The `lib` directory can also be used with Accumulo 1.x.x and may be useful if you see error messages due to classes not being found and restarting Accumulo doesn't fix the problem.
 
 In addition, if you are using custom serialisers, properties or functions then a jar of these should be created and installed.
 
@@ -76,8 +76,8 @@ Properties file
 
 The next stage is to create a properties file that Gaffer will use to instantiate a connection to your Accumulo cluster. This requires the following properties:
 
-- `gaffer.store.class`: The name of the Gaffer class that implements this store. For a full or pre-existing mini Accumulo cluster this should be `gaffer.accumulostore.AccumuloStore`. To use the `MiniAccumuloStore` in unit tests, it should be `gaffer.accumulostore.MiniAccumuloStore`.
-- `gaffer.store.properties.class`: This is the name of the Gaffer class that contains the properties for this store. This should always be `gaffer.accumulostore.AccumuloProperties`.
+- `gaffer.store.class`: The name of the Gaffer class that implements this store. For a full or pre-existing mini Accumulo cluster this should be `uk.gov.gchq.gaffer.accumulostore.AccumuloStore`. To use the `MiniAccumuloStore` in unit tests, it should be `uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore`.
+- `gaffer.store.properties.class`: This is the name of the Gaffer class that contains the properties for this store. This should always be `uk.gov.gchq.gaffer.accumulostore.AccumuloProperties`.
 - `accumulo.instance`: The instance name of your Accumulo cluster.
 - `accumulo.zookeepers`: A comma separated list of the Zookeeper servers that your Accumulo cluster is using. Each server should specify the hostname and port separated by a colon, i.e. host:port.
 - `accumulo.user`: The name of your Accumulo user.
@@ -87,7 +87,7 @@ A typical properties file will look like:
 
 ```sh
 gaffer.store.class=gaffer.accumulostore.AccumuloStore
-gaffer.store.properties.class=gaffer.accumulostore.AccumuloProperties
+gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties
 accumulo.instance=myInstance
 accumulo.zookeepers=server1.com:2181,server2.com:2181,server3.com:2181
 accumulo.user=myUser
@@ -140,13 +140,13 @@ graph.execute(sample, new User());
 ```
 where:
 
-- `inputPath` is a string giving a directory in HDFS containing your data;
-- `splitsFilePath` is a string giving a file in HDFS where the output of the operation will be stored (this file should not exist before the operation is run);
-- `outputPath` is a string giving a directory in HDFS where the output of the MapReduce job will be stored;
-- `jobInitialiser` is an instance of the `JobInitialiser` interface that is used to initialise the MapReduce job. If your data is in text files then you can use the built-in `TextJobInitialiser`. An `AvroJobInitialiser` is also provided;
-- The `true` option in the `validate` method indicates that every element will be validated;
-- The `0.01F` option in the `proportionToSample` method causes 1% of the data to be sampled. This is the amount of data that will be sent to the single reducer so it should be small enough for a single reducer to handle;
-- `myMapperGeneratorClass` is a `Class` that extends the `MapperGenerator` interface. This is used to generate a `Mapper` class that is used to convert your data into `Element`s. Gaffer contains two built-in generators: `TextMapperGenerator` and `AvroMapperGenerator`. The former requires your data to be stored in text files in HDFS; the latter requires your data to be stored in Avro files.
+- `inputPath` is a string giving a directory in HDFS containing your data
+- `splitsFilePath` is a string giving a file in HDFS where the output of the operation will be stored (this file should not exist before the operation is run)
+- `outputPath` is a string giving a directory in HDFS where the output of the MapReduce job will be stored
+- `jobInitialiser` is an instance of the `JobInitialiser` interface that is used to initialise the MapReduce job. If your data is in text files then you can use the built-in `TextJobInitialiser`. An `AvroJobInitialiser` is also provided
+- The `true` option in the `validate` method indicates that every element will be validated
+- The `0.01F` option in the `proportionToSample` method causes 1% of the data to be sampled. This is the amount of data that will be sent to the single reducer so it should be small enough for a single reducer to handle
+- `myMapperGeneratorClass` is a `Class` that extends the `MapperGenerator` interface. This is used to generate a `Mapper` class that is used to convert your data into `Element`s. Gaffer contains two built-in generators: `TextMapperGenerator` and `AvroMapperGenerator`. The former requires your data to be stored in text files in HDFS; the latter requires your data to be stored in Avro files
 
 To apply these split points to the table, run:
 
@@ -203,7 +203,7 @@ See [the visibility walkthrough](https://gchq.github.io/gaffer-doc/v1docs/gettin
 Timestamp
 -----------------------------------------------
 
-Accumulo keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema to the name of the property.
+Accumulo keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema's config to the name of the property.
 If the timestamp is not set then it will be populated automatically:
 
 - Constant value - aggregated groups
@@ -243,10 +243,10 @@ Key-packages
 
 In Gaffer's `AccumuloStore` a key-package contains all the logic for:
 
-- Converting `Element`s into Accumulo key-value pairs, and vice-versa;
-- Generating ranges of Accumulo keys that correspond to the seeds of a query;
-- Creating the iterator settings necessary to perform the persistent aggregation that happens at compaction time, and the filtering and aggregation that happens during queries;
-- Creating the `KeyFunctor` used to configure the Bloom filters in Accumulo.
+- Converting `Element`s into Accumulo key-value pairs, and vice-versa
+- Generating ranges of Accumulo keys that correspond to the seeds of a query
+- Creating the iterator settings necessary to perform the persistent aggregation that happens at compaction time, and the filtering and aggregation that happens during queries
+- Creating the `KeyFunctor` used to configure the Bloom filters in Accumulo
 
 A key-package is an implementation of the `AccumuloKeyPackage` interface. Gaffer provides two implementations: `ByteEntityKeyPackage` and `ClassicKeyPackage`. These names are essentially meaningless. The "classic" in `ClassicKeyPackage` refers to the fact that it is similar to the implementation in the first version of Gaffer (known as "Gaffer1").
 
@@ -556,10 +556,10 @@ Ensure that when running an Accumulo instance, the user specified by the `accumu
 
 | Authorisation     | Required by |
 | ----------------- | ----------- |
-| vis1              | [VisibilityIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/VisibilityIT.java) |
-| vis2              | [VisibilityIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/VisibilityIT.java) |
+| vis1              | [VisibilityIT](../../integration-test/src/main/java/uk/gov/gchq/gaffer/integration/impl/VisibilityIT.java) |
+| vis2              | [VisibilityIT](../../integration-test/src/main/java/uk/gov/gchq/gaffer/integration/impl/VisibilityIT.java) |
 | public            | [SchemaHidingIT](../../core/graph/src/test/java/uk/gov/gchq/gaffer/integration/graph/SchemaHidingIT.java) |
-| private           | [ParameterizedLoaderIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/loader/ParameterizedLoaderIT.java#L63)
+| private           | [ParameterizedLoaderIT](../../integration-test/src/main/java/uk/gov/gchq/gaffer/integration/impl/loader/ParameterizedLoaderIT.java#L63)
 | publicVisibility  | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 | privateVisibility | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 

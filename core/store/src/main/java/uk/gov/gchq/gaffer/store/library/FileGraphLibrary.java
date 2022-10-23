@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * A {@code FileGraphLibrary} stores a {@link GraphLibrary} in a specified
@@ -39,7 +39,6 @@ import java.util.regex.Pattern;
  * StoreProperties and Schema in two other files.  They will be named using the ids.
  */
 public class FileGraphLibrary extends GraphLibrary {
-    private static final Pattern PATH_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_/\\\\\\-]*");
     private static final String DEFAULT_PATH = "graphLibrary";
     private String path;
 
@@ -64,8 +63,10 @@ public class FileGraphLibrary extends GraphLibrary {
         if (null == path) {
             this.path = DEFAULT_PATH;
         } else {
-            if (!PATH_ALLOWED_CHARACTERS.matcher(path).matches()) {
-                throw new IllegalArgumentException("path is invalid: " + path + " it must match the regex: " + PATH_ALLOWED_CHARACTERS);
+            try {
+                Paths.get(path);
+            } catch (final InvalidPathException e) {
+                throw new IllegalArgumentException("path is invalid: " + path, e);
             }
             this.path = path;
         }

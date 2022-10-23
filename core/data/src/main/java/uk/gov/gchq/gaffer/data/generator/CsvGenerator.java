@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
     private static final Pattern COMMA_PATTERN = Pattern.compile(COMMA);
     private static final String COMMA_REPLACEMENT_DEFAULT = " ";
 
-    private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+    protected LinkedHashMap<String, String> fields = new LinkedHashMap<>();
 
     private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
 
@@ -68,7 +68,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
      * @param key     the name of the field to be retrieved
      * @return the value of the field
      */
-    private Object getFieldValue(final Element element, final String key) {
+    protected Object getFieldValue(final Element element, final String key) {
         final IdentifierType idType = IdentifierType.fromName(key);
         final Object value;
         if (null == idType) {

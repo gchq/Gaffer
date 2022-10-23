@@ -56,6 +56,7 @@ import java.util.stream.Collectors;
  * one operation providing the input {@link EntityId}s for the next.
  */
 @JsonPropertyOrder(value = {"class", "input", "operations", "includePartial", "conditional"}, alphabetic = true)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Since("1.1.0")
 @Summary("Walks around the Graph, returning the full walks taken")
 public class GetWalks implements
@@ -69,7 +70,6 @@ public class GetWalks implements
     private List<OperationChain<Iterable<Element>>> operations = new ArrayList<>();
     private Iterable<? extends EntityId> input;
 
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean includePartial = false;
 
     /**
@@ -265,18 +265,6 @@ public class GetWalks implements
                 _getOp().setOperations(operations);
             }
             return _self();
-        }
-
-        /**
-         * Adds an operation.
-         *
-         * @param operation the operation to add
-         * @return the Builder
-         * @deprecated use addOperations instead
-         */
-        @Deprecated
-        public Builder operation(final Output operation) {
-            return addOperations(operation);
         }
 
         public Builder addOperations(final Output... operations) {

@@ -27,6 +27,8 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -76,12 +78,16 @@ public abstract class RestApiTestClient {
     public void cleanUpTempFiles(File folder) {
         File tempSchema = new File(folder, "/schema.json");
         File tempStoreProperties = new File(folder, "/store.properties");
+        File tempGraphConfig = new File(folder, "/graphConfig.json");
         try {
             if (tempSchema.exists()) {
                 FileUtils.forceDelete(tempSchema);
             }
             if (tempStoreProperties.exists()) {
                 FileUtils.forceDelete(tempStoreProperties);
+            }
+            if (tempGraphConfig.exists()) {
+                FileUtils.forceDelete(tempGraphConfig);
             }
         } catch (IOException e) {
             throw new RuntimeException("Unable to clean up temp files from " + folder.getAbsolutePath());
@@ -107,15 +113,20 @@ public abstract class RestApiTestClient {
                     .store(out, "This is an optional header comment string");
         }
 
-        setSystemProperties(testFolder.getPath() + "/store.properties", testFolder.getPath() + "/schema.json");
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId("graphId")
+                .build();
+        FileUtils.writeByteArrayToFile(new File(testFolder, "/graphConfig.json"), JSONSerialiser.serialise(config));
+
+        setSystemProperties(testFolder.getPath() + "/store.properties", testFolder.getPath() + "/schema.json", testFolder.getPath() + "/graphConfig.json");
         reinitialiseGraph();
     }
 
-    private void setSystemProperties(final String systemPropertiesPath, final String schemaPath) {
+    private void setSystemProperties(final String systemPropertiesPath, final String schemaPath, final String graphConfigPath) {
         // set properties for REST service
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, systemPropertiesPath);
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath);
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath);
     }
 
     public void reinitialiseGraph(final Graph graph) {

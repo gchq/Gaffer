@@ -61,7 +61,7 @@ public class FactoryConfig {
                             .filter(s -> s.startsWith("gaffer") && checkedProperties.add(s)) // Skips expensive property lookup
                             .forEach(s -> System.setProperty(s, environment.getProperty(s)));
                 } else {
-                    LOGGER.info("Skipping Property source " + propertySource);
+                    LOGGER.info("Skipping Property source {}", propertySource);
                     LOGGER.info("Any gaffer property configured with this source will not be automatically added " +
                             "to system properties");
                 }

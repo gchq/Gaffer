@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -71,7 +72,7 @@ public class FunctionAuthoriser implements GraphHook {
             // This should never happen in real life as operation chains should
             // always be json serialisable. However this could happen if using a
             // mock in testing. To account for this, it will be logged.
-            LOGGER.warn("Failed to serialise operation chain: " + opChain + " due to " + e.getMessage());
+            LOGGER.warn("Failed to serialise operation chain: {} due to {}", opChain, e.getMessage());
             return;
         } finally {
             if (input != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.google.common.collect.Sets;
@@ -178,7 +179,6 @@ public class GraphConfigurationServiceV2Test {
         expectedFields.add("input");
         expectedFields.add("view");
         expectedFields.add("includeIncomingOutGoing");
-        expectedFields.add("seedMatching");
         expectedFields.add("options");
         expectedFields.add("directedType");
         expectedFields.add("views");
@@ -261,6 +261,15 @@ public class GraphConfigurationServiceV2Test {
     public void shouldGetTransformFunctions() {
         // When
         final Set<Class> classes = (Set<Class>) service.getTransformFunctions().getEntity();
+
+        // Then
+        assertFalse(classes.isEmpty());
+    }
+
+    @Test
+    public void shouldGetAggregationFunctions() {
+        // When
+        final Set<Class> classes = (Set<Class>) service.getAggregationFunctions().getEntity();
 
         // Then
         assertFalse(classes.isEmpty());
