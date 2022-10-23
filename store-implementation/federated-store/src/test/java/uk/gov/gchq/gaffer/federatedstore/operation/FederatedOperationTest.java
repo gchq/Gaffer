@@ -33,16 +33,16 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardC
 
 public class FederatedOperationTest extends FederationOperationTest<FederatedOperation> {
     private static final List<String> EXPECTED_GRAPH_IDS = asList("testGraphID1", "testGraphID2");
-    public static final String JSON = "{\n" +
-            "  \"class\" : \"uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation\",\n" +
-            "  \"operation\" : {\n" +
-            "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\"\n" +
-            "  },\n" +
-            "  \"mergeFunction\" : {\n" +
-            "    \"class\" : \"uk.gov.gchq.gaffer.federatedstore.util.DefaultBestEffortsMergeFunction\"\n" +
-            "  },\n" +
-            "  \"graphIds\" : [ \"testGraphID1\", \"testGraphID2\" ]\n" +
-            "}";
+    public static final String JSON = String.format("{%n" +
+            "  \"class\" : \"uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation\",%n" +
+            "  \"operation\" : {%n" +
+            "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\"%n" +
+            "  },%n" +
+            "  \"mergeFunction\" : {%n" +
+            "    \"class\" : \"uk.gov.gchq.gaffer.federatedstore.util.DefaultBestEffortsMergeFunction\"%n" +
+            "  },%n" +
+            "  \"graphIds\" : [ \"testGraphID1\", \"testGraphID2\" ]%n" +
+            "}");
 
     @Override
     protected Set<String> getRequiredFields() {

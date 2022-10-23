@@ -346,7 +346,7 @@ public class FederatedStore extends Store {
                         "This FederatedStore: {}{}" +
                         "All FederatedStore in this loop: {}", ln, this.getGraphId(), ln, federatedStoreIds.toString());
             } else if (isNull(graphIds)) {
-                LOGGER.debug("getting default graphs because requested graphIds is null");
+                LOGGER.debug("Getting default graphs because requested graphIds is null");
                 rtn = getDefaultGraphs(user, operation);
             } else {
                 if (graphIds.isEmpty()) {
@@ -369,17 +369,26 @@ public class FederatedStore extends Store {
         final String keyForFedStoreId = getKeyForProcessedFedStoreId();
         boolean isFedStoreIdPreexisting = false;
         if (nonNull(operation) && !isNullOrEmpty(keyForFedStoreId)) {
-            //KEEP THIS ORDER v
+            /*
+            * KEEP THIS ORDER!
+            * 1) Check operation for ID
+            * 2) Check and Add ID any payload for ID (recursion)
+            * 3) Add the ID
+            * 4) return if the ID was found.
+            *
+             */
+            // 1) Check operation for ID
             final boolean doesOperationHavePreexistingFedStoreId = !isValueForFedStoreIdNullOrEmpty(operation, keyForFedStoreId);
-            //Check and Add FedStoreId to payload
+
+            // 2) Check and Add ID any payload for ID (recursion)
             final boolean doesPayloadHavePreexistingFedStoreId = (operation instanceof FederatedOperation)
                     && addFedStoreIdToOperation(((FederatedOperation<?, ?>) operation).getUnClonedPayload());
 
-            //Add FedStoreId to current Operation.
+            // 3) Add the ID
             operation.addOption(keyForFedStoreId, getValueForProcessedFedStoreId());
 
+            // 4) return if the ID was found.
             isFedStoreIdPreexisting = doesOperationHavePreexistingFedStoreId || doesPayloadHavePreexistingFedStoreId;
-            //KEEP THIS ORDER ^
         }
         return isFedStoreIdPreexisting;
     }
@@ -388,7 +397,7 @@ public class FederatedStore extends Store {
         final boolean isValueForFedStoreIdNullOrEmpty = isNullOrEmpty(operation.getOption(fedStoreId, null));
         if (operation.getOptions() != null && operation.getOptions().containsKey(fedStoreId) && isValueForFedStoreIdNullOrEmpty) {
             //There is a slight difference between value null and key not found
-            LOGGER.debug(String.format("The FederatedStoreId Key has been with null value, this means the Key has been intentionally cleared for reprocessing by this FederatedStore. Key:%s", fedStoreId));
+            LOGGER.debug(String.format("The FederatedStoreId Key has a null Value, this means the Key has been intentionally cleared for reprocessing by this FederatedStore. Key:%s", fedStoreId));
         }
         return isValueForFedStoreIdNullOrEmpty;
     }

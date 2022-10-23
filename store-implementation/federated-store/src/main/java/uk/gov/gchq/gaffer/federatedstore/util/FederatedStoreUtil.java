@@ -61,8 +61,7 @@ public final class FederatedStoreUtil {
     }
 
     public static String createOperationErrorMsg(final Operation operation, final String graphId, final Exception e) {
-        final String additionalInfo = String.format("Set the skip and continue option: %s for operation: %s",
-                "skipFailedFederatedExecution",
+        final String additionalInfo = String.format("Set the skip and continue option: skipFailedFederatedExecution for operation: %s",
                 operation.getClass().getSimpleName());
 
         return String.format("Failed to execute %s on graph %s.%n %s.%n Error: %s",
