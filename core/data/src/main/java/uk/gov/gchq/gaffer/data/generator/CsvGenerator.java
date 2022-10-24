@@ -41,7 +41,6 @@ import java.util.regex.Pattern;
 @Since("1.0.0")
 @Summary("Generates a CSV string for each element")
 public class CsvGenerator implements OneToOneObjectGenerator<String> {
-    public static final String GROUP = "GROUP";
     public static final String COMMA = ",";
     private static final Pattern COMMA_PATTERN = Pattern.compile(COMMA);
     private static final String COMMA_REPLACEMENT_DEFAULT = " ";
@@ -68,15 +67,19 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
      * @param key     the name of the field to be retrieved
      * @return the value of the field
      */
-    protected Object getFieldValue(final Element element, final String key) {
+
+    private Object getFieldValue(final Element element, final String key) {
         final IdentifierType idType = IdentifierType.fromName(key);
         final Object value;
         if (null == idType) {
-            if (GROUP.equals(key)) {
+            if (key.contains(CsvFormat.ENTITY_GROUP) && element.getClassName().contains("Entity")) {
+                value = element.getGroup();
+            } else if (key.contains(CsvFormat.EDGE_GROUP) && element.getClassName().contains("Edge")) {
                 value = element.getGroup();
             } else {
                 value = element.getProperty(key);
             }
+
         } else {
             value = element.getIdentifier(idType);
         }
@@ -175,7 +178,6 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         return value;
     }
 
-
     public boolean isQuoted() {
         return quoted;
     }
@@ -195,8 +197,35 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
     public static class Builder {
         private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
         private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
+
+        private LinkedHashMap<String, String> propertiesFromSchema = new LinkedHashMap<>();
         private String commaReplacement = COMMA_REPLACEMENT_DEFAULT;
         private Boolean quoted;
+
+        /**
+         * Stores any additional properties of an {@link Element}.
+         *
+         * @param propertyHeadersFromSchema the name of the property headers to be added
+         * @return a new {@link CsvGenerator.Builder}
+         */
+        public Builder propertyHeadersFromSchema(final LinkedHashMap<String, String> propertyHeadersFromSchema) {
+            for (final String key: propertyHeadersFromSchema.keySet()) {
+                fields.put(key, key + ":" + propertyHeadersFromSchema.get(key));
+            }
+            return this;
+        }
+
+        /**
+         * Adds the main identifiers of an {@link Element}, ie VERTEX, GROUP, SOURCE, DEST to the fields LinkedHashMap.
+         * These identifiers are predefined in a {@link CsvFormat} e.g. {@link Neo4jFormat}
+         *
+         * @param identifiersFromFormat the name of the headers to be added
+         * @return a new {@link CsvGenerator.Builder}
+         */
+        public Builder identifiersFromFormat(final LinkedHashMap<String, String> identifiersFromFormat) {
+            this.fields = identifiersFromFormat;
+            return this;
+        }
 
         /**
          * Stores the group of an {@link Element}.
@@ -205,8 +234,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
          * @return a new {@link Builder}
          */
         public Builder group(final String columnHeader) {
-            fields.put(GROUP, columnHeader);
-            return this;
+            return identifier(IdentifierType.GROUP, columnHeader);
         }
 
         /**
@@ -312,7 +340,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         }
 
         /**
-         * Passes all of the configured fields and constants about an {@link Element} to a new {@link CsvGenerator},
+         * Passes all the configured fields and constants about an {@link Element} to a new {@link CsvGenerator},
          * including the comma replacement String, and the flag for whether values should be quoted.
          *
          * @return a new {@code CsvGenerator}, containing all configured information
@@ -325,7 +353,6 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
             if (null != quoted) {
                 generator.setQuoted(quoted);
             }
-
             return generator;
         }
     }

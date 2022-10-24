@@ -79,6 +79,7 @@ import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
+import uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
@@ -483,6 +484,7 @@ public class StoreTest {
                         GetExports.class,
                         ExportToGafferResultCache.class,
                         GetGafferResultCacheExport.class,
+                        ExportToLocalFile.class,
 
                         // Import
                         ImportCsv.class,
@@ -599,6 +601,7 @@ public class StoreTest {
                         GetExports.class,
                         ExportToGafferResultCache.class,
                         GetGafferResultCacheExport.class,
+                        ExportToLocalFile.class,
 
                         // Import
                         ImportCsv.class,
