@@ -8,9 +8,11 @@ SPRING_JAR=spring-rest-$SPRING_V-exec.jar
 SPRING_TARGET=../../rest-api/spring-rest/target/$SPRING_JAR
 PROP=federatedStore.properties
 CONF=graphConfig.json
+SCHEMA=schema.json
 OP_DEC=operationDeclarations.json
 PROP_RESOURCE=../federated-demo/src/main/resources/$PROP
 CONF_RESOURCE=../federated-demo/src/main/resources/$CONF
+SCHEMA_RESOURCE=../federated-demo/src/main/resources/$SCHEMA
 OP_DEC_RESOURCE=../federated-demo/src/main/resources/$OP_DEC
 
 if [[ ! -f $CONF ]] 
@@ -31,6 +33,12 @@ then
 	cp $OP_DEC_RESOURCE ./$OP_DEC
 fi
 
+if [[ ! -f $SCHEMA ]]
+then
+	echo "Making empty schema"
+	echo "{}" > $SCHEMA
+fi
+
 if [[ ! -f $SPRING_JAR ]]
 then
 	echo "Getting Spring Jar $SPRING_TARGET"
@@ -44,4 +52,4 @@ then
 	# mvn clean -f ../../
 fi
 
-java  -Dgaffer.storeProperties=$PROP -Dgaffer.graph.config=$CONF  -jar $SPRING_JAR
+java -Dgaffer.storeProperties=$PROP -Dgaffer.graph.config=$CONF -Dgaffer.schemas=$SCHEMA -jar $SPRING_JAR
