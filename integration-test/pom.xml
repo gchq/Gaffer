@@ -73,5 +73,14 @@
             <version>${assertj.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- Test -->
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-testkit</artifactId>
+            <version>${junit-suite.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

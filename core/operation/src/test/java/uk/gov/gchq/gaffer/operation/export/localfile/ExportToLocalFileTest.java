@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.operation.export.localfile;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -33,8 +32,6 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExportToLocalFileTest extends OperationTest<ExportToLocalFile>  {
-
-    @Required
     public static final String FILE_PATH = "path/to/file.csv";
     public static final ArrayList<String> INPUT = Lists.newArrayList("header", "line1", "line2");
 
@@ -62,6 +59,7 @@ public class ExportToLocalFileTest extends OperationTest<ExportToLocalFile>  {
         assertThat(FILE_PATH).isEqualTo(op.getFilePath());
         assertThat(INPUT).containsAll(op.getInput());
     }
+
     @Test
     @Override
     public void shouldShallowCloneOperation() {
@@ -83,7 +81,7 @@ public class ExportToLocalFileTest extends OperationTest<ExportToLocalFile>  {
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertThat(Object.class).isEqualTo(outputClass);
+        assertThat(Iterable.class).isEqualTo(outputClass);
     }
 
     @Override

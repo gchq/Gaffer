@@ -24,19 +24,27 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.SingleUseMapProxyStore;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 
 @ExcludeClassNamePatterns({"uk.gov.gchq.gaffer.integration.impl.JoinIT",
                            "uk.gov.gchq.gaffer.integration.impl.GeneratorsIT"}) // Skipped because: The output type reference doesn't deserialise the output correctly
-@ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.proxystore.integration.ProxyStoreITs")
+@ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.proxystore.integration.ProxyStoreITs")
 public class ProxyStoreITs extends AbstractStoreITs {
-    private static final ProxyProperties STORE_PROPERTIES = ProxyProperties.loadStoreProperties(StreamUtil.openStream(ProxyStoreITs.class, "/mock-proxy-store.properties"));
-
-    public ProxyStoreITs() {
-        super(STORE_PROPERTIES);
-    }
 
     @AfterClass
     public static void afterClass() {
         SingleUseMapProxyStore.cleanUp();
+    }
+
+    private static final ProxyProperties STORE_PROPERTIES = ProxyProperties
+            .loadStoreProperties(StreamUtil.openStream(ProxyStoreITs.class, "/mock-proxy-store.properties"));
+
+    private static final Schema SCHEMA = new Schema();
+
+    ProxyStoreITs() {
+        setSchema(SCHEMA);
+        setStoreProperties(STORE_PROPERTIES);
     }
 }

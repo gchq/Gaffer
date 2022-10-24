@@ -20,11 +20,7 @@ import org.junit.platform.suite.api.IncludeClassNamePatterns;
 import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
 
-import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-
-import java.util.HashMap;
-import java.util.Map;
+import uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuite;
 
 /**
  * Runs the full suite of gaffer store integration tests.
@@ -32,29 +28,13 @@ import java.util.Map;
  * '@ConfigurationParameter(key = "initClass", value = "FQCN.of.your.class")'
  * as an annotation. This is required for JUnit to initialise values used
  * by the tests (e.g. Store Properties). You can use annotations from
- * {@link org.junit.platform.suite.api} to include/exclude integration test
- * classes or select additional classes to add to the test Suite.
+ * package {@code org.junit.platform.suite.api} to include/exclude integration
+ * test classes or select additional classes to add to the test Suite. See
+ * {@link org.junit.platform.suite.api.Suite} for more information.
  */
-
 @Suite
 @SelectPackages("uk.gov.gchq.gaffer.integration.impl")
 @IncludeClassNamePatterns(".*IT")
-public abstract class AbstractStoreITs {
-    private final Map<Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods;
+public abstract class AbstractStoreITs extends IntegrationTestSuite {
 
-    public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema) {
-        this.skipTestMethods = AbstractStoreIT.getSkipTestMethods();
-        AbstractStoreIT.setStoreSchema(schema);
-        AbstractStoreIT.setStoreProperties(storeProperties);
-    }
-
-    public AbstractStoreITs(final StoreProperties storeProperties) {
-        this(storeProperties, new Schema());
-    }
-
-    protected void skipTestMethod(final Class<? extends AbstractStoreIT> testClass, final String methodToSkip, final String justification) {
-        HashMap<String, String> methodJustificationMap = new HashMap<>();
-        methodJustificationMap.put(methodToSkip, justification);
-        skipTestMethods.put(testClass, methodJustificationMap);
-    }
 }

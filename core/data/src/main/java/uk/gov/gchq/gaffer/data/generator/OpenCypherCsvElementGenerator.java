@@ -53,19 +53,19 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
     private static final long serialVersionUID = -821376598172364516L;
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenCypherCsvElementGenerator.class);
 
-    public static final String VERTEX = ":ID";
+    public static final String NEPTUNE_VERTEX = ":ID";
     public static final String NEO4J_VERTEX = "_id";
-    public static final String ENTITY_GROUP = ":LABEL";
+    public static final String NEPTUNE_ENTITY_GROUP = ":LABEL";
     public static final String NEO4J_ENTITY_GROUP = "_labels";
 
-    public static final String SOURCE = ":START_ID";
+    public static final String NEPTUNE_SOURCE = ":START_ID";
     public static final String NEO4J_SOURCE = "_start";
-    public static final String DESTINATION = ":END_ID";
+    public static final String NEPTUNE_DESTINATION = ":END_ID";
     public static final String NEO4J_DESTINATION = "_end";
 
-    public static final String EDGE_GROUP = ":TYPE";
+    public static final String NEPTUNE_EDGE_GROUP = ":TYPE";
     public static final String NEO4J_EDGE_GROUP = "_type";
-    private static final List<String> ELEMENT_COLUMN_NAMES = ImmutableList.of(VERTEX, ENTITY_GROUP, EDGE_GROUP, SOURCE, DESTINATION);
+    private static final List<String> ELEMENT_COLUMN_NAMES = ImmutableList.of(NEPTUNE_VERTEX, NEPTUNE_ENTITY_GROUP, NEPTUNE_EDGE_GROUP, NEPTUNE_SOURCE, NEPTUNE_DESTINATION);
     private String header;
     private int firstRow = 0;
     private Boolean trim = false;
@@ -85,11 +85,11 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
 
         FunctionChain.Builder<Tuple<String>, Tuple<String>> transformTuplesBuilder = new FunctionChain.Builder<>();
 
-        ElementTupleDefinition entityDefinition = new ElementTupleDefinition(ENTITY_GROUP).vertex(VERTEX);
-        ElementTupleDefinition edgeDefinition = new ElementTupleDefinition(EDGE_GROUP)
-            .source(SOURCE)
-            .destination(DESTINATION)
-            .property("edge-id", VERTEX);
+        ElementTupleDefinition entityDefinition = new ElementTupleDefinition(NEPTUNE_ENTITY_GROUP).vertex(NEPTUNE_VERTEX);
+        ElementTupleDefinition edgeDefinition = new ElementTupleDefinition(NEPTUNE_EDGE_GROUP)
+            .source(NEPTUNE_SOURCE)
+            .destination(NEPTUNE_DESTINATION)
+            .property("edge-id", NEPTUNE_VERTEX);
         for (final String columnHeader : parseCsv.getHeader()) {
             if (!ELEMENT_COLUMN_NAMES.contains(columnHeader)) {
                 String propertyName = columnHeader.split(":")[0];
@@ -158,11 +158,11 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
     }
 
     private String parseHeader(final String header) {
-        String parsedHeader = header.replace(NEO4J_VERTEX, VERTEX);
-        parsedHeader = parsedHeader.replace(NEO4J_ENTITY_GROUP, ENTITY_GROUP);
-        parsedHeader = parsedHeader.replace(NEO4J_EDGE_GROUP, EDGE_GROUP);
-        parsedHeader = parsedHeader.replace(NEO4J_SOURCE, SOURCE);
-        parsedHeader = parsedHeader.replace(NEO4J_DESTINATION, DESTINATION);
+        String parsedHeader = header.replace(NEO4J_VERTEX, NEPTUNE_VERTEX);
+        parsedHeader = parsedHeader.replace(NEO4J_ENTITY_GROUP, NEPTUNE_ENTITY_GROUP);
+        parsedHeader = parsedHeader.replace(NEO4J_EDGE_GROUP, NEPTUNE_EDGE_GROUP);
+        parsedHeader = parsedHeader.replace(NEO4J_SOURCE, NEPTUNE_SOURCE);
+        parsedHeader = parsedHeader.replace(NEO4J_DESTINATION, NEPTUNE_DESTINATION);
         return parsedHeader;
     }
 
