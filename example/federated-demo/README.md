@@ -147,8 +147,8 @@ Here is an example of an advanced federated operation chain:
    "class": "uk.gov.gchq.gaffer.operation.OperationChain",
    "operations": [
       {
-         "class": "uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain",
-         "operationChain": {
+         "class": "uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation",
+         "operation": {
             "operations": [
                {
                   "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements"
