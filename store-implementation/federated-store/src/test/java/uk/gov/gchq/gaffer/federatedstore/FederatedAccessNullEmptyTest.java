@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,15 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.user.StoreUser;
-import uk.gov.gchq.gaffer.user.User;
-
 import java.util.Collection;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 
 public class FederatedAccessNullEmptyTest {
-
-    User user;
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        user = StoreUser.blankUser();
-    }
 
     @Test
     public void shouldInValidateWithExplicitlyNullCollectionAuth() throws Exception {
@@ -43,7 +33,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths((Collection) null)
                 .build();
 
-        assertFalse(access.hasReadAccess(user));
+        assertFalse(access.hasReadAccess(blankUser()));
     }
 
     @Test
@@ -53,7 +43,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths((String[]) null)
                 .build();
 
-        assertFalse(access.hasReadAccess(user));
+        assertFalse(access.hasReadAccess(blankUser()));
     }
 
     @Test
@@ -62,7 +52,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths("")
                 .build();
 
-        assertFalse(access.hasReadAccess(user));
+        assertFalse(access.hasReadAccess(blankUser()));
     }
 
     @Test
@@ -72,17 +62,17 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths(new String[0])
                 .build();
 
-        assertFalse(access.hasReadAccess(user));
+        assertFalse(access.hasReadAccess(blankUser()));
     }
 
     @Test
     public void shouldInValidateWithEmptyCollectionAuth() throws Exception {
 
         final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths(Sets.newHashSet())
+                .graphAuths(new HashSet<>())
                 .build();
 
-        assertFalse(access.hasReadAccess(user));
+        assertFalse(access.hasReadAccess(blankUser()));
     }
 
 
@@ -92,7 +82,7 @@ public class FederatedAccessNullEmptyTest {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .build();
 
-        assertFalse(access.hasReadAccess(user));
+        assertFalse(access.hasReadAccess(blankUser()));
     }
 
 }

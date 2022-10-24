@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.isUserRequestingAdminUsage;
 
 /**
  * A handler for RemoveGraph operation for the FederatedStore.
@@ -37,8 +36,7 @@ public class FederatedRemoveGraphHandler implements OutputOperationHandler<Remov
     @Override
     public Boolean doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
         try {
-            final boolean userRequestingAdminUsage = isUserRequestingAdminUsage(operation);
-            return ((FederatedStore) store).remove(operation.getGraphId(), context.getUser(), userRequestingAdminUsage);
+            return ((FederatedStore) store).remove(operation.getGraphId(), context.getUser(), operation.isUserRequestingAdminUsage());
         } catch (final Exception e) {
             throw new OperationException("Error removing graph: " + operation.getGraphId(), e);
         }

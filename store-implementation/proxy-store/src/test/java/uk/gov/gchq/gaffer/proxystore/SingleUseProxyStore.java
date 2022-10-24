@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,11 +44,11 @@ public abstract class SingleUseProxyStore extends ProxyStore {
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties proxyProps) throws StoreException {
-        startMapStoreRestApi(schema);
+        startRemoteStoreRestApi(schema);
         super.initialise(graphId, new Schema(), proxyProps);
     }
 
-    protected void startMapStoreRestApi(final Schema schema) throws StoreException {
+    protected void startRemoteStoreRestApi(final Schema schema) throws StoreException {
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(
                 StreamUtil.openStream(getClass(), getPathToDelegateProperties()));
         try {

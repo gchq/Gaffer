@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -37,11 +35,11 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_VALUE_IS_PUBLIC;
 
@@ -78,11 +76,11 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     private static final long serialVersionUID = 1399629017857618033L;
     private static final boolean NOT_DISABLED_BY_DEFAULT = false;
     private final boolean isPublic;
-    private Set<String> graphAuths;
-    private String addingUserId;
+    private final Set<String> graphAuths;
+    private final String addingUserId;
     private final boolean disabledByDefault;
-    private String readAccessPredicate;
-    private String writeAccessPredicate;
+    private final String readAccessPredicate;
+    private final String writeAccessPredicate;
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUserId) {
         this(graphAuths, addingUserId, Boolean.valueOf(DEFAULT_VALUE_IS_PUBLIC));
@@ -108,7 +106,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
             throw new IllegalArgumentException("Only one of graphAuths or readAccessPredicate should be supplied.");
         }
 
-        this.graphAuths = graphAuths;
+        this.graphAuths = (graphAuths == null) ? null : unmodifiableSet(graphAuths);
         this.addingUserId = addingUserId;
         this.isPublic = isPublic;
         this.disabledByDefault = disabledByDefault;
@@ -122,7 +120,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     }
 
     public Set<String> getGraphAuths() {
-        return graphAuths != null ? unmodifiableSet(graphAuths) : null;
+        return (graphAuths != null) ? unmodifiableSet(graphAuths) : null;
     }
 
     public String getAddingUserId() {
@@ -248,7 +246,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
             if (null == opAuth) {
                 this.graphAuths = null;
             } else {
-                graphAuths(Arrays.asList(opAuth));
+                graphAuths(asList(opAuth));
             }
             return self;
         }
@@ -257,8 +255,8 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
             if (null == graphAuths) {
                 this.graphAuths = null;
             } else {
-                final HashSet<String> authSet = Sets.newHashSet(graphAuths);
-                authSet.removeAll(Lists.newArrayList("", null));
+                final HashSet<String> authSet = new HashSet<>(graphAuths);
+                authSet.removeAll(asList("", null));
                 this.graphAuths = authSet;
             }
             return self;
@@ -266,8 +264,8 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
 
         public Builder addGraphAuths(final Collection<? extends String> graphAuths) {
             if (null != graphAuths) {
-                final HashSet<String> authSet = Sets.newHashSet(graphAuths);
-                authSet.removeAll(Lists.newArrayList("", null));
+                final HashSet<String> authSet = new HashSet<>(graphAuths);
+                authSet.removeAll(asList("", null));
                 if (null == this.graphAuths) {
                     this.graphAuths = authSet;
                 } else {
