@@ -50,9 +50,9 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
     }
 
     @Override
-    protected Schema getSchema(final Operation operation, final User user, final Store store) {
-        return (operation instanceof FederatedOperation)
-                ? ((FederatedStore) store).getSchema(getFederatedWrappedSchema().graphIds(((FederatedOperation) operation).getGraphIds()), new Context(user))
+    protected Schema getSchema(final Operation op, final User user, final Store store) {
+        return (op instanceof FederatedOperation)
+                ? ((FederatedStore) store).getSchema(getFederatedWrappedSchema().graphIds(((FederatedOperation) op).getGraphIds()), new Context(user))
                 : ((FederatedStore) store).getSchema(getFederatedWrappedSchema(), new Context(user));
     }
 

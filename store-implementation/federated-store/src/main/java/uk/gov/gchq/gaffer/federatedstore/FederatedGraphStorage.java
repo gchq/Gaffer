@@ -280,7 +280,7 @@ public class FederatedGraphStorage {
             }
         } catch (final SchemaException e) {
             final List<String> resultGraphIds = getStream(context.getUser(), graphIds).map(Graph::getGraphId).collect(Collectors.toList());
-            throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the `FederatedOperation.graphIds` .", e);
+            throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the FederatedOperation.graphIds option.", e);
         }
         return schemaBuilder.build();
     }

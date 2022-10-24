@@ -31,11 +31,12 @@ import static java.util.Objects.nonNull;
 public class DefaultBestEffortsMergeFunction implements BiFunction<Object, Iterable<Object>, Iterable<Object>> {
 
     @Override
-    public Iterable<Object> apply(final Object o, final Iterable<Object> objects) {
-        final Iterable<Object> oAsNonNullIterable = isNull(o) ? Collections.emptyList() : (Iterable<Object>) new ToList().apply(o);
-        return isNull(objects)
-                ? oAsNonNullIterable
-                : new IterableConcat<>().apply(Lists.newArrayList(oAsNonNullIterable, objects));
+    public Iterable<Object> apply(final Object update, final Iterable<Object> state) {
+        //When update=null, Then this stops ToList returning an Iterable with a null in it.
+        final Iterable<Object> updateSafe = isNull(update) ? Collections.emptyList() : (Iterable<Object>) new ToList().apply(update);
+        return isNull(state)
+                ? updateSafe
+                : new IterableConcat<>().apply(Lists.newArrayList(updateSafe, state));
     }
 
     @Override

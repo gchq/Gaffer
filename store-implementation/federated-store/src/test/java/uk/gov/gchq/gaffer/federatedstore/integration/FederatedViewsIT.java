@@ -46,7 +46,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BAS
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 /**
- * In all of theses tests the Federated graph contains two graphs, one containing
+ * In all of these tests the Federated graph contains two graphs, one containing
  * a schema with only edges the other with only entities.
  */
 public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
@@ -183,10 +183,10 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                                 .build())
                         .build())
                         .graphIdsCSV(GRAPH_ID_ACCUMULO_WITH_ENTITIES), user))
-                .withMessage("Operation chain is invalid. Validation errors: \n" +
-                        "View is not valid for graphIds:[" + GRAPH_ID_ACCUMULO_WITH_ENTITIES + "]\n" +
-                        "(graphId: " + GRAPH_ID_ACCUMULO_WITH_ENTITIES + ") View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
-                        "(graphId: " + GRAPH_ID_ACCUMULO_WITH_ENTITIES + ") Edge group BasicEdge does not exist in the schema");
+                .withMessage(String.format("Operation chain is invalid. Validation errors: %n" +
+                        "View is not valid for graphIds:[" + GRAPH_ID_ACCUMULO_WITH_ENTITIES + "]%n" +
+                        "(graphId: " + GRAPH_ID_ACCUMULO_WITH_ENTITIES + ") View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. %n" +
+                        "(graphId: " + GRAPH_ID_ACCUMULO_WITH_ENTITIES + ") Edge group BasicEdge does not exist in the schema"));
     }
 
 
@@ -208,14 +208,14 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                                 .build())
                         .graphIdsCSV(GRAPH_ID_ACCUMULO_WITH_EDGES), user))
 
-                .withMessage("Operation chain is invalid. Validation errors: \n" +
-                        "View is not valid for graphIds:[" + GRAPH_ID_ACCUMULO_WITH_EDGES + "]\n" +
-                        "(graphId: " + GRAPH_ID_ACCUMULO_WITH_EDGES + ") View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
-                        "(graphId: " + GRAPH_ID_ACCUMULO_WITH_EDGES + ") Entity group BasicEntity does not exist in the schema");
+                .withMessage(String.format("Operation chain is invalid. Validation errors: %n" +
+                        "View is not valid for graphIds:[" + GRAPH_ID_ACCUMULO_WITH_EDGES + "]%n" +
+                        "(graphId: " + GRAPH_ID_ACCUMULO_WITH_EDGES + ") View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. %n" +
+                        "(graphId: " + GRAPH_ID_ACCUMULO_WITH_EDGES + ") Entity group BasicEntity does not exist in the schema"));
     }
 
     /**
-     * Federation acts as a Edge/Entity graph with a view of Edge and Entity
+     * Federation acts as an Edge/Entity graph with a view of Edge and Entity
      *
      * @throws OperationException any
      */

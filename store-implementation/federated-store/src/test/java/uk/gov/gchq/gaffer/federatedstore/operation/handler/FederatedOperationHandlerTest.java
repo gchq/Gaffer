@@ -69,6 +69,7 @@ import java.util.function.BiFunction;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -257,13 +258,10 @@ public class FederatedOperationHandlerTest {
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(asList(graph1, graph2, graph3, graph4));
 
         // When
-        try {
-            Object ignore = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
-            fail("Exception Not thrown");
-        } catch (OperationException e) {
-            assertEquals(FederatedOperationHandler.ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS, e.getMessage());
-            assertTrue(e.getCause().getMessage().contains(errorMessage));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore))
+                .withMessageContaining(String.format(FederatedOperationHandler.ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS_FORMAT, ""))
+                .withStackTraceContaining(errorMessage);
     }
 
     @Test
