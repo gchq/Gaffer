@@ -22,7 +22,10 @@ Example json operations can be found at `json-operation-examples`.
 Copy & paste the files contents into the Swaggers execute panel.
 
 ## Curl Command
-Example curl commands within shell scripts can be found at `curl-opertion-examples`. Execute these shell scripts or copy past the curl command into your terminal.
+Example curl commands within shell scripts can be found at `curl-opertion-examples`. 
+Execute these shell scripts or copy & paste the curl command into your terminal.
+Curl commands with the "alternative" in the name are duplicate examples that contain inline JSON
+instead of reference to a .json file. This allows users to have a go and changing and editing commands in the command line.
 
 ```bash
 cd curl-operation-examples/
