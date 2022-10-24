@@ -22,7 +22,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
-import uk.gov.gchq.gaffer.operation.imprt.Importer;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
@@ -46,11 +45,6 @@ public class Context {
      * Map of exporter simple class name to exporter
      */
     private final Map<Class<? extends Exporter>, Exporter> exporters = new HashMap<>();
-
-    /**
-     * Map of importer simple class name to exporter
-     */
-    private final Map<Class<? extends Importer>, Importer> importers = new HashMap<>();
 
     public Context() {
         this(new User());
@@ -169,38 +163,6 @@ public class Context {
 
         return null;
     }
-
-    public Collection<Importer> getImporters() {
-        return Collections.unmodifiableCollection(importers.values());
-    }
-
-    public void addImporter(final Importer importer) {
-        if (importers.containsKey(importer.getClass())) {
-            throw new IllegalArgumentException("Importer of type " + importer.getClass() + " has already been registered");
-        }
-        importers.put(importer.getClass(), importer);
-    }
-
-    public <E> E getImporter(final Class<? extends E> importerClass) {
-        if (null == importerClass) {
-            throw new IllegalArgumentException("Importer class is required.");
-        }
-
-        final E importer = (E) importers.get(importerClass);
-        if (null != importer) {
-            return importer;
-        }
-
-        // Check to see if the class is a subclass of an exporter
-        for (final Map.Entry<Class<? extends Importer>, Importer> entry : importers.entrySet()) {
-            if (importerClass.isAssignableFrom(entry.getKey())) {
-                return (E) entry.getValue();
-            }
-        }
-
-        return null;
-    }
-
 
     public Object getConfig(final String key) {
         return config.get(key);

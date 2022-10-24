@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,12 @@ package uk.gov.gchq.gaffer.operation.impl.imprt.localfile;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import org.apache.commons.lang3.exception.CloneFailedException;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
-
-import uk.gov.gchq.gaffer.operation.imprt.ImportFrom;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.export.GetExport;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -31,23 +32,56 @@ import uk.gov.gchq.koryphe.Summary;
 import java.util.Map;
 
 /**
- * A {@code ImportFromLocalFile} operation that takes a local file
- * and reads its contents to Iterable of Strings.
+ * An {@code ImportFromLocalFile} GetExport operation gets exported Set results.
+ * The Set export is maintained per single Job or {@link uk.gov.gchq.gaffer.operation.OperationChain} only.
+ * It cannot be used across multiple separate operation requests.
+ * So ExportToSet and ImportFromLocalFile must be used inside a single operation chain.
  */
-@JsonPropertyOrder(value = {"class", "input", "filePath"}, alphabetic = true)
-@Since("2.0.0")
-@Summary("Imports CSV data from a local file")
-public class ImportFromLocalFile implements ImportFrom<String> {
+@JsonPropertyOrder(value = {"class", "start", "end"}, alphabetic = true)
+@Since("1.0.0")
+@Summary("Fetches data from a local file")
+public class ImportFromLocalFile implements
+        GetExport,
+        Output<Iterable<String>> {
 
     @Required
     private String filePath;
 
+    @JsonIgnore
+    private String key;
+
     private Map<String, String> options;
 
+    public String getFilePath() {
+        return getKey();
+    }
+
+    public void setFilePath(final String filePath) {
+        setKey(filePath);
+    }
+
     @Override
-    public ImportFromLocalFile shallowClone() throws CloneFailedException {
+    @JsonIgnore
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    @JsonIgnore
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
+
+    @Override
+    public TypeReference<Iterable<String>> getOutputTypeReference() {
+        return (TypeReference) new TypeReferenceImpl.IterableString();
+    }
+
+    @Override
+    public ImportFromLocalFile shallowClone() {
         return new ImportFromLocalFile.Builder()
-                .input(filePath)
+                .key(key)
                 .build();
     }
 
@@ -62,39 +96,27 @@ public class ImportFromLocalFile implements ImportFrom<String> {
     }
 
     @Override
-    public final String getKey() {
-        return filePath;
+    public String getJobId() {
+        return null;
     }
 
     @Override
-    public void setKey(final String key) {
-        // key is not used
+    public void setJobId(final String jobId) {
+
     }
 
-    @Override
-    public final String getInput() {
-        return filePath;
-    }
-
-    @Override
-    public void setInput(final String filePath) {
-        this.filePath = filePath;
-    }
-
-    @Override
-    public TypeReference<String> getOutputTypeReference() {
-        return (TypeReference) new TypeReferenceImpl.Object();
-    }
-
-
-
-    public static final class Builder extends BaseBuilder<ImportFromLocalFile, Builder>
-            implements ImportFrom.Builder<ImportFromLocalFile, String, Builder> {
-
+    public static class Builder
+            extends Operation.BaseBuilder<ImportFromLocalFile, ImportFromLocalFile.Builder>
+            implements GetExport.Builder<ImportFromLocalFile, ImportFromLocalFile.Builder>,
+            Output.Builder<ImportFromLocalFile, Iterable<String>, ImportFromLocalFile.Builder> {
         public Builder() {
             super(new ImportFromLocalFile());
         }
+
+        public ImportFromLocalFile.Builder filePath(final String filePath) {
+            _getOp().setFilePath(filePath);
+            return _self();
+        }
+
     }
 }
-
-
