@@ -25,7 +25,7 @@ Copy & paste the files contents into the Swaggers execute panel.
 Example curl commands within shell scripts can be found at `curl-opertion-examples`. 
 Execute these shell scripts or copy & paste the curl command into your terminal.
 Curl commands with the "alternative" in the name are duplicate examples that contain inline JSON
-instead of reference to a .json file. This allows users to have a go and changing and editing commands in the command line.
+instead of reference to a .json file. This allows users to have a go at changing and editing operations in the command line.
 
 ```bash
 cd curl-operation-examples/
