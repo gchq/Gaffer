@@ -1,0 +1,26 @@
+{
+  "class" : "uk.gov.gchq.gaffer.federatedstore.operation.AddGraph",
+  "graphId" : "ToAccumulo",
+  "isPublic" : true,
+  "schema" : {
+    "edges" : {
+      "simple" : {
+        "source" : "String",
+        "destination" : "String"
+      }
+    },
+    "types" : {
+      "String" : {
+        "class" : "java.lang.String"
+      }
+    }
+  },
+  "storeProperties" : {
+    "gaffer.store.class" : "uk.gov.gchq.gaffer.accumulostore.AccumuloStore",
+    "accumulo.user" : "root",
+    "accumulo.instance" : "accumulo",
+    "gaffer.store.properties.class" : "uk.gov.gchq.gaffer.accumulostore.AccumuloProperties",
+    "accumulo.zookeepers" : "localhost:2181",
+    "accumulo.password" : "secret"
+  }
+}

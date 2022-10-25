@@ -27,3 +27,6 @@ __pycache__
 parquet_data/
 **/graphLibrary/
 **/.vscode
+example/real-federated-store/*.properties
+example/real-federated-store/*.json
+example/real-federated-store/*.jar
