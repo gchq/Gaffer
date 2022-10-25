@@ -1,4 +1,4 @@
-Copyright 2022-2022 Crown Copyright
+Copyright 2022 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,6 +14,12 @@ limitations under the License.
 
 Real FederatedStore Example
 =============
+This example uses a simple shell script that can build the Gaffer project, gathers
+default config files (federatedStore.properties, graphConfig.json, OperationDeclarations.json, schema.json)
+and an executable Gaffer Spring REST API. The REST API is then started backed by a real FederatedStore from the current config files.
+Users can change these local config files, target/indexed-disk-cache and then reboot the REST API. 
+The script will keep users changes to config files, it will only re-gather deleted/missing files. 
+This should give a good foundation for users to learn how to configure, interact and launch a real FederatedStore.
 
 ## Deployment
 This example does not start or configure a real accumulo cluster. Without you having access to an Accumulo cluster you will not be able to use a Gaffer Accumulo Store.
