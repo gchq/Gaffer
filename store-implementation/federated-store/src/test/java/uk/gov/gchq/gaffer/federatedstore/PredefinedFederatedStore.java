@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,57 +16,43 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.ExecutorService;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collections;
 
-public class PredefinedFederatedStore extends FederatedStore {
-    public static final String ACCUMULO_GRAPH_WITH_EDGES = "AccumuloStoreContainingEdges";
-    public static final String ACCUMULO_GRAPH_WITH_ENTITIES = "AccumuloStoreContainingEntities";
-    public static final String ALL_GRAPH_IDS = ACCUMULO_GRAPH_WITH_EDGES + "," + ACCUMULO_GRAPH_WITH_ENTITIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_EDGES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_ENTITIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.addGraph;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+public class PredefinedFederatedStore extends FederatedStore {
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        HashMapGraphLibrary.clear();
-        CacheServiceLoader.shutdown();
-        ExecutorService.shutdown();
+        resetForFederatedTests();
 
         super.initialise(graphId, schema, properties);
 
-        // Accumulo store just contains edges
         try {
-            addGraphs(null, User.UNKNOWN_USER_ID, false, new GraphSerialisable.Builder()
-                    .config(new GraphConfig(ACCUMULO_GRAPH_WITH_EDGES))
-                    .schema(new Schema.Builder()
+            // Accumulo store just contains edges
+            addGraph(this, GRAPH_ID_ACCUMULO_WITH_EDGES, false,
+                    new Schema.Builder()
                             .merge(schema.clone())
+                            //delete Entities
                             .entities(Collections.emptyMap())
-                            .build())
-                    .properties(PROPERTIES)
-                    .build());
+                            .build());
 
             // Accumulo store just contains entities
-            addGraphs(null, User.UNKNOWN_USER_ID, false, new GraphSerialisable.Builder()
-                    .config(new GraphConfig(ACCUMULO_GRAPH_WITH_ENTITIES))
-                    .schema(new Schema.Builder()
+            addGraph(this, GRAPH_ID_ACCUMULO_WITH_ENTITIES, false,
+                    new Schema.Builder()
                             .merge(schema.clone())
+                            //delete Edges
                             .edges(Collections.emptyMap())
-                            .build())
-                    .properties(PROPERTIES)
-                    .build());
+                            .build());
+
         } catch (final StorageException e) {
             throw new StoreException(e.getMessage(), e);
         }

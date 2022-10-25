@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphReadAccessPredicate;
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphWriteAccessPredicate;
-import uk.gov.gchq.gaffer.user.User;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,32 +36,31 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.ALL_USERS;
+import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAccessResourceAccessPredicateTest {
 
-    private final User testUser = testUser();
-
     @Test
     public void shouldConfigureDefaultFederatedGraphAccessPredicatesWhenNoAccessPredicateConfigurationSupplied() {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(testUser.getUserId())
+                .addingUserId(TEST_USER_ID)
                 .graphAuths(ALL_USERS)
                 .build();
 
-        final AccessPredicate expectedNonPublicReadAccessPredicate = new FederatedGraphReadAccessPredicate(testUser.getUserId(), asList(ALL_USERS), false);
-        final AccessPredicate expectedWriteAccessPredicate = new FederatedGraphWriteAccessPredicate(testUser.getUserId());
+        final AccessPredicate expectedNonPublicReadAccessPredicate = new FederatedGraphReadAccessPredicate(TEST_USER_ID, asList(ALL_USERS), false);
+        final AccessPredicate expectedWriteAccessPredicate = new FederatedGraphWriteAccessPredicate(TEST_USER_ID);
 
         assertEquals(expectedNonPublicReadAccessPredicate, access.getOrDefaultReadAccessPredicate());
         assertEquals(expectedWriteAccessPredicate, access.getOrDefaultWriteAccessPredicate());
 
         final FederatedAccess publicAccess = new FederatedAccess.Builder()
-                .addingUserId(testUser.getUserId())
+                .addingUserId(TEST_USER_ID)
                 .graphAuths(ALL_USERS)
                 .makePublic()
                 .build();
 
-        final AccessPredicate expectedPublicReadAccessPredicate = new FederatedGraphReadAccessPredicate(testUser.getUserId(), asList(ALL_USERS), true);
+        final AccessPredicate expectedPublicReadAccessPredicate = new FederatedGraphReadAccessPredicate(TEST_USER_ID, asList(ALL_USERS), true);
 
         assertEquals(expectedPublicReadAccessPredicate, publicAccess.getOrDefaultReadAccessPredicate());
         assertEquals(expectedWriteAccessPredicate, publicAccess.getOrDefaultWriteAccessPredicate());
@@ -71,24 +69,24 @@ public class FederatedAccessResourceAccessPredicateTest {
     @Test
     public void shouldNotAllowReadAccessWhenNoAccessPredicateConfigured() {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(testUser.getUserId())
+                .addingUserId(TEST_USER_ID)
                 .readAccessPredicate(new NoAccessPredicate())
                 .build();
 
-        assertFalse(access.hasReadAccess(testUser));
-        assertTrue(access.hasWriteAccess(testUser));
+        assertFalse(access.hasReadAccess(testUser()));
+        assertTrue(access.hasWriteAccess(testUser()));
     }
 
     @Test
     public void shouldNotAllowWriteAccessWhenNoAccessPredicateConfigured() {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(testUser.getUserId())
+                .addingUserId(TEST_USER_ID)
                 .graphAuths(ALL_USERS)
                 .writeAccessPredicate(new NoAccessPredicate())
                 .build();
 
-        assertTrue(access.hasReadAccess(testUser));
-        assertFalse(access.hasWriteAccess(testUser));
+        assertTrue(access.hasReadAccess(testUser()));
+        assertFalse(access.hasWriteAccess(testUser()));
     }
 
     @Test
@@ -100,7 +98,7 @@ public class FederatedAccessResourceAccessPredicateTest {
     public void shouldBeSerialisableWhenUsingCustomPredicate() throws IOException, ClassNotFoundException {
         // Given
         FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(testUser.getUserId())
+                .addingUserId(TEST_USER_ID)
                 .graphAuths(ALL_USERS)
                 .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
                 .build();

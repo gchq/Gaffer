@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
     public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
-        String graphId = graphSerialisable.getDeserialisedConfig().getGraphId();
+        String graphId = graphSerialisable.getGraphId();
         Pair<GraphSerialisable, FederatedAccess> pair = new Pair<>(graphSerialisable, access);
         try {
             addToCache(graphId, pair, overwrite);

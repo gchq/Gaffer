@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,15 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federatedstore.operation.IFederationOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -37,85 +36,76 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.EDGES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ENTITIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreAuthTest {
-    private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
-    private static final String EXPECTED_GRAPH_ID = "testGraphID";
-    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
-
+    private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
     private final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
-    private User testUser;
-    private User authUser;
     private FederatedStore federatedStore;
-    private FederatedStoreProperties federatedStoreProperties;
-    private Schema schema;
-    private Operation ignore;
-
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private IFederationOperation ignore;
+    private GetAllGraphIds mock;
 
     @BeforeEach
     public void setUp() throws Exception {
-        testUser = testUser();
-        authUser = authUser();
+        resetForFederatedTests();
 
-        CacheServiceLoader.shutdown();
         federatedStore = new FederatedStore();
 
+        FederatedStoreProperties federatedStoreProperties;
         federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
-        schema = new Schema.Builder().build();
+        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
 
-        ignore = new GetAllElements();
+        mock = Mockito.mock(GetAllGraphIds.class);
     }
+
 
     @Test
     public void shouldAddGraphWithAuth() throws Exception {
-        federatedStore.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        //given
+        addGraphWith(AUTH_1, new Schema(), testUser());
 
-        federatedAddGraphHandler.doOperation(
-                new AddGraph.Builder()
-                        .graphId(EXPECTED_GRAPH_ID)
-                        .schema(schema)
-                        .storeProperties(PROPERTIES)
-                        .graphAuths("auth1")
-                        .build(),
-                new Context(testUser),
-                federatedStore);
+        //when
+        Collection<Graph> testUserGraphs = federatedStore.getGraphs(testUser(), null, mock);
+        Collection<Graph> authUserGraphs = federatedStore.getGraphs(authUser(), null, mock);
+        Collection<Graph> blankUserGraphs = federatedStore.getGraphs(blankUser(), null, ignore);
 
-        Collection<Graph> graphs = federatedStore.getGraphs(authUser, null, ignore);
+        //then
+        assertThat(authUserGraphs).hasSize(1);
+        assertThat(testUserGraphs).hasSize(1);
 
-        assertThat(graphs).hasSize(1);
-        Graph next = graphs.iterator().next();
-        assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
-        assertEquals(schema, next.getSchema());
+        assertThat(authUserGraphs.iterator().next().getGraphId())
+                .isEqualTo(GRAPH_ID_ACCUMULO);
 
-        graphs = federatedStore.getGraphs(blankUser(), null, ignore);
+        assertThat(testUserGraphs.iterator().next())
+                .isEqualTo((authUserGraphs.iterator().next()));
 
-        assertNotNull(graphs);
-        assertThat(graphs).isEmpty();
+        assertThat(blankUserGraphs).isNotNull().isEmpty();
     }
 
     @Test
     public void shouldNotShowHiddenGraphsInError() throws Exception {
-        federatedStore.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
-
+        //given
         final String unusualType = "unusualType";
-        final String groupEnt = "ent";
-        final String groupEdge = "edg";
-        schema = new Schema.Builder()
-                .type(unusualType, String.class)
-                .type(DIRECTED_EITHER, Boolean.class)
+        final String groupEnt = ENTITIES + "Unusual";
+        final String groupEdge = EDGES + "Unusual";
+
+        Schema schema = new Schema.Builder()
                 .entity(groupEnt, new SchemaEntityDefinition.Builder()
                         .vertex(unusualType)
                         .build())
@@ -124,39 +114,33 @@ public class FederatedStoreAuthTest {
                         .destination(unusualType)
                         .directed(DIRECTED_EITHER)
                         .build())
+                .type(unusualType, String.class)
+                .type(DIRECTED_EITHER, Boolean.class)
                 .build();
 
+        addGraphWith(AUTH_1, schema, blankUser());
+
+        final OperationException e = assertThrows(OperationException.class, () -> addGraphWith("nonMatchingAuth", schema, testUser()));
+
+        assertThat(e).message()
+                .contains(String.format("Error adding graph %s to storage due to: User is attempting to overwrite a graph within FederatedStore. GraphId: %s", GRAPH_ID_ACCUMULO, GRAPH_ID_ACCUMULO))
+                .withFailMessage("error message should not contain details about schema")
+                .doesNotContain(unusualType)
+                .doesNotContain(groupEdge)
+                .doesNotContain(groupEnt);
+
+        assertTrue(federatedStore.getGraphs(testUser(), null, mock).isEmpty());
+    }
+
+    private void addGraphWith(final String auth, final Schema schema, final User user) throws OperationException {
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .graphId(EXPECTED_GRAPH_ID)
+                        .graphId(GRAPH_ID_ACCUMULO)
                         .schema(schema)
-                        .storeProperties(PROPERTIES)
-                        .graphAuths("auth1")
+                        .storeProperties(ACCUMULO_PROPERTIES.clone())
+                        .graphAuths(auth)
                         .build(),
-                new Context(authUser),
+                new Context(user),
                 federatedStore);
-
-        assertEquals(1, federatedStore.getGraphs(authUser, null, ignore).size());
-
-        try {
-            federatedAddGraphHandler.doOperation(
-                    new AddGraph.Builder()
-                            .graphId(EXPECTED_GRAPH_ID)
-                            .schema(schema)
-                            .storeProperties(PROPERTIES)
-                            .graphAuths("nonMatchingAuth")
-                            .build(),
-                    new Context(testUser),
-                    federatedStore);
-            fail("exception expected");
-        } catch (final OperationException e) {
-            assertEquals(String.format("Error adding graph %s to storage due to: User is attempting to overwrite a graph within FederatedStore. GraphId: %s", EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID), e.getCause().getMessage());
-            String message = "error message should not contain details about schema";
-            assertFalse(e.getMessage().contains(unusualType), message);
-            assertFalse(e.getMessage().contains(groupEdge), message);
-            assertFalse(e.getMessage().contains(groupEnt), message);
-        }
-
-        assertTrue(federatedStore.getGraphs(testUser(), null, ignore).isEmpty());
     }
 }

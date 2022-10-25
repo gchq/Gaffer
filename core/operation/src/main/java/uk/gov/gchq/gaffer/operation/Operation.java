@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,11 +141,9 @@ public interface Operation extends Closeable {
      * @return the value of the option
      */
     default String getOption(final String name) {
-        if (isNull(getOptions())) {
-            return null;
-        }
-
-        return getOptions().get(name);
+        return isNull(getOptions())
+                ? null
+                : getOptions().get(name);
     }
 
     /**
@@ -157,13 +155,9 @@ public interface Operation extends Closeable {
      * @return the value of the option
      */
     default String getOption(final String name, final String defaultValue) {
-        final String rtn;
-        if (isNull(getOptions())) {
-            rtn = defaultValue;
-        } else {
-            rtn = getOptions().get(name);
-        }
-        return (isNull(rtn)) ? defaultValue : rtn;
+        return (isNull(getOptions()))
+                ? defaultValue
+                : getOptions().getOrDefault(name, defaultValue);
     }
 
     @JsonGetter("options")
