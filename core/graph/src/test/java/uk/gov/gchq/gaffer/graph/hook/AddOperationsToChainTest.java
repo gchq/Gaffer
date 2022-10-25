@@ -53,6 +53,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -261,14 +262,15 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
     }
 
     @Test
-    public void shouldThrowExceptionWhenAddingNullExtraOperation() throws IOException {
+    public void shouldConvertNullArgumentToEmptyOpChainWhenDeserialised() throws IOException {
         // Given
         final String nullTestJson = "{\"class\": \"uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain\", \"start\":[{\"class\": null}]}";
 
-        //When / Then
-        assertThatExceptionOfType(RuntimeException.class)
-                .isThrownBy(() -> fromJson(nullTestJson.getBytes()))
-                .withMessageContaining("'null'");
+        // When
+        final AddOperationsToChain hook = fromJson(nullTestJson.getBytes());
+
+        // Then
+        assertThat(hook.getStart()).containsExactly(new OperationChain());
     }
 
     @Test
