@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,42 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
+import uk.gov.gchq.gaffer.data.generator.Neo4jFormat;
+import uk.gov.gchq.gaffer.data.generator.NeptuneFormat;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 public class ToCsvHandlerTest {
+    @Mock
+    Store storeMock;
 
     @Test
     public void shouldConvertToCsv() throws OperationException {
@@ -65,10 +87,10 @@ public class ToCsvHandlerTest {
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
-                "Foo,vertex1,,1,A Constant", "Foo,vertex2,,,A Constant",
-                "Bar,,source1,1,A Constant", "Bar,,source2,,A Constant"
+                "BasicEntity,vertex1,,1,A Constant", "BasicEntity,vertex2,,,A Constant",
+                "BasicEdge,,source1,1,A Constant", "BasicEdge,,source2,,A Constant"
         );
-        assertEquals(expected, resultList);
+        assertThat(expected.equals(resultList));
     }
 
     @Test
@@ -102,10 +124,10 @@ public class ToCsvHandlerTest {
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
-                "\"Foo\",\"vertex1\",,\"1\",\"A Constant\"", "\"Foo\",\"vertex2\",,,\"A Constant\"",
-                "\"Bar\",,\"source1\",\"1\",\"A Constant\"", "\"Bar\",,\"source2\",,\"A Constant\""
+                "\"BasicEntity\",\"vertex1\",,\"1\",\"A Constant\"", "\"BasicEntity\",\"vertex2\",,,\"A Constant\"",
+                "\"BasicEdge\",,\"source1\",\"1\",\"A Constant\"", "\"BasicEdge\",,\"source2\",,\"A Constant\""
         );
-        assertEquals(expected, resultList);
+        assertThat(expected.equals(resultList));
     }
 
     @Test
@@ -140,10 +162,10 @@ public class ToCsvHandlerTest {
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
-                "Foo,vertex1-with comma,,1,A Constant", "Foo,vertex2,,,A Constant",
-                "Bar,,source1-with comma,1,A Constant", "Bar,,source2,,A Constant"
+                "BasicEntity,vertex1-with comma,,1,A Constant", "BasicEntity,vertex2,,,A Constant",
+                "BasicEdge,,source1-with comma,1,A Constant", "BasicEdge,,source2,,A Constant"
         );
-        assertEquals(expected, resultList);
+        assertThat(expected.equals(resultList));
     }
 
     @Test
@@ -178,17 +200,141 @@ public class ToCsvHandlerTest {
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
                 "Group Label,Vertex Label,Source Label,Count Label,Some constant value",
-                "Foo,vertex1,,1,A Constant",
-                "Foo,vertex2,,,A Constant",
-                "Bar,,source1,1,A Constant",
-                "Bar,,source2,,A Constant"
+                "BasicEntity,vertex1,,1,A Constant",
+                "BasicEntity,vertex2,,,A Constant",
+                "BasicEdge,,source1,1,A Constant",
+                "BasicEdge,,source2,,A Constant"
         );
-        assertEquals(expected, resultList);
+        assertThat(expected.equals(resultList));
+    }
+
+    @Test
+    public void shouldConvertToNeptuneFormattedCsv() throws OperationException {
+        // Given
+        NeptuneFormat neptuneFormat = new NeptuneFormat();
+        final List<Element> elements = Lists.newArrayList(
+                makeEntity("vertex1", "count", 1),
+                makeEntity("vertex2"),
+                makeEdge("source1", "count", 1),
+                makeEdge("source2")
+        );
+
+        final ToCsv operation = new ToCsv.Builder()
+                .input(elements)
+                .csvFormat(neptuneFormat)
+                .build();
+
+        final ToCsvHandler handler = new ToCsvHandler();
+
+        //When
+        when(storeMock.getSchema()).thenReturn(makeSchema());
+        final Iterable<? extends String> results = handler.doOperation(operation, new Context(), storeMock);
+
+        //Then
+        final List<String> resultList = Lists.newArrayList(results);
+        final List<String> expected = Arrays.asList(
+                ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Integer,DIRECTED:Boolean",
+                "vertex1,BasicEntity,,,,1,",
+                "vertex2,BasicEntity,,,,,",
+                ",,BasicEdge,source1,dest1,1,true",
+                ",,BasicEdge,source2,dest2,,true"
+        );
+        assertThat(expected).isEqualTo(resultList);
+    }
+
+    @Test
+    public void shouldConvertToNeo4jFormattedCsv() throws OperationException {
+        // Given
+        Neo4jFormat neo4jFormat = new Neo4jFormat();
+        final List<Element> elements = Lists.newArrayList(
+                makeEntity("vertex1", "count", 1),
+                makeEntity("vertex2"),
+                makeEdge("source1", "count", 1),
+                makeEdge("source2")
+        );
+
+        final ToCsv operation = new ToCsv.Builder()
+                .input(elements)
+                .csvFormat(neo4jFormat)
+                .build();
+
+        final ToCsvHandler handler = new ToCsvHandler();
+
+        //When
+        when(storeMock.getSchema()).thenReturn(makeSchema());
+        final Iterable<? extends String> results = handler.doOperation(operation, new Context(), storeMock);
+
+        //Then
+        final List<String> resultList = Lists.newArrayList(results);
+        final List<String> expected = Arrays.asList(
+                "_id,_labels,_type,_start,_end,count:Integer,DIRECTED:Boolean",
+                "vertex1,BasicEntity,,,,1,",
+                "vertex2,BasicEntity,,,,,",
+                ",,BasicEdge,source1,dest1,1,true",
+                ",,BasicEdge,source2,dest2,,true"
+        );
+        assertThat(expected).isEqualTo(resultList);
+    }
+
+    @Test
+    public void shouldErrorIfBothGeneratorAndCsvFormatAreSupplied() throws IllegalArgumentException {
+        // Given
+        final List<Element> elements = Lists.newArrayList(
+                makeEntity("vertex1", "count", 1),
+                makeEntity("vertex2"),
+                makeEdge("source1", "count", 1),
+                makeEdge("source2")
+        );
+        final CsvFormat csvFormat = new Neo4jFormat();
+        final CsvGenerator generator = new CsvGenerator.Builder()
+                .vertex("vertex")
+                .group("group")
+                .source("source")
+                .destination("destination")
+                .build();
+        final ToCsv operation = new ToCsv.Builder()
+                .generator(generator)
+                .csvFormat(csvFormat)
+                .input(elements)
+                .includeHeader(false)
+                .build();
+        final ToCsvHandler handler = new ToCsvHandler();
+
+        // When Then
+        assertThatThrownBy(() -> {
+            handler.doOperation(operation, new Context(), storeMock);
+        }).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("ToCsv operation requires either a generator or a CsvFormat not both");
+
+    }
+
+    @Test
+    public void shouldErrorIfNeitherGeneratorNorCsvFormatAreSupplied() throws IllegalArgumentException {
+        // Given
+        final List<Element> elements = Lists.newArrayList(
+                makeEntity("vertex1", "count", 1),
+                makeEntity("vertex2"),
+                makeEdge("source1", "count", 1),
+                makeEdge("source2")
+        );
+
+        final ToCsv operation = new ToCsv.Builder()
+                .input(elements)
+                .includeHeader(false)
+                .build();
+        final ToCsvHandler handler = new ToCsvHandler();
+
+        // When Then
+        assertThatThrownBy(() -> {
+            handler.doOperation(operation, new Context(), storeMock);
+        }).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("ToCsv operation requires a generator, supply one or provide a CsvFormat");
+
     }
 
     private Entity makeEntity(final String vertex, final String propertyName, final int propertyValue) {
         return new Entity.Builder()
-                .group("Foo")
+                .group(TestGroups.ENTITY)
                 .vertex(vertex)
                 .property(propertyName, propertyValue)
                 .build();
@@ -196,27 +342,70 @@ public class ToCsvHandlerTest {
 
     private Entity makeEntity(final String vertex) {
         return new Entity.Builder()
-                .group("Foo")
+                .group(TestGroups.ENTITY)
                 .vertex(vertex)
                 .build();
     }
 
     private Edge makeEdge(final String source, final String propertyName, final int propertyValue) {
         return new Edge.Builder()
-                .group("Bar")
+                .group(TestGroups.EDGE)
                 .source(source)
                 .dest("dest1")
                 .directed(true)
                 .property(propertyName, propertyValue)
                 .build();
     }
-
     private Edge makeEdge(final String source) {
         return new Edge.Builder()
-                .group("Bar")
+                .group(TestGroups.EDGE)
                 .source(source)
                 .dest("dest2")
                 .directed(true)
                 .build();
+    }
+
+    private Schema makeSchema() {
+        Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .description("anEdge")
+                        .directed("true")
+                        .property("count", "int")
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .description("anotherEdge")
+                        .directed("true")
+                        .build())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("string")
+                        .property("count", "int")
+                        .description("anEntity")
+                        .build())
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .vertex("string")
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .serialiser(new StringSerialiser())
+                        .aggregateFunction(new StringConcat())
+                        .build())
+                .type("int", Integer.class)
+                .type("true", Boolean.class)
+                .build();
+        return schema;
+    }
+    private Iterable<String> getPropertiesFromSchema(Schema schema) {
+        List<String> propertyNames = new ArrayList<String>();
+        for (SchemaEntityDefinition schemaEntityDefinition : schema.getEntities().values()) {
+            propertyNames.addAll(schemaEntityDefinition.getProperties());
+        }
+        for (SchemaEdgeDefinition schemaEdgeDefinition : schema.getEdges().values()) {
+            propertyNames.addAll(schemaEdgeDefinition.getProperties());
+        }
+        return propertyNames;
     }
 }

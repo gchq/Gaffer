@@ -44,7 +44,7 @@ import static java.util.Objects.nonNull;
 @Since("2.0.0")
 public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandler<FederatedOperation<INPUT, OUTPUT>> {
 
-    public static final String ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS = "Error while running operation on graphs";
+    public static final String ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS_FORMAT = "Error while running operation on graphs, due to: %s";
 
     @Override
     public Object doOperation(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final Store store) throws OperationException {
@@ -82,7 +82,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
             return results;
         } catch (final Exception e) {
-            throw new OperationException(ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS, e);
+            throw new OperationException(String.format(ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS_FORMAT, e), e);
         }
 
     }
