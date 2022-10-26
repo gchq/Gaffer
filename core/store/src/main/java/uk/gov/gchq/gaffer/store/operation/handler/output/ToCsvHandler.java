@@ -16,14 +16,21 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.generator.CsvFormat;
+import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 
 /**
  * A {@code ToCsvHandler} handles {@link ToCsv} operations by applying the provided
@@ -33,19 +40,59 @@ import java.util.Collections;
 public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? extends String>> {
     @Override
     public Iterable<? extends String> doOperation(final ToCsv operation, final Context context, final Store store) throws OperationException {
+        CsvGenerator csvGenerator;
         if (null == operation.getInput()) {
             return null;
         }
 
-        if (null == operation.getElementGenerator()) {
-            throw new IllegalArgumentException("ToCsv operation requires a generator");
+        if (null == operation.getCsvGenerator() && null == operation.getCsvFormat()) {
+            throw new IllegalArgumentException("ToCsv operation requires a generator, supply one or provide a CsvFormat");
+        } else if (null != operation.getCsvGenerator() && null != operation.getCsvFormat()) {
+            throw new IllegalArgumentException("ToCsv operation requires either a generator or a CsvFormat not both");
+        } else if (null == operation.getCsvGenerator() && null != operation.getCsvFormat()) {
+            csvGenerator = createGenerator(operation.getCsvFormat(), getPropertyHeadersFromSchema(store));
+        } else {
+            csvGenerator = operation.getCsvGenerator();
         }
 
-        final Iterable<? extends String> csv = operation.getElementGenerator().apply(operation.getInput());
+        final Iterable<? extends String> csv = csvGenerator.apply(operation.getInput());
         if (operation.isIncludeHeader()) {
-            return new ChainedIterable<>(Collections.singletonList(operation.getElementGenerator().getHeader()), csv);
+            return new ChainedIterable<>(Collections.singletonList(csvGenerator.getHeader()), csv);
         }
 
         return csv;
     }
+
+    private LinkedHashMap<String, String> getPropertyHeadersFromSchema(final Store store) {
+        Schema schema = store.getSchema();
+        LinkedHashMap<String, String> propertyHeadersFromSchema = new LinkedHashMap<>();
+        for (final SchemaEntityDefinition schemaEntityDefinition : schema.getEntities().values()) {
+            for (final String propertyName:schemaEntityDefinition.getProperties()) {
+                String typeName = schemaEntityDefinition.getPropertyTypeName(propertyName);
+                propertyHeadersFromSchema.put(propertyName, schema.getType(typeName).getClazz().getSimpleName());
+            }
+        }
+        for (final SchemaEdgeDefinition schemaEdgeDefinition : schema.getEdges().values()) {
+            for (final IdentifierType identifierType:schemaEdgeDefinition.getIdentifiers()) {
+                if (identifierType.toString().equals(identifierType.DIRECTED.toString())) {
+                    String typeName = schemaEdgeDefinition.getIdentifierTypeName(identifierType);
+                    propertyHeadersFromSchema.put(identifierType.toString(), schema.getType(typeName).getClazz().getSimpleName());
+                }
+            }
+            for (final String propertyName:schemaEdgeDefinition.getProperties()) {
+                String typeName = schemaEdgeDefinition.getPropertyTypeName(propertyName);
+                propertyHeadersFromSchema.put(propertyName, schema.getType(typeName).getClazz().getSimpleName());
+            }
+        }
+        return propertyHeadersFromSchema;
+    }
+
+
+    private CsvGenerator createGenerator(final CsvFormat csvFormat, final LinkedHashMap<String, String> propertyHeadersFromSchema) {
+        return new CsvGenerator.Builder()
+                .identifiersFromFormat(CsvFormat.getIdentifiers(csvFormat))
+                .propertyHeadersFromSchema(propertyHeadersFromSchema)
+                .build();
+    }
+
 }

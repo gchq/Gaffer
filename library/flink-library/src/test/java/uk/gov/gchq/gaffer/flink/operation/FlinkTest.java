@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ import static java.util.stream.Collectors.toList;
 
 public abstract class FlinkTest {
     @TempDir
-    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
+    public File testFolder = CommonTestConstants.TMP_DIRECTORY;
 
     public static final Schema SCHEMA = new Schema.Builder()
             .type(TestTypes.ID_STRING, new TypeDefinition.Builder()

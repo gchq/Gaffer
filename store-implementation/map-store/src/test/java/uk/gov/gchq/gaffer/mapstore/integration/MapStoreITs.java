@@ -21,13 +21,20 @@ import org.junit.platform.suite.api.ConfigurationParameter;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
-@ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.mapstore.integration.MapStoreITs")
+import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
+
+@ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.mapstore.integration.MapStoreITs")
 public class MapStoreITs extends AbstractStoreITs {
+
     private static final MapStoreProperties STORE_PROPERTIES =
             MapStoreProperties.loadStoreProperties(StreamUtil.storeProps(MapStoreITs.class));
 
-    public MapStoreITs() {
-        super(STORE_PROPERTIES);
+    private static final Schema SCHEMA = new Schema();
+
+    MapStoreITs() {
+        setSchema(SCHEMA);
+        setStoreProperties(STORE_PROPERTIES);
     }
 }
