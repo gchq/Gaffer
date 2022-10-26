@@ -1,23 +1,29 @@
 {
+  "class": "uk.gov.gchq.gaffer.operation.OperationChain",
   "operations": [
     {
-      "class": "GetAllElements",
-      "view": {
-        "globalElements": [
+      "class": "uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation",
+      "operation": {
+        "class": "uk.gov.gchq.gaffer.operation.OperationChain",
+        "operations": [
           {
-            "groupBy": []
+            "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements",
+            "view": { "globalElements": [{ "groupBy": [] }] }
+          },
+          {
+            "class": "uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements",
+            "elementGenerator": { "class": "IndexGenerator" }
           }
         ]
       },
-      "options": {
-        "gaffer.federatedstore.operation.graphIds": "roadUse"
-      }
+      "graphIds": ["roadUse"]
     },
     {
-      "class": "GenerateElements",
-      "elementGenerator": {
-        "class": "IndexGenerator"
-      }
+      "class": "uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation",
+      "operation": {
+        "class": "AddElements"
+      },
+      "graphIds": ["propertyIndex"]
     }
   ]
 }
