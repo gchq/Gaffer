@@ -77,9 +77,11 @@ public class Map<I, O> implements InputOutput<I, O> {
     @Override
     public Map<I, O> shallowClone() throws CloneFailedException {
         final Map<I, O> clone = new Map<>();
-        clone.setFunctions(new ArrayList<>());
-        for (final Function func : functions) {
-            clone.getFunctions().add(func);
+        if (functions != null) {
+            clone.setFunctions(new ArrayList<>());
+            for (final Function func : functions) {
+                clone.getFunctions().add(func);
+            }
         }
         clone.setInput(input);
         clone.setOptions(options);

@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -75,6 +77,45 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
 
         testObject.addOption("three", "four");
         assertEquals("four", testObject.getOption("three"));
+    }
+
+    @Test
+    public void shouldReturnClonedOptionsObject() {
+        T testObject = getTestObject();
+        testObject.addOption("foo", "bar");
+        assertThat(testObject.getOptions())
+                .withFailMessage("operation isn't returning consistent options")
+                .isEqualTo(testObject.getOptions())
+                .withFailMessage("operation isn't returning cloned options")
+                .isNotSameAs(testObject.getOptions());
+    }
+
+    @Test
+    public void shouldAddClonedOptionsObject() {
+        T testObject = getTestObject();
+        Map<String, String> externalOptions = new HashMap<>();
+        externalOptions.put("foo", "bar");
+        testObject.setOptions(externalOptions);
+        externalOptions.put("X", "Added via an external map");
+        assertThat(testObject.getOption("X"))
+                .withFailMessage("Options was changed via an externally handled map")
+                .isNull();
+        assertThat(testObject.getOption("foo"))
+                .isEqualTo("bar");
+    }
+
+    @Test
+    public void shouldDeepCloneOptionsInShallowClone() {
+        T testObject = getTestObject();
+        testObject.addOption("foo", "bar");
+        Map<String, String> testObjectOptions = testObject.getOptions();
+        Map<String, String> clonedOptions = testObject.shallowClone().getOptions();
+
+        assertThat(clonedOptions).isNotNull();
+        assertThat(testObjectOptions)
+                .isNotNull()
+                .isEqualTo(clonedOptions)
+                .isNotSameAs(clonedOptions);
     }
 
     @Test
