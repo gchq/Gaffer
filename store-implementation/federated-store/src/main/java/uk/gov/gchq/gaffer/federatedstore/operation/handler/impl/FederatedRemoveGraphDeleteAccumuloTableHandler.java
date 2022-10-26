@@ -59,7 +59,7 @@ public class FederatedRemoveGraphDeleteAccumuloTableHandler extends FederatedRem
             final List<Graph> graphsToRemove = ((FederatedStore) store).getGraphs(context.getUser(), Collections.singletonList(operation.getGraphId()), operation);
 
             //Check graphs align.
-            if (operation.isUserRequestingAdminUsage()) {
+            if (operation.getDeleteTable() && operation.isUserRequestingAdminUsage()) {
                 final Set<String> operationGraphIds = new HashSet<>(FederatedStoreUtil.getCleanStrings(operation.getGraphId()));
                 final boolean mismatched = operationGraphIds.size() != graphsToRemove.size();
                 if (mismatched) {
@@ -67,11 +67,12 @@ public class FederatedRemoveGraphDeleteAccumuloTableHandler extends FederatedRem
                 }
             }
 
+
             //Remove graphs from Federation
             final boolean removed = super.doOperation(operation, context, store);
 
             if (removed) {
-                if (!graphsToRemove.isEmpty()) {
+                if (operation.getDeleteTable() && !graphsToRemove.isEmpty()) {
                     deleteAccumuloTable(graphsToRemove);
                 } else {
                     throw new OperationException("Error: Removing of graph returned true, but getGraphs was empty, no graphs exist to connect to accumulo and delete table.");
@@ -98,6 +99,7 @@ public class FederatedRemoveGraphDeleteAccumuloTableHandler extends FederatedRem
          * Alternative is FederatedStore.getGraphs() takes Admin request.
          */
 
+        //TODO FS I think it does support Admin rights now.
         throw new UnsupportedOperationException("User is requesting to remove graphs and delete associated Accumulo tables with Admin rights," +
                 " but the current implementation does not allow Admin rights to delete tables. As an Admin consider changing graphAccess and try again." +
                 " graphsIds: " + remainder);
