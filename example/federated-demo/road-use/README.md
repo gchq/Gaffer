@@ -18,14 +18,12 @@ Federated Demo - Road Use
 This folder contains additional examples of operations that can be run.
 
 ## JSON
-The JSON files contain examples of a few of the key operations avaliable. These can be used by copying them into Swagger or through curl commands.
+The JSON files contain examples of a few of the key operations avaliable. These can be used by copying the JSON directly into Swagger or through curl commands. An example of doing this using curl can be found under ./scripts
 
 ## Scripts
-The two scripts use curl and the json files to automatically generate and populate some graphs.
--  createGraphs can be used to create an populate 3 different graphs.
--  createIndex creates another graph and uses GenerateElements to populate it. // DOESN'T WORK?
+The createGraphs script use curl and the json files to automatically generate 3 graphs and populate them with some data.
 
-These scripts should be run from within this directory (road-use)
+This script should be run from within this directory (road-use)
 
 ```bash
 ./scripts/createGraphs.sh
