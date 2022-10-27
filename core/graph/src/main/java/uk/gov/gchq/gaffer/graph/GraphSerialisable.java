@@ -47,7 +47,8 @@ import static java.util.Objects.nonNull;
  * @see GraphSerialisable.Builder
  */
 @JsonDeserialize(builder = GraphSerialisable.Builder.class)
-public class GraphSerialisable implements Serializable {
+//TODO FS NEED IGNORE CHECKSTYLE SHOULD BE FINAL
+public final class GraphSerialisable implements Serializable {
     private static final long serialVersionUID = 2684203367656032583L;
     private final byte[] serialisedSchema;
     private final byte[] serialisedProperties;
