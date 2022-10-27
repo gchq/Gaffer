@@ -46,7 +46,7 @@ import static java.util.Objects.nonNull;
  * @see GraphSerialisable.Builder
  */
 @JsonDeserialize(builder = GraphSerialisable.Builder.class)
-public abstract class GraphSerialisable implements Serializable {
+public class GraphSerialisable implements Serializable {
     private static final long serialVersionUID = 2684203367656032583L;
     private final byte[] serialisedSchema;
     private final byte[] serialisedProperties;
@@ -314,7 +314,9 @@ public abstract class GraphSerialisable implements Serializable {
                 throw new IllegalArgumentException("GraphSerialisable Builder requires a graph name");
             }
             //TODO FS final GraphSerialisable Test bug, Anonymous class to get it
-            return new GraphSerialisable(config, schema, properties) { };
+            //TODO FS this causes FederatedStoreCacheBackwardCompatibilityTest to fail
+            //TODO FS Not Being able to abstract this kills other tests.
+            return new GraphSerialisable(config, schema, properties);
         }
     }
 
