@@ -1,0 +1,18 @@
+{
+  "class": "uk.gov.gchq.gaffer.operation.impl.add.AddElements",
+  "input": [
+    {
+      "group": "BasicEdge",
+      "source": "1",
+      "destination": "2",
+      "directed": true,
+      "properties": {
+        "count": 1
+      },
+      "class": "uk.gov.gchq.gaffer.data.element.Edge"
+    }
+  ],
+  "options": {
+    "gaffer.federatedstore.operation.graphIds": "mapEdges"
+  }
+}
