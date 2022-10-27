@@ -62,7 +62,7 @@
         <spark.minor.version>2.4</spark.minor.version>
         <spark.version>${spark.minor.version}.5</spark.version>
 
-        <koryphe.version>2.4.0</koryphe.version>
+        <koryphe.version>2.5.0</koryphe.version>
         <accumulo.version>2.0.1</accumulo.version>
         <avro.version>1.8.2</avro.version>
         <hadoop.version>3.3.3</hadoop.version>
