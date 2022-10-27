@@ -156,8 +156,8 @@ public class FederatedOperationHandlerTest {
 
         //given
         final FederatedStore federatedStore = new FederatedStore();
-        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON), new FederatedStoreProperties());
-        federatedStore.addGraphs(new FederatedAccess.Builder().isPublic(true).build(), new GraphSerialisable.Builder().schema(new Schema()).properties(new MapStoreProperties()).config(new GraphConfig("graph")).build());
+        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), new FederatedStoreProperties());
+        federatedStore.addGraphs(new FederatedAccess.Builder().isPublic(true).build(), new GraphSerialisable.Builder().schema(loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON)).properties(new MapStoreProperties()).config(new GraphConfig("graph")).build());
 
         //when
         final BiFunction traitsMerge = getStoreConfiguredDefaultMergeFunction(new GetTraits(), context, null, federatedStore);

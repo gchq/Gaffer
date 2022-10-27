@@ -41,12 +41,12 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -168,8 +168,9 @@ public class FederatedGraphStorage {
      * @return visible graphs
      */
     public Collection<Graph> getAll(final User user) {
-        final Set<Graph> rtn = getUserGraphStream(entry -> entry.getKey().hasReadAccess(user))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        final Collection<Graph> rtn = getUserGraphStream(entry -> entry.getKey().hasReadAccess(user))
+                .distinct()
+                .collect(Collectors.toCollection(ArrayList::new));
         return Collections.unmodifiableCollection(rtn);
     }
 

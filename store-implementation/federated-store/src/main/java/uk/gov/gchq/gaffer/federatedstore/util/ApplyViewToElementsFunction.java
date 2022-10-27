@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -61,8 +60,7 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
             if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
                 final Graph resultsGraph = new Graph.Builder()
                         .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, ApplyViewToElementsFunction.class.getSimpleName(), new Random().nextInt(Integer.MAX_VALUE))))
-                        //VertexSerialiser is set in this line to Hack the MapStore to accept schemas, without it. Due to never needing to serialising vertex's.
-                        .addSchema(new Schema.Builder().merge((Schema) context.get(SCHEMA)).vertexSerialiser(new StringSerialiser()).build())
+                        .addSchema((Schema) context.get(SCHEMA))
                         //MapStore easy in memory Store. Large results size may not be suitable, a graph could be provided via Context.
                         .addStoreProperties(new MapStoreProperties())
                         .build();
