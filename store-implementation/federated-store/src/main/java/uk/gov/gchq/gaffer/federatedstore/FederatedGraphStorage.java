@@ -66,7 +66,6 @@ public class FederatedGraphStorage {
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
     public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedGraphStorage.class);
-    private final Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
     private final FederatedStoreCache federatedStoreCache;
     private Boolean isCacheEnabled = false;
     private GraphLibrary graphLibrary;

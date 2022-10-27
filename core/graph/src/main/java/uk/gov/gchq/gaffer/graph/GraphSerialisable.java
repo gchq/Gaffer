@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Properties;
 
 import static java.util.Objects.isNull;
@@ -124,9 +125,9 @@ public class GraphSerialisable implements Serializable {
         } else {
             final GraphSerialisable that = (GraphSerialisable) obj;
             rtn = new EqualsBuilder()
-                    .append(this.getConfig(), that.getConfig())
-                    .append(this.getSchema(), that.getSchema())
-                    .append(this.getStoreProperties(), that.getStoreProperties())
+                    .appendSuper(Arrays.equals(this.getSerialisedConfig(), that.getSerialisedConfig()))
+                    .appendSuper(Arrays.equals(this.getSerialisedSchema(), that.getSerialisedSchema()))
+                    .appendSuper(Arrays.equals(this.getSerialisedProperties(), that.getSerialisedProperties()))
                     .build();
         }
         return rtn;
@@ -144,9 +145,9 @@ public class GraphSerialisable implements Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(13, 31)
-                .append(this.getConfig())
-                .append(this.getSchema())
-                .append(this.getStoreProperties().getProperties())
+                .append(this.getSerialisedConfig())
+                .append(this.getSerialisedSchema())
+                .append(this.getSerialisedProperties())
                 .build();
     }
 
