@@ -1,4 +1,4 @@
 {
   "class": "FederatedStore",
-  "adminConfiguredDefaultGraphIds": [ "defaultJsonGraphId" ]
+  "storeConfiguredDefaultGraphIds": [ "defaultJsonGraphId" ]
 }

@@ -59,7 +59,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
@@ -80,7 +79,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES_ALT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
@@ -99,7 +97,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccum
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
@@ -1240,11 +1237,6 @@ public class FederatedStoreTest {
         addElementsToNewGraph(A, "graphA", SCHEMA_ENTITY_A_JSON);
         addElementsToNewGraph(B, "graphB", SCHEMA_ENTITY_B_JSON);
 
-        //when
-        OperationException e = assertThrows(OperationException.class, () -> store.execute(new GetSchema.Builder().build(), blankUserContext));
-        //then
-        assertThat(e).hasStackTraceContaining("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds");
-
         // when
         final Iterable<? extends Element> responseGraphsWithNoView = store.execute(new GetAllElements.Builder().build(), blankUserContext);
         // then
@@ -1278,12 +1270,6 @@ public class FederatedStoreTest {
         addElementsToNewGraph(A, "graphA", SCHEMA_ENTITY_A_JSON);
         addElementsToNewGraph(B, "graphB", SCHEMA_ENTITY_B_JSON);
 
-        //when
-        OperationException e = assertThrows(OperationException.class, () -> store.execute(new GetSchema.Builder().build(), blankUserContext));
-
-        //then
-        assertThat(e).hasStackTraceContaining("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds");
-
         // when
         final Iterable<? extends Element> responseGraphA = store.execute(getFederatedOperation(new GetAllElements.Builder().build()).graphIdsCSV("graphA"), blankUserContext);
         final Iterable<? extends Element> responseGraphB = store.execute(getFederatedOperation(new GetAllElements.Builder().build()).graphIdsCSV("graphB"), blankUserContext);
@@ -1303,11 +1289,6 @@ public class FederatedStoreTest {
 
         addElementsToNewGraph(A, "graphA", SCHEMA_ENTITY_A_JSON);
         addElementsToNewGraph(B, "graphB", SCHEMA_ENTITY_B_JSON);
-
-        //when
-        OperationException e = assertThrows(OperationException.class, () -> store.execute(new GetSchema.Builder().build(), blankUserContext));
-        //then
-        assertThat(e).hasStackTraceContaining("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds");
 
         // when
         final Iterable<? extends Element> responseGraphAWithAView = store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphA"), blankUserContext);
@@ -1330,12 +1311,6 @@ public class FederatedStoreTest {
 
         addElementsToNewGraph(A, "graphA", SCHEMA_ENTITY_A_JSON);
         addElementsToNewGraph(B, "graphB", SCHEMA_ENTITY_B_JSON);
-
-        //when
-        Exception e = assertThrows(Exception.class, () -> store.execute(new GetSchema.Builder().build(), blankUserContext));
-        //then
-        assertThat(e).hasMessageContaining("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds.");
-
 
         assertThatExceptionOfType(Exception.class)
                 .isThrownBy(() -> store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityB").build()).build()).graphIdsCSV("graphA"), blankUserContext))
@@ -1373,8 +1348,7 @@ public class FederatedStoreTest {
                 new AddElements.Builder()
                         .input(input)
                         .build())
-                .graphIdsCSV(graphName)
-                .mergeFunction(getHardCodedDefaultMergeFunction()), blankUserContext);
+                .graphIdsCSV(graphName), blankUserContext);
     }
 
     protected Entity getEntityB() {

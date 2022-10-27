@@ -51,6 +51,8 @@ import java.util.Iterator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
@@ -321,7 +323,7 @@ public class FederatedAddGraphHandlerTest {
     public void shouldAddGraphWithAuthsAndAddingUser() throws Exception {
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
-        final Schema expectedSchema = new Schema.Builder().build();
+        final Schema expectedSchema = loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON);
 
         assertThat(store.getGraphs(testUser, null, new AddGraph())).hasSize(0);
 

@@ -55,7 +55,7 @@ public class FederatedStoreDefaultGraphsTest {
         FederatedStore federatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
         assertThat(federatedStore)
                 .isNotNull()
-                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getAdminConfiguredDefaultGraphIds));
+                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getStoreConfiguredDefaultGraphIds));
 
         //when
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
@@ -69,10 +69,10 @@ public class FederatedStoreDefaultGraphsTest {
         FederatedStore federatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
         assertThat(federatedStore)
                 .isNotNull()
-                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getAdminConfiguredDefaultGraphIds));
+                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getStoreConfiguredDefaultGraphIds));
 
         //when
-        federatedStore.setAdminConfiguredDefaultGraphIdsCSV("other");
+        federatedStore.setStoreConfiguredDefaultGraphIdsCSV("other");
 
         //then
         final Exception exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));

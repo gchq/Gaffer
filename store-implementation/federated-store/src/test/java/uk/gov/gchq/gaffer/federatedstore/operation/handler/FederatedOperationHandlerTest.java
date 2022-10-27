@@ -37,7 +37,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
-import uk.gov.gchq.gaffer.federatedstore.util.DefaultBestEffortsMergeFunction;
+import uk.gov.gchq.gaffer.federatedstore.util.ConcatenateBestEffortsMergeFunction;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -63,6 +63,7 @@ import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -81,10 +82,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadFederatedStoreFrom;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getStoreConfiguredDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedOperationHandlerTest {
@@ -135,7 +139,10 @@ public class FederatedOperationHandlerTest {
 
         FederatedOperation federatedOperation = getFederatedOperation(operation);
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(asList(graph1, graph2, graph3, graph4));
-        when(federatedStore.getDefaultMergeFunction(null, null, context)).thenReturn(getHardCodedDefaultMergeFunction());
+        final HashMap mockMap = mock(HashMap.class);
+        given(mockMap.get(any())).willReturn(getDefaultMergeFunction());
+        given(mockMap.getOrDefault(any(), any())).willReturn(getDefaultMergeFunction());
+        when(federatedStore.getStoreConfiguredDefaultMergeFunctions()).thenReturn(mockMap);
 
         // When
         Object results = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
@@ -149,13 +156,13 @@ public class FederatedOperationHandlerTest {
 
         //given
         final FederatedStore federatedStore = new FederatedStore();
-        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), new FederatedStoreProperties());
+        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON), new FederatedStoreProperties());
         federatedStore.addGraphs(new FederatedAccess.Builder().isPublic(true).build(), new GraphSerialisable.Builder().schema(new Schema()).properties(new MapStoreProperties()).config(new GraphConfig("graph")).build());
 
         //when
-        final BiFunction traitsMerge = federatedStore.getDefaultMergeFunction(null, new GetTraits(), context);
-        final BiFunction graphsIdsMerge = federatedStore.getDefaultMergeFunction(null, new GetAllGraphIds(), context);
-        final BiFunction getElementsMerge = federatedStore.getDefaultMergeFunction(null, new GetElements(), context);
+        final BiFunction traitsMerge = getStoreConfiguredDefaultMergeFunction(new GetTraits(), context, null, federatedStore);
+        final BiFunction graphsIdsMerge = getStoreConfiguredDefaultMergeFunction(new GetAllGraphIds(), context, null, federatedStore);
+        final BiFunction getElementsMerge = getStoreConfiguredDefaultMergeFunction(new GetElements(), context, null, federatedStore);
 
         //then
         assertThat(traitsMerge)
@@ -165,7 +172,7 @@ public class FederatedOperationHandlerTest {
         assertThat(graphsIdsMerge)
                 .isNotSameAs(traitsMerge)
                 .isNotSameAs(getElementsMerge)
-                .isInstanceOf(DefaultBestEffortsMergeFunction.class);
+                .isInstanceOf(ConcatenateBestEffortsMergeFunction.class);
         assertThat(getElementsMerge)
                 .isNotSameAs(traitsMerge)
                 .isNotSameAs(graphsIdsMerge)
@@ -180,8 +187,8 @@ public class FederatedOperationHandlerTest {
         final FederatedStore federatedStoreConfigured = loadFederatedStoreFrom("withConfigMergeMapping.json");
 
         //when
-        final BiFunction configuredMerge = federatedStoreConfigured.getDefaultMergeFunction(null, new GetTraits(), context);
-        final BiFunction defaultMerge = federatedStore.getDefaultMergeFunction(null, new GetTraits(), context);
+        final BiFunction configuredMerge = getStoreConfiguredDefaultMergeFunction(new GetTraits(), context, null, federatedStoreConfigured);
+        final BiFunction defaultMerge = getStoreConfiguredDefaultMergeFunction(new GetTraits(), context, null, federatedStore);
 
         //then
         assertThat(defaultMerge)
@@ -190,7 +197,7 @@ public class FederatedOperationHandlerTest {
 
         assertThat(configuredMerge)
                 .isNotSameAs(defaultMerge)
-                .isInstanceOf(DefaultBestEffortsMergeFunction.class);
+                .isInstanceOf(ConcatenateBestEffortsMergeFunction.class);
     }
 
     @Test
@@ -205,7 +212,10 @@ public class FederatedOperationHandlerTest {
         federatedOperation.graphIds(graphIds);
         when(federatedStore.getGraphs(testUser, graphIds, federatedOperation)).thenReturn(asList(graph1, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(asList(graph1, graph2, graph3, graph4));
-        given(federatedStore.getDefaultMergeFunction(null, null, context)).willReturn(getHardCodedDefaultMergeFunction());
+        final HashMap mockMap = mock(HashMap.class);
+        given(mockMap.get(any())).willReturn(getDefaultMergeFunction());
+        given(mockMap.getOrDefault(any(), any())).willReturn(getDefaultMergeFunction());
+        given(federatedStore.getStoreConfiguredDefaultMergeFunctions()).willReturn(mockMap);
 
         // When
         Object results = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
@@ -272,7 +282,10 @@ public class FederatedOperationHandlerTest {
         given(mockStore.getSchema()).willReturn(new Schema());
         given(mockStore.getProperties()).willReturn(new FederatedStoreProperties());
         given(mockStore.execute(any(), any())).willThrow(new RuntimeException(errorMessage));
-        given(mockStore.getDefaultMergeFunction(null, null, context)).willReturn(getHardCodedDefaultMergeFunction());
+        final HashMap mockMap = mock(HashMap.class);
+        given(mockMap.get(any())).willReturn(getDefaultMergeFunction());
+        given(mockMap.getOrDefault(any(), any())).willReturn(getDefaultMergeFunction());
+        given(mockStore.getStoreConfiguredDefaultMergeFunctions()).willReturn(mockMap);
         graph3 = getGraphWithMockStore(mockStore);
 
         FederatedStore federatedStore = mock(FederatedStore.class);
@@ -285,7 +298,7 @@ public class FederatedOperationHandlerTest {
         when(federatedStore.getGraphs(testUser, graphIds, federatedOperation)).thenReturn(asList(graph1, graph2, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(asList(graph1, graph2, graph3, graph4));
         when(federatedStore.getGraphs(testUser, getCleanStrings(null), federatedOperation)).thenReturn(asList(graph1, graph2, graph3, graph4));
-        when(federatedStore.getDefaultMergeFunction(null, null, context)).thenReturn(getHardCodedDefaultMergeFunction());
+        when(federatedStore.getStoreConfiguredDefaultMergeFunctions()).thenReturn(mockMap);
 
         // When
         Object results = null;
@@ -528,7 +541,7 @@ public class FederatedOperationHandlerTest {
     @Test
     public void shouldMergeVariousReturnsFromGraphs() throws Exception {
         // Given
-        final BiFunction function = new FederatedStore().getDefaultMergeFunction(null, null, context);
+        final BiFunction function = getDefaultMergeFunction();
 
         List<Integer> graph1Results = null; //null results
         List<Integer> graph2ResultsVeryNormal = asList(1, 2, 3); //normal results
@@ -549,7 +562,7 @@ public class FederatedOperationHandlerTest {
         }
 
         // Then
-        assertThat(function).isEqualTo(getHardCodedDefaultMergeFunction());
+        assertThat(function).isEqualTo(getDefaultMergeFunction());
         assertThat(results).isNotNull()
                 .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
                 .containsExactlyInAnyOrder(1, 2, 3, null, 4, null, 5);

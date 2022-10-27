@@ -55,8 +55,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_EDGES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_ENTITIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 
 public class FederatedOperationChainHandlerTest {
 
@@ -152,7 +152,7 @@ public class FederatedOperationChainHandlerTest {
                                 .input(elements2)
                                 .build())
                         .build())
-                .mergeFunction(getHardCodedDefaultMergeFunction())
+                .mergeFunction(getDefaultMergeFunction())
                 .graphIdsCSV(GRAPH_IDS);
 
         // When

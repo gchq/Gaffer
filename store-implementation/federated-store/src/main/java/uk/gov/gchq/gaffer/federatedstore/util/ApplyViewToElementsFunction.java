@@ -15,52 +15,65 @@
  */
 package uk.gov.gchq.gaffer.federatedstore.util;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
-
-import static java.util.Objects.nonNull;
+import java.util.stream.Collectors;
 
 public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<Object>, Iterable<Object>>, ContextSpecificMergeFunction<Object, Iterable<Object>, Iterable<Object>> {
-
-    public static final String MISSING_S = "Context is not complete for %s missing: %s";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplyViewToElementsFunction.class);
     public static final String VIEW = "view";
     public static final String SCHEMA = "schema";
-    public static final String TEMP_RESULTS_GRAPH = "tempResultsGraph";
-    HashMap<String, Object> context;
+    public static final String TEMP_RESULTS_GRAPH = "temporaryResultsGraph";
+    private ImmutableMap<String, Object> context;
 
     public ApplyViewToElementsFunction() {
     }
 
     public ApplyViewToElementsFunction(final HashMap<String, Object> context) throws GafferCheckedException {
         this();
-        this.context = validate(context);
-
         try {
-            final Store resultsGraph = new MapStore();
-            resultsGraph.initialise("TemporaryResultsGraph" + ApplyViewToElementsFunction.class.getSimpleName(), (Schema) context.get(SCHEMA), new MapStoreProperties());
-            context.put(TEMP_RESULTS_GRAPH, resultsGraph); //change to putIfAbsent if you want a given store to persist.
+            //Check if results graph, hasn't already be supplied, otherwise make a default results graph.
+            if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
+                final Graph resultsGraph = new Graph.Builder()
+                        .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, ApplyViewToElementsFunction.class.getSimpleName(), new Random().nextInt(Integer.MAX_VALUE))))
+                        //VertexSerialiser is set in this line to Hack the MapStore to accept schemas, without it. Due to never needing to serialising vertex's.
+                        .addSchema(new Schema.Builder().merge((Schema) context.get(SCHEMA)).vertexSerialiser(new StringSerialiser()).build())
+                        //MapStore easy in memory Store. Large results size may not be suitable, a graph could be provided via Context.
+                        .addStoreProperties(new MapStoreProperties())
+                        .build();
+
+                LOGGER.debug("A Temporary results graph named:{} is being made with schema:{}", resultsGraph.getGraphId(), resultsGraph.getSchema());
+
+                context.put(TEMP_RESULTS_GRAPH, resultsGraph);
+            }
+            this.context = ImmutableMap.copyOf(validate(context));
         } catch (final Exception e) {
-            throw new GafferCheckedException("Unable to create temporary MapStore for results", e);
+            throw new GafferCheckedException("Unable to create TemporaryResultsGraph", e);
         }
 
     }
@@ -70,70 +83,60 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
         return new ApplyViewToElementsFunction(context);
     }
 
-    private static HashMap<String, Object> validate(final HashMap<String, Object> context) {
+    private static Map<String, Object> validate(final HashMap<String, Object> context) {
         View view = (View) context.get(VIEW);
-        if (view == null) {
-            context.put(VIEW, new View()); //TODO FS CAN/CAN'T HAVE EMPTY VIEW!?!?!?!
-            // throw new IllegalArgumentException(String.format(MISSING_S, ApplyViewToElementsFunction.class.getCanonicalName(), VIEW));
-        } else if (view.hasTransform()) {
-            throw new UnsupportedOperationException("Error: can not use the default merge function with a POST AGGREGATION TRANSFORM VIEW, " +
+        if (view != null && view.hasTransform()) {
+            throw new UnsupportedOperationException("Error: context invalid: can not use this function with a POST AGGREGATION TRANSFORM VIEW, " +
                     "because transformation may have created items that does not exist in the schema. " +
                     "The re-applying of the View to the collected federated results would not be be possible. " +
                     "Try a simple concat merge that doesn't require the re-application of view");
             //Solution is to derive and use the "Transformed schema" from the uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition.
         }
+
         Schema schema = (Schema) context.get(SCHEMA);
-        if (schema == null) {
-            context.put(SCHEMA, new Schema());
-            // throw new IllegalArgumentException(String.format(MISSING_S, ApplyViewToElementsFunction.class.getCanonicalName(), SCHEMA));
+        if (schema == null || !schema.hasGroups()) {
+            throw new IllegalArgumentException("Error: context invalid, requires a populated schema.");
         }
-        return context;
+
+        if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
+            throw new IllegalStateException("Error: context invalid, did not contains a Temporary Results Graph.");
+        } else if (!(context.get(TEMP_RESULTS_GRAPH) instanceof Graph)) {
+            throw new IllegalArgumentException(String.format("Error: context invalid, value for %s was not a Graph, found: %s", TEMP_RESULTS_GRAPH, context.get(TEMP_RESULTS_GRAPH)));
+        }
+
+        //Remove null values because ImmutableMap.copyOf errors.
+        return context.entrySet().stream().filter(e -> e.getValue() != null).collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
     }
 
     @Override
     public Set<String> getRequiredContextValues() {
-        //TODO FS get Required/optional ContextValues too similar to Maestro
         return ImmutableSet.copyOf(new String[]{VIEW, SCHEMA});
     }
 
     @Override
-    public Iterable<Object> apply(final Object first, final Iterable<Object> next) {
-        //TODO FS Test
-        if (next instanceof Closeable) {
-            Closeable closeable = (Closeable) next;
+    public Iterable<Object> apply(final Object update, final Iterable<Object> state) {
+        if (state instanceof Closeable) {
+            Closeable closeable = (Closeable) state;
             try {
                 closeable.close();
             } catch (final IOException e) {
-                throw new GafferRuntimeException("Error closing looped iterable", e);
+                LOGGER.error("Error closing looped iterable", e);
             }
         }
 
-        final Store resultsGraph = (Store) context.get(TEMP_RESULTS_GRAPH);
+        final Graph resultsGraph = (Graph) context.get(TEMP_RESULTS_GRAPH);
         final Context userContext = new Context(new User()/*blankUser for temp graph*/);
         try {
-            //TODO FS attention to Input
-            resultsGraph.execute(new AddElements.Builder().input((Iterable<Element>) first).build(), userContext);
+            //the update object might be a lazy AccumuloElementRetriever and might be MASSIVE.
+            resultsGraph.execute(new AddElements.Builder().input((Iterable<Element>) update).build(), userContext);
         } catch (final OperationException e) {
-            throw new GafferRuntimeException("Error adding elements to temporary graph", e);
+            throw new GafferRuntimeException("Error adding elements to temporary results graph, due to:" + e.getMessage(), e);
         }
 
         try {
-            //TODO FS attention to VIEW
             return (Iterable) resultsGraph.execute(new GetAllElements.Builder().view((View) context.get(VIEW)).build(), userContext);
         } catch (final OperationException e) {
-            throw new GafferRuntimeException("Error getting all elements from temporary graph", e);
+            throw new GafferRuntimeException("Error getting all elements from temporary graph, due to:" + e.getMessage(), e);
         }
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(13, 47)
-                .append(super.hashCode())
-                .toHashCode();
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        return nonNull(obj) && this.getClass().equals(obj.getClass());
     }
 }
