@@ -25,20 +25,18 @@ import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.DeleteAllDataOperation;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.getConnector;
 
-public class DeleteAllDataHandler implements OperationHandler<DeleteAllDataOperation> {
+public class DeleteAllDataHandler implements OperationHandler<DeleteAllData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteAllDataHandler.class);
 
 
     @Override
-    public Object doOperation(final DeleteAllDataOperation operation, final Context context, final Store store) throws OperationException {
+    public Object doOperation(final DeleteAllData operation, final Context context, final Store store) throws OperationException {
         try {
-            //currently only 1 graph is supported for Remove operation, but this is just future proofing.
-            //Update Tables
             final String removeId = store.getGraphId();
             try {
                 Connector connection = getConnector((AccumuloProperties) store.getProperties());

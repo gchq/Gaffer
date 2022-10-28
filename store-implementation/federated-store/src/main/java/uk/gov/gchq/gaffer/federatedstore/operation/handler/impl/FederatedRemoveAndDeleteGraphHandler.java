@@ -16,30 +16,16 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import org.apache.accumulo.core.client.Connector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.DeleteAllDataOperation;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.getConnector;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.isAccumulo;
 
 
 /**
@@ -51,7 +37,6 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.isAccumu
  * @see RemoveGraph
  */
 public class FederatedRemoveAndDeleteGraphHandler extends FederatedRemoveGraphHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedRemoveAndDeleteGraphHandler.class);
 
     @Override
     public Boolean doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
@@ -61,8 +46,8 @@ public class FederatedRemoveAndDeleteGraphHandler extends FederatedRemoveGraphHa
 
             //Ask graphs to delete all data.
             for (final Graph graph : graphsToRemove) {
-                if (graph.isSupported(DeleteAllDataOperation.class)) {
-                    graph.execute(new DeleteAllDataOperation(), context);
+                if (graph.isSupported(DeleteAllData.class)) {
+                    graph.execute(new DeleteAllData(), context);
                 }
             }
 

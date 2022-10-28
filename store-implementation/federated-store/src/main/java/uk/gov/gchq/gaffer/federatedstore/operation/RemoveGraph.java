@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
@@ -29,8 +27,6 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
-
-import static java.util.Objects.isNull;
 
 /**
  * An Operation used for removing graphs from a FederatedStore.
@@ -52,7 +48,6 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
     private String graphId;
     private Map<String, String> options;
     private boolean userRequestingAdminUsage;
-    private Boolean deleteTable;
 
     public String getGraphId() {
         return graphId;
@@ -99,11 +94,6 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
 
     public static class Builder extends IFederationOperation.BaseBuilder<RemoveGraph, Builder> {
 
-        public Builder deleteTable(Boolean andDeleteTable) {
-            _getOp().setDeleteTable(andDeleteTable);
-            return _self();
-        }
-
         public Builder() {
             super(new RemoveGraph());
         }
@@ -112,20 +102,5 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
             _getOp().setGraphId(graphId);
             return _self();
         }
-    }
-
-    private RemoveGraph setDeleteTable(final Boolean andDeleteTable) {
-        this.deleteTable = andDeleteTable;
-        return this;
-    }
-
-    @JsonProperty("deleteTable")
-    public Boolean getDeleteTableOrNull() {
-        return deleteTable;
-    }
-
-    @JsonIgnore
-    public boolean getDeleteTable() {
-        return isNull(deleteTable) ? false : deleteTable;
     }
 }

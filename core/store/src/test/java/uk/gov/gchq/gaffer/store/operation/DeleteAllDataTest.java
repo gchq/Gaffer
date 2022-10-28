@@ -15,37 +15,31 @@
  */
 package uk.gov.gchq.gaffer.store.operation;
 
-import org.junit.jupiter.api.Test;
-
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-
-import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DeleteAllDataTest extends OperationTest<DeleteAllDataOperation> {
+public class DeleteAllDataTest extends OperationTest<DeleteAllData> {
 
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final DeleteAllDataOperation operation = new DeleteAllDataOperation.Builder().option("a", "1").build();
+        final DeleteAllData operation = new DeleteAllData.Builder().option("a", "1").build();
         assertThat(operation.getOption("a")).isEqualTo(1);
     }
 
     @Override
     public void shouldShallowCloneOperation() {
-        final DeleteAllDataOperation a = new DeleteAllDataOperation();
-        final DeleteAllDataOperation b = a.shallowClone();
+        final DeleteAllData a = new DeleteAllData();
+        final DeleteAllData b = a.shallowClone();
         assertThat(a).isNotSameAs(b).isEqualTo(b);
     }
 
     @Override
-    protected DeleteAllDataOperation getTestObject() {
-        return new DeleteAllDataOperation();
+    protected DeleteAllData getTestObject() {
+        return new DeleteAllData();
     }
 }

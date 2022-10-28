@@ -26,12 +26,15 @@ import java.util.Map;
 
 import static java.util.Objects.isNull;
 
-public class DeleteAllDataOperation implements Operation {
+/**
+ * This operation is used to self delete all retained data
+ */
+public class DeleteAllData implements Operation {
     Map<String, String> options;
 
     @Override
-    public DeleteAllDataOperation shallowClone() throws CloneFailedException {
-        return new DeleteAllDataOperation();
+    public DeleteAllData shallowClone() throws CloneFailedException {
+        return new DeleteAllData();
     }
 
     @Override
@@ -44,9 +47,9 @@ public class DeleteAllDataOperation implements Operation {
         this.options = new HashMap<>(options);
     }
 
-    public static class Builder extends BaseBuilder<DeleteAllDataOperation, DeleteAllDataOperation.Builder> {
+    public static class Builder extends BaseBuilder<DeleteAllData, DeleteAllData.Builder> {
         public Builder() {
-            super(new DeleteAllDataOperation());
+            super(new DeleteAllData());
         }
     }
 }
