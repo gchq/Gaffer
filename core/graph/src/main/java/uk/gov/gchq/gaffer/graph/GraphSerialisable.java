@@ -47,8 +47,7 @@ import static java.util.Objects.nonNull;
  * @see GraphSerialisable.Builder
  */
 @JsonDeserialize(builder = GraphSerialisable.Builder.class)
-//TODO FS NEED IGNORE CHECKSTYLE SHOULD BE FINAL
-public final class GraphSerialisable implements Serializable {
+public class GraphSerialisable implements Serializable {
     private static final long serialVersionUID = 2684203367656032583L;
     private final byte[] serialisedSchema;
     private final byte[] serialisedProperties;
@@ -59,11 +58,11 @@ public final class GraphSerialisable implements Serializable {
 
     private transient Graph graph;
 
-    private GraphSerialisable(final GraphConfig config, final Schema schema, final StoreProperties storeProperties) {
+    public GraphSerialisable(final GraphConfig config, final Schema schema, final StoreProperties storeProperties) {
         this(config, schema, storeProperties.getProperties());
     }
 
-    private GraphSerialisable(final GraphConfig config, final Schema schema, final Properties properties) {
+    public GraphSerialisable(final GraphConfig config, final Schema schema, final Properties properties) {
         try {
             this.serialisedSchema = isNull(schema) ? null : JSONSerialiser.serialise(schema, true);
         } catch (final SerialisationException e) {
@@ -315,11 +314,7 @@ public final class GraphSerialisable implements Serializable {
             if (isNull(config) || isNull(config.getGraphId())) {
                 throw new IllegalArgumentException("GraphSerialisable Builder requires a graph name");
             }
-            //TODO FS final GraphSerialisable Test bug, Anonymous class to get it
-            //TODO FS this causes FederatedStoreCacheBackwardCompatibilityTest to fail
-            //TODO FS Not Being able to abstract this kills other tests.
             return new GraphSerialisable(config, schema, properties);
         }
     }
-
 }
