@@ -271,6 +271,9 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
 
         // Then
         assertThat(hook.getStart()).containsExactly(new OperationChain());
+        assertThat(hook.getEnd()).isNull();
+        assertThat(hook.getBefore()).isNull();
+        assertThat(hook.getAfter()).isNull();
     }
 
     @Test
