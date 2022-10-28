@@ -413,7 +413,6 @@ public class FederatedGraphStorage {
         try {
             this.put(new GraphSerialisable.Builder(graphToUpdate).build(), newFederatedAccess);
         } catch (final Exception e) {
-            //TODO FS review possible recovery
             String message = String.format("Error occurred updating graphAccess. GraphStorage=updated, Cache=outdated. graphId:%s. Recovery is possible from a restart if a persistent cache is being used, otherwise contact admin", graphId);
             LOGGER.error("{} graphStorage access:{} cache access:{}", message, newFederatedAccess, federatedStoreCache.getAccessFromCache(graphId));
             throw new StorageException(message, e);
@@ -458,7 +457,6 @@ public class FederatedGraphStorage {
         try {
             this.put(updatedGraphSerialisable, access);
         } catch (final Exception e) {
-            //TODO FS review possible recovery
             String s = "Contact Admin for recovery. Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId.";
             LOGGER.error("{} graphStorage graphId:{} cache graphId:{}", s, newGraphId, graphToUpdate.getGraphId());
             throw new StorageException(s, e);
