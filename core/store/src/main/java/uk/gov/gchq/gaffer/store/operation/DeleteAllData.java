@@ -16,9 +16,12 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,8 +32,11 @@ import static java.util.Objects.isNull;
 /**
  * This operation is used to self delete all retained data
  */
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
+@Since("2.0.0")
+@Summary("This operation is used to self delete all retained data")
 public class DeleteAllData implements Operation {
-    Map<String, String> options;
+    Map<String, String> options = new HashMap<>();
 
     @Override
     public DeleteAllData shallowClone() throws CloneFailedException {
@@ -39,7 +45,7 @@ public class DeleteAllData implements Operation {
 
     @Override
     public Map<String, String> getOptions() {
-        return isNull(options) ? Collections.emptyMap() : Collections.unmodifiableMap(options);
+        return isNull(options) ? Collections.emptyMap() : options;
     }
 
     @Override
