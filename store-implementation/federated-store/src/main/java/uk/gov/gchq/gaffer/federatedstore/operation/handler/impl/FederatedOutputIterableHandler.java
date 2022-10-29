@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
 public class FederatedOutputIterableHandler<PAYLOAD extends Output< Iterable<? extends ITERABLE_ELEMENTS>>, ITERABLE_ELEMENTS> extends FederatedOutputHandler<PAYLOAD, Iterable<? extends ITERABLE_ELEMENTS>> {
-    //TODO FS should this be a Hook and change the OperationChain
+    //TODO FS should this be a Hook and change the OperationChain?
     private FederatedOutputIterableHandler(final Object defaultEmpty) {
         this();
     }

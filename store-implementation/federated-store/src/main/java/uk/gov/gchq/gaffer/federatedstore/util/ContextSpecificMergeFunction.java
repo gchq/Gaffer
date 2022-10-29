@@ -15,7 +15,7 @@ import java.util.function.BiFunction;
  * @see BiFunction
  */
 public interface ContextSpecificMergeFunction<T, U, R> extends BiFunction<T, U, R> {
-    ContextSpecificMergeFunction<T, U, R> createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException; //TODO FS do I want a checkedException?
+    ContextSpecificMergeFunction<T, U, R> createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException;
 
     default boolean isRequired(final String name) {
         return getRequiredContextValues().contains(name);

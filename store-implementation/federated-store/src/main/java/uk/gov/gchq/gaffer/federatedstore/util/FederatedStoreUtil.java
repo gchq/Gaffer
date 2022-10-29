@@ -60,7 +60,6 @@ import static uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction
 import static uk.gov.gchq.gaffer.federatedstore.util.MergeSchema.OP_CLASS;
 
 public final class FederatedStoreUtil {
-    public static final String DEPRECATED_GRAPH_IDS_FLAG = "gaffer.federatedstore.operation.graphIds"; //TODO FS delete this
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreUtil.class);
     private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
 
@@ -252,7 +251,7 @@ public final class FederatedStoreUtil {
 
     @Deprecated
     public static String getDeprecatedGraphIds(final Operation operation) throws GafferRuntimeException {
-        String deprecatedGraphIds = operation.getOption(DEPRECATED_GRAPH_IDS_FLAG);
+        String deprecatedGraphIds = operation.getOption("gaffer.federatedstore.operation.graphIds");
         if (nonNull(deprecatedGraphIds)) {
             String simpleName = operation.getClass().getSimpleName();
             LOGGER.warn("Operation:{} has old Deprecated style of graphId selection.", simpleName);

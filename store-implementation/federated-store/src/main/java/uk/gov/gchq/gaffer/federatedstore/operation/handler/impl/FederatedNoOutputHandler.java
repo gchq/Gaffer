@@ -47,7 +47,7 @@ public class FederatedNoOutputHandler<PAYLOAD extends Operation> implements Oper
      */
     @Override
     public Void doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
-        //TODO FS should this be a Hook and change the OperationChain
+        //TODO FS should this be a Hook and change the OperationChain?
         FederatedOperation<Object, Void> federatedOperation = getFederatedOperation(operation);
 
         Object ignore = store.execute(federatedOperation, context);
