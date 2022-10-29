@@ -30,7 +30,7 @@ import java.util.Map;
 import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 
 @ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs")
-@IncludeClassNamePatterns(".*IT")
+@IncludeClassNamePatterns(".*GetAllElementsIT")
 public class FederatedStoreITs extends AbstractStoreITs {
 
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(

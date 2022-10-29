@@ -263,6 +263,7 @@ public abstract class AbstractStoreIT {
     }
 
     protected Graph.Builder getGraphBuilder() {
+        //TODO FS cannot get StoreConfiguredDefaultMergeFunctions in here.
         return new Graph.Builder()
                 .config(createGraphConfig())
                 .storeProperties(getStoreProperties())
