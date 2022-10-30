@@ -62,20 +62,4 @@ public class FederatedStoreDefaultGraphsTest {
         //then
         assertThat(exception).message().contains("The following graphIds are not visible or do not exist: [defaultJsonGraphId]");
     }
-
-    @Test
-    public void shouldNotChangeExistingDefaultedGraphId() throws Exception {
-        //Given
-        FederatedStore federatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
-        assertThat(federatedStore)
-                .isNotNull()
-                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getStoreConfiguredDefaultGraphIds));
-
-        //when
-        federatedStore.setStoreConfiguredDefaultGraphIdsCSV("other");
-
-        //then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
-        assertThat(exception).message().contains("The following graphIds are not visible or do not exist: [defaultJsonGraphId]");
-    }
 }

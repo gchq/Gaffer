@@ -47,6 +47,7 @@ public class FederatedStoreProperties extends StoreProperties {
     public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
     public static final String CACHE_SERVICE_CLASS_DEFAULT = null;
     public static final String STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS = "gaffer.federatedstore.storeConfiguredDefaultMergeFunctions";
+    public static final String STORE_CONFIGURED_DEFAULT_GRAPHIDS = "gaffer.federatedstore.storeConfiguredDefaultGraphIds";
 
     public FederatedStoreProperties() {
         super(FederatedStore.class);
@@ -102,6 +103,14 @@ public class FederatedStoreProperties extends StoreProperties {
 
     public void setStoreConfiguredDefaultMergeFunctions(final String mergeFunctionFile) {
         set(STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS, mergeFunctionFile);
+    }
+
+    public String getStoreConfiguredDefaultGraphIds() {
+        return get(STORE_CONFIGURED_DEFAULT_GRAPHIDS);
+    }
+
+    public void setStoreConfiguredDefaultGraphIds(final String mergeFunctionFile) {
+        set(STORE_CONFIGURED_DEFAULT_GRAPHIDS, mergeFunctionFile);
     }
 
 }

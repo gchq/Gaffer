@@ -359,7 +359,15 @@ public final class FederatedStoreUtil {
         }
     }
 
-    public static Map<String, BiFunction> loadMergeFunctionMapFrom(final String path) throws IOException {
+    public static List<String> loadStoreConfiguredDefaultGraphIdsListFrom(final String path) throws IOException {
+        if (isNull(path)) {
+            return null;
+        } else {
+            return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), List.class);
+        }
+    }
+
+    public static Map<String, BiFunction> loadStoreConfiguredDefaultMergeFunctionMapFrom(final String path) throws IOException {
         if (isNull(path)) {
             return Collections.emptyMap();
         } else {

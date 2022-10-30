@@ -34,11 +34,11 @@ import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSui
 public class FederatedStoreITs extends AbstractStoreITs {
 
     /*
-     * TODO FS ALARMING IT. currently this file overrides the default merges,
-     * this meaning IT do not test FederatedStore out the box.
-     * Either change IT for all store - No
-     * Update merge - Hard, do later
-     * or this which revert back to concatenation - short term.
+     * TODO FS currently this file overrides the default merges used by IT's,
+     * this means the IT do not test FederatedStore out the box.
+     * Either change IT for all store - No.
+     * or Update default merge for GetAllElements to handle Post-Transform - Hard, do later.
+     * or set default merge for GetAlLElements to concatenation.
      */
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
             StreamUtil.openStream(FederatedStoreITs.class, "integrationTestPublicAccessPredefinedFederatedStore.properties"));

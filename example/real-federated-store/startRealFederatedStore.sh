@@ -52,5 +52,4 @@ then
 	# mvn clean -f ../../
 fi
 
-#TODO FS how do I load StoreConfiguredDefaultMerge from this?
 java -Dgaffer.storeProperties=$PROP -Dgaffer.graph.config=$CONF -Dgaffer.schemas=$SCHEMA -jar $SPRING_JAR

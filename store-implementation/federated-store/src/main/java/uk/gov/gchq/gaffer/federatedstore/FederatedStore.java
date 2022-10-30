@@ -101,10 +101,12 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.STORE_CONFIGURED_DEFAULT_GRAPHIDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.loadMergeFunctionMapFrom;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.loadStoreConfiguredDefaultGraphIdsListFrom;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.loadStoreConfiguredDefaultMergeFunctionMapFrom;
 
 /**
  * <p>
@@ -171,12 +173,28 @@ public class FederatedStore extends Store {
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
 
-        //TODO FS need to bring in storeConfiguredGraphIds too
+        loadStoreConfiguredDefaultMergeFunctions(properties);
 
+        loadStoreConfiguredDefaultGraphIds(properties);
+    }
+
+    private void loadStoreConfiguredDefaultGraphIds(final StoreProperties properties) throws StoreException {
         try {
-            final Map<String, BiFunction> map = loadMergeFunctionMapFrom((properties).get(STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS));
+            final List<String> defaultGraphIds = loadStoreConfiguredDefaultGraphIdsListFrom(properties.get(STORE_CONFIGURED_DEFAULT_GRAPHIDS));
+            if (nonNull(defaultGraphIds)) {
+                //Overwrite the defaults with configured values
+                this.storeConfiguredDefaultGraphIds = new ArrayList<>(defaultGraphIds);
+            }
+        } catch (final IOException e) {
+            throw new StoreException("Error loading Merge Functions from StoreProperties.", e);
+        }
+    }
+
+    private void loadStoreConfiguredDefaultMergeFunctions(final StoreProperties properties) throws StoreException {
+        try {
+            final Map<String, BiFunction> defaultMergeFunctions = loadStoreConfiguredDefaultMergeFunctionMapFrom(properties.get(STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS));
             //Overwrite the defaults with configured values
-            this.storeConfiguredDefaultMergeFunctions.putAll(map);
+            this.storeConfiguredDefaultMergeFunctions.putAll(defaultMergeFunctions);
         } catch (final IOException e) {
             throw new StoreException("Error loading Merge Functions from StoreProperties.", e);
         }
@@ -562,25 +580,6 @@ public class FederatedStore extends Store {
 
     public List<String> getStoreConfiguredDefaultGraphIds() {
         return storeConfiguredDefaultGraphIds;
-    }
-
-    /**
-     * Sets the configurable default graphIds once only. To change the storeConfiguredDefaultGraphIdsCSV it would require to turning off, update config, turning back on.
-     *
-     * @param storeConfiguredDefaultGraphIdsCSV graphID CSV to use.
-     * @return This Store.
-     */
-    public FederatedStore setStoreConfiguredDefaultGraphIdsCSV(final String storeConfiguredDefaultGraphIdsCSV) {
-        return setStoreConfiguredDefaultGraphIds(getCleanStrings(storeConfiguredDefaultGraphIdsCSV));
-    }
-
-    public FederatedStore setStoreConfiguredDefaultGraphIds(final List<String> storeConfiguredDefaultGraphIds) {
-        if (nonNull(this.storeConfiguredDefaultGraphIds)) {
-            LOGGER.error("Attempting to change storeConfiguredDefaultGraphIds. To change storeConfiguredDefaultGraphIds it would require to turning off, update config, turn back on. Therefore ignoring the value: {}", storeConfiguredDefaultGraphIds);
-        } else {
-            this.storeConfiguredDefaultGraphIds = storeConfiguredDefaultGraphIds;
-        }
-        return this;
     }
 
     private List<Graph> getDefaultGraphs(final User user, final IFederationOperation operation) {
