@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.federatedstore.util;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
@@ -371,24 +374,27 @@ public final class FederatedStoreUtil {
         if (isNull(path)) {
             return Collections.emptyMap();
         } else {
-            return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), SerialisableConfiguredMergeFunctionsMap.class).getDelegate();
+            return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), SerialisableConfiguredMergeFunctionsMap.class).getMap();
         }
     }
 
     //TODO FS likely this can be improved.
     public static class SerialisableConfiguredMergeFunctionsMap {
+        @JsonProperty("configuredMergeFunctions")
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
-        HashMap<String, BiFunction> delegate = new HashMap<>();
+        HashMap<String, BiFunction> map = new HashMap<>();
 
         public SerialisableConfiguredMergeFunctionsMap() {
         }
 
-        public HashMap<String, BiFunction> getDelegate() {
-            return delegate;
+        @JsonGetter("configuredMergeFunctions")
+        public HashMap<String, BiFunction> getMap() {
+            return map;
         }
 
-        public void setDelegate(final HashMap<String, BiFunction> delegate) {
-            this.delegate = delegate;
+        @JsonSetter("configuredMergeFunctions")
+        public void setMap(final HashMap<String, BiFunction> map) {
+            this.map = map;
         }
 
 
