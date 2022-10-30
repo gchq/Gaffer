@@ -84,6 +84,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionIntersect;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -100,8 +101,10 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.loadMergeFunctionMapFrom;
 
 /**
  * <p>
@@ -124,7 +127,7 @@ public class FederatedStore extends Store {
     private final FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private final int id;
     private Set<String> customPropertiesAuths;
-    private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
+    private Boolean isPublicAccessAllowed;
     private List<String> storeConfiguredDefaultGraphIds;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private Map<String, BiFunction> storeConfiguredDefaultMergeFunctions;
@@ -167,6 +170,16 @@ public class FederatedStore extends Store {
         super.initialise(graphId, new Schema(), properties);
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
+
+        //TODO FS need to bring in storeConfiguredGraphIds too
+
+        try {
+            final Map<String, BiFunction> map = loadMergeFunctionMapFrom((properties).get(STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS));
+            //Overwrite the defaults with configured values
+            this.storeConfiguredDefaultMergeFunctions.putAll(map);
+        } catch (final IOException e) {
+            throw new StoreException("Error loading Merge Functions from StoreProperties.", e);
+        }
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.util;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -231,7 +232,7 @@ public final class FederatedStoreUtil {
     }
 
     public static BiFunction getDefaultMergeFunction() {
-        return new ConcatenateBestEffortsMergeFunction();
+        return new ConcatenateListMergeFunction();
     }
 
     public static <INPUT> FederatedOperation<INPUT, Void> getFederatedOperation(final Operation operation) {
@@ -357,7 +358,32 @@ public final class FederatedStoreUtil {
             throw new GafferRuntimeException("Error getting default merge function, due to:" + e.getMessage(), e);
         }
     }
-    public static Map loadMergeFunctionMapFrom(final String path) throws IOException {
-        return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), HashMap.class);
+
+    public static Map<String, BiFunction> loadMergeFunctionMapFrom(final String path) throws IOException {
+        if (isNull(path)) {
+            return Collections.emptyMap();
+        } else {
+            return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), SerialisableConfiguredMergeFunctionsMap.class).getDelegate();
+        }
     }
+
+    //TODO FS likely this can be improved.
+    public static class SerialisableConfiguredMergeFunctionsMap {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
+        HashMap<String, BiFunction> delegate = new HashMap<>();
+
+        public SerialisableConfiguredMergeFunctionsMap() {
+        }
+
+        public HashMap<String, BiFunction> getDelegate() {
+            return delegate;
+        }
+
+        public void setDelegate(final HashMap<String, BiFunction> delegate) {
+            this.delegate = delegate;
+        }
+
+
+    }
+
 }

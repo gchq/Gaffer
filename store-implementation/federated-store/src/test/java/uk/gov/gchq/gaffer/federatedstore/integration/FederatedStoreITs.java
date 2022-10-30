@@ -30,11 +30,18 @@ import java.util.Map;
 import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 
 @ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs")
-@IncludeClassNamePatterns(".*GetAllElementsIT")
+@IncludeClassNamePatterns(".*IT")
 public class FederatedStoreITs extends AbstractStoreITs {
 
+    /*
+     * TODO FS ALARMING IT. currently this file overrides the default merges,
+     * this meaning IT do not test FederatedStore out the box.
+     * Either change IT for all store - No
+     * Update merge - Hard, do later
+     * or this which revert back to concatenation - short term.
+     */
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
-            StreamUtil.openStream(FederatedStoreITs.class, "publicAccessPredefinedFederatedStore.properties"));
+            StreamUtil.openStream(FederatedStoreITs.class, "integrationTestPublicAccessPredefinedFederatedStore.properties"));
 
     private static final Schema SCHEMA = new Schema();
 

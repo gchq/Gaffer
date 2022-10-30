@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ public class FederatedStoreProperties extends StoreProperties {
      */
     public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
     public static final String CACHE_SERVICE_CLASS_DEFAULT = null;
+    public static final String STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS = "gaffer.federatedstore.storeConfiguredDefaultMergeFunctions";
 
     public FederatedStoreProperties() {
         super(FederatedStore.class);
@@ -94,4 +95,13 @@ public class FederatedStoreProperties extends StoreProperties {
     public void setGraphsCanHavePublicAccess(final boolean b) {
         set(IS_PUBLIC_ACCESS_ALLOWED, Boolean.toString(b));
     }
+
+    public String getStoreConfiguredDefaultMergeFunctions() {
+        return get(STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS);
+    }
+
+    public void setStoreConfiguredDefaultMergeFunctions(final String mergeFunctionFile) {
+        set(STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS, mergeFunctionFile);
+    }
+
 }

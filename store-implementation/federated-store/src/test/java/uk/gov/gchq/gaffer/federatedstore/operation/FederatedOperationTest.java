@@ -39,7 +39,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
             "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\"%n" +
             "  },%n" +
             "  \"mergeFunction\" : {%n" +
-            "    \"class\" : \"uk.gov.gchq.gaffer.federatedstore.util.ConcatenateBestEffortsMergeFunction\"%n" +
+            "    \"class\" : \"uk.gov.gchq.gaffer.federatedstore.util.ConcatenateListMergeFunction\"%n" +
             "  },%n" +
             "  \"graphIds\" : [ \"testGraphID1\", \"testGraphID2\" ]%n" +
             "}");

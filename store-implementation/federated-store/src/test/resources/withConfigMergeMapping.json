@@ -3,7 +3,7 @@
   "storeConfiguredDefaultGraphIds": ["defaultJsonGraphId"],
   "storeConfiguredDefaultMergeFunctions" : {
     "uk.gov.gchq.gaffer.store.operation.GetTraits" : {
-      "class" : "uk.gov.gchq.gaffer.federatedstore.util.ConcatenateBestEffortsMergeFunction"
+      "class" : "uk.gov.gchq.gaffer.federatedstore.util.ConcatenateListMergeFunction"
     },
     "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements" : {
       "class" : "uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction"

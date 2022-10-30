@@ -28,7 +28,7 @@ import java.util.function.BiFunction;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-public class ConcatenateBestEffortsMergeFunction implements BiFunction<Object, Iterable<Object>, Iterable<Object>> {
+public class ConcatenateListMergeFunction implements BiFunction<Object, Iterable<Object>, Iterable<Object>> {
 
     @Override
     public Iterable<Object> apply(final Object update, final Iterable<Object> state) {
