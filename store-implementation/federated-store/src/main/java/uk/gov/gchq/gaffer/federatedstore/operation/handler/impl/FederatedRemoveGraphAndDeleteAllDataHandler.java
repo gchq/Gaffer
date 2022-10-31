@@ -30,13 +30,12 @@ import java.util.List;
 
 /**
  * A handler for RemoveGraph operation for the FederatedStore.
- * And delete associated Accumulo Tables.
- * <p>
+ * If the sub-graph supports DeleteAllData, then the data will be deleted.
  *
  * @see FederatedStore
  * @see RemoveGraph
  */
-public class FederatedRemoveAndDeleteGraphHandler extends FederatedRemoveGraphHandler {
+public class FederatedRemoveGraphAndDeleteAllDataHandler extends FederatedRemoveGraphHandler {
 
     @Override
     public Boolean doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
@@ -53,7 +52,7 @@ public class FederatedRemoveAndDeleteGraphHandler extends FederatedRemoveGraphHa
                      * Note if and when this supports multiple graphs the graphs
                      * not yet deleted will need to be retained for the exception message
                      */
-                    throw new OperationException(String.format("Error the graph:%%s does not support DeleteAllData operation. Use RemoveGraph operation instead", graph.getGraphId()));
+                    throw new OperationException(String.format("Error the graph:%s does not support DeleteAllData operation. Use RemoveGraph operation instead", graph.getGraphId()));
                 }
             }
 

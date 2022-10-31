@@ -30,6 +30,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.getConnector;
 
+/**
+ * This Handler will DELETE the Accumulo TABLE as well as the DATA.
+ * Which means there will be no future graphId name or schema collisions.
+ */
 public class DeleteAllDataHandler implements OperationHandler<DeleteAllData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteAllDataHandler.class);
 
@@ -39,7 +43,7 @@ public class DeleteAllDataHandler implements OperationHandler<DeleteAllData> {
         try {
             final String removeId = store.getGraphId();
             try {
-                Connector connection = getConnector((AccumuloProperties) store.getProperties());
+                final Connector connection = getConnector((AccumuloProperties) store.getProperties());
                 if (connection.tableOperations().exists(removeId)) {
                     connection.tableOperations().offline(removeId);
                     connection.tableOperations().delete(removeId);

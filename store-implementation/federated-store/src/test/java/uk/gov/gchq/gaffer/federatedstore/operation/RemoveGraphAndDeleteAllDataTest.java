@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.federatedstore.operation.RemoveAndDeleteGraph.Builder;
+import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraphAndDeleteAllData.Builder;
 
 import java.util.Set;
 
@@ -28,20 +28,20 @@ import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RemoveAndDeleteGraphTest extends FederationOperationTest<RemoveAndDeleteGraph> {
+public class RemoveGraphAndDeleteAllDataTest extends FederationOperationTest<RemoveGraphAndDeleteAllData> {
 
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
 
     @Test
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
 
-        RemoveAndDeleteGraph op = new RemoveAndDeleteGraph.Builder()
+        RemoveGraphAndDeleteAllData op = new RemoveGraphAndDeleteAllData.Builder()
                 .graphId(EXPECTED_GRAPH_ID)
                 .setUserRequestingAdminUsage(true)
                 .build();
 
         byte[] serialise = toJson(op);
-        RemoveAndDeleteGraph deserialise = fromJson(serialise);
+        RemoveGraphAndDeleteAllData deserialise = fromJson(serialise);
 
         assertEquals(EXPECTED_GRAPH_ID, deserialise.getGraphId());
         assertTrue(deserialise.isUserRequestingAdminUsage());
@@ -55,7 +55,7 @@ public class RemoveAndDeleteGraphTest extends FederationOperationTest<RemoveAndD
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        RemoveAndDeleteGraph op = new Builder()
+        RemoveGraphAndDeleteAllData op = new Builder()
                 .graphId(EXPECTED_GRAPH_ID)
                 .setUserRequestingAdminUsage(true)
                 .build();
@@ -67,13 +67,13 @@ public class RemoveAndDeleteGraphTest extends FederationOperationTest<RemoveAndD
     @Test
     @Override
     public void shouldShallowCloneOperation() {
-        final RemoveAndDeleteGraph a = getTestObject();
-        final RemoveAndDeleteGraph b = a.shallowClone();
+        final RemoveGraphAndDeleteAllData a = getTestObject();
+        final RemoveGraphAndDeleteAllData b = a.shallowClone();
         assertEquals(a.getGraphId(), b.getGraphId());
     }
 
     @Override
-    protected RemoveAndDeleteGraph getTestObject() {
-        return new RemoveAndDeleteGraph();
+    protected RemoveGraphAndDeleteAllData getTestObject() {
+        return new RemoveGraphAndDeleteAllData();
     }
 }

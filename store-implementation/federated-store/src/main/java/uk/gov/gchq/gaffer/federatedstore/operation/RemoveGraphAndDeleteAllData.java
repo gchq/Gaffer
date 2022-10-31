@@ -21,24 +21,24 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
-public class RemoveAndDeleteGraph extends RemoveGraph {
+public class RemoveGraphAndDeleteAllData extends RemoveGraph {
 
     @Override
-    public RemoveAndDeleteGraph shallowClone() throws CloneFailedException {
-        return new RemoveAndDeleteGraph.Builder()
+    public RemoveGraphAndDeleteAllData shallowClone() throws CloneFailedException {
+        return new RemoveGraphAndDeleteAllData.Builder()
                 .graphId(super.getGraphId())
                 .options(super.getOptions())
                 .setUserRequestingAdminUsage(super.isUserRequestingAdminUsage())
                 .build();
     }
 
-    public static class Builder extends IFederationOperation.BaseBuilder<RemoveAndDeleteGraph, RemoveAndDeleteGraph.Builder> {
+    public static class Builder extends IFederationOperation.BaseBuilder<RemoveGraphAndDeleteAllData, RemoveGraphAndDeleteAllData.Builder> {
 
         public Builder() {
-            super(new RemoveAndDeleteGraph());
+            super(new RemoveGraphAndDeleteAllData());
         }
 
-        public RemoveAndDeleteGraph.Builder graphId(final String graphId) {
+        public RemoveGraphAndDeleteAllData.Builder graphId(final String graphId) {
             _getOp().setGraphId(graphId);
             return _self();
         }

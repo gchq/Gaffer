@@ -533,7 +533,7 @@ public class FederatedGraphStorage {
                  * MiniAccumuloStore, SingleUseMiniAccumuloStore]
                  */
                 try {
-                    Connector connection = getConnector((AccumuloProperties) graphToMove.getStoreProperties());
+                    final Connector connection = getConnector((AccumuloProperties) graphToMove.getStoreProperties());
 
                     if (connection.tableOperations().exists(graphId)) {
                         connection.tableOperations().offline(graphId);
