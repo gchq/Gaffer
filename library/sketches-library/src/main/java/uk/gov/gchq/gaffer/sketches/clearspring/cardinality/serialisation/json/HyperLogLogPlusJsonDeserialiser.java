@@ -89,7 +89,7 @@ public class HyperLogLogPlusJsonDeserialiser extends JsonDeserializer<HyperLogLo
                     if (object != null) {
                         hllp.offer(object);
                     }
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     throw new SerialisationException("Error deserialising JSON object: " + e.getMessage(), e);
                 }
             }
@@ -102,7 +102,7 @@ public class HyperLogLogPlusJsonDeserialiser extends JsonDeserializer<HyperLogLo
         if (offer.hasNonNull(CLASS)) {
             try {
                 return JSONSerialiser.deserialise(offer.toString(), Class.forName(offer.get(CLASS).asText()));
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 throw new IllegalArgumentException("Error converting the class [" + offer.get(CLASS).asText() + "] to a Java Object", e);
             }
         } else if (offer.fields().hasNext()) {
