@@ -125,7 +125,10 @@ public class FederatedGraphStorage {
                 addToCache(graph, access);
 
             } catch (final Exception e) {
-                throw new StorageException(String.format("Error adding graph %s%s", graphId, nonNull(e.getMessage()) ? (" to storage due to: " + e.getMessage()) : "."), e);
+                throw new StorageException(String.format("Error adding graph %s%s", graphId,
+                        nonNull(e.getMessage())
+                                ? (" to storage due to: " + e.getMessage())
+                                : "."), e);
             }
         } else {
             throw new StorageException("Graph cannot be null");
