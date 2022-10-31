@@ -125,7 +125,7 @@ public class FederatedGraphStorage {
                 addToCache(graph, access);
 
             } catch (final Exception e) {
-                throw new StorageException("Error adding graph " + graphId + (nonNull(e.getMessage()) ? (" to storage due to: " + e.getMessage()) : "."), e);
+                throw new StorageException(String.format("Error adding graph %s%s", graphId, nonNull(e.getMessage()) ? (" to storage due to: " + e.getMessage()) : "."), e);
             }
         } else {
             throw new StorageException("Graph cannot be null");
@@ -506,6 +506,7 @@ public class FederatedGraphStorage {
     /**
      * Enum for the Graph Properties or Schema
      */
+    //TODO FS Why is there an enum?
     public enum GraphConfigEnum {
         SCHEMA("schema"), PROPERTIES("properties");
 
