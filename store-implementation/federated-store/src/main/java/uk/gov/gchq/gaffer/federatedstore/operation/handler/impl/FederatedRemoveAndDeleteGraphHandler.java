@@ -48,6 +48,12 @@ public class FederatedRemoveAndDeleteGraphHandler extends FederatedRemoveGraphHa
             for (final Graph graph : graphsToRemove) {
                 if (graph.isSupported(DeleteAllData.class)) {
                     graph.execute(new DeleteAllData(), context);
+                } else {
+                    /*
+                     * Note if and when this supports multiple graphs the graphs
+                     * not yet deleted will need to be retained for the exception message
+                     */
+                    throw new OperationException(String.format("Error the graph:%%s does not support DeleteAllData operation. Use RemoveGraph operation instead", graph.getGraphId()));
                 }
             }
 

@@ -17,12 +17,30 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang3.exception.CloneFailedException;
 
 
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
 public class RemoveAndDeleteGraph extends RemoveGraph {
-    /*
-     * This class is completely empty.
-     * This highlights need for Operation.class to be final with field "String id = operationName"
-     */
+
+    @Override
+    public RemoveAndDeleteGraph shallowClone() throws CloneFailedException {
+        return new RemoveAndDeleteGraph.Builder()
+                .graphId(super.getGraphId())
+                .options(super.getOptions())
+                .setUserRequestingAdminUsage(super.isUserRequestingAdminUsage())
+                .build();
+    }
+
+    public static class Builder extends IFederationOperation.BaseBuilder<RemoveAndDeleteGraph, RemoveAndDeleteGraph.Builder> {
+
+        public Builder() {
+            super(new RemoveAndDeleteGraph());
+        }
+
+        public RemoveAndDeleteGraph.Builder graphId(final String graphId) {
+            _getOp().setGraphId(graphId);
+            return _self();
+        }
+    }
 }
