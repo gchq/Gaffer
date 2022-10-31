@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.types;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -31,6 +32,7 @@ import java.util.Comparator;
  * values.
  */
 @JsonSimpleClassName
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 public class TypeValue implements Comparable<TypeValue>, Serializable {
 
     private static Comparator<String> stringComparator = Comparator

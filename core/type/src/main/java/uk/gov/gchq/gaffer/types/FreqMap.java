@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
@@ -26,6 +27,7 @@ import java.util.Map;
  * {@code FreqMap} extends {@link HashMap} with String keys and Long values, adding an upsert operation.
  */
 @JsonSimpleClassName
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 public class FreqMap extends HashMap<String, Long> {
     private static final long serialVersionUID = -851105369975081220L;
 
