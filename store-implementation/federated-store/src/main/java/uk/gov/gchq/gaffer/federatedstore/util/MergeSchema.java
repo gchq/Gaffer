@@ -31,7 +31,6 @@ import java.util.function.BiFunction;
 
 public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextSpecificMergeFunction<Schema, Schema, Schema> {
     public static final String WIPE_VERTEX_SERIALISERS = "wipe_vertex_serialisers";
-    public static final String OP_CLASS = "op_class";
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeSchema.class);
     private HashMap<String, Object> context;
 
@@ -75,16 +74,10 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
 
     @Override
     public Set<String> getRequiredContextValues() {
-        return Collections.singleton(OP_CLASS);
+        return Collections.emptySet();
     }
 
     private static HashMap<String, Object> validate(final HashMap<String, Object> context) {
-        final Object value = context.get(OP_CLASS);
-        try {
-            Class opClass = (Class) value;
-        } catch (final Exception e) {
-            throw new IllegalArgumentException("context not valid, requires: " + OP_CLASS + " found:" + value);
-        }
         return context;
     }
 }

@@ -142,10 +142,11 @@ public class FederatedStore extends Store {
         }
         ALL_IDS.add(id = i);
 
+        //TODO FS examine ?
         this.customPropertiesAuths = customPropertiesAuths;
         this.isPublicAccessAllowed = (null == isPublicAccessAllowed) ? Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT) : isPublicAccessAllowed;
         this.storeConfiguredDefaultGraphIds = storeConfiguredDefaultGraphIds;
-        this.storeConfiguredDefaultMergeFunctions = (null == storeConfiguredDefaultMergeFunctions) ? new HashMap<>() : storeConfiguredDefaultMergeFunctions;
+        this.storeConfiguredDefaultMergeFunctions = (null == storeConfiguredDefaultMergeFunctions) ? new HashMap<>() : new HashMap<>(storeConfiguredDefaultMergeFunctions);
 
         this.storeConfiguredDefaultMergeFunctions.putIfAbsent(GetTraits.class.getCanonicalName(), new CollectionIntersect<>());
         this.storeConfiguredDefaultMergeFunctions.putIfAbsent(GetAllElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
@@ -488,15 +489,15 @@ public class FederatedStore extends Store {
                         && !AddElements.class.equals(op)
                         && !AddNamedOperation.class.equals(op)
                         && !AddNamedView.class.equals(op))
+                //TODO FS [ op1 op2[graphA], op3 ] if op3 is one these it will break compared to old way?
                 .forEach(op -> addOperationHandler(op, new FederatedNoOutputHandler()));
 
-        addOperationHandler(GetSchema.class, new FederatedOutputHandler<>(new Schema())); //TODO FS Likely to be deleted after Default Merge Mapping
+        addOperationHandler(GetSchema.class, new FederatedOutputHandler<>(new Schema())); //TODO FS will to be deleted after Default Merge Mapping
 
-        addOperationHandler(Filter.class, new FederatedFilterHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
-        addOperationHandler(Aggregate.class, new FederatedAggregateHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
-        addOperationHandler(Transform.class, new FederatedTransformHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
-
-        addOperationHandler(Validate.class, new FederatedValidateHandler()); //TODO FS Likely to be deleted after Default Merge Mapping
+        addOperationHandler(Filter.class, new FederatedFilterHandler());
+        addOperationHandler(Aggregate.class, new FederatedAggregateHandler());
+        addOperationHandler(Transform.class, new FederatedTransformHandler());
+        addOperationHandler(Validate.class, new FederatedValidateHandler());
 
         //FederationOperations
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());

@@ -65,7 +65,6 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction.SCHEMA;
 import static uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction.VIEW;
-import static uk.gov.gchq.gaffer.federatedstore.util.MergeSchema.OP_CLASS;
 
 public final class FederatedStoreUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreUtil.class);
@@ -300,7 +299,6 @@ public final class FederatedStoreUtil {
 
                 functionContext = processSchemaForSpecificMergeFunction(payload, specificMergeFunction, functionContext, graphIds, operationContext, federatedStore);
                 functionContext = processViewForSpecificMergeFunction(payload, specificMergeFunction, functionContext);
-                functionContext = processOperationClassForSpecificMergeFunction(payload, specificMergeFunction, functionContext);
 
                 //This line creates a ContextSpecificMergeFunction based on the given context.
                 rtn = specificMergeFunction.createFunctionWithContext(functionContext);
@@ -309,13 +307,6 @@ public final class FederatedStoreUtil {
             }
         }
         return rtn;
-    }
-
-    private static HashMap<String, Object> processOperationClassForSpecificMergeFunction(final Operation payload, final ContextSpecificMergeFunction specificMergeFunction, final HashMap<String, Object> functionContext) {
-        if (specificMergeFunction.isRequired(OP_CLASS)) {
-            functionContext.put(OP_CLASS, payload.getClass());
-        }
-        return functionContext;
     }
 
     private static HashMap<String, Object> processViewForSpecificMergeFunction(final Operation payload, final ContextSpecificMergeFunction specificMergeFunction, final HashMap<String, Object> functionContext) throws GafferCheckedException {

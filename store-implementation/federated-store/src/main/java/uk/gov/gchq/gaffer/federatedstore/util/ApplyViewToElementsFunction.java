@@ -124,6 +124,7 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
         }
 
         final Graph resultsGraph = (Graph) context.get(TEMP_RESULTS_GRAPH);
+        //TODO FS examine schema security and user security.
         final Context userContext = new Context(new User()/*blankUser for temp graph*/);
         try {
             //the update object might be a lazy AccumuloElementRetriever and might be MASSIVE.
