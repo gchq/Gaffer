@@ -78,12 +78,12 @@ public class FederatedStoreGraphLibraryTest {
         library.add(GRAPH_ID_B, build, properties.clone());
 
         federatedStore = new FederatedStore();
+
+        FederatedStoreProperties fedProperties = new FederatedStoreProperties();
+        fedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+
+        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, fedProperties);
         federatedStore.setGraphLibrary(library);
-
-        FederatedStoreProperties fedProps = new FederatedStoreProperties();
-        fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
-
-        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, fedProps);
     }
 
     @Test

@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -55,9 +56,10 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
     private Iterable getAllGraphResults(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) throws OperationException {
         try {
             List<Object> results;
-            final Collection<Graph> graphs = getGraphs(operation, context, store);
+            final Collection<GraphSerialisable> graphs = getGraphs(operation, context, store);
             results = new ArrayList<>(graphs.size());
-            for (final Graph graph : graphs) {
+            for (final GraphSerialisable graphSerialisable : graphs) {
+                final Graph graph = graphSerialisable.getGraph();
 
                 final Operation updatedOp = FederatedStoreUtil.updateOperationForGraph(operation.getUnClonedPayload(), graph);
                 if (updatedOp != null) {
@@ -72,7 +74,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
                         }
                     } catch (final Exception e) {
                         if (!operation.isSkipFailedFederatedExecution()) {
-                            throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
+                            throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graphSerialisable.getGraphId(), e), e);
                         }
                     }
                 }
@@ -102,8 +104,8 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         }
     }
 
-    private List<Graph> getGraphs(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) {
-        List<Graph> graphs = store.getGraphs(context.getUser(), operation.getGraphIds(), operation);
+    private List<GraphSerialisable> getGraphs(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) {
+        List<GraphSerialisable> graphs = store.getGraphs(context.getUser(), operation.getGraphIds(), operation);
 
         return nonNull(graphs) ?
                 graphs

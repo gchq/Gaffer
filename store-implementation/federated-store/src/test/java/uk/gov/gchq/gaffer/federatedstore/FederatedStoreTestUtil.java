@@ -37,6 +37,8 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,9 +87,9 @@ public final class FederatedStoreTestUtil {
     public static final String FORMAT_VALUE_STRING = "value%s";
     public static final String VALUE_1 = value(1);
     public static final String VALUE_2 = value(2);
+    public static final String INTEGER = "integer";
     static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     static final Set<String> GRAPH_AUTHS_ALL_USERS = ImmutableSet.of(ALL_USERS);
-    public static final String INTEGER = "integer";
 
     private FederatedStoreTestUtil() {
         //no instance
@@ -129,7 +131,7 @@ public final class FederatedStoreTestUtil {
                         .build());
     }
 
-    public static  Context contextBlankUser() {
+    public static Context contextBlankUser() {
         return new Context(blankUser());
     }
 
@@ -162,6 +164,17 @@ public final class FederatedStoreTestUtil {
                 .build();
     }
 
+    public static Schema basicEntitySchema() {
+        return new Schema.Builder()
+                .entity(GROUP_BASIC_ENTITY, entityBasicDefinition())
+                .type(STRING, String.class)
+                .type(INTEGER, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .aggregateFunction(new Sum())
+                        .build())
+                .build();
+    }
+
     public static SchemaEdgeDefinition edgeDefinition() {
         return new SchemaEdgeDefinition.Builder()
                 .source(STRING)
@@ -184,6 +197,6 @@ public final class FederatedStoreTestUtil {
     }
 
     public static ListAssert<GraphSerialisable> assertThatGraphs(final Collection<Graph> graphs, final GraphSerialisable... values) {
-        return assertThat(graphs.stream().map(g -> new GraphSerialisable.Builder().graph(g).build()).collect(Collectors.toList())).containsExactlyInAnyOrder(values);
+        return assertThat(graphs.stream().map(g -> new GraphSerialisable.Builder(g).build()).collect(Collectors.toList())).containsExactlyInAnyOrder(values);
     }
 }

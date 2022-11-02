@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.cache;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 
 import java.util.Collections;
 import java.util.Set;
@@ -55,8 +56,17 @@ public class Cache<V> {
     }
 
     public Set<String> getAllKeys() {
-        final Set<String> allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
-        return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
+        try {
+            final Set<String> allKeysFromCache;
+            if (CacheServiceLoader.isEnabled()) {
+                allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
+            } else {
+                throw new GafferRuntimeException("Cache is not enabled, check it was Initialised");
+            }
+            return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
+        } catch (final Exception e) {
+            throw new GafferRuntimeException("Error getting all keys", e);
+        }
     }
 
     /**

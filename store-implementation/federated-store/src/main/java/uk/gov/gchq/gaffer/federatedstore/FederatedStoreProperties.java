@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.io.InputStream;
@@ -40,12 +40,7 @@ public class FederatedStoreProperties extends StoreProperties {
     public static final String CUSTOM_PROPERTIES_AUTHS = "gaffer.federatedstore.customPropertiesAuths";
     public static final String CUSTOM_PROPERTIES_AUTHS_DEFAULT = null;
 
-    /**
-     * This is used....
-     * eg.gaffer.federatedstore.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
-     */
-    public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
-    public static final String CACHE_SERVICE_CLASS_DEFAULT = null;
+    public static final String CACHE_SERVICE_CLASS_DEFAULT = HashMapCacheService.class.getCanonicalName();
 
     public FederatedStoreProperties() {
         super(FederatedStore.class);
@@ -67,11 +62,7 @@ public class FederatedStoreProperties extends StoreProperties {
         set(CUSTOM_PROPERTIES_AUTHS, auths);
     }
 
-    public void setCacheProperties(final String cacheServiceClassString) {
-        set(CACHE_SERVICE_CLASS, cacheServiceClassString);
-    }
-
-    public String getCacheProperties() {
+    public String getCacheServiceClass() {
         return get(CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_DEFAULT);
     }
 

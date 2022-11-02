@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -95,6 +96,14 @@ public class FederatedAggregateHandlerTest {
         final String graphNameB = "b";
 
         final Context context = new Context(new User());
+        Properties properties = PROPERTIES.getProperties();
+        AccumuloProperties propsA = new AccumuloProperties();
+        propsA.setProperties(properties);
+        propsA.setInstance(properties.getProperty(AccumuloProperties.INSTANCE_NAME) + "A");
+        AccumuloProperties propsB = new AccumuloProperties();
+        propsB.setProperties(properties);
+        propsB.setInstance(properties.getProperty(AccumuloProperties.INSTANCE_NAME) + "B");
+
         fed.execute(new OperationChain.Builder()
                 .first(new AddGraph.Builder()
                         .graphId(graphNameA)

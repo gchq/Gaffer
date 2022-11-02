@@ -164,8 +164,8 @@ public class FederatedStoreTest {
 
 
         store = new FederatedStore();
-        store.setGraphLibrary(library);
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties);
+        store.setGraphLibrary(library);
 
         blankUserContext = contextBlankUser();
         blankUser = blankUser();
@@ -189,18 +189,18 @@ public class FederatedStoreTest {
     @Test
     public void shouldLoadGraphsWithIds() throws Exception {
         //given
-        final Collection<Graph> before = store.getGraphs(blankUser, null, new GetAllGraphIds());
+        final Collection<GraphSerialisable> before = store.getGraphs(blankUser, null, new GetAllGraphIds());
 
         //when
         addGraphWithIds(ACC_ID_2, ID_PROPS_ACC_2, ID_SCHEMA_EDGE);
         addGraphWithIds(ACC_ID_1, ID_PROPS_ACC_1, ID_SCHEMA_ENTITY);
 
         //then
-        final Collection<Graph> graphs = store.getGraphs(blankUser, null, new GetAllGraphIds());
+        final Collection<GraphSerialisable> graphs = store.getGraphs(blankUser, null, new GetAllGraphIds());
 
         assertThat(before).size().isEqualTo(0);
         final List<String> graphNames = asList(ACC_ID_1, ACC_ID_2);
-        for (final Graph graph : graphs) {
+        for (final GraphSerialisable graph : graphs) {
             assertThat(graphNames).contains(graph.getGraphId());
         }
         assertThat(graphs).size().isEqualTo(2);
@@ -591,7 +591,7 @@ public class FederatedStoreTest {
 
         // Then
         assertThat(store.getGraphs(blankUser, null, new GetAllGraphIds())).hasSize(1);
-        final Graph graph = store.getGraphs(blankUser, getCleanStrings(ACC_ID_2), new GetAllGraphIds()).iterator().next();
+        final GraphSerialisable graph = store.getGraphs(blankUser, getCleanStrings(ACC_ID_2), new GetAllGraphIds()).iterator().next();
         assertThat(getSchemaFromPath(SCHEMA_ENTITY_BASIC_JSON)).isEqualTo(graph.getSchema());
         assertThat(graph.getStoreProperties()).isEqualTo(propertiesAlt);
     }
@@ -731,14 +731,14 @@ public class FederatedStoreTest {
         final Collection<GraphSerialisable> unexpectedGraphs = graphLists.get(1);
 
         // When
-        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, getCleanStrings("mockGraphId1,mockGraphId2,mockGraphId4"), new GetAllGraphIds());
+        final Collection<GraphSerialisable> returnedGraphs = store.getGraphs(blankUser, getCleanStrings("mockGraphId1,mockGraphId2,mockGraphId4"), new GetAllGraphIds());
 
         // Then
         assertThat(returnedGraphs)
                 .hasSize(3)
-                .containsAll(toGraphs(expectedGraphs));
+                .containsAll(expectedGraphs);
 
-        assertThat(checkUnexpected(toGraphs(unexpectedGraphs), returnedGraphs)).isFalse();
+        assertThat(returnedGraphs).doesNotContainAnyElementsOf(unexpectedGraphs);
     }
 
     @Test
@@ -747,10 +747,10 @@ public class FederatedStoreTest {
         populateGraphs();
 
         // When
-        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, null, new GetAllGraphIds());
+        final Collection<GraphSerialisable> returnedGraphs = store.getGraphs(blankUser, null, new GetAllGraphIds());
 
         // Then
-        final Set<String> graphIds = returnedGraphs.stream().map(Graph::getGraphId).collect(Collectors.toSet());
+        final Set<String> graphIds = returnedGraphs.stream().map(GraphSerialisable::getGraphId).collect(Collectors.toSet());
         assertThat(graphIds).containsExactly("mockGraphId0", "mockGraphId2", "mockGraphId4");
     }
 
@@ -760,10 +760,10 @@ public class FederatedStoreTest {
         populateGraphs();
 
         // When
-        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, getCleanStrings("mockGraphId0,mockGraphId1"), new GetAllGraphIds());
+        final Collection<GraphSerialisable> returnedGraphs = store.getGraphs(blankUser, getCleanStrings("mockGraphId0,mockGraphId1"), new GetAllGraphIds());
 
         // Then
-        final Set<String> graphIds = returnedGraphs.stream().map(Graph::getGraphId).collect(Collectors.toSet());
+        final Set<String> graphIds = returnedGraphs.stream().map(GraphSerialisable::getGraphId).collect(Collectors.toSet());
         assertThat(graphIds).containsExactly("mockGraphId0", "mockGraphId1");
     }
 
@@ -775,7 +775,7 @@ public class FederatedStoreTest {
         final Collection<GraphSerialisable> expectedGraphs = graphLists.get(0);
 
         // When
-        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, getCleanStrings(""), new GetAllGraphIds());
+        final Collection<GraphSerialisable> returnedGraphs = store.getGraphs(blankUser, getCleanStrings(""), new GetAllGraphIds());
 
         // Then
         assertThat(returnedGraphs).withFailMessage(returnedGraphs.toString()).isEmpty();
@@ -790,80 +790,60 @@ public class FederatedStoreTest {
         final Collection<GraphSerialisable> unexpectedGraphs = graphLists.get(1);
 
         // When
-        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, getCleanStrings(",mockGraphId2,mockGraphId4"), new GetAllGraphIds());
+        final Collection<GraphSerialisable> returnedGraphs = store.getGraphs(blankUser, getCleanStrings(",mockGraphId2,mockGraphId4"), new GetAllGraphIds());
 
         // Then
         assertThat(returnedGraphs)
                 .hasSize(2)
-                .containsAll(toGraphs(expectedGraphs));
+                .containsAll(expectedGraphs);
 
-        assertThat(checkUnexpected(toGraphs(unexpectedGraphs), returnedGraphs)).isFalse();
+        assertThat(returnedGraphs).doesNotContainAnyElementsOf(unexpectedGraphs);
     }
 
     @Test
     public void shouldAddGraphIdWithAuths() throws Exception {
         // Given
-        final Graph fedGraph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                        .library(library)
-                        .build())
-                .addStoreProperties(federatedProperties)
-                .build();
-
-        addGraphWithIds(ACC_ID_2, ID_PROPS_ACC_2, ID_SCHEMA_ENTITY);
-
-        library.add(ACC_ID_2, getSchemaFromPath(SCHEMA_ENTITY_BASIC_JSON), propertiesAlt);
+        library.add(ACC_ID_1, getSchemaFromPath(SCHEMA_ENTITY_BASIC_JSON), propertiesAlt);
 
         // When
-        int before = 0;
-        for (@SuppressWarnings("unused") final String ignore : fedGraph.execute(
-                new GetAllGraphIds(),
-                blankUser)) {
-            before++;
-        }
+        Iterable<? extends String> before = store.execute(new GetAllGraphIds(), contextBlankUser());
 
-        fedGraph.execute(
-                new AddGraph.Builder()
+        store.execute(new AddGraph.Builder()
                         .graphAuths("auth")
-                        .graphId(ACC_ID_2)
+                        .graphId(ACC_ID_1)
                         .build(),
-                blankUser);
+                contextBlankUser());
 
-        int after = 0;
-        for (@SuppressWarnings("unused") final String ignore : fedGraph.execute(
-                new GetAllGraphIds(),
-                blankUser)) {
-            after++;
-        }
+        Iterable<String> after = (Iterable<String>) store.execute(new GetAllGraphIds(), contextBlankUser());
 
-        fedGraph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                         .input(new Entity.Builder()
                                 .group("BasicEntity")
                                 .vertex("v1")
                                 .build())
                         .build(),
-                blankUser);
+                contextBlankUser());
 
-        final Iterable<? extends Element> elements = fedGraph.execute(
+        final Iterable<? extends Element> elements = store.execute(
                 new GetAllElements(),
-                new User.Builder()
+                new Context(new User.Builder()
                         .userId(TEST_USER_ID + "Other")
                         .opAuth("auth")
-                        .build());
+                        .build()));
 
-        final Iterable<? extends Element> elements2 = fedGraph.execute(new GetAllElements(),
-                new User.Builder()
+        final Iterable<? extends Element> elements2 = store.execute(new GetAllElements(),
+                new Context(new User.Builder()
                         .userId(TEST_USER_ID + "Other")
                         .opAuths("x")
-                        .build());
-        assertThat(elements2).isEmpty();
+                        .build()));
+
 
         // Then
-        assertThat(before).isEqualTo(0);
-        assertThat(after).isEqualTo(1);
+        assertThat(before).isEmpty();
+        assertThat(after).containsExactly(ACC_ID_1);
         assertThat(elements).isNotNull();
         assertThat(elements.iterator()).hasNext();
+        assertThat(elements2).isEmpty();
     }
 
     @Test
@@ -921,14 +901,14 @@ public class FederatedStoreTest {
         final Collection<GraphSerialisable> unexpectedGraphs = graphLists.get(1);
 
         // When
-        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, getCleanStrings("mockGraphId1"), new GetAllGraphIds());
+        final Collection<GraphSerialisable> returnedGraphs = store.getGraphs(blankUser, getCleanStrings("mockGraphId1"), new GetAllGraphIds());
 
         // Then
         assertThat(returnedGraphs)
                 .hasSize(1)
-                .containsAll(toGraphs(expectedGraphs));
+                .containsAll(expectedGraphs);
 
-        assertThat(checkUnexpected(toGraphs(unexpectedGraphs), returnedGraphs)).isFalse();
+        assertThat(returnedGraphs).doesNotContainAnyElementsOf(unexpectedGraphs);
     }
 
     private List<Graph> toGraphs(final Collection<GraphSerialisable> graphSerialisables) {
@@ -937,7 +917,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldThrowExceptionWithInvalidCacheClass() throws StoreException {
-        federatedProperties.setCacheProperties(INVALID_CACHE_SERVICE_CLASS_STRING);
+        federatedProperties.setCacheServiceClass(INVALID_CACHE_SERVICE_CLASS_STRING);
 
         CacheServiceLoader.shutdown();
 
@@ -948,7 +928,8 @@ public class FederatedStoreTest {
     @Test
     public void shouldReuseGraphsAlreadyInCache() throws Exception {
         // Check cache is empty
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        CacheServiceLoader.shutdown();
+        federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         assertThat(CacheServiceLoader.getService()).isNull();
 
         // initialise FedStore
@@ -980,8 +961,9 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldInitialiseWithCache() throws StoreException {
+        CacheServiceLoader.shutdown();
         assertThat(CacheServiceLoader.getService()).isNull();
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         assertThat(CacheServiceLoader.getService()).isNull();
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties);
         assertThat(CacheServiceLoader.getService()).isNotNull();
@@ -989,7 +971,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldThrowExceptionWithoutInitialisation() throws StoreException {
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties);
 
         // Given
@@ -1004,7 +986,7 @@ public class FederatedStoreTest {
         // When / Then
         assertThatExceptionOfType(Exception.class)
                 .isThrownBy(() -> store.addGraphs(null, TEST_USER_ID, false, graphToAdd))
-                .withMessageContaining("No cache has been set");
+                .withStackTraceContaining("Cache is not enabled, check it was Initialised");
     }
 
     @Test
@@ -1022,7 +1004,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldAddGraphsToCache() throws Exception {
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties);
 
         // Given
@@ -1039,11 +1021,11 @@ public class FederatedStoreTest {
         assertThat(store.getGraphs(blankUser, getCleanStrings(ACC_ID_1), new GetAllGraphIds())).hasSize(1);
 
         // When
-        final Collection<Graph> storeGraphs = store.getGraphs(blankUser, null, new GetAllGraphIds());
+        final Collection<GraphSerialisable> storeGraphs = store.getGraphs(blankUser, null, new GetAllGraphIds());
 
         // Then
         assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_1);
-        assertThat(storeGraphs).contains(graphToAdd.getGraph());
+        assertThat(storeGraphs).contains(graphToAdd);
 
         // When
         store = new FederatedStore();
@@ -1054,7 +1036,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldAddMultipleGraphsToCache() throws Exception {
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties);
         // Given
 
@@ -1095,7 +1077,7 @@ public class FederatedStoreTest {
         addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_EDGE_BASIC_JSON);
 
         // Then
-        final Collection<Graph> graphs = store.getGraphs(blankUserContext.getUser(), getCleanStrings(ACC_ID_2), new GetAllGraphIds());
+        final Collection<GraphSerialisable> graphs = store.getGraphs(blankUserContext.getUser(), getCleanStrings(ACC_ID_2), new GetAllGraphIds());
         assertThat(graphs).hasSize(1);
         JsonAssert.assertEquals(JSONSerialiser.serialise(Schema.fromJson(StreamUtil.openStream(getClass(), SCHEMA_EDGE_BASIC_JSON))),
                 JSONSerialiser.serialise(graphs.iterator().next().getSchema()));
@@ -1104,7 +1086,8 @@ public class FederatedStoreTest {
     @Test
     public void shouldNotAddGraphToLibraryWhenReinitialisingFederatedStoreWithGraphFromCache() throws Exception {
         // Check cache is empty
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        CacheServiceLoader.shutdown();
+        federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         assertThat(CacheServiceLoader.getService()).isNull();
 
         // initialise FedStore
@@ -1113,7 +1096,7 @@ public class FederatedStoreTest {
         // add something so it will be in the cache
         final GraphSerialisable graphToAdd = new GraphSerialisable.Builder()
                 .config(new GraphConfig(ACC_ID_1))
-                .properties(properties1)
+                .properties(properties1.clone())
                 .schema(StreamUtil.openStream(FederatedStoreTest.class, SCHEMA_EDGE_BASIC_JSON))
                 .build();
 
@@ -1128,10 +1111,10 @@ public class FederatedStoreTest {
 
         // restart the store
         store = new FederatedStore();
-        // clear and set the GraphLibrary again
-        store.setGraphLibrary(library);
         // initialise the FedStore
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties);
+        // clear and set the GraphLibrary again
+        store.setGraphLibrary(library);
 
         // check is in the cache still
         assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME))
