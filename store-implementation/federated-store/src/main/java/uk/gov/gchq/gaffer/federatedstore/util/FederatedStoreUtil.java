@@ -342,18 +342,18 @@ public final class FederatedStoreUtil {
         return functionContext;
     }
 
-    public static BiFunction getStoreConfiguredDefaultMergeFunction(final Operation payload, final Context context, final List graphIds, final FederatedStore store) throws GafferCheckedException {
+    public static BiFunction getStoreConfiguredMergeFunction(final Operation payload, final Context context, final List graphIds, final FederatedStore store) throws GafferCheckedException {
         try {
-            BiFunction mergeFunction = isNull(store.getStoreConfiguredDefaultMergeFunctions()) || isNull(payload)
+            BiFunction mergeFunction = isNull(store.getStoreConfiguredMergeFunctions()) || isNull(payload)
                     ? getDefaultMergeFunction()
-                    : store.getStoreConfiguredDefaultMergeFunctions().getOrDefault(payload.getClass().getCanonicalName(), getDefaultMergeFunction());
+                    : store.getStoreConfiguredMergeFunctions().getOrDefault(payload.getClass().getCanonicalName(), getDefaultMergeFunction());
             return processIfFunctionIsContextSpecific(mergeFunction, payload, context, graphIds, store);
         } catch (final Exception e) {
             throw new GafferRuntimeException("Error getting default merge function, due to:" + e.getMessage(), e);
         }
     }
 
-    public static List<String> loadStoreConfiguredDefaultGraphIdsListFrom(final String path) throws IOException {
+    public static List<String> loadStoreConfiguredGraphIdsListFrom(final String path) throws IOException {
         if (isNull(path)) {
             return null;
         } else {
@@ -361,7 +361,7 @@ public final class FederatedStoreUtil {
         }
     }
 
-    public static Map<String, BiFunction> loadStoreConfiguredDefaultMergeFunctionMapFrom(final String path) throws IOException {
+    public static Map<String, BiFunction> loadStoreConfiguredMergeFunctionMapFrom(final String path) throws IOException {
         if (isNull(path)) {
             return Collections.emptyMap();
         } else {

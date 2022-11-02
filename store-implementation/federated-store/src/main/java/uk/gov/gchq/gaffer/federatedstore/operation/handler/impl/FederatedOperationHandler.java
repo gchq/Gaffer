@@ -39,7 +39,7 @@ import java.util.function.BiFunction;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getStoreConfiguredDefaultMergeFunction;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getStoreConfiguredMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.processIfFunctionIsContextSpecific;
 
 /**
@@ -121,7 +121,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             mergeFunction = processIfFunctionIsContextSpecific(operationMergeFunction, operation.getPayloadOperation(), context, operation.getGraphIds(), store);
         } else {
             //Get merge function specified by the store.
-            mergeFunction = getStoreConfiguredDefaultMergeFunction(operation.getPayloadOperation(), context, operation.getGraphIds(), store);
+            mergeFunction = getStoreConfiguredMergeFunction(operation.getPayloadOperation(), context, operation.getGraphIds(), store);
         }
 
         return mergeFunction;
