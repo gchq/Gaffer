@@ -63,7 +63,7 @@ public class FederatedRemoveGraphAndDeleteAllDataHandler extends FederatedRemove
 
             return removed;
         } catch (final Exception e) {
-            throw new OperationException(String.format("Error deleting accumulo table: %s", operation.getGraphId()), e);
+            throw new OperationException(String.format("Error deleting accumulo table: %s, due to:%s", operation.getGraphId(), e.getMessage()), e);
         }
     }
 }
