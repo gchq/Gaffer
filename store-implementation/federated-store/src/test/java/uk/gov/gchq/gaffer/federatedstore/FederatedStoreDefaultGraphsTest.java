@@ -40,7 +40,7 @@ public class FederatedStoreDefaultGraphsTest {
         federatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
         assertThat(federatedStore)
                 .isNotNull()
-                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getAdminConfiguredDefaultGraphIds));
+                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getStoreConfiguredDefaultGraphIds));
 
         federatedStore.initialise(FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), new FederatedStoreProperties());
     }
@@ -74,16 +74,6 @@ public class FederatedStoreDefaultGraphsTest {
         //when
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
         //then
-        assertThat(exception).message().contains("The following graphIds are not visible or do not exist: [defaultJsonGraphId]");
-    }
-
-    @Test
-    public void shouldNotChangeExistingDefaultedGraphId() throws Exception {
-        //when
-        federatedStore.setAdminConfiguredDefaultGraphIdsCSV("other");
-
-        //then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
         assertThat(exception).message().contains("The following graphIds are not visible or do not exist: [defaultJsonGraphId]");
     }
 }
