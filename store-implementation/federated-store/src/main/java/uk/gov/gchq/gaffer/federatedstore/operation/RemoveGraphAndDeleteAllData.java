@@ -19,8 +19,12 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
+@Since("2.0.0")
+@Summary("Used to tell a graph to delete all data, before being removed.")
 public class RemoveGraphAndDeleteAllData extends RemoveGraph {
 
     @Override
