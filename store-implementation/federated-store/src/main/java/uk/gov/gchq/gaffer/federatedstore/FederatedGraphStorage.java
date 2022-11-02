@@ -487,7 +487,7 @@ public class FederatedGraphStorage {
                     connection.tableOperations().online(newGraphId);
                 }
             } catch (final Exception e) {
-                LOGGER.error("Error trying to update tables for graphID:{} graphToMove:{}, Error:{}", graphId, graphToUpdate, e.getMessage());
+                LOGGER.error("Error trying to update tables for graphID:{} graphUpdate:{}, Error:{}", graphId, graphToUpdate, e.getMessage());
             }
         }
     }
