@@ -160,12 +160,13 @@ public class FederatedStoreRecursionIT {
                         .build())), user);
     }
 
-    private void createTheInnerFederatedStore() throws
-            OperationException {
+    private void createTheInnerFederatedStore() throws OperationException {
+        FederatedStoreProperties properties = new FederatedStoreProperties();
+        properties.setCacheServiceNameSuffix(INNER_FEDERATED_GRAPH);
         proxyToRestServiceFederatedGraph.execute(new AddGraph.Builder()
                 .graphId(INNER_FEDERATED_GRAPH)
                 .schema(new Schema())
-                .storeProperties(new FederatedStoreProperties())
+                .storeProperties(properties)
                 .build(), user);
     }
 

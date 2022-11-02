@@ -85,6 +85,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadFederatedStoreFrom;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
@@ -103,18 +104,21 @@ public class FederatedOperationHandlerTest {
     private Store mockStore2;
     private Store mockStore3;
     private Store mockStore4;
-    private Graph graph1;
-    private Graph graph2;
-    private Graph graph3;
-    private Graph graph4;
+    private GraphSerialisable graph1;
+    private GraphSerialisable graph2;
+    private GraphSerialisable graph3;
+    private GraphSerialisable graph4;
 
     @BeforeEach
     public void setUp() throws Exception {
+        resetForFederatedTests();
+
         testUser = testUser();
         context = new Context(testUser);
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass("MockedStore");
         mockStore1 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, output1);
         mockStore2 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, output2);
         mockStore3 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, output3);
@@ -224,11 +228,20 @@ public class FederatedOperationHandlerTest {
         validateMergeResultsFromFieldObjects(results, output1, output3);
     }
 
-    private Graph getGraphWithMockStore(final Store mockStore) {
-        return new Graph.Builder()
+    private GraphSerialisable getGraphWithMockStore(final Store mockStore) {
+
+        final Graph graph = new Graph.Builder()
                 .config(new GraphConfig(TEST_GRAPH_ID))
                 .store(mockStore)
                 .build();
+
+        //TODO FS final GraphSerialisable Test bug, this is the only reason why it loosing final. can this test class be rewritten.
+        final GraphSerialisable mock = mock(GraphSerialisable.class);
+        when(mock.getGraph()).thenReturn(graph);
+        when(mock.getGraphId()).thenReturn(TEST_GRAPH_ID);
+        when(mock.getConfig()).thenReturn(new GraphConfig(TEST_GRAPH_ID));
+
+        return mock;
     }
 
     private Store getMockStoreThatAlwaysReturns(final Schema schema, final StoreProperties storeProperties, final Object willReturn) throws uk.gov.gchq.gaffer.operation.OperationException {
@@ -351,11 +364,11 @@ public class FederatedOperationHandlerTest {
         Store mockStore1 = getMockStore(unusedSchema, storeProperties);
         Store mockStore2 = getMockStore(concreteSchema, storeProperties);
 
-        Graph graph1 = getGraphWithMockStore(mockStore1);
-        Graph graph2 = getGraphWithMockStore(mockStore2);
+        GraphSerialisable graph1 = getGraphWithMockStore(mockStore1);
+        GraphSerialisable graph2 = getGraphWithMockStore(mockStore2);
 
         FederatedStore mockStore = mock(FederatedStore.class);
-        List<Graph> linkedGraphs = asList(graph1, graph2);
+        List<GraphSerialisable> linkedGraphs = asList(graph1, graph2);
 
         when(mockStore.getGraphs(eq(testUser), eq(null), any())).thenReturn(linkedGraphs);
 
@@ -389,7 +402,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(null);
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        List<Graph> filteredGraphs = singletonList(getGraphWithMockStore(mockStore));
+        List<GraphSerialisable> filteredGraphs = singletonList(getGraphWithMockStore(mockStore));
         given(federatedStore.getGraphs(eq(testUser), eq((List) null), any(FederatedOperation.class))).willReturn(filteredGraphs);
 
         // When
@@ -414,7 +427,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(singletonList(true));
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        List<Graph> threeGraphsOfBoolean = asList(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        List<GraphSerialisable> threeGraphsOfBoolean = asList(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
         given(federatedStore.getGraphs(eq(testUser), eq((List) null), any(FederatedOperation.class))).willReturn(threeGraphsOfBoolean);
 
         // When
@@ -436,7 +449,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(true);
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        List<Graph> threeGraphsOfBoolean = asList(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        List<GraphSerialisable> threeGraphsOfBoolean = asList(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
         given(federatedStore.getGraphs(eq(testUser), eq((List) null), any(FederatedOperation.class))).willReturn(threeGraphsOfBoolean);
 
         // When
@@ -461,7 +474,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(singletonList(123));
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        List<Graph> threeGraphsOfBoolean = asList(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        List<GraphSerialisable> threeGraphsOfBoolean = asList(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
         given(federatedStore.getGraphs(eq(testUser), eq((List) null), any(FederatedOperation.class))).willReturn(threeGraphsOfBoolean);
 
         // When
@@ -486,7 +499,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(singletonList((Object) null));
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        List<Graph> threeGraphsOfNull = asList(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        List<GraphSerialisable> threeGraphsOfNull = asList(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
         given(federatedStore.getGraphs(eq(testUser), eq((List) null), any(FederatedOperation.class))).willReturn(threeGraphsOfNull);
 
         // When
@@ -512,7 +525,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(null);
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        List<Graph> threeGraphsOfNull = asList(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        List<GraphSerialisable> threeGraphsOfNull = asList(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
         given(federatedStore.getGraphs(eq(testUser), eq((List) null), any(FederatedOperation.class))).willReturn(threeGraphsOfNull);
 
         // When

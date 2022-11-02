@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,9 +91,8 @@ public class GraphSerialisableTest {
     @Test
     public void shouldConsumeGraph() {
         // Given
-        final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(new StoreProperties(properties))
-                .config(config).build();
-        final GraphSerialisable result = new GraphSerialisable.Builder().graph(graph).build();
+        final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(new StoreProperties(properties)).config(config).build();
+        final GraphSerialisable result = new GraphSerialisable.Builder(graph).build();
 
         // When / Then
         assertThat(result).isEqualTo(expected);

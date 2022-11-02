@@ -57,7 +57,7 @@ public class FederatedStoreMultiCacheTest {
         resetForFederatedTests();
 
         federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         federatedStoreProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
         federatedStore = new FederatedStore();
         federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);

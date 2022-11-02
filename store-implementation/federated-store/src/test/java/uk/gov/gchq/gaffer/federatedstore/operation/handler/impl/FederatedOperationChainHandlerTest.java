@@ -228,7 +228,7 @@ public class FederatedOperationChainHandlerTest {
         // When
         final Iterable result = store.execute(opChain, context);
 
-        // Then - the result will contain 1 element from the first graph
+        // Then - the result will contain 1 element from the first graph //TODO FS why the first graph?
         ElementUtil.assertElementEquals(Collections.singletonList(elements[1]), result);
     }
 

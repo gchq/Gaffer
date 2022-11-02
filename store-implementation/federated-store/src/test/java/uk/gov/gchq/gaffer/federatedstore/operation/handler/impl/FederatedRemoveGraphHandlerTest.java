@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
@@ -60,7 +59,7 @@ public class FederatedRemoveGraphHandlerTest {
     public void shouldRemoveGraphForAddingUser() throws Exception {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
@@ -79,7 +78,7 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs(testUser, null, new RemoveGraph());
+        Collection<GraphSerialisable> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
         assertThat(graphs).isEmpty();
 
@@ -89,7 +88,7 @@ public class FederatedRemoveGraphHandlerTest {
     public void shouldNotRemoveGraphForNonAddingUser() throws Exception {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
@@ -108,7 +107,7 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs(testUser, null, new RemoveGraph());
+        Collection<GraphSerialisable> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
         assertThat(graphs).hasSize(1);
 
@@ -118,7 +117,7 @@ public class FederatedRemoveGraphHandlerTest {
     public void shouldNotRemoveGraphConfiguredWithNoAccessWritePredicate() throws Exception {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
@@ -146,7 +145,7 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs(testUser, null, new RemoveGraph());
+        Collection<GraphSerialisable> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
         assertThat(graphs).hasSize(1);
     }

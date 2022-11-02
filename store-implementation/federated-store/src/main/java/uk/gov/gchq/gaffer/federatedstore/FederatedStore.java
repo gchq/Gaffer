@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.NoAccessUserPredicate;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
@@ -54,7 +55,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveG
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.MergeSchema;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
@@ -119,14 +119,14 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.loadStor
  *
  * @see #initialise(String, Schema, StoreProperties)
  * @see Store
- * @see Graph
+ * @see uk.gov.gchq.gaffer.graph.Graph
  */
 public class FederatedStore extends Store {
     public static final String FEDERATED_STORE_PROCESSED = "FederatedStore.processed.";
     public static final String FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY = "FedStoreGraphId_value_null_or_empty";
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
     private static final List<Integer> ALL_IDS = new ArrayList<>();
-    private final FederatedGraphStorage graphStorage = new FederatedGraphStorage();
+    private FederatedGraphStorage graphStorage;
     private final int id;
     private Set<String> customPropertiesAuths;
     private Boolean isPublicAccessAllowed;
@@ -170,6 +170,7 @@ public class FederatedStore extends Store {
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
+        graphStorage = new FederatedGraphStorage(properties.getCacheServiceNameSuffix());
         super.initialise(graphId, new Schema(), properties);
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
@@ -204,7 +205,11 @@ public class FederatedStore extends Store {
     @Override
     public void setGraphLibrary(final GraphLibrary library) {
         super.setGraphLibrary(library);
-        graphStorage.setGraphLibrary(library);
+        if (nonNull(graphStorage)) {
+            graphStorage.setGraphLibrary(library);
+        } else {
+            throw new GafferRuntimeException("Error adding GraphLibrary, Initialise the FederatedStore first.");
+        }
     }
 
     /**
@@ -381,8 +386,8 @@ public class FederatedStore extends Store {
      * @param operation the requesting operation, graphs are returned only once per operation.
      * @return the graph collection.
      */
-    public List<Graph> getGraphs(final User user, final List<String> graphIds, final IFederationOperation operation) {
-        List<Graph> rtn = new ArrayList<>();
+    public List<GraphSerialisable> getGraphs(final User user, final List<String> graphIds, final IFederationOperation operation) {
+        List<GraphSerialisable> rtn = new ArrayList<>();
         if (nonNull(operation)) {
             boolean isFedStoreIdPreexisting = addFedStoreIdToOperation(operation);
             if (isFedStoreIdPreexisting) {
@@ -405,7 +410,7 @@ public class FederatedStore extends Store {
                     LOGGER.info("A get graphs request was made with empty graphIds");
                 }
                 String adminAuth = operation.isUserRequestingAdminUsage() ? this.getProperties().getAdminAuth() : null;
-                rtn.addAll(graphStorage.get(user, graphIds, adminAuth));
+                rtn.addAll(new ArrayList<>(graphStorage.get(user, graphIds, adminAuth)));
             }
         } else {
             LOGGER.warn("getGraphs was requested with null Operation, this will return no graphs.");
@@ -449,7 +454,7 @@ public class FederatedStore extends Store {
 
     public Map<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds, final boolean userRequestingAdminUsage) {
         return userRequestingAdminUsage
-                ? graphStorage.getAllGraphsAndAccessAsAdmin(user, graphIds, this.getProperties().getAdminAuth())
+                ? graphStorage.getAllGraphsAndAccess(user, graphIds, this.getProperties().getAdminAuth())
                 : graphStorage.getAllGraphsAndAccess(user, graphIds);
     }
 
@@ -550,11 +555,13 @@ public class FederatedStore extends Store {
 
     @Override
     protected void startCacheServiceLoader(final StoreProperties properties) {
+        //this line sets the property map with the default value if required.
+        properties.setCacheServiceClass(properties.getCacheServiceClass(FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT));
         super.startCacheServiceLoader(properties);
         try {
             graphStorage.startCacheServiceLoader();
-        } catch (final StorageException e) {
-            throw new RuntimeException(e.getMessage(), e);
+        } catch (final Exception e) {
+            throw new RuntimeException("Error occurred while starting cache. " + e.getMessage(), e);
         }
     }
 
@@ -583,7 +590,7 @@ public class FederatedStore extends Store {
         return storeConfiguredDefaultGraphIds;
     }
 
-    private List<Graph> getDefaultGraphs(final User user, final IFederationOperation operation) {
+    private List<GraphSerialisable> getDefaultGraphs(final User user, final IFederationOperation operation) {
 
         boolean isAdminRequestingOverridingDefaultGraphs =
                 operation.isUserRequestingAdminUsage()
@@ -596,7 +603,7 @@ public class FederatedStore extends Store {
             //This operation has already been processes once, by this store.
             String keyForProcessedFedStoreId = getKeyForProcessedFedStoreId();
             operation.addOption(keyForProcessedFedStoreId, null); // value is null, but key is still found.
-            List<Graph> graphs = getGraphs(user, storeConfiguredDefaultGraphIds, operation);
+            List<GraphSerialisable> graphs = getGraphs(user, storeConfiguredDefaultGraphIds, operation);
             //put it back
             operation.addOption(keyForProcessedFedStoreId, getValueForProcessedFedStoreId());
             return graphs;
