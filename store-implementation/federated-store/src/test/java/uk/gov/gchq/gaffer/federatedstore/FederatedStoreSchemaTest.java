@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
-import uk.gov.gchq.gaffer.federatedstore.util.DefaultBestEffortsMergeFunction;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -66,6 +65,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTe
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.property;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -137,7 +137,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToGetElementsWithOverlappingSchemasDefaultBestEffortsMergeFunction() throws OperationException {
+    public void shouldBeAbleToGetElementsWithOverlappingSchemasUsingDefaultMergeFunction() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_TYPE);
 
@@ -148,7 +148,7 @@ public class FederatedStoreSchemaTest {
         addEdgeBasicWith(DEST_2, 1, 2);
 
         // When
-        // DefaultBestEffortsMergeFunction specified - behaves like pre 2.0 aggregation
+        // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
         final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(new GetElements.Builder()
                         .input(new EntitySeed(SOURCE_BASIC))
@@ -158,7 +158,7 @@ public class FederatedStoreSchemaTest {
                                         .build())
                                 .build())
                         .build())
-                .mergeFunction(new DefaultBestEffortsMergeFunction())
+                .mergeFunction(getDefaultMergeFunction())
                 .build(), testContext);
 
         // Then
@@ -262,17 +262,17 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldValidateCorrectlyWithOverlappingSchemasDefaultBestEffortsMergeFunction() throws OperationException {
+    public void shouldValidateCorrectlyWithOverlappingSchemasUsingDefaultMergeFunction() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_REQUIRED_TYPE);
 
         // When
         addEdgeBasicWith(DEST_2, 1, 2);
 
-        // DefaultBestEffortsMergeFunction specified - behaves like pre 2.0 aggregation
+        // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
         final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(new GetAllElements())
-                .mergeFunction(new DefaultBestEffortsMergeFunction())
+                .mergeFunction(getDefaultMergeFunction())
                 .build(), testContext);
 
         // Then
@@ -318,7 +318,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToIngestAggregateWithOverlappingSchemasDefaultBestEffortsMergeFunction() throws OperationException {
+    public void shouldBeAbleToIngestAggregateWithOverlappingSchemasUsingDefaultMergeFunction() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_TYPE);
 
@@ -333,14 +333,14 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         // When
-        // DefaultBestEffortsMergeFunction specified - behaves like pre 2.0 aggregation
+        // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
         final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(new GetElements.Builder()
                         .input(new EntitySeed(SOURCE_BASIC))
                         .view(new View.Builder()
                                 .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder().build()).build())
                         .build())
-                .mergeFunction(new DefaultBestEffortsMergeFunction())
+                .mergeFunction(getDefaultMergeFunction())
                 .build(), testContext);
 
         // Then
@@ -410,7 +410,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToIngestAggregateMissingPropertyWithOverlappingSchemasDefaultBestEffortsMergeFunction() throws OperationException {
+    public void shouldBeAbleToIngestAggregateMissingPropertyWithOverlappingSchemasUsingDefaultMergeFunction() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_TYPE);
 
@@ -421,14 +421,14 @@ public class FederatedStoreSchemaTest {
         addEdgeBasicWith(DEST_BASIC, 1);
 
         // When
-        // DefaultBestEffortsMergeFunction specified - behaves like pre 2.0 aggregation
+        // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
         final Iterable<? extends Element> elements = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(new GetElements.Builder()
                         .input(new EntitySeed(SOURCE_BASIC))
                         .view(new View.Builder()
                                 .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder().build()).build())
                         .build())
-                .mergeFunction(new DefaultBestEffortsMergeFunction())
+                .mergeFunction(getDefaultMergeFunction())
                 .build(), testContext);
 
         // Then
@@ -498,7 +498,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToViewPropertyWithOverlappingSchemasDefaultBestEffortsMergeFunction() throws OperationException {
+    public void shouldBeAbleToViewPropertyWithOverlappingSchemasUsingDefaultMergeFunction() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_TYPE);
 
@@ -510,7 +510,7 @@ public class FederatedStoreSchemaTest {
 
 
         // When
-        // DefaultBestEffortsMergeFunction specified - behaves like pre 2.0 aggregation
+        // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
         final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(new GetElements.Builder()
                         .input(new EntitySeed(SOURCE_BASIC))
@@ -520,7 +520,7 @@ public class FederatedStoreSchemaTest {
                                         .build())
                                 .build())
                         .build())
-                .mergeFunction(new DefaultBestEffortsMergeFunction())
+                .mergeFunction(getDefaultMergeFunction())
                 .build(), testContext);
 
         // Then
@@ -660,7 +660,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToQueryAggregatePropertyWithOverlappingSchemasDefaultBestEffortsMergeFunction() throws OperationException {
+    public void shouldBeAbleToQueryAggregatePropertyWithOverlappingSchemasUsingDefaultMergeFunction() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_TYPE);
 
@@ -672,7 +672,7 @@ public class FederatedStoreSchemaTest {
 
 
         // When
-        // DefaultBestEffortsMergeFunction specified - behaves like pre 2.0 aggregation
+        // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
         final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(new GetElements.Builder()
                         .input(new EntitySeed(SOURCE_BASIC))
@@ -682,7 +682,7 @@ public class FederatedStoreSchemaTest {
                                         .build())
                                 .build())
                         .build())
-                .mergeFunction(new DefaultBestEffortsMergeFunction())
+                .mergeFunction(getDefaultMergeFunction())
                 .build(), testContext);
 
         // Then
