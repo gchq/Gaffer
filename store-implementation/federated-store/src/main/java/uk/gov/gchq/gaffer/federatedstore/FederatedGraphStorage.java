@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
@@ -53,6 +52,7 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.getConnector;
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 
 public class FederatedGraphStorage {
@@ -478,7 +478,7 @@ public class FederatedGraphStorage {
              * MiniAccumuloStore, SingleUseMiniAccumuloStore]
              */
             try {
-                Connector connection = TableUtils.getConnector((AccumuloProperties) graphToUpdate.getStoreProperties());
+                Connector connection = getConnector((AccumuloProperties) graphToUpdate.getStoreProperties());
 
                 if (connection.tableOperations().exists(graphId)) {
                     connection.tableOperations().offline(graphId);
@@ -486,7 +486,7 @@ public class FederatedGraphStorage {
                     connection.tableOperations().online(newGraphId);
                 }
             } catch (final Exception e) {
-                LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToUpdate, e);
+                LOGGER.error("Error trying to update tables for graphID:{} graphUpdate:{}, Error:{}", graphId, graphToUpdate, e.getMessage());
             }
         }
     }

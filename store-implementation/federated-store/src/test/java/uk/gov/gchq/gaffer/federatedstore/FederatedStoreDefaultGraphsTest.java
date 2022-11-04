@@ -66,12 +66,14 @@ public class FederatedStoreDefaultGraphsTest {
     @Test
     public void shouldGetDefaultedGraphIdFromJsonConfig() throws Exception {
         //Given
-        assertThat(federatedStore)
+        FederatedStore defaultedFederatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
+        defaultedFederatedStore.initialise("defaultedFederatedStore", new Schema(), new FederatedStoreProperties());
+        assertThat(defaultedFederatedStore)
                 .isNotNull()
                 .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getStoreConfiguredGraphIds));
 
         //when
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> defaultedFederatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
         //then
         assertThat(exception).message().contains("The following graphIds are not visible or do not exist: [defaultJsonGraphId]");
     }

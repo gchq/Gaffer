@@ -16,8 +16,9 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federatedstore.operation.IFederationOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraphAndDeleteAllData;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
@@ -51,6 +53,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedNoOutpu
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphAndDeleteAllDataHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
@@ -135,7 +138,10 @@ public class FederatedStore extends Store {
     private Map<String, BiFunction> storeConfiguredMergeFunctions;
 
     @JsonCreator
-    public FederatedStore(final Set<String> customPropertiesAuths, final Boolean isPublicAccessAllowed, final List<String> storeConfiguredGraphIds, final Map<String, BiFunction> storeConfiguredMergeFunctions) {
+    public FederatedStore(@JsonProperty("customPropertiesAuths") final Set<String> customPropertiesAuths,
+                          @JsonProperty("isPublicAccessAllowed") final Boolean isPublicAccessAllowed,
+                          @JsonProperty("storeConfiguredDefaultGraphIds") final List<String> storeConfiguredGraphIds,
+                          @JsonProperty("storeConfiguredDefaultMergeFunctions") final Map<String, BiFunction> storeConfiguredMergeFunctions) {
         Integer i = null;
         while (isNull(i) || ALL_IDS.contains(i)) {
             i = new Random().nextInt();
@@ -509,6 +515,7 @@ public class FederatedStore extends Store {
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
         addOperationHandler(AddGraphWithHooks.class, new FederatedAddGraphWithHooksHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
+        addOperationHandler(RemoveGraphAndDeleteAllData.class, new FederatedRemoveGraphAndDeleteAllDataHandler());
 
         addOperationHandler(GetAllGraphInfo.class, new FederatedGetAllGraphInfoHandler());
         addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
