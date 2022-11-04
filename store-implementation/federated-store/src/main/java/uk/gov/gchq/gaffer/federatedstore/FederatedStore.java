@@ -16,8 +16,9 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,7 +138,10 @@ public class FederatedStore extends Store {
     private Map<String, BiFunction> storeConfiguredDefaultMergeFunctions;
 
     @JsonCreator
-    public FederatedStore(final Set<String> customPropertiesAuths, final Boolean isPublicAccessAllowed, final List<String> storeConfiguredDefaultGraphIds, final Map<String, BiFunction> storeConfiguredDefaultMergeFunctions) {
+    public FederatedStore(@JsonProperty("customPropertiesAuths") final Set<String> customPropertiesAuths,
+                          @JsonProperty("isPublicAccessAllowed") final Boolean isPublicAccessAllowed,
+                          @JsonProperty("storeConfiguredDefaultGraphIds") final List<String> storeConfiguredDefaultGraphIds,
+                          @JsonProperty("storeConfiguredDefaultMergeFunctions") final Map<String, BiFunction> storeConfiguredDefaultMergeFunctions) {
         Integer i = null;
         while (isNull(i) || ALL_IDS.contains(i)) {
             i = new Random().nextInt();
