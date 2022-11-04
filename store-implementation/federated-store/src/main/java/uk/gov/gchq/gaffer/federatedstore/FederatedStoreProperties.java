@@ -41,6 +41,8 @@ public class FederatedStoreProperties extends StoreProperties {
     public static final String CUSTOM_PROPERTIES_AUTHS_DEFAULT = null;
 
     public static final String CACHE_SERVICE_CLASS_DEFAULT = HashMapCacheService.class.getCanonicalName();
+    public static final String STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS = "gaffer.federatedstore.storeConfiguredDefaultMergeFunctions";
+    public static final String STORE_CONFIGURED_DEFAULT_GRAPHIDS = "gaffer.federatedstore.storeConfiguredDefaultGraphIds";
 
     public FederatedStoreProperties() {
         super(FederatedStore.class);
@@ -85,4 +87,21 @@ public class FederatedStoreProperties extends StoreProperties {
     public void setGraphsCanHavePublicAccess(final boolean b) {
         set(IS_PUBLIC_ACCESS_ALLOWED, Boolean.toString(b));
     }
+
+    public String getStoreConfiguredDefaultMergeFunctions() {
+        return get(STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS);
+    }
+
+    public void setStoreConfiguredDefaultMergeFunctions(final String mergeFunctionFile) {
+        set(STORE_CONFIGURED_DEFAULT_MERGE_FUNCTIONS, mergeFunctionFile);
+    }
+
+    public String getStoreConfiguredDefaultGraphIds() {
+        return get(STORE_CONFIGURED_DEFAULT_GRAPHIDS);
+    }
+
+    public void setStoreConfiguredDefaultGraphIds(final String mergeFunctionFile) {
+        set(STORE_CONFIGURED_DEFAULT_GRAPHIDS, mergeFunctionFile);
+    }
+
 }

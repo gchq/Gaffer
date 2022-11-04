@@ -44,10 +44,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -166,8 +164,9 @@ public class FederatedGraphStorage {
      * @return visible graphs
      */
     public Collection<GraphSerialisable> getAll(final User user) {
-        final Set<GraphSerialisable> rtn = getUserGraphStream(federatedAccess -> federatedAccess.hasReadAccess(user))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        final Collection<GraphSerialisable> rtn = getUserGraphStream(federatedAccess -> federatedAccess.hasReadAccess(user))
+                .distinct()
+                .collect(Collectors.toCollection(ArrayList::new));
         return Collections.unmodifiableCollection(rtn);
     }
 
@@ -261,7 +260,7 @@ public class FederatedGraphStorage {
             }
         } catch (final SchemaException e) {
             final List<String> resultGraphIds = getStream(context.getUser(), graphIds).map(GraphSerialisable::getGraphId).collect(Collectors.toList());
-            throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the FederatedOperation.graphIds.", e);
+            throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the FederatedOperation.graphIds option.", e);
         }
         return schemaBuilder.build();
     }

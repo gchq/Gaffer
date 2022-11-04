@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import org.junit.platform.suite.api.ConfigurationParameter;
+import org.junit.platform.suite.api.IncludeClassNamePatterns;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
@@ -29,10 +30,18 @@ import java.util.Map;
 import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 
 @ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs")
+@IncludeClassNamePatterns(".*IT")
 public class FederatedStoreITs extends AbstractStoreITs {
 
+    /*
+     * TODO FS currently this file overrides the default merges used by IT's,
+     * this means the IT do not test FederatedStore out the box.
+     * Either change IT for all store - No.
+     * or Update default merge for GetAllElements to handle Post-Transform - Hard, do later.
+     * or set default merge for GetAlLElements to concatenation.
+     */
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
-            StreamUtil.openStream(FederatedStoreITs.class, "publicAccessPredefinedFederatedStore.properties"));
+            StreamUtil.openStream(FederatedStoreITs.class, "integrationTestPublicAccessPredefinedFederatedStore.properties"));
 
     private static final Schema SCHEMA = new Schema();
 

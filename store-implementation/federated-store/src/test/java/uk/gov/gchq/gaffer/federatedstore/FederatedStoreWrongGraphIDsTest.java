@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -100,7 +102,8 @@ public class FederatedStoreWrongGraphIDsTest {
                         .build(), contextBlankUser());
 
         //when
-        final Iterable<? extends Element> getAllElements = federatedStore.execute(new GetAllElements.Builder().build(), contextBlankUser());
+        final Iterable<? extends String> graphs = federatedStore.execute(new GetAllGraphIds(), contextBlankUser());
+        final Iterable<? extends Element> getAllElements = federatedStore.execute(new GetAllElements(), contextBlankUser());
         final Iterable<? extends Element> getAllElementsFromAccumuloGraph = federatedStore.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(GRAPH_ID_ACCUMULO), contextBlankUser());
         assertThatExceptionOfType(OperationException.class)
                 .isThrownBy(() -> federatedStore.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(WRONG_GRAPH_ID), contextBlankUser()))
@@ -116,17 +119,16 @@ public class FederatedStoreWrongGraphIDsTest {
                 .withStackTraceContaining(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(WRONG_GRAPH_ID)));
 
         //then
+        assertThat(graphs).asInstanceOf(InstanceOfAssertFactories.iterable(String.class)).containsExactly(GRAPH_ID_ACCUMULO);
+
         assertThat(getAllElements)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
                 .withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT)
-                .size().isEqualTo(1)
-                .returnToIterable()
-                .first().isEqualTo(EXPECTED_ENTITY);
+                .containsExactly(EXPECTED_ENTITY);
 
         assertThat(getAllElementsFromAccumuloGraph)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
                 .withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT)
-                .size().isEqualTo(1)
-                .returnToIterable()
-                .first().isEqualTo(EXPECTED_ENTITY);
-
+                .containsExactly(EXPECTED_ENTITY);
     }
 }

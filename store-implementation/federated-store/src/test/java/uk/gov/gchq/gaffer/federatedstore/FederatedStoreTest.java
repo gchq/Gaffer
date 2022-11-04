@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -58,7 +59,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
@@ -70,7 +70,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -80,7 +79,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES_ALT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
@@ -99,7 +97,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccum
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
@@ -292,7 +289,7 @@ public class FederatedStoreTest {
                 .build(), blankUserContext);
 
         // When
-        addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_ENTITY_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_ENTITY_BASIC_JSON);
 
         final Set<StoreTrait> after = store.execute(new GetTraits.Builder()
                 .currentTraits(false)
@@ -308,9 +305,9 @@ public class FederatedStoreTest {
     @Deprecated
     public void shouldUpdateSchemaWhenNewGraphIsAdded() throws Exception {
         // Given
-        addGraphWithPaths(ACC_ID_1, propertiesAlt, SCHEMA_ENTITY_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_1, propertiesAlt, blankUserContext, SCHEMA_ENTITY_BASIC_JSON);
         final Schema before = store.getSchema(new Context(blankUser));
-        addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_EDGE_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_EDGE_BASIC_JSON);
         final Schema after = store.getSchema(new Context(blankUser));
         // Then
         assertThat(before).isNotEqualTo(after);
@@ -320,9 +317,9 @@ public class FederatedStoreTest {
     @Deprecated
     public void shouldUpdateSchemaWhenNewGraphIsRemoved() throws Exception {
         // Given
-        addGraphWithPaths(ACC_ID_1, propertiesAlt, SCHEMA_ENTITY_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_1, propertiesAlt, blankUserContext, SCHEMA_ENTITY_BASIC_JSON);
         final Schema was = store.getSchema(new Context(blankUser));
-        addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_EDGE_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_EDGE_BASIC_JSON);
 
         final Schema before = store.getSchema(new Context(blankUser));
 
@@ -338,7 +335,7 @@ public class FederatedStoreTest {
     public void shouldFailWithIncompleteSchema() throws Exception {
         // When / Then
         final Exception actual = assertThrows(Exception.class,
-                () -> addGraphWithPaths(ACC_ID_1, propertiesAlt, PATH_INCOMPLETE_SCHEMA));
+                () -> addGraphWithPaths(ACC_ID_1, propertiesAlt, blankUserContext, PATH_INCOMPLETE_SCHEMA));
         assertContains(actual, FederatedAddGraphHandler.ERROR_ADDING_GRAPH_GRAPH_ID_S, ACC_ID_1);
     }
 
@@ -346,7 +343,7 @@ public class FederatedStoreTest {
     public void shouldTakeCompleteSchemaFromTwoFiles() throws Exception {
         // Given
         final int before = store.getGraphs(blankUser, null, new GetAllGraphIds()).size();
-        addGraphWithPaths(ACC_ID_1, propertiesAlt, PATH_INCOMPLETE_SCHEMA, PATH_INCOMPLETE_SCHEMA_PART_2);
+        addGraphWithPaths(ACC_ID_1, propertiesAlt, blankUserContext, PATH_INCOMPLETE_SCHEMA, PATH_INCOMPLETE_SCHEMA_PART_2);
 
         // When
         final int after = store.getGraphs(blankUser, null, new GetAllGraphIds()).size();
@@ -362,8 +359,8 @@ public class FederatedStoreTest {
         final int sizeBefore = store.getGraphs(blankUser, null, new GetAllGraphIds()).size();
 
         // When
-        addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_ENTITY_BASIC_JSON);
-        addGraphWithPaths(ACC_ID_1, propertiesAlt, SCHEMA_EDGE_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_ENTITY_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_1, propertiesAlt, blankUserContext, SCHEMA_EDGE_BASIC_JSON);
 
         final int sizeAfter = store.getGraphs(blankUser, null, new GetAllGraphIds()).size();
 
@@ -435,8 +432,8 @@ public class FederatedStoreTest {
     @Test
     public void shouldContainNoElements() throws Exception {
         // When
-        addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_ENTITY_BASIC_JSON);
-        final Set<Element> after = getElements();
+        addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_ENTITY_BASIC_JSON);
+        final Set<Element> after = getElements(blankUserContext);
 
         // Then
         assertThat(after).isEmpty();
@@ -445,7 +442,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldAddEdgesToOneGraph() throws Exception {
         // Given
-        addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_EDGE_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_EDGE_BASIC_JSON);
 
         final AddElements op = new AddElements.Builder()
                 .input(new Edge.Builder()
@@ -460,14 +457,14 @@ public class FederatedStoreTest {
         store.execute(op, blankUserContext);
 
         // Then
-        assertThat(getElements()).hasSize(1);
+        assertThat(getElements(blankUserContext)).hasSize(1);
     }
 
     @Test
     public void shouldReturnGraphIds() throws Exception {
         // Given
-        addGraphWithPaths(ACC_ID_1, propertiesAlt, SCHEMA_ENTITY_BASIC_JSON);
-        addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_EDGE_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_1, propertiesAlt, blankUserContext, SCHEMA_ENTITY_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_EDGE_BASIC_JSON);
 
         // When
         final Collection<String> allGraphIds = store.getAllGraphIds(blankUser);
@@ -482,7 +479,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldUpdateGraphIds() throws Exception {
         // Given
-        addGraphWithPaths(ACC_ID_1, propertiesAlt, SCHEMA_ENTITY_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_1, propertiesAlt, blankUserContext, SCHEMA_ENTITY_BASIC_JSON);
 
         // When
         final Collection<String> allGraphId = store.getAllGraphIds(blankUser);
@@ -513,7 +510,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldGetAllGraphIdsInUnmodifiableSet() throws Exception {
         // Given
-        addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_ENTITY_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_ENTITY_BASIC_JSON);
 
         // When / Then
         final Collection<String> allGraphIds = store.getAllGraphIds(blankUser);
@@ -531,7 +528,7 @@ public class FederatedStoreTest {
         final Schema unusedMock = Mockito.mock(Schema.class);
         // When
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, unusedMock, federatedProperties);
-        addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_EDGE_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_EDGE_BASIC_JSON);
         // Then
         Mockito.verifyNoMoreInteractions(unusedMock);
     }
@@ -841,8 +838,9 @@ public class FederatedStoreTest {
         // Then
         assertThat(before).isEmpty();
         assertThat(after).containsExactly(ACC_ID_1);
-        assertThat(elements).isNotNull();
-        assertThat(elements.iterator()).hasNext();
+        assertThat(elements)
+                .isNotNull()
+                .isNotEmpty();
         assertThat(elements2).isEmpty();
     }
 
@@ -1070,11 +1068,11 @@ public class FederatedStoreTest {
     public void shouldAddAGraphRemoveAGraphAndBeAbleToReuseTheGraphId() throws Exception {
         // Given
         // When
-        addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_ENTITY_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_ENTITY_BASIC_JSON);
         store.execute(new RemoveGraph.Builder()
                 .graphId(ACC_ID_2)
                 .build(), blankUserContext);
-        addGraphWithPaths(ACC_ID_2, propertiesAlt, SCHEMA_EDGE_BASIC_JSON);
+        addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_EDGE_BASIC_JSON);
 
         // Then
         final Collection<GraphSerialisable> graphs = store.getGraphs(blankUserContext.getUser(), getCleanStrings(ACC_ID_2), new GetAllGraphIds());
@@ -1163,14 +1161,14 @@ public class FederatedStoreTest {
         return graphLists;
     }
 
-    private Set<Element> getElements() throws uk.gov.gchq.gaffer.operation.OperationException {
+    private Set<Element> getElements(final Context context) throws OperationException {
         final Iterable<? extends Element> elements = store
                 .execute(new GetAllElements.Builder()
                         .view(new View.Builder()
-                                .edges(store.getSchema().getEdgeGroups())
-                                .entities(store.getSchema().getEntityGroups())
+                                .edges(store.getSchema(context).getEdgeGroups()) //here
+                                .entities(store.getSchema(context).getEntityGroups()) //here 59 -> 58
                                 .build())
-                        .build(), new Context(blankUser));
+                        .build(), context);
 
         return (null == elements) ? new HashSet<>() : Sets.newHashSet(elements);
     }
@@ -1192,7 +1190,7 @@ public class FederatedStoreTest {
                 .build(), blankUserContext);
     }
 
-    private void addGraphWithPaths(final String graphId, final StoreProperties properties, final String... schemaPath)
+    private void addGraphWithPaths(final String graphId, final StoreProperties properties, Context context, final String... schemaPath)
             throws OperationException {
         final Schema.Builder schema = new Builder();
         for (final String path : schemaPath) {
@@ -1222,16 +1220,25 @@ public class FederatedStoreTest {
         addElementsToNewGraph(A, "graphA", SCHEMA_ENTITY_A_JSON);
         addElementsToNewGraph(B, "graphB", SCHEMA_ENTITY_B_JSON);
 
-        //when
-        OperationException e = assertThrows(OperationException.class, () -> store.execute(new GetSchema.Builder().build(), blankUserContext));
-        //then
-        assertTrue(Pattern.compile(".*Unable to merge the schemas for all of your federated graphs\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\..*").matcher(e.getMessage()).matches(),
-                e.getMessage());
-
         // when
         final Iterable<? extends Element> responseGraphsWithNoView = store.execute(new GetAllElements.Builder().build(), blankUserContext);
         // then
         ElementUtil.assertElementEquals(expectedAB, responseGraphsWithNoView);
+    }
+
+    @Test
+    public void shouldBasicGetAllElements() throws OperationException {
+        //given
+        final Entity entityA = getEntityA();
+
+        addElementsToNewGraph(entityA, "graphA", SCHEMA_ENTITY_A_JSON);
+
+        // when
+        final Iterable<? extends Element> elements = store.execute(new GetAllElements(), blankUserContext);
+        // then
+        assertThat(elements)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .containsExactly(entityA);
     }
 
     @Test
@@ -1245,13 +1252,6 @@ public class FederatedStoreTest {
 
         addElementsToNewGraph(A, "graphA", SCHEMA_ENTITY_A_JSON);
         addElementsToNewGraph(B, "graphB", SCHEMA_ENTITY_B_JSON);
-
-        //when
-        OperationException e = assertThrows(OperationException.class, () -> store.execute(new GetSchema.Builder().build(), blankUserContext));
-
-        //then
-        assertTrue(Pattern.compile(".*Unable to merge the schemas for all of your federated graphs\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\..*").matcher(e.getMessage()).matches(),
-                e.getMessage());
 
         // when
         final Iterable<? extends Element> responseGraphA = store.execute(getFederatedOperation(new GetAllElements.Builder().build()).graphIdsCSV("graphA"), blankUserContext);
@@ -1272,12 +1272,6 @@ public class FederatedStoreTest {
 
         addElementsToNewGraph(A, "graphA", SCHEMA_ENTITY_A_JSON);
         addElementsToNewGraph(B, "graphB", SCHEMA_ENTITY_B_JSON);
-
-        //when
-        OperationException e = assertThrows(OperationException.class, () -> store.execute(new GetSchema.Builder().build(), blankUserContext));
-        //then
-        assertTrue(Pattern.compile(".*Unable to merge the schemas for all of your federated graphs\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\..*").matcher(e.getMessage()).matches(),
-                e.getMessage());
 
         // when
         final Iterable<? extends Element> responseGraphAWithAView = store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphA"), blankUserContext);
@@ -1301,12 +1295,6 @@ public class FederatedStoreTest {
         addElementsToNewGraph(A, "graphA", SCHEMA_ENTITY_A_JSON);
         addElementsToNewGraph(B, "graphB", SCHEMA_ENTITY_B_JSON);
 
-        //when
-        Exception e1 = assertThrows(Exception.class, () -> store.execute(new GetSchema.Builder().build(), blankUserContext));
-        //then
-        assertTrue(e1.getMessage().contains("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds."),
-                e1.getMessage());
-
         assertThatExceptionOfType(Exception.class)
                 .isThrownBy(() -> store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityB").build()).build()).graphIdsCSV("graphA"), blankUserContext))
                 .withMessage(String.format("Operation chain is invalid. Validation errors: %n" +
@@ -1322,7 +1310,7 @@ public class FederatedStoreTest {
                         "(graphId: graphB) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. %n" +
                         "(graphId: graphB) Entity group entityA does not exist in the schema"));
 
-        addGraphWithPaths("graphC", properties1, SCHEMA_ENTITY_B_JSON);
+        addGraphWithPaths("graphC", properties1, blankUserContext, SCHEMA_ENTITY_B_JSON);
 
         //when then
         assertThatExceptionOfType(Exception.class)
@@ -1338,13 +1326,12 @@ public class FederatedStoreTest {
 
     protected void addElementsToNewGraph(final Entity input, final String graphName, final String pathSchemaJson)
             throws OperationException {
-        addGraphWithPaths(graphName, properties1, pathSchemaJson);
+        addGraphWithPaths(graphName, properties1, blankUserContext, pathSchemaJson);
         store.execute(getFederatedOperation(
                 new AddElements.Builder()
                         .input(input)
                         .build())
-                .graphIdsCSV(graphName)
-                .mergeFunction(getHardCodedDefaultMergeFunction()), blankUserContext);
+                .graphIdsCSV(graphName), blankUserContext);
     }
 
     protected Entity getEntityB() {

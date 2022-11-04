@@ -29,7 +29,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 
 public class FederatedOperationTest extends FederationOperationTest<FederatedOperation> {
     private static final List<String> EXPECTED_GRAPH_IDS = asList("testGraphID1", "testGraphID2");
@@ -39,7 +39,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
             "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\"%n" +
             "  },%n" +
             "  \"mergeFunction\" : {%n" +
-            "    \"class\" : \"uk.gov.gchq.gaffer.federatedstore.util.DefaultBestEffortsMergeFunction\"%n" +
+            "    \"class\" : \"uk.gov.gchq.gaffer.federatedstore.util.ConcatenateListMergeFunction\"%n" +
             "  },%n" +
             "  \"graphIds\" : [ \"testGraphID1\", \"testGraphID2\" ]%n" +
             "}");
@@ -57,7 +57,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
 
         //then
         assertEquals(EXPECTED_GRAPH_IDS, federatedOperation.getGraphIds());
-        assertEquals(getHardCodedDefaultMergeFunction(), federatedOperation.getMergeFunction());
+        assertEquals(getDefaultMergeFunction(), federatedOperation.getMergeFunction());
         try {
             assertEquals(new String(JSONSerialiser.serialise(new GetAdjacentIds.Builder().build())), new String(JSONSerialiser.serialise(federatedOperation.getUnClonedPayload())));
             assertEquals(JSON, new String(JSONSerialiser.serialise(federatedOperation, true)));
@@ -70,7 +70,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
         return new FederatedOperation.Builder()
                 .op(new GetAdjacentIds.Builder()
                         .build())
-                .mergeFunction(getHardCodedDefaultMergeFunction())
+                .mergeFunction(getDefaultMergeFunction())
                 .graphIds(EXPECTED_GRAPH_IDS)
                 .build();
     }
@@ -96,7 +96,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
                 .op(new GetAdjacentIds.Builder()
                         .build())
                 .graphIds(EXPECTED_GRAPH_IDS)
-                .mergeFunction(getHardCodedDefaultMergeFunction())
+                .mergeFunction(getDefaultMergeFunction())
                 .option("op1", "val1")
                 .skipFailedFederatedExecution(false)
                 .build();

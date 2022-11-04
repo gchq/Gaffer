@@ -54,8 +54,9 @@ import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_EDGES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_ENTITIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 
 public class FederatedOperationChainHandlerTest {
 
@@ -151,7 +152,7 @@ public class FederatedOperationChainHandlerTest {
                                 .input(elements2)
                                 .build())
                         .build())
-                .mergeFunction(getHardCodedDefaultMergeFunction())
+                .mergeFunction(getDefaultMergeFunction())
                 .graphIdsCSV(GRAPH_IDS);
 
         // When
@@ -251,7 +252,7 @@ public class FederatedOperationChainHandlerTest {
                         .validateFunctions(new IsTrue())
                         .build())
                 .build();
-        final FederatedStore store = (FederatedStore) Store.createStore("federatedGraph", schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties")));
+        final FederatedStore store = (FederatedStore) Store.createStore(GRAPH_ID_TEST_FEDERATED_STORE, schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties")));
 
         final Context context = new Context();
 

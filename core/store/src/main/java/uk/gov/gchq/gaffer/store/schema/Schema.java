@@ -73,6 +73,7 @@ import static java.util.Objects.nonNull;
 @JsonDeserialize(builder = Schema.Builder.class)
 @JsonPropertyOrder(value = {"class", "edges", "entities", "types"}, alphabetic = true)
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
+    public static final String UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER_OPTIONS_ARE = "Unable to merge schemas. Conflict with vertex serialiser, options are: ";
     private final TypeDefinition unknownType = new TypeDefinition();
 
     /**
@@ -398,7 +399,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 if (null == getThisSchema().vertexSerialiser) {
                     getThisSchema().vertexSerialiser = thatSchema.getVertexSerialiser();
                 } else if (!getThisSchema().vertexSerialiser.getClass().equals(thatSchema.getVertexSerialiser().getClass())) {
-                    throw new SchemaException("Unable to merge schemas. Conflict with vertex serialiser, options are: "
+                    throw new SchemaException(UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER_OPTIONS_ARE
                             + getThisSchema().vertexSerialiser.getClass().getName() + " and " + thatSchema.getVertexSerialiser().getClass().getName());
                 }
             }

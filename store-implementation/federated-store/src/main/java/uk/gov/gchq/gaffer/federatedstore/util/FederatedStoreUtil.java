@@ -16,27 +16,39 @@
 
 package uk.gov.gchq.gaffer.federatedstore.util;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Iterables;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,9 +63,10 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction.SCHEMA;
+import static uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction.VIEW;
 
 public final class FederatedStoreUtil {
-    public static final String DEPRECATED_GRAPH_IDS_FLAG = "gaffer.federatedstore.operation.graphIds";
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreUtil.class);
     private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
 
@@ -212,8 +225,7 @@ public final class FederatedStoreUtil {
     public static <OUTPUT extends Iterable<?>> FederatedOperation<Void, OUTPUT> getFederatedOperation(final Output<OUTPUT> operation) {
 
         FederatedOperation.BuilderParent builder = new FederatedOperation.Builder()
-                .op(operation)
-                .mergeFunction(getHardCodedDefaultMergeFunction());
+                .op(operation);
 
         addDeprecatedGraphIds(operation, builder);
 
@@ -221,8 +233,8 @@ public final class FederatedStoreUtil {
         return builder.build();
     }
 
-    public static BiFunction getHardCodedDefaultMergeFunction() {
-        return new DefaultBestEffortsMergeFunction();
+    public static BiFunction getDefaultMergeFunction() {
+        return new ConcatenateListMergeFunction();
     }
 
     public static <INPUT> FederatedOperation<INPUT, Void> getFederatedOperation(final Operation operation) {
@@ -246,7 +258,7 @@ public final class FederatedStoreUtil {
 
     @Deprecated
     public static String getDeprecatedGraphIds(final Operation operation) throws GafferRuntimeException {
-        String deprecatedGraphIds = operation.getOption(DEPRECATED_GRAPH_IDS_FLAG);
+        String deprecatedGraphIds = operation.getOption("gaffer.federatedstore.operation.graphIds");
         if (nonNull(deprecatedGraphIds)) {
             String simpleName = operation.getClass().getSimpleName();
             LOGGER.warn("Operation:{} has old Deprecated style of graphId selection.", simpleName);
@@ -275,4 +287,108 @@ public final class FederatedStoreUtil {
         cloneForValidation.setOptions(optionsDeepClone);
         return cloneForValidation;
     }
+
+    public static BiFunction processIfFunctionIsContextSpecific(final BiFunction mergeFunction, final Operation payload, final Context operationContext, final List<String> graphIds, final FederatedStore federatedStore) {
+        final BiFunction rtn;
+        if (!(mergeFunction instanceof ContextSpecificMergeFunction)) {
+            rtn = mergeFunction;
+        } else {
+            try {
+                final ContextSpecificMergeFunction specificMergeFunction = (ContextSpecificMergeFunction) mergeFunction;
+                HashMap<String, Object> functionContext = new HashMap<>();
+
+                functionContext = processSchemaForSpecificMergeFunction(payload, specificMergeFunction, functionContext, graphIds, operationContext, federatedStore);
+                functionContext = processViewForSpecificMergeFunction(payload, specificMergeFunction, functionContext);
+
+                //This line creates a ContextSpecificMergeFunction based on the given context.
+                rtn = specificMergeFunction.createFunctionWithContext(functionContext);
+            } catch (final Exception e) {
+                throw new GafferRuntimeException("Error getting ContextSpecificMergeFunction, due to:" + e.getMessage(), e);
+            }
+        }
+        return rtn;
+    }
+
+    private static HashMap<String, Object> processViewForSpecificMergeFunction(final Operation payload, final ContextSpecificMergeFunction specificMergeFunction, final HashMap<String, Object> functionContext) throws GafferCheckedException {
+        if (specificMergeFunction.isRequired(VIEW)) {
+            try {
+                functionContext.put(VIEW, ((OperationView) payload).getView());
+            } catch (final ClassCastException e) {
+                throw new GafferCheckedException("Merge function requires a view for payload operation, " +
+                        "but it is not an instance of OperationView, likely the wrong merge function has been asked. payload:" + payload.getClass());
+            }
+        }
+        return functionContext;
+    }
+
+    private static HashMap<String, Object> processSchemaForSpecificMergeFunction(final Operation payload, final ContextSpecificMergeFunction specificMergeFunction, final HashMap<String, Object> functionContext, final List<String> graphIds, final Context operationContext, final FederatedStore federatedStore) throws GafferCheckedException {
+        if (specificMergeFunction.isRequired(SCHEMA)) {
+            if (payload instanceof GetSchema) {
+                throw new UnsupportedOperationException(String.format("Infinite Loop Error: %s Operation can not be configured " +
+                        "with a merge that internally performs the same operation, check the Admin configuredDefaultMergeFunctions. Configured MergeFunction:%s", GetSchema.class.getSimpleName(), specificMergeFunction.getClass()));
+            }
+
+            try {
+                final Schema schema = (Schema) federatedStore.execute(new FederatedOperation.Builder()
+                        .op(new GetSchema())
+                        .graphIds(graphIds)
+                        .build(), operationContext);
+
+                functionContext.put(SCHEMA, schema);
+            } catch (final OperationException e) {
+                throw new GafferCheckedException(String.format("Error getting Schema for SpecificMergeFunction, due to:%s", e.getMessage()), e);
+            }
+        }
+        return functionContext;
+    }
+
+    public static BiFunction getStoreConfiguredDefaultMergeFunction(final Operation payload, final Context context, final List graphIds, final FederatedStore store) throws GafferCheckedException {
+        try {
+            BiFunction mergeFunction = isNull(store.getStoreConfiguredDefaultMergeFunctions()) || isNull(payload)
+                    ? getDefaultMergeFunction()
+                    : store.getStoreConfiguredDefaultMergeFunctions().getOrDefault(payload.getClass().getCanonicalName(), getDefaultMergeFunction());
+            return processIfFunctionIsContextSpecific(mergeFunction, payload, context, graphIds, store);
+        } catch (final Exception e) {
+            throw new GafferRuntimeException("Error getting default merge function, due to:" + e.getMessage(), e);
+        }
+    }
+
+    public static List<String> loadStoreConfiguredDefaultGraphIdsListFrom(final String path) throws IOException {
+        if (isNull(path)) {
+            return null;
+        } else {
+            return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), List.class);
+        }
+    }
+
+    public static Map<String, BiFunction> loadStoreConfiguredDefaultMergeFunctionMapFrom(final String path) throws IOException {
+        if (isNull(path)) {
+            return Collections.emptyMap();
+        } else {
+            return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), SerialisableConfiguredMergeFunctionsMap.class).getMap();
+        }
+    }
+
+    //TODO FS likely this can be improved.
+    public static class SerialisableConfiguredMergeFunctionsMap {
+        @JsonProperty("configuredMergeFunctions")
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
+        HashMap<String, BiFunction> map = new HashMap<>();
+
+        public SerialisableConfiguredMergeFunctionsMap() {
+        }
+
+        @JsonGetter("configuredMergeFunctions")
+        public HashMap<String, BiFunction> getMap() {
+            return map;
+        }
+
+        @JsonSetter("configuredMergeFunctions")
+        public void setMap(final HashMap<String, BiFunction> map) {
+            this.map = map;
+        }
+
+
+    }
+
 }

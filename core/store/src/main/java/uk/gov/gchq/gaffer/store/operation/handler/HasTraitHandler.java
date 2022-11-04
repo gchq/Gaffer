@@ -34,6 +34,7 @@ public class HasTraitHandler implements OutputOperationHandler<HasTrait, Boolean
     public Boolean doOperation(final HasTrait operation, final Context context, final Store store) throws OperationException {
         Map<String, String> filteredOptions = operation.getOptions().entrySet()
                 .stream()
+                //TODO FS This Handler has FederatedStore logic.
                 .filter(o -> !o.getKey().startsWith("FederatedStore.processed."))
                 .collect(Collectors.toMap(o -> o.getKey(), o -> o.getValue()));
 

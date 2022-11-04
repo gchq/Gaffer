@@ -162,7 +162,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     @JsonProperty("graphIds")
     public List<String> getGraphIds() {
-        return graphIds == null ? null : Lists.newArrayList(graphIds);
+        return (graphIds == null) ? null : Lists.newArrayList(graphIds);
     }
 
 
