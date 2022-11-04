@@ -140,8 +140,8 @@ public class FederatedStore extends Store {
     @JsonCreator
     public FederatedStore(@JsonProperty("customPropertiesAuths") final Set<String> customPropertiesAuths,
                           @JsonProperty("isPublicAccessAllowed") final Boolean isPublicAccessAllowed,
-                          @JsonProperty("storeConfiguredDefaultGraphIds") final List<String> storeConfiguredGraphIds,
-                          @JsonProperty("storeConfiguredDefaultMergeFunctions") final Map<String, BiFunction> storeConfiguredMergeFunctions) {
+                          @JsonProperty("storeConfiguredGraphIds") final List<String> storeConfiguredGraphIds,
+                          @JsonProperty("storeConfiguredMergeFunctions") final Map<String, BiFunction> storeConfiguredMergeFunctions) {
         Integer i = null;
         while (isNull(i) || ALL_IDS.contains(i)) {
             i = new Random().nextInt();

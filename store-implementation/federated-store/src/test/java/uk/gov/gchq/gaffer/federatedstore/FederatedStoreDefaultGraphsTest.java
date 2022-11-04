@@ -66,7 +66,7 @@ public class FederatedStoreDefaultGraphsTest {
     @Test
     public void shouldGetDefaultedGraphIdFromJsonConfig() throws Exception {
         //Given
-        FederatedStore defaultedFederatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
+        FederatedStore defaultedFederatedStore = loadFederatedStoreFrom("configuredGraphIds.json");
         defaultedFederatedStore.initialise("defaultedFederatedStore", new Schema(), new FederatedStoreProperties());
         assertThat(defaultedFederatedStore)
                 .isNotNull()
