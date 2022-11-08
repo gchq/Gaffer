@@ -1,7 +1,7 @@
 {
   "class": "FederatedStore",
-  "storeConfiguredDefaultGraphIds": ["defaultJsonGraphId"],
-  "storeConfiguredDefaultMergeFunctions" : {
+  "storeConfiguredGraphIds": ["defaultJsonGraphId"],
+  "storeConfiguredMergeFunctions" : {
     "uk.gov.gchq.gaffer.store.operation.GetTraits" : {
       "class" : "uk.gov.gchq.gaffer.federatedstore.util.ConcatenateListMergeFunction"
     },

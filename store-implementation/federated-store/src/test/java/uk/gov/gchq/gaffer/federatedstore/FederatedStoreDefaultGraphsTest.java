@@ -37,10 +37,10 @@ public class FederatedStoreDefaultGraphsTest {
 
     @BeforeEach
     public void before() throws Exception {
-        federatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
+        federatedStore = loadFederatedStoreFrom("configuredGraphIds.json");
         assertThat(federatedStore)
                 .isNotNull()
-                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getStoreConfiguredDefaultGraphIds));
+                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getStoreConfiguredGraphIds));
 
         federatedStore.initialise(FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), new FederatedStoreProperties());
     }
@@ -66,11 +66,11 @@ public class FederatedStoreDefaultGraphsTest {
     @Test
     public void shouldGetDefaultedGraphIdFromJsonConfig() throws Exception {
         //Given
-        FederatedStore defaultedFederatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
+        FederatedStore defaultedFederatedStore = loadFederatedStoreFrom("configuredGraphIds.json");
         defaultedFederatedStore.initialise("defaultedFederatedStore", new Schema(), new FederatedStoreProperties());
         assertThat(defaultedFederatedStore)
                 .isNotNull()
-                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getStoreConfiguredDefaultGraphIds));
+                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getStoreConfiguredGraphIds));
 
         //when
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> defaultedFederatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
