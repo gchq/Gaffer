@@ -289,7 +289,7 @@ public class OpenCypherCsvElementGeneratorTest {
     }
 
     @Test
-    void shouldGenerateBasicEntitesAndEdgesCsvFromNeo4jExport() throws IOException {
+    void shouldGenerateBasicEntitiesAndEdgesCsvFromNeo4jExport() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherBasicEntitiesAndEdgeFromNeo4jExport.csv");
 

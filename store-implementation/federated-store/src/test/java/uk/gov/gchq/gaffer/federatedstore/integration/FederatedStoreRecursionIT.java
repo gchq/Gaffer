@@ -43,7 +43,6 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
-import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -121,7 +120,7 @@ public class FederatedStoreRecursionIT {
                         .type("count", new TypeDefinition.Builder()
                                 .clazz(Integer.class)
                                 .aggregateFunction(new Sum())
-                                .validateFunctions(new Exists(), new IsEqual(1))
+                                .validateFunctions(new Exists())
                                 .build())
                         .build())
                 .build(), user);
@@ -161,12 +160,13 @@ public class FederatedStoreRecursionIT {
                         .build())), user);
     }
 
-    private void createTheInnerFederatedStore() throws
-            OperationException {
+    private void createTheInnerFederatedStore() throws OperationException {
+        FederatedStoreProperties properties = new FederatedStoreProperties();
+        properties.setCacheServiceNameSuffix(INNER_FEDERATED_GRAPH);
         proxyToRestServiceFederatedGraph.execute(new AddGraph.Builder()
                 .graphId(INNER_FEDERATED_GRAPH)
                 .schema(new Schema())
-                .storeProperties(new FederatedStoreProperties())
+                .storeProperties(properties)
                 .build(), user);
     }
 

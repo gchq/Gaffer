@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,20 +39,25 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.function.AggregateHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.INTEGER;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadFederatedStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 
 @ExtendWith(MockitoExtension.class)
 public class FederatedAggregateHandlerTest {
@@ -95,6 +100,14 @@ public class FederatedAggregateHandlerTest {
         final String graphNameB = "b";
 
         final Context context = new Context(new User());
+        Properties properties = PROPERTIES.getProperties();
+        AccumuloProperties propsA = new AccumuloProperties();
+        propsA.setProperties(properties);
+        propsA.setInstance(properties.getProperty(AccumuloProperties.INSTANCE_NAME) + "A");
+        AccumuloProperties propsB = new AccumuloProperties();
+        propsB.setProperties(properties);
+        propsB.setInstance(properties.getProperty(AccumuloProperties.INSTANCE_NAME) + "B");
+
         fed.execute(new OperationChain.Builder()
                 .first(new AddGraph.Builder()
                         .graphId(graphNameA)
@@ -102,8 +115,10 @@ public class FederatedAggregateHandlerTest {
                                 .edge("edge", new SchemaEdgeDefinition.Builder()
                                         .source(STRING)
                                         .destination(STRING)
+                                        .property(PROPERTY_1, INTEGER)
                                         .build())
                                 .type(STRING, String.class)
+                                .type(INTEGER, new TypeDefinition.Builder().clazz(Integer.class).aggregateFunction(new Sum()).build())
                                 .build())
                         .storeProperties(PROPERTIES.clone())
                         .build())
@@ -113,8 +128,10 @@ public class FederatedAggregateHandlerTest {
                                 .edge("edge", new SchemaEdgeDefinition.Builder()
                                         .source(STRING)
                                         .destination(STRING)
+                                        .property(PROPERTY_1, INTEGER)
                                         .build())
                                 .type(STRING, String.class)
+                                .type(INTEGER, new TypeDefinition.Builder().clazz(Integer.class).aggregateFunction(new Sum()).build())
                                 .build())
                         .storeProperties(PROPERTIES.clone())
                         .build())
@@ -125,10 +142,11 @@ public class FederatedAggregateHandlerTest {
                         .group("edge")
                         .source("s1")
                         .dest("d1")
+                        .property(PROPERTY_1, 3)
                         .build())
                 .build())
                 .graphIdsCSV(graphNameA)
-                .mergeFunction(getHardCodedDefaultMergeFunction()), context);
+                .mergeFunction(getDefaultMergeFunction()), context);
 
         fed.execute(getFederatedOperation(
                 new AddElements.Builder()
@@ -136,25 +154,23 @@ public class FederatedAggregateHandlerTest {
                                 .group("edge")
                                 .source("s1")
                                 .dest("d1")
+                                .property(PROPERTY_1, 2)
                                 .build())
                         .build())
                 .graphIdsCSV(graphNameB)
-                .mergeFunction(getHardCodedDefaultMergeFunction()), context);
+                .mergeFunction(getDefaultMergeFunction()), context);
 
         final Iterable<? extends Element> getAll = fed.execute(new GetAllElements(), context);
 
         final List<Element> list = new ArrayList<>();
         getAll.forEach(list::add);
 
-        assertThat(list).hasSize(2);
-
-        final Iterable<? extends Element> getAggregate = fed.execute(new OperationChain.Builder()
-                .first(new GetAllElements())
-                .then(new Aggregate())
-                .build(), context);
-
-        list.clear();
-        getAggregate.forEach(list::add);
+        assertThat(list)
+                .containsExactly(new Edge.Builder()
+                        .group("edge")
+                        .source("s1")
+                        .dest("d1")
+                        .property(PROPERTY_1, 5).build());
 
         assertThat(list).hasSize(1);
     }

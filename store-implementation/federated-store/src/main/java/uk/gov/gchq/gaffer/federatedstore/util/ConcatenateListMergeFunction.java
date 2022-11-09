@@ -28,11 +28,11 @@ import java.util.function.BiFunction;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-public class DefaultBestEffortsMergeFunction implements BiFunction<Object, Iterable<Object>, Iterable<Object>> {
+public class ConcatenateListMergeFunction implements BiFunction<Object, Iterable<Object>, Iterable<Object>> {
 
     @Override
     public Iterable<Object> apply(final Object update, final Iterable<Object> state) {
-        //When update=null, Then this stops ToList returning an Iterable with a null in it.
+        //When update=null, Then this STOPS ToList returning an Iterable with a null in it.
         final Iterable<Object> updateSafe = isNull(update) ? Collections.emptyList() : (Iterable<Object>) new ToList().apply(update);
         return isNull(state)
                 ? updateSafe

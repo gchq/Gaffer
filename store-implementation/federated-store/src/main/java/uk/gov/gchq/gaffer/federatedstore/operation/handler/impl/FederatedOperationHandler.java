@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -35,7 +37,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
+import static com.google.common.collect.Iterables.isEmpty;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getStoreConfiguredMergeFunction;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.processIfFunctionIsContextSpecific;
 
 /**
  * FederatedOperation handler for the federation of an PAYLOAD operation with an expected return type OUTPUT
@@ -49,15 +54,16 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
     public Object doOperation(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final Store store) throws OperationException {
         final Iterable<?> allGraphResults = getAllGraphResults(operation, context, (FederatedStore) store);
 
-        return mergeResults(allGraphResults, operation, (FederatedStore) store);
+        return mergeResults(allGraphResults, operation, (FederatedStore) store, context);
     }
 
     private Iterable getAllGraphResults(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) throws OperationException {
         try {
             List<Object> results;
-            final Collection<Graph> graphs = getGraphs(operation, context, store);
+            final Collection<GraphSerialisable> graphs = getGraphs(operation, context, store);
             results = new ArrayList<>(graphs.size());
-            for (final Graph graph : graphs) {
+            for (final GraphSerialisable graphSerialisable : graphs) {
+                final Graph graph = graphSerialisable.getGraph();
 
                 final Operation updatedOp = FederatedStoreUtil.updateOperationForGraph(operation.getUnClonedPayload(), graph);
                 if (updatedOp != null) {
@@ -67,12 +73,13 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
                         } else {
                             graph.execute(updatedOp, context);
                             if (nonNull(operation.getMergeFunction())) {
+                                //If the user has specified a mergeFunction, they may wish to process the number null responses from graphs.
                                 results.add(null);
                             }
                         }
                     } catch (final Exception e) {
                         if (!operation.isSkipFailedFederatedExecution()) {
-                            throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
+                            throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graphSerialisable.getGraphId(), e), e);
                         }
                     }
                 }
@@ -85,11 +92,11 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
     }
 
-    private Object mergeResults(final Iterable resultsFromAllGraphs, final FederatedOperation operation, final FederatedStore store) throws OperationException {
+    private Object mergeResults(final Iterable resultsFromAllGraphs, final FederatedOperation operation, final FederatedStore store, final Context context) throws OperationException {
         try {
             Object rtn = null;
 
-            final BiFunction mergeFunction = nonNull(operation.getMergeFunction()) ? operation.getMergeFunction() : store.getDefaultMergeFunction();
+            final BiFunction mergeFunction = getMergeFunction(operation, store, context, isEmpty(resultsFromAllGraphs));
 
             //Reduce
             for (final Object resultFromAGraph : resultsFromAllGraphs) {
@@ -102,8 +109,26 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         }
     }
 
-    private List<Graph> getGraphs(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) {
-        List<Graph> graphs = store.getGraphs(context.getUser(), operation.getGraphIds(), operation);
+    private static BiFunction getMergeFunction(final FederatedOperation operation, final FederatedStore store, final Context context, final boolean isResultsFromAllGraphsEmpty) throws GafferCheckedException {
+        final BiFunction mergeFunction;
+        if (isResultsFromAllGraphsEmpty) {
+            //No Merge function required.
+            mergeFunction = null;
+        } else if (nonNull(operation.getMergeFunction())) {
+            //Get merge function from the Operation.
+            final BiFunction operationMergeFunction = operation.getMergeFunction();
+            //process if it is ContextSpecific
+            mergeFunction = processIfFunctionIsContextSpecific(operationMergeFunction, operation.getPayloadOperation(), context, operation.getGraphIds(), store);
+        } else {
+            //Get merge function specified by the store.
+            mergeFunction = getStoreConfiguredMergeFunction(operation.getPayloadOperation(), context, operation.getGraphIds(), store);
+        }
+
+        return mergeFunction;
+    }
+
+    private List<GraphSerialisable> getGraphs(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) {
+        List<GraphSerialisable> graphs = store.getGraphs(context.getUser(), operation.getGraphIds(), operation);
 
         return nonNull(graphs) ?
                 graphs

@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -64,6 +65,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTe
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.property;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -135,7 +137,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToGetElementsWithOverlappingSchemas() throws OperationException {
+    public void shouldBeAbleToGetElementsWithOverlappingSchemasUsingDefaultMergeFunction() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_TYPE);
 
@@ -146,13 +148,17 @@ public class FederatedStoreSchemaTest {
         addEdgeBasicWith(DEST_2, 1, 2);
 
         // When
-        final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
-                .input(new EntitySeed(SOURCE_BASIC))
-                .view(new View.Builder()
-                        .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder()
-                                .properties(PROPERTY_2)
+        // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
+        final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
+                .op(new GetElements.Builder()
+                        .input(new EntitySeed(SOURCE_BASIC))
+                        .view(new View.Builder()
+                                .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder()
+                                        .properties(PROPERTY_2)
+                                        .build())
                                 .build())
                         .build())
+                .mergeFunction(getDefaultMergeFunction())
                 .build(), testContext);
 
         // Then
@@ -178,11 +184,58 @@ public class FederatedStoreSchemaTest {
                 .dest(DEST_BASIC)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 // Due to a string serialisation quirk, missing properties (null value)
-                // are deserialsed as empty strings
-                // This will be fixed so the test will need amending, as per gh-2483
+                // are deserialised as empty strings
                 .property(PROPERTY_2, "")
                 .build());
         // Graph b, element 2: prop2 present
+        expected.add(new Edge.Builder()
+                .group(GROUP_BASIC_EDGE)
+                .source(SOURCE_BASIC)
+                .dest(DEST_2)
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property(PROPERTY_2, VALUE_2)
+                .build());
+
+        assertThat((Iterable<Edge>) results)
+                .isNotNull()
+                .containsExactlyInAnyOrderElementsOf(expected);
+    }
+
+    @Test
+    public void shouldBeAbleToGetElementsWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_TYPE);
+
+        // Element 1
+        addEdgeBasicWith(DEST_BASIC, 1);
+
+        // Element 2
+        addEdgeBasicWith(DEST_2, 1, 2);
+
+        // When
+        // No merge function specified - ApplyViewToElementsFunction is used
+        final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_BASIC))
+                .view(new View.Builder()
+                        .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder()
+                                .properties(PROPERTY_2)
+                                .build())
+                        .build())
+                .build(), testContext);
+
+        // Then
+        final HashSet<Edge> expected = new HashSet<>();
+        // Element 1: only 1 copy of prop2 empty (see below)
+        expected.add(new Edge.Builder()
+                .group(GROUP_BASIC_EDGE)
+                .source(SOURCE_BASIC)
+                .dest(DEST_BASIC)
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                // Due to a string serialisation quirk, missing properties (null value)
+                // are deserialised as empty strings
+                .property(PROPERTY_2, "")
+                .build());
+        // Element 2: only 1 copy of prop2 present
         expected.add(new Edge.Builder()
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
@@ -209,14 +262,18 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldValidateCorrectlyWithOverlappingSchemas() throws OperationException {
+    public void shouldValidateCorrectlyWithOverlappingSchemasUsingDefaultMergeFunction() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_REQUIRED_TYPE);
 
         // When
         addEdgeBasicWith(DEST_2, 1, 2);
 
-        final Iterable<? extends Element> results = federatedStore.execute(new GetAllElements.Builder().build(), testContext);
+        // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
+        final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
+                .op(new GetAllElements())
+                .mergeFunction(getDefaultMergeFunction())
+                .build(), testContext);
 
         // Then
         final HashSet<Edge> expected = new HashSet<>();
@@ -228,6 +285,23 @@ public class FederatedStoreSchemaTest {
         assertThat((Iterable<Edge>) results)
                 .isNotNull()
                 .containsExactlyInAnyOrderElementsOf(expected);
+    }
+
+    @Test
+    public void shouldValidateCorrectlyWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_REQUIRED_TYPE);
+
+        // When
+        addEdgeBasicWith(DEST_2, 1, 2);
+
+        // No merge function specified - ApplyViewToElementsFunction is used
+        // An exception is raised because the aggregated results are missing a validated property
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> {
+                    federatedStore.execute(new GetAllElements.Builder().build(), testContext);
+                })
+                .withStackTraceContaining("returned false for properties: {%s: null}", property(2));
     }
 
     @Test
@@ -244,7 +318,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToIngestAggregateWithOverlappingSchemas() throws OperationException {
+    public void shouldBeAbleToIngestAggregateWithOverlappingSchemasUsingDefaultMergeFunction() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_TYPE);
 
@@ -259,10 +333,14 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         // When
-        final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
-                .input(new EntitySeed(SOURCE_BASIC))
-                .view(new View.Builder()
-                        .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder().build()).build())
+        // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
+        final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
+                .op(new GetElements.Builder()
+                        .input(new EntitySeed(SOURCE_BASIC))
+                        .view(new View.Builder()
+                                .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder().build()).build())
+                        .build())
+                .mergeFunction(getDefaultMergeFunction())
                 .build(), testContext);
 
         // Then
@@ -291,7 +369,48 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToIngestAggregateMissingPropertyWithOverlappingSchemas() throws OperationException {
+    public void shouldBeAbleToIngestAggregateWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_TYPE);
+
+        // Element 1
+        federatedStore.execute(new AddElements.Builder()
+                .input(edgeBasicWith(DEST_BASIC, 1, 2))
+                .build(), testContext);
+
+        // Element 2
+        federatedStore.execute(new AddElements.Builder()
+                .input(edgeBasicWith(DEST_BASIC, 1, 2))
+                .build(), testContext);
+
+        // When
+        // No merge function specified - ApplyViewToElementsFunction is used
+        final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_BASIC))
+                .view(new View.Builder()
+                        .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder().build()).build())
+                .build(), testContext);
+
+        // Then
+        final HashSet<Edge> expected = new HashSet<>();
+        // prop1 aggregated: (value1,value1) from both graphs
+        // prop2 aggregated: (value2,value2) from graph b
+        expected.add(new Edge.Builder()
+                .group(GROUP_BASIC_EDGE)
+                .source(SOURCE_BASIC)
+                .dest(DEST_BASIC)
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property(PROPERTY_1, "value1,value1,value1,value1")
+                .property(PROPERTY_2, "value2,value2")
+                .build());
+
+        assertThat((Iterable<Edge>) results)
+                .isNotNull()
+                .containsExactlyInAnyOrderElementsOf(expected);
+    }
+
+    @Test
+    public void shouldBeAbleToIngestAggregateMissingPropertyWithOverlappingSchemasUsingDefaultMergeFunction() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_TYPE);
 
@@ -302,10 +421,14 @@ public class FederatedStoreSchemaTest {
         addEdgeBasicWith(DEST_BASIC, 1);
 
         // When
-        final Iterable<? extends Element> elements = federatedStore.execute(new GetElements.Builder()
-                .input(new EntitySeed(SOURCE_BASIC))
-                .view(new View.Builder()
-                        .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder().build()).build())
+        // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
+        final Iterable<? extends Element> elements = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
+                .op(new GetElements.Builder()
+                        .input(new EntitySeed(SOURCE_BASIC))
+                        .view(new View.Builder()
+                                .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder().build()).build())
+                        .build())
+                .mergeFunction(getDefaultMergeFunction())
                 .build(), testContext);
 
         // Then
@@ -326,8 +449,7 @@ public class FederatedStoreSchemaTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, "value1,value1")
                 // Due to a string serialisation quirk, missing properties (null value)
-                // are deserialsed as empty strings, so here 2 empty strings are aggregated
-                // This will be fixed so the test will need amending, as per gh-2483
+                // are deserialised as empty strings, so here 2 empty strings are aggregated
                 .property(PROPERTY_2, ",")
                 .build());
 
@@ -337,7 +459,46 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToViewPropertyWithOverlappingSchemas() throws OperationException {
+    public void shouldBeAbleToIngestAggregateMissingPropertyWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_TYPE);
+
+        // Element 1
+        addEdgeBasicWith(DEST_BASIC, 1);
+
+        // Element 2
+        addEdgeBasicWith(DEST_BASIC, 1);
+
+        // When
+        // No merge function specified - ApplyViewToElementsFunction is used
+        final Iterable<? extends Element> elements = federatedStore.execute(new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_BASIC))
+                .view(new View.Builder()
+                        .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder().build()).build())
+                .build(), testContext);
+
+        // Then
+        final HashSet<Edge> expected = new HashSet<>();
+        // prop1 aggregated: (value1,value1) from both graphs
+        // prop2 aggregated: 2 aggregated empty strings from graph b
+        expected.add(new Edge.Builder()
+                .group(GROUP_BASIC_EDGE)
+                .source(SOURCE_BASIC)
+                .dest(DEST_BASIC)
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property(PROPERTY_1, "value1,value1,value1,value1")
+                // Due to a string serialisation quirk, missing properties (null value)
+                // are deserialised as empty strings, so here 2 empty strings are aggregated
+                .property(PROPERTY_2, ",")
+                .build());
+
+        assertThat((Iterable<Edge>) elements)
+                .isNotNull()
+                .containsExactlyInAnyOrderElementsOf(expected);
+    }
+
+    @Test
+    public void shouldBeAbleToViewPropertyWithOverlappingSchemasUsingDefaultMergeFunction() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_TYPE);
 
@@ -349,13 +510,17 @@ public class FederatedStoreSchemaTest {
 
 
         // When
-        final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
-                .input(new EntitySeed(SOURCE_BASIC))
-                .view(new View.Builder()
-                        .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder()
-                                .properties(PROPERTY_2)
+        // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
+        final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
+                .op(new GetElements.Builder()
+                        .input(new EntitySeed(SOURCE_BASIC))
+                        .view(new View.Builder()
+                                .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder()
+                                        .properties(PROPERTY_2)
+                                        .build())
                                 .build())
                         .build())
+                .mergeFunction(getDefaultMergeFunction())
                 .build(), testContext);
 
         // Then
@@ -383,6 +548,53 @@ public class FederatedStoreSchemaTest {
                 .property(PROPERTY_2, VALUE_2)
                 .build());
         // Graph b, element 2: prop1 omitted, prop2 present
+        expected.add(new Edge.Builder()
+                .group(GROUP_BASIC_EDGE)
+                .source(SOURCE_BASIC)
+                .dest(DEST_2)
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property(PROPERTY_2, VALUE_2)
+                .build());
+
+        assertThat((Iterable<Edge>) results)
+                .isNotNull()
+                .containsExactlyInAnyOrderElementsOf(expected);
+    }
+
+    @Test
+    public void shouldBeAbleToViewPropertyWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_TYPE);
+
+        // Element 1
+        addEdgeBasicWith(DEST_BASIC, 1, 2);
+
+        // Element 2
+        addEdgeBasicWith(DEST_2, 1, 2);
+
+
+        // When
+        // No merge function specified - ApplyViewToElementsFunction is used
+        final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_BASIC))
+                .view(new View.Builder()
+                        .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder()
+                                .properties(PROPERTY_2)
+                                .build())
+                        .build())
+                .build(), testContext);
+
+        // Then
+        final HashSet<Edge> expected = new HashSet<>();
+        // Element 1: prop1 omitted, prop2 present
+        expected.add(new Edge.Builder()
+                .group(GROUP_BASIC_EDGE)
+                .source(SOURCE_BASIC)
+                .dest(DEST_BASIC)
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property(PROPERTY_2, VALUE_2)
+                .build());
+        // Element 2: prop1 omitted, prop2 present
         expected.add(new Edge.Builder()
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
@@ -448,7 +660,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToQueryAggregatePropertyWithOverlappingSchemas() throws OperationException {
+    public void shouldBeAbleToQueryAggregatePropertyWithOverlappingSchemasUsingDefaultMergeFunction() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_TYPE);
 
@@ -460,13 +672,17 @@ public class FederatedStoreSchemaTest {
 
 
         // When
-        final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
-                .input(new EntitySeed(SOURCE_BASIC))
-                .view(new View.Builder()
-                        .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder()
-                                .groupBy()
+        // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
+        final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
+                .op(new GetElements.Builder()
+                        .input(new EntitySeed(SOURCE_BASIC))
+                        .view(new View.Builder()
+                                .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder()
+                                        .groupBy()
+                                        .build())
                                 .build())
                         .build())
+                .mergeFunction(getDefaultMergeFunction())
                 .build(), testContext);
 
         // Then
@@ -503,6 +719,55 @@ public class FederatedStoreSchemaTest {
                 .dest(DEST_2)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, VALUE_1)
+                .property(PROPERTY_2, VALUE_2)
+                .build());
+
+        assertThat((Iterable<Edge>) results)
+                .isNotNull()
+                .containsExactlyInAnyOrderElementsOf(expected);
+    }
+
+    @Test
+    public void shouldBeAbleToQueryAggregatePropertyWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_TYPE);
+
+        // Element 1
+        addEdgeBasicWith(DEST_BASIC, 1, 2);
+
+        // Element 2
+        addEdgeBasicWith(DEST_2, 1, 2);
+
+
+        // When
+        // No merge function specified - ApplyViewToElementsFunction is used
+        final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_BASIC))
+                .view(new View.Builder()
+                        .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder()
+                                .groupBy()
+                                .build())
+                        .build())
+                .build(), testContext);
+
+        // Then
+        final HashSet<Edge> expected = new HashSet<>();
+        // Element 1: prop1 aggregated, prop2 present once
+        expected.add(new Edge.Builder()
+                .group(GROUP_BASIC_EDGE)
+                .source(SOURCE_BASIC)
+                .dest(DEST_BASIC)
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property(PROPERTY_1, "value1,value1")
+                .property(PROPERTY_2, VALUE_2)
+                .build());
+        // Element 2: prop1 aggregated, prop2 present once
+        expected.add(new Edge.Builder()
+                .group(GROUP_BASIC_EDGE)
+                .source(SOURCE_BASIC)
+                .dest(DEST_2)
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property(PROPERTY_1, "value1,value1")
                 .property(PROPERTY_2, VALUE_2)
                 .build());
 

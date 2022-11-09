@@ -66,8 +66,11 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
             throw new OperationException(String.format(ERROR_BUILDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
 
+        Graph graph;
         try {
-            //Add GraphSerialisable with Access values.
+            //created at this position to capture errors before adding to cache.
+            graph = graphSerialisable.getGraph();
+
             ((FederatedStore) store).addGraphs(
                     operation.getGraphAuths(),
                     context.getUser().getUserId(),
@@ -82,7 +85,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
             throw new OperationException(String.format(ERROR_ADDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
 
-        addGenericHandler((FederatedStore) store, graphSerialisable.getGraph());
+        addGenericHandler((FederatedStore) store, graph);
 
         return null;
     }
@@ -104,7 +107,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                         continue;
                     }
                     if (Iterable.class.isAssignableFrom(outputClass)) {
-                        store.addOperationHandler((Class) supportedOutputOperation, new FederatedOutputIterableHandler(/*default merge*/));
+                        store.addOperationHandler((Class) supportedOutputOperation, new FederatedOutputIterableHandler());
                     } else {
                         LOGGER.warn("No generic default handler can be used for an Output operation that does not return CloseableIterable. operation: {}", supportedOutputOperation);
                     }

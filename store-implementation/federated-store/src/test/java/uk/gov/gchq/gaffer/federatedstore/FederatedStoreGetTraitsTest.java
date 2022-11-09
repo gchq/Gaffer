@@ -273,8 +273,7 @@ public class FederatedStoreGetTraitsTest {
     @Test
     public void shouldGetCurrentTraitsForAddingUserButSelectedGraphsOnly() throws Exception {
         // given
-        final GraphSerialisable accumuloGraphSerialised2 = new GraphSerialisable.Builder()
-                .graph(accumuloGraphSerialised.getGraph())
+        final GraphSerialisable accumuloGraphSerialised2 = new GraphSerialisable.Builder(accumuloGraphSerialised)
                 .config(new GraphConfig(GRAPH_ID_ACCUMULO + 2))
                 .build();
 
@@ -300,8 +299,7 @@ public class FederatedStoreGetTraitsTest {
     @Test
     public void shouldGetNonCurrentTraitsForAddingUserButSelectedGraphsOnly() throws Exception {
         //given
-        final GraphSerialisable accumuloGraphSerialised2 = new GraphSerialisable.Builder()
-                .graph(accumuloGraphSerialised.getGraph())
+        final GraphSerialisable accumuloGraphSerialised2 = new GraphSerialisable.Builder(accumuloGraphSerialised)
                 .config(new GraphConfig(GRAPH_ID_ACCUMULO + 2))
                 .build();
 

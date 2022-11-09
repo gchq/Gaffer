@@ -64,7 +64,7 @@ public class FederatedGetSchemaHandlerTest {
             .build();
     private static final AccumuloProperties PROPERTIES = loadAccumuloStoreProperties("properties/accumuloStore.properties");
     private final HashMapGraphLibrary library = new HashMapGraphLibrary();
-    private FederatedGetSchemaHandler handler;
+    private FederatedOutputHandler handler;
     private FederatedStore federatedStore;
     private StoreProperties properties;
 
@@ -72,7 +72,7 @@ public class FederatedGetSchemaHandlerTest {
     public void setup() throws StoreException {
         resetForFederatedTests();
 
-        handler = new FederatedGetSchemaHandler();
+        handler = new FederatedOutputHandler<>(new Schema());
         properties = new FederatedStoreProperties();
         properties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
 
@@ -118,7 +118,7 @@ public class FederatedGetSchemaHandlerTest {
                 .build();
 
         // When
-        final Schema result = handler.doOperation(operation, contextTestUser(), federatedStore);
+        final Schema result = (Schema) handler.doOperation(operation, contextTestUser(), federatedStore);
 
         // Then
         assertNotNull(result);
@@ -179,7 +179,7 @@ public class FederatedGetSchemaHandlerTest {
                 .build();
 
         // When
-        final Schema result = handler.doOperation(operation, contextTestUser(), federatedStore);
+        final Schema result = (Schema) handler.doOperation(operation, contextTestUser(), federatedStore);
 
         // Then
         assertNotNull(result);
@@ -195,7 +195,7 @@ public class FederatedGetSchemaHandlerTest {
 
         assertThatExceptionOfType(OperationException.class)
                 .isThrownBy(() -> handler.doOperation(operation, contextTestUser(), federatedStore))
-                .withMessageContaining("Operation cannot be null");
+                .withStackTraceContaining("Operation cannot be null");
 
     }
 }

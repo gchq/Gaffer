@@ -17,10 +17,12 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.from;
@@ -30,6 +32,18 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadFeder
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreDefaultGraphsTest {
+
+    private FederatedStore federatedStore;
+
+    @BeforeEach
+    public void before() throws Exception {
+        federatedStore = loadFederatedStoreFrom("configuredGraphIds.json");
+        assertThat(federatedStore)
+                .isNotNull()
+                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getStoreConfiguredGraphIds));
+
+        federatedStore.initialise(FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), new FederatedStoreProperties());
+    }
 
     @Disabled
     @Test
@@ -52,30 +66,15 @@ public class FederatedStoreDefaultGraphsTest {
     @Test
     public void shouldGetDefaultedGraphIdFromJsonConfig() throws Exception {
         //Given
-        FederatedStore federatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
-        assertThat(federatedStore)
+        FederatedStore defaultedFederatedStore = loadFederatedStoreFrom("configuredGraphIds.json");
+        defaultedFederatedStore.initialise("defaultedFederatedStore", new Schema(), new FederatedStoreProperties());
+        assertThat(defaultedFederatedStore)
                 .isNotNull()
-                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getAdminConfiguredDefaultGraphIds));
+                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getStoreConfiguredGraphIds));
 
         //when
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> defaultedFederatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
         //then
-        assertThat(exception).message().contains("The following graphIds are not visible or do not exist: [defaultJsonGraphId]");
-    }
-
-    @Test
-    public void shouldNotChangeExistingDefaultedGraphId() throws Exception {
-        //Given
-        FederatedStore federatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
-        assertThat(federatedStore)
-                .isNotNull()
-                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getAdminConfiguredDefaultGraphIds));
-
-        //when
-        federatedStore.setAdminConfiguredDefaultGraphIdsCSV("other");
-
-        //then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
         assertThat(exception).message().contains("The following graphIds are not visible or do not exist: [defaultJsonGraphId]");
     }
 }

@@ -64,7 +64,7 @@ public class FederatedStorePublicAccessTest {
         resetForFederatedTests();
 
         federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         store = new FederatedStore();
     }

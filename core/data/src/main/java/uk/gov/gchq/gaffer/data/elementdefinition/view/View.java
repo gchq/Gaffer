@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,6 +161,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
 
     public boolean hasPostTransformFilters() {
         return hasFilters(ViewElementDefinition::hasPostTransformFilters);
+    }
+
+    public boolean hasTransform() {
+        return hasFilters(ViewElementDefinition::hasTransform);
     }
 
     public boolean hasEntityFilters() {
@@ -385,8 +389,8 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
-        public CHILD_CLASS allEntities(final boolean allEntites) {
-            getThisView().allEntities = allEntites;
+        public CHILD_CLASS allEntities(final boolean allEntities) {
+            getThisView().allEntities = allEntities;
             return self();
         }
 

@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -447,8 +449,7 @@ public final class Graph {
      * Returns all the {@link StoreTrait}s for the contained {@link Store}
      * implementation
      *
-     * @return a {@link Set} of all of the {@link StoreTrait}s that the store
-     *         has.
+     * @return a {@link Set} of all of the {@link StoreTrait}s that the store has.
      */
     @Deprecated
     public Set<StoreTrait> getStoreTraits() {
@@ -974,5 +975,30 @@ public final class Graph {
         private Schema cloneSchema(final Schema schema) {
             return null != schema ? schema.clone() : null;
         }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Graph graph = (Graph) o;
+
+        return new EqualsBuilder()
+                .append(new GraphSerialisable.Builder(this).build(), new GraphSerialisable.Builder(graph).build())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(store)
+                .append(config)
+                .toHashCode();
     }
 }
