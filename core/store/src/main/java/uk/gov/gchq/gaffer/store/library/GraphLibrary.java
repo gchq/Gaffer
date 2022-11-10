@@ -327,29 +327,17 @@ public abstract class GraphLibrary {
 
 
     public Schema resolveSchema(final Schema schema, final List<String> parentSchemaIds) {
-        Schema resultSchema = null;
+        Schema.Builder rtn = new Schema.Builder();
+
         if (null != parentSchemaIds) {
-            if (1 == parentSchemaIds.size()) {
-                resultSchema = this.getSchemaElseCopyFromGraph(parentSchemaIds.get(0));
-            } else {
-                final Schema.Builder schemaBuilder = new Schema.Builder();
-                for (final String id : parentSchemaIds) {
-                    schemaBuilder.merge(this.getSchemaElseCopyFromGraph(id));
-                }
-                resultSchema = schemaBuilder.build();
+            for (final String id : parentSchemaIds) {
+                rtn.merge(this.getSchemaElseCopyFromGraph(id));
             }
         }
-        if (null != schema) {
-            if (null == resultSchema) {
-                resultSchema = schema;
-            } else {
-                resultSchema = new Schema.Builder()
-                        .merge(resultSchema)
-                        .merge(schema)
-                        .build();
-            }
-        }
-        return resultSchema;
+
+        rtn.merge(schema);
+
+        return rtn.build();
     }
 
     private Schema getSchemaElseCopyFromGraph(final String id) {
@@ -371,18 +359,15 @@ public abstract class GraphLibrary {
     }
 
     public StoreProperties resolveStoreProperties(final StoreProperties properties, final String parentStorePropertiesId) {
-        StoreProperties resultProps = null;
+        final StoreProperties rtn = new StoreProperties();
+
         if (null != parentStorePropertiesId) {
-            resultProps = this.getPropertiesElseCopyFromGraph(parentStorePropertiesId);
+            rtn.merge(this.getPropertiesElseCopyFromGraph(parentStorePropertiesId));
         }
-        if (null != properties) {
-            if (null == resultProps) {
-                resultProps = properties;
-            } else {
-                resultProps.merge(properties);
-            }
-        }
-        return resultProps;
+
+        rtn.merge(properties);
+
+        return rtn;
     }
 
 }
