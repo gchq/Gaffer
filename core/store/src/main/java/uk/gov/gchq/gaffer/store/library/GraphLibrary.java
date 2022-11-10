@@ -330,11 +330,11 @@ public abstract class GraphLibrary {
         Schema resultSchema = null;
         if (null != parentSchemaIds) {
             if (1 == parentSchemaIds.size()) {
-                resultSchema = this.getSchema(parentSchemaIds.get(0));
+                resultSchema = this.getSchemaElseCopyFromGraph(parentSchemaIds.get(0));
             } else {
                 final Schema.Builder schemaBuilder = new Schema.Builder();
                 for (final String id : parentSchemaIds) {
-                    schemaBuilder.merge(this.getSchema(id));
+                    schemaBuilder.merge(this.getSchemaElseCopyFromGraph(id));
                 }
                 resultSchema = schemaBuilder.build();
             }
@@ -352,10 +352,28 @@ public abstract class GraphLibrary {
         return resultSchema;
     }
 
+    private Schema getSchemaElseCopyFromGraph(final String id) {
+        Schema resultSchema;
+        resultSchema = this.getSchema(id);
+        if (null == resultSchema && this.exists(id)) {
+            resultSchema = this.get(id).getFirst();
+        }
+        return resultSchema;
+    }
+
+    private StoreProperties getPropertiesElseCopyFromGraph(final String id) {
+        StoreProperties resultProperties;
+        resultProperties = this.getProperties(id);
+        if (null == resultProperties && this.exists(id)) {
+            resultProperties = this.get(id).getSecond();
+        }
+        return resultProperties;
+    }
+
     public StoreProperties resolveStoreProperties(final StoreProperties properties, final String parentStorePropertiesId) {
         StoreProperties resultProps = null;
         if (null != parentStorePropertiesId) {
-            resultProps = this.getProperties(parentStorePropertiesId);
+            resultProps = this.getPropertiesElseCopyFromGraph(parentStorePropertiesId);
         }
         if (null != properties) {
             if (null == resultProps) {
