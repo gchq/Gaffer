@@ -227,7 +227,7 @@ public class FederatedStoreGraphIDsTest {
     }
 
     @Test
-    public void shouldNotCorrectlySelectGraphUsingGraphIdsOptionOnOperationChain() throws Exception {
+    public void shouldIgnoreGraphIdsOptionOnOperationChain() throws Exception {
         // When
         Iterable<? extends Element> results = federatedStore.execute(
                 new OperationChain.Builder()
@@ -239,8 +239,9 @@ public class FederatedStoreGraphIDsTest {
                         .build(), contextBlankUser());
 
         // Then
-        // Pre Gaffer 2.0 this would have sent the whole chain to graph A
-        // Now, the chain's graphIds option is ignored as every individual
+        // Pre Gaffer 2.0 this would have sent the whole chain to graph A.
+        // Now, the chain is sent to all graphs, because that is the default.
+        // The chain's graphIds option is ignored, as every individual
         // operation is wrapped in a FederatedOperation
         assertThat(results).hasSize(1);
         assertThat(results.iterator().next().getProperties()).containsEntry(PROPERTY_1, 2);
