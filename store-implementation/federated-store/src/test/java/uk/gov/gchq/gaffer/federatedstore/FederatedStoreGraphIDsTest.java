@@ -26,11 +26,10 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
-import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
@@ -40,18 +39,13 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_ENTITY;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SOURCE_BASIC;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.basicEntitySchema;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextBlankUser;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.entityBasic;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.DEPRECATED_GRAPHIDS_OPTION;
 
 public class FederatedStoreGraphIDsTest {
-
-    public static final Entity EXPECTED_ENTITY = entityBasic();
-    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private FederatedStore federatedStore;
 
     @AfterAll
@@ -64,11 +58,7 @@ public class FederatedStoreGraphIDsTest {
         resetForFederatedTests();
 
         federatedStore = new FederatedStore();
-
-        FederatedStoreProperties fedProps = new FederatedStoreProperties();
-        fedProps.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
-
-        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, fedProps);
+        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, new FederatedStoreProperties());
 
         // Setup graph A and graph B with same schema
         federatedStore.execute(
@@ -76,140 +66,162 @@ public class FederatedStoreGraphIDsTest {
                         .graphId(GRAPH_ID_A)
                         .storeProperties(loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES))
                         .schema(basicEntitySchema())
-                        .isPublic(true).build(), contextBlankUser());
-
+                        .isPublic(true)
+                        .build(), contextBlankUser());
         federatedStore.execute(
                 new AddGraph.Builder()
                         .graphId(GRAPH_ID_B)
                         .storeProperties(loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES))
                         .schema(basicEntitySchema())
-                        .isPublic(true).build(), contextBlankUser());
-
-        // Add same entity to both
-        federatedStore.execute(
-                new AddElements.Builder()
-                        .input(EXPECTED_ENTITY)
-                        .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_A)
+                        .isPublic(true)
                         .build(), contextBlankUser());
 
+        // Graph A, property = 1
         federatedStore.execute(
                 new AddElements.Builder()
-                        .input(EXPECTED_ENTITY)
+                        .input(entity(1))
+                        .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_A)
+                        .build(), contextBlankUser());
+        // Graph B, property = 2
+        federatedStore.execute(
+                new AddElements.Builder()
+                        .input(entity(2))
                         .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_B)
                         .build(), contextBlankUser());
     }
 
     @Test
     public void shouldAggregateAcrossBothGraphsWhenNoGraphIdSelected() throws Exception {
-        // When
+        // Given
         Iterable<? extends Element> results = federatedStore.execute(
-                new OperationChain.Builder()
-                        .first(new GetElements.Builder()
-                                .input(EXPECTED_ENTITY)
-                                .build())
-                        .then(new Limit<>(10))
-                        .build(), contextBlankUser());
+                new GetAllElements(), contextBlankUser());
 
-        // Then
-        assertThat(results).hasSize(1);
-        assertThat(results.iterator().next().getProperties()).containsEntry(PROPERTY_1, 2);
+        // When / Then
+        assertThat(results)
+                .hasSize(1)
+                .first()
+                .matches(e -> e.getProperty(PROPERTY_1).equals(3));
     }
 
     @Test
-    public void shouldSelectGraphUsingGraphIdsOptionWithinOperationChain() throws Exception {
-        // When
+    public void shouldIgnoreGraphIdsOptionOnOperationChain() throws Exception {
+        // Given
         Iterable<? extends Element> results = federatedStore.execute(
                 new OperationChain.Builder()
-                        .first(new GetElements.Builder()
-                                .input(EXPECTED_ENTITY)
-                                .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_A)
-                                .build())
-                        .then(new Limit<>(10))
+                        .first(new GetAllElements())
+                        .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_A)
                         .build(), contextBlankUser());
 
-        // Then
-        assertThat(results).hasSize(1);
-        assertThat(results.iterator().next().getProperties()).containsEntry(PROPERTY_1, 1);
-    }
-
-    @Test
-    public void shouldSelectGraphUsingGraphIdsOptionWithinNestedOperationChain() throws Exception {
-        // When
-        Iterable<? extends Element> results = federatedStore.execute(
-                new OperationChain.Builder()
-                        .first(new OperationChain.Builder()
-                                .first(new GetElements.Builder()
-                                    .input(EXPECTED_ENTITY)
-                                    .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_A)
-                                    .build())
-                                .build())
-                        .then(new Limit<>(10))
-                        .build(), contextBlankUser());
-
-        // Then
-        assertThat(results).hasSize(1);
-        assertThat(results.iterator().next().getProperties()).containsEntry(PROPERTY_1, 1);
+        // When / Then
+        // Pre Gaffer 2.0 this would have sent the whole chain to graph A.
+        // Now, the chain is sent to all graphs, because that is the default.
+        // The chain's graphIds option is ignored, as every individual
+        // operation is wrapped in a FederatedOperation
+        assertThat(results)
+                .hasSize(1)
+                .first()
+                .matches(e -> e.getProperty(PROPERTY_1).equals(3));
     }
 
     @Test
     public void shouldSelectGraphUsingFederatedOperation() throws Exception {
-        // When
+        // Given
         Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(
                 new FederatedOperation.Builder()
-                        .op(new OperationChain.Builder()
-                                .first(new OperationChain.Builder()
-                                        .first(new GetElements.Builder()
-                                                .input(EXPECTED_ENTITY)
-                                                .build())
-                                        .build())
-                                .then(new Limit<>(10))
-                                .build())
+                        .op(new GetAllElements())
                         .graphIdsCSV(GRAPH_ID_A)
                         .build(), contextBlankUser());
 
-        // Then
-        assertThat(results).hasSize(1);
-        assertThat(results.iterator().next().getProperties()).containsEntry(PROPERTY_1, 1);
+        // When / Then
+        assertThat((Iterable<Entity>) results).containsExactly(entity(1));
+    }
+
+    @Test
+    public void shouldSelectGraphUsingGraphIdsOption() throws Exception {
+        // Given
+        Iterable<? extends Element> results = federatedStore.execute(
+                new GetAllElements.Builder()
+                        .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_A)
+                        .build(), contextBlankUser());
+
+        // When / Then
+        assertThat((Iterable<Entity>) results).containsExactly(entity(1));
+    }
+
+    @Test
+    public void shouldSelectGraphUsingGraphIdsOptionWithinOperationChain() throws Exception {
+        // Given
+        Iterable<? extends Element> results = federatedStore.execute(
+                new OperationChain.Builder()
+                        .first(new GetAllElements.Builder()
+                                .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_A)
+                                .build())
+                        .build(), contextBlankUser());
+
+        // When / Then
+        assertThat((Iterable<Entity>) results).containsExactly(entity(1));
+    }
+
+    @Test
+    public void shouldSelectGraphUsingGraphIdsOptionWithinNestedOperationChain() throws Exception {
+        // Given
+        Iterable<? extends Element> results = federatedStore.execute(
+                new OperationChain.Builder()
+                        .first(new OperationChain.Builder()
+                                .first(new GetAllElements.Builder()
+                                        .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_A)
+                                        .build())
+                                .build())
+                        .build(), contextBlankUser());
+
+        // When / Then
+        assertThat((Iterable<Entity>) results).containsExactly(entity(1));
+    }
+
+    @Test
+    public void shouldSelectGraphUsingFederatedOperationLongOperationChain() throws Exception {
+        Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(
+                new OperationChain.Builder()
+                        .first(new FederatedOperation.Builder()
+                                .op(new GetAllElements())
+                                .graphIdsCSV(GRAPH_ID_A)
+                                .build())
+                        .then(new ExportToSet.Builder<>()
+                                .key("results")
+                                .build())
+                        .then(new DiscardOutput())
+                        .then(new FederatedOperation.Builder()
+                                .op(new GetAllElements())
+                                .graphIdsCSV(GRAPH_ID_B)
+                                .build())
+                        .then(new ExportToSet.Builder<>()
+                                .key("results")
+                                .build())
+                        .then(new DiscardOutput())
+                        .then(new GetSetExport.Builder()
+                                .key("results")
+                                .build())
+                        .build(), contextBlankUser());
+
+        // When / Then
+        assertThat((Iterable<Entity>) results)
+                .hasSize(2)
+                .containsExactlyInAnyOrder(entity(1), entity(2));
     }
 
     @Test
     public void shouldSelectGraphUsingGraphIdsOptionWithinLongOperationChain() throws Exception {
         // Given
-        final Entity secondEntity = new Entity.Builder()
-                .group(GROUP_BASIC_ENTITY)
-                .vertex(SOURCE_BASIC)
-                .property(PROPERTY_1, 2)
-                .build();
-        final Entity thirdEntity = new Entity.Builder()
-                .group(GROUP_BASIC_ENTITY)
-                .vertex(SOURCE_BASIC)
-                .property(PROPERTY_1, 3)
-                .build();
-
-        federatedStore.execute(
-                new AddElements.Builder()
-                        .input(secondEntity)
-                        .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_A)
-                        .build(), contextBlankUser());
-        federatedStore.execute(
-                new AddElements.Builder()
-                        .input(thirdEntity)
-                        .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_B)
-                        .build(), contextBlankUser());
-
-        // When
         Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(
                 new OperationChain.Builder()
-                        .first(new GetElements.Builder()
-                                .input(BASIC_VERTEX)
+                        .first(new GetAllElements.Builder()
                                 .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_A)
                                 .build())
                         .then(new ExportToSet.Builder<>()
                                 .key("results")
                                 .build())
                         .then(new DiscardOutput())
-                        .then(new GetElements.Builder()
-                                .input(SOURCE_BASIC)
+                        .then(new GetAllElements.Builder()
                                 .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_B)
                                 .build())
                         .then(new ExportToSet.Builder<>()
@@ -221,29 +233,17 @@ public class FederatedStoreGraphIDsTest {
                                 .build())
                         .build(), contextBlankUser());
 
-        // Then
-        assertThat(results).hasSize(2);
-        assertThat((Iterable<Entity>) results).containsExactlyInAnyOrder(EXPECTED_ENTITY, thirdEntity);
+        // When / Then
+        assertThat((Iterable<Entity>) results)
+                .hasSize(2)
+                .containsExactlyInAnyOrder(entity(1), entity(2));
     }
 
-    @Test
-    public void shouldIgnoreGraphIdsOptionOnOperationChain() throws Exception {
-        // When
-        Iterable<? extends Element> results = federatedStore.execute(
-                new OperationChain.Builder()
-                        .first(new GetElements.Builder()
-                                .input(EXPECTED_ENTITY)
-                                .build())
-                        .then(new Limit<>(10))
-                        .option(DEPRECATED_GRAPHIDS_OPTION, GRAPH_ID_A)
-                        .build(), contextBlankUser());
-
-        // Then
-        // Pre Gaffer 2.0 this would have sent the whole chain to graph A.
-        // Now, the chain is sent to all graphs, because that is the default.
-        // The chain's graphIds option is ignored, as every individual
-        // operation is wrapped in a FederatedOperation
-        assertThat(results).hasSize(1);
-        assertThat(results.iterator().next().getProperties()).containsEntry(PROPERTY_1, 2);
+    private Entity entity(final int value) {
+        return new Entity.Builder()
+                .group(GROUP_BASIC_ENTITY)
+                .vertex(BASIC_VERTEX)
+                .property(PROPERTY_1, value)
+                .build();
     }
 }
