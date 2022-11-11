@@ -69,9 +69,10 @@ public class HyperLogLogPlusJsonSerialisationTest {
     @Test
     public void testNullHyperLogLogPlusSketchIsSerialisedAsNullString() throws SerialisationException {
         // Given
+        final HyperLogLogPlus sketch = null;
 
         // When
-        final String sketchAsString = new String(JSONSerialiser.serialise(null));
+        final String sketchAsString = new String(JSONSerialiser.serialise(sketch));
 
         // Then - Serialisation framework will serialise nulls as 'null' string.
         assertEquals("null", sketchAsString);

@@ -21,21 +21,21 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
+import uk.gov.gchq.gaffer.types.CustomMap;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,7 +90,8 @@ public class HyperLogLogPlusJsonDeserialiserTest {
 
         assertThatExceptionOfType(SerialisationException.class)
                 .isThrownBy(() -> JSONSerialiser.deserialise(json, HyperLogLogPlus.class))
-                .withMessageContaining("Unexpected IOException (of type java.io.EOFException): null");
+                .withMessageContaining("Unexpected IOException (of type uk.gov.gchq.gaffer.exception.SerialisationException): " +
+                        "Error deserialising JSON object: null");
     }
 
     @Test
@@ -99,7 +100,8 @@ public class HyperLogLogPlusJsonDeserialiserTest {
         final HyperLogLogPlus expected = new HyperLogLogPlus(5, 10);
         expected.offer("test");
 
-        final Map<String, Object> stringMap = Collections.singletonMap(HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SKETCH_BYTES_FIELD, expected.getBytes());
+        final Map<String, Object> stringMap = Collections.singletonMap(HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SKETCH_BYTES_FIELD,
+                expected.getBytes());
 
         final String s = JSONSerialiser.getMapper().writeValueAsString(stringMap);
 
@@ -158,7 +160,7 @@ public class HyperLogLogPlusJsonDeserialiserTest {
         // Then
         assertThatExceptionOfType(SerialisationException.class)
                 .isThrownBy(() -> JSONSerialiser.deserialise(json, HyperLogLogPlus.class))
-                .withMessageContaining("Error deserialising JSON object: Error converting the class [fail] to a Java Object");
+                .withMessageContaining("Error deserialising JSON object: Unexpected token");
     }
 
     @Test
@@ -222,45 +224,11 @@ public class HyperLogLogPlusJsonDeserialiserTest {
     }
 
     @Test
-    void shouldDeserialiseHllpWithOffersTypeValueArray() throws IOException {
-        // Given
-        final String json = "{\"p\": 5, \"sp\": 5, " +
-                "\"offers\": [" +
-                "[{\"class\": \"uk.gov.gchq.gaffer.types.TypeValue\", \"type\": \"type\", \"value\": \"value\"}]" +
-                "]}";
-
-        // When
-        final HyperLogLogPlus hllp = JSONSerialiser.deserialise(json, HyperLogLogPlus.class);
-
-        // Then
-        final HyperLogLogPlus expected = new HyperLogLogPlus(5, 5);
-        expected.offer(Collections.singletonList(new TypeValue("type", "value")));
-        assertThat(hllp.getBytes()).isEqualTo(expected.getBytes());
-    }
-
-    @Test
-    void shouldDeserialiseHllpWithOffersArrayOfTypeValueArray() throws IOException {
-        // Given
-        final String json = "{\"p\": 5, \"sp\": 5, " +
-                "\"offers\": [" +
-                "[[{\"class\": \"uk.gov.gchq.gaffer.types.TypeValue\", \"type\": \"type\", \"value\": \"value\"}]]" +
-                "]}";
-
-        // When
-        final HyperLogLogPlus hllp = JSONSerialiser.deserialise(json, HyperLogLogPlus.class);
-
-        // Then
-        final HyperLogLogPlus expected = new HyperLogLogPlus(5, 5);
-        expected.offer(Collections.singletonList(Collections.singletonList(new TypeValue("type", "value"))));
-        assertThat(hllp.getBytes()).isEqualTo(expected.getBytes());
-    }
-
-    @Test
     void shouldDeserialiseHllpWithOffersTypeFreqMap() throws IOException {
         // Given
         final String json = "{\"p\": 5, \"sp\": 5, " +
                 "\"offers\": [" +
-                "{\"a\": 1, \"b\": 1234567891011121314}" +
+                "{\"class\": \"" + FreqMap.class.getName() + "\", \"a\": 1, \"b\": 1234567891011121314}" +
                 "]}";
 
         // When
@@ -273,21 +241,6 @@ public class HyperLogLogPlusJsonDeserialiserTest {
 
         final HyperLogLogPlus expected = new HyperLogLogPlus(5, 5);
         expected.offer(freqMap);
-        assertThat(hllp.getBytes()).isEqualTo(expected.getBytes());
-    }
-
-    @Test
-    void shouldDeserialiseHllpWithOffersArray() throws IOException {
-        // Given
-        final String json = "{\"p\": 5, \"sp\": 5, " +
-                "\"offers\": [[1, 2, 3]]}";
-
-        // When
-        final HyperLogLogPlus hllp = JSONSerialiser.deserialise(json, HyperLogLogPlus.class);
-
-        // Then
-        final HyperLogLogPlus expected = new HyperLogLogPlus(5, 5);
-        expected.offer(Arrays.asList(1, 2, 3));
         assertThat(hllp.getBytes()).isEqualTo(expected.getBytes());
     }
 
@@ -406,21 +359,29 @@ public class HyperLogLogPlusJsonDeserialiserTest {
         assertThat(hllp.getBytes()).isEqualTo(expected.getBytes());
     }
 
-    @Disabled("Test doesn't store a class when serialising TypeSubTypeValue. Look into why")
     @Test
     void shouldDeserialiseHllpWithOffersTestJavaToJson() throws IOException {
         // Given
-        final HashMap<String, Object> map = new HashMap<>();
-        map.put("p", 5);
-        map.put("sp", 5);
-        map.put("offers", new Object[] {new TypeSubTypeValue("type", "subType", "value")});
+        final HyperLogLogPlusWithOffers hyperLogLogPlusWithOffers = new HyperLogLogPlusWithOffers();
+        hyperLogLogPlusWithOffers.setP(5);
+        hyperLogLogPlusWithOffers.setSp(5);
+        final ArrayList<Object> offers = new ArrayList<>();
+        offers.add(new TypeSubTypeValue("type", "subType", "value"));
+        offers.add(new TypeValue("type", "value"));
+        offers.add(new CustomMap<>(new BooleanSerialiser(), new BooleanSerialiser()));
+        offers.add(new FreqMap("test"));
+        hyperLogLogPlusWithOffers.setOffers(offers);
+        final byte[] serialised = JSONSerialiser.serialise(hyperLogLogPlusWithOffers, true);
 
         // When
-        final HyperLogLogPlus hllp = JSONSerialiser.deserialise(JSONSerialiser.serialise(map), HyperLogLogPlus.class);
+        final HyperLogLogPlus hllp = JSONSerialiser.deserialise(serialised, HyperLogLogPlus.class);
 
         // Then
         final HyperLogLogPlus expected = new HyperLogLogPlus(5, 5);
         expected.offer(new TypeSubTypeValue("type", "subType", "value"));
+        expected.offer(new TypeValue("type", "value"));
+        expected.offer(new CustomMap<>(new BooleanSerialiser(), new BooleanSerialiser()));
+        expected.offer(new FreqMap("test"));
         assertThat(hllp.getBytes()).isEqualTo(expected.getBytes());
     }
 
