@@ -369,7 +369,6 @@ public final class FederatedStoreUtil {
         }
     }
 
-    //TODO FS likely this can be improved.
     public static class SerialisableConfiguredMergeFunctionsMap {
         @JsonProperty("configuredMergeFunctions")
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")

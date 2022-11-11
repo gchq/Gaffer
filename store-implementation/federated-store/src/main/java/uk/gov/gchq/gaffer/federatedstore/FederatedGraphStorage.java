@@ -350,10 +350,10 @@ public class FederatedGraphStorage {
         GraphSerialisable fromCache = federatedStoreCache.getGraphSerialisableFromCache(graphId);
 
         if (!newGraph.getStoreProperties(graphLibrary).getProperties().equals(fromCache.getStoreProperties(graphLibrary))) {
-            throw new RuntimeException(String.format(ERROR_ADDING_GRAPH_TO_CACHE, GraphConfigEnum.PROPERTIES.toString(), graphId));
+            throw new RuntimeException(String.format(ERROR_ADDING_GRAPH_TO_CACHE, "properties", graphId));
         }
         if (!JsonUtil.equals(newGraph.getSchema(graphLibrary).toJson(false), fromCache.getSchema(graphLibrary).toJson(false))) {
-            throw new RuntimeException(String.format(ERROR_ADDING_GRAPH_TO_CACHE, GraphConfigEnum.SCHEMA.toString(), graphId));
+            throw new RuntimeException(String.format(ERROR_ADDING_GRAPH_TO_CACHE, "schema", graphId));
         }
         if (!newGraph.getGraphId().equals(fromCache.getGraphId())) {
             throw new RuntimeException(String.format(ERROR_ADDING_GRAPH_TO_CACHE, "GraphId", graphId));
@@ -503,25 +503,5 @@ public class FederatedGraphStorage {
         return accessPredicate.test(fromCache.getSecond())
                 ? fromCache.getFirst()
                 : null;
-    }
-
-    /**
-     * Enum for the Graph Properties or Schema
-     */
-    //TODO FS Why is there an enum?
-    public enum GraphConfigEnum {
-        SCHEMA("schema"), PROPERTIES("properties");
-
-        private final String value;
-
-        GraphConfigEnum(final String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-
     }
 }

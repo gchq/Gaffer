@@ -148,7 +148,6 @@ public class FederatedStore extends Store {
         }
         ALL_IDS.add(id = i);
 
-        //TODO FS examine ?
         this.customPropertiesAuths = customPropertiesAuths;
         this.isPublicAccessAllowed = (null == isPublicAccessAllowed) ? Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT) : isPublicAccessAllowed;
         this.storeConfiguredGraphIds = storeConfiguredGraphIds;
@@ -500,10 +499,7 @@ public class FederatedStore extends Store {
                         && !AddElements.class.equals(op)
                         && !AddNamedOperation.class.equals(op)
                         && !AddNamedView.class.equals(op))
-                //TODO FS [ op1 op2[graphA], op3 ] if op3 is one these it will break compared to old way?
                 .forEach(op -> addOperationHandler(op, new FederatedNoOutputHandler()));
-
-        addOperationHandler(GetSchema.class, new FederatedOutputHandler<>(new Schema())); //TODO FS will to be deleted after Default Merge Mapping
 
         addOperationHandler(Filter.class, new FederatedFilterHandler());
         addOperationHandler(Aggregate.class, new FederatedAggregateHandler());
