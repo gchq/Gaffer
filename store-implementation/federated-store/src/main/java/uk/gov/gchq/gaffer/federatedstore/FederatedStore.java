@@ -502,6 +502,8 @@ public class FederatedStore extends Store {
                         && !AddNamedView.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedNoOutputHandler()));
 
+        addOperationHandler(GetSchema.class, new FederatedOutputHandler<>(new Schema()));
+
         addOperationHandler(Filter.class, new FederatedDelegateToHandler(new FilterHandler()));
         addOperationHandler(Aggregate.class, new FederatedDelegateToHandler(new AggregateHandler()));
         addOperationHandler(Transform.class, new FederatedDelegateToHandler(new TransformHandler()));

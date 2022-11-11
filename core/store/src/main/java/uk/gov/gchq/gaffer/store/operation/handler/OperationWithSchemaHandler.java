@@ -20,6 +20,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-public interface OperationWithSchemaHandler<OP extends Output<? extends O>, O> extends OutputOperationHandler<OP,O> {
+public interface OperationWithSchemaHandler<OP extends Output<? extends O>, O> extends OutputOperationHandler<OP, O> {
     O doOperation(final OP operation, final Schema schema) throws OperationException;
 }

@@ -235,7 +235,6 @@ public class FederatedOperationHandlerTest {
                 .store(mockStore)
                 .build();
 
-        //TODO FS final GraphSerialisable Test bug, this is the only reason why it loosing final. can this test class be rewritten.
         final GraphSerialisable mock = mock(GraphSerialisable.class);
         when(mock.getGraph()).thenReturn(graph);
         when(mock.getGraphId()).thenReturn(TEST_GRAPH_ID);

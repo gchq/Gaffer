@@ -40,13 +40,11 @@ public class FederatedDelegateToHandler implements OutputOperationHandler<InputO
 
     @Override
     public Iterable<? extends Element> doOperation(final InputOutput<Iterable<? extends Element>, Iterable<? extends Element>> operation, final Context context, final Store store) throws OperationException {
-        if (TransformHandler.class.isAssignableFrom(handler.getClass())) {
+        if (TransformHandler.class.isAssignableFrom(handler.getClass())
+                || FilterHandler.class.isAssignableFrom(handler.getClass())) {
             return (Iterable<? extends Element>) ((OperationWithSchemaHandler) handler).doOperation(operation, ((FederatedStore) store).getSchema(getFederatedWrappedSchema(), context));
-        } else if (ValidateHandler.class.isAssignableFrom(handler.getClass())) {
-            return (Iterable<? extends Element>) ((OperationWithSchemaHandler) handler).doOperation(operation, ((FederatedStore) store).getSchema(context));
-        } else if (FilterHandler.class.isAssignableFrom(handler.getClass())) {
-            return (Iterable<? extends Element>) ((OperationWithSchemaHandler) handler).doOperation(operation, ((FederatedStore) store).getSchema(getFederatedWrappedSchema(), context));
-        } else if (AggregateHandler.class.isAssignableFrom(handler.getClass())) {
+        } else if (ValidateHandler.class.isAssignableFrom(handler.getClass())
+                || AggregateHandler.class.isAssignableFrom(handler.getClass())) {
             return (Iterable<? extends Element>) ((OperationWithSchemaHandler) handler).doOperation(operation, ((FederatedStore) store).getSchema(context));
         } else {
             return handler.doOperation(operation, context, store);

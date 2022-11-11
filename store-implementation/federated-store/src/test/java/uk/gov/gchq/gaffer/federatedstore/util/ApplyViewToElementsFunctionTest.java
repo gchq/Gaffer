@@ -158,7 +158,9 @@ class ApplyViewToElementsFunctionTest {
     private static AccumuloStore getTestStore(final String instanceName) throws StoreException {
         final AccumuloStore accumuloStore = new MiniAccumuloStore();
         final AccumuloProperties clone = ACCUMULO_PROPERTIES.clone();
-        clone.setNamespace(instanceName); //TODO FS is there a more elegant way to have different MiniAccumuloStore? Also should I change NameSpace or GraphId because tableName = NameSpace.GraphId
+        //This line allows different MiniAccumuloStore?
+        //tableName = NameSpace.GraphId.
+        clone.setNamespace(instanceName);
         accumuloStore.initialise(GRAPH_ID_ACCUMULO, SCHEMA.clone(), clone);
         return accumuloStore;
     }
