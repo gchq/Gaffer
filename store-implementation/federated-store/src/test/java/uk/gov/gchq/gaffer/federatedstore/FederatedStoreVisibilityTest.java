@@ -56,7 +56,12 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefau
 public class FederatedStoreVisibilityTest {
     private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
 
-    private static final User USER = new User.Builder().dataAuth("public").build();
+    public static final String PUBLIC = "public";
+    private static final User USER = new User.Builder().dataAuth(PUBLIC).build();
+    public static final String VISIBILITY = "visibility";
+    public static final String VISIBILITY_1 = "visibility1";
+    public static final String VISIBILITY_2 = "visibility2";
+    public static final String PRIVATE = "private";
 
     private Graph federatedGraph;
 
@@ -82,9 +87,9 @@ public class FederatedStoreVisibilityTest {
     @Test
     public void shouldGetDataWhenVisibilityPropertyNamesAreSame() throws Exception {
         // Given
-        addGraphs("visibility", "visibility");
-        addElements(GRAPH_ID_A, "visibility", "public");
-        addElements(GRAPH_ID_B, "visibility", "public");
+        addGraphs(VISIBILITY, VISIBILITY);
+        addElements(GRAPH_ID_A, VISIBILITY, PUBLIC);
+        addElements(GRAPH_ID_B, VISIBILITY, PUBLIC);
 
         // When
         Iterable<? extends Element> aggregatedResults = (Iterable<? extends Element>) federatedGraph.execute(
@@ -119,9 +124,9 @@ public class FederatedStoreVisibilityTest {
     @Test
     public void shouldGetDataWhenVisibilityPropertyNamesAreDifferent() throws Exception {
         // Given
-        addGraphs("visibility1", "visibility2");
-        addElements(GRAPH_ID_A, "visibility1", "public");
-        addElements(GRAPH_ID_B, "visibility2", "public");
+        addGraphs(VISIBILITY_1, VISIBILITY_2);
+        addElements(GRAPH_ID_A, VISIBILITY_1, PUBLIC);
+        addElements(GRAPH_ID_B, VISIBILITY_2, PUBLIC);
 
         // When
         Iterable<? extends Element> aggregatedResults = (Iterable<? extends Element>) federatedGraph.execute(
@@ -156,9 +161,9 @@ public class FederatedStoreVisibilityTest {
     @Test
     public void shouldGetDataWhenVisibilityPropertyNamesAndAuthsAreDifferent() throws Exception {
         // Given
-        addGraphs("visibility1", "visibility2");
-        addElements(GRAPH_ID_A, "visibility1", "public");
-        addElements(GRAPH_ID_B, "visibility2", "private");
+        addGraphs(VISIBILITY_1, VISIBILITY_2);
+        addElements(GRAPH_ID_A, VISIBILITY_1, PUBLIC);
+        addElements(GRAPH_ID_B, VISIBILITY_2, PRIVATE);
 
         // When
         Iterable<? extends Element> aggregatedResults = (Iterable<? extends Element>) federatedGraph.execute(
@@ -193,9 +198,9 @@ public class FederatedStoreVisibilityTest {
     @Test
     public void shouldMergeVisibilityPropertyWhenVisibilityPropertyNamesAreDifferentAndGroupNameIsSame() throws Exception {
         // Given
-        addGraphs("visibility1", "visibility2");
-        addElements(GRAPH_ID_A, "visibility1", "public");
-        addElements(GRAPH_ID_B, "visibility2", "public");
+        addGraphs(VISIBILITY_1, VISIBILITY_2);
+        addElements(GRAPH_ID_A, VISIBILITY_1, PUBLIC);
+        addElements(GRAPH_ID_B, VISIBILITY_2, PUBLIC);
 
         // When
         Iterable<? extends Element> aggregatedResults = (Iterable<? extends Element>) federatedGraph.execute(
@@ -221,30 +226,30 @@ public class FederatedStoreVisibilityTest {
                 .hasSize(1)
                 .first()
                 .matches(e -> e.getProperty(PROPERTY_1).equals(2), "property is aggregated")
-                .matches(e -> e.getProperty("visibility2").equals("public"), "visibility2 is present")
-                .matches(e -> e.getProperty("visibility1") == null, "visibility1 is overwritten in schema merge");
+                .matches(e -> e.getProperty(VISIBILITY_2).equals(PUBLIC), "visibility2 is present")
+                .matches(e -> e.getProperty(VISIBILITY_1) == null, "visibility1 is overwritten in schema merge");
         // If this is to be done, the concatenated results are more intuitive
         assertThat(concatenatedResults)
                 .isNotEmpty()
                 .hasSize(2)
                 .allMatch(e -> e.getProperty(PROPERTY_1).equals(1), "property value is 1")
-                .anyMatch(e -> "public".equals(e.getProperty("visibility1")))
-                .anyMatch(e -> "public".equals(e.getProperty("visibility2")));
+                .anyMatch(e -> PUBLIC.equals(e.getProperty(VISIBILITY_1)))
+                .anyMatch(e -> PUBLIC.equals(e.getProperty(VISIBILITY_2)));
         assertThat(noAuthResults).isEmpty();
     }
 
     @Test
     public void shouldAddDataWhenVisibilityPropertyNamesAreDifferent() throws Exception {
         // Given
-        addGraphs("visibility1", "visibility2");
+        addGraphs(VISIBILITY_1, VISIBILITY_2);
         federatedGraph.execute(new FederatedOperation.Builder()
                 .op(new AddElements.Builder()
                         .input(new Entity.Builder()
                                 .group(GROUP_BASIC_ENTITY)
                                 .vertex(BASIC_VERTEX)
                                 .property(PROPERTY_1, 1)
-                                .property("visibility1", "public")
-                                .property("visibility2", "public")
+                                .property(VISIBILITY_1, PUBLIC)
+                                .property(VISIBILITY_2, PUBLIC)
                                 .build())
                         .build())
                 .build(), USER);
@@ -270,14 +275,14 @@ public class FederatedStoreVisibilityTest {
                 .hasSize(1)
                 .first()
                 .matches(e -> e.getProperty(PROPERTY_1).equals(2), "property is aggregated")
-                .matches(e -> e.getProperty("visibility2").equals("public"), "has visibility2 property")
-                .matches(e -> e.getProperty("visibility1") == null, "visibility1 is overwritten in schema merge");
+                .matches(e -> e.getProperty(VISIBILITY_2).equals(PUBLIC), "has visibility2 property")
+                .matches(e -> e.getProperty(VISIBILITY_1) == null, "visibility1 is overwritten in schema merge");
         assertThat(concatenatedResults)
                 .isNotEmpty()
                 .hasSize(2)
                 .allMatch(e -> e.getProperty(PROPERTY_1).equals(1), "property value is 1")
-                .anyMatch(e -> "public".equals(e.getProperty("visibility1")))
-                .anyMatch(e -> "public".equals(e.getProperty("visibility2")));
+                .anyMatch(e -> PUBLIC.equals(e.getProperty(VISIBILITY_1)))
+                .anyMatch(e -> PUBLIC.equals(e.getProperty(VISIBILITY_2)));
         assertThat(noAuthResults).isEmpty();
     }
 
@@ -316,10 +321,10 @@ public class FederatedStoreVisibilityTest {
                 .entity(GROUP_BASIC_ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(STRING)
                         .property(PROPERTY_1, INTEGER)
-                        .property(visibilityPropertyName, "visibility")
+                        .property(visibilityPropertyName, VISIBILITY)
                         .build())
                 .type(STRING, String.class)
-                .type("visibility", new TypeDefinition.Builder()
+                .type(VISIBILITY, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .aggregateFunction(new StringConcat())
                         .serialiser(new StringSerialiser())
