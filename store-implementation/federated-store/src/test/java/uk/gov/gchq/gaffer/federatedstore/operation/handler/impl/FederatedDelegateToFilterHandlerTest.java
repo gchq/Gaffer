@@ -19,11 +19,11 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedDelegateToHandler;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.function.Transform;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -32,13 +32,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 
-public class FederatedTransformHandlerTest {
+public class FederatedDelegateToFilterHandlerTest {
     @Test
-    public void shouldDelegateToHandler() throws OperationException {
+    public void shouldDelegateToFilterHandler() throws OperationException {
         // Given
         final FederatedStore store = mock(FederatedStore.class);
-        final TransformHandler handler = mock(TransformHandler.class);
-        final Transform op = mock(Transform.class);
+        final FilterHandler handler = mock(FilterHandler.class);
+        final Filter op = mock(Filter.class);
         final Context context = mock(Context.class);
         final Iterable expectedResult = mock(Iterable.class);
         final Schema schema = mock(Schema.class);
@@ -46,7 +46,7 @@ public class FederatedTransformHandlerTest {
         given(store.getSchema(getFederatedWrappedSchema(), context)).willReturn(schema);
         given(handler.doOperation(op, schema)).willReturn(expectedResult);
 
-        final FederatedTransformHandler federatedHandler = new FederatedTransformHandler(handler);
+        final FederatedDelegateToHandler federatedHandler = new FederatedDelegateToHandler(handler);
 
         // When
         final Object result = federatedHandler.doOperation(op, context, store);

@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationWithSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.util.StreamTransformIterable;
 import uk.gov.gchq.gaffer.store.operation.validator.function.FunctionValidator;
@@ -31,7 +32,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TransformHandler implements OutputOperationHandler<Transform, Iterable<? extends Element>> {
+public class TransformHandler implements OutputOperationHandler<Transform, Iterable<? extends Element>>, OperationWithSchemaHandler<Transform, Iterable<? extends Element>> {
     private final FunctionValidator<Transform> validator = new TransformValidator();
 
     @Override

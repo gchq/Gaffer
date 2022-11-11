@@ -39,10 +39,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federatedstore.operation.IFederationOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraphAndDeleteAllData;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedDelegateToHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphWithHooksHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphAccessHandler;
@@ -83,6 +80,10 @@ import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.AggregateHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionIntersect;
@@ -501,10 +502,10 @@ public class FederatedStore extends Store {
                         && !AddNamedView.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedNoOutputHandler()));
 
-        addOperationHandler(Filter.class, new FederatedFilterHandler());
-        addOperationHandler(Aggregate.class, new FederatedAggregateHandler());
-        addOperationHandler(Transform.class, new FederatedTransformHandler());
-        addOperationHandler(Validate.class, new FederatedValidateHandler());
+        addOperationHandler(Filter.class, new FederatedDelegateToHandler(new FilterHandler()));
+        addOperationHandler(Aggregate.class, new FederatedDelegateToHandler(new AggregateHandler()));
+        addOperationHandler(Transform.class, new FederatedDelegateToHandler(new TransformHandler()));
+        addOperationHandler(Validate.class, new FederatedDelegateToHandler(new ValidateHandler()));
 
         //FederationOperations
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
