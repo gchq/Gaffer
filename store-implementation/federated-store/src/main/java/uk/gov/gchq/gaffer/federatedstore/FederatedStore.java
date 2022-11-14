@@ -494,15 +494,6 @@ public class FederatedStore extends Store {
     @SuppressWarnings("rawtypes")
     @Override
     protected void addAdditionalOperationHandlers() {
-        // Override the Operations that don't have an output
-        getSupportedOperations()
-                .stream()
-                .filter(op -> !Output.class.isAssignableFrom(op)
-                        && !AddElements.class.equals(op)
-                        && !AddNamedOperation.class.equals(op)
-                        && !AddNamedView.class.equals(op)
-                        && !DiscardOutput.class.equals(op))
-                .forEach(op -> addOperationHandler(op, new FederatedNoOutputHandler()));
 
         addOperationHandler(GetSchema.class, new FederatedOutputHandler<>(new Schema()));
 
