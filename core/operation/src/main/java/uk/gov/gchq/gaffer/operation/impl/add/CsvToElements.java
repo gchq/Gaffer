@@ -18,10 +18,16 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
@@ -42,7 +48,8 @@ import java.util.Map;
 public class CsvToElements implements
         Operation,
         Validatable,
-        MultiInput<String> {
+        MultiInput<String>,
+        InputOutput<Iterable<? extends String>, Iterable<? extends Element>> {
     private char delimiter = ',';
     private String nullString = "";
     private boolean trim = false;
@@ -50,6 +57,7 @@ public class CsvToElements implements
     private boolean skipInvalidElements;
     private Map<String, String> options;
     private Iterable<? extends String> input;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private CsvFormat csvFormat;
 
     public char getDelimiter() {
@@ -138,8 +146,14 @@ public class CsvToElements implements
         this.input = csvLines;
     }
 
+    @Override
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableElement();
+    }
+
     public static class Builder extends BaseBuilder<CsvToElements, Builder>
             implements Validatable.Builder<CsvToElements, Builder>,
+            InputOutput.Builder<CsvToElements, Iterable<? extends String>, Iterable<? extends Element>, CsvToElements.Builder>,
             MultiInput.Builder<CsvToElements, String, CsvToElements.Builder> {
         public Builder() {
             super(new CsvToElements());

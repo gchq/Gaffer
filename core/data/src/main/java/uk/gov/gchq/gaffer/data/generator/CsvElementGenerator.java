@@ -82,10 +82,10 @@ public class CsvElementGenerator implements ElementGenerator<String>, Serializab
                 }
                 if (columnHeader.contains(":")) {
                     String typeName = columnHeader.split(":")[1];
-                    HashMap<String, KorypheFunction<?, ?>> transforms = CsvFormat.getTransforms(csvFormat);
+                    HashMap<String, KorypheFunction<?, ?>> transformMappings = OpenCypherFormat.transformMappings;
                     KorypheFunction<?, ?> transform;
-                    if (transforms.containsKey(typeName)) {
-                        transform = transforms.get(typeName);
+                    if (transformMappings.containsKey(typeName)) {
+                        transform = transformMappings.get(typeName);
                     } else {
                         throw new RuntimeException("Unsupported Type: " + typeName);
                     }

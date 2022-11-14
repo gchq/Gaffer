@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import java.util.Map;
  * It cannot be used across multiple separate operation requests.
  * So ExportToSet and ImportFromLocalFile must be used inside a single operation chain.
  */
+
 @JsonPropertyOrder(value = {"class", "start", "end"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Fetches data from a local file")
@@ -44,11 +45,9 @@ public class ImportFromLocalFile implements
         GetExport,
         Output<Iterable<String>> {
 
+
     @Required
     private String filePath;
-
-    @JsonIgnore
-    private String key;
 
     private Map<String, String> options;
 
@@ -63,13 +62,14 @@ public class ImportFromLocalFile implements
     @Override
     @JsonIgnore
     public String getKey() {
-        return key;
+        return filePath;
     }
+
 
     @Override
     @JsonIgnore
-    public void setKey(final String key) {
-        this.key = key;
+    public void setKey(final String filePath) {
+        this.filePath = filePath;
     }
 
 
@@ -81,7 +81,7 @@ public class ImportFromLocalFile implements
     @Override
     public ImportFromLocalFile shallowClone() {
         return new ImportFromLocalFile.Builder()
-                .key(key)
+                .key(filePath)
                 .build();
     }
 

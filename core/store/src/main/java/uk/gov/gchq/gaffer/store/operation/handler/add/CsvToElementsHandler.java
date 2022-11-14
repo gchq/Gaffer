@@ -16,11 +16,10 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.add;
 
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.CsvElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.CsvFormat;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.add.CsvToElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -39,22 +38,19 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public class CsvToElementsHandler implements OperationHandler<CsvToElements> {
 
     @Override
-    public Void doOperation(final CsvToElements operation,
-                            final Context context,
-                            final Store store) throws OperationException {
+    public Iterable<? extends Element> doOperation(final CsvToElements operation,
+                                                   final Context context,
+                                                   final Store store) throws OperationException {
 
         CsvElementGenerator generator = createGenerator(operation);
-        if (generator.getCsvFormat() == null || generator.getCsvFormat().getClass().getSuperclass() != CsvFormat.class) {
+        if (generator.getCsvFormat() == null || !CsvFormat.class.isAssignableFrom(generator.getCsvFormat().getClass())) {
             throw new IllegalArgumentException("CsvToElements operation requires the user to provide a supported CsvFormat");
         }
         final Iterable<? extends String> input = operation.getInput();
 
-        return store.execute(new OperationChain.Builder()
-                .first(new GenerateElements.Builder<String>()
-                        .input(input)
-                        .generator(generator)
-                        .build())
-                .then(new AddElements())
+        return store.execute(new GenerateElements.Builder<String>()
+                .input(input)
+                .generator(generator)
                 .build(), context);
     }
 
@@ -75,4 +71,3 @@ public class CsvToElementsHandler implements OperationHandler<CsvToElements> {
         return createGenerator(operation.getInput(), operation.isTrim(), operation.getDelimiter(), operation.getNullString(), operation.getCsvFormat());
     }
 }
-

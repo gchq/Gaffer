@@ -98,4 +98,3 @@ public class ImportFromLocalFileTest extends OperationTest<ImportFromLocalFile> 
         return new ImportFromLocalFile();
     }
 }
-
