@@ -464,7 +464,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         assertThat(graph.execute(new GetAllGraphIds(), user)).contains(GRAPH_ID_A);
 
         //when
-        final String graphIdB = GRAPH_ID_B + 17456; //TODO FS this hides a issue of graphId persisting for tests.
+        final String graphIdB = GRAPH_ID_B + 17456;
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
                 .graphId(GRAPH_ID_A)
                 .newGraphId(graphIdB)
@@ -566,7 +566,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldChangeGraphIdInCache() throws Exception {
         //given
-        String newName = "newName" + 23452335; //TODO FS this hides a issue of graphId persisting for tests.
+        String newName = "newName" + 23452335;
         FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
 
         graph.execute(new AddGraph.Builder()

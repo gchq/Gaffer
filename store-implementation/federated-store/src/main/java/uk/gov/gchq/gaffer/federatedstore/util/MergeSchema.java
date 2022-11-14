@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.function.BiFunction;
 
+import static java.util.Objects.nonNull;
+
 public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextSpecificMergeFunction<Schema, Schema, Schema> {
     public static final String WIPE_VERTEX_SERIALISERS = "wipe_vertex_serialisers";
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeSchema.class);
@@ -44,7 +46,7 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
 
     public Schema apply(final Schema update, final Schema state) {
         if (state == null) {
-            return update;
+            return nonNull(update) ? update : new Schema();
         } else {
             Schema.Builder mergeSchema = new Schema.Builder(state);
             //Check if Vertex Serialiser needs to be wiped due to previous clash with merging.

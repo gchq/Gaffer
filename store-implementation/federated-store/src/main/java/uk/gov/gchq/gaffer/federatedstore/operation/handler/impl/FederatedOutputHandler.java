@@ -37,7 +37,6 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
  */
 public class FederatedOutputHandler<PAYLOAD extends Output<OUTPUT>, OUTPUT>
         implements OutputOperationHandler<PAYLOAD, OUTPUT> {
-    //TODO FS should this be a Hook and change the OperationChain?
 
     private final OUTPUT defaultEmpty;
 
