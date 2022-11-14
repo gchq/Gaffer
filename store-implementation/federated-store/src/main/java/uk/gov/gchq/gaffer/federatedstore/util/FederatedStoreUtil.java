@@ -70,6 +70,9 @@ public final class FederatedStoreUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreUtil.class);
     private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
 
+    @Deprecated
+    public static final String DEPRECATED_GRAPHIDS_OPTION = "gaffer.federatedstore.operation.graphIds";
+
     private FederatedStoreUtil() {
     }
 
@@ -258,7 +261,7 @@ public final class FederatedStoreUtil {
 
     @Deprecated
     public static String getDeprecatedGraphIds(final Operation operation) throws GafferRuntimeException {
-        String deprecatedGraphIds = operation.getOption("gaffer.federatedstore.operation.graphIds");
+        String deprecatedGraphIds = operation.getOption(DEPRECATED_GRAPHIDS_OPTION);
         if (nonNull(deprecatedGraphIds)) {
             String simpleName = operation.getClass().getSimpleName();
             LOGGER.warn("Operation:{} has old Deprecated style of graphId selection.", simpleName);
