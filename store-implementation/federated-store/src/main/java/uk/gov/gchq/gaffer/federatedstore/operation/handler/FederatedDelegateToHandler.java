@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.function.AggregateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
 
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 
 public class FederatedDelegateToHandler implements OutputOperationHandler<InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>, Iterable<? extends Element>> {
     private final OutputOperationHandler<InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>, Iterable<? extends Element>> handler;
