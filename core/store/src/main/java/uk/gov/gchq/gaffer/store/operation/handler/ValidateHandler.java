@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * The {@link uk.gov.gchq.gaffer.store.schema.Schema} is used to validate the elements.
  * The isSkipInvalidElements flag on {@link Validate} is used to determine what to do with invalid {@link Element}s.
  */
-public class ValidateHandler implements OutputOperationHandler<Validate, Iterable<? extends Element>> {
+public class ValidateHandler implements OutputOperationHandler<Validate, Iterable<? extends Element>>, OperationWithSchemaHandler<Validate, Iterable<? extends Element>> {
     @Override
     public Iterable<? extends Element> doOperation(final Validate operation,
                                                    final Context context, final Store store)
