@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -218,7 +218,7 @@ public class GraphDelegate {
         } else {
             if (null != parentSchemaIds) {
                 for (final String exportParentSchemaId : parentSchemaIds) {
-                    if (null == graphLibrary.getSchema(exportParentSchemaId)) {
+                    if (null == graphLibrary.getSchema(exportParentSchemaId) && !graphLibrary.exists(exportParentSchemaId)) {
                         result.addError(String.format(SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, parentSchemaIds));
                     }
                 }
@@ -227,7 +227,7 @@ public class GraphDelegate {
             }
 
             if (null != parentStorePropertiesId) {
-                if (null == graphLibrary.getProperties(parentStorePropertiesId)) {
+                if (null == graphLibrary.getProperties(parentStorePropertiesId) && !graphLibrary.exists(parentStorePropertiesId)) {
                     result.addError(String.format(STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, parentStorePropertiesId));
                 }
             } else if (null == storeProperties) {

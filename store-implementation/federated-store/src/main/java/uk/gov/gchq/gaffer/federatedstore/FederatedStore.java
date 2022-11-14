@@ -59,6 +59,7 @@ import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
@@ -499,7 +500,8 @@ public class FederatedStore extends Store {
                 .filter(op -> !Output.class.isAssignableFrom(op)
                         && !AddElements.class.equals(op)
                         && !AddNamedOperation.class.equals(op)
-                        && !AddNamedView.class.equals(op))
+                        && !AddNamedView.class.equals(op)
+                        && !DiscardOutput.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedNoOutputHandler()));
 
         addOperationHandler(GetSchema.class, new FederatedOutputHandler<>(new Schema()));
