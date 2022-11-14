@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -327,44 +327,47 @@ public abstract class GraphLibrary {
 
 
     public Schema resolveSchema(final Schema schema, final List<String> parentSchemaIds) {
-        Schema resultSchema = null;
+        Schema.Builder mergedSchemas = new Schema.Builder();
+
         if (null != parentSchemaIds) {
-            if (1 == parentSchemaIds.size()) {
-                resultSchema = this.getSchema(parentSchemaIds.get(0));
-            } else {
-                final Schema.Builder schemaBuilder = new Schema.Builder();
-                for (final String id : parentSchemaIds) {
-                    schemaBuilder.merge(this.getSchema(id));
-                }
-                resultSchema = schemaBuilder.build();
+            for (final String id : parentSchemaIds) {
+                mergedSchemas.merge(this.getSchemaElseCopyFromGraph(id));
             }
         }
-        if (null != schema) {
-            if (null == resultSchema) {
-                resultSchema = schema;
-            } else {
-                resultSchema = new Schema.Builder()
-                        .merge(resultSchema)
-                        .merge(schema)
-                        .build();
-            }
+
+        mergedSchemas.merge(schema);
+
+        return mergedSchemas.build();
+    }
+
+    private Schema getSchemaElseCopyFromGraph(final String id) {
+        Schema resultSchema;
+        resultSchema = this.getSchema(id);
+        if (null == resultSchema && this.exists(id)) {
+            resultSchema = this.get(id).getFirst();
         }
         return resultSchema;
     }
 
+    private StoreProperties getPropertiesElseCopyFromGraph(final String id) {
+        StoreProperties resultProperties;
+        resultProperties = this.getProperties(id);
+        if (null == resultProperties && this.exists(id)) {
+            resultProperties = this.get(id).getSecond();
+        }
+        return resultProperties;
+    }
+
     public StoreProperties resolveStoreProperties(final StoreProperties properties, final String parentStorePropertiesId) {
-        StoreProperties resultProps = null;
+        final StoreProperties rtn = new StoreProperties();
+
         if (null != parentStorePropertiesId) {
-            resultProps = this.getProperties(parentStorePropertiesId);
+            rtn.merge(this.getPropertiesElseCopyFromGraph(parentStorePropertiesId));
         }
-        if (null != properties) {
-            if (null == resultProps) {
-                resultProps = properties;
-            } else {
-                resultProps.merge(properties);
-            }
-        }
-        return resultProps;
+
+        rtn.merge(properties);
+
+        return rtn;
     }
 
 }
