@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,7 +116,7 @@ public final class GetElementsUtil {
                     .forEach(relevantElements::add);
 
             // TODO 2552: Can this be improved?
-            // Remove Entities if searching with EdgeId and View has no Entites
+            // Remove Entities if searching with EdgeId and View has no Entities
             if (view.hasEdges() && !view.hasEntities()) {
                 isFiltered = isFiltered.or(e -> e instanceof Entity);
             }

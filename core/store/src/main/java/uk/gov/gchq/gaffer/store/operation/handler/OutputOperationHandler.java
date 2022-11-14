@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.store.Store;
 /**
  * An {@code OutputOperationHandler} defines how to handle a specific {@link Output} operations.
  */
-public interface OutputOperationHandler<OP extends Output<O>, O> extends OperationHandler<OP> {
+public interface OutputOperationHandler<OP extends Output<? extends O>, O> extends OperationHandler<OP> {
     /**
      * Execute the given {@link Output} operation.
      *

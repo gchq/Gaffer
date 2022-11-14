@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -29,6 +30,7 @@ import uk.gov.gchq.gaffer.mapstore.impl.GetElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.MapImpl;
 import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.mapstore.optimiser.CountAllElementsOperationChainOptimiser;
+import uk.gov.gchq.gaffer.mapstore.utils.SchemaOptimiserMapStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -45,6 +47,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -165,5 +168,10 @@ public class MapStore extends Store {
     @Override
     protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
         return Serialiser.class;
+    }
+
+    @Override
+    protected SchemaOptimiser createSchemaOptimiser() {
+        return new SchemaOptimiserMapStore();
     }
 }

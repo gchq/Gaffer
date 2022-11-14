@@ -255,8 +255,7 @@ public abstract class Store {
 
         final String storeClass = storeProperties.getStoreClass();
         if (isNull(storeClass)) {
-            throw new IllegalArgumentException(String
-                    .format("The Store class name was not found in the store properties for key: %s, GraphId: %s",
+            throw new IllegalArgumentException(String.format("The Store class name was not found in the store properties for key: %s, GraphId: %s",
                             StoreProperties.STORE_CLASS, graphId));
         }
 
@@ -806,7 +805,7 @@ public abstract class Store {
 
     protected JobTracker createJobTracker() {
         if (properties.getJobTrackerEnabled()) {
-            return new JobTracker();
+            return new JobTracker(getProperties().getCacheServiceNameSuffix());
         }
         return null;
     }
