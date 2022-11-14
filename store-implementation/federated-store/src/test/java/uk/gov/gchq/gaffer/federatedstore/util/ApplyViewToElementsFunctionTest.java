@@ -158,7 +158,7 @@ class ApplyViewToElementsFunctionTest {
     private static AccumuloStore getTestStore(final String instanceName) throws StoreException {
         final AccumuloStore accumuloStore = new MiniAccumuloStore();
         final AccumuloProperties clone = ACCUMULO_PROPERTIES.clone();
-        //This line allows different MiniAccumuloStore?
+        //This line allows different MiniAccumuloStore
         //tableName = NameSpace.GraphId.
         clone.setNamespace(instanceName);
         accumuloStore.initialise(GRAPH_ID_ACCUMULO, SCHEMA.clone(), clone);
