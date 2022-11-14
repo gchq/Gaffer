@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedDelegateToHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -60,7 +60,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefau
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 @ExtendWith(MockitoExtension.class)
-public class FederatedAggregateHandlerTest {
+public class FederatedDelegateToAggregateHandlerTest {
 
     private static final AccumuloProperties PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
 
@@ -77,7 +77,7 @@ public class FederatedAggregateHandlerTest {
         given(store.getSchema(context)).willReturn(schema);
         given(handler.doOperation(op, schema)).willReturn((Iterable) expectedResult);
 
-        final FederatedAggregateHandler federatedHandler = new FederatedAggregateHandler(handler);
+        final FederatedDelegateToHandler federatedHandler = new FederatedDelegateToHandler(handler);
 
         // When
         final Object result = federatedHandler.doOperation(op, context, store);

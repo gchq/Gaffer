@@ -101,9 +101,6 @@ public class GraphSerialisable implements Serializable {
     public Graph getGraph(final GraphLibrary library) {
         if (isNull(graph)) {
 
-            //TODO FS use GraphDelegate to create and verify just like if a User was Adding.
-            //graph = GraphDelegate.createGraph(
-
             graph = new Graph.Builder()
                     .addSchema(getSchema())
                     .addStoreProperties(getStoreProperties())
