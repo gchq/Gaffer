@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
+import uk.gov.gchq.gaffer.federatedstore.util.ConcatenateListMergeFunction;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -51,7 +52,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 
 public class FederatedStoreVisibilityTest {
     private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
@@ -99,7 +99,7 @@ public class FederatedStoreVisibilityTest {
         Iterable<? extends Element> concatenatedResults = (Iterable<? extends Element>) federatedGraph.execute(
                 new FederatedOperation.Builder()
                         .op(new GetAllElements())
-                        .mergeFunction(getDefaultMergeFunction())
+                        .mergeFunction(new ConcatenateListMergeFunction())
                         .build(), USER);
         Iterable<? extends Element> noAuthResults = (Iterable<? extends Element>) federatedGraph.execute(
                 new FederatedOperation.Builder()
@@ -136,7 +136,7 @@ public class FederatedStoreVisibilityTest {
         Iterable<? extends Element> concatenatedResults = (Iterable<? extends Element>) federatedGraph.execute(
                 new FederatedOperation.Builder()
                         .op(new GetAllElements())
-                        .mergeFunction(getDefaultMergeFunction())
+                        .mergeFunction(new ConcatenateListMergeFunction())
                         .build(), USER);
         Iterable<? extends Element> noAuthResults = (Iterable<? extends Element>) federatedGraph.execute(
                 new FederatedOperation.Builder()
@@ -173,7 +173,7 @@ public class FederatedStoreVisibilityTest {
         Iterable<? extends Element> concatenatedResults = (Iterable<? extends Element>) federatedGraph.execute(
                 new FederatedOperation.Builder()
                         .op(new GetAllElements())
-                        .mergeFunction(getDefaultMergeFunction())
+                        .mergeFunction(new ConcatenateListMergeFunction())
                         .build(), USER);
         Iterable<? extends Element> noAuthResults = (Iterable<? extends Element>) federatedGraph.execute(
                 new FederatedOperation.Builder()
@@ -210,7 +210,7 @@ public class FederatedStoreVisibilityTest {
         Iterable<? extends Element> concatenatedResults = (Iterable<? extends Element>) federatedGraph.execute(
                 new FederatedOperation.Builder()
                         .op(new GetAllElements())
-                        .mergeFunction(getDefaultMergeFunction())
+                        .mergeFunction(new ConcatenateListMergeFunction())
                         .build(), USER);
         Iterable<? extends Element> noAuthResults = (Iterable<? extends Element>) federatedGraph.execute(
                 new FederatedOperation.Builder()
@@ -262,7 +262,7 @@ public class FederatedStoreVisibilityTest {
         Iterable<? extends Element> concatenatedResults = (Iterable<? extends Element>) federatedGraph.execute(
                 new FederatedOperation.Builder()
                         .op(new GetAllElements())
-                        .mergeFunction(getDefaultMergeFunction())
+                        .mergeFunction(new ConcatenateListMergeFunction())
                         .build(), USER);
         Iterable<? extends Element> noAuthResults = (Iterable<? extends Element>) federatedGraph.execute(
                 new FederatedOperation.Builder()
