@@ -327,17 +327,17 @@ public abstract class GraphLibrary {
 
 
     public Schema resolveSchema(final Schema schema, final List<String> parentSchemaIds) {
-        Schema.Builder rtn = new Schema.Builder();
+        Schema.Builder mergedSchemas = new Schema.Builder();
 
         if (null != parentSchemaIds) {
             for (final String id : parentSchemaIds) {
-                rtn.merge(this.getSchemaElseCopyFromGraph(id));
+                mergedSchemas.merge(this.getSchemaElseCopyFromGraph(id));
             }
         }
 
-        rtn.merge(schema);
+        mergedSchemas.merge(schema);
 
-        return rtn.build();
+        return mergedSchemas.build();
     }
 
     private Schema getSchemaElseCopyFromGraph(final String id) {
