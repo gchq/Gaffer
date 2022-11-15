@@ -629,7 +629,7 @@ public class FederatedStore extends Store {
                         .doOperation(operation, context, this);
             }
         } catch (final Exception e) {
-            throw new GafferRuntimeException(String.format("Error with FederatedStore forwarding unhandled operation to sub-graphs due to: %s", e.getMessage()), e);
+            throw new UnsupportedOperationException(String.format("Operation class %s is not supported by the FederatedStore. Error occurred forwarding unhandled operation to sub-graphs due to: %s", operation.getClass().getName(), e.getMessage()), e);
         }
     }
 

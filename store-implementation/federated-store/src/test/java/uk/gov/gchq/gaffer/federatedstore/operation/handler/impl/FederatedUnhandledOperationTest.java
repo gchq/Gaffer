@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -61,13 +62,22 @@ public class FederatedUnhandledOperationTest {
 
     @Test
     public void shouldFailWithUnsupportedOperation() throws Exception {
-        //make custom store with no GetAllElements
         final String testExceptionMessage = "TestExceptionMessage";
+
+        //make custom store with no GetAllElements
         FederatedStore federatedStoreWithNoGetAllElements = new FederatedStore() {
             @Override
             protected void addAdditionalOperationHandlers() {
                 super.addAdditionalOperationHandlers();
+                //No support for GetAllElements
                 addOperationHandler(GetAllElements.class, null);
+                //No support for adding Generic Handlers to Federation.
+                addOperationHandler(AddGraph.class, new FederatedAddGraphHandler() {
+                    @Override
+                    protected void addGenericHandler(final FederatedStore store, final Graph graph) {
+                        //nothing
+                    }
+                });
             }
 
             @Override
@@ -102,7 +112,15 @@ public class FederatedUnhandledOperationTest {
             @Override
             protected void addAdditionalOperationHandlers() {
                 super.addAdditionalOperationHandlers();
+                //No support for GetAllElements
                 addOperationHandler(GetAllElements.class, null);
+                //No support for adding Generic Handlers to Federation.
+                addOperationHandler(AddGraph.class, new FederatedAddGraphHandler() {
+                    @Override
+                    protected void addGenericHandler(final FederatedStore store, final Graph graph) {
+                        //nothing
+                    }
+                });
             }
         };
         federatedStoreWithNoGetAllElements.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);

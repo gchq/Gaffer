@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.exception.CloneFailedException;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -50,7 +51,6 @@ import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.OperationImpl;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -69,6 +69,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -270,13 +271,28 @@ public class FederatedStoreTest {
     @Test
     public void shouldThrowAppropriateExceptionWhenHandlingAnUnsupportedOperation() {
         // Given
-        final Operation op = new OperationImpl();
+        final Operation unknownOperation = new Operation() {
+            @Override
+            public Operation shallowClone() throws CloneFailedException {
+                return this;
+            }
+
+            @Override
+            public Map<String, String> getOptions() {
+                return null;
+            }
+
+            @Override
+            public void setOptions(final Map<String, String> options) {
+
+            }
+        };
         // When
         // Expected an UnsupportedOperationException rather than an OperationException
 
         // Then
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> store.handleOperation(op, new Context()))
-                .withMessage("Operation class uk.gov.gchq.gaffer.operation.impl.OperationImpl is not supported by the FederatedStore.");
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> store.handleOperation(unknownOperation, new Context()))
+                .withMessageContaining("Operation class uk.gov.gchq.gaffer.federatedstore.FederatedStoreTest$1 is not supported by the FederatedStore.");
     }
 
     @Test
