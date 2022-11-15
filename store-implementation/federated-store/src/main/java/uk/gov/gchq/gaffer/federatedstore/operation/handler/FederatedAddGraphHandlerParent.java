@@ -85,7 +85,8 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
             throw new OperationException(String.format(ERROR_ADDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
 
-        addGenericHandler((FederatedStore) store, graph);
+        // TODO FS remove if required
+        // addGenericHandler((FederatedStore) store, graph);
 
         return null;
     }

@@ -88,8 +88,8 @@ public final class FederatedStoreTestUtil {
     public static final String VALUE_1 = value(1);
     public static final String VALUE_2 = value(2);
     public static final String INTEGER = "integer";
-    static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
-    static final Set<String> GRAPH_AUTHS_ALL_USERS = ImmutableSet.of(ALL_USERS);
+    public static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    public static final Set<String> GRAPH_AUTHS_ALL_USERS = ImmutableSet.of(ALL_USERS);
 
     private FederatedStoreTestUtil() {
         //no instance

@@ -57,7 +57,6 @@ import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.MergeSchema;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
@@ -629,7 +628,7 @@ public class FederatedStore extends Store {
                 return new FederatedNoOutputHandler()
                         .doOperation(operation, context, this);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new GafferRuntimeException(String.format("Error with FederatedStore forwarding unhandled operation to sub-graphs due to: %s", e.getMessage()), e);
         }
     }
