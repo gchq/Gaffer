@@ -65,6 +65,7 @@ import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -611,6 +612,25 @@ public class FederatedStore extends Store {
 
     public Map<String, BiFunction> getStoreConfiguredMergeFunctions() {
         return Collections.unmodifiableMap(storeConfiguredMergeFunctions);
+    }
+
+    protected Object doUnhandledOperation(final Operation operation, final Context context) {
+        try {
+            if (operation instanceof Output) {
+                if (Iterable.class.isAssignableFrom(((Output<?>) operation).getOutputClass())) {
+                    return new FederatedOutputIterableHandler<>()
+                            .doOperation((Output<Iterable<?>>) operation, context, this);
+                } else {
+                    return new FederatedOutputHandler<>()
+                            .doOperation((Output<Object>) operation, context, this);
+                }
+            } else {
+                return new FederatedNoOutputHandler()
+                        .doOperation(operation, context, this);
+            }
+        } catch (final Exception e) {
+            throw new UnsupportedOperationException(String.format("Operation class %s is not supported by the FederatedStore. Error occurred forwarding unhandled operation to sub-graphs due to: %s", operation.getClass().getName(), e.getMessage()), e);
+        }
     }
 
 }
