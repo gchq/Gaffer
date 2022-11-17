@@ -1013,6 +1013,9 @@ public abstract class Store {
         addOperationHandler(GetExports.class, new GetExportsHandler());
         addOperationHandler(ExportToLocalFile.class, new ExportToLocalFileHandler());
 
+        //Import
+        addOperationHandler(CsvToElements.class, new CsvToElementsHandler());
+        addOperationHandler(ImportFromLocalFile.class, new ImportFromLocalFileHandler());
 
         // Jobs
         if (nonNull(getJobTracker())) {
@@ -1096,10 +1099,6 @@ public abstract class Store {
         // Traits
         addOperationHandler(HasTrait.class, new HasTraitHandler());
         addOperationHandler(GetTraits.class, getGetTraitsHandler());
-
-        //Imports
-        addOperationHandler(CsvToElements.class, new CsvToElementsHandler());
-        addOperationHandler(ImportFromLocalFile.class, new ImportFromLocalFileHandler());
 
     }
 

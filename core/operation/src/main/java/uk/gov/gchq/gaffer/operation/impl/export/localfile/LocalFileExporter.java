@@ -54,7 +54,7 @@ public class LocalFileExporter implements Exporter {
         final Path path = Paths.get(filePath);
         try {
             if (path.toFile().exists()) {
-                fileToBeRead = FileUtils.openInputStream(new File(filePath));
+                fileToBeRead = StreamUtil.openStream(new File(filePath).toURI());
             } else {
                 fileToBeRead = StreamUtil.openStream(LocalFileExporter.class, filePath);
             }

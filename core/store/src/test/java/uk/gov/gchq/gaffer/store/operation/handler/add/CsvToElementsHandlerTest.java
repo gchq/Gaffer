@@ -50,24 +50,6 @@ class CsvToElementsHandlerTest {
     }
 
     @Test
-    public void shouldAddElements(@Mock final Store store) throws Exception {
-        // Given
-        Context context = new Context();
-        final CsvToElements csvToElementsOp = new CsvToElements.Builder()
-                .csvFormat(new NeptuneFormat())
-                .input(getInputCsv())
-                .build();
-
-        // When
-        CsvToElementsHandler handler = new CsvToElementsHandler();
-        handler.doOperation(csvToElementsOp, context, store);
-
-        // Then
-        //verify(store).execute(any(OperationChain.class), eq(context));
-    }
-
-
-    @Test
     public void shouldCreateCorrectGenerator() {
         // Given
         CsvElementGenerator expectedGenerator = new CsvElementGenerator.Builder()

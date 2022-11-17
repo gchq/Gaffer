@@ -56,7 +56,6 @@ public class CsvElementGenerator implements ElementGenerator<String>, Serializab
     @Override
     public Iterable<? extends Element> apply(final Iterable<? extends String> strings) {
         List<String> elementColumnNames = new ArrayList<String>(CsvFormat.getIdentifiers(csvFormat).values());
-        //List<String> elementColumnNames = ImmutableList.of(csvFormat.getVertex(), csvFormat.getEntityGroup(), csvFormat.getEdgeGroup(), csvFormat.getSource(), csvFormat.getDestination());
         CsvLinesToMaps parseCsv = new CsvLinesToMaps()
                 .firstRow(1)
                 .trim(trim)
@@ -177,9 +176,7 @@ public class CsvElementGenerator implements ElementGenerator<String>, Serializab
         private Boolean trim = false;
         private char delimiter = ',';
         private String nullString = "";
-
         private CsvFormat csvFormat;
-
 
         public CsvElementGenerator.Builder header(final String header) {
             this.header = header;

@@ -34,9 +34,7 @@ import uk.gov.gchq.koryphe.Summary;
 import java.util.Map;
 
 /**
- * An {@code ImportCsv} operation takes a filename, converts each
- * line of the file to an element then adds these
- * elements to the graph. The file must be in the openCypher CSV format.
+ * An {@code CsvToElements} operation will generate elements from a String input given a {@link CsvFormat}.
  *
  * @see Builder
  * @see <a href="https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-format-opencypher.html">openCypher</a>
