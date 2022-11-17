@@ -32,9 +32,11 @@ import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.mapstore.optimiser.CountAllElementsOperationChainOptimiser;
 import uk.gov.gchq.gaffer.mapstore.utils.SchemaOptimiserMapStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.imprt.localfile.ImportFromLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.Store;
@@ -45,6 +47,8 @@ import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.localfile.ExportToLocalFileHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.localfile.ImportFromLocalFileHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
@@ -137,6 +141,8 @@ public class MapStore extends Store {
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(CountAllElementsDefaultView.class, new CountAllElementsDefaultViewHandler());
         addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
+        addOperationHandler(ImportFromLocalFile.class, new ImportFromLocalFileHandler());
+        addOperationHandler(ExportToLocalFile.class, new ExportToLocalFileHandler());
     }
 
     @Override

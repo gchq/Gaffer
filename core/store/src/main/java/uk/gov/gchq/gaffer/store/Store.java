@@ -1011,11 +1011,9 @@ public abstract class Store {
         addOperationHandler(ExportToSet.class, new ExportToSetHandler());
         addOperationHandler(GetSetExport.class, new GetSetExportHandler());
         addOperationHandler(GetExports.class, new GetExportsHandler());
-        addOperationHandler(ExportToLocalFile.class, new ExportToLocalFileHandler());
 
         //Import
         addOperationHandler(CsvToElements.class, new CsvToElementsHandler());
-        addOperationHandler(ImportFromLocalFile.class, new ImportFromLocalFileHandler());
 
         // Jobs
         if (nonNull(getJobTracker())) {
