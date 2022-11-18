@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 @Since("2.0.0")
-@Summary("Generates elements from an  CSV string")
+@Summary("Generates elements from a CSV string")
 public class CsvElementGenerator implements ElementGenerator<String>, Serializable {
     private static final long serialVersionUID = -821376598172364516L;
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvElementGenerator.class);
