@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.localfile;
 
-import org.apache.commons.io.FileUtils;
-
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
