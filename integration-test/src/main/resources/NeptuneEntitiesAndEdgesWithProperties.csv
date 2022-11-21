@@ -1,4 +1,4 @@
-:ID,:LABEL,:START_ID,:END_ID,:TYPE,age:Int,language:String,version:Float,dateCreated:Date
-v1,person,,,,25,english,,
-v2,software,,,,,java,1.2,
-e1,,v1,v2,created,2,,01-01-2020
+:ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Int,DIRECTED:Boolean
+A,BasicEntity,,,,1,
+B,BasicEntity,,,,2,
+,,BasicEdge,A,B,1,true
