@@ -66,7 +66,6 @@ import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
-import uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
@@ -78,7 +77,6 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.imprt.localfile.ImportFromLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -134,7 +132,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.compare.MaxHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MinHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.SortHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportsHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.localfile.ExportToLocalFileHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.function.AggregateHandler;
@@ -142,7 +139,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.imprt.localfile.ImportFromLocalFileHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.CancelScheduledJobHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobDetailsHandler;
@@ -255,8 +251,7 @@ public abstract class Store {
 
         final String storeClass = storeProperties.getStoreClass();
         if (isNull(storeClass)) {
-            throw new IllegalArgumentException(String
-                    .format("The Store class name was not found in the store properties for key: %s, GraphId: %s",
+            throw new IllegalArgumentException(String.format("The Store class name was not found in the store properties for key: %s, GraphId: %s",
                             StoreProperties.STORE_CLASS, graphId));
         }
 
@@ -645,6 +640,7 @@ public abstract class Store {
      *         {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to
      *         aggregate the elements.
      */
+    @Deprecated
     public Schema getSchema() {
         return schema;
     }
@@ -805,7 +801,7 @@ public abstract class Store {
 
     protected JobTracker createJobTracker() {
         if (properties.getJobTrackerEnabled()) {
-            return new JobTracker();
+            return new JobTracker(getProperties().getCacheServiceNameSuffix());
         }
         return null;
     }
@@ -1011,8 +1007,9 @@ public abstract class Store {
         addOperationHandler(ExportToSet.class, new ExportToSetHandler());
         addOperationHandler(GetSetExport.class, new GetSetExportHandler());
         addOperationHandler(GetExports.class, new GetExportsHandler());
-        addOperationHandler(ExportToLocalFile.class, new ExportToLocalFileHandler());
 
+        //Import
+        addOperationHandler(CsvToElements.class, new CsvToElementsHandler());
 
         // Jobs
         if (nonNull(getJobTracker())) {
@@ -1096,10 +1093,6 @@ public abstract class Store {
         // Traits
         addOperationHandler(HasTrait.class, new HasTraitHandler());
         addOperationHandler(GetTraits.class, getGetTraitsHandler());
-
-        //Imports
-        addOperationHandler(CsvToElements.class, new CsvToElementsHandler());
-        addOperationHandler(ImportFromLocalFile.class, new ImportFromLocalFileHandler());
 
     }
 

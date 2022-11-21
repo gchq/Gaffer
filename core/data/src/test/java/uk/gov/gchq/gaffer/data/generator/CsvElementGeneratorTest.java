@@ -29,7 +29,7 @@ import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class CsvElementGeneratorTest {
 
@@ -322,14 +322,10 @@ public class CsvElementGeneratorTest {
 
         //When
         CsvElementGenerator generator = getGenerator(lines);
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            generator.apply(lines);
-        });
-
-        String expectedMessage = "Unsupported Type: Array";
-        String actualMessage = exception.getMessage();
 
         //Then
-        assertThat(expectedMessage).isEqualTo(actualMessage);
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(()-> generator.apply(lines))
+                .withMessage("Unsupported Type: Array");
     }
 }

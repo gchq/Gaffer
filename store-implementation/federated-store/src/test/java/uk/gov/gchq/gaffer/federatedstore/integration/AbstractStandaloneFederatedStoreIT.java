@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Crown Copyright
+ * Copyright 2021-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,16 +27,12 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
+
 public abstract class AbstractStandaloneFederatedStoreIT {
 
     protected Graph graph;
     protected User user = new User();
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        createGraph();
-        _setUp();
-    }
 
     @AfterAll
     public static void tearDown() throws Exception {
@@ -47,6 +43,12 @@ public abstract class AbstractStandaloneFederatedStoreIT {
     private static void _tearDown() throws Exception {
     }
 
+    @BeforeEach
+    public void setUp() throws Exception {
+        resetForFederatedTests();
+        createGraph();
+        _setUp();
+    }
 
     protected void _setUp() throws Exception {
         // Override if required;

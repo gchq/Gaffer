@@ -23,10 +23,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 
+import uk.gov.gchq.gaffer.operation.impl.export.localfile.LocalFileExporter;
 import uk.gov.gchq.gaffer.operation.impl.imprt.localfile.ImportFromLocalFile;
-import uk.gov.gchq.gaffer.operation.impl.imprt.localfile.LocalFileImporter;
 import uk.gov.gchq.gaffer.store.Context;
-
+import uk.gov.gchq.gaffer.store.operation.handler.export.localfile.ImportFromLocalFileHandler;
 
 import java.io.IOException;
 
@@ -50,10 +50,10 @@ class ImportFromLocalFileHandlerTest {
         );
 
         final ImportFromLocalFile importFromLocalFile = new ImportFromLocalFile.Builder()
-                .input(FILE_PATH)
+                .key(FILE_PATH)
                 .build();
         final Context context = new Context();
-        context.addImporter(new LocalFileImporter());
+        context.addExporter(new LocalFileExporter());
 
         ImportFromLocalFileHandler handler = new ImportFromLocalFileHandler();
 

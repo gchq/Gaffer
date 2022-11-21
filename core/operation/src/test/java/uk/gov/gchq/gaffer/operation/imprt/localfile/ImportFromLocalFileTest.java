@@ -45,7 +45,7 @@ public class ImportFromLocalFileTest extends OperationTest<ImportFromLocalFile> 
         final ImportFromLocalFile deserialisedOp = JSONSerialiser.deserialise(json, op.getClass());
 
         // Then
-        assertThat(FILE_PATH).isEqualTo(deserialisedOp.getInput());
+        assertThat(FILE_PATH).isEqualTo(deserialisedOp.getKey());
     }
 
     @Test
@@ -55,7 +55,7 @@ public class ImportFromLocalFileTest extends OperationTest<ImportFromLocalFile> 
         ImportFromLocalFile op = getPopulatedObject();
 
         // Then
-        assertThat(FILE_PATH).isEqualTo(op.getInput());
+        assertThat(FILE_PATH).isEqualTo(op.getKey());
 
     }
 
@@ -70,7 +70,7 @@ public class ImportFromLocalFileTest extends OperationTest<ImportFromLocalFile> 
 
         // Then
         assertThat(op).isNotEqualTo(clone);
-        assertThat(FILE_PATH).isEqualTo(clone.getInput());
+        assertThat(FILE_PATH).isEqualTo(clone.getKey());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ImportFromLocalFileTest extends OperationTest<ImportFromLocalFile> 
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertThat(Object.class).isEqualTo(outputClass);
+        assertThat(Iterable.class).isEqualTo(outputClass);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class ImportFromLocalFileTest extends OperationTest<ImportFromLocalFile> 
 
     protected ImportFromLocalFile getPopulatedObject() {
         return new ImportFromLocalFile.Builder()
-                .input(FILE_PATH)
+                .key(FILE_PATH)
                 .build();
     }
 
@@ -98,4 +98,3 @@ public class ImportFromLocalFileTest extends OperationTest<ImportFromLocalFile> 
         return new ImportFromLocalFile();
     }
 }
-

@@ -18,16 +18,7 @@ package uk.gov.gchq.gaffer.data.generator;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-import uk.gov.gchq.koryphe.function.KorypheFunction;
-import uk.gov.gchq.koryphe.impl.function.ParseTime;
-import uk.gov.gchq.koryphe.impl.function.ToBoolean;
-import uk.gov.gchq.koryphe.impl.function.ToDouble;
-import uk.gov.gchq.koryphe.impl.function.ToFloat;
-import uk.gov.gchq.koryphe.impl.function.ToInteger;
-import uk.gov.gchq.koryphe.impl.function.ToLong;
-import uk.gov.gchq.koryphe.impl.function.ToString;
-
-public class Neo4jFormat extends CsvFormat {
+public class Neo4jFormat extends OpenCypherFormat {
 
     @JsonIgnore
     @Override
@@ -54,78 +45,5 @@ public class Neo4jFormat extends CsvFormat {
     public String getDestination() {
         return "_end";
     }
-    @Override
-    public KorypheFunction<?, ?> getStringTransform() {
-        return new ToString();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getIntTransform() {
-        return new ToInteger();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getBooleanTransform() {
-        return new ToBoolean();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getByteTransform() {
-        return new ToInteger();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getShortTransform() {
-        return new ToInteger();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getDateTimeTransform() {
-        return new ParseTime();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getLongTransform() {
-        return new ToLong();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getFloatTransform() {
-        return new ToFloat();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getDoubleTransform() {
-        return new ToDouble();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getCharTransform() {
-        return new ToString();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getDateTransform() {
-        return new ToString();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getLocalDateTransform() {
-        return new ToString();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getPointTransform() {
-        return new ToString();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getLocalDateTimeTransform() {
-        return new ToString();
-    }
-
-    @Override
-    public KorypheFunction<?, ?> getDurationTransform() {
-        return new ToString();
-    }
 }
+

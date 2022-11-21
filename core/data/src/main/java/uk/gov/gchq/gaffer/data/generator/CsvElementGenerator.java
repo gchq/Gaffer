@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 @Since("2.0.0")
-@Summary("Generates elements from an  CSV string")
+@Summary("Generates elements from a CSV string")
 public class CsvElementGenerator implements ElementGenerator<String>, Serializable {
     private static final long serialVersionUID = -821376598172364516L;
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvElementGenerator.class);
@@ -56,7 +56,6 @@ public class CsvElementGenerator implements ElementGenerator<String>, Serializab
     @Override
     public Iterable<? extends Element> apply(final Iterable<? extends String> strings) {
         List<String> elementColumnNames = new ArrayList<String>(CsvFormat.getIdentifiers(csvFormat).values());
-        //List<String> elementColumnNames = ImmutableList.of(csvFormat.getVertex(), csvFormat.getEntityGroup(), csvFormat.getEdgeGroup(), csvFormat.getSource(), csvFormat.getDestination());
         CsvLinesToMaps parseCsv = new CsvLinesToMaps()
                 .firstRow(1)
                 .trim(trim)
@@ -82,10 +81,10 @@ public class CsvElementGenerator implements ElementGenerator<String>, Serializab
                 }
                 if (columnHeader.contains(":")) {
                     String typeName = columnHeader.split(":")[1];
-                    HashMap<String, KorypheFunction<?, ?>> transforms = CsvFormat.getTransforms(csvFormat);
+                    HashMap<String, KorypheFunction<?, ?>> transformMappings = OpenCypherFormat.transformMappings;
                     KorypheFunction<?, ?> transform;
-                    if (transforms.containsKey(typeName)) {
-                        transform = transforms.get(typeName);
+                    if (transformMappings.containsKey(typeName)) {
+                        transform = transformMappings.get(typeName);
                     } else {
                         throw new RuntimeException("Unsupported Type: " + typeName);
                     }
@@ -177,9 +176,7 @@ public class CsvElementGenerator implements ElementGenerator<String>, Serializab
         private Boolean trim = false;
         private char delimiter = ',';
         private String nullString = "";
-
         private CsvFormat csvFormat;
-
 
         public CsvElementGenerator.Builder header(final String header) {
             this.header = header;

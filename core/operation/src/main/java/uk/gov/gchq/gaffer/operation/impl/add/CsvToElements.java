@@ -18,7 +18,9 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -32,9 +34,7 @@ import uk.gov.gchq.koryphe.Summary;
 import java.util.Map;
 
 /**
- * An {@code ImportCsv} operation takes a filename, converts each
- * line of the file to an element then adds these
- * elements to the graph. The file must be in the openCypher CSV format.
+ * A {@code CsvToElements} operation will generate elements from a String input given a {@link CsvFormat}.
  *
  * @see Builder
  * @see <a href="https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-format-opencypher.html">openCypher</a>
@@ -55,6 +55,7 @@ public class CsvToElements implements
     private boolean skipInvalidElements;
     private Map<String, String> options;
     private Iterable<? extends String> input;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private CsvFormat csvFormat;
 
     public char getDelimiter() {

@@ -38,6 +38,11 @@
             <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>map-store</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- testing dependencies -->
         <dependency>
@@ -122,12 +127,6 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>proxy-store</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>map-store</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>

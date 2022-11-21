@@ -1,4 +1,4 @@
-Copyright 2017-2020 Crown Copyright
+Copyright 2017-2022 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -147,8 +147,8 @@ Here is an example of an advanced federated operation chain:
    "class": "uk.gov.gchq.gaffer.operation.OperationChain",
    "operations": [
       {
-         "class": "uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain",
-         "operationChain": {
+         "class": "uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation",
+         "operation": {
             "operations": [
                {
                   "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements"
@@ -189,3 +189,6 @@ To fetch just a the schema for the mapGraph you can add an option:
     }
 }
 ```
+
+## road-use
+Additional examples can be found under road-use, which contains scripts to run curl commands as well as JSON for running various operations.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphId;
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -29,13 +28,11 @@ import uk.gov.gchq.gaffer.user.User;
  * A handler for {@link ChangeGraphId} operation for the FederatedStore.
  */
 public class FederatedChangeGraphIdHandler implements OutputOperationHandler<ChangeGraphId, Boolean> {
-
     @Override
     public Boolean doOperation(final ChangeGraphId operation, final Context context, final Store store) throws OperationException {
         try {
-            final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
             final User user = context.getUser();
-            return ((FederatedStore) store).changeGraphId(user, operation.getGraphId(), operation.getNewGraphId(), userRequestingAdminUsage);
+            return ((FederatedStore) store).changeGraphId(user, operation.getGraphId(), operation.getNewGraphId(), operation.isUserRequestingAdminUsage());
         } catch (final Exception e) {
             throw new OperationException("Error changing graphId", e);
         }

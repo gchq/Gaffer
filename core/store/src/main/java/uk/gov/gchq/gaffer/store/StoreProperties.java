@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
@@ -71,6 +72,19 @@ public class StoreProperties implements Cloneable {
     public static final String STRICT_JSON = JSONSerialiser.STRICT_JSON;
 
     public static final String ADMIN_AUTH = "gaffer.store.admin.auth";
+
+    /**
+     * This is used....
+     * eg.gaffer.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
+     */
+    public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
+
+    /**
+     * This is used...
+     * CASE INSENSITIVE
+     * e.g. gaffer.cache.service.name.suffix="v2"
+     */
+    public static final String CACHE_SERVICE_NAME_SUFFIX = "gaffer.cache.service.name.suffix";
 
     /**
      * CSV of extra packages to be included in the reflection scanning.
@@ -419,6 +433,22 @@ public class StoreProperties implements Cloneable {
 
     public void setAdminAuth(final String adminAuth) {
         set(ADMIN_AUTH, adminAuth);
+    }
+
+    public void setCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_CLASS, cacheServiceClassString);
+    }
+
+    public String getCacheServiceClass(final String defaultValue) {
+        return get(CACHE_SERVICE_CLASS, defaultValue);
+    }
+
+    public void setCacheServiceNameSuffix(final String suffix) {
+        set(CACHE_SERVICE_NAME_SUFFIX, suffix);
+    }
+
+    public String getCacheServiceNameSuffix() {
+        return get(CACHE_SERVICE_NAME_SUFFIX, null);
     }
 
     public Properties getProperties() {

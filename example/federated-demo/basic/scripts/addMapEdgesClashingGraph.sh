@@ -36,7 +36,6 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: applica
              }
            ]
          }
-       }
      }
     },
     "isPublic": true

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
@@ -32,9 +33,17 @@ import static java.util.Objects.isNull;
  */
 public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, FederatedAccess>> {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";
+    private static final String CACHE_SERVICE_NAME_PREFIX = "federatedStoreGraphs";
 
     public FederatedStoreCache() {
-        super("federatedStoreGraphs");
+        this(null);
+    }
+
+    public FederatedStoreCache(final String cacheNameSuffix) {
+        super(String.format("%s%s", CACHE_SERVICE_NAME_PREFIX,
+                nonNull(cacheNameSuffix)
+                        ? "_" + cacheNameSuffix.toLowerCase()
+                        : ""));
     }
 
     /**
@@ -55,7 +64,7 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
     public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
-        addGraphToCache(new GraphSerialisable.Builder().graph(graph).build(), access, overwrite);
+        addGraphToCache(new GraphSerialisable.Builder(graph).build(), access, overwrite);
     }
 
     /**
@@ -67,7 +76,7 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
     public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
-        String graphId = graphSerialisable.getDeserialisedConfig().getGraphId();
+        String graphId = graphSerialisable.getGraphId();
         Pair<GraphSerialisable, FederatedAccess> pair = new Pair<>(graphSerialisable, access);
         try {
             addToCache(graphId, pair, overwrite);
@@ -81,14 +90,14 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
     }
 
     /**
-     * Retrieve the {@link Graph} with the specified ID from the cache.
+     * Retrieve the {@link GraphSerialisable} with the specified ID from the cache.
      *
      * @param graphId the ID of the {@link Graph} to retrieve
-     * @return the {@link Graph} related to the specified ID
+     * @return the {@link GraphSerialisable} related to the specified ID
      */
-    public Graph getGraphFromCache(final String graphId) {
+    public GraphSerialisable getGraphFromCache(final String graphId) {
         final GraphSerialisable graphSerialisable = getGraphSerialisableFromCache(graphId);
-        return (isNull(graphSerialisable)) ? null : graphSerialisable.getGraph();
+        return (isNull(graphSerialisable)) ? null : graphSerialisable;
     }
 
     /**

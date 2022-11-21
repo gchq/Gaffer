@@ -136,7 +136,7 @@ public class SchemaOptimiser {
         }
     }
 
-    private Serialiser getDefaultVertexSerialiser(final Schema schema, final boolean isStoreOrdered) {
+    protected Serialiser getDefaultVertexSerialiser(final Schema schema, final boolean isStoreOrdered) {
         if (null != schema.getVertexSerialiser()) {
             return schema.getVertexSerialiser();
         }
