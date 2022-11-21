@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.SetVariable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.koryphe.impl.function.ToList;
 import uk.gov.gchq.koryphe.impl.function.ToLowerCase;
@@ -80,7 +81,32 @@ public class FederatedStoreInputChainTest {
     }
 
     @Test
-    public void shouldCorrectlySetGenericInputInFederatedOperationChain() throws OperationException {
+    public void shouldCorrectlySetGenericInputInOperationChain() throws OperationException {
+        // Given / When
+        final Object output = federatedStore.execute(
+                new OperationChain.Builder()
+                        .first(new SetVariable.Builder()
+                                .input(INPUT_STRING)
+                                .variableName(VAR)
+                                .build())
+                        .then(new GetVariable.Builder()
+                                .variableName(VAR)
+                                .build())
+                        .then((Input<? super Object>) new If.Builder()
+                                .conditional(new Conditional(new IsA(STRING)))
+                                .then(new Map<>(Lists.newArrayList(new ToUpperCase(), new ToList())))
+                                .otherwise(new Map<>(Lists.newArrayList(new ToLowerCase(), new ToList())))
+                                .build())
+                        .build(), contextBlankUser());
+
+        // Then
+        assertThat(output)
+                .isInstanceOf(List.class)
+                .isEqualTo(Lists.newArrayList(INPUT_STRING.toUpperCase()));
+    }
+
+    @Test
+    public void shouldCorrectlySetGenericInputInOperationChainWithFederatedOperation() throws OperationException {
         // Given / When
         final Object output = federatedStore.execute(
                 new OperationChain.Builder()
@@ -107,7 +133,28 @@ public class FederatedStoreInputChainTest {
     }
 
     @Test
-    public void shouldCorrectlySetMultiInputInFederatedOperationChain() throws OperationException {
+    public void shouldCorrectlySetMultiInputInOperationChain() throws OperationException {
+        // Given / When
+        final Iterable<? extends Element> output = federatedStore.execute(
+                new OperationChain.Builder()
+                        .first(new SetVariable.Builder()
+                                .input(Lists.newArrayList(entityBasic()))
+                                .variableName(VAR)
+                                .build())
+                        .then(new GetVariable.Builder()
+                                .variableName(VAR)
+                                .build())
+                        .thenTypeUnsafe(new AddElements())
+                        .then(new DiscardOutput())
+                        .then(new GetAllElements())
+                        .build(), contextBlankUser());
+
+        // Then
+        assertThat((Iterable<Entity>) output).containsExactly(entityBasic());
+    }
+
+    @Test
+    public void shouldCorrectlySetMultiInputInOperationChainWithFederatedOperation() throws OperationException {
         // Given / When
         final Iterable<? extends Element> output = federatedStore.execute(
                 new OperationChain.Builder()
