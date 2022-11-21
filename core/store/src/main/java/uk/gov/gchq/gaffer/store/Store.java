@@ -174,6 +174,7 @@ import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -580,7 +581,7 @@ public abstract class Store {
      * @return a collection of all the supported {@link Operation}s.
      */
     public Set<Class<? extends Operation>> getSupportedOperations() {
-        return operationHandlers.keySet();
+        return new HashSet<>(operationHandlers.keySet());
     }
 
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {

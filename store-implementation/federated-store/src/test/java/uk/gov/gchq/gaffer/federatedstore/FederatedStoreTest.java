@@ -1340,6 +1340,51 @@ public class FederatedStoreTest {
                         "(graphId: graphC) Entity group entityA does not exist in the schema"));
     }
 
+    @Test
+    public void shouldUpdateSupportedOperations() throws Exception {
+        // Given
+        final Set<Class<? extends Operation>> before = store.getSupportedOperations();
+
+        // When
+        addGraphWithIds(ACC_ID_1, ID_PROPS_ACC_1, ID_SCHEMA_ENTITY);
+        final Set<Class<? extends Operation>> withGraph = store.getSupportedOperations();
+
+        store.execute(new RemoveGraph.Builder()
+                .graphId(ACC_ID_1)
+                .build(), blankUserContext);
+        final Set<Class<? extends Operation>> afterRemove = store.getSupportedOperations();
+
+        // Then
+        assertThat(before)
+                .isEqualTo(afterRemove)
+                .isNotEqualTo(withGraph)
+                .isSubsetOf(withGraph);
+    }
+
+    @Test
+    public void shouldKeepDuplicateSupportedOperations() throws Exception {
+        // Given
+        final Set<Class<? extends Operation>> before = store.getSupportedOperations();
+
+        // When
+        addGraphWithIds(ACC_ID_1, ID_PROPS_ACC_1, ID_SCHEMA_ENTITY);
+        final Set<Class<? extends Operation>> with1Graph = store.getSupportedOperations();
+
+        addGraphWithIds(ACC_ID_2, ID_PROPS_ACC_2, ID_SCHEMA_EDGE);
+        final Set<Class<? extends Operation>> with2Graph = store.getSupportedOperations();
+
+        store.execute(new RemoveGraph.Builder()
+                .graphId(ACC_ID_1)
+                .build(), blankUserContext);
+        final Set<Class<? extends Operation>> after1Remove = store.getSupportedOperations();
+
+        // Then
+        assertThat(after1Remove)
+                .isNotEqualTo(before)
+                .isEqualTo(with1Graph)
+                .isEqualTo(with2Graph);
+    }
+
     protected void addElementsToNewGraph(final Entity input, final String graphName, final String pathSchemaJson)
             throws OperationException {
         addGraphWithPaths(graphName, properties1, blankUserContext, pathSchemaJson);
