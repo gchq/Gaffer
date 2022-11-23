@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
-import com.google.common.collect.ImmutableList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,65 +31,49 @@ import uk.gov.gchq.koryphe.impl.function.CsvLinesToMaps;
 import uk.gov.gchq.koryphe.impl.function.FunctionChain;
 import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 import uk.gov.gchq.koryphe.impl.function.MapToTuple;
-import uk.gov.gchq.koryphe.impl.function.ParseTime;
-import uk.gov.gchq.koryphe.impl.function.ToBoolean;
-import uk.gov.gchq.koryphe.impl.function.ToDouble;
-import uk.gov.gchq.koryphe.impl.function.ToFloat;
-import uk.gov.gchq.koryphe.impl.function.ToInteger;
-import uk.gov.gchq.koryphe.impl.function.ToLong;
-import uk.gov.gchq.koryphe.impl.function.ToString;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Since("2.0.0")
-@Summary("Generates elements from an openCypher CSV string")
-public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, Serializable {
+@Summary("Generates elements from a CSV string")
+public class CsvElementGenerator implements ElementGenerator<String>, Serializable {
     private static final long serialVersionUID = -821376598172364516L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenCypherCsvElementGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CsvElementGenerator.class);
 
-    public static final String NEPTUNE_VERTEX = ":ID";
-    public static final String NEO4J_VERTEX = "_id";
-    public static final String NEPTUNE_ENTITY_GROUP = ":LABEL";
-    public static final String NEO4J_ENTITY_GROUP = "_labels";
-
-    public static final String NEPTUNE_SOURCE = ":START_ID";
-    public static final String NEO4J_SOURCE = "_start";
-    public static final String NEPTUNE_DESTINATION = ":END_ID";
-    public static final String NEO4J_DESTINATION = "_end";
-
-    public static final String NEPTUNE_EDGE_GROUP = ":TYPE";
-    public static final String NEO4J_EDGE_GROUP = "_type";
-    private static final List<String> ELEMENT_COLUMN_NAMES = ImmutableList.of(NEPTUNE_VERTEX, NEPTUNE_ENTITY_GROUP, NEPTUNE_EDGE_GROUP, NEPTUNE_SOURCE, NEPTUNE_DESTINATION);
     private String header;
     private int firstRow = 0;
     private Boolean trim = false;
     private char delimiter = ',';
     private String nullString = "";
+    private CsvFormat csvFormat;
 
     @Override
     public Iterable<? extends Element> apply(final Iterable<? extends String> strings) {
+        List<String> elementColumnNames = new ArrayList<String>(CsvFormat.getIdentifiers(csvFormat).values());
         CsvLinesToMaps parseCsv = new CsvLinesToMaps()
-            .firstRow(1)
-            .trim(trim)
-            .nullString(nullString)
-            .delimiter(delimiter)
-            .parseHeader(header);
+                .firstRow(1)
+                .trim(trim)
+                .nullString(nullString)
+                .delimiter(delimiter)
+                .parseHeader(header);
 
         IterableFunction<Map<String, Object>, Tuple<String>> toTuples = new IterableFunction<>(new MapToTuple<String>());
 
         FunctionChain.Builder<Tuple<String>, Tuple<String>> transformTuplesBuilder = new FunctionChain.Builder<>();
 
-        ElementTupleDefinition entityDefinition = new ElementTupleDefinition(NEPTUNE_ENTITY_GROUP).vertex(NEPTUNE_VERTEX);
-        ElementTupleDefinition edgeDefinition = new ElementTupleDefinition(NEPTUNE_EDGE_GROUP)
-            .source(NEPTUNE_SOURCE)
-            .destination(NEPTUNE_DESTINATION)
-            .property("edge-id", NEPTUNE_VERTEX);
+        ElementTupleDefinition entityDefinition = new ElementTupleDefinition(csvFormat.getEntityGroup()).vertex(csvFormat.getVertex());
+        ElementTupleDefinition edgeDefinition = new ElementTupleDefinition(csvFormat.getEdgeGroup())
+                .source(csvFormat.getSource())
+                .destination(csvFormat.getDestination())
+                .property("edge-id", csvFormat.getVertex());
         for (final String columnHeader : parseCsv.getHeader()) {
-            if (!ELEMENT_COLUMN_NAMES.contains(columnHeader)) {
+            if (!elementColumnNames.contains(columnHeader)) {
                 String propertyName = columnHeader.split(":")[0];
                 if (!PropertiesUtil.isValidName(propertyName)) {
                     propertyName = propertyName.replaceAll("_", "-");
@@ -99,40 +81,14 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
                 }
                 if (columnHeader.contains(":")) {
                     String typeName = columnHeader.split(":")[1];
+                    HashMap<String, KorypheFunction<?, ?>> transformMappings = OpenCypherFormat.transformMappings;
                     KorypheFunction<?, ?> transform;
-                    switch (typeName) {
-                        case "DateTime":
-                            transform = new ParseTime();
-                            break;
-                        case "Long":
-                            transform = new ToLong();
-                            break;
-                        case "Byte":
-                        case "Short":
-                        case "Int":
-                            transform = new ToInteger();
-                            break;
-                        case "Boolean":
-                            transform = new ToBoolean();
-                            break;
-                        case "Float":
-                            transform = new ToFloat();
-                            break;
-                        case "Double":
-                            transform = new ToDouble();
-                            break;
-                        case "Char":
-                        case "Date":
-                        case "LocalDate":
-                        case "LocalDateTime":
-                        case "Duration":
-                        case "Point":
-                        case "String":
-                            transform = new ToString();
-                            break;
-                        default:
-                            throw new RuntimeException("Unsupported Type: " + typeName);
+                    if (transformMappings.containsKey(typeName)) {
+                        transform = transformMappings.get(typeName);
+                    } else {
+                        throw new RuntimeException("Unsupported Type: " + typeName);
                     }
+
                     transformTuplesBuilder = transformTuplesBuilder.execute(new String[]{columnHeader}, transform, new String[]{propertyName});
                 }
 
@@ -144,9 +100,9 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
         IterableFunction<Tuple<String>, Tuple<String>> transformTuples = new IterableFunction(transformTuplesBuilder.build());
 
         TuplesToElements toElements = new TuplesToElements()
-            .element(entityDefinition)
-            .element(edgeDefinition)
-            .useGroupMapping(true);
+                .element(entityDefinition)
+                .element(edgeDefinition)
+                .useGroupMapping(true);
         // Apply functions
         final FunctionChain<Iterable<String>, Iterable<Element>> generator = new FunctionChain.Builder<Iterable<String>, Iterable<Element>>()
                 .execute(parseCsv)
@@ -157,14 +113,6 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
         return generator.apply((Iterable<String>) strings);
     }
 
-    private String parseHeader(final String header) {
-        String parsedHeader = header.replace(NEO4J_VERTEX, NEPTUNE_VERTEX);
-        parsedHeader = parsedHeader.replace(NEO4J_ENTITY_GROUP, NEPTUNE_ENTITY_GROUP);
-        parsedHeader = parsedHeader.replace(NEO4J_EDGE_GROUP, NEPTUNE_EDGE_GROUP);
-        parsedHeader = parsedHeader.replace(NEO4J_SOURCE, NEPTUNE_SOURCE);
-        parsedHeader = parsedHeader.replace(NEO4J_DESTINATION, NEPTUNE_DESTINATION);
-        return parsedHeader;
-    }
 
     public String getHeader() {
         return header;
@@ -172,7 +120,7 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
 
 
     public void setHeader(final String header) {
-        this.header = parseHeader(header);
+        this.header = header;
     }
 
 
@@ -214,42 +162,56 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
         this.nullString = nullString;
     }
 
+    public CsvFormat getCsvFormat() {
+        return csvFormat;
+    }
+
+    public void setCsvFormat(final CsvFormat csvFormat) {
+        this.csvFormat = csvFormat;
+    }
+
     public static class Builder {
         private String header;
         private int firstRow = 0;
         private Boolean trim = false;
         private char delimiter = ',';
         private String nullString = "";
+        private CsvFormat csvFormat;
 
-
-        public OpenCypherCsvElementGenerator.Builder header(final String header) {
+        public CsvElementGenerator.Builder header(final String header) {
             this.header = header;
             return this;
         }
-        public OpenCypherCsvElementGenerator.Builder firstRow(final int firstRow) {
+
+        public CsvElementGenerator.Builder csvFormat(final CsvFormat csvFormat) {
+            this.csvFormat = csvFormat;
+            return this;
+        }
+        public CsvElementGenerator.Builder firstRow(final int firstRow) {
             this.firstRow = firstRow;
             return this;
         }
-        public OpenCypherCsvElementGenerator.Builder trim(final boolean trim) {
+        public CsvElementGenerator.Builder trim(final boolean trim) {
             this.trim = trim;
             return this;
         }
-        public OpenCypherCsvElementGenerator.Builder delimiter(final char delimiter) {
+        public CsvElementGenerator.Builder delimiter(final char delimiter) {
             this.delimiter = delimiter;
             return this;
         }
-        public OpenCypherCsvElementGenerator.Builder nullString(final String nullString) {
+        public CsvElementGenerator.Builder nullString(final String nullString) {
             this.nullString = nullString;
             return this;
         }
-        public OpenCypherCsvElementGenerator build() {
-             OpenCypherCsvElementGenerator generator = new OpenCypherCsvElementGenerator();
-             generator.setNullString(nullString);
-             generator.setDelimiter(delimiter);
-             generator.setHeader(header);
-             generator.setTrim(trim);
-             generator.setFirstRow(firstRow);
-             return generator;
+        public CsvElementGenerator build() {
+            CsvElementGenerator generator = new CsvElementGenerator();
+            generator.setNullString(nullString);
+            generator.setDelimiter(delimiter);
+            generator.setHeader(header);
+            generator.setTrim(trim);
+            generator.setFirstRow(firstRow);
+            generator.setCsvFormat(csvFormat);
+            return generator;
         }
     }
 }

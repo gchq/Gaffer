@@ -61,12 +61,11 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.add.ImportCsv;
+import uk.gov.gchq.gaffer.operation.impl.add.CsvToElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
-import uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
@@ -128,12 +127,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.SetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateOperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.WhileHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.add.ImportCsvHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.add.CsvToElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MaxHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MinHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.SortHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportsHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.localfile.ExportToLocalFileHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.function.AggregateHandler;
@@ -1009,8 +1007,9 @@ public abstract class Store {
         addOperationHandler(ExportToSet.class, new ExportToSetHandler());
         addOperationHandler(GetSetExport.class, new GetSetExportHandler());
         addOperationHandler(GetExports.class, new GetExportsHandler());
-        addOperationHandler(ExportToLocalFile.class, new ExportToLocalFileHandler());
 
+        //Import
+        addOperationHandler(CsvToElements.class, new CsvToElementsHandler());
 
         // Jobs
         if (nonNull(getJobTracker())) {
@@ -1094,9 +1093,6 @@ public abstract class Store {
         // Traits
         addOperationHandler(HasTrait.class, new HasTraitHandler());
         addOperationHandler(GetTraits.class, getGetTraitsHandler());
-
-        //Imports
-        addOperationHandler(ImportCsv.class, new ImportCsvHandler());
 
     }
 
