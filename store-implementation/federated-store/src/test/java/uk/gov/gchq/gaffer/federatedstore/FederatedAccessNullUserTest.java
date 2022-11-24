@@ -53,7 +53,7 @@ public class FederatedAccessNullUserTest {
     @Test
     public void shouldNeverValidateNullUserIV() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(null)
+                .owningUserId(null)
                 .build();
         assertFalse(access.hasReadAccess(null));
     }
@@ -62,7 +62,7 @@ public class FederatedAccessNullUserTest {
     public void shouldNeverValidateNullUserV() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths((String[]) null)
-                .addingUserId(null)
+                .owningUserId(null)
                 .build();
         assertFalse(access.hasReadAccess(null));
     }
