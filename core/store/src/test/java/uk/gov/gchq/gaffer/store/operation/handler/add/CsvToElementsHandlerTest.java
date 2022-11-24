@@ -84,8 +84,8 @@ class CsvToElementsHandlerTest {
 
         // When Then
         assertThatThrownBy(() -> {
-            handler.doOperation(csvToElementsOp, new Context(), store);
-        }).isInstanceOf(IllegalArgumentException.class)
+            handler.doOperation(csvToElementsOp, new Context(), store); })
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("CsvToElements operation requires the user to provide a supported CsvFormat");
     }
 }
