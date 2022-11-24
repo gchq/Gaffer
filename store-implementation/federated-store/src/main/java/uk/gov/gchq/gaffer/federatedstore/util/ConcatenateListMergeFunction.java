@@ -16,27 +16,29 @@
 
 package uk.gov.gchq.gaffer.federatedstore.util;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import uk.gov.gchq.koryphe.impl.function.IterableConcat;
-import uk.gov.gchq.koryphe.impl.function.ToList;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.Collections;
 import java.util.function.BiFunction;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public class ConcatenateListMergeFunction implements BiFunction<Object, Iterable<Object>, Iterable<Object>> {
 
     @Override
     public Iterable<Object> apply(final Object update, final Iterable<Object> state) {
-        //When update=null, Then this STOPS ToList returning an Iterable with a null in it.
-        final Iterable<Object> updateSafe = isNull(update) ? Collections.emptyList() : (Iterable<Object>) new ToList().apply(update);
-        return isNull(state)
-                ? updateSafe
-                : new IterableConcat<>().apply(Lists.newArrayList(updateSafe, state));
+        final Iterable<Object> updateSafe;
+        // When update is null, don't return an Iterable containing a null.
+        if (update == null) {
+            updateSafe = Collections.emptyList();
+        } else if (!(update instanceof Iterable)) {
+            updateSafe = Collections.singletonList(update);
+        } else {
+            updateSafe = (Iterable<Object>) update;
+        }
+        return (state == null) ? updateSafe : new ChainedIterable<>(updateSafe, state);
     }
 
     @Override
