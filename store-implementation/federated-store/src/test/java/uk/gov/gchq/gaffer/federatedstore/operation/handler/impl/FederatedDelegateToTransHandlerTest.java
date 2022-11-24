@@ -19,11 +19,11 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedDelegateToHandler;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.Validate;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -31,13 +31,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class FederatedValidateHandlerTest {
+public class FederatedDelegateToTransHandlerTest {
     @Test
-    public void shouldDelegateToHandler() throws OperationException {
+    public void shouldDelegateToTransformHandler() throws OperationException {
         // Given
         final FederatedStore store = mock(FederatedStore.class);
-        final ValidateHandler handler = mock(ValidateHandler.class);
-        final Validate op = mock(Validate.class);
+        final TransformHandler handler = mock(TransformHandler.class);
+        final Transform op = mock(Transform.class);
         final Context context = mock(Context.class);
         final Iterable expectedResult = mock(Iterable.class);
         final Schema schema = mock(Schema.class);
@@ -45,7 +45,7 @@ public class FederatedValidateHandlerTest {
         given(store.getSchema(context)).willReturn(schema);
         given(handler.doOperation(op, schema)).willReturn(expectedResult);
 
-        final FederatedValidateHandler federatedHandler = new FederatedValidateHandler(handler);
+        final FederatedDelegateToHandler federatedHandler = new FederatedDelegateToHandler(handler);
 
         // When
         final Object result = federatedHandler.doOperation(op, context, store);
@@ -53,5 +53,6 @@ public class FederatedValidateHandlerTest {
         // Then
         assertSame(expectedResult, result);
         verify(handler).doOperation(op, schema);
+        verify(store).getSchema(context);
     }
 }

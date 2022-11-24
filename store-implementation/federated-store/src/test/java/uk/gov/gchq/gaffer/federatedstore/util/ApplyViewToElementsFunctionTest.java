@@ -52,6 +52,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.edgeBasic
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 class ApplyViewToElementsFunctionTest {
 
@@ -158,7 +159,9 @@ class ApplyViewToElementsFunctionTest {
     private static AccumuloStore getTestStore(final String instanceName) throws StoreException {
         final AccumuloStore accumuloStore = new MiniAccumuloStore();
         final AccumuloProperties clone = ACCUMULO_PROPERTIES.clone();
-        clone.setNamespace(instanceName); //TODO FS is there a more elegant way to have different MiniAccumuloStore? Also should I change NameSpace or GraphId because tableName = NameSpace.GraphId
+        //This line allows different MiniAccumuloStore
+        //tableName = NameSpace.GraphId.
+        clone.setNamespace(instanceName);
         accumuloStore.initialise(GRAPH_ID_ACCUMULO, SCHEMA.clone(), clone);
         return accumuloStore;
     }
@@ -167,7 +170,7 @@ class ApplyViewToElementsFunctionTest {
         final HashMap<String, Object> map = new HashMap<>();
         map.put(ApplyViewToElementsFunction.VIEW, view);
         map.put(ApplyViewToElementsFunction.SCHEMA, schema);
+        map.put(ApplyViewToElementsFunction.USER, testUser());
         return map;
     }
-
 }

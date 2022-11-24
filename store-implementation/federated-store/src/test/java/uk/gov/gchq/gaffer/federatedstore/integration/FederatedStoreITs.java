@@ -34,7 +34,7 @@ import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSui
 public class FederatedStoreITs extends AbstractStoreITs {
 
     /*
-     * TODO FS currently this file overrides the default merges used by IT's,
+     * Currently this file overrides the default merges used by IT's,
      * this means the IT do not test FederatedStore out the box.
      * Either change IT for all store - No.
      * or Update default merge for GetAllElements to handle Post-Transform - Hard, do later.

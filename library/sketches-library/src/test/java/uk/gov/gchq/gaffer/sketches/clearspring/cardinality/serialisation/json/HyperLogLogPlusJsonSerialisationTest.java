@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -77,60 +76,6 @@ public class HyperLogLogPlusJsonSerialisationTest {
 
         // Then - Serialisation framework will serialise nulls as 'null' string.
         assertEquals("null", sketchAsString);
-    }
-
-    @Test
-    public void testNullHyperLogLogSketchDeserialisedAsEmptySketch() throws IOException {
-        // Given
-        final String sketchAsString = "{}";
-
-        // When
-        HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
-
-        // Then
-        assertEquals(0, hllp.cardinality());
-    }
-
-    @Test
-    public void shouldDeserialiseNewHllpWithSAndSpValues() throws IOException {
-        // Given
-        final String sketchAsString = "{\"p\": 5, \"sp\": 10}";
-
-        // When
-        HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
-
-        // Then
-        assertArrayEquals(new HyperLogLogPlus(5, 10).getBytes(), hllp.getBytes());
-    }
-
-    @Test
-    public void shouldDeserialiseNewNestedHllpWithSAndSpValues() throws IOException {
-        // Given
-        final String sketchAsString = "{\"hyperLogLogPlus\": {\"p\": 5, \"sp\": 10}}";
-
-        // When
-        HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
-
-        // Then
-        assertArrayEquals(new HyperLogLogPlus(5, 10).getBytes(), hllp.getBytes());
-    }
-
-    @Test
-    public void shouldDeserialiseNewHllpWithOffers() throws IOException {
-        // Given
-        final String sketchAsString = "{\"p\": 5, \"sp\": 5, \"offers\": [\"value1\", \"value2\", \"value2\", \"value2\", \"value3\"]}";
-
-        // When
-        HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
-
-        // Then
-        HyperLogLogPlus expected = new HyperLogLogPlus(5, 5);
-        expected.offer("value1");
-        expected.offer("value2");
-        expected.offer("value2");
-        expected.offer("value2");
-        expected.offer("value3");
-        assertArrayEquals(expected.getBytes(), hllp.getBytes());
     }
 
     private void runTestWithSketch(final HyperLogLogPlus sketch) throws IOException {

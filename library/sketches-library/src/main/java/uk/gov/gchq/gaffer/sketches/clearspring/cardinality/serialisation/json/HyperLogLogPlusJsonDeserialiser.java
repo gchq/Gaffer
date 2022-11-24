@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,59 +18,60 @@ package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.IOException;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
- * A {@code HyperLogLogPlusJsonDeserialiser} deserialises {@link HyperLogLogPlus} objects.
+ * A {@code HyperLogLogPlusJsonDeserialiser} deserialises {@link HyperLogLogPlus}
+ * objects. All objects including {@link uk.gov.gchq.gaffer.types.TypeValue},
+ * {@link uk.gov.gchq.gaffer.types.TypeSubTypeValue},
+ * {@link uk.gov.gchq.gaffer.types.CustomMap} and
+ * {@link uk.gov.gchq.gaffer.types.FreqMap} are now properly supported. The only
+ * stipulation is that the {@code class} must included in the fields of the
+ * {@code JSON} object. This can be done in {@code Java} by including the
+ * {@code class} {@code annotation}:
+ * <pre>
+ * <code>&#064;JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")</code>
+ * </pre>
+ * The object will not be affected if it does not feature a {@code class} as
+ * this will be ignored when the object is deserialised. Unfortunately,
+ * you cannot have arrays of values as {@code offers} is not permitted.
+ * <p>
+ * <b>
+ * NOTE: the {@code toString} method is called by the {@link HyperLogLogPlus}
+ * class when making the {@code offers} so you need to ensure that the
+ * {@code toString} method is overridden by your object.
+ * </b>
+ * </p>
  */
 public class HyperLogLogPlusJsonDeserialiser extends JsonDeserializer<HyperLogLogPlus> {
-    public static final int DEFAULT_P = 10;
-    public static final int DEFAULT_SP = 10;
+
+    public static final String CLASS = "class";
+
+    public static final String HYPER_LOG_LOG_PLUS = "hyperLogLogPlus";
 
     @Override
-    public HyperLogLogPlus deserialize(final JsonParser jsonParser, final DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
-        TreeNode treeNode = jsonParser.getCodec().readTree(jsonParser);
-        final TreeNode nestedHllp = treeNode.get("hyperLogLogPlus");
+    public HyperLogLogPlus deserialize(final JsonParser jsonParser, final DeserializationContext deserializationContext) throws IOException {
+        try {
+            TreeNode treeNode = jsonParser.getCodec().readTree(jsonParser);
+            final TreeNode nestedHllp = treeNode.get(HYPER_LOG_LOG_PLUS);
 
-        if (nonNull(nestedHllp)) {
-            treeNode = nestedHllp;
-        }
-
-        final HyperLogLogPlus hllp;
-
-        final TextNode jsonNodes = (TextNode) treeNode.get(HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SKETCH_BYTES_FIELD);
-        if (isNull(jsonNodes)) {
-            final IntNode pNode = (IntNode) treeNode.get("p");
-            final IntNode spNode = (IntNode) treeNode.get("sp");
-            final int p = nonNull(pNode) ? pNode.asInt(DEFAULT_P) : DEFAULT_P;
-            final int sp = nonNull(spNode) ? spNode.asInt(DEFAULT_SP) : DEFAULT_SP;
-            hllp = new HyperLogLogPlus(p, sp);
-        } else {
-            hllp = HyperLogLogPlus.Builder.build(jsonNodes.binaryValue());
-        }
-
-        final ArrayNode offers = (ArrayNode) treeNode.get("offers");
-        if (nonNull(offers)) {
-            for (final JsonNode offer : offers) {
-                if (nonNull(offer)) {
-                    hllp.offer(offer.asText());
-                }
+            if (nonNull(nestedHllp)) {
+                treeNode = nestedHllp;
             }
+
+            final HyperLogLogPlusWithOffers hyperLogLogPlusWithOffers = JSONSerialiser.deserialise(treeNode.toString(), HyperLogLogPlusWithOffers.class);
+            return hyperLogLogPlusWithOffers.getHyperLogLogPlus();
+        } catch (final Exception e) {
+            throw new SerialisationException("Error deserialising JSON object: " + e.getMessage(), e);
         }
-
-
-        return hllp;
     }
 }

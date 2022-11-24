@@ -48,6 +48,7 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplyViewToElementsFunction.class);
     public static final String VIEW = "view";
     public static final String SCHEMA = "schema";
+    public static final String USER = "user";
     public static final String TEMP_RESULTS_GRAPH = "temporaryResultsGraph";
     private ImmutableMap<String, Object> context;
 
@@ -98,9 +99,13 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
         }
 
         if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
-            throw new IllegalStateException("Error: context invalid, did not contains a Temporary Results Graph.");
+            throw new IllegalStateException("Error: context invalid, did not contain a Temporary Results Graph.");
         } else if (!(context.get(TEMP_RESULTS_GRAPH) instanceof Graph)) {
             throw new IllegalArgumentException(String.format("Error: context invalid, value for %s was not a Graph, found: %s", TEMP_RESULTS_GRAPH, context.get(TEMP_RESULTS_GRAPH)));
+        }
+
+        if (!context.containsKey(USER)) {
+            throw new IllegalArgumentException("Error: context invalid, requires a User");
         }
 
         //Remove null values because ImmutableMap.copyOf errors.
@@ -109,7 +114,7 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
 
     @Override
     public Set<String> getRequiredContextValues() {
-        return ImmutableSet.copyOf(new String[]{VIEW, SCHEMA});
+        return ImmutableSet.copyOf(new String[]{VIEW, SCHEMA, USER});
     }
 
     @Override
@@ -124,8 +129,7 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
         }
 
         final Graph resultsGraph = (Graph) context.get(TEMP_RESULTS_GRAPH);
-        //TODO FS examine schema security and user security.
-        final Context userContext = new Context(new User()/*blankUser for temp graph*/);
+        final Context userContext = new Context((User) context.get(USER));
         try {
             //the update object might be a lazy AccumuloElementRetriever and might be MASSIVE.
             resultsGraph.execute(new AddElements.Builder().input((Iterable<Element>) update).build(), userContext);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
@@ -26,6 +28,7 @@ import java.util.Map;
  * {@code FreqMap} extends {@link HashMap} with String keys and Long values, adding an upsert operation.
  */
 @JsonSimpleClassName
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 public class FreqMap extends HashMap<String, Long> {
     private static final long serialVersionUID = -851105369975081220L;
 
