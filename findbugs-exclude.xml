@@ -18,4 +18,7 @@
     <Match>
         <Source name="~.*\.scala" />
     </Match>
+    <Match>
+        <Bug category="MALICIOUS_CODE" />
+    </Match>
 </FindBugsFilter>
