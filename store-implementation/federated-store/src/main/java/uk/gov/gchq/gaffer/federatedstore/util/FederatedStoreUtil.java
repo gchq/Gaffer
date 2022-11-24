@@ -239,7 +239,7 @@ public final class FederatedStoreUtil {
     }
 
     public static BiFunction getDefaultMergeFunction() {
-        return new ConcatenateListMergeFunction();
+        return new ConcatenateMergeFunction();
     }
 
     public static <INPUT> FederatedOperation<INPUT, Void> getFederatedOperation(final Operation operation) {
