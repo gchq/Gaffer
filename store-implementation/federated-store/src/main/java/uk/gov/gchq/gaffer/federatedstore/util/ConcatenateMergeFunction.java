@@ -25,19 +25,31 @@ import java.util.function.BiFunction;
 
 import static java.util.Objects.nonNull;
 
+/**
+ * A BiFunction for concatenating results from multiple graphs into one Iterable.
+ */
 public class ConcatenateMergeFunction implements BiFunction<Object, Iterable<Object>, Iterable<Object>> {
 
+    /**
+     * Concatenates the result from a graph with the previous results Iterable.
+     *
+     * @param update    the result to be added
+     * @param state     the iterable of previous results
+     */
     @Override
     public Iterable<Object> apply(final Object update, final Iterable<Object> state) {
         final Iterable<Object> updateSafe;
-        // When update is null, don't return an Iterable containing a null.
+        // When update is null, don't add an Iterable containing a null.
         if (update == null) {
             updateSafe = Collections.emptyList();
         } else if (!(update instanceof Iterable)) {
+            // When update is not Iterable, wrap it in a List.
             updateSafe = Collections.singletonList(update);
         } else {
             updateSafe = (Iterable<Object>) update;
         }
+        // If current state is null, return the update which will be an Iterable.
+        // Otherwise, chain the update with the previous state
         return (state == null) ? updateSafe : new ChainedIterable<>(updateSafe, state);
     }
 
