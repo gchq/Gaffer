@@ -247,42 +247,16 @@ public class FederatedStore extends Store {
                           final String addingUserId,
                           final boolean isPublic,
                           final GraphSerialisable... graphs) throws StorageException {
-        addGraphs(graphAuths, addingUserId, isPublic, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT, graphs);
-    }
-
-    /**
-     * Adds graphs to the scope of FederatedStore.
-     * <p>
-     * To be used by the FederatedStore and Handlers only. Users should add
-     * graphs via the {@link AddGraph} operation.
-     * public access will be ignored if the FederatedStore denies this action
-     * at initialisation, will default to usual access with addingUserId and
-     * graphAuths
-     * </p>
-     *
-     * @param addingUserId      the adding userId
-     * @param graphs            the graph to add
-     * @param isPublic          if this class should have public access.
-     * @param disabledByDefault true if the graph should be disabled by default - requiring the graphId to be provided in queries
-     * @param graphAuths        the access auths for the graph being added
-     * @throws StorageException if unable to put graph into storage
-     */
-    public void addGraphs(final Set<String> graphAuths,
-                          final String addingUserId,
-                          final boolean isPublic,
-                          final boolean disabledByDefault,
-                          final GraphSerialisable... graphs) throws StorageException {
-        addGraphs(graphAuths, addingUserId, isPublic, disabledByDefault, null, null, graphs);
+        addGraphs(graphAuths, addingUserId, isPublic, graphs);
     }
 
     public void addGraphs(final Set<String> graphAuths,
                           final String addingUserId,
                           final boolean isPublic,
-                          final boolean disabledByDefault,
                           final AccessPredicate readAccessPredicate,
                           final AccessPredicate writeAccessPredicate,
                           final GraphSerialisable... graphs) throws StorageException {
-        final FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic, disabledByDefault, readAccessPredicate, writeAccessPredicate);
+        final FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic, readAccessPredicate, writeAccessPredicate);
         addGraphs(access, graphs);
     }
 

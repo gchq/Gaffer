@@ -80,7 +80,6 @@ public class AddGraph implements IFederationOperation {
     private Set<String> graphAuths;
     private Map<String, String> options;
     private boolean isPublic = false;
-    private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
     private AccessPredicate readAccessPredicate;
     private AccessPredicate writeAccessPredicate;
     private boolean userRequestingAdminUsage;
@@ -109,7 +108,6 @@ public class AddGraph implements IFederationOperation {
                 .storeProperties(this.storeProperties)
                 .parentSchemaIds(this.parentSchemaIds)
                 .parentPropertiesId(this.parentPropertiesId)
-                .disabledByDefault(this.disabledByDefault)
                 .options(this.options)
                 .isPublic(this.isPublic)
                 .readAccessPredicate(this.readAccessPredicate)
@@ -147,14 +145,6 @@ public class AddGraph implements IFederationOperation {
 
     public void setParentPropertiesId(final String parentPropertiesId) {
         this.parentPropertiesId = parentPropertiesId;
-    }
-
-    public boolean isDisabledByDefault() {
-        return disabledByDefault;
-    }
-
-    public void setDisabledByDefault(final boolean disabledByDefault) {
-        this.disabledByDefault = disabledByDefault;
     }
 
     @Override
@@ -266,11 +256,6 @@ public class AddGraph implements IFederationOperation {
             } else {
                 _getOp().setGraphAuths(new HashSet<>(asList(graphAuths)));
             }
-            return _self();
-        }
-
-        public B disabledByDefault(final boolean disabledByDefault) {
-            _getOp().setDisabledByDefault(disabledByDefault);
             return _self();
         }
 

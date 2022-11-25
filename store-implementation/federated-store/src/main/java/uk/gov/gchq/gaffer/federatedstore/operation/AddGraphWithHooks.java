@@ -41,7 +41,6 @@ public class AddGraphWithHooks extends AddGraph {
                 .parentSchemaIds(getParentSchemaIds())
                 .parentPropertiesId(getParentPropertiesId())
                 .options(getOptions())
-                .disabledByDefault(isDisabledByDefault())
                 .isPublic(getIsPublic())
                 .readAccessPredicate(getReadAccessPredicate())
                 .writeAccessPredicate(getWriteAccessPredicate())
