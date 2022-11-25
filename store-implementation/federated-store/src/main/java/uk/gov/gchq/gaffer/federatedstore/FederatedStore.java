@@ -587,14 +587,8 @@ public class FederatedStore extends Store {
     }
 
     private List<GraphSerialisable> getDefaultGraphs(final User user, final IFederationOperation operation) {
-
-        boolean isAdminRequestingOverridingDefaultGraphs =
-                operation.isUserRequestingAdminUsage()
-                        && (operation instanceof FederatedOperation)
-                        && ((FederatedOperation) operation).isUserRequestingDefaultGraphsOverride();
-
-        if (isNull(storeConfiguredGraphIds) || isAdminRequestingOverridingDefaultGraphs) {
-            return graphStorage.get(user, null, (/*TODO FS examine isAdminRequestingOverridingDefaultGraphs vs ->*/operation.isUserRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
+        if (isNull(storeConfiguredGraphIds)) {
+            return graphStorage.get(user, null, (operation.isUserRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
         } else {
             //This operation has already been processes once, by this store.
             String keyForProcessedFedStoreId = getKeyForProcessedFedStoreId();
