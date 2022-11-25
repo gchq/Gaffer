@@ -189,7 +189,7 @@ public class FederatedGraphStorage {
     private boolean remove(final String graphId, final Predicate<FederatedAccess> accessPredicate) {
         FederatedAccess accessFromCache = federatedStoreCache.getAccessFromCache(graphId);
         boolean rtn;
-        if (nonNull(accessFromCache) ? accessPredicate.test(accessFromCache) : false) {
+        if (nonNull(accessFromCache) && accessPredicate.test(accessFromCache)) {
             federatedStoreCache.deleteFromCache(graphId);
             rtn = true;
         } else {

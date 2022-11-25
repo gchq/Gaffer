@@ -84,7 +84,6 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
         this(graphAuths, addingUserId, Boolean.valueOf(DEFAULT_VALUE_IS_PUBLIC));
     }
 
-
     public FederatedAccess(final Set<String> graphAuths, final String addingUserId, final boolean isPublic) {
         this(graphAuths, addingUserId, isPublic, null, null);
     }

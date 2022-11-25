@@ -26,7 +26,6 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;

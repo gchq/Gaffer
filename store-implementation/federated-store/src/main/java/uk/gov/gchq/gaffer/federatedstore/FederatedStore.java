@@ -247,7 +247,7 @@ public class FederatedStore extends Store {
                           final String addingUserId,
                           final boolean isPublic,
                           final GraphSerialisable... graphs) throws StorageException {
-        addGraphs(graphAuths, addingUserId, isPublic, graphs);
+        addGraphs(graphAuths, addingUserId, isPublic, null, null, graphs);
     }
 
     public void addGraphs(final Set<String> graphAuths,
