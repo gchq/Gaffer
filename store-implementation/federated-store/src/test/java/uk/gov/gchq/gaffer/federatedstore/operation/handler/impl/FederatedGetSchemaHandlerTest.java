@@ -74,6 +74,7 @@ public class FederatedGetSchemaHandlerTest {
 
         handler = new FederatedOutputHandler<>(new Schema());
         properties = new FederatedStoreProperties();
+        //properties.set(storeConfiguredId) needs to be added so it reads from the  configuredGraphIds JSON file
         properties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
 
         federatedStore = new FederatedStore();
@@ -163,7 +164,6 @@ public class FederatedGetSchemaHandlerTest {
                         .graphId("schemaEnabled")
                         .parentPropertiesId(ACC_PROP_ID)
                         .parentSchemaIds(singletonList("edgeSchema1"))
-                        .disabledByDefault(false)
                         .build()), contextTestUser());
 
         federatedStore.execute(OperationChain.wrap(
@@ -171,7 +171,6 @@ public class FederatedGetSchemaHandlerTest {
                         .graphId("schemaDisabled")
                         .parentPropertiesId(ACC_PROP_ID)
                         .parentSchemaIds(singletonList("edgeSchema2"))
-                        .disabledByDefault(true)
                         .build()), contextTestUser());
 
         final GetSchema operation = new GetSchema.Builder()
