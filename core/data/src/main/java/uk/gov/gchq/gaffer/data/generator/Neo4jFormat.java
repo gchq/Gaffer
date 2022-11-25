@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.data.generator;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-public class Neo4jFormat extends CsvFormat {
+public class Neo4jFormat extends OpenCypherFormat {
 
     @JsonIgnore
     @Override
@@ -46,3 +46,4 @@ public class Neo4jFormat extends CsvFormat {
         return "_end";
     }
 }
+

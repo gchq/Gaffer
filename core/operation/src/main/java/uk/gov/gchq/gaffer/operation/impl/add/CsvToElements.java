@@ -18,18 +18,23 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import uk.gov.gchq.gaffer.commonutil.Required;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
 /**
- * An {@code ImportCsv} operation takes a filename, converts each
- * line of the file to an element then adds these
- * elements to the graph. The file must be in the openCypher CSV format.
+ * A {@code CsvToElements} operation will generate elements from a String input given a {@link CsvFormat}.
  *
  * @see Builder
  * @see <a href="https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-format-opencypher.html">openCypher</a>
@@ -38,18 +43,21 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "filename"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("Adds elements from a openCypher CSV file")
-public class ImportCsv implements
+public class CsvToElements implements
         Operation,
-        Validatable {
-
-    @Required
-    private String filename;
+        Validatable,
+        MultiInput<String>,
+        InputOutput<Iterable<? extends String>, Iterable<? extends Element>> {
     private char delimiter = ',';
     private String nullString = "";
     private boolean trim = false;
     private boolean validate = true;
     private boolean skipInvalidElements;
     private Map<String, String> options;
+    private Iterable<? extends String> input;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
+    private CsvFormat csvFormat;
+
     public char getDelimiter() {
         return delimiter;
     }
@@ -73,12 +81,13 @@ public class ImportCsv implements
     public void setTrim(final boolean trim) {
         this.trim = trim;
     }
-    public String getFilename() {
-        return filename;
+
+    public CsvFormat getCsvFormat() {
+        return csvFormat;
     }
 
-    public void setFilename(final String filename) {
-        this.filename = filename;
+    public void setCsvFormat(final CsvFormat csvFormat) {
+        this.csvFormat = csvFormat;
     }
 
     @Override
@@ -112,24 +121,40 @@ public class ImportCsv implements
     }
 
     @Override
-    public ImportCsv shallowClone() {
+    public CsvToElements shallowClone() {
         return new Builder()
-                .filename(filename)
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)
                 .options(options)
+                .input(input)
+                .trim(trim)
+                .delimiter(delimiter)
+                .nullString(nullString)
+                .csvFormat(csvFormat)
                 .build();
     }
 
-    public static class Builder extends BaseBuilder<ImportCsv, Builder>
-            implements Validatable.Builder<ImportCsv, Builder> {
-        public Builder() {
-            super(new ImportCsv());
-        }
+    @Override
+    public Iterable<? extends String> getInput() {
+        return input;
+    }
 
-        public Builder filename(final String filename) {
-            _getOp().setFilename(filename);
-            return _self();
+    @Override
+    public void setInput(final Iterable<? extends String> csvLines) {
+        this.input = csvLines;
+    }
+
+    @Override
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableElement();
+    }
+
+    public static class Builder extends BaseBuilder<CsvToElements, Builder>
+            implements Validatable.Builder<CsvToElements, Builder>,
+            InputOutput.Builder<CsvToElements, Iterable<? extends String>, Iterable<? extends Element>, CsvToElements.Builder>,
+            MultiInput.Builder<CsvToElements, String, CsvToElements.Builder> {
+        public Builder() {
+            super(new CsvToElements());
         }
 
         public Builder delimiter(final char delimiter) {
@@ -144,6 +169,11 @@ public class ImportCsv implements
 
         public Builder nullString(final String nullString) {
             _getOp().setNullString(nullString);
+            return _self();
+        }
+
+        public Builder csvFormat(final CsvFormat csvFormat) {
+            _getOp().setCsvFormat(csvFormat);
             return _self();
         }
     }

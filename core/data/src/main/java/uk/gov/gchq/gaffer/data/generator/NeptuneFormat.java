@@ -16,9 +16,10 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
 
-public class NeptuneFormat extends CsvFormat {
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+public class NeptuneFormat extends OpenCypherFormat {
 
     @Override
     @JsonIgnore
@@ -49,5 +50,4 @@ public class NeptuneFormat extends CsvFormat {
     public String getDestination() {
         return ":END_ID";
     }
-
 }

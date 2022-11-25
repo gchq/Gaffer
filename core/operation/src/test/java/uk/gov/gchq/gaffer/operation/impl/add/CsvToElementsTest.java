@@ -17,17 +17,16 @@
 package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,21 +34,20 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 
-class ImportCsvTest extends OperationTest<ImportCsv> {
-    private static final String FILE_NAME = "filename";
+class CsvToElementsTest extends OperationTest<CsvToElements> {
     private static final char DELIMITER = ',';
     private static final String NULL_STRING = "";
     private static final Boolean TRIM = true;
     private static final boolean VALIDATE = true;
     private static final boolean SKIP_INVALID_ELEMENTS = false;
     private static final Map<String, String> OPTIONS = new HashMap<String, String>();
+    private static CsvFormat csvFormat;
 
 
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
-        final ImportCsv op = new ImportCsv.Builder()
-                .filename(FILE_NAME)
+        final CsvToElements op = new CsvToElements.Builder()
                 .delimiter(DELIMITER)
                 .trim(TRIM)
                 .nullString(NULL_STRING)
@@ -59,12 +57,11 @@ class ImportCsvTest extends OperationTest<ImportCsv> {
 
         // When
         byte[] json = JSONSerialiser.serialise(op, true);
-        final ImportCsv deserialisedOp = JSONSerialiser.deserialise(json, ImportCsv.class);
+        final CsvToElements deserialisedOp = JSONSerialiser.deserialise(json, CsvToElements.class);
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
-                        "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.ImportCsv\",%n" +
-                        "  \"filename\" : \"filename\",%n" +
+                        "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.CsvToElements\",%n" +
                         "  \"delimiter\" : \",\",%n" +
                         "  \"nullString\" : \"\",%n" +
                         "  \"skipInvalidElements\" : false,%n" +
@@ -82,15 +79,13 @@ class ImportCsvTest extends OperationTest<ImportCsv> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final ImportCsv op = new ImportCsv.Builder()
-                .filename(FILE_NAME)
+        final CsvToElements op = new CsvToElements.Builder()
                 .delimiter(DELIMITER)
                 .trim(TRIM)
                 .nullString(NULL_STRING)
                 .build();
 
         // Then
-        assertEquals(FILE_NAME, op.getFilename());
         assertEquals(DELIMITER, op.getDelimiter());
         assertEquals(TRIM, op.isTrim());
         assertEquals(NULL_STRING, op.getNullString());
@@ -100,15 +95,14 @@ class ImportCsvTest extends OperationTest<ImportCsv> {
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        final ImportCsv op = new ImportCsv.Builder()
-                .filename(FILE_NAME)
+        final CsvToElements op = new CsvToElements.Builder()
                 .validate(VALIDATE)
                 .skipInvalidElements(SKIP_INVALID_ELEMENTS)
                 .options(OPTIONS)
                 .build();
 
         // When
-        final ImportCsv clone = op.shallowClone();
+        final CsvToElements clone = op.shallowClone();
 
         // Then
         assertNotSame(op, clone);
@@ -118,12 +112,7 @@ class ImportCsvTest extends OperationTest<ImportCsv> {
     }
 
     @Override
-    public Set<String> getRequiredFields() {
-        return Sets.newHashSet(FILE_NAME);
-    }
-
-    @Override
-    protected ImportCsv getTestObject() {
-        return new ImportCsv();
+    protected CsvToElements getTestObject() {
+        return new CsvToElements();
     }
 }

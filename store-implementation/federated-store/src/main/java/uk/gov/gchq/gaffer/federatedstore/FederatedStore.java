@@ -292,7 +292,7 @@ public class FederatedStore extends Store {
     /**
      * @param user the visibility to use for getting graphIds
      * @return All the graphId(s) within scope of this FederatedStore and within
-     * visibility for the given user.
+     * visibility for the given user. These will be returned in random order.
      */
     public Collection<String> getAllGraphIds(final User user) {
         return getAllGraphIds(user, false);
