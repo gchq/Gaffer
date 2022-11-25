@@ -127,7 +127,6 @@ public class FederatedRemoveGraphHandlerTest {
                 testUser.getOpAuths(),
                 "other",
                 false,
-                false,
                 null,
                 noAccessPredicate,
                 new GraphSerialisable.Builder()

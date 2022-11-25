@@ -21,15 +21,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.from;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadFederatedStoreFrom;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.*;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.DEPRECATED_GRAPHIDS_OPTION;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
+import uk.gov.gchq.gaffer.data.element.Entity;
 
 public class FederatedStoreDefaultGraphsTest {
 
@@ -38,30 +45,13 @@ public class FederatedStoreDefaultGraphsTest {
     @BeforeEach
     public void before() throws Exception {
         federatedStore = loadFederatedStoreFrom("configuredGraphIds.json");
-        assertThat(federatedStore)
-                .isNotNull()
-                .returns(Lists.newArrayList("defaultJsonGraphId"), from(FederatedStore::getStoreConfiguredGraphIds));
-
         federatedStore.initialise(FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), new FederatedStoreProperties());
     }
 
-    @Disabled
-    @Test
-    public void testDisableByDefault() {
-        fail("Not yet implemented");
-    }
-
-    @Disabled
-    @Test
-    public void testDisableByDefaultAdmin() {
-        fail("Not yet implemented");
-    }
-
-    @Disabled
-    @Test
-    public void testDisableByDefaultButIsDefaultListOfGraphs() {
-        fail("Not yet implemented");
-    }
+    // should only see the defaultJsonGraphId
+    // TODOs:
+    // write tests to check that users can see graphs
+    // write tests to check that users can see specific graph
 
     @Test
     public void shouldGetDefaultedGraphIdFromJsonConfig() throws Exception {

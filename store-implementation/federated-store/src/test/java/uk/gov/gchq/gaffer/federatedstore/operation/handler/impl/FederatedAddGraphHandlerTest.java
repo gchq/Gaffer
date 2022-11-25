@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -130,31 +131,6 @@ public class FederatedAddGraphHandlerTest {
             set.add(iterator.next().getGraphId());
         }
         assertThat(set).contains(EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID_2);
-    }
-
-    @Test
-    public void shouldAddDisabledByDefaultGraph() throws Exception {
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
-        final Schema expectedSchema = new Schema.Builder().build();
-
-        assertThat(store.getGraphs(testUser, null, new AddGraph())).hasSize(0);
-
-        new FederatedAddGraphHandler().doOperation(
-                new AddGraph.Builder()
-                        .graphId(EXPECTED_GRAPH_ID)
-                        .schema(expectedSchema)
-                        .storeProperties(PROPERTIES)
-                        .disabledByDefault(true)
-                        .build(),
-                new Context(testUser),
-                store);
-
-        final Collection<GraphSerialisable> enabledGraphs = store.getGraphs(testUser, null, new AddGraph());
-        assertThat(enabledGraphs).isEmpty();
-
-        final Collection<GraphSerialisable> expectedGraphs = store.getGraphs(testUser, getCleanStrings(EXPECTED_GRAPH_ID), new AddGraph());
-        assertThat(expectedGraphs).hasSize(1);
-        assertThat(expectedGraphs.iterator().next().getGraphId()).isEqualTo(EXPECTED_GRAPH_ID);
     }
 
     @Test

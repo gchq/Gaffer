@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddGraphWithHooksTest extends FederationOperationTest<AddGraphWithHooks> {
 
@@ -85,7 +84,6 @@ public class AddGraphWithHooksTest extends FederationOperationTest<AddGraphWithH
                 .graphAuths("testAuth")
                 .storeProperties(new StoreProperties())
                 .hooks(new Log4jLogger())
-                .disabledByDefault(true)
                 .readAccessPredicate(READ_ACCESS_PREDICATE)
                 .writeAccessPredicate(WRITE_ACCESS_PREDICATE)
                 .build();
@@ -97,7 +95,6 @@ public class AddGraphWithHooksTest extends FederationOperationTest<AddGraphWithH
         assertEquals(a.getSchema(), b.getSchema());
         assertEquals(a.getGraphAuths(), b.getGraphAuths());
         assertArrayEquals(a.getHooks(), b.getHooks());
-        assertTrue(b.isDisabledByDefault());
         assertEquals(a.getReadAccessPredicate(), b.getReadAccessPredicate());
         assertEquals(a.getWriteAccessPredicate(), b.getWriteAccessPredicate());
     }

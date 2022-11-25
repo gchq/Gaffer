@@ -332,7 +332,7 @@ public class FederatedStoreGetTraitsTest {
     public void shouldNotGetTraitsForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
         // given
         federatedStore.addGraphs(new FederatedAccess(Collections.singleton(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING), accumuloGraphSerialised);
-        federatedStore.addGraphs(new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, blockingAccessPredicate, null), mapGraphSerialised);
+        federatedStore.addGraphs(new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, blockingAccessPredicate, null), mapGraphSerialised);
         // when
         final Set<StoreTrait> traits = federatedStore.execute(getTraits, testUserContext);
         // then
@@ -384,7 +384,7 @@ public class FederatedStoreGetTraitsTest {
     public void shouldGetTraitsForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws Exception {
         // given
         federatedStore.addGraphs(new FederatedAccess(Collections.singleton(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING), accumuloGraphSerialised);
-        federatedStore.addGraphs(new FederatedAccess(NULL_GRAPH_AUTHS, UNUSED_AUTH_STRING, false, false, permissiveAccessPredicate, null), mapGraphSerialised);
+        federatedStore.addGraphs(new FederatedAccess(NULL_GRAPH_AUTHS, UNUSED_AUTH_STRING, false, permissiveAccessPredicate, null), mapGraphSerialised);
         // when
         final Set<StoreTrait> traits = federatedStore.execute(getTraits, blankUserContext);
         // then

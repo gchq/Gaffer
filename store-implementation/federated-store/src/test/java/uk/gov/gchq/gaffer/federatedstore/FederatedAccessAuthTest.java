@@ -147,7 +147,6 @@ public class FederatedAccessAuthTest {
         // Then
         final String expected = "{" +
                 "   \"addingUserId\": \"authUser\"," +
-                "   \"disabledByDefault\": false," +
                 "   \"public\": false," +
                 "   \"readAccessPredicate\": {" +
                 "       \"class\": \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
@@ -200,7 +199,6 @@ public class FederatedAccessAuthTest {
         final String expected = "{" +
                 "   \"addingUserId\": \"authUser\"," +
                 "   \"public\": false," +
-                "   \"disabledByDefault\": false," +
                 "   \"graphAuths\": [\"auth1\", \"auth2\"]" +
                 "}";
 

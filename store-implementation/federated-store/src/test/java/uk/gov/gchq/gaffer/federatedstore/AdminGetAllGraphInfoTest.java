@@ -58,7 +58,7 @@ public class AdminGetAllGraphInfoTest {
     @BeforeEach
     public void setUp() throws Exception {
         resetForFederatedTests();
-        access = new FederatedAccess(singleton(AUTH_1), AUTH_USER_ID, false, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT);
+        access = new FederatedAccess(singleton(AUTH_1), AUTH_USER_ID, false);
         store = new FederatedStore();
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.set(StoreProperties.ADMIN_AUTH, ADMIN_AUTH);
@@ -85,7 +85,6 @@ public class AdminGetAllGraphInfoTest {
         assertEquals(String.format("{%n" +
                 "  \"AccumuloStore\" : {%n" +
                 "    \"addingUserId\" : \"authUser\",%n" +
-                "    \"disabledByDefault\" : false,%n" +
                 "    \"graphAuths\" : [ \"auth1\" ],%n" +
                 "    \"public\" : false%n" +
                 "  }%n" +
