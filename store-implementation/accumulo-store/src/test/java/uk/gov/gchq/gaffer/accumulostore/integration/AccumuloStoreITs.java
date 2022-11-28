@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 
 @ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.accumulostore.integration.AccumuloStoreITs")
-//@SelectClasses(AddElementsFromHdfsLoaderIT.class) // Extra test to add
+@SelectClasses(AddElementsFromHdfsLoaderIT.class) // Extra test to add
 public class AccumuloStoreITs extends AbstractStoreITs {
 
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
