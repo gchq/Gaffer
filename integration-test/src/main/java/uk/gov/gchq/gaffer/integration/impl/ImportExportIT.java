@@ -29,8 +29,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.add.CsvToElements;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile;
+import uk.gov.gchq.gaffer.operation.impl.export.localfile.ImportFromLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.imprt.localfile.ImportFromLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -55,7 +55,7 @@ public class ImportExportIT extends AbstractStoreIT {
     @TempDir
     Path tempDir;
 
-    //@Override
+    @Override
     public void _setup() throws Exception {
 
         try {
@@ -66,6 +66,7 @@ public class ImportExportIT extends AbstractStoreIT {
 
         outgoingFile = path.toFile();
     }
+
     @Test
     public void shouldImportFromFileThenExportBackOutToDifferentFile() throws OperationException, IOException {
         // Given

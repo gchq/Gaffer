@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuite;
  */
 @Suite
 @SelectPackages("uk.gov.gchq.gaffer.integration.impl")
-@IncludeClassNamePatterns(".*IT")
+@IncludeClassNamePatterns(".*ImportExportIT")
 public abstract class AbstractStoreITs extends IntegrationTestSuite {
 
 }
