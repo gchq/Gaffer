@@ -129,7 +129,7 @@ class ConcatenateMergeFunctionTest {
     }
 
     @Test
-    public void shouldConcatenateTwoMultiObjectIterablesIntoOne() {
+    public void shouldConcatenateMultiObjectIterableAndSingleObjectIterableIntoOne() {
         // Given
         final ConcatenateMergeFunction mergeFunction = new ConcatenateMergeFunction();
 
@@ -141,6 +141,21 @@ class ConcatenateMergeFunctionTest {
         // Then
         assertThat(results)
                 .containsExactly(STRING, STRING, STRING);
+    }
+
+    @Test
+    public void shouldConcatenateTwoMultiObjectIterablesIntoOne() {
+        // Given
+        final ConcatenateMergeFunction mergeFunction = new ConcatenateMergeFunction();
+
+        // When
+        Iterable<Object> update = Arrays.asList(STRING, STRING);
+        Iterable<Object> state = Arrays.asList(STRING, STRING, STRING);
+        Iterable<Object> results = mergeFunction.apply(update, state);
+
+        // Then
+        assertThat(results)
+                .containsExactly(STRING, STRING, STRING, STRING, STRING);
     }
 
     @Test
