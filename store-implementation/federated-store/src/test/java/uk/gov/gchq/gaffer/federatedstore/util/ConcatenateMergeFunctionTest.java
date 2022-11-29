@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +69,7 @@ class ConcatenateMergeFunctionTest {
     }
 
     @Test
-    public void shouldReturnUpdateWrappedInIterableWhenStateNull() {
+    public void shouldReturnStringUpdateWrappedInIterableWhenStateNull() {
         // Given
         final ConcatenateMergeFunction mergeFunction = new ConcatenateMergeFunction();
 
@@ -78,11 +79,42 @@ class ConcatenateMergeFunctionTest {
 
         // Then
         assertThat(results)
+                .hasSameClassAs(results)
                 .containsExactly(update);
     }
 
     @Test
-    public void shouldConcatenateTwoIterablesIntoOne() {
+    public void shouldReturnIntegerUpdateWrappedInIterableWhenStateNull() {
+        // Given
+        final ConcatenateMergeFunction mergeFunction = new ConcatenateMergeFunction();
+
+        // When
+        Object update = 25;
+        Iterable<Object> results = mergeFunction.apply(update, null);
+
+        // Then
+        assertThat(results)
+                .hasSameClassAs(results)
+                .containsExactly(update);
+    }
+
+    @Test
+    public void shouldReturnArrayConvertedToIterableWhenStateNull() {
+        // Given
+        final ConcatenateMergeFunction mergeFunction = new ConcatenateMergeFunction();
+
+        // When
+        Object[] update = {STRING, STRING};
+        Iterable<Object> results = mergeFunction.apply(update, null);
+
+        // Then
+        assertThat(results)
+                .hasSameClassAs(results)
+                .containsExactly(STRING, STRING);
+    }
+
+    @Test
+    public void shouldConcatenateTwoSingleObjectIterablesIntoOne() {
         // Given
         final ConcatenateMergeFunction mergeFunction = new ConcatenateMergeFunction();
 
@@ -94,6 +126,21 @@ class ConcatenateMergeFunctionTest {
         // Then
         assertThat(results)
                 .containsExactly(STRING, STRING);
+    }
+
+    @Test
+    public void shouldConcatenateTwoMultiObjectIterablesIntoOne() {
+        // Given
+        final ConcatenateMergeFunction mergeFunction = new ConcatenateMergeFunction();
+
+        // When
+        Iterable<Object> update = Arrays.asList(STRING, STRING);
+        Iterable<Object> state = Collections.singletonList(STRING);
+        Iterable<Object> results = mergeFunction.apply(update, state);
+
+        // Then
+        assertThat(results)
+                .containsExactly(STRING, STRING, STRING);
     }
 
     @Test
@@ -127,7 +174,7 @@ class ConcatenateMergeFunctionTest {
     }
 
     @Test
-    public void shouldUnwrapArraysAndConcatenate() {
+    public void shouldConvertArrayToIterableAndConcatenate() {
         // Given
         final ConcatenateMergeFunction mergeFunction = new ConcatenateMergeFunction();
 
