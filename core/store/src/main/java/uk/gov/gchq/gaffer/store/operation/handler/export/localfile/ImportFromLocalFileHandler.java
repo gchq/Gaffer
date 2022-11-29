@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.export.localfile;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 
+import uk.gov.gchq.gaffer.operation.impl.export.localfile.ImportFromLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.LocalFileExporter;
-import uk.gov.gchq.gaffer.operation.impl.imprt.localfile.ImportFromLocalFile;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportHandler;
