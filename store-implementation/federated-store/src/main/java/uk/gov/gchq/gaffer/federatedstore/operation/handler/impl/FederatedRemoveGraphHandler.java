@@ -41,17 +41,22 @@ public class FederatedRemoveGraphHandler implements OutputOperationHandler<Remov
     @Override
     public Boolean doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
         boolean removed;
-        Set<Class<? extends Operation>> supportedOperations = getSupportedOperations(context, (FederatedStore) store);
+        Set<Class<? extends Operation>> originalSupportedOperations = getSupportedOperationsFromSubGraphs(context, (FederatedStore) store);
         try {
             removed = ((FederatedStore) store).remove(operation.getGraphId(), context.getUser(), operation.isUserRequestingAdminUsage());
         } catch (final Exception e) {
             throw new OperationException("Error removing graph: " + operation.getGraphId(), e);
         }
         if (removed) {
-            Set<Class<? extends Operation>> updatedSupportedOperations = getSupportedOperations(context, (FederatedStore) store);
-            if (!supportedOperations.equals(updatedSupportedOperations)) {
-                supportedOperations.removeAll(updatedSupportedOperations);
-                for (final Class<? extends Operation> removedOperation : supportedOperations) {
+            Set<Class<? extends Operation>> updatedSupportedOperations = getSupportedOperationsFromSubGraphs(context, (FederatedStore) store);
+            if (!originalSupportedOperations.equals(updatedSupportedOperations)) {
+                // unsupportedOperations set is original ops with current ops removed
+                originalSupportedOperations.removeAll(updatedSupportedOperations);
+                Set<Class<? extends Operation>> unsupportedOperations = originalSupportedOperations;
+                for (final Class<? extends Operation> removedOperation : unsupportedOperations) {
+                    // externallySupportedOperations only contains operations added by AddGraph
+                    // so will never contain FederatedStore core operations.
+                    // Therefore, we can remove operation handlers that are in externallySupportedOperations
                     if (((FederatedStore) store).getExternallySupportedOperations().contains(removedOperation)) {
                         store.addOperationHandler(removedOperation, null);
                         ((FederatedStore) store).removeExternallySupportedOperation(removedOperation);
@@ -62,7 +67,7 @@ public class FederatedRemoveGraphHandler implements OutputOperationHandler<Remov
         return removed;
     }
 
-    private Set<Class<? extends Operation>> getSupportedOperations(final Context context, final FederatedStore store) {
+    private Set<Class<? extends Operation>> getSupportedOperationsFromSubGraphs(final Context context, final FederatedStore store) {
         Set<Class<? extends Operation>> supportedOperations = new HashSet<>();
         for (final GraphSerialisable graphSerialisable : store.getGraphs(context.getUser(), null, new RemoveGraph())) {
             Graph subGraph = graphSerialisable.getGraph();
