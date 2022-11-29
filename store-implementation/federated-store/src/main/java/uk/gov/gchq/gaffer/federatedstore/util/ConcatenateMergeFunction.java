@@ -20,6 +20,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.BiFunction;
 
@@ -43,8 +44,8 @@ public class ConcatenateMergeFunction implements BiFunction<Object, Iterable<Obj
         if (update == null) {
             updateSafe = Collections.emptyList();
         } else if (!(update instanceof Iterable)) {
-            // When update is not Iterable, wrap it in a List.
-            updateSafe = Collections.singletonList(update);
+            // When update is an Array, convert it to a List; otherwise wrap it in a List.
+            updateSafe = (update instanceof Object[]) ? Arrays.asList((Object[]) update) : Collections.singletonList(update);
         } else {
             updateSafe = (Iterable<Object>) update;
         }
