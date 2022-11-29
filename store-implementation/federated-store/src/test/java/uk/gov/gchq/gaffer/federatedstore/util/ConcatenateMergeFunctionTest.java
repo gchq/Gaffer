@@ -79,7 +79,6 @@ class ConcatenateMergeFunctionTest {
 
         // Then
         assertThat(results)
-                .hasSameClassAs(results)
                 .containsExactly(update);
     }
 
@@ -94,7 +93,6 @@ class ConcatenateMergeFunctionTest {
 
         // Then
         assertThat(results)
-                .hasSameClassAs(results)
                 .containsExactly(update);
     }
 
@@ -109,7 +107,6 @@ class ConcatenateMergeFunctionTest {
 
         // Then
         assertThat(results)
-                .hasSameClassAs(results)
                 .containsExactly(STRING, STRING);
     }
 
