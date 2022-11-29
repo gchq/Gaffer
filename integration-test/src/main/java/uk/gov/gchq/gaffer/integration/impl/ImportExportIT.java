@@ -118,6 +118,8 @@ public class ImportExportIT extends AbstractStoreIT {
 
         return graph.execute(importOpChain, getUser());
     }
+
+    @Override
     protected Schema createSchema() {
         return new Schema.Builder()
                 .type("string", new TypeDefinition.Builder()
