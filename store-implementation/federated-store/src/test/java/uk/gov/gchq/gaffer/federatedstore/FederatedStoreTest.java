@@ -1159,9 +1159,6 @@ public class FederatedStoreTest {
                     .properties(propertiesAlt)
                     .schema(StreamUtil.openStream(FederatedStoreTest.class, SCHEMA_ENTITY_BASIC_JSON))
                     .build();
-            // Odd ids are disabled by default
-            final boolean disabledByDefault = 1 == Math.floorMod(i, 2);
-//            if (i % 1 != 0) {
             store.addGraphs(singleton(ALL_USERS), null, true, null, noAccessPredicate, tempGraph);
 
             for (final int j : expectedIds) {
@@ -1172,7 +1169,6 @@ public class FederatedStoreTest {
             if (!expectedGraphs.contains(tempGraph)) {
                 unexpectedGraphs.add(tempGraph);
             }
-//            }
         }
         final List<Collection<GraphSerialisable>> graphLists = new ArrayList<>();
         graphLists.add(expectedGraphs);

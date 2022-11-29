@@ -44,7 +44,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_EDGE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_2;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
@@ -66,14 +65,13 @@ public class FederatedGetSchemaHandlerTest {
     private final HashMapGraphLibrary library = new HashMapGraphLibrary();
     private FederatedOutputHandler handler;
     private FederatedStore federatedStore;
-    private StoreProperties properties;
 
     @BeforeEach
     public void setup() throws StoreException {
         resetForFederatedTests();
 
         handler = new FederatedOutputHandler<>(new Schema());
-        properties = new FederatedStoreProperties();
+        StoreProperties properties = new FederatedStoreProperties();
         //properties.set(storeConfiguredId) needs to be added so it reads from the  configuredGraphIds JSON file
         properties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
 
@@ -88,6 +86,7 @@ public class FederatedGetSchemaHandlerTest {
         CacheServiceLoader.shutdown();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldReturnSchema() throws OperationException {
         library.addProperties(ACC_PROP_ID, PROPERTIES);
@@ -126,65 +125,7 @@ public class FederatedGetSchemaHandlerTest {
         JsonAssert.assertEquals(edgeSchema.toJson(true), result.toJson(true));
     }
 
-    @Test
-    public void shouldReturnSchemaOnlyForEnabledGraphs() throws OperationException {
-        library.addProperties(ACC_PROP_ID, PROPERTIES);
-        federatedStore.setGraphLibrary(library);
-
-        final Schema edgeSchema1 = new Schema.Builder()
-                .edge("edge", new SchemaEdgeDefinition.Builder()
-                        .source(STRING)
-                        .destination(STRING)
-                        .property(PROPERTY_1, STRING)
-                        .directed(DIRECTED_EITHER)
-                        .build())
-                .vertexSerialiser(new StringSerialiser())
-                .type(DIRECTED_EITHER, Boolean.class)
-                .merge(STRING_SCHEMA)
-                .build();
-
-        library.addSchema("edgeSchema1", edgeSchema1);
-
-        final Schema edgeSchema2 = new Schema.Builder()
-                .edge("edge", new SchemaEdgeDefinition.Builder()
-                        .source(STRING)
-                        .destination(STRING)
-                        .property(PROPERTY_2, STRING)
-                        .directed(DIRECTED_EITHER)
-                        .build())
-                .vertexSerialiser(new StringSerialiser())
-                .type(DIRECTED_EITHER, Boolean.class)
-                .merge(STRING_SCHEMA)
-                .build();
-
-        library.addSchema("edgeSchema2", edgeSchema2);
-
-        federatedStore.execute(OperationChain.wrap(
-                new AddGraph.Builder()
-                        .graphId("schemaEnabled")
-                        .parentPropertiesId(ACC_PROP_ID)
-                        .parentSchemaIds(singletonList("edgeSchema1"))
-                        .build()), contextTestUser());
-
-        federatedStore.execute(OperationChain.wrap(
-                new AddGraph.Builder()
-                        .graphId("schemaDisabled")
-                        .parentPropertiesId(ACC_PROP_ID)
-                        .parentSchemaIds(singletonList("edgeSchema2"))
-                        .build()), contextTestUser());
-
-        final GetSchema operation = new GetSchema.Builder()
-                .compact(true)
-                .build();
-
-        // When
-        final Schema result = (Schema) handler.doOperation(operation, contextTestUser(), federatedStore);
-
-        // Then
-        assertNotNull(result);
-        JsonAssert.assertEquals(edgeSchema1.toJson(true), result.toJson(true));
-    }
-
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldThrowExceptionForANullOperation() throws OperationException {
         library.addProperties(ACC_PROP_ID, PROPERTIES);
