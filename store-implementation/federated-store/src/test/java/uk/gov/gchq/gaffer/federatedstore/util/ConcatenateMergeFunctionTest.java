@@ -110,4 +110,34 @@ class ConcatenateMergeFunctionTest {
         assertThat(results)
                 .containsExactly(STRING, STRING);
     }
+
+    @Test
+    public void shouldConcatenateTwoIterablesWithNullIntoOne() {
+        // Given
+        final ConcatenateMergeFunction mergeFunction = new ConcatenateMergeFunction();
+
+        // When
+        Object update = Collections.singletonList(null);
+        Iterable<Object> state = Collections.singletonList(null);
+        Iterable<Object> results = mergeFunction.apply(update, state);
+
+        // Then
+        assertThat(results)
+                .containsExactly(null, null);
+    }
+
+    @Test
+    public void shouldUnwrapArraysAndConcatenate() {
+        // Given
+        final ConcatenateMergeFunction mergeFunction = new ConcatenateMergeFunction();
+
+        // When
+        Object[] update = {STRING, STRING};
+        Iterable<Object> state = Collections.singletonList(STRING);
+        Iterable<Object> results = mergeFunction.apply(update, state);
+
+        // Then
+        assertThat(results)
+                .containsExactly(STRING, STRING, STRING);
+    }
 }
