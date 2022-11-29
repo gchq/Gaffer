@@ -84,7 +84,7 @@ public class AdminGetAllGraphInfoTest {
 
         assertEquals(String.format("{%n" +
                 "  \"AccumuloStore\" : {%n" +
-                "    \"addingUserId\" : \"authUser\",%n" +
+                "    \"owningUserId\" : \"authUser\",%n" +
                 "    \"disabledByDefault\" : false,%n" +
                 "    \"graphAuths\" : [ \"auth1\" ],%n" +
                 "    \"public\" : false%n" +

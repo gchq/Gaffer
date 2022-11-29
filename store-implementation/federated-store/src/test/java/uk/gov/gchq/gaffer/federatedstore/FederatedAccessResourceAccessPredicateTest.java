@@ -44,7 +44,7 @@ public class FederatedAccessResourceAccessPredicateTest {
     @Test
     public void shouldConfigureDefaultFederatedGraphAccessPredicatesWhenNoAccessPredicateConfigurationSupplied() {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
+                .owningUserId(TEST_USER_ID)
                 .graphAuths(ALL_USERS)
                 .build();
 
@@ -55,7 +55,7 @@ public class FederatedAccessResourceAccessPredicateTest {
         assertEquals(expectedWriteAccessPredicate, access.getOrDefaultWriteAccessPredicate());
 
         final FederatedAccess publicAccess = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
+                .owningUserId(TEST_USER_ID)
                 .graphAuths(ALL_USERS)
                 .makePublic()
                 .build();
@@ -69,7 +69,7 @@ public class FederatedAccessResourceAccessPredicateTest {
     @Test
     public void shouldNotAllowReadAccessWhenNoAccessPredicateConfigured() {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
+                .owningUserId(TEST_USER_ID)
                 .readAccessPredicate(new NoAccessPredicate())
                 .build();
 
@@ -80,7 +80,7 @@ public class FederatedAccessResourceAccessPredicateTest {
     @Test
     public void shouldNotAllowWriteAccessWhenNoAccessPredicateConfigured() {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
+                .owningUserId(TEST_USER_ID)
                 .graphAuths(ALL_USERS)
                 .writeAccessPredicate(new NoAccessPredicate())
                 .build();
@@ -98,7 +98,7 @@ public class FederatedAccessResourceAccessPredicateTest {
     public void shouldBeSerialisableWhenUsingCustomPredicate() throws IOException, ClassNotFoundException {
         // Given
         FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
+                .owningUserId(TEST_USER_ID)
                 .graphAuths(ALL_USERS)
                 .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
                 .build();

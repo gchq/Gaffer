@@ -115,7 +115,7 @@ public class FederatedAccessAuthTest {
     public void shouldDeserialiseDefaultPredicateIfNotSpecified() throws SerialisationException {
         // Given
         String json = "{" +
-                "   \"addingUserId\": \"authUser\"," +
+                "   \"owningUserId\": \"authUser\"," +
                 "   \"public\": true," +
                 "   \"graphAuths\": [ \"auth1\", \"auth2\" ]" +
                 "}";
@@ -135,7 +135,7 @@ public class FederatedAccessAuthTest {
     public void shouldSerialiseAndDeserialiseAccessPredicatesToJson() throws SerialisationException {
         // Given
         final FederatedAccess federatedAccess = new FederatedAccess.Builder()
-                .addingUserId(AUTH_USER_ID)
+                .owningUserId(AUTH_USER_ID)
                 .isPublic(false)
                 .readAccessPredicate(new AccessPredicate(new AdaptedPredicate(new CallMethod("getDataAuths"), new CollectionContains(ALL_USERS))))
                 .writeAccessPredicate(new AccessPredicate(new AdaptedPredicate(new CallMethod("getDataAuths"), new CollectionContains(AUTH_1))))
@@ -146,7 +146,7 @@ public class FederatedAccessAuthTest {
 
         // Then
         final String expected = "{" +
-                "   \"addingUserId\": \"authUser\"," +
+                "   \"owningUserId\": \"authUser\"," +
                 "   \"disabledByDefault\": false," +
                 "   \"public\": false," +
                 "   \"readAccessPredicate\": {" +
@@ -188,7 +188,7 @@ public class FederatedAccessAuthTest {
     public void shouldSerialiseAndDeserialiseGraphAuthsToJson() throws SerialisationException {
         // Given
         final FederatedAccess federatedAccess = new FederatedAccess.Builder()
-                .addingUserId(AUTH_USER_ID)
+                .owningUserId(AUTH_USER_ID)
                 .isPublic(false)
                 .graphAuths(AUTH_1, AUTH_2)
                 .build();
@@ -198,7 +198,7 @@ public class FederatedAccessAuthTest {
 
         // Then
         final String expected = "{" +
-                "   \"addingUserId\": \"authUser\"," +
+                "   \"owningUserId\": \"authUser\"," +
                 "   \"public\": false," +
                 "   \"disabledByDefault\": false," +
                 "   \"graphAuths\": [\"auth1\", \"auth2\"]" +
