@@ -406,28 +406,28 @@ public class FederatedStore extends Store {
         if (nonNull(operation) && !isNullOrEmpty(keyForFedStoreId)) {
             // KEEP THIS NUMBERED ORDER!
             // 1) Check operation for ID
-            final boolean doesOperationHavePreexistingFedStoreId = !isValueForFedStoreIdNullOrEmpty(operation, keyForFedStoreId);
+            final boolean doesOperationHavePreexistingFedStoreId = operation.containsKey(keyForFedStoreId);
+            final boolean doesFedStoreIDOptionHaveContent = !isNullOrEmpty(operation.getOption(keyForFedStoreId));
+
+            // Log
+            if (doesOperationHavePreexistingFedStoreId && !doesFedStoreIDOptionHaveContent) {
+                //There is a slight difference between value null and key not found
+                LOGGER.debug(String.format("The FederatedStoreId Key has a null or empty Value, this means the Key has been intentionally cleared for reprocessing by this FederatedStore. Key:%s", keyForFedStoreId));
+            }
 
             // 2) Check and Add ID any payload for ID (recursion)
             final boolean doesPayloadHavePreexistingFedStoreId = (operation instanceof FederatedOperation)
+                    && !doesFedStoreIDOptionHaveContent
+                    && !doesOperationHavePreexistingFedStoreId
                     && addFedStoreIdToOperation(((FederatedOperation<?, ?>) operation).getUnClonedPayload());
 
             // 3) Add the ID
             operation.addOption(keyForFedStoreId, getValueForProcessedFedStoreId());
 
             // 4) return if the ID was found.
-            isFedStoreIdPreexisting = doesOperationHavePreexistingFedStoreId || doesPayloadHavePreexistingFedStoreId;
+            isFedStoreIdPreexisting = doesFedStoreIDOptionHaveContent || doesPayloadHavePreexistingFedStoreId;
         }
         return isFedStoreIdPreexisting;
-    }
-
-    private static boolean isValueForFedStoreIdNullOrEmpty(final Operation operation, final String fedStoreId) {
-        final boolean isValueForFedStoreIdNullOrEmpty = isNullOrEmpty(operation.getOption(fedStoreId, null));
-        if (operation.getOptions() != null && operation.getOptions().containsKey(fedStoreId) && isValueForFedStoreIdNullOrEmpty) {
-            //There is a slight difference between value null and key not found
-            LOGGER.debug(String.format("The FederatedStoreId Key has a null Value, this means the Key has been intentionally cleared for reprocessing by this FederatedStore. Key:%s", fedStoreId));
-        }
-        return isValueForFedStoreIdNullOrEmpty;
     }
 
     public Map<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds, final boolean userRequestingAdminUsage) {
@@ -572,7 +572,7 @@ public class FederatedStore extends Store {
         } else {
             //This operation has already been processes once, by this store.
             String keyForProcessedFedStoreId = getKeyForProcessedFedStoreId();
-            operation.addOption(keyForProcessedFedStoreId, null); // value is null, but key is still found.
+            operation.addOption(keyForProcessedFedStoreId, ""); // value is empty, but key is still found.
             List<GraphSerialisable> graphs = getGraphs(user, storeConfiguredGraphIds, operation);
             //put it back
             operation.addOption(keyForProcessedFedStoreId, getValueForProcessedFedStoreId());

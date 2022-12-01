@@ -160,6 +160,12 @@ public interface Operation extends Closeable {
                 : getOptions().getOrDefault(name, defaultValue);
     }
 
+    default boolean containsKey(final String name) {
+        return (isNull(getOptions()))
+                ? false
+                : getOptions().containsKey(name);
+    }
+
     @JsonGetter("options")
     default Map<String, String> _getNullOrOptions() {
         if (isNull(getOptions())) {

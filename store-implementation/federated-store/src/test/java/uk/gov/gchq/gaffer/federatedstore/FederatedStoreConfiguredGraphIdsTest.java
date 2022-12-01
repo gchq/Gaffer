@@ -177,8 +177,6 @@ public class FederatedStoreConfiguredGraphIdsTest {
         JsonAssert.assertEquals(unselectedSchema.toJson(true), result.toJson(true));
     }
 
-    // TODO: look into and remove test or comment before merging
-    @Disabled("Fails. Could be a bug with GetSchemaHandler")
     @Test
     public void shouldReturnSelectedGraphIdSchemaOnlyIfGraphIdsNotSet()
             throws OperationException {
