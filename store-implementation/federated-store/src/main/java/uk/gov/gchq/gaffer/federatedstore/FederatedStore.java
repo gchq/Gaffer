@@ -406,7 +406,7 @@ public class FederatedStore extends Store {
         if (nonNull(operation) && !isNullOrEmpty(keyForFedStoreId)) {
             // KEEP THIS NUMBERED ORDER!
             // 1) Check operation for ID
-            final boolean doesOperationHavePreexistingFedStoreId = operation.containsKey(keyForFedStoreId);
+            final boolean doesOperationHavePreexistingFedStoreId = operation.containsOption(keyForFedStoreId);
             final boolean doesFedStoreIDOptionHaveContent = !isNullOrEmpty(operation.getOption(keyForFedStoreId));
 
             // Log
@@ -573,7 +573,12 @@ public class FederatedStore extends Store {
             //This operation has already been processes once, by this store.
             String keyForProcessedFedStoreId = getKeyForProcessedFedStoreId();
             operation.addOption(keyForProcessedFedStoreId, ""); // value is empty, but key is still found.
-            List<GraphSerialisable> graphs = getGraphs(user, storeConfiguredGraphIds, operation);
+
+            final List<String> graphIds = new ArrayList<>(storeConfiguredGraphIds);
+            final List<String> federatedStoreSystemUser = getAllGraphIds(new User.Builder().userId("FederatedStoreSystemUser").opAuths(this.getProperties().getAdminAuth()).build(), true);
+            graphIds.retainAll(federatedStoreSystemUser);
+
+            List<GraphSerialisable> graphs = getGraphs(user, graphIds, operation);
             //put it back
             operation.addOption(keyForProcessedFedStoreId, getValueForProcessedFedStoreId());
             return graphs;

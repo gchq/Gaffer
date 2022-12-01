@@ -35,7 +35,7 @@ public abstract class FederatedGraphAccessPredicate extends AccessPredicate {
     @Override
     protected boolean isAdministrator(final User user, final String adminAuth) {
         return (!isNull(user)
-                && isNotEmpty(adminAuth)
+                && (isNotEmpty(adminAuth) || user.getUserId().equals("FederatedStoreSystemUser"))
                 && Stream.of(adminAuth.split(Pattern.quote(","))).anyMatch(user.getOpAuths()::contains));
     }
 }

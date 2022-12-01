@@ -160,7 +160,7 @@ public interface Operation extends Closeable {
                 : getOptions().getOrDefault(name, defaultValue);
     }
 
-    default boolean containsKey(final String name) {
+    default boolean containsOption(final String name) {
         return (isNull(getOptions()))
                 ? false
                 : getOptions().containsKey(name);

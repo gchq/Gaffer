@@ -128,9 +128,8 @@ public class FederatedStoreConfiguredGraphIdsTest {
                 .returns(Lists.newArrayList(GRAPH_ID_SELECTED),
                         from(FederatedStore::getStoreConfiguredGraphIds));
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()))
-                .withMessageContaining("The following graphIds are not visible or do not exist: [selectedGraphId]");
+        assertThat(federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()))
+                .isEmpty();
     }
 
     @Test
@@ -200,7 +199,9 @@ public class FederatedStoreConfiguredGraphIdsTest {
 
     private static FederatedStore getFederatedStoreFromJson() throws IOException, StoreException {
         final FederatedStore federatedStore = loadFederatedStoreFrom("configuredProperties/federatedStoreConfiguredGraphIds.json");
-        federatedStore.initialise(GRAPH_ID_SELECTED, new Schema(), new FederatedStoreProperties());
+        final FederatedStoreProperties properties = new FederatedStoreProperties();
+        properties.setAdminAuth("hello");
+        federatedStore.initialise(GRAPH_ID_SELECTED, new Schema(), properties);
         addDefaultLibrary(federatedStore);
         return federatedStore;
     }
