@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -36,16 +35,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.from;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.*;
-import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
-import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
@@ -53,6 +42,20 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.from;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_2;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadFederatedStoreFrom;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadStoreProperties;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreConfiguredGraphIdsTest {
 
