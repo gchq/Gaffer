@@ -70,7 +70,6 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     private boolean skipFailedFederatedExecution = DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
     private Map<String, String> options;
     private boolean userRequestingAdminUsage;
-    private boolean userRequestingDefaultGraphsOverride;
 
     @Override
     @JsonProperty("graphIds")
@@ -120,20 +119,6 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @Override
     public FederatedOperation<INPUT, OUTPUT> setUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
-        return this;
-    }
-
-    public boolean isUserRequestingDefaultGraphsOverride() {
-        return userRequestingDefaultGraphsOverride;
-    }
-
-    @JsonGetter("userRequestingDefaultGraphsOverride")
-    public Boolean _isUserRequestingDefaultGraphsOverride() {
-        return userRequestingDefaultGraphsOverride ? true : null;
-    }
-
-    public FederatedOperation<INPUT, OUTPUT> isUserRequestingDefaultGraphsOverride(final boolean userRequestingDefaultGraphsOverride) {
-        this.userRequestingDefaultGraphsOverride = userRequestingDefaultGraphsOverride;
         return this;
     }
 
@@ -217,7 +202,6 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                 .mergeFunction(mergeFunction)
                 .graphIds(graphIds)
                 .setUserRequestingAdminUsage(userRequestingAdminUsage)
-                .isUserRequestingDefaultGraphsOverride(userRequestingDefaultGraphsOverride)
                 .skipFailedFederatedExecution(skipFailedFederatedExecution)
                 .options(options);
     }
@@ -246,8 +230,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                     .append(this.mergeFunction, that.mergeFunction)
                     .append(this.skipFailedFederatedExecution, that.skipFailedFederatedExecution)
                     .append(this.options, that.options)
-                    .append(this.userRequestingAdminUsage, that.userRequestingAdminUsage)
-                    .append(this.userRequestingDefaultGraphsOverride, that.userRequestingDefaultGraphsOverride);
+                    .append(this.userRequestingAdminUsage, that.userRequestingAdminUsage);
 
             if (equalsBuilder.isEquals()) {
                 try {
@@ -275,7 +258,6 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                 .append(skipFailedFederatedExecution)
                 .append(options)
                 .append(userRequestingAdminUsage)
-                .append(userRequestingDefaultGraphsOverride)
                 .build();
     }
 

@@ -53,6 +53,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.DEST_BASIC;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_A;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_B;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_C;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_EDGE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
@@ -71,9 +74,6 @@ import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreSchemaTest {
-    public static final String GRAPH_ID_A = "a";
-    public static final String GRAPH_ID_B = "b";
-    public static final String GRAPH_ID_C = "c";
     public static final String DEST_2 = DEST_BASIC + 2;
     public static final AccumuloProperties STORE_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
     private static final Schema STRING_TYPE = new Schema.Builder()
@@ -258,7 +258,9 @@ public class FederatedStoreSchemaTest {
         final Schema schema = federatedStore.execute(new GetSchema.Builder().build(), testContext);
 
         // Then
-        assertThat(schema.validate().isValid()).withFailMessage(schema.validate().getErrorString()).isTrue();
+        assertThat(schema.validate().isValid())
+                .withFailMessage(schema.validate().getErrorString())
+                .isTrue();
     }
 
     @Test

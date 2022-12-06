@@ -69,6 +69,7 @@ public final class FederatedStoreTestUtil {
 
     public static final String GRAPH_ID_A = "graphA";
     public static final String GRAPH_ID_B = "graphB";
+    public static final String GRAPH_ID_C = "graphC";
     public static final String FEDERATED_STORE_SINGLE_USE_PROPERTIES = "properties/singleUseFederatedStore.properties";
     public static final String SCHEMA_EDGE_BASIC_JSON = "/schema/basicEdgeSchema.json";
     public static final String SCHEMA_ENTITY_BASIC_JSON = "/schema/basicEntitySchema.json";
