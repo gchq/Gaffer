@@ -75,13 +75,32 @@ public class FederatedStoreConfiguredGraphIdsTest {
     private static final String SCHEMA_SELECTED = "selectedSchema";
     private static final String GRAPH_ID_UNSELECTED = "unselectedGraphId";
     private static final String SCHEMA_UNSELECTED = "unselectedSchema";
+    public static final String FEDERATED_STORE_CONFIGURED_GRAPH_IDS_PROPERTIES = "configuredProperties/federatedStoreConfiguredGraphIds.properties";
+    public static final String FEDERATED_STORE_CONFIGURED_GRAPH_IDS_JSON = "configuredProperties/federatedStoreConfiguredGraphIds.json";
+    public static final String FEDERATED_STORE_CONFIGURED_GRAPH_IDS_FAIL_PATH_MISSING_PROPERTIES = "configuredProperties/federatedStoreConfiguredGraphIdsFailPathMissing.properties";
+    public static final String FEDERATED_STORE_CONFIGURED_GRAPH_IDS_FAIL_FILE_INVALID_PROPERTIES = "configuredProperties/federatedStoreConfiguredGraphIdsFailFileInvalid.properties";
 
     @Test
-    public void shouldReturnSelectedGraphIdByDefaultFromJsonConfig()
+    void shouldFailConfiguredGraphIdsPathMissing() {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> getFederatedStoreFromProperties(FEDERATED_STORE_CONFIGURED_GRAPH_IDS_FAIL_PATH_MISSING_PROPERTIES))
+                .withMessageContaining("Failed to create input stream for path: fail");
+    }
+
+    @Test
+    void shouldFailConfiguredGraphIdsFileInvalid() {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> getFederatedStoreFromProperties(FEDERATED_STORE_CONFIGURED_GRAPH_IDS_FAIL_FILE_INVALID_PROPERTIES))
+                .withMessageContaining("Could not initialise the store with provided arguments.")
+                .withStackTraceContaining("Cannot deserialize value of type `java.util.ArrayList<java.lang.Object>` from String value");
+    }
+
+    @Test
+    void shouldReturnSelectedGraphIdByDefaultFromJsonConfig()
             throws Exception {
         // Given
-        final FederatedStore federatedStore = getFederatedStoreFromJson();
-        final Schema selectedSchema = addSelectedGraph(federatedStore);
+        final FederatedStore federatedStore = getFederatedStoreFromJson(FEDERATED_STORE_CONFIGURED_GRAPH_IDS_JSON);
+        final Schema selectedSchema = addSelectedSchemaAndGraph(federatedStore);
 
         // Then
         assertThat(federatedStore)
@@ -99,12 +118,12 @@ public class FederatedStoreConfiguredGraphIdsTest {
     }
 
     @Test
-    public void shouldReturnSelectedGraphIdByDefaultFromJsonConfigWhenAnotherGraphIdAdded()
+    void shouldReturnSelectedGraphIdByDefaultFromJsonConfigWhenAnotherGraphIdAdded()
             throws Exception {
         // Given
-        final FederatedStore federatedStore = getFederatedStoreFromJson();
-        final Schema selectedSchema = addSelectedGraph(federatedStore);
-        addUnselectedSchema(federatedStore);
+        final FederatedStore federatedStore = getFederatedStoreFromJson(FEDERATED_STORE_CONFIGURED_GRAPH_IDS_JSON);
+        final Schema selectedSchema = addSelectedSchemaAndGraph(federatedStore);
+        addUnselectedSchemaAndGraph(federatedStore);
 
         // Then
         assertThat(federatedStore)
@@ -122,10 +141,10 @@ public class FederatedStoreConfiguredGraphIdsTest {
     }
 
     @Test
-    public void shouldFailGetAllGraphInfoIfGraphIdAndSchemaNoAddedFromJsonConfig()
+    void shouldFailGetAllGraphInfoIfGraphIdAndSchemaNoAddedFromJsonConfig()
             throws Exception {
         // Given
-        final FederatedStore federatedStore = getFederatedStoreFromJson();
+        final FederatedStore federatedStore = getFederatedStoreFromJson(FEDERATED_STORE_CONFIGURED_GRAPH_IDS_JSON);
 
         // Then
         assertThat(federatedStore)
@@ -139,12 +158,12 @@ public class FederatedStoreConfiguredGraphIdsTest {
     }
 
     @Test
-    public void shouldReturnSelectedGraphIdSchemaIfSelectedGraphIdSet()
+    void shouldReturnSelectedGraphIdSchemaIfSelectedGraphIdSet()
             throws OperationException {
         // Given
-        final FederatedStore federatedStore = getFederatedStoreFromProperties();
-        final Schema selectedSchema = addSelectedGraph(federatedStore);
-        addUnselectedSchema(federatedStore);
+        final FederatedStore federatedStore = getFederatedStoreFromProperties(FEDERATED_STORE_CONFIGURED_GRAPH_IDS_PROPERTIES);
+        final Schema selectedSchema = addSelectedSchemaAndGraph(federatedStore);
+        addUnselectedSchemaAndGraph(federatedStore);
 
         // When
         final FederatedOperation<Object, Object> federatedOperation = new FederatedOperation.Builder()
@@ -161,12 +180,12 @@ public class FederatedStoreConfiguredGraphIdsTest {
     }
 
     @Test
-    public void shouldReturnUnselectedGraphIdSchemaIfUnselectedGraphIdSet()
+    void shouldReturnUnselectedGraphIdSchemaIfUnselectedGraphIdSet()
             throws OperationException {
         // Given
-        final FederatedStore federatedStore = getFederatedStoreFromProperties();
-        addSelectedGraph(federatedStore);
-        final Schema unselectedSchema = addUnselectedSchema(federatedStore);
+        final FederatedStore federatedStore = getFederatedStoreFromProperties(FEDERATED_STORE_CONFIGURED_GRAPH_IDS_PROPERTIES);
+        addSelectedSchemaAndGraph(federatedStore);
+        final Schema unselectedSchema = addUnselectedSchemaAndGraph(federatedStore);
 
         // When
         final FederatedOperation<Object, Object> federatedOperation = new FederatedOperation.Builder()
@@ -185,12 +204,12 @@ public class FederatedStoreConfiguredGraphIdsTest {
     // TODO: look into and remove test or comment before merging
     @Disabled("Fails. Could be a bug with GetSchemaHandler")
     @Test
-    public void shouldReturnSelectedGraphIdSchemaOnlyIfGraphIdsNotSet()
+    void shouldReturnSelectedGraphIdSchemaOnlyIfGraphIdsNotSet()
             throws OperationException {
         // Given
-        final FederatedStore federatedStore = getFederatedStoreFromProperties();
-        final Schema selectedSchema = addSelectedGraph(federatedStore);
-        addUnselectedSchema(federatedStore);
+        final FederatedStore federatedStore = getFederatedStoreFromProperties(FEDERATED_STORE_CONFIGURED_GRAPH_IDS_PROPERTIES);
+        final Schema selectedSchema = addSelectedSchemaAndGraph(federatedStore);
+        addUnselectedSchemaAndGraph(federatedStore);
 
         // When
         final FederatedOperation<Object, Object> federatedOperation = new FederatedOperation.Builder()
@@ -205,18 +224,17 @@ public class FederatedStoreConfiguredGraphIdsTest {
         JsonAssert.assertEquals(selectedSchema.toJson(true), result.toJson(true));
     }
 
-    private static FederatedStore getFederatedStoreFromJson() throws IOException, StoreException {
-        final FederatedStore federatedStore = loadFederatedStoreFrom("configuredProperties/federatedStoreConfiguredGraphIds.json");
+    private static FederatedStore getFederatedStoreFromJson(final String path) throws IOException, StoreException {
+        final FederatedStore federatedStore = loadFederatedStoreFrom(path);
         federatedStore.initialise(GRAPH_ID_SELECTED, new Schema(), new FederatedStoreProperties());
         addDefaultLibrary(federatedStore);
         return federatedStore;
     }
 
-    private static FederatedStore getFederatedStoreFromProperties() {
+    private static FederatedStore getFederatedStoreFromProperties(final String path) {
         final FederatedStore federatedStore = (FederatedStore) Store.createStore(GRAPH_ID_TEST_FEDERATED_STORE,
                 STRING_SCHEMA,
-                StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStore.class,
-                        "configuredProperties/federatedStoreConfiguredGraphIds.properties")));
+                StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStore.class, path)));
 
         addDefaultLibrary(federatedStore);
         return federatedStore;
@@ -228,7 +246,7 @@ public class FederatedStoreConfiguredGraphIdsTest {
         federatedStore.setGraphLibrary(library);
     }
 
-    private static Schema addSelectedGraph(final FederatedStore federatedStore)
+    private static Schema addSelectedSchemaAndGraph(final FederatedStore federatedStore)
             throws OperationException {
         final Schema selectedSchema = new Schema.Builder()
                 .edge("edge", new SchemaEdgeDefinition.Builder()
@@ -248,7 +266,7 @@ public class FederatedStoreConfiguredGraphIdsTest {
         return selectedSchema;
     }
 
-    private static Schema addUnselectedSchema(final FederatedStore federatedStore)
+    private static Schema addUnselectedSchemaAndGraph(final FederatedStore federatedStore)
             throws OperationException {
         final Schema unselectedSchema = new Schema.Builder()
                 .edge("edge", new SchemaEdgeDefinition.Builder()
