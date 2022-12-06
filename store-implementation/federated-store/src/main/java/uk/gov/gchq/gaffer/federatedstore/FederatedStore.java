@@ -102,6 +102,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.FEDERATED_STORE_SYSTEM_USER;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.STORE_CONFIGURED_GRAPHIDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.STORE_CONFIGURED_MERGE_FUNCTIONS;
@@ -569,7 +570,10 @@ public class FederatedStore extends Store {
             operation.addOption(keyForProcessedFedStoreId, ""); // value is empty, but key is still found.
 
             final List<String> graphIds = new ArrayList<>(storeConfiguredGraphIds);
-            final List<String> federatedStoreSystemUser = getAllGraphIds(new User.Builder().userId("FederatedStoreSystemUser").opAuths(this.getProperties().getAdminAuth()).build(), true);
+            final List<String> federatedStoreSystemUser = getAllGraphIds(new User.Builder()
+                    .userId(FEDERATED_STORE_SYSTEM_USER)
+                    .opAuths(this.getProperties().getAdminAuth()).build(),
+                    true);
             graphIds.retainAll(federatedStoreSystemUser);
 
             List<GraphSerialisable> graphs = getGraphs(user, graphIds, operation);
