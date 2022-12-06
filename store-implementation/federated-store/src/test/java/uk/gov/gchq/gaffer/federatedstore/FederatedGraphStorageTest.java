@@ -115,7 +115,7 @@ public class FederatedGraphStorageTest {
 
 
     @Test
-    public void shouldGetIdForAddingUser() throws Exception {
+    public void shouldGetIdForOwningUser() throws Exception {
         //given
         //access includes testUser
         graphStorage.put(graphSerialisableA, auth1Access);
@@ -126,7 +126,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldNotGetIdForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
+    public void shouldNotGetIdForOwningUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
         //given
         graphStorage.put(graphSerialisableA, blockingReadAccess);
         //when
@@ -166,7 +166,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldGetGraphForAddingUser() throws Exception {
+    public void shouldGetGraphForOwningUser() throws Exception {
         //given
         //access contains adding user
         graphStorage.put(graphSerialisableA, auth1Access);
@@ -177,7 +177,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldNotGetGraphForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
+    public void shouldNotGetGraphForOwningUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
         //given
         graphStorage.put(graphSerialisableA, blockingReadAccess);
         //when
@@ -217,7 +217,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldGetGraphForAddingUserWithCorrectId() throws Exception {
+    public void shouldGetGraphForOwningUserWithCorrectId() throws Exception {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
@@ -227,7 +227,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldNotGetGraphForAddingUserWithCorrectIdWhenBlockingReadAccessPredicateConfigured() throws Exception {
+    public void shouldNotGetGraphForOwningUserWithCorrectIdWhenBlockingReadAccessPredicateConfigured() throws Exception {
         //given
         graphStorage.put(graphSerialisableA, blockingReadAccess);
         //when
@@ -266,7 +266,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldNotGetGraphForAddingUserWithIncorrectId() throws Exception {
+    public void shouldNotGetGraphForOwningUserWithIncorrectId() throws Exception {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
         //then
@@ -317,7 +317,7 @@ public class FederatedGraphStorageTest {
 
     @Test
     @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
-    public void shouldGetSchemaForAddingUser() throws Exception {
+    public void shouldGetSchemaForOwningUser() throws Exception {
         graphStorage.put(graphSerialisableA, auth1Access);
         graphStorage.put(graphSerialisableB, new FederatedAccess(singleton(X), X));
         final Schema schema = graphStorage.getSchema(null, contextTestUser());
@@ -329,7 +329,7 @@ public class FederatedGraphStorageTest {
 
     @Test
     @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
-    public void shouldNotGetSchemaForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
+    public void shouldNotGetSchemaForOwningUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(graphSerialisableA, blockingReadAccess);
         graphStorage.put(graphSerialisableB, new FederatedAccess(singleton(X), X));
         final Schema schema = graphStorage.getSchema(null, contextTestUser());
@@ -372,7 +372,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldRemoveForAddingUser() throws Exception {
+    public void shouldRemoveForOwningUser() throws Exception {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
@@ -384,7 +384,7 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldNotRemoveForAddingUserWhenBlockingWriteAccessPredicateConfigured() throws Exception {
+    public void shouldNotRemoveForOwningUserWhenBlockingWriteAccessPredicateConfigured() throws Exception {
         //given
         graphStorage.put(graphSerialisableA, blockingWriteAccess);
         //when

@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.impl.imprt.localfile.ImportFromLocalFile;
+import uk.gov.gchq.gaffer.operation.impl.export.localfile.ImportFromLocalFile;
 
 import java.util.Collections;
 import java.util.HashSet;

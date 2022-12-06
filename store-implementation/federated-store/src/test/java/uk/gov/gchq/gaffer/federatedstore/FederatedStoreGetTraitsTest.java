@@ -243,7 +243,7 @@ public class FederatedStoreGetTraitsTest {
     }
 
     @Test
-    public void shouldGetNonCurrentTraitsForAddingUser() throws Exception {
+    public void shouldGetNonCurrentTraitsForOwningUser() throws Exception {
         // given
         federatedStore.addGraphs(ACCESS_UNUSED_AUTH_AND_UNUSED_USER, accumuloGraphSerialised);
         federatedStore.addGraphs(ACCESS_UNUSED_AUTH_WITH_TEST_USER, mapGraphSerialised);
@@ -257,7 +257,7 @@ public class FederatedStoreGetTraitsTest {
     }
 
     @Test
-    public void shouldGetCurrentTraitsForAddingUser() throws Exception {
+    public void shouldGetCurrentTraitsForOwningUser() throws Exception {
         // given
         federatedStore.addGraphs(ACCESS_UNUSED_AUTH_AND_UNUSED_USER, accumuloGraphSerialised);
         federatedStore.addGraphs(ACCESS_UNUSED_AUTH_WITH_TEST_USER, mapGraphSerialised);
@@ -271,7 +271,7 @@ public class FederatedStoreGetTraitsTest {
     }
 
     @Test
-    public void shouldGetCurrentTraitsForAddingUserButSelectedGraphsOnly() throws Exception {
+    public void shouldGetCurrentTraitsForOwningUserButSelectedGraphsOnly() throws Exception {
         // given
         final GraphSerialisable accumuloGraphSerialised2 = new GraphSerialisable.Builder(accumuloGraphSerialised)
                 .config(new GraphConfig(GRAPH_ID_ACCUMULO + 2))
@@ -297,7 +297,7 @@ public class FederatedStoreGetTraitsTest {
     }
 
     @Test
-    public void shouldGetNonCurrentTraitsForAddingUserButSelectedGraphsOnly() throws Exception {
+    public void shouldGetNonCurrentTraitsForOwningUserButSelectedGraphsOnly() throws Exception {
         //given
         final GraphSerialisable accumuloGraphSerialised2 = new GraphSerialisable.Builder(accumuloGraphSerialised)
                 .config(new GraphConfig(GRAPH_ID_ACCUMULO + 2))
@@ -329,7 +329,7 @@ public class FederatedStoreGetTraitsTest {
      * @throws Exception exception
      */
     @Test
-    public void shouldNotGetTraitsForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
+    public void shouldNotGetTraitsForOwningUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
         // given
         federatedStore.addGraphs(new FederatedAccess(Collections.singleton(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING), accumuloGraphSerialised);
         federatedStore.addGraphs(new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, blockingAccessPredicate, null), mapGraphSerialised);

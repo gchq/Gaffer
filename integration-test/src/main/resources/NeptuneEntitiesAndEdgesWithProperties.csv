@@ -1,0 +1,4 @@
+:ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Int,DIRECTED:Boolean
+A,BasicEntity,,,,1,
+B,BasicEntity,,,,2,
+,,BasicEdge,A,B,1,true

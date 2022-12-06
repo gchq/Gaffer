@@ -212,7 +212,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
                 .graphAuths("authsValueA")
                 .build(), user);
         assertThat(graph.execute(new GetAllGraphIds(), user)).contains(GRAPH_ID_A);
-        final FederatedAccess expectedFedAccess = new FederatedAccess.Builder().addingUserId(user.getUserId()).graphAuths("authsValueA").makePrivate().build();
+        final FederatedAccess expectedFedAccess = new FederatedAccess.Builder().owningUserId(user.getUserId()).graphAuths("authsValueA").makePrivate().build();
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder()
@@ -297,7 +297,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
                 .graphAuths("authsValueB")
                 .build(), user);
         assertThat(graph.execute(new GetAllGraphIds(), user)).contains(GRAPH_ID_A, graphB);
-        final FederatedAccess expectedFedAccess = new FederatedAccess.Builder().addingUserId(user.getUserId()).graphAuths("authsValueB").makePrivate().build();
+        final FederatedAccess expectedFedAccess = new FederatedAccess.Builder().owningUserId(user.getUserId()).graphAuths("authsValueB").makePrivate().build();
 
         //when
 
@@ -640,8 +640,8 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         //then
         assertThat(changed).isTrue();
         assertThat(after).isNotEqualTo(before);
-        assertThat(before.getAddingUserId()).isEqualTo(user.getUserId());
-        assertThat(after.getAddingUserId()).isEqualTo(ADMIN_USER.getUserId());
+        assertThat(before.getOwningUserId()).isEqualTo(user.getUserId());
+        assertThat(after.getOwningUserId()).isEqualTo(ADMIN_USER.getUserId());
     }
 
 }

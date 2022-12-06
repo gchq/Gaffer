@@ -30,10 +30,9 @@ import uk.gov.gchq.koryphe.impl.predicate.CollectionContains;
 import uk.gov.gchq.koryphe.predicate.AdaptedPredicate;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -104,8 +103,8 @@ public class FederatedAccessAuthTest {
     public void shouldValidateWithListOfAuths() throws Exception {
 
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addGraphAuths(asList(AUTH_1))
-                .addGraphAuths(asList(UNUSED_AUTH_STRING))
+                .addGraphAuths(singletonList(AUTH_1))
+                .addGraphAuths(singletonList(UNUSED_AUTH_STRING))
                 .build();
 
         assertTrue(access.hasReadAccess(authUser()));
@@ -115,7 +114,7 @@ public class FederatedAccessAuthTest {
     public void shouldDeserialiseDefaultPredicateIfNotSpecified() throws SerialisationException {
         // Given
         String json = "{" +
-                "   \"addingUserId\": \"authUser\"," +
+                "   \"owningUserId\": \"authUser\"," +
                 "   \"public\": true," +
                 "   \"graphAuths\": [ \"auth1\", \"auth2\" ]" +
                 "}";
@@ -135,7 +134,7 @@ public class FederatedAccessAuthTest {
     public void shouldSerialiseAndDeserialiseAccessPredicatesToJson() throws SerialisationException {
         // Given
         final FederatedAccess federatedAccess = new FederatedAccess.Builder()
-                .addingUserId(AUTH_USER_ID)
+                .owningUserId(AUTH_USER_ID)
                 .isPublic(false)
                 .readAccessPredicate(new AccessPredicate(new AdaptedPredicate(new CallMethod("getDataAuths"), new CollectionContains(ALL_USERS))))
                 .writeAccessPredicate(new AccessPredicate(new AdaptedPredicate(new CallMethod("getDataAuths"), new CollectionContains(AUTH_1))))
@@ -146,7 +145,7 @@ public class FederatedAccessAuthTest {
 
         // Then
         final String expected = "{" +
-                "   \"addingUserId\": \"authUser\"," +
+                "   \"owningUserId\": \"authUser\"," +
                 "   \"public\": false," +
                 "   \"readAccessPredicate\": {" +
                 "       \"class\": \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
@@ -187,7 +186,7 @@ public class FederatedAccessAuthTest {
     public void shouldSerialiseAndDeserialiseGraphAuthsToJson() throws SerialisationException {
         // Given
         final FederatedAccess federatedAccess = new FederatedAccess.Builder()
-                .addingUserId(AUTH_USER_ID)
+                .owningUserId(AUTH_USER_ID)
                 .isPublic(false)
                 .graphAuths(AUTH_1, AUTH_2)
                 .build();
@@ -197,7 +196,7 @@ public class FederatedAccessAuthTest {
 
         // Then
         final String expected = "{" +
-                "   \"addingUserId\": \"authUser\"," +
+                "   \"owningUserId\": \"authUser\"," +
                 "   \"public\": false," +
                 "   \"graphAuths\": [\"auth1\", \"auth2\"]" +
                 "}";
@@ -212,7 +211,7 @@ public class FederatedAccessAuthTest {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> new FederatedAccess.Builder()
                         .graphAuths(AUTH_1)
-                        .readAccessPredicate(new AccessPredicate(AUTH_USER_ID, Collections.singletonList(AUTH_1)))
+                        .readAccessPredicate(new AccessPredicate(AUTH_USER_ID, singletonList(AUTH_1)))
                         .build())
                 .withMessageContaining("Only one of graphAuths or readAccessPredicate should be supplied.");
     }
@@ -222,7 +221,7 @@ public class FederatedAccessAuthTest {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> new FederatedAccess.Builder()
                         .graphAuths(AUTH_2)
-                        .readAccessPredicate(new AccessPredicate(AUTH_USER_ID, Collections.singletonList(AUTH_1)))
+                        .readAccessPredicate(new AccessPredicate(AUTH_USER_ID, singletonList(AUTH_1)))
                         .build())
                 .withMessageContaining("Only one of graphAuths or readAccessPredicate should be supplied.");
     }
