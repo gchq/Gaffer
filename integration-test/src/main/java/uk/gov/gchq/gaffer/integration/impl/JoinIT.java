@@ -57,7 +57,7 @@ public class JoinIT extends AbstractStoreIT {
     private List<Element> innerJoinElements = new ArrayList<>(Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 1), getJoinEntity(TestGroups.ENTITY_3, 2), getJoinEntity(TestGroups.ENTITY_3, 3), getJoinEntity(TestGroups.ENTITY_3, 4)));
 
     private final GetElements rhsGetElementsOperation = new GetElements.Builder()
-            .input(new EntitySeed(VERTEX_PREFIXES[0] + 0))
+            .input(new EntitySeed(VERTEX_PREFIXES.get(0) + 0))
             .view(new View.Builder()
                     .entity(TestGroups.ENTITY_3)
                     .build())
@@ -373,7 +373,7 @@ public class JoinIT extends AbstractStoreIT {
     private Entity getJoinEntity(final String group, final Integer countProperty) {
         return new Entity.Builder()
                 .group(group)
-                .vertex(VERTEX_PREFIXES[0] + 0)
+                .vertex(VERTEX_PREFIXES.get(0) + 0)
                 .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
                 .property(TestPropertyNames.COUNT, Long.parseLong(countProperty.toString()))
                 .build();

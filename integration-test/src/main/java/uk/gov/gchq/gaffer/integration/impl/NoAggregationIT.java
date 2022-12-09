@@ -98,7 +98,7 @@ public class NoAggregationIT extends AbstractStoreIT {
     private Entity getEntity() {
         return new Entity.Builder()
                 .group(TestGroups.ENTITY)
-                .vertex(VERTEX_PREFIXES[0])
+                .vertex(VERTEX_PREFIXES.get(0))
                 .property(TestPropertyNames.STRING, "prop1")
                 .build();
     }

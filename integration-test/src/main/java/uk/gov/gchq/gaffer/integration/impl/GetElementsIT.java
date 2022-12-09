@@ -82,19 +82,19 @@ public class GetElementsIT extends AbstractStoreIT {
 
     public static final Collection<ElementId> EDGE_SEEDS_EXIST = Arrays.asList(
             (ElementId) new EdgeSeed(SOURCE_1, DEST_1, false),
-            (ElementId) new EdgeSeed(VERTEX_PREFIXES[0] + 0, VERTEX_PREFIXES[1] + 0),
-            (ElementId) new EdgeSeed(VERTEX_PREFIXES[0] + 2, VERTEX_PREFIXES[1] + 2));
+            (ElementId) new EdgeSeed(VERTEX_PREFIXES.get(0) + 0, VERTEX_PREFIXES.get(1) + 0),
+            (ElementId) new EdgeSeed(VERTEX_PREFIXES.get(0) + 2, VERTEX_PREFIXES.get(1) + 2));
 
     public static final Collection<ElementId> EDGE_SEEDS_BOTH = Arrays.asList(
-            (ElementId) new EdgeSeed(VERTEX_PREFIXES[0] + 0, VERTEX_PREFIXES[1] + 0),
-            (ElementId) new EdgeSeed(VERTEX_PREFIXES[0] + 2, VERTEX_PREFIXES[1] + 2));
+            (ElementId) new EdgeSeed(VERTEX_PREFIXES.get(0) + 0, VERTEX_PREFIXES.get(1) + 0),
+            (ElementId) new EdgeSeed(VERTEX_PREFIXES.get(0) + 2, VERTEX_PREFIXES.get(1) + 2));
 
     public static final Collection<Element> EDGES_EXIST = getElements(EDGE_SEEDS_EXIST, false);
 
     public static final Collection<ElementId> EDGE_DIR_SEEDS_EXIST = Arrays.asList(
             (ElementId) new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true),
-            (ElementId) new EdgeSeed(VERTEX_PREFIXES[0] + 0, VERTEX_PREFIXES[1] + 0),
-            (ElementId) new EdgeSeed(VERTEX_PREFIXES[0] + 2, VERTEX_PREFIXES[1] + 2));
+            (ElementId) new EdgeSeed(VERTEX_PREFIXES.get(0) + 0, VERTEX_PREFIXES.get(1) + 0),
+            (ElementId) new EdgeSeed(VERTEX_PREFIXES.get(0) + 2, VERTEX_PREFIXES.get(1) + 2));
 
     public static final Collection<Element> EDGES_DIR_EXIST = getElements(EDGE_DIR_SEEDS_EXIST, true);
 
