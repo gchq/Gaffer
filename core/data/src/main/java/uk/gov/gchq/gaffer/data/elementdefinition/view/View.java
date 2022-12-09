@@ -309,7 +309,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     }
 
     public boolean canMerge(final View addingView, final View srcView) {
-        if (addingView instanceof View && !(srcView instanceof View)) {
+        if (addingView != null && srcView == null) {
             return false;
         }
         return true;
