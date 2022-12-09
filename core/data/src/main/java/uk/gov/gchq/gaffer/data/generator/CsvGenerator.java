@@ -199,7 +199,6 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
         private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
 
-        private LinkedHashMap<String, String> propertiesFromSchema = new LinkedHashMap<>();
         private String commaReplacement = COMMA_REPLACEMENT_DEFAULT;
         private Boolean quoted;
 
