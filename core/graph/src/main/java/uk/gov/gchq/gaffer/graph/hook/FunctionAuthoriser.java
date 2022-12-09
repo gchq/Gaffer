@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Function;
 
@@ -67,7 +68,7 @@ public class FunctionAuthoriser implements GraphHook {
         SimpleClassNameCache.setUseFullNameForSerialisation(true);
         String chainString;
         try {
-            chainString = new String(JSONSerialiser.serialise(opChain));
+            chainString = new String(JSONSerialiser.serialise(opChain), StandardCharsets.UTF_8);
         } catch (final SerialisationException e) {
             // This should never happen in real life as operation chains should
             // always be json serialisable. However this could happen if using a

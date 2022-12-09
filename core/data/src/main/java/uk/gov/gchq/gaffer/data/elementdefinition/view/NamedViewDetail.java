@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -87,8 +88,8 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
         setParameters(parameters);
 
         try {
-            this.readAccessPredicate = readAccessPredicate != null ? new String(JSONSerialiser.serialise(readAccessPredicate)) : null;
-            this.writeAccessPredicate = writeAccessPredicate != null ? new String(JSONSerialiser.serialise(writeAccessPredicate)) : null;
+            this.readAccessPredicate = readAccessPredicate != null ? new String(JSONSerialiser.serialise(readAccessPredicate), StandardCharsets.UTF_8) : null;
+            this.writeAccessPredicate = writeAccessPredicate != null ? new String(JSONSerialiser.serialise(writeAccessPredicate), StandardCharsets.UTF_8) : null;
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Access Predicates must be json serialisable", e);
         }

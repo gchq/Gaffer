@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -56,7 +57,7 @@ public class LocalFileExporter implements Exporter {
             } else {
                 fileToBeRead = StreamUtil.openStream(LocalFileExporter.class, filePath);
             }
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fileToBeRead));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fileToBeRead, StandardCharsets.UTF_8));
             linesFromFile = reader.lines().collect(Collectors.toList());
             reader.close();
         } catch (final IOException e) {
