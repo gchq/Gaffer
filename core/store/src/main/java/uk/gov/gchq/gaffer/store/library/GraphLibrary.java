@@ -188,12 +188,11 @@ public abstract class GraphLibrary {
         if (schema == null) {
             throw new IllegalArgumentException("Schema cannot be null");
         }
-        if (null != schema) {
-            validateId(id);
-            final byte[] schemaJson = schema.toJson(false);
-            if (!checkSchemaExists(id, schemaJson)) {
-                _addSchema(id, schemaJson);
-            }
+
+        validateId(id);
+        final byte[] schemaJson = schema.toJson(false);
+        if (!checkSchemaExists(id, schemaJson)) {
+            _addSchema(id, schemaJson);
         }
     }
 
@@ -224,11 +223,10 @@ public abstract class GraphLibrary {
         if (properties == null) {
             throw new IllegalArgumentException("Store properties cannot be null");
         }
-        if (null != properties) {
-            validateId(id);
-            if (!checkPropertiesExist(id, properties)) {
-                _addProperties(id, properties);
-            }
+
+        validateId(id);
+        if (!checkPropertiesExist(id, properties)) {
+            _addProperties(id, properties);
         }
     }
 
