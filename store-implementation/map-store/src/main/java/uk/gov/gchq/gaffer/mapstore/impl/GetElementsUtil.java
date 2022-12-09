@@ -154,7 +154,7 @@ public final class GetElementsUtil {
                 return false;
             }
         } else {
-            e.putProperty(visibilityProperty, new String());
+            e.putProperty(visibilityProperty, "");
             return true;
         }
     }

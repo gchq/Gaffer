@@ -95,7 +95,7 @@ public class FileGraphLibrary extends GraphLibrary {
 
     @Override
     protected void _addIds(final String graphId, final Pair<String, String> schemaAndPropsIds) throws OverwritingException {
-        String schemaAndPropsIdsString = new String(schemaAndPropsIds.getFirst() + "," + schemaAndPropsIds.getSecond());
+        String schemaAndPropsIdsString = schemaAndPropsIds.getFirst() + "," + schemaAndPropsIds.getSecond();
         try {
             FileUtils.writeStringToFile(getGraphsPath(graphId).toFile(), schemaAndPropsIdsString);
         } catch (final IOException e) {

@@ -472,7 +472,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 .build(), getUser());
 
         final Entity expectedEntity = testEntity;
-        expectedEntity.putProperty(TestTypes.VISIBILITY, new String());
+        expectedEntity.putProperty(TestTypes.VISIBILITY, "");
 
         // Then
         // Create a new iterator that should have 1 result, A
