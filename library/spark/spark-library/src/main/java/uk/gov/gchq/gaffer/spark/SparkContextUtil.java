@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -107,8 +108,8 @@ public final class SparkContextUtil {
         if (Boolean.parseBoolean(storeProperties.get(SparkConstants.USE_SPARK_DEFAULT_CONF, "false"))) {
             final Properties properties = new Properties();
             final String sparkDefaultConfPath = storeProperties.get(SparkConstants.SPARK_DEFAULT_CONF_PATH, SparkConstants.DEFAULT_SPARK_DEFAULT_CONF_PATH);
-            try {
-                properties.load(Files.newBufferedReader(Paths.get(sparkDefaultConfPath)));
+            try (BufferedReader reader = Files.newBufferedReader(Paths.get(sparkDefaultConfPath))) {
+                properties.load(reader);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Failed to read spark-default conf from " + sparkDefaultConfPath, e);
             }

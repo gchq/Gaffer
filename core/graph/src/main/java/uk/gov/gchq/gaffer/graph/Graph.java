@@ -59,6 +59,7 @@ import uk.gov.gchq.koryphe.util.ReflectionUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -774,9 +775,9 @@ public final class Graph {
 
         public Builder addSchema(final Path schemaPath) {
             if (null != schemaPath) {
-                try {
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(schemaPath)) {
                     if (Files.isDirectory(schemaPath)) {
-                        for (final Path path : Files.newDirectoryStream(schemaPath)) {
+                        for (final Path path : stream) {
                             addSchema(path);
                         }
                     } else {

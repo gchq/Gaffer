@@ -58,6 +58,7 @@ public class LocalFileExporter implements Exporter {
             }
             BufferedReader reader = new BufferedReader(new InputStreamReader(fileToBeRead));
             linesFromFile = reader.lines().collect(Collectors.toList());
+            reader.close();
         } catch (final IOException e) {
             throw new OperationException(e.getMessage());
         }
