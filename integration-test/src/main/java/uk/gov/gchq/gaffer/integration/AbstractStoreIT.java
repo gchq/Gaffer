@@ -133,7 +133,7 @@ public abstract class AbstractStoreIT {
     private List<Edge> duplicateEdges;
 
     protected final Map<String, User> userMap = new HashMap<>();
-    protected static Graph graph;
+    protected Graph graph;
     protected User user = new User();
 
     private Method method;
@@ -156,7 +156,7 @@ public abstract class AbstractStoreIT {
     }
 
     @AfterAll
-    public static void tearDown() {
+    public void tearDown() {
         graph = null;
     }
 
