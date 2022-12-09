@@ -349,7 +349,7 @@ public class FederatedGraphStorage {
 
         GraphSerialisable fromCache = federatedStoreCache.getGraphSerialisableFromCache(graphId);
 
-        if (!newGraph.getStoreProperties(graphLibrary).getProperties().equals(fromCache.getStoreProperties(graphLibrary))) {
+        if (!newGraph.getStoreProperties(graphLibrary).getProperties().equals(fromCache.getStoreProperties(graphLibrary).getProperties())) {
             throw new RuntimeException(String.format(ERROR_ADDING_GRAPH_TO_CACHE, "properties", graphId));
         }
         if (!JsonUtil.equals(newGraph.getSchema(graphLibrary).toJson(false), fromCache.getSchema(graphLibrary).toJson(false))) {
