@@ -128,6 +128,7 @@ public class FederatedStore extends Store {
     public static final String FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY = "FedStoreGraphId_value_null_or_empty";
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
     private static final List<Integer> ALL_IDS = new ArrayList<>();
+    private static final Random RANDOM = new Random();
     private FederatedGraphStorage graphStorage;
     private final int id;
     private Set<String> customPropertiesAuths;
@@ -143,7 +144,7 @@ public class FederatedStore extends Store {
                           @JsonProperty("storeConfiguredMergeFunctions") final Map<String, BiFunction> storeConfiguredMergeFunctions) {
         Integer i = null;
         while (isNull(i) || ALL_IDS.contains(i)) {
-            i = new Random().nextInt();
+            i = RANDOM.nextInt();
         }
         ALL_IDS.add(id = i);
 

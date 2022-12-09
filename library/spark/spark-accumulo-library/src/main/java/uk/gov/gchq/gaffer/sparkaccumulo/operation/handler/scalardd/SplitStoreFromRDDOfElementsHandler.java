@@ -49,6 +49,7 @@ public class SplitStoreFromRDDOfElementsHandler extends AbstractSplitStoreFromRD
     private static final ClassTag<Text> TEXT_CLASS_TAG = MODULE$.apply(Text.class);
     private static final boolean PRESERVE_PARTITIONING = true;
     private static final boolean WITHOUT_REPLACEMENT = false;
+    private static final Random RANDOM = new Random();
 
     @Override
     public Void doOperation(final SplitStoreFromRDDOfElements operation, final Context context, final Store store) throws OperationException {
@@ -71,9 +72,7 @@ public class SplitStoreFromRDDOfElementsHandler extends AbstractSplitStoreFromRD
                 operation.getMaxSampleSize(),
                 rows.count());
 
-        final Random seed = new Random(System.currentTimeMillis());
-
-        final List<String> sample = rows.sample(WITHOUT_REPLACEMENT, fractionToSample, seed.nextLong())
+        final List<String> sample = rows.sample(WITHOUT_REPLACEMENT, fractionToSample, RANDOM.nextLong())
                 .map(new TextToStringFunction(), STRING_CLASS_TAG)
                 .toJavaRDD()
                 .collect();
