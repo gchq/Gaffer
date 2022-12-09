@@ -135,14 +135,14 @@ public class GetElementsIT extends AbstractStoreIT {
                         try {
                             shouldGetElementsBySeed(includeEntities, false, directedType, inOutType);
                         } catch (final Throwable e) {
-                            throw new AssertionError(String.format("GetElementsBySeed failed with parameters: \nincludeEntities=%s \nincludeEdges=%s \ndirectedType=%s \ninOutType=%s",
+                            throw new AssertionError(String.format("GetElementsBySeed failed with parameters: %nincludeEntities=%s %nincludeEdges=%s %ndirectedType=%s %ninOutType=%s",
                                     includeEntities, includeEdges, directedType, inOutType), e);
                         }
 
                         try {
                             shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
                         } catch (final Throwable e) {
-                            throw new AssertionError(String.format("GetRelatedElements failed with parameters: \nincludeEntities=%s \nincludeEdges=%s \ndirectedType=%s \ninOutType=%s",
+                            throw new AssertionError(String.format("GetRelatedElements failed with parameters: %nincludeEntities=%s %nincludeEdges=%s %ndirectedType=%s %ninOutType=%s",
                                     includeEntities, includeEdges, directedType, inOutType), e);
                         }
                     }

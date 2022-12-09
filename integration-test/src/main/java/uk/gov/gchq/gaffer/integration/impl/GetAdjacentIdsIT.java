@@ -120,8 +120,8 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
         Collections.sort(resultSeeds);
         Collections.sort(expectedResultSeeds);
         assertThat(resultSeeds.toArray())
-                .as(String.format("InOut=%s, directedType=%s.\nExpected: \n  %s \nbut got: \n  %s",
-                        inOutType, directedType, StringUtils.join(expectedResultSeeds, "\n  "), StringUtils.join(resultSeeds, "\n  ")))
+                .as(String.format("InOut=%s, directedType=%s.%nExpected: %n  %s %nbut got: %n  %s",
+                        inOutType, directedType, StringUtils.join(expectedResultSeeds, "%n  "), StringUtils.join(resultSeeds, "%n  ")))
                 .containsExactly(expectedResultSeeds.toArray());
     }
 }
