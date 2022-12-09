@@ -109,7 +109,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     @JsonGetter("skipFailedFederatedExecution")
     public Boolean _isSkipFailedFederatedExecution() {
-        return skipFailedFederatedExecution ? true : null;
+        return skipFailedFederatedExecution;
     }
 
     @Override
@@ -129,7 +129,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     @JsonGetter("userRequestingDefaultGraphsOverride")
     public Boolean _isUserRequestingDefaultGraphsOverride() {
-        return userRequestingDefaultGraphsOverride ? true : null;
+        return userRequestingDefaultGraphsOverride;
     }
 
     public FederatedOperation<INPUT, OUTPUT> isUserRequestingDefaultGraphsOverride(final boolean userRequestingDefaultGraphsOverride) {

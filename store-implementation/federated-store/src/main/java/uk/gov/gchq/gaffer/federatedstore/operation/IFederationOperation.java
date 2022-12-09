@@ -32,8 +32,8 @@ public interface IFederationOperation extends Operation {
     boolean isUserRequestingAdminUsage();
 
     @JsonGetter("userRequestingAdminUsage")
-    default Boolean _isUserRequestingAdminUsageOrNull() {
-        return isUserRequestingAdminUsage() ? true : null;
+    default Boolean _isUserRequestingAdminUsage() {
+        return isUserRequestingAdminUsage();
     }
 
     @JsonSetter("userRequestingAdminUsage")
