@@ -238,9 +238,7 @@ public class NamedViewCache {
     private void add(final NamedViewDetail namedViewDetail, final boolean overwrite, final User user,
                      final String adminAuth)
             throws CacheOperationFailedException {
-        if (Objects.nonNull(namedViewDetail.getName())) {
-            namedViewDetail.getName();
-        } else {
+        if (namedViewDetail.getName() == null) {
             throw new CacheOperationFailedException("NamedView name cannot be null");
         }
 
