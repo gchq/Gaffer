@@ -58,11 +58,6 @@ public class NamedView extends View {
         mergedNamedViewNames = new ArrayList<>();
     }
 
-    @Override
-    public boolean equals(final Object obj) {
-        return super.equals(obj);
-    }
-
     public void setName(final String viewName) {
         this.name = viewName;
     }
