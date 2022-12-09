@@ -53,9 +53,9 @@ public class AddOperationsToChain implements GraphHook {
 
         boolean hasAuth = false;
         if (!authorisedOps.isEmpty() && !context.getUser().getOpAuths().isEmpty()) {
-            for (final String auth : authorisedOps.keySet()) {
-                if (context.getUser().getOpAuths().contains(auth)) {
-                    final AdditionalOperations additionalOperations = authorisedOps.get(auth);
+            for (final Map.Entry<String, AdditionalOperations> auth : authorisedOps.entrySet()) {
+                if (context.getUser().getOpAuths().contains(auth.getKey())) {
+                    final AdditionalOperations additionalOperations = auth.getValue();
 
                     newOpList.addAll(additionalOperations.getStart());
                     newOpList.addAll(addOperationsToChain(opChain, additionalOperations));

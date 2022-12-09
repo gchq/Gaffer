@@ -26,6 +26,7 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 /**
@@ -209,8 +210,8 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
          * @return a new {@link CsvGenerator.Builder}
          */
         public Builder propertyHeadersFromSchema(final LinkedHashMap<String, String> propertyHeadersFromSchema) {
-            for (final String key: propertyHeadersFromSchema.keySet()) {
-                fields.put(key, key + ":" + propertyHeadersFromSchema.get(key));
+            for (final Entry<String, String> entry : propertyHeadersFromSchema.entrySet()) {
+                fields.put(entry.getKey(), entry.getKey() + ":" + entry.getValue());
             }
             return this;
         }

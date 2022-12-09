@@ -57,14 +57,14 @@ public class OperationDetail {
         Map<String, String> fieldsToClassMap = getSerialisedFieldClasses(opClass.getName());
         List<OperationField> operationFields = new ArrayList<>();
 
-        for (final String fieldString : fieldsToClassMap.keySet()) {
+        for (final Map.Entry<String, String> fieldEntry : fieldsToClassMap.entrySet()) {
             boolean required = false;
             String summary = null;
             Field field = null;
             Set<String> enumOptions = null;
 
             try {
-                field = opClass.getDeclaredField(fieldString);
+                field = opClass.getDeclaredField(fieldEntry.getKey());
             } catch (final NoSuchFieldException e) {
                 // Ignore, we will just assume it isn't required
             }
@@ -80,7 +80,7 @@ public class OperationDetail {
                             .collect(Collectors.toSet());
                 }
             }
-            operationFields.add(new OperationField(fieldString, summary, fieldsToClassMap.get(fieldString), enumOptions, required));
+            operationFields.add(new OperationField(fieldEntry.getKey(), summary, fieldEntry.getValue(), enumOptions, required));
         }
 
         return operationFields;
