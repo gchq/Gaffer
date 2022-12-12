@@ -216,7 +216,7 @@ public class FederatedStoreConfiguredGraphIdsTest {
         final Schema result = (Schema) federatedStore.execute(federatedOperation, contextTestUser());
 
         // Then
-        assertNotNull(result); // TODO: Fails as result == null
+        assertNotNull(result);
         JsonAssert.assertEquals(selectedSchema.toJson(true), result.toJson(true));
     }
 
