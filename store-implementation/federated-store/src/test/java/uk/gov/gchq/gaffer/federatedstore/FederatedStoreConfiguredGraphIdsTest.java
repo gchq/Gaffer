@@ -22,14 +22,11 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -41,7 +38,6 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
@@ -53,6 +49,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_2;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.addGraph;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadFederatedStoreFrom;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadStoreProperties;
@@ -170,7 +167,7 @@ public class FederatedStoreConfiguredGraphIdsTest {
                 .op(new GetSchema.Builder()
                         .compact(true)
                         .build())
-                .graphIds(Collections.singletonList(GRAPH_ID_SELECTED))
+                .graphIds(singletonList(GRAPH_ID_SELECTED))
                 .build();
         final Schema result = (Schema) federatedStore.execute(federatedOperation, contextTestUser());
 
@@ -192,7 +189,7 @@ public class FederatedStoreConfiguredGraphIdsTest {
                 .op(new GetSchema.Builder()
                         .compact(true)
                         .build())
-                .graphIds(Collections.singletonList(GRAPH_ID_UNSELECTED))
+                .graphIds(singletonList(GRAPH_ID_UNSELECTED))
                 .build();
         final Schema result = (Schema) federatedStore.execute(federatedOperation, contextTestUser());
 
@@ -224,7 +221,8 @@ public class FederatedStoreConfiguredGraphIdsTest {
         JsonAssert.assertEquals(selectedSchema.toJson(true), result.toJson(true));
     }
 
-    private static FederatedStore getFederatedStoreFromJson(final String path) throws IOException, StoreException {
+    private static FederatedStore getFederatedStoreFromJson(final String path)
+            throws IOException, StoreException {
         final FederatedStore federatedStore = loadFederatedStoreFrom(path);
         federatedStore.initialise(GRAPH_ID_SELECTED, new Schema(), new FederatedStoreProperties());
         addDefaultLibrary(federatedStore);
@@ -235,7 +233,6 @@ public class FederatedStoreConfiguredGraphIdsTest {
         final FederatedStore federatedStore = (FederatedStore) Store.createStore(GRAPH_ID_TEST_FEDERATED_STORE,
                 STRING_SCHEMA,
                 StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStore.class, path)));
-
         addDefaultLibrary(federatedStore);
         return federatedStore;
     }
@@ -248,52 +245,36 @@ public class FederatedStoreConfiguredGraphIdsTest {
 
     private static Schema addSelectedSchemaAndGraph(final FederatedStore federatedStore)
             throws OperationException {
-        final Schema selectedSchema = new Schema.Builder()
-                .edge("edge", new SchemaEdgeDefinition.Builder()
-                        .source(STRING)
-                        .destination(STRING)
-                        .property(PROPERTY_1, STRING)
-                        .directed(DIRECTED_EITHER)
-                        .build())
-                .vertexSerialiser(new StringSerialiser())
-                .type(DIRECTED_EITHER, Boolean.class)
-                .merge(STRING_SCHEMA)
-                .build();
-
-        federatedStore.getGraphLibrary().addSchema(SCHEMA_SELECTED, selectedSchema);
-        addGraph(federatedStore, GRAPH_ID_SELECTED, SCHEMA_SELECTED, contextTestUser());
-
+        final Schema selectedSchema = getSchema(PROPERTY_1);
+        addSchemaAndGraph(federatedStore, GRAPH_ID_SELECTED, SCHEMA_SELECTED, selectedSchema);
         return selectedSchema;
     }
 
     private static Schema addUnselectedSchemaAndGraph(final FederatedStore federatedStore)
             throws OperationException {
-        final Schema unselectedSchema = new Schema.Builder()
+        final Schema unselectedSchema = getSchema(PROPERTY_2);
+        addSchemaAndGraph(federatedStore, GRAPH_ID_UNSELECTED, SCHEMA_UNSELECTED, unselectedSchema);
+        return unselectedSchema;
+    }
+
+    private static void addSchemaAndGraph(final FederatedStore federatedStore, final String graphId,
+                                          final String schemaId, final Schema schema)
+            throws OperationException {
+        federatedStore.getGraphLibrary().addSchema(schemaId, schema);
+        addGraph(federatedStore, graphId, false, null, null, STORE_PROP_ID, singletonList(schemaId), contextTestUser());
+    }
+
+    private static Schema getSchema(final String property) {
+        return new Schema.Builder()
                 .edge("edge", new SchemaEdgeDefinition.Builder()
                         .source(STRING)
                         .destination(STRING)
-                        .property(PROPERTY_2, STRING)
+                        .property(property, STRING)
                         .directed(DIRECTED_EITHER)
                         .build())
                 .vertexSerialiser(new StringSerialiser())
                 .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build();
-
-        federatedStore.getGraphLibrary().addSchema(SCHEMA_UNSELECTED, unselectedSchema);
-        addGraph(federatedStore, GRAPH_ID_UNSELECTED, SCHEMA_UNSELECTED, contextTestUser());
-
-        return unselectedSchema;
-    }
-
-    private static void addGraph(final FederatedStore federatedStore, final String graphId,
-                                 final String schemaId, final Context context)
-            throws OperationException {
-        federatedStore.execute(OperationChain.wrap(
-                new AddGraph.Builder()
-                        .graphId(graphId)
-                        .parentPropertiesId(STORE_PROP_ID)
-                        .parentSchemaIds(singletonList(schemaId))
-                        .build()), context);
     }
 }
