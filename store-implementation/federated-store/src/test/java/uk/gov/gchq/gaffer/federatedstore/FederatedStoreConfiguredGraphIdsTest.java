@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -149,9 +148,8 @@ public class FederatedStoreConfiguredGraphIdsTest {
                 .returns(Lists.newArrayList(GRAPH_ID_SELECTED),
                         from(FederatedStore::getStoreConfiguredGraphIds));
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()))
-                .withMessageContaining("The following graphIds are not visible or do not exist: [selectedGraphId]");
+        assertThat(federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()))
+                .isEmpty();
     }
 
     @Test
@@ -198,8 +196,6 @@ public class FederatedStoreConfiguredGraphIdsTest {
         JsonAssert.assertEquals(unselectedSchema.toJson(true), result.toJson(true));
     }
 
-    // TODO: look into and remove test or comment before merging
-    @Disabled("Fails. Could be a bug with GetSchemaHandler")
     @Test
     void shouldReturnSelectedGraphIdSchemaOnlyIfGraphIdsNotSet()
             throws OperationException {
@@ -217,7 +213,7 @@ public class FederatedStoreConfiguredGraphIdsTest {
         final Schema result = (Schema) federatedStore.execute(federatedOperation, contextTestUser());
 
         // Then
-        assertNotNull(result); // TODO: Fails as result == null
+        assertNotNull(result);
         JsonAssert.assertEquals(selectedSchema.toJson(true), result.toJson(true));
     }
 
