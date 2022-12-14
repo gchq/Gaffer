@@ -709,8 +709,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldFederatedIfUserHasCorrectAuths() throws Exception {
         // Given
-        final AccessPredicate noAccessPredicate = new NoAccessPredicate();
-        store.addGraphs(GRAPH_AUTHS_ALL_USERS, null, false, null, noAccessPredicate, new GraphSerialisable.Builder()
+        store.addGraphs(GRAPH_AUTHS_ALL_USERS, null, false, new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(ACC_ID_2)
                         .build())
