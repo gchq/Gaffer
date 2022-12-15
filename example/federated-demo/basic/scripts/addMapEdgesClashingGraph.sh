@@ -4,7 +4,6 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: applica
     "storeProperties": {
        "gaffer.store.class":"uk.gov.gchq.gaffer.mapstore.MapStore"
     },
-    "disabledByDefault": true,
     "schema": {
          "edges": {
              "BasicEdge": {

@@ -1,0 +1,4 @@
+{
+  "class": "FederatedStore",
+  "storeConfiguredGraphIds": [ "selectedGraphId" ]
+}

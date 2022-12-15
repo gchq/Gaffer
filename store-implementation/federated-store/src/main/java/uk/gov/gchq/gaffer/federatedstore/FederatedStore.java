@@ -102,6 +102,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.FEDERATED_STORE_SYSTEM_USER;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.STORE_CONFIGURED_GRAPHIDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.STORE_CONFIGURED_MERGE_FUNCTIONS;
@@ -247,42 +248,16 @@ public class FederatedStore extends Store {
                           final String owningUserId,
                           final boolean isPublic,
                           final GraphSerialisable... graphs) throws StorageException {
-        addGraphs(graphAuths, owningUserId, isPublic, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT, graphs);
-    }
-
-    /**
-     * Adds graphs to the scope of FederatedStore.
-     * <p>
-     * To be used by the FederatedStore and Handlers only. Users should add
-     * graphs via the {@link AddGraph} operation.
-     * public access will be ignored if the FederatedStore denies this action
-     * at initialisation, will default to usual access with owningUserId and
-     * graphAuths
-     * </p>
-     *
-     * @param owningUserId      the adding userId
-     * @param graphs            the graph to add
-     * @param isPublic          if this class should have public access.
-     * @param disabledByDefault true if the graph should be disabled by default - requiring the graphId to be provided in queries
-     * @param graphAuths        the access auths for the graph being added
-     * @throws StorageException if unable to put graph into storage
-     */
-    public void addGraphs(final Set<String> graphAuths,
-                          final String owningUserId,
-                          final boolean isPublic,
-                          final boolean disabledByDefault,
-                          final GraphSerialisable... graphs) throws StorageException {
-        addGraphs(graphAuths, owningUserId, isPublic, disabledByDefault, null, null, graphs);
+        addGraphs(graphAuths, owningUserId, isPublic, null, null, graphs);
     }
 
     public void addGraphs(final Set<String> graphAuths,
                           final String owningUserId,
                           final boolean isPublic,
-                          final boolean disabledByDefault,
                           final AccessPredicate readAccessPredicate,
                           final AccessPredicate writeAccessPredicate,
                           final GraphSerialisable... graphs) throws StorageException {
-        final FederatedAccess access = new FederatedAccess(graphAuths, owningUserId, isPublicAccessAllowed && isPublic, disabledByDefault, readAccessPredicate, writeAccessPredicate);
+        final FederatedAccess access = new FederatedAccess(graphAuths, owningUserId, isPublicAccessAllowed && isPublic, readAccessPredicate, writeAccessPredicate);
         addGraphs(access, graphs);
     }
 
@@ -432,28 +407,28 @@ public class FederatedStore extends Store {
         if (nonNull(operation) && !isNullOrEmpty(keyForFedStoreId)) {
             // KEEP THIS NUMBERED ORDER!
             // 1) Check operation for ID
-            final boolean doesOperationHavePreexistingFedStoreId = !isValueForFedStoreIdNullOrEmpty(operation, keyForFedStoreId);
+            final boolean doesOperationHavePreexistingFedStoreId = operation.containsOption(keyForFedStoreId);
+            final boolean doesFedStoreIDOptionHaveContent = !isNullOrEmpty(operation.getOption(keyForFedStoreId));
+
+            // Log
+            if (doesOperationHavePreexistingFedStoreId && !doesFedStoreIDOptionHaveContent) {
+                //There is a slight difference between value null and key not found
+                LOGGER.debug(String.format("The FederatedStoreId Key has a null or empty Value, this means the Key has been intentionally cleared for reprocessing by this FederatedStore. Key:%s", keyForFedStoreId));
+            }
 
             // 2) Check and Add ID any payload for ID (recursion)
             final boolean doesPayloadHavePreexistingFedStoreId = (operation instanceof FederatedOperation)
+                    && !doesFedStoreIDOptionHaveContent
+                    && !doesOperationHavePreexistingFedStoreId
                     && addFedStoreIdToOperation(((FederatedOperation<?, ?>) operation).getUnClonedPayload());
 
             // 3) Add the ID
             operation.addOption(keyForFedStoreId, getValueForProcessedFedStoreId());
 
             // 4) return if the ID was found.
-            isFedStoreIdPreexisting = doesOperationHavePreexistingFedStoreId || doesPayloadHavePreexistingFedStoreId;
+            isFedStoreIdPreexisting = doesFedStoreIDOptionHaveContent || doesFedStoreIDOptionHaveContent;
         }
         return isFedStoreIdPreexisting;
-    }
-
-    private static boolean isValueForFedStoreIdNullOrEmpty(final Operation operation, final String fedStoreId) {
-        final boolean isValueForFedStoreIdNullOrEmpty = isNullOrEmpty(operation.getOption(fedStoreId, null));
-        if (operation.getOptions() != null && operation.getOptions().containsKey(fedStoreId) && isValueForFedStoreIdNullOrEmpty) {
-            //There is a slight difference between value null and key not found
-            LOGGER.debug(String.format("The FederatedStoreId Key has a null Value, this means the Key has been intentionally cleared for reprocessing by this FederatedStore. Key:%s", fedStoreId));
-        }
-        return isValueForFedStoreIdNullOrEmpty;
     }
 
     public Map<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds, final boolean userRequestingAdminUsage) {
@@ -592,8 +567,16 @@ public class FederatedStore extends Store {
         } else {
             //This operation has already been processes once, by this store.
             String keyForProcessedFedStoreId = getKeyForProcessedFedStoreId();
-            operation.addOption(keyForProcessedFedStoreId, null); // value is null, but key is still found.
-            List<GraphSerialisable> graphs = getGraphs(user, storeConfiguredGraphIds, operation);
+            operation.addOption(keyForProcessedFedStoreId, ""); // value is empty, but key is still found.
+
+            final List<String> graphIds = new ArrayList<>(storeConfiguredGraphIds);
+            final List<String> federatedStoreSystemUser = getAllGraphIds(new User.Builder()
+                    .userId(FEDERATED_STORE_SYSTEM_USER)
+                    .opAuths(this.getProperties().getAdminAuth()).build(),
+                    true);
+            graphIds.retainAll(federatedStoreSystemUser);
+
+            List<GraphSerialisable> graphs = getGraphs(user, graphIds, operation);
             //put it back
             operation.addOption(keyForProcessedFedStoreId, getValueForProcessedFedStoreId());
             return graphs;
