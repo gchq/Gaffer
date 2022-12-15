@@ -945,9 +945,7 @@ public class FederatedStoreTest {
                 .schema(StreamUtil.openStream(FederatedStoreTest.class, SCHEMA_EDGE_BASIC_JSON))
                 .build();
 
-        final AccessPredicate noAccessPredicate = new NoAccessPredicate();
-
-        store.addGraphs(null, TEST_USER_ID, true, null, noAccessPredicate, graphToAdd);
+        store.addGraphs(null, TEST_USER_ID, true, graphToAdd);
 
         // check the store and the cache
         assertThat(store.getAllGraphIds(blankUser)).hasSize(1);
@@ -988,11 +986,9 @@ public class FederatedStoreTest {
 
         CacheServiceLoader.shutdown();
 
-        final AccessPredicate noAccessPredicate = new NoAccessPredicate();
-
         // When / Then
         assertThatExceptionOfType(Exception.class)
-                .isThrownBy(() -> store.addGraphs(null, TEST_USER_ID, false, null, noAccessPredicate, graphToAdd))
+                .isThrownBy(() -> store.addGraphs(null, TEST_USER_ID, false, graphToAdd))
                 .withStackTraceContaining("Cache is not enabled, check it was Initialised");
     }
 
@@ -1022,8 +1018,7 @@ public class FederatedStoreTest {
                 .build();
 
         // When
-        final AccessPredicate noAccessPredicate = new NoAccessPredicate();
-        store.addGraphs(null, TEST_USER_ID, true, null, noAccessPredicate, graphToAdd);
+        store.addGraphs(null, TEST_USER_ID, true, graphToAdd);
 
         // Then
         assertThat(store.getGraphs(blankUser, getCleanStrings(ACC_ID_1), new GetAllGraphIds())).hasSize(1);
@@ -1058,8 +1053,7 @@ public class FederatedStoreTest {
         }
 
         // When
-        final AccessPredicate noAccessPredicate = new NoAccessPredicate();
-        store.addGraphs(null, TEST_USER_ID, false, null, noAccessPredicate, graphsToAdd.toArray(new GraphSerialisable[graphsToAdd.size()]));
+        store.addGraphs(null, TEST_USER_ID, false, graphsToAdd.toArray(new GraphSerialisable[graphsToAdd.size()]));
 
         // Then
         for (int i = 0; i < 10; i++) {
@@ -1109,8 +1103,7 @@ public class FederatedStoreTest {
                 .schema(StreamUtil.openStream(FederatedStoreTest.class, SCHEMA_EDGE_BASIC_JSON))
                 .build();
 
-        final AccessPredicate noAccessPredicate = new NoAccessPredicate();
-        store.addGraphs(null, TEST_USER_ID, true, null, noAccessPredicate, graphToAdd);
+        store.addGraphs(null, TEST_USER_ID, true,  graphToAdd);
 
         // check is in the store
         assertThat(store.getAllGraphIds(blankUser)).hasSize(1);
@@ -1148,8 +1141,6 @@ public class FederatedStoreTest {
         final Collection<GraphSerialisable> expectedGraphs = new ArrayList<>();
         final Collection<GraphSerialisable> unexpectedGraphs = new ArrayList<>();
 
-        final AccessPredicate noAccessPredicate = new NoAccessPredicate();
-
         for (int i = 0; i < 6; i++) {
             final GraphSerialisable tempGraph = new GraphSerialisable.Builder()
                     .config(new GraphConfig.Builder()
@@ -1158,7 +1149,7 @@ public class FederatedStoreTest {
                     .properties(propertiesAlt)
                     .schema(StreamUtil.openStream(FederatedStoreTest.class, SCHEMA_ENTITY_BASIC_JSON))
                     .build();
-            store.addGraphs(singleton(ALL_USERS), null, true, null, noAccessPredicate, tempGraph);
+            store.addGraphs(singleton(ALL_USERS), null, true, tempGraph);
 
             for (final int j : expectedIds) {
                 if (i == j) {
