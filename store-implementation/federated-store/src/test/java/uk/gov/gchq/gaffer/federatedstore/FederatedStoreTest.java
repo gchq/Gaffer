@@ -1101,7 +1101,7 @@ public class FederatedStoreTest {
                 .schema(StreamUtil.openStream(FederatedStoreTest.class, SCHEMA_EDGE_BASIC_JSON))
                 .build();
 
-        store.addGraphs(null, TEST_USER_ID, true,  graphToAdd);
+        store.addGraphs(null, TEST_USER_ID, true, graphToAdd);
 
         // check is in the store
         assertThat(store.getAllGraphIds(blankUser)).hasSize(1);
