@@ -205,7 +205,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldThrowErrorForFailedSchemaID() throws Exception {
+    public void shouldThrowErrorForFailedSchemaID() {
         // When / Then
         final Exception actual = assertThrows(Exception.class,
                 () -> addGraphWithIds(ACC_ID_2, ID_PROPS_ACC_2, INVALID));
@@ -215,7 +215,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldThrowErrorForFailedPropertyID() throws Exception {
+    public void shouldThrowErrorForFailedPropertyID() {
         // When / Then
         final Exception actual = assertThrows(Exception.class,
                 () -> addGraphWithIds(ACC_ID_2, INVALID, ID_SCHEMA_EDGE));
@@ -224,7 +224,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldThrowErrorForMissingProperty() throws Exception {
+    public void shouldThrowErrorForMissingProperty() {
         // When / Then
         final List<String> schemas = asList(ID_SCHEMA_EDGE);
         final Exception actual = assertThrows(Exception.class,
@@ -238,7 +238,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldThrowErrorForMissingSchema() throws Exception {
+    public void shouldThrowErrorForMissingSchema() {
         // When / Then
         final Exception actual = assertThrows(Exception.class,
                 () -> store.execute(new AddGraph.Builder()
@@ -348,7 +348,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldFailWithIncompleteSchema() throws Exception {
+    public void shouldFailWithIncompleteSchema() {
         // When / Then
         final Exception actual = assertThrows(Exception.class,
                 () -> addGraphWithPaths(ACC_ID_1, propertiesAlt, blankUserContext, PATH_INCOMPLETE_SCHEMA));
@@ -365,7 +365,7 @@ public class FederatedStoreTest {
         final int after = store.getGraphs(blankUser, null, new GetAllGraphIds()).size();
 
         // Then
-        assertThat(before).isEqualTo(0);
+        assertThat(before).isZero();
         assertThat(after).isEqualTo(1);
     }
 
@@ -381,7 +381,7 @@ public class FederatedStoreTest {
         final int sizeAfter = store.getGraphs(blankUser, null, new GetAllGraphIds()).size();
 
         // Then
-        assertThat(sizeBefore).isEqualTo(0);
+        assertThat(sizeBefore).isZero();
         assertThat(sizeAfter).isEqualTo(2);
     }
 
@@ -563,7 +563,7 @@ public class FederatedStoreTest {
         final int after = store.getGraphs(blankUser, null, new GetAllGraphIds()).size();
 
         // Then
-        assertThat(before).isEqualTo(0);
+        assertThat(before).isZero();
         assertThat(after).isEqualTo(1);
     }
 
@@ -680,7 +680,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldNotAllowOverridingOfKnownGraphInLibrary() throws Exception {
+    public void shouldNotAllowOverridingOfKnownGraphInLibrary() {
         // Given
         library.add(ACC_ID_2, getSchemaFromPath(SCHEMA_ENTITY_BASIC_JSON), propertiesAlt);
 
@@ -917,7 +917,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldThrowExceptionWithInvalidCacheClass() throws StoreException {
+    public void shouldThrowExceptionWithInvalidCacheClass() {
         federatedProperties.setCacheServiceClass(INVALID_CACHE_SERVICE_CLASS_STRING);
 
         CacheServiceLoader.shutdown();
@@ -991,7 +991,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldNotThrowExceptionWhenInitialisedWithNoCacheClassInProperties() throws StoreException {
+    public void shouldNotThrowExceptionWhenInitialisedWithNoCacheClassInProperties() {
         // Given
         federatedProperties = new FederatedStoreProperties();
 
@@ -1124,15 +1124,6 @@ public class FederatedStoreTest {
         assertThat(store.getAllGraphIds(blankUser)).hasSize(1);
         // check the graph isn't in the GraphLibrary
         assertThat(store.getGraphLibrary().get(ACC_ID_1)).isNull();
-    }
-
-    private boolean checkUnexpected(final Collection<Graph> unexpectedGraphs, final Collection<Graph> returnedGraphs) {
-        for (final Graph graph : unexpectedGraphs) {
-            if (returnedGraphs.contains(graph)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private List<Collection<GraphSerialisable>> populateGraphs(final int... expectedIds) throws Exception {
