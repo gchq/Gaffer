@@ -1332,7 +1332,7 @@ public class FederatedStoreTest {
         assertThatExceptionOfType(Exception.class)
                 .isThrownBy(() -> store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphB,graphC"), blankUserContext))
                 .withMessageContaining("Operation chain is invalid. Validation errors:")
-                // Code smell this has been added because the exception message changes the order of graphs.
+                // Order of graphIds cannot be guaranteed when all are returned
                 .withMessageMatching("[\\S\\s]*View is not valid for graphIds:\\[(graphB,graphC|graphC,graphB)\\][\\S\\s]*")
                 .withMessageContaining(String.format("(graphId: graphB) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. %n" +
                         "(graphId: graphB) Entity group entityA does not exist in the schema"))

@@ -56,7 +56,7 @@ public class FederatedRemoveGraphHandlerTest {
     }
 
     @Test
-    public void shouldRemoveGraphForAddingUser() throws Exception {
+    public void shouldRemoveGraphForOwningUser() throws Exception {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
@@ -85,7 +85,7 @@ public class FederatedRemoveGraphHandlerTest {
     }
 
     @Test
-    public void shouldNotRemoveGraphForNonAddingUser() throws Exception {
+    public void shouldNotRemoveGraphForNonOwningUser() throws Exception {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);

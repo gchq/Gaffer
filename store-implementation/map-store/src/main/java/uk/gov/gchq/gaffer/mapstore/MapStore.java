@@ -33,10 +33,10 @@ import uk.gov.gchq.gaffer.mapstore.optimiser.CountAllElementsOperationChainOptim
 import uk.gov.gchq.gaffer.mapstore.utils.SchemaOptimiserMapStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile;
+import uk.gov.gchq.gaffer.operation.impl.export.localfile.ImportFromLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.imprt.localfile.ImportFromLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.Store;

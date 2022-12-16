@@ -234,21 +234,21 @@ public class FederatedStore extends Store {
      * To be used by the FederatedStore and Handlers only. Users should add
      * graphs via the {@link AddGraph} operation.
      * public access will be ignored if the FederatedStore denies this action
-     * at initialisation, will default to usual access with addingUserId and
+     * at initialisation, will default to usual access with owningUserId and
      * graphAuths
      * </p>
      *
-     * @param addingUserId the adding userId
+     * @param owningUserId the adding userId
      * @param graphs       the graph to add
      * @param isPublic     if this class should have public access.
      * @param graphAuths   the access auths for the graph being added
      * @throws StorageException if unable to put graph into storage
      */
     public void addGraphs(final Set<String> graphAuths,
-                          final String addingUserId,
+                          final String owningUserId,
                           final boolean isPublic,
                           final GraphSerialisable... graphs) throws StorageException {
-        addGraphs(graphAuths, addingUserId, isPublic, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT, graphs);
+        addGraphs(graphAuths, owningUserId, isPublic, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT, graphs);
     }
 
     /**
@@ -257,11 +257,11 @@ public class FederatedStore extends Store {
      * To be used by the FederatedStore and Handlers only. Users should add
      * graphs via the {@link AddGraph} operation.
      * public access will be ignored if the FederatedStore denies this action
-     * at initialisation, will default to usual access with addingUserId and
+     * at initialisation, will default to usual access with owningUserId and
      * graphAuths
      * </p>
      *
-     * @param addingUserId      the adding userId
+     * @param owningUserId      the adding userId
      * @param graphs            the graph to add
      * @param isPublic          if this class should have public access.
      * @param disabledByDefault true if the graph should be disabled by default - requiring the graphId to be provided in queries
@@ -269,21 +269,21 @@ public class FederatedStore extends Store {
      * @throws StorageException if unable to put graph into storage
      */
     public void addGraphs(final Set<String> graphAuths,
-                          final String addingUserId,
+                          final String owningUserId,
                           final boolean isPublic,
                           final boolean disabledByDefault,
                           final GraphSerialisable... graphs) throws StorageException {
-        addGraphs(graphAuths, addingUserId, isPublic, disabledByDefault, null, null, graphs);
+        addGraphs(graphAuths, owningUserId, isPublic, disabledByDefault, null, null, graphs);
     }
 
     public void addGraphs(final Set<String> graphAuths,
-                          final String addingUserId,
+                          final String owningUserId,
                           final boolean isPublic,
                           final boolean disabledByDefault,
                           final AccessPredicate readAccessPredicate,
                           final AccessPredicate writeAccessPredicate,
                           final GraphSerialisable... graphs) throws StorageException {
-        final FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic, disabledByDefault, readAccessPredicate, writeAccessPredicate);
+        final FederatedAccess access = new FederatedAccess(graphAuths, owningUserId, isPublicAccessAllowed && isPublic, disabledByDefault, readAccessPredicate, writeAccessPredicate);
         addGraphs(access, graphs);
     }
 
@@ -319,7 +319,7 @@ public class FederatedStore extends Store {
     /**
      * @param user the visibility to use for getting graphIds
      * @return All the graphId(s) within scope of this FederatedStore and within
-     * visibility for the given user.
+     * visibility for the given user. These will be returned in random order.
      */
     public Collection<String> getAllGraphIds(final User user) {
         return getAllGraphIds(user, false);
@@ -588,14 +588,8 @@ public class FederatedStore extends Store {
     }
 
     private List<GraphSerialisable> getDefaultGraphs(final User user, final IFederationOperation operation) {
-
-        boolean isAdminRequestingOverridingDefaultGraphs =
-                operation.isUserRequestingAdminUsage()
-                        && (operation instanceof FederatedOperation)
-                        && ((FederatedOperation) operation).isUserRequestingDefaultGraphsOverride();
-
-        if (isNull(storeConfiguredGraphIds) || isAdminRequestingOverridingDefaultGraphs) {
-            return graphStorage.get(user, null, (/*TODO FS examine isAdminRequestingOverridingDefaultGraphs vs ->*/operation.isUserRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
+        if (isNull(storeConfiguredGraphIds)) {
+            return graphStorage.get(user, null, (operation.isUserRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
         } else {
             //This operation has already been processes once, by this store.
             String keyForProcessedFedStoreId = getKeyForProcessedFedStoreId();

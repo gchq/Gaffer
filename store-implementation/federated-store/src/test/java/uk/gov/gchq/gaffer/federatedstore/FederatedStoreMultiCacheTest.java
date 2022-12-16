@@ -82,7 +82,7 @@ public class FederatedStoreMultiCacheTest {
     }
 
     @Test
-    public void shouldInitialiseByCacheToContainSameGraphsForAddingUser() throws Exception {
+    public void shouldInitialiseByCacheToContainSameGraphsForOwningUser() throws Exception {
         final Collection<String> fed1TestUserGraphs = federatedStore.getAllGraphIds(TEST_USER);
         Collection<String> fed2WithSameCacheTestUserGraphs = federatedStore2WithSameCache.getAllGraphIds(TEST_USER);
 

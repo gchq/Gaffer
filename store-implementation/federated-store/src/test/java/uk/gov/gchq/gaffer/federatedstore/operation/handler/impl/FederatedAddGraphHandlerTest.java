@@ -320,7 +320,7 @@ public class FederatedAddGraphHandlerTest {
      * @throws Exception if Exception
      */
     @Test
-    public void shouldAddGraphWithAuthsAndAddingUser() throws Exception {
+    public void shouldAddGraphWithAuthsAndOwningUser() throws Exception {
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
         final Schema expectedSchema = loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON);
