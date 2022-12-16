@@ -36,10 +36,13 @@ public class BasicElementGenerator implements OneToOneElementGenerator<DomainObj
 
     @Override
     public Element _apply(final DomainObject domainObject) {
+        Element result = null;
         if (domainObject instanceof EntityDomainObject) {
-            return entityGenerator._apply((EntityDomainObject) domainObject);
+            result = entityGenerator._apply((EntityDomainObject) domainObject);
+        } else if (domainObject instanceof EdgeDomainObject) {
+            result = edgeGenerator._apply((EdgeDomainObject) domainObject);
         }
 
-        return edgeGenerator._apply((EdgeDomainObject) domainObject);
+        return result;
     }
 }
