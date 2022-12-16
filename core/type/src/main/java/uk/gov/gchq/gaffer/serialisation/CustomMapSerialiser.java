@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -102,6 +103,7 @@ public class CustomMapSerialiser implements ToBytesSerialiser<CustomMap> {
             return serialise(customMap.getKeySerialiser(), customMap.getValueSerialiser(), serialisedInnerMap);
         }
 
+        @SuppressFBWarnings(value = "DCN_NULLPOINTER_EXCEPTION", justification = "Intended Behaviour")
         private static byte[] serialise(final ToBytesSerialiser keySerialiser, final ToBytesSerialiser valueSerialiser, final byte[] map) throws SerialisationException {
             try {
                 return serialise(new CustomMapInterim(keySerialiser, valueSerialiser, map));

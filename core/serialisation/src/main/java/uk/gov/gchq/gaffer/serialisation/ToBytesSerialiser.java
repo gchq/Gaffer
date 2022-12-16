@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.serialisation;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 /**
@@ -57,6 +58,7 @@ public interface ToBytesSerialiser<T> extends Serialiser<T, byte[]> {
      * @return T the deserialised object
      * @throws SerialisationException issues during deserialisation
      */
+    @SuppressFBWarnings(value = "DCN_NULLPOINTER_EXCEPTION", justification = "Intended Behaviour")
     default T deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
         final byte[] selection = new byte[length];
         try {

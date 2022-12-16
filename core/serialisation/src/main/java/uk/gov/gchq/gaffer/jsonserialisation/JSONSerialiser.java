@@ -396,7 +396,7 @@ public class JSONSerialiser {
 
     @JsonIgnore
     public static ObjectMapper getMapper() {
-        return getInstance().mapper;
+        return getInstance().mapper.copy();
     }
 
     @JsonIgnore

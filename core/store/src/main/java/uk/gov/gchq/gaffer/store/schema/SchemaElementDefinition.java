@@ -62,6 +62,7 @@ import java.util.function.Predicate;
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
+@SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "Appears to be a false positive")
 public abstract class SchemaElementDefinition implements ElementDefinition {
     /**
      * A validator to validate the element definition
