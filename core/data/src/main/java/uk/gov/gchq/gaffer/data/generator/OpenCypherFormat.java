@@ -31,7 +31,7 @@ import java.util.Map;
 
 public abstract class OpenCypherFormat extends CsvFormat {
 
-    public static Map<String, KorypheFunction<?, ?>> transformMappings  = Collections.unmodifiableMap(new HashMap<String, KorypheFunction<?, ?>>() { {
+    public final static Map<String, KorypheFunction<?, ?>> transformMappings  = Collections.unmodifiableMap(new HashMap<String, KorypheFunction<?, ?>>() { {
         put("String", new ToString());
         put("Char", new ToString());
         put("Date", new ToString());
@@ -49,7 +49,7 @@ public abstract class OpenCypherFormat extends CsvFormat {
         put("Boolean", new ToBoolean());
     } } );
 
-    public static Map<String, String> typeMappings  = Collections.unmodifiableMap(new HashMap<String, String>() { {
+    public final static Map<String, String> typeMappings  = Collections.unmodifiableMap(new HashMap<String, String>() { {
         put("String", "String");
         put("Character", "Char");
         put("Date", "Date");

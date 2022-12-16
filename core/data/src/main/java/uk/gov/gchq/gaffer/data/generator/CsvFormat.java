@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 public abstract class CsvFormat {
     public static final String ENTITY_GROUP = "ENTITY_GROUP";
     public static final String EDGE_GROUP = "EDGE_GROUP";
-    private static LinkedHashMap<String, String> identifiers = new LinkedHashMap<String, String>();
 
     public abstract String getVertex();
     public abstract String getEntityGroup();
@@ -32,6 +31,7 @@ public abstract class CsvFormat {
     public abstract String getDestination();
 
     public static LinkedHashMap<String, String> getIdentifiers(final CsvFormat csvFormat) {
+        final LinkedHashMap<String, String> identifiers = new LinkedHashMap<>();
         identifiers.put(String.valueOf(IdentifierType.VERTEX), csvFormat.getVertex());
         identifiers.put(ENTITY_GROUP, csvFormat.getEntityGroup());
         identifiers.put(EDGE_GROUP, csvFormat.getEdgeGroup());

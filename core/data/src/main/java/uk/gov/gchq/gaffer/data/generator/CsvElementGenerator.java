@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,15 +42,13 @@ import java.util.Map;
 
 @Since("2.0.0")
 @Summary("Generates elements from a CSV string")
-public class CsvElementGenerator implements ElementGenerator<String>, Serializable {
-    private static final long serialVersionUID = -821376598172364516L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(CsvElementGenerator.class);
-
+public class CsvElementGenerator implements ElementGenerator<String> {
     private String header;
     private int firstRow = 0;
     private Boolean trim = false;
     private char delimiter = ',';
     private String nullString = "";
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private CsvFormat csvFormat;
 
     @Override
