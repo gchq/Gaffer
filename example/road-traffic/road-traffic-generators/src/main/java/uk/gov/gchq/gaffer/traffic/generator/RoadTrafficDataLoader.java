@@ -35,8 +35,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -61,7 +63,7 @@ public class RoadTrafficDataLoader {
     public void load(final File dataFile) throws IOException, OperationException {
         load(() -> {
             try {
-                return new FileReader(dataFile, StandardCharsets.UTF_8);
+                return new InputStreamReader(new FileInputStream(dataFile), StandardCharsets.UTF_8);
             } catch (final IOException e) {
                 throw new RuntimeException("Unable to load data from file: " + dataFile.getPath());
             }
