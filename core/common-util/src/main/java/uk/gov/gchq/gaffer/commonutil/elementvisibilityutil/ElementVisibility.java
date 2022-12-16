@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -178,6 +180,7 @@ public class ElementVisibility {
         ColumnVisibilityParser() {
         }
 
+        @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "False positive")
         ElementVisibility.Node parse(final byte[] expression) {
             if (expression.length > 0) {
                 ElementVisibility.Node node = this.parse_(expression);
@@ -207,6 +210,7 @@ public class ElementVisibility {
             }
         }
 
+        @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "False positive")
         ElementVisibility.Node parse_(final byte[] expression) {
             ElementVisibility.Node result = null;
             ElementVisibility.Node expr = null;

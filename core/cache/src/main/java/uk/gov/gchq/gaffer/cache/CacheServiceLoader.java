@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.cache;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +76,7 @@ public final class CacheServiceLoader {
      *
      * @return the cache service
      */
+    @SuppressFBWarnings(value = "MS_EXPOSE_REP", justification = "Intended behaviour")
     public static ICacheService getService() {
         return service;
     }

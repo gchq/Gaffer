@@ -50,11 +50,10 @@ import java.util.Set;
  * </p>
  */
 @JsonPropertyOrder(value = {"class", "property", "comparator", "groups"}, alphabetic = true)
-@SuppressFBWarnings(value = "SE_COMPARATOR_SHOULD_BE_SERIALIZABLE",
-        justification = "This class should not be serialised")
+@SuppressFBWarnings(value = {"SE_COMPARATOR_SHOULD_BE_SERIALIZABLE", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"}, justification = "This class should not be serialised")
 public class ElementPropertyComparator implements ElementComparator {
     private Comparator comparator;
-    public static int count = 0;
+    private static int count = 0;
 
     private String property = null;
     private Set<String> groups = Collections.emptySet();

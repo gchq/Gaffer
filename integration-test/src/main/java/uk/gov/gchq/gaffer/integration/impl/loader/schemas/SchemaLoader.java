@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.integration.impl.loader.schemas;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -39,6 +40,7 @@ public interface SchemaLoader {
     String B = "B";
     String C = "C";
     String D = "D";
+    @SuppressFBWarnings(value = "MS_OOI_PKGPROTECT", justification = "Value is not being changed")
     String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
 
     Map<EdgeId, Edge> createEdges();

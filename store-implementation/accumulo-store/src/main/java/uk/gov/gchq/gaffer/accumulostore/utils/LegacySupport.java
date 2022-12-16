@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
@@ -196,6 +197,7 @@ public class LegacySupport {
         }
     }
 
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Specific Exception types vary depending on library version")
     public static class BackwardsCompatibleReaderBuilder {
         public static FileSKVIterator create(final String filename, final FileSystem fs, final Configuration fsConf,
                                              final AccumuloConfiguration tableConfiguration, final boolean seekBeginning) {
@@ -251,6 +253,7 @@ public class LegacySupport {
         }
     }
 
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Specific Exception types vary depending on library version")
     public static class BackwardsCompatibleCachableBlockFileReader {
         public static RFile.Reader create(final FileSystem fs, final Path path, final Configuration fsConf) {
             final RFile.Reader reader;
@@ -285,6 +288,7 @@ public class LegacySupport {
         }
     }
 
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Specific Exception types vary depending on library version")
     public static class BackwardsCompatibleRFileWriter {
         public static RFile.Writer create(final String file, final Configuration fsConf, final int blocksize) {
             final RFile.Writer writer;
