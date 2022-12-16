@@ -54,11 +54,11 @@ public final class PropertiesUtil {
     }
 
      public static String stripInvalidCharacters(final String property) {
-        String validProperty = "";
+        StringBuilder builder = new StringBuilder();
         Matcher matcher = PROPERTY_ALLOWED_CHARACTERS.matcher(property);
         while (matcher.find()) {
-            validProperty += matcher.group();
+            builder.append(matcher.group());
         }
-        return validProperty;
+        return builder.toString();
     }
 }
