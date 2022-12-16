@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class SingleUseMapStoreWithoutVisibilitySupport extends SingleUseMapStore {
 
-    public static final Set<StoreTrait> TRAITS = new HashSet<StoreTrait>(MapStore.TRAITS) {
+    private static final Set<StoreTrait> TRAITS = new HashSet<StoreTrait>(MapStore.TRAITS) {
         {
             remove(StoreTrait.VISIBILITY);
         }
