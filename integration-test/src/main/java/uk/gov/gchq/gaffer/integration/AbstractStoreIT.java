@@ -67,6 +67,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,7 @@ public abstract class AbstractStoreIT {
     public static final String B = "B";
     public static final String C = "C";
     public static final String D = "D";
-    public static final List<String> VERTEX_PREFIXES = Arrays.asList(A, B, C, D);
+    public static final List<String> VERTEX_PREFIXES = Collections.unmodifiableList(Arrays.asList(A, B, C, D));
 
     // Identifiers
     public static final String SOURCE_1 = SOURCE + 1;
