@@ -33,6 +33,7 @@ import java.util.function.Function;
  * Implementation of {@link FlatMapFunction} to allow CSV strings representing {@link Element}s
  * to be mapped to Element objects.
  */
+@SuppressFBWarnings(value = "REFLC_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_CLASS", justification = "Investigate")
 public class GafferMapFunction<T> implements FlatMapFunction<T, Element> {
     private static final long serialVersionUID = -2338397824952911347L;
 

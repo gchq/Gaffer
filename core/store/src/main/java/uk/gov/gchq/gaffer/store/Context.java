@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -60,6 +61,7 @@ public class Context {
      *
      * @param context the context to shallow clone.
      */
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH", justification = "Investigate")
     public Context(final Context context) {
         this(null != context ? context.user : null, null != context ? context.config : null);
         exporters.putAll(context.exporters);

@@ -108,7 +108,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     @JsonGetter("skipFailedFederatedExecution")
     public Boolean _isSkipFailedFederatedExecution() {
-        return skipFailedFederatedExecution ? true : null;
+        return skipFailedFederatedExecution;
     }
 
     @Override

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.Lists;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -362,6 +363,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         return walks.filter(walkPredicate::test).collect(Collectors.toList());
     }
 
+    @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC", justification = "Investigate if this should be a separate class")
     private class WalkPredicate implements Predicate<Walk> {
         private final Operation transformOperation;
         private final Predicate predicate;

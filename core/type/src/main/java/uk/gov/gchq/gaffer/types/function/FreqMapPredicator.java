@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.types.function;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -29,6 +30,7 @@ import java.io.Serializable;
  */
 @Since("1.8.0")
 @Summary("Returns a frequency map based on the predicate provided")
+@SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "Investigate")
 public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap>
         implements Serializable {
 

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -87,6 +88,7 @@ import java.util.List;
  */
 public class MultiSerialiser implements ToBytesSerialiser<Object> {
     private static final long serialVersionUID = 8206706506883696003L;
+    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "Investigate if MultiSerialiserStorage needs to implement Serializable")
     private final MultiSerialiserStorage supportedSerialisers = new MultiSerialiserStorage();
 
     public void setSerialisers(final List<SerialiserDetail> serialisers) throws GafferCheckedException {

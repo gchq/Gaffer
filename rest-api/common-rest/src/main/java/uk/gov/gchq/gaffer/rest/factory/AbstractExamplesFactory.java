@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.factory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -101,6 +102,7 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
     }
 
     @Override
+    @SuppressFBWarnings(value = "REFLC_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_CLASS", justification = "Investigate")
     public Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
         if (null == examplesMap) {
             generateExamples();

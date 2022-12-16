@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.proxystore.operation.handler;
 
 import com.google.common.collect.Lists;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -36,6 +37,7 @@ import java.util.Map;
 
 import static java.util.Objects.isNull;
 
+@SuppressFBWarnings(value = "NM_SAME_SIMPLE_NAME_AS_SUPERCLASS", justification = "Investigate")
 public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler<OUT> {
 
     public static final String PROXY_STORE_OPERATION_CHAIN_HANDLER = "proxyStore.operationChainHandler";

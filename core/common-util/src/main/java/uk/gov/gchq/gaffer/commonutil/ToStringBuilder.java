@@ -16,12 +16,14 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * Extension of the Apache Commons {@link org.apache.commons.lang3.builder.ToStringBuilder}
  * class to provide a specific style for Gaffer.
  */
+@SuppressFBWarnings("NM_SAME_SIMPLE_NAME_AS_SUPERCLASS")
 public class ToStringBuilder extends org.apache.commons.lang3.builder.ToStringBuilder {
     public static final ToStringStyle SHORT_STYLE = new GafferShortStyle();
     public static final ToStringStyle FULL_STYLE = new GafferFullStyle();

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "Investigate")
 public class AuthorisedGraphForExportDelegate extends GraphDelegate {
 
     private static Map<String, List<String>> idAuths = new HashMap<>();
