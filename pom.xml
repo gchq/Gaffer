@@ -971,12 +971,9 @@
                 <version>${spotbugs.plugin.version}</version>
                 <configuration>
                     <effort>Max</effort>
-                    <threshold>Low</threshold>
-                    <failOnError>false</failOnError>
                     <excludeFilterFile>
                         findbugs-exclude.xml
                     </excludeFilterFile>
-<!--                    <onlyAnalyze>uk.*</onlyAnalyze>-->
                 </configuration>
                 <executions>
                     <execution>

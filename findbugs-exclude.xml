@@ -15,10 +15,11 @@
   ~ limitations under the License.
   -->
 <FindBugsFilter>
-    <Match>
-        <Source name="~.*\.scala" />
-    </Match>
-    <Match>
-        <Bug category="MALICIOUS_CODE" />
-    </Match>
+    <Match><Source name="~.*\.scala" /></Match>
+<!--    <Match>-->
+<!--        <Bug category="MALICIOUS_CODE" />-->
+<!--    </Match>-->
+    <Match><Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS" /></Match>
+    <Match><Bug pattern="EI_EXPOSE_REP" /></Match>
+    <Match><Bug pattern="EI_EXPOSE_REP2" /></Match>
 </FindBugsFilter>
