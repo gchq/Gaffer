@@ -36,7 +36,6 @@ import uk.gov.gchq.koryphe.tuple.Tuple;
 import java.io.Serializable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -81,7 +80,7 @@ public class CsvElementGenerator implements ElementGenerator<String>, Serializab
                 }
                 if (columnHeader.contains(":")) {
                     String typeName = columnHeader.split(":")[1];
-                    HashMap<String, KorypheFunction<?, ?>> transformMappings = OpenCypherFormat.transformMappings;
+                    Map<String, KorypheFunction<?, ?>> transformMappings = OpenCypherFormat.transformMappings;
                     KorypheFunction<?, ?> transform;
                     if (transformMappings.containsKey(typeName)) {
                         transform = transformMappings.get(typeName);
