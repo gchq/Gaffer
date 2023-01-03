@@ -56,14 +56,12 @@ import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.getConnector;
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 
 public class FederatedGraphStorage {
-    public static final boolean DEFAULT_DISABLED_BY_DEFAULT = false;
     public static final String ERROR_ADDING_GRAPH_TO_CACHE = "Error adding graph, GraphId is known within the cache, but %s is different. GraphId: %s";
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
     public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedGraphStorage.class);
     private final FederatedStoreCache federatedStoreCache;
-    private Boolean isCacheEnabled = false;
     private GraphLibrary graphLibrary;
 
     public FederatedGraphStorage() {
@@ -191,7 +189,7 @@ public class FederatedGraphStorage {
     private boolean remove(final String graphId, final Predicate<FederatedAccess> accessPredicate) {
         FederatedAccess accessFromCache = federatedStoreCache.getAccessFromCache(graphId);
         boolean rtn;
-        if (nonNull(accessFromCache) ? accessPredicate.test(accessFromCache) : false) {
+        if (nonNull(accessFromCache) && accessPredicate.test(accessFromCache)) {
             federatedStoreCache.deleteFromCache(graphId);
             rtn = true;
         } else {
@@ -306,8 +304,6 @@ public class FederatedGraphStorage {
             rtn = federatedStoreCache.getAllGraphIds().stream()
                     .map(g -> federatedStoreCache.getFromCache(g))
                     .filter(pair -> isValidToView(user, pair.getSecond()))
-                    //not visible unless graphId is requested.
-                    .filter(pair -> !pair.getSecond().isDisabledByDefault())
                     .map(pair -> pair.getFirst());
         } else {
             rtn = federatedStoreCache.getAllGraphIds().stream()

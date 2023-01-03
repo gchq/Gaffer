@@ -87,13 +87,12 @@ public class FederatedGraphStorageTest {
     private final GraphSerialisable graphSerialisableB = getGraphSerialisable(GRAPH_ID_B, 2);
     private final User nullUser = null;
     private final FederatedAccess altAuth2Access = new FederatedAccess(singleton(AUTH_2), TEST_USER_ID);
-    private final FederatedAccess disabledByDefaultAccess = new FederatedAccess(singleton(AUTH_1), TEST_USER_ID, false, true);
     private final AccessPredicate blockingAccessPredicate = new NoAccessPredicate();
-    private final FederatedAccess blockingReadAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, blockingAccessPredicate, null);
-    private final FederatedAccess blockingWriteAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, null, blockingAccessPredicate);
+    private final FederatedAccess blockingReadAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, blockingAccessPredicate, null);
+    private final FederatedAccess blockingWriteAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, null, blockingAccessPredicate);
     private final AccessPredicate permissiveAccessPredicate = new UnrestrictedAccessPredicate();
-    private final FederatedAccess permissiveReadAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, permissiveAccessPredicate, null);
-    private final FederatedAccess permissiveWriteAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, null, permissiveAccessPredicate);
+    private final FederatedAccess permissiveReadAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, permissiveAccessPredicate, null);
+    private final FederatedAccess permissiveWriteAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, null, permissiveAccessPredicate);
     private final FederatedAccess auth1Access = new FederatedAccess(singleton(AUTH_1), TEST_USER_ID);
     private FederatedGraphStorage graphStorage;
 
@@ -134,28 +133,6 @@ public class FederatedGraphStorageTest {
         final Collection<String> allIds = graphStorage.getAllIds(testUser());
         //then
         assertThat(allIds).isEmpty();
-    }
-
-    @Test
-    public void shouldGetIdForDisabledGraphsByTheOwningUser() throws Exception {
-        //given
-        //access includes testUser
-        graphStorage.put(graphSerialisableA, disabledByDefaultAccess);
-        //when
-        final Collection<String> allIds = graphStorage.getAllIds(testUser());
-        //then
-        assertThat(allIds).containsExactly(GRAPH_ID_A);
-    }
-
-    @Test
-    public void shouldGetIdForDisabledGraphsWhenAsked() throws Exception {
-        //given
-        //access includes testUser
-        graphStorage.put(graphSerialisableA, disabledByDefaultAccess);
-        //when
-        final Collection<String> allIds = graphStorage.getAllIds(testUser());
-        //then
-        assertThat(allIds).containsExactly(GRAPH_ID_A);
     }
 
     @Test
@@ -220,16 +197,6 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldGetDisabledGraphWhenGetAll() throws Exception {
-        //given
-        graphStorage.put(graphSerialisableA, disabledByDefaultAccess);
-        //when
-        final Collection<GraphSerialisable> allGraphs = graphStorage.getAll(authUser());
-        //then
-        assertThat(allGraphs).containsExactly(graphSerialisableA);
-    }
-
-    @Test
     public void shouldNotGetGraphForBlankUser() throws Exception {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
@@ -278,27 +245,6 @@ public class FederatedGraphStorageTest {
         //then
         assertThat(allGraphs).containsExactly(graphSerialisableA);
     }
-
-    @Test
-    public void shouldGetDisabledGraphForAuthUserWithCorrectId() throws Exception {
-        //given
-        graphStorage.put(graphSerialisableA, disabledByDefaultAccess);
-        //when
-        final Collection<GraphSerialisable> allGraphs = graphStorage.get(authUser(), singletonList(GRAPH_ID_A));
-        //then
-        assertThat(allGraphs).containsExactly(graphSerialisableA);
-    }
-
-    @Test
-    public void shouldNotGetDisabledGraphForAuthUserWhenNoIdsProvided() throws Exception {
-        //given
-        graphStorage.put(graphSerialisableA, disabledByDefaultAccess);
-        //when
-        final Collection<GraphSerialisable> allGraphs = graphStorage.get(authUser(), null);
-        //then
-        assertThat(allGraphs).isEmpty();
-    }
-
     @Test
     public void shouldNotGetGraphForBlankUserWithCorrectId() throws Exception {
         //given

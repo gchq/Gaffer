@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -25,7 +26,7 @@ import java.util.Collections;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_EDGES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_ENTITIES;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.addGraph;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.addGraphToAccumuloStore;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 
 public class PredefinedFederatedStore extends FederatedStore {
@@ -38,7 +39,7 @@ public class PredefinedFederatedStore extends FederatedStore {
 
         try {
             // Accumulo store just contains edges
-            addGraph(this, GRAPH_ID_ACCUMULO_WITH_EDGES, false,
+            addGraphToAccumuloStore(this, GRAPH_ID_ACCUMULO_WITH_EDGES, false,
                     new Schema.Builder()
                             .merge(schema.clone())
                             //delete Entities
@@ -46,14 +47,14 @@ public class PredefinedFederatedStore extends FederatedStore {
                             .build());
 
             // Accumulo store just contains entities
-            addGraph(this, GRAPH_ID_ACCUMULO_WITH_ENTITIES, false,
+            addGraphToAccumuloStore(this, GRAPH_ID_ACCUMULO_WITH_ENTITIES, false,
                     new Schema.Builder()
                             .merge(schema.clone())
                             //delete Edges
                             .edges(Collections.emptyMap())
                             .build());
 
-        } catch (final StorageException e) {
+        } catch (final StorageException | OperationException e) {
             throw new StoreException(e.getMessage(), e);
         }
     }

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 public final class FederatedStoreConstants {
     public static final boolean DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION = false;
     public static final String DEFAULT_VALUE_IS_PUBLIC = String.valueOf(false);
+    public static final String FEDERATED_STORE_SYSTEM_USER = "FederatedStoreSystemUser";
 
     private FederatedStoreConstants() {
         // private constructor to prevent users instantiating this class as it

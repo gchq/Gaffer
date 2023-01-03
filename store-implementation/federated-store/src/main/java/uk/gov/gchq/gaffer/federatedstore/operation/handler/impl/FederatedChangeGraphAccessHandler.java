@@ -33,7 +33,7 @@ public class FederatedChangeGraphAccessHandler implements OutputOperationHandler
     @Override
     public Boolean doOperation(final ChangeGraphAccess operation, final Context context, final Store store) throws OperationException {
         try {
-            final FederatedAccess federatedAccess = new FederatedAccess(operation.getGraphAuths(), operation.getOwnerUserId(), operation.getIsPublic(), operation.isDisabledByDefault());
+            final FederatedAccess federatedAccess = new FederatedAccess(operation.getGraphAuths(), operation.getOwnerUserId(), operation.getIsPublic());
             final User user = context.getUser();
             return ((FederatedStore) store).changeGraphAccess(user, operation.getGraphId(), federatedAccess, operation.isUserRequestingAdminUsage());
         } catch (final Exception e) {

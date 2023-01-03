@@ -38,14 +38,14 @@ import java.util.Map;
  *
  * @see ToCsv.Builder
  */
-@JsonPropertyOrder(value = {"class", "input", "csvGenerator"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Converts elements to CSV Strings")
 public class ToCsv implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends String>>,
         MultiInput<Element> {
 
-    private CsvGenerator csvGenerator;
+    private CsvGenerator elementGenerator;
     private Iterable<? extends Element> input;
     private boolean includeHeader = true;
     private Map<String, String> options;
@@ -54,12 +54,12 @@ public class ToCsv implements
     private CsvFormat csvFormat;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public CsvGenerator getCsvGenerator() {
-        return csvGenerator;
+    public CsvGenerator getElementGenerator() {
+        return elementGenerator;
     }
 
-    public void setCsvGenerator(final CsvGenerator csvGenerator) {
-        this.csvGenerator = csvGenerator;
+    public void setElementGenerator(final CsvGenerator elementGenerator) {
+        this.elementGenerator = elementGenerator;
     }
 
     @Override
@@ -96,7 +96,7 @@ public class ToCsv implements
     @Override
     public ToCsv shallowClone() {
         return new ToCsv.Builder()
-                .generator(csvGenerator)
+                .generator(elementGenerator)
                 .csvFormat(csvFormat)
                 .input(input)
                 .includeHeader(includeHeader)
@@ -126,7 +126,7 @@ public class ToCsv implements
          * @return this Builder
          */
         public ToCsv.Builder generator(final CsvGenerator generator) {
-            _getOp().setCsvGenerator(generator);
+            _getOp().setElementGenerator(generator);
             return _self();
         }
 

@@ -75,7 +75,6 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                     operation.getGraphAuths(),
                     context.getUser().getUserId(),
                     operation.getIsPublic(),
-                    operation.isDisabledByDefault(),
                     operation.getReadAccessPredicate(),
                     operation.getWriteAccessPredicate(),
                     graphSerialisable);
