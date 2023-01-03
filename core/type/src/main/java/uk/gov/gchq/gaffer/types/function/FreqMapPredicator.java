@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.types.function;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;

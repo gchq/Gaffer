@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.serialisation;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 /**

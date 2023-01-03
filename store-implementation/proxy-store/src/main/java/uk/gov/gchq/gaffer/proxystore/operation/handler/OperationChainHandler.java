@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.proxystore.operation.handler;
 import com.google.common.collect.Lists;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
