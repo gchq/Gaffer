@@ -45,14 +45,14 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
             return null;
         }
 
-        if (null == operation.getCsvGenerator() && null == operation.getCsvFormat()) {
+        if (null == operation.getElementGenerator() && null == operation.getCsvFormat()) {
             throw new IllegalArgumentException("ToCsv operation requires a generator, supply one or provide a CsvFormat");
-        } else if (null != operation.getCsvGenerator() && null != operation.getCsvFormat()) {
+        } else if (null != operation.getElementGenerator() && null != operation.getCsvFormat()) {
             throw new IllegalArgumentException("ToCsv operation requires either a generator or a CsvFormat not both");
-        } else if (null == operation.getCsvGenerator() && null != operation.getCsvFormat()) {
+        } else if (null == operation.getElementGenerator() && null != operation.getCsvFormat()) {
             csvGenerator = createGenerator(operation.getCsvFormat(), getPropertyHeadersFromSchema(store));
         } else {
-            csvGenerator = operation.getCsvGenerator();
+            csvGenerator = operation.getElementGenerator();
         }
 
         final Iterable<? extends String> csv = csvGenerator.apply(operation.getInput());

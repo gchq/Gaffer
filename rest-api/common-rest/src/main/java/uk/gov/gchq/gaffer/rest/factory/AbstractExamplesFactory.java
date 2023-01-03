@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.koryphe.impl.binaryoperator.First;
+import uk.gov.gchq.koryphe.impl.function.ToString;
 import uk.gov.gchq.koryphe.impl.predicate.IsLongerThan;
 
 import javax.annotation.PostConstruct;
@@ -68,6 +70,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.BinaryOperator;
 
 import static java.lang.reflect.Modifier.isStatic;
 
@@ -96,6 +99,7 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
         map.put(AddNamedView.class, addNamedView());
         map.put(If.class, ifOperation());
         map.put(While.class, whileOperation());
+        map.put(uk.gov.gchq.gaffer.operation.impl.Map.class, mapOperation());
 
         examplesMap = map;
     }
@@ -145,6 +149,8 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
             value = new Date(System.currentTimeMillis() - 10000 + uniqueId);
         } else if (boolean.class.equals(clazz)) {
             value = uniqueId % 2 == 0;
+        } else if (BinaryOperator.class.equals(clazz)) {
+            value = new First();
         } else {
             try {
                 if (clazz.isEnum()) {
@@ -513,6 +519,13 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
                 .conditional(new IsLongerThan(0))
                 .operation(new GetAdjacentIds())
                 .maxRepeats(10)
+                .build();
+    }
+
+    public uk.gov.gchq.gaffer.operation.impl.Map mapOperation() {
+        return new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>()
+                .input(2)
+                .first(new ToString())
                 .build();
     }
 
