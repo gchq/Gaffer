@@ -1,10 +1,10 @@
 {
   "configuredMergeFunctions": {
     "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements": {
-      "class": "uk.gov.gchq.gaffer.federatedstore.util.ConcatenateListMergeFunction"
+      "class": "uk.gov.gchq.gaffer.federatedstore.util.ConcatenateMergeFunction"
     },
     "uk.gov.gchq.gaffer.operation.impl.get.GetElements": {
-      "class": "uk.gov.gchq.gaffer.federatedstore.util.ConcatenateListMergeFunction"
+      "class": "uk.gov.gchq.gaffer.federatedstore.util.ConcatenateMergeFunction"
     }
   }
 }
