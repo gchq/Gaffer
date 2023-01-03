@@ -17,8 +17,6 @@
 package uk.gov.gchq.gaffer.data.generator;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.PropertiesUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -33,8 +31,6 @@ import uk.gov.gchq.koryphe.impl.function.FunctionChain;
 import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 import uk.gov.gchq.koryphe.impl.function.MapToTuple;
 import uk.gov.gchq.koryphe.tuple.Tuple;
-
-import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +75,7 @@ public class CsvElementGenerator implements ElementGenerator<String> {
                 }
                 if (columnHeader.contains(":")) {
                     String typeName = columnHeader.split(":")[1];
-                    Map<String, KorypheFunction<?, ?>> transformMappings = OpenCypherFormat.transformMappings;
+                    Map<String, KorypheFunction<?, ?>> transformMappings = OpenCypherFormat.TRANSFORM_MAPPINGS;
                     KorypheFunction<?, ?> transform;
                     if (transformMappings.containsKey(typeName)) {
                         transform = transformMappings.get(typeName);
