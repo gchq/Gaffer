@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.google.common.collect.Sets;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -394,9 +395,10 @@ public class JSONSerialiser {
         }
     }
 
+    @SuppressFBWarnings(value = "MS_EXPOSE_REP", justification = "Intended behaviour, returning a copy does not work")
     @JsonIgnore
     public static ObjectMapper getMapper() {
-        return getInstance().mapper.copy();
+        return getInstance().mapper;
     }
 
     @JsonIgnore
