@@ -23,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -99,9 +98,6 @@ public class ProxyStoreBasicIT {
                     .build()
     };
 
-    @TempDir
-    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
-
     private Graph graph;
 
     @BeforeAll
@@ -116,7 +112,7 @@ public class ProxyStoreBasicIT {
     }
 
     @BeforeEach
-    public void before() throws IOException {
+    public void before(@TempDir File testFolder) throws IOException {
         CLIENT.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
 
         // setup ProxyStore

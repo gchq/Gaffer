@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -54,9 +53,6 @@ public class ProxyStoreResponseDeserialiserIT {
 
     private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
-    @TempDir
-    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
-
     @BeforeAll
     public static void beforeAll() {
         SingleUseMapProxyStore.cleanUp();
@@ -69,7 +65,7 @@ public class ProxyStoreResponseDeserialiserIT {
     }
 
     @BeforeEach
-    public void before() throws IOException {
+    public void before(@TempDir File testFolder) throws IOException {
         CLIENT.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
     }
 
