@@ -61,11 +61,8 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
 
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(ImportKeyValueJavaPairRDDToAccumuloHandlerTest.class));
 
-    @TempDir
-    static Path tempDir;
-
     @Test
-    public void checkImportKeyValueJavaPairRDD() throws OperationException, IOException, InterruptedException {
+    public void checkImportKeyValueJavaPairRDD(@TempDir Path tempDir) throws OperationException, IOException, InterruptedException {
         final Graph graph1 = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphId")

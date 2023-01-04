@@ -56,11 +56,8 @@ public class ImportJavaRDDOfElementsHandlerTest {
 
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(ImportJavaRDDOfElementsHandlerTest.class));
 
-    @TempDir
-    static Path tempDir;
-
     @Test
-    public void checkImportJavaRDDOfElements() throws OperationException, IOException, InterruptedException {
+    public void checkImportJavaRDDOfElements(@TempDir Path tempDir) throws OperationException, IOException, InterruptedException {
         final Graph graph1 = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphId")
