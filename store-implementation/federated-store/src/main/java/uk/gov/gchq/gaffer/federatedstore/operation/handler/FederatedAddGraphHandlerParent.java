@@ -107,11 +107,13 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                     }
                     if (Iterable.class.isAssignableFrom(outputClass)) {
                         store.addOperationHandler((Class) supportedOutputOperation, new FederatedOutputIterableHandler());
+                        store.addExternallySupportedOperation(supportedOutputOperation);
                     } else {
                         LOGGER.warn("No generic default handler can be used for an Output operation that does not return CloseableIterable. operation: {}", supportedOutputOperation);
                     }
                 } else {
                     store.addOperationHandler(supportedOperation, new FederatedNoOutputHandler());
+                    store.addExternallySupportedOperation(supportedOperation);
                 }
             }
         }

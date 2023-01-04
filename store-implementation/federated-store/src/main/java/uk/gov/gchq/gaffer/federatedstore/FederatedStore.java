@@ -136,6 +136,7 @@ public class FederatedStore extends Store {
     private List<String> storeConfiguredGraphIds;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private Map<String, BiFunction> storeConfiguredMergeFunctions;
+    private Set<Class<? extends Operation>> externallySupportedOperations = new HashSet<>();
 
     @JsonCreator
     public FederatedStore(@JsonProperty("customPropertiesAuths") final Set<String> customPropertiesAuths,
@@ -288,6 +289,21 @@ public class FederatedStore extends Store {
         return asAdmin
                 ? graphStorage.remove(graphId, user, this.getProperties().getAdminAuth())
                 : graphStorage.remove(graphId, user);
+    }
+
+    /**
+     * @return a collection of all the {@link Operation}s supported by subgraphs.
+     */
+    public Set<Class<? extends Operation>> getExternallySupportedOperations() {
+        return new HashSet<>(externallySupportedOperations);
+    }
+
+    public void removeExternallySupportedOperation(final Class<? extends Operation> operation) {
+        externallySupportedOperations.remove(operation);
+    }
+
+    public void addExternallySupportedOperation(final Class<? extends Operation> operation) {
+        externallySupportedOperations.add(operation);
     }
 
     /**
