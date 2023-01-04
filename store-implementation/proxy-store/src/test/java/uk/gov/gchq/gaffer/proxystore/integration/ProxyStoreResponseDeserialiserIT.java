@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
+import uk.gov.gchq.gaffer.proxystore.SingleUseMapProxyStore;
 import uk.gov.gchq.gaffer.proxystore.response.deserialiser.ResponseDeserialiser;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
@@ -58,6 +59,7 @@ public class ProxyStoreResponseDeserialiserIT {
 
     @BeforeAll
     public static void beforeAll() {
+        SingleUseMapProxyStore.cleanUp();
         CLIENT.startServer();
     }
 
