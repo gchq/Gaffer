@@ -774,14 +774,10 @@ public final class Graph {
         }
 
         public Builder addSchema(final Path schemaPath) {
-            if (null != schemaPath) {
-                try {
-                    if (Files.isDirectory(schemaPath)) {
-                        DirectoryStream<Path> stream = Files.newDirectoryStream(schemaPath);
-                        for (final Path path : stream) {
-                            addSchema(path);
-                        }
-                        stream.close();
+            if (schemaPath != null) {
+                try (DirectoryStream<Path> stream = Files.isDirectory(schemaPath) ? Files.newDirectoryStream(schemaPath) : null) {
+                    if (stream != null) {
+                        stream.forEach(this::addSchema);
                     } else {
                         addSchema(Files.readAllBytes(schemaPath));
                     }
