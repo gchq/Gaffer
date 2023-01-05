@@ -63,7 +63,7 @@ public class NamedOperation<I_ITEM, O> implements
 
     @Required
     private String operationName;
-    private LinkedHashMap<String, Object> parameters;
+    private Map<String, Object> parameters;
     private Map<String, String> options;
 
     @Override
