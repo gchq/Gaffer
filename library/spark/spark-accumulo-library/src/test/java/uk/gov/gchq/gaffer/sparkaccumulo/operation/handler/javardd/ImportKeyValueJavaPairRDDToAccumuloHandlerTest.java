@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,11 +61,8 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
 
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(ImportKeyValueJavaPairRDDToAccumuloHandlerTest.class));
 
-    @TempDir
-    static Path tempDir;
-
     @Test
-    public void checkImportKeyValueJavaPairRDD() throws OperationException, IOException, InterruptedException {
+    public void checkImportKeyValueJavaPairRDD(@TempDir Path tempDir) throws OperationException, IOException, InterruptedException {
         final Graph graph1 = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphId")
