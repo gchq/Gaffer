@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,11 +57,8 @@ public class ImportRDDOfElementsHandlerTest {
 
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(ImportRDDOfElementsHandlerTest.class));
 
-    @TempDir
-    static Path tempDir;
-
     @Test
-    public void checkImportRDDOfElements() throws OperationException, IOException {
+    public void checkImportRDDOfElements(@TempDir Path tempDir) throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphId")
