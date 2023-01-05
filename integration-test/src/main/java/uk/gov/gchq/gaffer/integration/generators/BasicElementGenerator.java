@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.integration.generators;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.integration.domain.DomainObject;
@@ -36,13 +37,12 @@ public class BasicElementGenerator implements OneToOneElementGenerator<DomainObj
 
     @Override
     public Element _apply(final DomainObject domainObject) {
-        Element result = null;
         if (domainObject instanceof EntityDomainObject) {
-            result = entityGenerator._apply((EntityDomainObject) domainObject);
+            return entityGenerator._apply((EntityDomainObject) domainObject);
         } else if (domainObject instanceof EdgeDomainObject) {
-            result = edgeGenerator._apply((EdgeDomainObject) domainObject);
+            return edgeGenerator._apply((EdgeDomainObject) domainObject);
+        } else {
+            throw new GafferRuntimeException("domainObject must be either an EntityDomainObject or EdgeDomainObject");
         }
-
-        return result;
     }
 }
