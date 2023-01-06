@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -29,12 +30,9 @@ import uk.gov.gchq.koryphe.Since;
 @Since("2.0.0")
 public interface IFederationOperation extends Operation {
 
-    boolean isUserRequestingAdminUsage();
-
     @JsonGetter("userRequestingAdminUsage")
-    default Boolean _isUserRequestingAdminUsage() {
-        return isUserRequestingAdminUsage();
-    }
+    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+    boolean isUserRequestingAdminUsage();
 
     @JsonSetter("userRequestingAdminUsage")
     Operation setUserRequestingAdminUsage(final boolean adminRequest);

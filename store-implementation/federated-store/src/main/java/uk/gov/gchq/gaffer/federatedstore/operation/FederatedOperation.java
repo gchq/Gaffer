@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -102,12 +103,9 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         return this;
     }
 
-    public boolean isSkipFailedFederatedExecution() {
-        return skipFailedFederatedExecution;
-    }
-
     @JsonGetter("skipFailedFederatedExecution")
-    public Boolean _isSkipFailedFederatedExecution() {
+    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+    public boolean isSkipFailedFederatedExecution() {
         return skipFailedFederatedExecution;
     }
 
