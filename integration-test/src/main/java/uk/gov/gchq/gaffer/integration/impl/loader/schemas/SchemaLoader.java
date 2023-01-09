@@ -41,8 +41,6 @@ public interface SchemaLoader {
     String B = "B";
     String C = "C";
     String D = "D";
-    @SuppressFBWarnings(value = "MS_OOI_PKGPROTECT", justification = "Value is not being changed")
-    String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
 
     Map<EdgeId, Edge> createEdges();
 

@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import java.util.HashMap;
 import java.util.Map;
 
+import static uk.gov.gchq.gaffer.integration.AbstractStoreIT.VERTEX_PREFIXES;
+
 /**
  * {@link SchemaLoader} implementation to load a {@link uk.gov.gchq.gaffer.store.schema.Schema}s
  * featuring a visibility property for testing purposes.
@@ -36,11 +38,11 @@ public class VisibilitySchemaLoader implements SchemaLoader {
     public Map<EdgeId, Edge> createEdges() {
         final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
-            for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
+            for (int j = 0; j < VERTEX_PREFIXES.size(); j++) {
                 final Edge edge = new Edge.Builder()
                         .group(TestGroups.EDGE)
-                        .source(VERTEX_PREFIXES[0] + i)
-                        .dest(VERTEX_PREFIXES[j] + i)
+                        .source(VERTEX_PREFIXES.get(0) + i)
+                        .dest(VERTEX_PREFIXES.get(j) + i)
                         .directed(false)
                         .property(TestPropertyNames.COUNT, 1L)
                         .property(TestPropertyNames.VISIBILITY, "public")
@@ -49,8 +51,8 @@ public class VisibilitySchemaLoader implements SchemaLoader {
 
                 final Edge edgeDir = new Edge.Builder()
                         .group(TestGroups.EDGE)
-                        .source(VERTEX_PREFIXES[0] + i)
-                        .dest(VERTEX_PREFIXES[j] + i)
+                        .source(VERTEX_PREFIXES.get(0) + i)
+                        .dest(VERTEX_PREFIXES.get(j) + i)
                         .directed(true)
                         .property(TestPropertyNames.COUNT, 1L)
                         .property(TestPropertyNames.VISIBILITY, "private")
@@ -87,7 +89,7 @@ public class VisibilitySchemaLoader implements SchemaLoader {
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
-                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
+                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES.get(j) + i);
                 entity.putProperty(TestPropertyNames.COUNT, 1L);
                 entity.putProperty(TestPropertyNames.VISIBILITY, "public");
                 addToMap(entity, entities);
