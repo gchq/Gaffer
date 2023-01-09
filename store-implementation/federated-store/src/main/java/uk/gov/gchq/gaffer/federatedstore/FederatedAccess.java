@@ -77,8 +77,10 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     private final boolean isPublic;
     private final Set<String> graphAuths;
     private final String owningUserId;
-    private final String readAccessPredicate;
-    private final String writeAccessPredicate;
+    private final String readAccessPredicateString;
+    private final String writeAccessPredicateString;
+    private transient final AccessPredicate readAccessPredicate;
+    private transient final AccessPredicate writeAccessPredicate;
 
     public FederatedAccess(final Set<String> graphAuths, final String owningUserId) {
         this(graphAuths, owningUserId, Boolean.parseBoolean(DEFAULT_VALUE_IS_PUBLIC));
@@ -103,12 +105,11 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
         this.owningUserId = owningUserId;
         this.isPublic = isPublic;
 
-        try {
-            this.readAccessPredicate = readAccessPredicate != null ? new String(JSONSerialiser.serialise(readAccessPredicate)) : null;
-            this.writeAccessPredicate = writeAccessPredicate != null ? new String(JSONSerialiser.serialise(writeAccessPredicate)) : null;
-        } catch (final SerialisationException e) {
-            throw new IllegalArgumentException("Read and write accessPredicates must be JsonSerialisable", e);
-        }
+        this.readAccessPredicate = readAccessPredicate;
+        this.writeAccessPredicate = writeAccessPredicate;
+
+        this.readAccessPredicateString = serialisePredicate(readAccessPredicate);
+        this.writeAccessPredicateString = serialisePredicate(writeAccessPredicate);
     }
 
     public Set<String> getGraphAuths() {
@@ -169,11 +170,19 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
         return getOrDefaultWriteAccessPredicate().test(user, adminAuth);
     }
 
-    private AccessPredicate deserialisePredicate(final String predicateJson) {
+    public static AccessPredicate deserialisePredicate(final String predicateJson) {
         try {
             return JSONSerialiser.deserialise(predicateJson, AccessPredicate.class);
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static String serialisePredicate(final AccessPredicate accessPredicate) {
+        try {
+            return accessPredicate != null ? new String(JSONSerialiser.serialise(accessPredicate)) : null;
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Read and write accessPredicates must be JsonSerialisable", e);
         }
     }
 
@@ -188,24 +197,14 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
                 .toString();
     }
 
-    public AccessPredicate getReadAccessPredicate() {
-        return readAccessPredicate != null ? deserialisePredicate(readAccessPredicate) : null;
-    }
-
-    public AccessPredicate getWriteAccessPredicate() {
-        return writeAccessPredicate != null ? deserialisePredicate(writeAccessPredicate) : null;
-    }
-
     @JsonIgnore
     public AccessPredicate getOrDefaultReadAccessPredicate() {
-        final AccessPredicate readAccessPredicate = getReadAccessPredicate();
-        return readAccessPredicate != null ? readAccessPredicate : getDefaultReadAccessPredicate();
+        return this.readAccessPredicate != null ? new AccessPredicate(this.readAccessPredicate.getUserPredicate()) : getDefaultReadAccessPredicate();
     }
 
     @JsonIgnore
     public AccessPredicate getOrDefaultWriteAccessPredicate() {
-        final AccessPredicate writeAccessPredicate = getWriteAccessPredicate();
-        return writeAccessPredicate != null ? writeAccessPredicate : getDefaultWriteAccessPredicate();
+        return this.writeAccessPredicate != null ? new AccessPredicate(this.writeAccessPredicate.getUserPredicate()) : getDefaultWriteAccessPredicate();
     }
 
     private AccessPredicate getDefaultReadAccessPredicate() {
@@ -301,8 +300,8 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
             this.graphAuths = that.graphAuths;
             this.owningUserId = that.owningUserId;
             this.isPublic = that.isPublic;
-            this.readAccessPredicate = that.getReadAccessPredicate();
-            this.writeAccessPredicate = that.getWriteAccessPredicate();
+            this.readAccessPredicate = that.readAccessPredicate;
+            this.writeAccessPredicate = that.writeAccessPredicate;
             return self;
         }
     }
