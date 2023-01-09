@@ -102,7 +102,8 @@ public class OneOrMore<T> implements Iterable<T> {
         return result;
     }
 
-    @SuppressFBWarnings(value = "BC_BAD_CAST_TO_ABSTRACT_COLLECTION", justification = "Cast to List is required to use a List specific remove method")
+    @SuppressFBWarnings(value = "BC_BAD_CAST_TO_ABSTRACT_COLLECTION",
+            justification = "Cast to List is required to use a List specific remove method")
     public void removeAnyItem() {
         if (null == collection) {
             singleItem = null;
