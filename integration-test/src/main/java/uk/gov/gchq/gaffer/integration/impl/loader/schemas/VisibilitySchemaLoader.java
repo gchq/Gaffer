@@ -88,7 +88,7 @@ public class VisibilitySchemaLoader implements SchemaLoader {
     public Map<EntityId, Entity> createEntities() {
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
-            for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
+            for (int j = 0; j < VERTEX_PREFIXES.size(); j++) {
                 final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES.get(j) + i);
                 entity.putProperty(TestPropertyNames.COUNT, 1L);
                 entity.putProperty(TestPropertyNames.VISIBILITY, "public");

@@ -127,7 +127,7 @@ public class FullSchemaLoader implements SchemaLoader {
     public Map<EntityId, Entity> createEntities() {
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
-            for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
+            for (int j = 0; j < VERTEX_PREFIXES.size(); j++) {
                 final FreqMap freqMap = new FreqMap();
                 freqMap.upsert("key");
 
