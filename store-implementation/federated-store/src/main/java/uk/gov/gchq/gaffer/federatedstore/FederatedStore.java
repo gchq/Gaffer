@@ -443,7 +443,7 @@ public class FederatedStore extends Store {
             operation.addOption(keyForFedStoreId, getValueForProcessedFedStoreId());
 
             // 4) return if the ID was found.
-            isFedStoreIdPreexisting = doesFedStoreIDOptionHaveContent || doesFedStoreIDOptionHaveContent;
+            isFedStoreIdPreexisting = doesFedStoreIDOptionHaveContent || doesPayloadHavePreexistingFedStoreId;
         }
         return isFedStoreIdPreexisting;
     }
