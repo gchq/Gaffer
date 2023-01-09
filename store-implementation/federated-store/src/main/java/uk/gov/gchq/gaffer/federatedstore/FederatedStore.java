@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -442,7 +442,7 @@ public class FederatedStore extends Store {
             operation.addOption(keyForFedStoreId, getValueForProcessedFedStoreId());
 
             // 4) return if the ID was found.
-            isFedStoreIdPreexisting = doesFedStoreIDOptionHaveContent || doesFedStoreIDOptionHaveContent;
+            isFedStoreIdPreexisting = doesFedStoreIDOptionHaveContent || doesPayloadHavePreexistingFedStoreId;
         }
         return isFedStoreIdPreexisting;
     }
