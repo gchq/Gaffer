@@ -25,6 +25,9 @@ import uk.gov.gchq.gaffer.cache.impl.JcsCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.HashSet;
 import java.util.Properties;
@@ -70,10 +73,14 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
     }
 
     @Test
-    public void shouldReturnExpectedFederatedAccessUsingCacheDataFromVersion1_12() {
+    public void shouldReturnExpectedFederatedAccessUsingCacheDataFromVersion1_12() throws Exception {
         final Set<String> graphAuths = new HashSet<>(asList("auth1", "auth2"));
 
         final FederatedAccess access = new FederatedAccess(graphAuths, ADDING_USER_ID);
+
+        final GraphSerialisable graphSerialisable = new GraphSerialisable(new GraphConfig(MAP_ID_1), new Schema(), new StoreProperties());
+        federatedStoreCache.addGraphToCache(graphSerialisable, new FederatedAccess(graphAuths, ADDING_USER_ID), true);
+
         final FederatedAccess accessFromCacheVersion1_12 = federatedStoreCache.getAccessFromCache(MAP_ID_1);
 
         assertEquals(access, accessFromCacheVersion1_12);

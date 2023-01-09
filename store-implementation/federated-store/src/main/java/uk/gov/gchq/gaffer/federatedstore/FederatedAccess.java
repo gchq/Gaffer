@@ -41,6 +41,7 @@ import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
+import static java.util.Objects.isNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_VALUE_IS_PUBLIC;
 
 /**
@@ -72,15 +73,13 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
  */
 @JsonDeserialize(builder = FederatedAccess.Builder.class)
 @JsonPropertyOrder(value = {"class", "owningUserId"}, alphabetic = true)
-public class FederatedAccess implements AccessControlledResource, Serializable {
+public class FederatedAccess implements AccessControlledResource {
     private static final long serialVersionUID = 1399629017857618033L;
     private final boolean isPublic;
     private final Set<String> graphAuths;
     private final String owningUserId;
-    private final String readAccessPredicateString;
-    private final String writeAccessPredicateString;
-    private transient final AccessPredicate readAccessPredicate;
-    private transient final AccessPredicate writeAccessPredicate;
+    private final AccessPredicate readAccessPredicate;
+    private final AccessPredicate writeAccessPredicate;
 
     public FederatedAccess(final Set<String> graphAuths, final String owningUserId) {
         this(graphAuths, owningUserId, Boolean.parseBoolean(DEFAULT_VALUE_IS_PUBLIC));
@@ -107,9 +106,6 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
 
         this.readAccessPredicate = readAccessPredicate;
         this.writeAccessPredicate = writeAccessPredicate;
-
-        this.readAccessPredicateString = serialisePredicate(readAccessPredicate);
-        this.writeAccessPredicateString = serialisePredicate(writeAccessPredicate);
     }
 
     public Set<String> getGraphAuths() {
@@ -195,6 +191,14 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
                 .append("readAccessPredicate", readAccessPredicate)
                 .append("writeAccessPredicate", writeAccessPredicate)
                 .toString();
+    }
+
+    public AccessPredicate getReadAccessPredicate() {
+        return isNull(readAccessPredicate) ? null : new AccessPredicate(this.readAccessPredicate.getUserPredicate());
+    }
+
+    public AccessPredicate getWriteAccessPredicate() {
+        return isNull(writeAccessPredicate) ? null : new AccessPredicate(this.writeAccessPredicate.getUserPredicate());
     }
 
     @JsonIgnore
@@ -303,6 +307,31 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
             this.readAccessPredicate = that.readAccessPredicate;
             this.writeAccessPredicate = that.writeAccessPredicate;
             return self;
+        }
+    }
+
+    static final class Transient implements Serializable {
+        private final boolean isPublic;
+        private final Set<String> graphAuths;
+        private final String owningUserId;
+        private final String readAccessPredicate;
+        private final String writeAccessPredicate;
+
+        private Transient(final FederatedAccess federatedAccess) {
+            this.isPublic = federatedAccess.isPublic;
+            this.graphAuths = federatedAccess.graphAuths;
+            this.owningUserId = federatedAccess.owningUserId;
+            this.readAccessPredicate = serialisePredicate(federatedAccess.readAccessPredicate);
+            this.writeAccessPredicate = serialisePredicate(federatedAccess.writeAccessPredicate);
+        }
+
+        public static Transient getTransient(final FederatedAccess federatedAccess) {
+            return isNull(federatedAccess) ? null : new Transient(federatedAccess);
+        }
+
+        public static FederatedAccess getFederatedAccess(final Transient federatedAccessTransient) {
+
+            return isNull(federatedAccessTransient) ? null : new FederatedAccess(federatedAccessTransient.graphAuths, federatedAccessTransient.owningUserId, federatedAccessTransient.isPublic, isNull(federatedAccessTransient.readAccessPredicate) ? null : deserialisePredicate(federatedAccessTransient.readAccessPredicate), isNull(federatedAccessTransient.writeAccessPredicate) ? null : deserialisePredicate(federatedAccessTransient.writeAccessPredicate));
         }
     }
 }
