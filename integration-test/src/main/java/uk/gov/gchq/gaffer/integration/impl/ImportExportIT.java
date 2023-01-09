@@ -70,13 +70,12 @@ public class ImportExportIT extends AbstractStoreIT {
     @Test
     public void shouldImportFromFileThenExportBackOutToDifferentFile() throws OperationException, IOException {
         // Given
-        List<String> expectedData = Arrays.asList(
+        final List<String> expectedData = Arrays.asList(
                 ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Int,DIRECTED:Boolean",
                 "A,BasicEntity,,,,1,",
                 "B,BasicEntity,,,,2,",
                 ",,BasicEdge,A,B,1,true"
         );
-
 
         final OperationChain<Iterable<? extends String>> importExportOpChain = new OperationChain.Builder()
                 .first(new ImportFromLocalFile.Builder()
@@ -96,15 +95,14 @@ public class ImportExportIT extends AbstractStoreIT {
                         .build())
                 .build();
 
+        // When
         final Iterable<? extends String> exportedData = graph.execute(importExportOpChain, getUser());
-
-        //   When
-
         Iterable<String> incomingFile = readFile(INCOMING_FILE_PATH);
         Iterable<String> outgoingFile = readFile(path.toFile().getAbsolutePath());
 
 
-        //  Then
+        // Then
+        assertThat(expectedData).containsExactlyInAnyOrderElementsOf(exportedData);
         assertThat(outgoingFile).containsExactlyInAnyOrderElementsOf(incomingFile);
     }
 
@@ -112,7 +110,7 @@ public class ImportExportIT extends AbstractStoreIT {
     public Iterable<String> readFile(final String filePath) throws OperationException {
         final OperationChain<Iterable<String>> importOpChain = new OperationChain.Builder()
                 .first(new ImportFromLocalFile.Builder()
-                        .filePath(INCOMING_FILE_PATH)
+                        .filePath(filePath)
                         .build())
                 .build();
 
