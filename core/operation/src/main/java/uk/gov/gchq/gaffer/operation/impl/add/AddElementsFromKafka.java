@@ -161,7 +161,7 @@ public class AddElementsFromKafka implements
     @Override
     public ValidationResult validate() {
         final ValidationResult result = Operation.super.validate();
-        if (null != bootstrapServers && bootstrapServers.length < 1) {
+        if (bootstrapServers != null && bootstrapServers.length < 1) {
             result.addError("At least 1 bootstrap server is required.");
         }
 
