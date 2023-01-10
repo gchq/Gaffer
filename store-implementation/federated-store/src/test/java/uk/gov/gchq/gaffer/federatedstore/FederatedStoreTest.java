@@ -126,6 +126,7 @@ public class FederatedStoreTest {
     private static final String ACC_ID_1 = "miniAccGraphId1";
     private static final String ACC_ID_2 = "miniAccGraphId2";
     private static final String MAP_ID_1 = "miniMapGraphId1";
+    private static final String FED_ID_1 = "subFedGraphId1";
     private static final String INVALID_CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.invalid";
     private static final String CACHE_SERVICE_NAME = "federatedStoreGraphs";
     private static AccumuloProperties properties1;
@@ -1316,6 +1317,79 @@ public class FederatedStoreTest {
                         "(graphId: graphB) Entity group entityA does not exist in the schema"))
                 .withMessageContaining(String.format("(graphId: graphC) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. %n" +
                         "(graphId: graphC) Entity group entityA does not exist in the schema"));
+    }
+
+    @Test
+    public void shouldUpdateSupportedOperations() throws Exception {
+        // Given
+        final Set<Class<? extends Operation>> before = store.getSupportedOperations();
+
+        // When
+        addGraphWithIds(ACC_ID_1, ID_PROPS_ACC_1, ID_SCHEMA_ENTITY);
+        final Set<Class<? extends Operation>> withGraph = store.getSupportedOperations();
+
+        store.execute(new RemoveGraph.Builder()
+                .graphId(ACC_ID_1)
+                .build(), blankUserContext);
+        final Set<Class<? extends Operation>> afterRemove = store.getSupportedOperations();
+
+        // Then
+        assertThat(before)
+                .isEqualTo(afterRemove)
+                .isNotEqualTo(withGraph)
+                .isSubsetOf(withGraph);
+    }
+
+    @Test
+    public void shouldKeepDuplicateSupportedOperations() throws Exception {
+        // Given
+        final Set<Class<? extends Operation>> before = store.getSupportedOperations();
+
+        // When
+        addGraphWithIds(ACC_ID_1, ID_PROPS_ACC_1, ID_SCHEMA_ENTITY);
+        final Set<Class<? extends Operation>> with1Graph = store.getSupportedOperations();
+
+        addGraphWithIds(ACC_ID_2, ID_PROPS_ACC_2, ID_SCHEMA_EDGE);
+        final Set<Class<? extends Operation>> with2Graph = store.getSupportedOperations();
+
+        store.execute(new RemoveGraph.Builder()
+                .graphId(ACC_ID_1)
+                .build(), blankUserContext);
+        final Set<Class<? extends Operation>> after1Remove = store.getSupportedOperations();
+
+        // Then
+        assertThat(after1Remove)
+                .isNotEqualTo(before)
+                .isEqualTo(with1Graph)
+                .isEqualTo(with2Graph);
+    }
+
+    @Test
+    public void shouldKeepFederatedStoreSupportedOperations() throws Exception {
+        // Given
+        final Set<Class<? extends Operation>> before = store.getSupportedOperations();
+
+        // When
+        FederatedStoreProperties properties = new FederatedStoreProperties();
+        properties.setCacheServiceNameSuffix(FED_ID_1);
+        store.execute(new AddGraph.Builder()
+                .graphId(FED_ID_1)
+                .schema(new Schema())
+                .storeProperties(properties)
+                .build(), blankUserContext);
+
+        final Set<Class<? extends Operation>> withGraph = store.getSupportedOperations();
+
+        store.execute(new RemoveGraph.Builder()
+                .graphId(FED_ID_1)
+                .build(), blankUserContext);
+        final Set<Class<? extends Operation>> afterRemove = store.getSupportedOperations();
+
+        // Then
+        assertThat(afterRemove)
+                .contains(AddGraph.class)
+                .isEqualTo(before)
+                .isEqualTo(withGraph);
     }
 
     protected void addElementsToNewGraph(final Entity input, final String graphName, final String pathSchemaJson)
