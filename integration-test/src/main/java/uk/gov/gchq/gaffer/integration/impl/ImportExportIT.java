@@ -102,7 +102,7 @@ public class ImportExportIT extends AbstractStoreIT {
 
 
         // Then
-        assertThat(expectedData).containsExactlyInAnyOrderElementsOf(exportedData);
+        assertThat((Iterable<String>) exportedData).containsExactlyInAnyOrderElementsOf(expectedData);
         assertThat(outgoingFile).containsExactlyInAnyOrderElementsOf(incomingFile);
     }
 
