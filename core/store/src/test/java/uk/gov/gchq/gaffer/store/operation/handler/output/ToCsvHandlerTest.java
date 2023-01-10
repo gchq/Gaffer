@@ -233,13 +233,13 @@ public class ToCsvHandlerTest {
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
-                ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Integer,DIRECTED:Boolean",
+                ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Int,DIRECTED:Boolean",
                 "vertex1,BasicEntity,,,,1,",
                 "vertex2,BasicEntity,,,,,",
                 ",,BasicEdge,source1,dest1,1,true",
                 ",,BasicEdge,source2,dest2,,true"
         );
-        assertThat(expected).isEqualTo(resultList);
+        assertThat(resultList).isEqualTo(expected);
     }
 
     @Test
@@ -267,13 +267,13 @@ public class ToCsvHandlerTest {
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
-                "_id,_labels,_type,_start,_end,count:Integer,DIRECTED:Boolean",
+                "_id,_labels,_type,_start,_end,count:Int,DIRECTED:Boolean",
                 "vertex1,BasicEntity,,,,1,",
                 "vertex2,BasicEntity,,,,,",
                 ",,BasicEdge,source1,dest1,1,true",
                 ",,BasicEdge,source2,dest2,,true"
         );
-        assertThat(expected).isEqualTo(resultList);
+        assertThat(resultList).isEqualTo(expected);
     }
 
     @Test
