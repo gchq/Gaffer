@@ -48,7 +48,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ImportExportIT extends AbstractStoreIT {
-
     private static final String INCOMING_FILE_PATH = "NeptuneEntitiesAndEdgesWithProperties.csv";
     private Path path;
     private File outgoingFile;
@@ -57,7 +56,6 @@ public class ImportExportIT extends AbstractStoreIT {
 
     @Override
     public void _setup() throws Exception {
-
         try {
             path = tempDir.resolve("outputFile.csv");
         } catch (final InvalidPathException ipe) {
@@ -96,16 +94,14 @@ public class ImportExportIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends String> exportedData = graph.execute(importExportOpChain, getUser());
+        final Iterable<String> exportedData = (Iterable<String>) graph.execute(importExportOpChain, getUser());
         Iterable<String> incomingFile = readFile(INCOMING_FILE_PATH);
         Iterable<String> outgoingFile = readFile(path.toFile().getAbsolutePath());
 
-
         // Then
-        assertThat((Iterable<String>) exportedData).containsExactlyInAnyOrderElementsOf(expectedData);
+        assertThat(exportedData).containsExactlyInAnyOrderElementsOf(expectedData);
         assertThat(outgoingFile).containsExactlyInAnyOrderElementsOf(incomingFile);
     }
-
 
     public Iterable<String> readFile(final String filePath) throws OperationException {
         final OperationChain<Iterable<String>> importOpChain = new OperationChain.Builder()
