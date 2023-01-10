@@ -33,6 +33,8 @@ import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 
+import static uk.gov.gchq.gaffer.data.element.IdentifierType.DIRECTED;
+
 /**
  * A {@code ToCsvHandler} handles {@link ToCsv} operations by applying the provided
  * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to each item in the
@@ -75,7 +77,7 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
         }
         for (final SchemaEdgeDefinition schemaEdgeDefinition : schema.getEdges().values()) {
             for (final IdentifierType identifierType : schemaEdgeDefinition.getIdentifiers()) {
-                if (identifierType.toString().equals(identifierType.DIRECTED.toString())) {
+                if (identifierType.equals(DIRECTED)) {
                     final String typeName = schemaEdgeDefinition.getIdentifierTypeName(identifierType);
                     propertyHeadersFromSchema.put(identifierType.toString(), schema.getType(typeName).getClazz().getSimpleName());
                 }
