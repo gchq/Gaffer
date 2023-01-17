@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
+import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashSet;
@@ -30,7 +30,7 @@ import java.util.Set;
  * Wrapper around the {@link CacheServiceLoader} to provide an interface for handling
  * the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView}s for a Gaffer graph.
  */
-public class NamedViewCache {
+public class NamedViewCache /*extends Cache<String,NamedViewDetail>*/ {
 
     private static final String CACHE_NAME = "NamedView";
 
@@ -44,10 +44,10 @@ public class NamedViewCache {
      *
      * @param namedViewDetail The {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} to store
      * @param overwrite       Flag relating to whether the user is adding (false) or updating/overwriting (true).
-     * @throws CacheOperationFailedException if the add operation fails.
+     * @throws CacheOperationException if the add operation fails.
      */
     public void addNamedView(final NamedViewDetail namedViewDetail, final boolean overwrite)
-            throws CacheOperationFailedException {
+            throws CacheOperationException {
         add(namedViewDetail, overwrite, null, null);
     }
 
@@ -63,10 +63,10 @@ public class NamedViewCache {
      * @param overwrite       Flag relating to whether the user is adding (false) or updating/overwriting (true).
      * @param user            The user making the request.
      * @param adminAuth       The admin auth supplied for permissions.
-     * @throws CacheOperationFailedException if the add operation fails.
+     * @throws CacheOperationException if the add operation fails.
      */
     public void addNamedView(final NamedViewDetail namedViewDetail, final boolean overwrite, final User user, final String adminAuth)
-            throws CacheOperationFailedException {
+            throws CacheOperationException {
         add(namedViewDetail, overwrite, user, adminAuth);
     }
 
@@ -75,10 +75,10 @@ public class NamedViewCache {
      *
      * @param name      {@link NamedViewDetail} name to delete
      * @param user      A {@link User} object that can optionally be used for checking permissions
-     * @throws CacheOperationFailedException Thrown when the NamedViewDetail doesn't exist or the User doesn't have
+     * @throws CacheOperationException Thrown when the NamedViewDetail doesn't exist or the User doesn't have
      *                                       write permission on the NamedViewDetail
      */
-    public void deleteNamedView(final String name, final User user) throws CacheOperationFailedException {
+    public void deleteNamedView(final String name, final User user) throws CacheOperationException {
         deleteNamedView(name, user, null);
     }
 
@@ -88,11 +88,11 @@ public class NamedViewCache {
      * @param name      {@link NamedViewDetail} name to delete
      * @param user      A {@link User} object that can optionally be used for checking permissions
      * @param adminAuth The admin auth supplied for permissions.
-     * @throws CacheOperationFailedException Thrown when the NamedViewDetail doesn't exist or the User doesn't have
+     * @throws CacheOperationException Thrown when the NamedViewDetail doesn't exist or the User doesn't have
      *                                       write permission on the NamedViewDetail
      */
     public void deleteNamedView(final String name, final User user, final String adminAuth)
-            throws CacheOperationFailedException {
+            throws CacheOperationException {
         remove(name, user, adminAuth);
     }
 
@@ -102,9 +102,9 @@ public class NamedViewCache {
      * @param name {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} name to get
      * @param user {@link uk.gov.gchq.gaffer.user.User} user requesting view
      * @return namedView {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} of specified name
-     * @throws CacheOperationFailedException if the get operation fails
+     * @throws CacheOperationException if the get operation fails
      */
-    public NamedViewDetail getNamedView(final String name, final User user) throws CacheOperationFailedException {
+    public NamedViewDetail getNamedView(final String name, final User user) throws CacheOperationException {
         return getNamedView(name, user, null);
     }
 
@@ -115,19 +115,19 @@ public class NamedViewCache {
      * @param user      {@link uk.gov.gchq.gaffer.user.User} user requesting view
      * @param adminAuth admin auths
      * @return namedView {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} of specified name
-     * @throws CacheOperationFailedException if the get operation fails
+     * @throws CacheOperationException if the get operation fails
      */
     public NamedViewDetail getNamedView(final String name, final User user, final String adminAuth)
-            throws CacheOperationFailedException {
+            throws CacheOperationException {
         if (Objects.nonNull(name)) {
             final NamedViewDetail namedViewDetail = getFromCache(name);
             if (namedViewDetail.hasReadAccess(user, adminAuth)) {
                 return namedViewDetail;
             } else {
-                throw new CacheOperationFailedException(String.format("User: %s does not have read access to %s", user, name));
+                throw new CacheOperationException(String.format("User: %s does not have read access to %s", user, name));
             }
         } else {
-            throw new CacheOperationFailedException("NamedView name cannot be null");
+            throw new CacheOperationException("NamedView name cannot be null");
         }
     }
 
@@ -136,9 +136,9 @@ public class NamedViewCache {
      *
      * @param user {@link uk.gov.gchq.gaffer.user.User} user requesting views
      * @return a {@link Iterable} containing all of the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail}s in the cache
-     * @throws CacheOperationFailedException if the get operation fails
+     * @throws CacheOperationException if the get operation fails
      */
-    public Iterable<NamedViewDetail> getAllNamedViews(final User user) throws CacheOperationFailedException {
+    public Iterable<NamedViewDetail> getAllNamedViews(final User user) throws CacheOperationException {
         return getAllNamedViews(user, null);
     }
 
@@ -148,10 +148,10 @@ public class NamedViewCache {
      * @param user      {@link uk.gov.gchq.gaffer.user.User} user requesting views
      * @param adminAuth admin auths
      * @return a {@link Iterable} containing all of the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail}s in the cache
-     * @throws CacheOperationFailedException if the get operation fails
+     * @throws CacheOperationException if the get operation fails
      */
     public Iterable<NamedViewDetail> getAllNamedViews(final User user, final String adminAuth)
-            throws CacheOperationFailedException {
+            throws CacheOperationException {
         final Set<String> keys = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
         final Set<NamedViewDetail> views = new HashSet<>();
         for (final String key : keys) {
@@ -160,7 +160,7 @@ public class NamedViewCache {
                 if (namedViewDetail.hasReadAccess(user, adminAuth)) {
                     views.add(namedViewDetail);
                 }
-            } catch (final CacheOperationFailedException e) {
+            } catch (final CacheOperationException e) {
                 throw e;
             }
         }
@@ -170,13 +170,13 @@ public class NamedViewCache {
     /**
      * Clear the {@code NamedViewCache}.
      *
-     * @throws CacheOperationFailedException if there was an error clearing the cache
+     * @throws CacheOperationException if there was an error clearing the cache
      */
-    public void clearCache() throws CacheOperationFailedException {
+    public void clearCache() throws CacheOperationException {
         try {
             CacheServiceLoader.getService().clearCache(CACHE_NAME);
         } catch (final CacheOperationException e) {
-            throw new CacheOperationFailedException("Failed to clear cache", e);
+            throw new CacheOperationException("Failed to clear cache", e);
         }
     }
 
@@ -184,13 +184,13 @@ public class NamedViewCache {
      * Delete the specified {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} from the cache.
      *
      * @param name the name of the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} to delete
-     * @throws CacheOperationFailedException if the remove operation fails
+     * @throws CacheOperationException if the remove operation fails
      */
-    public void deleteFromCache(final String name) throws CacheOperationFailedException {
+    public void deleteFromCache(final String name) throws CacheOperationException {
         CacheServiceLoader.getService().removeFromCache(CACHE_NAME, name);
 
         if (Objects.nonNull(CacheServiceLoader.getService().getFromCache(CACHE_NAME, name))) {
-            throw new CacheOperationFailedException(String.format("Failed to remove %s from cache", name));
+            throw new CacheOperationException(String.format("Failed to remove %s from cache", name));
         }
     }
 
@@ -200,10 +200,10 @@ public class NamedViewCache {
      * @param namedView the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} to add to the cache
      * @param overwrite if true, overwrite any existing entry which matches the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail}
      *                  name
-     * @throws CacheOperationFailedException if the add operation fails
+     * @throws CacheOperationException if the add operation fails
      */
     public void addToCache(final NamedViewDetail namedView, final boolean overwrite)
-            throws CacheOperationFailedException {
+            throws CacheOperationException {
         try {
             if (overwrite) {
                 CacheServiceLoader.getService().putInCache(CACHE_NAME, namedView.getName(), namedView);
@@ -211,7 +211,7 @@ public class NamedViewCache {
                 CacheServiceLoader.getService().putSafeInCache(CACHE_NAME, namedView.getName(), namedView);
             }
         } catch (final CacheOperationException e) {
-            throw new CacheOperationFailedException(e);
+            throw new CacheOperationException(e);
         }
     }
 
@@ -220,15 +220,15 @@ public class NamedViewCache {
      *
      * @param name the name of the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} to return
      * @return the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail}
-     * @throws CacheOperationFailedException if the get operation fails, or the name does not exist in cache
+     * @throws CacheOperationException if the get operation fails, or the name does not exist in cache
      */
-    public NamedViewDetail getFromCache(final String name) throws CacheOperationFailedException {
+    public NamedViewDetail getFromCache(final String name) throws CacheOperationException {
         if (null != name) {
             final NamedViewDetail namedViewFromCache = CacheServiceLoader.getService().getFromCache(CACHE_NAME, name);
             if (null != namedViewFromCache) {
                 return namedViewFromCache;
             } else {
-                throw new CacheOperationFailedException(String.format("No NamedView with the name %s exists in the cache", name));
+                throw new CacheOperationException(String.format("No NamedView with the name %s exists in the cache", name));
             }
         } else {
             throw new IllegalArgumentException("NamedView name cannot be null");
@@ -237,11 +237,11 @@ public class NamedViewCache {
 
     private void add(final NamedViewDetail namedViewDetail, final boolean overwrite, final User user,
                      final String adminAuth)
-            throws CacheOperationFailedException {
+            throws CacheOperationException {
         if (Objects.nonNull(namedViewDetail.getName())) {
             namedViewDetail.getName();
         } else {
-            throw new CacheOperationFailedException("NamedView name cannot be null");
+            throw new CacheOperationException("NamedView name cannot be null");
         }
 
         if (!overwrite) {
@@ -253,7 +253,7 @@ public class NamedViewCache {
 
         try {
             existing = getFromCache(namedViewDetail.getName());
-        } catch (final CacheOperationFailedException e) { // if there is no existing NamedView add one
+        } catch (final CacheOperationException e) { // if there is no existing NamedView add one
             addToCache(namedViewDetail, false);
             return;
         }
@@ -261,28 +261,28 @@ public class NamedViewCache {
             if (existing.hasWriteAccess(user, adminAuth)) {
                 addToCache(namedViewDetail, true);
             } else {
-                throw new CacheOperationFailedException(String.format("User %s does not have permission to overwrite", user.getUserId()));
+                throw new CacheOperationException(String.format("User %s does not have permission to overwrite", user.getUserId()));
             }
         }
         addToCache(namedViewDetail, true);
     }
 
     private void remove(final String name, final User user, final String adminAuth)
-            throws CacheOperationFailedException {
+            throws CacheOperationException {
         if (Objects.isNull(name)) {
             throw new IllegalArgumentException("NamedView name cannot be null");
         }
         NamedViewDetail existing;
         try {
             existing = getFromCache(name);
-        } catch (final CacheOperationFailedException e) {
+        } catch (final CacheOperationException e) {
             return;
         }
         if (Objects.nonNull(user)) {
             if (existing.hasWriteAccess(user, adminAuth)) {
                 deleteFromCache(name);
             } else {
-                throw new CacheOperationFailedException(String.format("User %s does not have permission to delete named view: %s", user, name));
+                throw new CacheOperationException(String.format("User %s does not have permission to delete named view: %s", user, name));
             }
         }
         deleteFromCache(name);

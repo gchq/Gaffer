@@ -31,7 +31,7 @@ import static java.util.Objects.nonNull;
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
  * handling the {@link Graph}s within a {@link FederatedStore}.
  */
-public class FederatedStoreCacheTransient extends Cache<Pair<GraphSerialisable, byte[]>> {
+public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerialisable, byte[]>> {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";
     private static final String CACHE_SERVICE_NAME_PREFIX = "federatedStoreGraphs";
 
@@ -77,7 +77,7 @@ public class FederatedStoreCacheTransient extends Cache<Pair<GraphSerialisable, 
      */
     public void addGraphToCache(final GraphSerialisable graphSerialisable, final byte[] access, final boolean overwrite) throws CacheOperationException {
         String graphId = graphSerialisable.getGraphId();
-        Pair<GraphSerialisable, byte[]> pair = new Pair<>(graphSerialisable,  access);
+        Pair<GraphSerialisable, byte[]> pair = new Pair<>(graphSerialisable, access);
         try {
             addToCache(graphId, pair, overwrite);
         } catch (final CacheOperationException e) {
@@ -95,7 +95,7 @@ public class FederatedStoreCacheTransient extends Cache<Pair<GraphSerialisable, 
      * @param graphId the ID of the {@link Graph} to retrieve
      * @return the {@link GraphSerialisable} related to the specified ID
      */
-    public GraphSerialisable getGraphFromCache(final String graphId) {
+    public GraphSerialisable getGraphFromCache(final String graphId) throws CacheOperationException {
         final GraphSerialisable graphSerialisable = getGraphSerialisableFromCache(graphId);
         return (isNull(graphSerialisable)) ? null : graphSerialisable;
     }
@@ -106,12 +106,12 @@ public class FederatedStoreCacheTransient extends Cache<Pair<GraphSerialisable, 
      * @param graphId the ID of the {@link Graph} to retrieve
      * @return the {@link Graph} related to the specified ID
      */
-    public GraphSerialisable getGraphSerialisableFromCache(final String graphId) {
+    public GraphSerialisable getGraphSerialisableFromCache(final String graphId) throws CacheOperationException {
         final Pair<GraphSerialisable, byte[]> fromCache = getFromCache(graphId);
         return (isNull(fromCache)) ? null : fromCache.getFirst();
     }
 
-    public byte[] getAccessFromCache(final String graphId) {
+    public byte[] getAccessFromCache(final String graphId) throws CacheOperationException {
         return getFromCache(graphId).getSecond();
     }
 }

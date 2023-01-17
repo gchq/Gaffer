@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import java.util.Set;
 
 /**
  * Type safe cache, adding and getting is guaranteed to be same type.
+ *
  * @param <V> The type of values to add and get.
  */
-public class Cache<V> {
+public class Cache<K, V> {
     public static final String ERROR_ADDING_KEY_TO_CACHE_KEY_S = "Error adding key to cache. key: %s";
     protected String cacheName;
 
@@ -34,7 +35,7 @@ public class Cache<V> {
         this.cacheName = cacheName;
     }
 
-    public V getFromCache(final String key) {
+    public V getFromCache(final String key) throws CacheOperationException {
         return CacheServiceLoader.getService().getFromCache(cacheName, key);
     }
 
@@ -42,7 +43,7 @@ public class Cache<V> {
         return cacheName;
     }
 
-    protected void addToCache(final String key, final V value, final boolean overwrite) throws CacheOperationException {
+    protected void addToCache(final K key, final V value, final boolean overwrite) throws CacheOperationException {
         final ICacheService service = CacheServiceLoader.getService();
         try {
             if (overwrite) {
@@ -55,9 +56,9 @@ public class Cache<V> {
         }
     }
 
-    public Set<String> getAllKeys() {
+    public Set<K> getAllKeys() {
         try {
-            final Set<String> allKeysFromCache;
+            final Set<K> allKeysFromCache;
             if (CacheServiceLoader.isEnabled()) {
                 allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
             } else {

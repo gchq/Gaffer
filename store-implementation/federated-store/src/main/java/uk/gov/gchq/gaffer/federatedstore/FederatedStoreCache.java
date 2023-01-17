@@ -33,9 +33,9 @@ import static java.util.Objects.isNull;
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
  * handling the {@link Graph}s within a {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
  */
-public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, FederatedAccess>> {
+public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, FederatedAccess>> {
 
-    final FederatedStoreCacheTransient cacheTransient;
+    private final FederatedStoreCacheTransient cacheTransient;
 
     public FederatedStoreCache() {
         this(null);
@@ -70,12 +70,17 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
         cacheTransient.deleteGraphFromCache(graphId);
     }
 
-    public GraphSerialisable getGraphFromCache(final String graphId) {
+    public GraphSerialisable getGraphFromCache(final String graphId) throws CacheOperationException {
         return cacheTransient.getGraphFromCache(graphId);
     }
 
     public GraphSerialisable getGraphSerialisableFromCache(final String graphId) {
-        return cacheTransient.getGraphSerialisableFromCache(graphId);
+        try {
+            return cacheTransient.getGraphSerialisableFromCache(graphId);
+        } catch (CacheOperationException e) {
+            //TODO 404
+            throw new RuntimeException(e);
+        }
     }
 
     public void addGraphToCache(final GraphSerialisable graphSerialisable, final byte[] access, final boolean overwrite) throws CacheOperationException {
@@ -83,20 +88,22 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
     }
 
     public FederatedAccess getAccessFromCache(final String graphId) {
-        final byte[] accessFromCache = cacheTransient.getAccessFromCache(graphId);
         try {
+        final byte[] accessFromCache = cacheTransient.getAccessFromCache(graphId);
             return (isNull(accessFromCache)) ? null : JSONSerialiser.deserialise(accessFromCache, FederatedAccess.class);
-        } catch (final SerialisationException e) {
+        } catch (final Exception e) {
+            //TODO 404
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public Pair<GraphSerialisable, FederatedAccess> getFromCache(final String key) {
-        final Pair<GraphSerialisable, byte[]> fromCache = cacheTransient.getFromCache(key);
         try {
+        final Pair<GraphSerialisable, byte[]> fromCache = cacheTransient.getFromCache(key);
             return new Pair<>(fromCache.getFirst(), JSONSerialiser.deserialise(fromCache.getSecond(), FederatedAccess.class));
-        } catch (final SerialisationException e) {
+        } catch (final Exception e) {
+            //todo 404
             throw new RuntimeException(e);
         }
     }
