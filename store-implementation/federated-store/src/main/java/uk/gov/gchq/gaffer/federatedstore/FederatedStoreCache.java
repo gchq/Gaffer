@@ -20,8 +20,10 @@ import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.util.Set;
 
@@ -51,11 +53,19 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
     }
 
     public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
-        cacheTransient.addGraphToCache(graph, getTransient(access) , overwrite);
+        try {
+            cacheTransient.addGraphToCache(graph, JSONSerialiser.serialise(access), overwrite);
+        } catch (SerialisationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
-        cacheTransient.addGraphToCache(graphSerialisable, getTransient(access), overwrite);
+        try {
+            cacheTransient.addGraphToCache(graphSerialisable, JSONSerialiser.serialise(access), overwrite);
+        } catch (SerialisationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void deleteGraphFromCache(final String graphId) {
@@ -70,15 +80,27 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
         return cacheTransient.getGraphSerialisableFromCache(graphId);
     }
 
+    public void addGraphToCache(final GraphSerialisable graphSerialisable, final byte[] access, final boolean overwrite) throws CacheOperationException {
+        cacheTransient.addGraphToCache(graphSerialisable, access, overwrite);
+    }
+
     public FederatedAccess getAccessFromCache(final String graphId) {
-        final FederatedAccess.Transient accessFromCache = cacheTransient.getAccessFromCache(graphId);
-        return (isNull(accessFromCache)) ? null : getFederatedAccess(accessFromCache);
+        final byte[] accessFromCache = cacheTransient.getAccessFromCache(graphId);
+        try {
+            return (isNull(accessFromCache)) ? null : JSONSerialiser.deserialise(accessFromCache, FederatedAccess.class);
+        } catch (SerialisationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public Pair<GraphSerialisable, FederatedAccess> getFromCache(final String key) {
-        final Pair<GraphSerialisable, FederatedAccess.Transient> fromCache = cacheTransient.getFromCache(key);
-        return new Pair<>(fromCache.getFirst(), getFederatedAccess(fromCache.getSecond()));
+        final Pair<GraphSerialisable, byte[]> fromCache = cacheTransient.getFromCache(key);
+        try {
+            return new Pair<>(fromCache.getFirst(), JSONSerialiser.deserialise(fromCache.getSecond(), FederatedAccess.class));
+        } catch (SerialisationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -110,4 +132,5 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
     public ICache getCache() {
         return cacheTransient.getCache();
     }
+
 }
