@@ -26,7 +26,6 @@ import java.util.Set;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedAccess.Transient.getFederatedAccess;
 
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
@@ -64,7 +63,7 @@ public class FederatedStoreCacheTransient extends Cache<Pair<GraphSerialisable, 
      * @param access    Access for the graph being stored.
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
-    public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
+    public void addGraphToCache(final Graph graph, final FederatedAccess.Transient access, final boolean overwrite) throws CacheOperationException {
         addGraphToCache(new GraphSerialisable.Builder(graph).build(), access, overwrite);
     }
 
@@ -76,9 +75,9 @@ public class FederatedStoreCacheTransient extends Cache<Pair<GraphSerialisable, 
      * @param overwrite         if true, overwrite any graphs already in the cache with the same ID
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
-    public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
+    public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess.Transient access, final boolean overwrite) throws CacheOperationException {
         String graphId = graphSerialisable.getGraphId();
-        Pair<GraphSerialisable, FederatedAccess.Transient> pair = new Pair<>(graphSerialisable,  FederatedAccess.Transient.getTransient(access));
+        Pair<GraphSerialisable, FederatedAccess.Transient> pair = new Pair<>(graphSerialisable,  access);
         try {
             addToCache(graphId, pair, overwrite);
         } catch (final CacheOperationException e) {
@@ -112,8 +111,7 @@ public class FederatedStoreCacheTransient extends Cache<Pair<GraphSerialisable, 
         return (isNull(fromCache)) ? null : fromCache.getFirst();
     }
 
-    public FederatedAccess getAccessFromCache(final String graphId) {
-        final Pair<GraphSerialisable, FederatedAccess.Transient> fromCache = getFromCache(graphId);
-        return (isNull(fromCache)) ? null : getFederatedAccess(fromCache.getSecond());
+    public FederatedAccess.Transient getAccessFromCache(final String graphId) {
+        return getFromCache(graphId).getSecond();
     }
 }

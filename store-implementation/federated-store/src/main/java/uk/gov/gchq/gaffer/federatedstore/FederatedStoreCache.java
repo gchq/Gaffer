@@ -25,7 +25,9 @@ import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 
 import java.util.Set;
 
+import static java.util.Objects.isNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedAccess.Transient.getFederatedAccess;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedAccess.Transient.getTransient;
 
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
@@ -49,11 +51,11 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
     }
 
     public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
-        cacheTransient.addGraphToCache(graph, access, overwrite);
+        cacheTransient.addGraphToCache(graph, getTransient(access) , overwrite);
     }
 
     public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
-        cacheTransient.addGraphToCache(graphSerialisable, access, overwrite);
+        cacheTransient.addGraphToCache(graphSerialisable, getTransient(access), overwrite);
     }
 
     public void deleteGraphFromCache(final String graphId) {
@@ -69,7 +71,8 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
     }
 
     public FederatedAccess getAccessFromCache(final String graphId) {
-        return cacheTransient.getAccessFromCache(graphId);
+        final FederatedAccess.Transient accessFromCache = cacheTransient.getAccessFromCache(graphId);
+        return (isNull(accessFromCache)) ? null : getFederatedAccess(accessFromCache);
     }
 
     @Override
