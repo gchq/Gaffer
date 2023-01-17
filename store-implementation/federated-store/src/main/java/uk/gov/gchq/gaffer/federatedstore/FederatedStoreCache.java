@@ -28,8 +28,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedAccess.Transient.getFederatedAccess;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedAccess.Transient.getTransient;
 
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
@@ -55,7 +53,7 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
     public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
         try {
             cacheTransient.addGraphToCache(graph, JSONSerialiser.serialise(access), overwrite);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
     }
@@ -63,7 +61,7 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
     public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
         try {
             cacheTransient.addGraphToCache(graphSerialisable, JSONSerialiser.serialise(access), overwrite);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
     }
@@ -88,7 +86,7 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
         final byte[] accessFromCache = cacheTransient.getAccessFromCache(graphId);
         try {
             return (isNull(accessFromCache)) ? null : JSONSerialiser.deserialise(accessFromCache, FederatedAccess.class);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
     }
@@ -98,7 +96,7 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
         final Pair<GraphSerialisable, byte[]> fromCache = cacheTransient.getFromCache(key);
         try {
             return new Pair<>(fromCache.getFirst(), JSONSerialiser.deserialise(fromCache.getSecond(), FederatedAccess.class));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
     }
