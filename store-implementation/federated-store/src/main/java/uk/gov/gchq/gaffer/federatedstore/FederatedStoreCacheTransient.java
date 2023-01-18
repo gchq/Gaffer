@@ -94,6 +94,7 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
      *
      * @param graphId the ID of the {@link Graph} to retrieve
      * @return the {@link GraphSerialisable} related to the specified ID
+     * @throws CacheOperationException exception
      */
     public GraphSerialisable getGraphFromCache(final String graphId) throws CacheOperationException {
         final GraphSerialisable graphSerialisable = getGraphSerialisableFromCache(graphId);
@@ -105,6 +106,7 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
      *
      * @param graphId the ID of the {@link Graph} to retrieve
      * @return the {@link Graph} related to the specified ID
+     * @throws CacheOperationException exception
      */
     public GraphSerialisable getGraphSerialisableFromCache(final String graphId) throws CacheOperationException {
         final Pair<GraphSerialisable, byte[]> fromCache = getFromCache(graphId);

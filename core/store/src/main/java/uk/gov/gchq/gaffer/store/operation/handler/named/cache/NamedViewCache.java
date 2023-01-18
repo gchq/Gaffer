@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
 import uk.gov.gchq.gaffer.cache.Cache;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.user.User;
@@ -29,7 +28,7 @@ import java.util.Set;
 import static java.util.Objects.nonNull;
 
 /**
- * Wrapper around the {@link CacheServiceLoader} to provide an interface for handling
+ * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for handling
  * the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView}s for a Gaffer graph.
  */
 public class NamedViewCache extends Cache<String, NamedViewDetail> {

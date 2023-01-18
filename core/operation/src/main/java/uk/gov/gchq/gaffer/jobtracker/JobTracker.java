@@ -72,9 +72,8 @@ public class JobTracker extends Cache<String, JobDetail> {
     public JobDetail getJob(final String jobId, final User user) {
         try {
             return super.getFromCache(jobId);
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             throw new RuntimeException(e);
-            //TODO 404
         }
     }
 

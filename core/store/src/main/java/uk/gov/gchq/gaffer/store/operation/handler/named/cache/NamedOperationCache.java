@@ -162,8 +162,7 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
 
         try {
             existing = getFromCache(name);
-        } catch (final
-        CacheOperationException e) { // if there is no existing named Operation add one
+        } catch (final CacheOperationException e) { // if there is no existing named Operation add one
             addToCache(name, namedOperation, false);
             return;
         }

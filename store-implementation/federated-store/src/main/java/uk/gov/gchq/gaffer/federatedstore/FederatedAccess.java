@@ -330,7 +330,6 @@ public class FederatedAccess implements AccessControlledResource {
         }
 
         public static FederatedAccess getFederatedAccess(final Transient federatedAccessTransient) {
-
             return isNull(federatedAccessTransient) ? null : new FederatedAccess(federatedAccessTransient.graphAuths, federatedAccessTransient.owningUserId, federatedAccessTransient.isPublic, isNull(federatedAccessTransient.readAccessPredicate) ? null : deserialisePredicate(federatedAccessTransient.readAccessPredicate), isNull(federatedAccessTransient.writeAccessPredicate) ? null : deserialisePredicate(federatedAccessTransient.writeAccessPredicate));
         }
     }
