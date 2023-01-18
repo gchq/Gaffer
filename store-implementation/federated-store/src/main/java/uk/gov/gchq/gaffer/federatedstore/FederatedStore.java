@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +130,6 @@ public class FederatedStore extends Store {
     public static final String FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY = "FedStoreGraphId_value_null_or_empty";
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
     private static final List<Integer> ALL_IDS = new ArrayList<>();
-    private static final Random RANDOM = new Random();
     private FederatedGraphStorage graphStorage;
     private final int id;
     private Set<String> customPropertiesAuths;
@@ -140,13 +140,14 @@ public class FederatedStore extends Store {
     private Set<Class<? extends Operation>> externallySupportedOperations = new HashSet<>();
 
     @JsonCreator
+    @SuppressFBWarnings(value = "DMI_RANDOM_USED_ONLY_ONCE", justification = "Random used once only and this class will not usually be created more than once")
     public FederatedStore(@JsonProperty("customPropertiesAuths") final Set<String> customPropertiesAuths,
                           @JsonProperty("isPublicAccessAllowed") final Boolean isPublicAccessAllowed,
                           @JsonProperty("storeConfiguredGraphIds") final List<String> storeConfiguredGraphIds,
                           @JsonProperty("storeConfiguredMergeFunctions") final Map<String, BiFunction> storeConfiguredMergeFunctions) {
         Integer i = null;
         while (isNull(i) || ALL_IDS.contains(i)) {
-            i = RANDOM.nextInt();
+            i = new Random().nextInt();
         }
         ALL_IDS.add(id = i);
 
