@@ -38,7 +38,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
  * A {@link BiPredicate} which will first check if the user is an admin according to the provided
  * admin role. If not it uses a predicate to determine if the user can access a resource.
  */
-@SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "Investigate if this class needs to implement Serializable")
+@SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "Gets serialised by the JSC cache")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 public class AccessPredicate implements BiPredicate<User, String>, Serializable {
 
