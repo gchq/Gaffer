@@ -126,8 +126,8 @@ public class FileGraphLibrary extends GraphLibrary {
             try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
                 properties.getProperties().store(propertiesFileOutputStream, null);
             } catch (final IOException e) {
-                throw new IllegalArgumentException("Could not write " +
-                        "properties to path: " + getPropertiesPath(propertiesId) + ". Directory created: " + dirCreated, e);
+                throw new IllegalArgumentException(String.format("Could not write properties to path: %s. Directory created: %s",
+                        getPropertiesPath(propertiesId), dirCreated), e);
             }
         } else {
             throw new IllegalArgumentException("StoreProperties cannot be null");
