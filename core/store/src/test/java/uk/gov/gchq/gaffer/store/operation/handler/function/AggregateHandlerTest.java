@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.util.AggregatePair;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -47,6 +48,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -127,7 +129,7 @@ public class AggregateHandlerTest {
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .build())
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         input.add(entity);
         input.add(entity1);
@@ -172,7 +174,7 @@ public class AggregateHandlerTest {
                         .groupBy("timestamp")
                         .build())
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         input.add(entity);
         input.add(entity1);
@@ -240,8 +242,8 @@ public class AggregateHandlerTest {
                         .build())
                 .build();
 
-        given(store.getSchema()).willReturn(schema);
-        given(store1.getSchema()).willReturn(schema1);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
+        given(store1.execute(any(GetSchema.class), any())).willReturn(schema1);
 
         input.add(edge);
         input.add(edge1);
@@ -339,7 +341,7 @@ public class AggregateHandlerTest {
                                 .build())
                         .build())
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         input.add(edge);
         input.add(edge1);
@@ -426,7 +428,7 @@ public class AggregateHandlerTest {
                         .build())
                 .build();
 
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         input.add(edge);
         input.add(edge1);
@@ -479,9 +481,9 @@ public class AggregateHandlerTest {
     }
 
     @Test
-    public void shouldFailValidationWhenSchemaElementDefinitionsAreNull() {
+    public void shouldFailValidationWhenSchemaElementDefinitionsAreNull() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.execute(any(GetSchema.class), any())).willReturn(new Schema());
 
         input.add(edge);
         input.add(edge1);
@@ -502,7 +504,7 @@ public class AggregateHandlerTest {
     }
 
     @Test
-    public void shouldFailValidationWhenElementAggregatorOperationIsNull() {
+    public void shouldFailValidationWhenElementAggregatorOperationIsNull() throws OperationException {
         // Given
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
@@ -513,7 +515,7 @@ public class AggregateHandlerTest {
                         .groupBy("timestamp")
                         .build())
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         input.add(edge);
         input.add(edge1);
@@ -533,7 +535,7 @@ public class AggregateHandlerTest {
     }
 
     @Test
-    public void shouldFailValidationWhenTypeArgumentOfBinaryOperatorInFunctionIsIncorrect() {
+    public void shouldFailValidationWhenTypeArgumentOfBinaryOperatorInFunctionIsIncorrect() throws OperationException {
         // Given
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
@@ -541,7 +543,7 @@ public class AggregateHandlerTest {
                         .build())
                 .type("timestamp.long", new TypeDefinition(Long.class))
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         input.add(entity);
         input.add(entity1);

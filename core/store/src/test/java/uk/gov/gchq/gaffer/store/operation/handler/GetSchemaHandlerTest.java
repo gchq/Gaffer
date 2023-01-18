@@ -36,6 +36,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -88,7 +89,7 @@ public class GetSchemaHandlerTest {
     @Test
     public void shouldReturnCompactSchema() throws OperationException {
         given(store.getProperties()).willReturn(properties);
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
         given(context.getUser()).willReturn(user);
 
         final GetSchema operation = new GetSchema.Builder()

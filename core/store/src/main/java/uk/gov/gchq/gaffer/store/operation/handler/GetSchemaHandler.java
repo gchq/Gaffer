@@ -34,7 +34,7 @@ public class GetSchemaHandler implements OutputOperationHandler<GetSchema, Schem
         }
 
         if (operation.isCompact()) {
-            schema = Schema.fromJson(store.getSchema().toCompactJson());
+            schema = Schema.fromJson(store.execute(new GetSchema(), context).toCompactJson());
         } else {
             schema = store.getOriginalSchema();
         }

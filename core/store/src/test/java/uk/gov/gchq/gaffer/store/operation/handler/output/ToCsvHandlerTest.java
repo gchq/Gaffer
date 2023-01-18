@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -49,6 +50,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -227,7 +229,7 @@ public class ToCsvHandlerTest {
         final ToCsvHandler handler = new ToCsvHandler();
 
         //When
-        when(storeMock.getSchema()).thenReturn(makeSchema());
+        when(storeMock.execute(any(GetSchema.class), any())).thenReturn(makeSchema());
         final Iterable<? extends String> results = handler.doOperation(operation, new Context(), storeMock);
 
         //Then
@@ -261,7 +263,7 @@ public class ToCsvHandlerTest {
         final ToCsvHandler handler = new ToCsvHandler();
 
         //When
-        when(storeMock.getSchema()).thenReturn(makeSchema());
+        when(storeMock.execute(any(GetSchema.class), any())).thenReturn(makeSchema());
         final Iterable<? extends String> results = handler.doOperation(operation, new Context(), storeMock);
 
         //Then

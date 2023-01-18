@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.util.AggregatePair;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationWithSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.validator.function.AggregateValidator;
@@ -40,7 +41,7 @@ public class AggregateHandler implements OutputOperationHandler<Aggregate, Itera
 
     @Override
     public Iterable<? extends Element> doOperation(final Aggregate operation, final Context context, final Store store) throws OperationException {
-        return doOperation(operation, store.getSchema());
+        return doOperation(operation, store.execute(new GetSchema(), context));
     }
 
     public Iterable<? extends Element> doOperation(final Aggregate operation, final Schema schema) throws OperationException {

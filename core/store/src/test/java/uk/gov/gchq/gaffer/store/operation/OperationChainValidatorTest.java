@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
@@ -33,6 +34,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
@@ -52,7 +54,7 @@ public class OperationChainValidatorTest {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldValidateValidOperationChain() {
+    public void shouldValidateValidOperationChain() throws OperationException {
         validateOperationChain(new OperationChain(Arrays.asList(
                 new GetElements.Builder()
                         .input(new EmptyIterable<>())
@@ -66,13 +68,13 @@ public class OperationChainValidatorTest {
 
     @SuppressWarnings({"unchecked"})
     @Test
-    public void shouldInValidateNullElementDef() {
+    public void shouldInValidateNullElementDef() throws OperationException {
         // Given
         final ViewValidator viewValidator = mock(ViewValidator.class);
         final OperationChainValidator validator = new OperationChainValidator(viewValidator);
         final Store store = mock(Store.class);
         final Schema schema = mock(Schema.class);
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
         given(schema.getElement(Mockito.anyString())).willReturn(null);
 
         final Max max = new Max();
@@ -95,7 +97,7 @@ public class OperationChainValidatorTest {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldValidateOperationChainThatCouldBeValidBasedOnGenerics() {
+    public void shouldValidateOperationChainThatCouldBeValidBasedOnGenerics() throws OperationException {
         validateOperationChain(new OperationChain(Arrays.asList(
                 new GetElements.Builder()
                         .input(new EmptyIterable<>())
@@ -112,7 +114,7 @@ public class OperationChainValidatorTest {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldValidateExportOperationChain() {
+    public void shouldValidateExportOperationChain() throws OperationException {
         validateOperationChain(new OperationChain(Arrays.asList(
                 new GetElements.Builder()
                         .input(new EmptyIterable<>())
@@ -129,7 +131,7 @@ public class OperationChainValidatorTest {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldValidateInvalidExportOperationChainWithoutDiscardOperation() {
+    public void shouldValidateInvalidExportOperationChainWithoutDiscardOperation() throws OperationException {
         validateOperationChain(new OperationChain(Arrays.asList(
                 new GetElements(),
                 new ExportToSet<>(),
@@ -143,7 +145,7 @@ public class OperationChainValidatorTest {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldValidateInvalidOperationChainIterableNotAssignableFromMap() {
+    public void shouldValidateInvalidOperationChainIterableNotAssignableFromMap() throws OperationException {
         validateOperationChain(new OperationChain(Arrays.asList(
                 new GetElements(),
                 new ExportToSet<>(),
@@ -158,7 +160,7 @@ public class OperationChainValidatorTest {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldValidateInvalidOperationChain() {
+    public void shouldValidateInvalidOperationChain() throws OperationException {
         validateOperationChain(new OperationChain(Arrays.asList(
                 new GetElements(),
                 new GetElements(),
@@ -171,7 +173,7 @@ public class OperationChainValidatorTest {
 
     @SuppressWarnings({"rawtypes"})
     @Test
-    public void shouldNotValidateInvalidOperationChain() {
+    public void shouldNotValidateInvalidOperationChain() throws OperationException {
 
         // Given
         final Operation operation = Mockito.mock(Operation.class);
@@ -186,7 +188,7 @@ public class OperationChainValidatorTest {
         verify(operation).validate();
     }
 
-    private void validateOperationChain(final OperationChain opChain, final boolean expectedResult) {
+    private void validateOperationChain(final OperationChain opChain, final boolean expectedResult) throws OperationException {
         // Given
         final ViewValidator viewValidator = mock(ViewValidator.class);
         final OperationChainValidator validator = new OperationChainValidator(viewValidator);
@@ -194,7 +196,7 @@ public class OperationChainValidatorTest {
         final User user = mock(User.class);
         final Schema schema = mock(Schema.class);
 
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         // TODO: wouldn't work as statndard as the schema was null...
         given(viewValidator.validate(any(), any(Schema.class), any(Set.class))).willReturn(new ValidationResult());

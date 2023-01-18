@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -48,6 +49,7 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -79,7 +81,7 @@ public class TransformHandlerTest {
         // Given
         final Function<String, Integer> function = mock(Function.class);
         given(function.apply(TestPropertyNames.STRING)).willReturn(6);
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -136,7 +138,7 @@ public class TransformHandlerTest {
     @Test
     public void shouldTransformElementsUsingIdentityFunction() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         final Entity entity = new Entity.Builder()
                 .group(TestGroups.ENTITY)
@@ -194,7 +196,7 @@ public class TransformHandlerTest {
         // Given
         final Function<String, Integer> function = String::length;
         final Map<String, ElementTransformer> entities = new HashMap<>();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         final Entity entity = new Entity.Builder()
                 .group(TestGroups.ENTITY)
@@ -259,7 +261,7 @@ public class TransformHandlerTest {
         final Function<String, Integer> function = String::length;
         final Function<String, String> function1 = String::toUpperCase;
         final Map<String, ElementTransformer> edges = new HashMap<>();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -325,9 +327,9 @@ public class TransformHandlerTest {
     }
 
     @Test
-    public void shouldFailValidationWhenSchemaElementDefinitionsAreNull() {
+    public void shouldFailValidationWhenSchemaElementDefinitionsAreNull() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.execute(any(GetSchema.class), any())).willReturn(new Schema());
 
         final Entity entity = new Entity.Builder()
                 .group(TestGroups.ENTITY)
@@ -361,9 +363,9 @@ public class TransformHandlerTest {
     }
 
     @Test
-    public void shouldFailValidationWhenElementTransformerOperationIsNull() {
+    public void shouldFailValidationWhenElementTransformerOperationIsNull() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         final Entity entity = new Entity.Builder()
                 .group(TestGroups.ENTITY)
@@ -397,7 +399,7 @@ public class TransformHandlerTest {
     }
 
     @Test
-    public void shouldFailValidationWhenFunctionSignatureIsInvalid() {
+    public void shouldFailValidationWhenFunctionSignatureIsInvalid() throws OperationException {
         // Given
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
@@ -405,7 +407,7 @@ public class TransformHandlerTest {
                         .build())
                 .type(TestPropertyNames.STRING, new TypeDefinition(String.class))
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         final Entity entity = new Entity.Builder()
                 .group(TestGroups.ENTITY)
@@ -441,7 +443,7 @@ public class TransformHandlerTest {
     @Test
     public void shouldSelectMatchedVertexForTransform() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -476,7 +478,7 @@ public class TransformHandlerTest {
     @Test
     public void shouldSelectAdjacentMatchedVertexForTransform() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)

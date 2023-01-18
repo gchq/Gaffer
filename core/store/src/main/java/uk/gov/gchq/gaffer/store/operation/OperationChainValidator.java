@@ -20,10 +20,12 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -52,7 +54,7 @@ public class OperationChainValidator {
      * @param store          the target store
      * @return the {@link ValidationResult}
      */
-    public ValidationResult validate(final OperationChain<?> operationChain, final User user, final Store store) {
+    public ValidationResult validate(final OperationChain<?> operationChain, final User user, final Store store) throws OperationException {
         final ValidationResult validationResult = new ValidationResult();
         if (operationChain.getOperations().isEmpty()) {
             validationResult.addError("Operation chain contains no operations");
@@ -66,7 +68,7 @@ public class OperationChainValidator {
         return validationResult;
     }
 
-    protected Class<? extends Output> validate(final Operation operation, final User user, final Store store, final ValidationResult validationResult, final Class<? extends Output> input) {
+    protected Class<? extends Output> validate(final Operation operation, final User user, final Store store, final ValidationResult validationResult, final Class<? extends Output> input) throws OperationException {
         validationResult.add(operation.validate());
         final Class<? extends Output> output = validateInputOutputTypes(operation, validationResult, store, input);
         validateViews(operation, user, store, validationResult);
@@ -112,7 +114,7 @@ public class OperationChainValidator {
         return firstOp;
     }
 
-    protected void validateComparables(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
+    protected void validateComparables(final Operation op, final User user, final Store store, final ValidationResult validationResult) throws OperationException {
         if (op instanceof ElementComparison) {
             final Schema schema = getSchema(op, user, store);
             for (final Pair<String, String> pair : ((ElementComparison) op).getComparableGroupPropertyPairs()) {
@@ -134,7 +136,7 @@ public class OperationChainValidator {
         }
     }
 
-    protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
+    protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) throws OperationException {
         if (shouldValidate(op)) {
             final Schema schema = getSchema(op, user, store);
             final ValidationResult viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store));
@@ -155,8 +157,8 @@ public class OperationChainValidator {
         return op instanceof GraphFilters;
     }
 
-    protected Schema getSchema(final Operation operation, final User user, final Store store) {
-        return store.getSchema();
+    protected Schema getSchema(final Operation operation, final User user, final Store store) throws OperationException {
+        return store.execute(new GetSchema(), new Context());
     }
 
     protected Set<StoreTrait> getStoreTraits(final Store store) {

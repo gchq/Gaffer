@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -41,6 +42,7 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
     @Override
     public Iterable<? extends String> doOperation(final ToCsv operation, final Context context, final Store store) throws OperationException {
         CsvGenerator csvGenerator;
+        final Schema schema;
         if (null == operation.getInput()) {
             return null;
         }
@@ -50,7 +52,9 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
         } else if (null != operation.getElementGenerator() && null != operation.getCsvFormat()) {
             throw new IllegalArgumentException("ToCsv operation requires either a generator or a CsvFormat not both");
         } else if (null == operation.getElementGenerator() && null != operation.getCsvFormat()) {
-            csvGenerator = createGenerator(operation.getCsvFormat(), getPropertyHeadersFromSchema(store));
+            schema = store.execute(new GetSchema(), context);
+
+            csvGenerator = createGenerator(operation.getCsvFormat(), getPropertyHeadersFromSchema(schema));
         } else {
             csvGenerator = operation.getElementGenerator();
         }
@@ -63,8 +67,7 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
         return csv;
     }
 
-    private LinkedHashMap<String, String> getPropertyHeadersFromSchema(final Store store) {
-        Schema schema = store.getSchema();
+    private LinkedHashMap<String, String> getPropertyHeadersFromSchema(final Schema schema) throws OperationException {
         LinkedHashMap<String, String> propertyHeadersFromSchema = new LinkedHashMap<>();
         for (final SchemaEntityDefinition schemaEntityDefinition : schema.getEntities().values()) {
             for (final String propertyName:schemaEntityDefinition.getProperties()) {

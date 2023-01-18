@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -48,6 +49,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -78,7 +80,7 @@ public class FilterHandlerTest {
     @Test
     public void shouldFilterByGroup() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(SCHEMA);
+        given(store.execute(any(GetSchema.class), any())).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -135,7 +137,7 @@ public class FilterHandlerTest {
     @Test
     public void shouldFilterInputBasedOnGroupAndCount() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(SCHEMA);
+        given(store.execute(any(GetSchema.class), any())).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -196,7 +198,7 @@ public class FilterHandlerTest {
     @Test
     public void shouldReturnAllValuesWithNullElementFilters() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(SCHEMA);
+        given(store.execute(any(GetSchema.class), any())).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -245,7 +247,7 @@ public class FilterHandlerTest {
     @Test
     public void shouldApplyGlobalFilterAndReturnOnlySpecifiedEdges() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(SCHEMA);
+        given(store.execute(any(GetSchema.class), any())).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -309,7 +311,7 @@ public class FilterHandlerTest {
     @Test
     public void shouldFilterEntitiesAndEdges() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(SCHEMA);
+        given(store.execute(any(GetSchema.class), any())).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -374,7 +376,7 @@ public class FilterHandlerTest {
     @Test
     public void shouldHandleComplexFiltering() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(SCHEMA);
+        given(store.execute(any(GetSchema.class), any())).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -447,9 +449,9 @@ public class FilterHandlerTest {
     }
 
     @Test
-    public void shouldThrowErrorForNullInput() {
+    public void shouldThrowErrorForNullInput() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(SCHEMA);
+        given(store.execute(any(GetSchema.class), any())).willReturn(SCHEMA);
 
         final Filter filter = new Filter.Builder()
                 .globalElements(new ElementFilter())
@@ -467,7 +469,7 @@ public class FilterHandlerTest {
     @Test
     public void shouldReturnNoResultsWhenGlobalElementsFails() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(SCHEMA);
+        given(store.execute(any(GetSchema.class), any())).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -536,9 +538,9 @@ public class FilterHandlerTest {
     }
 
     @Test
-    public void shouldFailValidationWhenSchemaElementDefinitionsAreNull() {
+    public void shouldFailValidationWhenSchemaElementDefinitionsAreNull() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.execute(any(GetSchema.class), any())).willReturn(new Schema());
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -571,9 +573,9 @@ public class FilterHandlerTest {
     }
 
     @Test
-    public void shouldFailValidationWhenElementFilterOperationIsNull() {
+    public void shouldFailValidationWhenElementFilterOperationIsNull() throws OperationException {
         // Given
-        given(store.getSchema()).willReturn(SCHEMA);
+        given(store.execute(any(GetSchema.class), any())).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -608,7 +610,7 @@ public class FilterHandlerTest {
     }
 
     @Test
-    public void shouldFailValidationWhenTypeArgumentOfPredicateIsIncorrect() {
+    public void shouldFailValidationWhenTypeArgumentOfPredicateIsIncorrect() throws OperationException {
         // Given
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
@@ -624,7 +626,7 @@ public class FilterHandlerTest {
                 .type("count.long", new TypeDefinition(Long.class))
                 .build();
 
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -668,7 +670,7 @@ public class FilterHandlerTest {
                 .type("vertex", new TypeDefinition(String.class))
                 .type("count.long", new TypeDefinition(Long.class))
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         final Filter filter = new Filter.Builder()
                 .input(
@@ -735,7 +737,7 @@ public class FilterHandlerTest {
                 .type("vertex", new TypeDefinition(String.class))
                 .type("count.long", new TypeDefinition(Long.class))
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         final Filter filter = new Filter.Builder()
                 .input(

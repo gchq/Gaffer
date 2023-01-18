@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
@@ -33,6 +34,7 @@ import java.util.Iterator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -67,7 +69,7 @@ public class ValidateHandlerTest {
 
         given(validate.getInput()).willReturn(elements);
         given(validate.isSkipInvalidElements()).willReturn(false);
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
         final String group = "group";
         given(elm1.getGroup()).willReturn(group);
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
