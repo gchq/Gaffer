@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.integration;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -156,7 +155,6 @@ public abstract class AbstractStoreIT {
         validateTraits();
     }
 
-    @AfterAll
     public void tearDown() {
         graph = null;
     }
