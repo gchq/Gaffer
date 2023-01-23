@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2022 Crown Copyright
+  ~ Copyright 2016-2023 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@
         <junit-suite.version>1.9.0</junit-suite.version>
         <assertj.version>3.23.1</assertj.version>
         <mockito.version>4.6.1</mockito.version>
-        <failsafe.version>3.0.0-M4</failsafe.version>
+        <failsafe.version>3.0.0-M7</failsafe.version>
         <slf4j.api.version>1.7.36</slf4j.api.version>
 
         <scala.minor.version>2.11</scala.minor.version>
@@ -733,6 +733,41 @@
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-suite</artifactId>
                 <version>${junit-suite.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-servlet</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-servlet-core</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.inject</groupId>
+                <artifactId>jersey-hk2</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-common</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-server</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-core</artifactId>
+                <version>${jersey.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
