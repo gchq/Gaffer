@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
-import uk.gov.gchq.gaffer.data.generator.OpenCypherFormat;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.store.Context;
@@ -35,6 +34,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 
 import static uk.gov.gchq.gaffer.data.element.IdentifierType.DIRECTED;
+import static uk.gov.gchq.gaffer.data.generator.OpenCypherFormat.TYPE_MAPPINGS;
+
 
 /**
  * A {@code ToCsvHandler} handles {@link ToCsv} operations by applying the provided
@@ -86,7 +87,7 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
             for (final String propertyName : schemaEdgeDefinition.getProperties()) {
                 final String typeName = schemaEdgeDefinition.getPropertyTypeName(propertyName);
                 final String javaType = schema.getType(typeName).getClazz().getSimpleName();
-                final String openCypherType = OpenCypherFormat.typeMappings.getOrDefault(javaType, javaType);
+                final String openCypherType = TYPE_MAPPINGS.getOrDefault(javaType, javaType);
 
                 propertyHeadersFromSchema.put(propertyName, openCypherType);
             }
