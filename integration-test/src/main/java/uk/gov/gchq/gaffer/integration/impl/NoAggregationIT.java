@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ public class NoAggregationIT extends AbstractStoreIT {
     private Entity getEntity() {
         return new Entity.Builder()
                 .group(TestGroups.ENTITY)
-                .vertex(VERTEX_PREFIXES[0])
+                .vertex(VERTEX_PREFIXES.get(0))
                 .property(TestPropertyNames.STRING, "prop1")
                 .build();
     }

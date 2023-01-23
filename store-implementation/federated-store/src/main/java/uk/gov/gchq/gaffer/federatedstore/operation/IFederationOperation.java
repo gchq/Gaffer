@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Crown Copyright
+ * Copyright 2021-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -29,12 +30,9 @@ import uk.gov.gchq.koryphe.Since;
 @Since("2.0.0")
 public interface IFederationOperation extends Operation {
 
-    boolean isUserRequestingAdminUsage();
-
     @JsonGetter("userRequestingAdminUsage")
-    default Boolean _isUserRequestingAdminUsageOrNull() {
-        return isUserRequestingAdminUsage() ? true : null;
-    }
+    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+    boolean isUserRequestingAdminUsage();
 
     @JsonSetter("userRequestingAdminUsage")
     Operation setUserRequestingAdminUsage(final boolean adminRequest);

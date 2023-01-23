@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.rest.model.OperationDetail;
 import uk.gov.gchq.gaffer.rest.service.v2.AbstractOperationService;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
@@ -146,7 +147,7 @@ public class OperationController extends AbstractOperationService implements IOp
                     try {
                         for (final Object item : itr) {
                             final String itemString = mapper.writeValueAsString(item) + "\r\n";
-                            response.write(itemString.getBytes());
+                            response.write(itemString.getBytes(StandardCharsets.UTF_8));
                             response.flush();
                         }
                     } catch (final IOException ioe) {
@@ -156,7 +157,7 @@ public class OperationController extends AbstractOperationService implements IOp
                     }
                 } else {
                     try {
-                        response.write(mapper.writeValueAsString(result).getBytes());
+                        response.write(mapper.writeValueAsString(result).getBytes(StandardCharsets.UTF_8));
                         response.flush();
                     } catch (final IOException ioe) {
                         throw new GafferRuntimeException("Unable to serialise chunk: ", ioe, Status.INTERNAL_SERVER_ERROR);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.integration;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,6 +66,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +96,7 @@ public abstract class AbstractStoreIT {
     public static final String B = "B";
     public static final String C = "C";
     public static final String D = "D";
-    public static final String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
+    public static final List<String> VERTEX_PREFIXES = Collections.unmodifiableList(Arrays.asList(A, B, C, D));
 
     // Identifiers
     public static final String SOURCE_1 = SOURCE + 1;
@@ -133,7 +133,7 @@ public abstract class AbstractStoreIT {
     private List<Edge> duplicateEdges;
 
     protected final Map<String, User> userMap = new HashMap<>();
-    protected static Graph graph;
+    protected Graph graph;
     protected User user = new User();
 
     private Method method;
@@ -155,8 +155,7 @@ public abstract class AbstractStoreIT {
         validateTraits();
     }
 
-    @AfterAll
-    public static void tearDown() {
+    public void tearDown() {
         graph = null;
     }
 
@@ -406,7 +405,7 @@ public abstract class AbstractStoreIT {
             for (final String vertexPrefix : VERTEX_PREFIXES) {
                 final Edge edge = new Edge.Builder()
                         .group(TestGroups.EDGE)
-                        .source(VERTEX_PREFIXES[0] + i)
+                        .source(VERTEX_PREFIXES.get(0) + i)
                         .dest(vertexPrefix + i)
                         .directed(false)
                         .property(TestPropertyNames.INT, 1)
@@ -416,7 +415,7 @@ public abstract class AbstractStoreIT {
 
                 final Edge edgeDir = new Edge.Builder()
                         .group(TestGroups.EDGE)
-                        .source(VERTEX_PREFIXES[0] + i)
+                        .source(VERTEX_PREFIXES.get(0) + i)
                         .dest(vertexPrefix + i)
                         .directed(true)
                         .property(TestPropertyNames.INT, 1)

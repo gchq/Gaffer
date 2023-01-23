@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
     public static final String SCHEMA = "schema";
     public static final String USER = "user";
     public static final String TEMP_RESULTS_GRAPH = "temporaryResultsGraph";
+    private static final Random RANDOM = new Random();
     private ImmutableMap<String, Object> context;
 
     public ApplyViewToElementsFunction() {
@@ -61,7 +62,7 @@ public class ApplyViewToElementsFunction implements BiFunction<Object, Iterable<
             //Check if results graph, hasn't already be supplied, otherwise make a default results graph.
             if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
                 final Graph resultsGraph = new Graph.Builder()
-                        .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, ApplyViewToElementsFunction.class.getSimpleName(), new Random().nextInt(Integer.MAX_VALUE))))
+                        .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, ApplyViewToElementsFunction.class.getSimpleName(), RANDOM.nextInt(Integer.MAX_VALUE))))
                         .addSchema((Schema) context.get(SCHEMA))
                         //MapStore easy in memory Store. Large results size may not be suitable, a graph could be provided via Context.
                         .addStoreProperties(new MapStoreProperties())

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,8 +120,8 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
         Collections.sort(resultSeeds);
         Collections.sort(expectedResultSeeds);
         assertThat(resultSeeds.toArray())
-                .as(String.format("InOut=%s, directedType=%s.\nExpected: \n  %s \nbut got: \n  %s",
-                        inOutType, directedType, StringUtils.join(expectedResultSeeds, "\n  "), StringUtils.join(resultSeeds, "\n  ")))
+                .as(String.format("InOut=%s, directedType=%s.%nExpected: %n  %s %nbut got: %n  %s",
+                        inOutType, directedType, StringUtils.join(expectedResultSeeds, "%n  "), StringUtils.join(resultSeeds, "%n  ")))
                 .containsExactly(expectedResultSeeds.toArray());
     }
 }

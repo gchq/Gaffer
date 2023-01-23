@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -229,6 +230,7 @@ public class NamedOperationCache {
         throw new CacheOperationFailedException(String.format("No named operation with the name %s exists in the cache", name));
     }
 
+    @SuppressFBWarnings(value = "DCN_NULLPOINTER_EXCEPTION", justification = "Investigate an improved null checking approach")
     private void add(final NamedOperationDetail namedOperation, final boolean overwrite, final User user,
                      final String adminAuth)
             throws CacheOperationFailedException {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import uk.gov.gchq.gaffer.commonutil.PropertiesUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -33,24 +32,19 @@ import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 import uk.gov.gchq.koryphe.impl.function.MapToTuple;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
-import java.io.Serializable;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Since("2.0.0")
 @Summary("Generates elements from a CSV string")
-public class CsvElementGenerator implements ElementGenerator<String>, Serializable {
-    private static final long serialVersionUID = -821376598172364516L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(CsvElementGenerator.class);
-
+public class CsvElementGenerator implements ElementGenerator<String> {
     private String header;
     private int firstRow = 0;
     private Boolean trim = false;
     private char delimiter = ',';
     private String nullString = "";
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private CsvFormat csvFormat;
 
     @Override
@@ -81,7 +75,7 @@ public class CsvElementGenerator implements ElementGenerator<String>, Serializab
                 }
                 if (columnHeader.contains(":")) {
                     String typeName = columnHeader.split(":")[1];
-                    HashMap<String, KorypheFunction<?, ?>> transformMappings = OpenCypherFormat.transformMappings;
+                    Map<String, KorypheFunction<?, ?>> transformMappings = OpenCypherFormat.TRANSFORM_MAPPINGS;
                     KorypheFunction<?, ?> transform;
                     if (transformMappings.containsKey(typeName)) {
                         transform = transformMappings.get(typeName);

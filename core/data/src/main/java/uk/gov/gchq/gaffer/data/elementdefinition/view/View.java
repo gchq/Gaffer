@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -309,7 +309,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     }
 
     public boolean canMerge(final View addingView, final View srcView) {
-        if (addingView instanceof View && !(srcView instanceof View)) {
+        if (addingView != null && srcView == null) {
             return false;
         }
         return true;

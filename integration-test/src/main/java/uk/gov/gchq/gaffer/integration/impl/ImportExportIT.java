@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -47,6 +48,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressFBWarnings(value = "DLS_DEAD_LOCAL_STORE", justification = "Intentional part of test")
 public class ImportExportIT extends AbstractStoreIT {
     private static final String INCOMING_FILE_PATH = "NeptuneEntitiesAndEdgesWithProperties.csv";
     private Path path;

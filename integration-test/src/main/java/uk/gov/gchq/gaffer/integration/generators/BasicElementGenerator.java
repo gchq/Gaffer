@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.integration.generators;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.integration.domain.DomainObject;
@@ -38,8 +39,10 @@ public class BasicElementGenerator implements OneToOneElementGenerator<DomainObj
     public Element _apply(final DomainObject domainObject) {
         if (domainObject instanceof EntityDomainObject) {
             return entityGenerator._apply((EntityDomainObject) domainObject);
+        } else if (domainObject instanceof EdgeDomainObject) {
+            return edgeGenerator._apply((EdgeDomainObject) domainObject);
+        } else {
+            throw new GafferRuntimeException("domainObject must be either an EntityDomainObject or EdgeDomainObject");
         }
-
-        return edgeGenerator._apply((EdgeDomainObject) domainObject);
     }
 }
