@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.serialisation;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -102,6 +104,7 @@ public class CustomMapSerialiser implements ToBytesSerialiser<CustomMap> {
             return serialise(customMap.getKeySerialiser(), customMap.getValueSerialiser(), serialisedInnerMap);
         }
 
+        @SuppressFBWarnings(value = "DCN_NULLPOINTER_EXCEPTION", justification = "Intended Behaviour")
         private static byte[] serialise(final ToBytesSerialiser keySerialiser, final ToBytesSerialiser valueSerialiser, final byte[] map) throws SerialisationException {
             try {
                 return serialise(new CustomMapInterim(keySerialiser, valueSerialiser, map));

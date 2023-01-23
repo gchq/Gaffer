@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -238,9 +238,7 @@ public class NamedViewCache {
     private void add(final NamedViewDetail namedViewDetail, final boolean overwrite, final User user,
                      final String adminAuth)
             throws CacheOperationFailedException {
-        if (Objects.nonNull(namedViewDetail.getName())) {
-            namedViewDetail.getName();
-        } else {
+        if (namedViewDetail.getName() == null) {
             throw new CacheOperationFailedException("NamedView name cannot be null");
         }
 
