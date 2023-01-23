@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ public class FileGraphLibrary extends GraphLibrary {
 
     @Override
     protected void _addIds(final String graphId, final Pair<String, String> schemaAndPropsIds) throws OverwritingException {
-        String schemaAndPropsIdsString = new String(schemaAndPropsIds.getFirst() + "," + schemaAndPropsIds.getSecond());
+        String schemaAndPropsIdsString = schemaAndPropsIds.getFirst() + "," + schemaAndPropsIds.getSecond();
         try {
             FileUtils.writeStringToFile(getGraphsPath(graphId).toFile(), schemaAndPropsIdsString);
         } catch (final IOException e) {
@@ -122,12 +122,12 @@ public class FileGraphLibrary extends GraphLibrary {
     protected void _addProperties(final String propertiesId,
                                   final StoreProperties properties) {
         if (null != properties) {
-            getPropertiesPath(propertiesId).toFile().getParentFile().mkdirs();
+            Boolean dirCreated = getPropertiesPath(propertiesId).toFile().getParentFile().mkdirs();
             try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
                 properties.getProperties().store(propertiesFileOutputStream, null);
             } catch (final IOException e) {
-                throw new IllegalArgumentException("Could not write " +
-                        "properties to path: " + getPropertiesPath(propertiesId), e);
+                throw new IllegalArgumentException(String.format("Could not write properties to path: %s. Directory created: %s",
+                        getPropertiesPath(propertiesId), dirCreated), e);
             }
         } else {
             throw new IllegalArgumentException("StoreProperties cannot be null");

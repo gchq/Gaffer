@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,12 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
 public class RoadTrafficDataLoader {
@@ -61,8 +62,8 @@ public class RoadTrafficDataLoader {
     public void load(final File dataFile) throws IOException, OperationException {
         load(() -> {
             try {
-                return new FileReader(dataFile);
-            } catch (final FileNotFoundException e) {
+                return new InputStreamReader(new FileInputStream(dataFile), StandardCharsets.UTF_8);
+            } catch (final IOException e) {
                 throw new RuntimeException("Unable to load data from file: " + dataFile.getPath());
             }
         });

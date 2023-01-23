@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,6 +140,7 @@ public class FederatedStore extends Store {
     private Set<Class<? extends Operation>> externallySupportedOperations = new HashSet<>();
 
     @JsonCreator
+    @SuppressFBWarnings(value = "DMI_RANDOM_USED_ONLY_ONCE", justification = "Random used once only and this class will not usually be created more than once")
     public FederatedStore(@JsonProperty("customPropertiesAuths") final Set<String> customPropertiesAuths,
                           @JsonProperty("isPublicAccessAllowed") final Boolean isPublicAccessAllowed,
                           @JsonProperty("storeConfiguredGraphIds") final List<String> storeConfiguredGraphIds,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ public interface SchemaLoader {
     String B = "B";
     String C = "C";
     String D = "D";
-    String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
 
     Map<EdgeId, Edge> createEdges();
 

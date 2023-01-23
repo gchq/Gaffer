@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.types.function;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.Since;
@@ -29,6 +32,7 @@ import java.io.Serializable;
  */
 @Since("1.8.0")
 @Summary("Returns a frequency map based on the predicate provided")
+@SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "Investigate")
 public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap>
         implements Serializable {
 

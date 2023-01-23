@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Function;
 
@@ -67,7 +68,7 @@ public class FunctionAuthoriser implements GraphHook {
         SimpleClassNameCache.setUseFullNameForSerialisation(true);
         String chainString;
         try {
-            chainString = new String(JSONSerialiser.serialise(opChain));
+            chainString = new String(JSONSerialiser.serialise(opChain), StandardCharsets.UTF_8);
         } catch (final SerialisationException e) {
             // This should never happen in real life as operation chains should
             // always be json serialisable. However this could happen if using a

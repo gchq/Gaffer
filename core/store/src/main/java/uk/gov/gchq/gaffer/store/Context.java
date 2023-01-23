@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -60,6 +61,7 @@ public class Context {
      *
      * @param context the context to shallow clone.
      */
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH", justification = "Investigate")
     public Context(final Context context) {
         this(null != context ? context.user : null, null != context ? context.config : null);
         exporters.putAll(context.exporters);

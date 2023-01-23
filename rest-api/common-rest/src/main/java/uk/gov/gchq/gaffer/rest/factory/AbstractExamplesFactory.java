@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package uk.gov.gchq.gaffer.rest.factory;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -105,6 +107,7 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
     }
 
     @Override
+    @SuppressFBWarnings(value = "REFLC_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_CLASS", justification = "Investigate")
     public Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
         if (null == examplesMap) {
             generateExamples();

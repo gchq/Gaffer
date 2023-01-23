@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 /**
@@ -198,7 +199,6 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
         private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
 
-        private LinkedHashMap<String, String> propertiesFromSchema = new LinkedHashMap<>();
         private String commaReplacement = COMMA_REPLACEMENT_DEFAULT;
         private Boolean quoted;
 
@@ -209,8 +209,8 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
          * @return a new {@link CsvGenerator.Builder}
          */
         public Builder propertyHeadersFromSchema(final LinkedHashMap<String, String> propertyHeadersFromSchema) {
-            for (final String key: propertyHeadersFromSchema.keySet()) {
-                fields.put(key, key + ":" + propertyHeadersFromSchema.get(key));
+            for (final Entry<String, String> entry : propertyHeadersFromSchema.entrySet()) {
+                fields.put(entry.getKey(), entry.getKey() + ":" + entry.getValue());
             }
             return this;
         }
