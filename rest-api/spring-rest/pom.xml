@@ -102,6 +102,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+        </dependency>
         <!-- Provides Swagger/OpenAPI UI -->
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -113,11 +117,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- Already defined in parent POM but required for surefire to discover tests -->
