@@ -199,7 +199,7 @@ public class StoreTest {
     private OperationChainValidator operationChainValidator;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws OperationException {
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
         JSONSerialiser.update();
@@ -271,9 +271,9 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldCreateStoreWithValidSchemasAndRegisterOperations(@Mock final StoreProperties properties,
+    public void shouldCreateStoreAndRegisterOperations(@Mock final StoreProperties properties,
                                                                        @Mock final OperationHandler<AddElements> addElementsHandlerOverridden)
-            throws StoreException {
+            throws StoreException, OperationException {
         // Given
         final OperationDeclarations opDeclarations =
                 new OperationDeclarations.Builder().declaration(new OperationDeclaration.Builder().operation(AddElements.class)
@@ -302,10 +302,7 @@ public class StoreTest {
         assertThat(store.getOperationHandlerExposed(GetSetExport.class)).isInstanceOf(GetSetExportHandler.class);
 
         assertThat(store.getCreateOperationHandlersCallCount()).isEqualTo(1);
-        assertThat(store.getSchema()).isSameAs(schema);
         assertThat(store.getProperties()).isSameAs(properties);
-
-        verify(schemaOptimiser).optimise(store.getSchema(), true);
     }
 
     @Test
@@ -401,7 +398,7 @@ public class StoreTest {
     public void shouldFullyLoadLazyElement(@Mock final StoreProperties properties,
                                            @Mock final LazyEntity lazyElement,
                                            @Mock final Entity entity)
-            throws StoreException {
+            throws StoreException, OperationException {
         // Given
         final Store store = new StoreImpl();
         given(lazyElement.getGroup()).willReturn(TestGroups.ENTITY);
@@ -811,7 +808,7 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldGetJobTracker(@Mock final StoreProperties properties) throws StoreException {
+    public void shouldGetJobTracker(@Mock final StoreProperties properties) throws StoreException, OperationException {
         // Given
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
@@ -828,7 +825,7 @@ public class StoreTest {
     @Test
     public void shouldUpdateJsonSerialiser(@Mock final StoreProperties properties,
                                            @Mock final ObjectMapper mockObjectMapper)
-            throws StoreException {
+            throws StoreException, OperationException {
         // Given
         given(properties.getJsonSerialiserClass()).willReturn(TestCustomJsonSerialiser1.class.getName());
         given(properties.getJsonSerialiserModules()).willReturn(StorePropertiesTest.TestCustomJsonModules1.class.getName());

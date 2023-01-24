@@ -241,11 +241,11 @@ public abstract class Store {
         this.schemaOptimiser = createSchemaOptimiser();
     }
 
-    public static Store createStore(final String graphId, final byte[] schema, final Properties storeProperties) {
+    public static Store createStore(final String graphId, final byte[] schema, final Properties storeProperties) throws SchemaException, OperationException {
         return createStore(graphId, Schema.fromJson(schema), StoreProperties.loadStoreProperties(storeProperties));
     }
 
-    public static Store createStore(final String graphId, final Schema schema, final StoreProperties storeProperties) {
+    public static Store createStore(final String graphId, final Schema schema, final StoreProperties storeProperties) throws OperationException {
         if (isNull(storeProperties)) {
             throw new IllegalArgumentException(String.format("Store properties are required to create a store. graphId: %s", graphId));
         }
@@ -273,8 +273,7 @@ public abstract class Store {
         return newStore;
     }
 
-    public void initialise(final String graphId, final Schema schema, final StoreProperties properties)
-            throws StoreException {
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws OperationException {
         LOGGER.debug("Initialising {}", getClass().getSimpleName());
         if (isNull(graphId)) {
             throw new IllegalArgumentException("graphId is required");
@@ -615,7 +614,7 @@ public abstract class Store {
      */
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Getters are called to trigger the loading data")
     public Element populateElement(final Element lazyElement) {
-        final SchemaElementDefinition elementDefinition = getSchema().getElement(
+        final SchemaElementDefinition elementDefinition = schema.getElement(
                 lazyElement.getGroup());
         if (nonNull(elementDefinition)) {
             for (final IdentifierType identifierType : elementDefinition.getIdentifiers()) {
@@ -634,17 +633,6 @@ public abstract class Store {
         return graphId;
     }
 
-    /**
-     * Get this Store's {@link Schema}.
-     *
-     * @return the instance of {@link Schema} used for describing the type of
-     *         {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to
-     *         aggregate the elements.
-     */
-    @Deprecated
-    public Schema getSchema() {
-        return schema;
-    }
 
     /**
      * Get this Store's {@link uk.gov.gchq.gaffer.store.StoreProperties}.
@@ -692,7 +680,7 @@ public abstract class Store {
         schema = schemaOptimiser.optimise(schema, null == isOrdered ? false : isOrdered);
     }
 
-    public void validateSchemas() {
+    public void validateSchemas() throws OperationException {
         final ValidationResult validationResult = new ValidationResult();
         if (isNull(schema)) {
             validationResult.addError("Schema is missing");
@@ -719,9 +707,15 @@ public abstract class Store {
                         }
                     }));
 
-            validateSchema(validationResult, getSchema().getVertexSerialiser());
+            validateSchema(validationResult, schema.getVertexSerialiser());
 
-            getSchema().getTypes().forEach((k, v) -> validateSchema(validationResult, v.getSerialiser()));
+            schema.getTypes().forEach((k, v) -> {
+                try {
+                    validateSchema(validationResult, v.getSerialiser());
+                } catch (OperationException e) {
+                    e.printStackTrace();
+                }
+            });
         }
 
         if (!validationResult.isValid()) {
@@ -742,8 +736,8 @@ public abstract class Store {
      * inconsistent.
      */
     protected void validateConsistentVertex() {
-        if (nonNull(getSchema().getVertexSerialiser())
-                && !getSchema().getVertexSerialiser().isConsistent()) {
+        if (nonNull(schema.getVertexSerialiser())
+                && !schema.getVertexSerialiser().isConsistent()) {
             throw new SchemaException("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
         }
     }
@@ -792,7 +786,7 @@ public abstract class Store {
                 });
     }
 
-    protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
+    protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) throws OperationException {
         if ((nonNull(serialiser)) && !requiredParentSerialiserClass.isInstance(serialiser)) {
             validationResult.addError(String.format("Schema serialiser (%s) is not instance of %s",
                     serialiser.getClass().getSimpleName(),
@@ -830,8 +824,9 @@ public abstract class Store {
     /**
      * Any additional operations that a store can handle should be registered in
      * this method by calling addOperationHandler(...)
+     * @throws OperationException
      */
-    protected abstract void addAdditionalOperationHandlers();
+    protected abstract void addAdditionalOperationHandlers() throws OperationException;
 
     /**
      * Get this Stores implementation of the handler for {@link
@@ -896,8 +891,8 @@ public abstract class Store {
 
     protected HashMap<String, SchemaElementDefinition> getSchemaElements() {
         final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
-        schemaElements.putAll(getSchema().getEdges());
-        schemaElements.putAll(getSchema().getEntities());
+        schemaElements.putAll(schema.getEdges());
+        schemaElements.putAll(schema.getEntities());
         return schemaElements;
     }
 
@@ -983,7 +978,7 @@ public abstract class Store {
         ExecutorService.initialise(properties.getJobExecutorThreadCount());
     }
 
-    private void addOpHandlers() {
+    private void addOpHandlers() throws OperationException {
         if (addCoreOpHandlers) {
             addCoreOpHandlers();
         }
