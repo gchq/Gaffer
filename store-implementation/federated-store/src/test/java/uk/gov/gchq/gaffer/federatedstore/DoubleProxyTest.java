@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static uk.gov.gchq.gaffer.proxystore.SingleUseProxyStore.CONTEXT_ROOT_SINGLE_USE_PROXY;
 
 /**
  * The DoubleProxyTest Test works as follows:
@@ -51,7 +52,6 @@ public class DoubleProxyTest {
         FederatedStoreTestUtil.resetForFederatedTests();
 
         ProxyProperties proxyProperties = new ProxyProperties();
-        proxyProperties.setGafferContextRoot(ProxyProperties.DEFAULT_GAFFER_CONTEXT_ROOT + "/v2");
         proxyProperties.setStoreClass(SingleUseProxyMapStore.class);
 
 
@@ -73,7 +73,7 @@ public class DoubleProxyTest {
 
     private void connectGraphs(final String graphId) throws OperationException {
         final ProxyProperties storeProperties = new ProxyProperties();
-        storeProperties.setGafferContextRoot(ProxyProperties.DEFAULT_GAFFER_CONTEXT_ROOT + "/v2");
+        storeProperties.setGafferContextRoot(CONTEXT_ROOT_SINGLE_USE_PROXY);
         federatedStoreGraph.execute(new AddGraph.Builder()
                 .storeProperties(storeProperties)
                 .graphId(graphId)
