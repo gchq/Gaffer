@@ -137,7 +137,7 @@ public class ArrayByteSequence implements Serializable, Comparable<ArrayByteSequ
     public boolean equals(final Object o) {
         if (o instanceof ArrayByteSequence) {
             ArrayByteSequence obs = (ArrayByteSequence) o;
-            return this == o ? true : (this.length() != obs.length() ? false : this.compareTo(obs) == 0);
+            return this == o || (this.length() == obs.length() && this.compareTo(obs) == 0);
         } else {
             return false;
         }

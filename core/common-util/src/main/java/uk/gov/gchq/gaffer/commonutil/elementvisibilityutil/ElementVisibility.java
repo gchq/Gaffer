@@ -79,7 +79,7 @@ public class ElementVisibility {
     }
 
     public boolean equals(final Object obj) {
-        return obj instanceof ElementVisibility ? this.equals((ElementVisibility) obj) : false;
+        return obj instanceof ElementVisibility && this.equals((ElementVisibility) obj);
     }
 
     public boolean equals(final ElementVisibility otherLe) {
