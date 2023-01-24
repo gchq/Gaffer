@@ -27,7 +27,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.File;
 import java.io.IOException;
 
-import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.*;
+import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.DEFAULT_GAFFER_CONTEXT_ROOT;
+import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.GAFFER_CONTEXT_ROOT;
 
 /**
  * An extension of {@link ProxyStore} that starts a REST API backed by a
