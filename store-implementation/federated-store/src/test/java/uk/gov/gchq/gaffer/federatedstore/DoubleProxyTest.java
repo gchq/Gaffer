@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Crown Copyright
+ * Copyright 2021-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ public class DoubleProxyTest {
         FederatedStoreTestUtil.resetForFederatedTests();
 
         ProxyProperties proxyProperties = new ProxyProperties();
+        proxyProperties.setGafferContextRoot(ProxyProperties.DEFAULT_GAFFER_CONTEXT_ROOT + "/v2");
         proxyProperties.setStoreClass(SingleUseProxyMapStore.class);
 
 
@@ -71,8 +72,10 @@ public class DoubleProxyTest {
     }
 
     private void connectGraphs(final String graphId) throws OperationException {
+        final ProxyProperties storeProperties = new ProxyProperties();
+        storeProperties.setGafferContextRoot(ProxyProperties.DEFAULT_GAFFER_CONTEXT_ROOT + "/v2");
         federatedStoreGraph.execute(new AddGraph.Builder()
-                .storeProperties(new ProxyProperties())
+                .storeProperties(storeProperties)
                 .graphId(graphId)
                 .schema(new Schema())
                 .build(), new User());

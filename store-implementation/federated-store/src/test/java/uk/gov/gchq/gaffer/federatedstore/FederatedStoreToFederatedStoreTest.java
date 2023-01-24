@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,7 @@ public class FederatedStoreToFederatedStoreTest {
 
 
         ProxyProperties proxyProperties = new ProxyProperties();
+        proxyProperties.setGafferContextRoot(ProxyProperties.DEFAULT_GAFFER_CONTEXT_ROOT + "/v2");
         proxyProperties.setStoreClass(SingleUseFederatedStore.class);
 
         restApiFederatedGraph = new Graph.Builder()
