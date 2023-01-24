@@ -71,7 +71,6 @@ public final class CloseableUtil {
      *
      * @param closeable the object to close
      */
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     public static void close(final AutoCloseable closeable) {
         try {
             if (nonNull(closeable)) {

@@ -44,7 +44,6 @@ public final class JsonUtil {
      * @param actualJson   the actual JSON string
      * @return true if both strings are equal, otherwise false
      */
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     public static boolean equals(final String expectedJson, final String actualJson) {
         try {
             final Map expectedSchemaMap = null != expectedJson ? OBJECT_MAPPER.readValue(expectedJson, Map.class) : Collections.emptyMap();
