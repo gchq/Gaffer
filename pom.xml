@@ -1111,7 +1111,9 @@
                 <version>${pmd.plugin.version}</version>
                 <configuration>
                     <printFailingErrors>true</printFailingErrors>
-                    <failurePriority>3</failurePriority>
+                    <rulesets>
+                        <ruleset>code-style/pmd-ruleset.xml</ruleset>
+                    </rulesets>
                 </configuration>
                 <executions>
                     <execution>
@@ -1156,7 +1158,9 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>${pmd.plugin.version}</version>
                 <configuration>
-                    <minimumPriority>3</minimumPriority>
+                    <rulesets>
+                        <ruleset>code-style/pmd-ruleset.xml</ruleset>
+                    </rulesets>
                 </configuration>
             </plugin>
         </plugins>
