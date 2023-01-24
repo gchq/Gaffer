@@ -51,7 +51,6 @@
     <rule ref="category/java/bestpractices.xml/UseVarargs" />
     <rule ref="category/java/bestpractices.xml/WhileLoopWithLiteralBoolean" />
 
-    <rule ref="category/java/codestyle.xml/ConfusingTernary" />
     <rule ref="category/java/codestyle.xml/EmptyControlStatement" />
     <rule ref="category/java/codestyle.xml/EmptyMethodInAbstractClassShouldBeAbstract" />
     <rule ref="category/java/codestyle.xml/ExtendsObject" />
