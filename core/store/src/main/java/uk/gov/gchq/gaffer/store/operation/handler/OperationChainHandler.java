@@ -52,7 +52,7 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         return (OUT) result;
     }
 
-    public <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context, final Store store) {
+    public <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context, final Store store) throws OperationException {
         final ValidationResult validationResult = opChainValidator.validate(operationChain, context
                 .getUser(), store);
         if (!validationResult.isValid()) {
