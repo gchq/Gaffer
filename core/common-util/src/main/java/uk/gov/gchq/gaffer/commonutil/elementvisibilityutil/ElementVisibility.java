@@ -59,8 +59,8 @@ public class ElementVisibility {
     public static byte[] quote(final byte[] term) {
         boolean needsQuote = false;
 
-        for (int i = 0; i < term.length; i++) {
-            if (!Authorisations.isValidAuthChar(term[i])) {
+        for (byte b : term) {
+            if (!Authorisations.isValidAuthChar(b)) {
                 needsQuote = true;
                 break;
             }

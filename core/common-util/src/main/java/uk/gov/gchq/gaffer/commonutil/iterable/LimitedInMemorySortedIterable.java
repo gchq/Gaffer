@@ -134,6 +134,7 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
     }
 
     @Override
+    @SuppressWarnings("PMD.UseTryWithResources")
     public Iterator<E> iterator() {
         if (backingMap.isEmpty()) {
             return Collections.emptyIterator();

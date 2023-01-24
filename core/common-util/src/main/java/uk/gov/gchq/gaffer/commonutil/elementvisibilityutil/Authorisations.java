@@ -35,8 +35,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class Authorisations implements Iterable<byte[]>, Serializable {
     private static final long serialVersionUID = 8931467369628123909L;
-    private Set<ArrayByteSequence> auths = new HashSet();
-    private List<byte[]> authsList = new ArrayList();
+    private final Set<ArrayByteSequence> auths = new HashSet();
+    private final List<byte[]> authsList = new ArrayList();
     private static final boolean[] VALID_AUTH_CHARS = new boolean[256];
     public static final String HEADER = "!AUTH1:";
 

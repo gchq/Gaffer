@@ -21,7 +21,7 @@ import java.text.ParseException;
 
 public class VisibilityParseException extends ParseException {
     private static final long serialVersionUID = -6515226652254225554L;
-    private String visibility;
+    private final String visibility;
 
     public VisibilityParseException(final String reason, final byte[] visibility, final int errorOffset) {
         super(reason, errorOffset);

@@ -53,7 +53,7 @@ public final class Streams {
      * @param <T>   the type of object stored in the array
      * @return a stream containing the contents of the array
      */
-    public static <T> Stream<T> toStream(final T[] array) {
+    public static <T> Stream<T> toStream(final T... array) {
         return StreamSupport.stream(Spliterators.spliterator(array, 0), false);
     }
 
@@ -117,7 +117,7 @@ public final class Streams {
      * @param <T>   the type of object stored in the array
      * @return a stream containing the contents of the array
      */
-    public static <T> Stream<T> toParallelStream(final T[] array) {
+    public static <T> Stream<T> toParallelStream(final T... array) {
         return StreamSupport.stream(Spliterators.spliterator(array, 0), true);
     }
 
