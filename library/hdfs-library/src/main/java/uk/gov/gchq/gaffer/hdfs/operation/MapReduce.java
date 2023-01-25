@@ -116,7 +116,7 @@ public interface MapReduce {
 
     String[] getCommandLineArgs();
 
-    void setCommandLineArgs(final String[] commandLineArgs);
+    void setCommandLineArgs(final String... commandLineArgs);
 
     interface Builder<OP extends MapReduce, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {
         default B inputMapperPairs(final Map<String, String> inputMapperPairs) {
@@ -201,7 +201,7 @@ public interface MapReduce {
             return _self();
         }
 
-        default B commandLineArgs(final String[] commandLineArgs) {
+        default B commandLineArgs(final String... commandLineArgs) {
             _getOp().setCommandLineArgs(commandLineArgs);
             return _self();
         }

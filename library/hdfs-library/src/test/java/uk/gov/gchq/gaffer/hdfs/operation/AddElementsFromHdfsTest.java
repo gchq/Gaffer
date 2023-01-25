@@ -69,7 +69,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 .maxReducers(20)
                 .splitsFilePath("/path/to/splits/file")
                 .useProvidedSplits(false)
-                .commandLineArgs(new String[] {"-libjars", "libjar1,libjar2"})
+                .commandLineArgs("-libjars", "libjar1,libjar2")
                 .build();
 
         // When
