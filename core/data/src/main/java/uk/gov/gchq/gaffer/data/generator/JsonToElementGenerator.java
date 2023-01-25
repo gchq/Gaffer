@@ -31,7 +31,7 @@ public class JsonToElementGenerator implements OneToOneElementGenerator<String> 
         try {
             return JSONSerialiser.deserialise(json, Element.class);
         } catch (final SerialisationException ex) {
-            throw new GafferRuntimeException("Unable to process JSON string: " + json + ". Message: " + ex.getMessage());
+            throw new GafferRuntimeException("Unable to process JSON string: " + json + ". Message: " + ex.getMessage(), ex);
         }
     }
 }

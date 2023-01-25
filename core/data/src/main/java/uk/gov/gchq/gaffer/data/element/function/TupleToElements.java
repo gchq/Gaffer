@@ -91,10 +91,8 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
             for (final Map.Entry<String, Object> entry : elementDef.entrySet()) {
                 final IdentifierType id = IdentifierType.fromName(entry.getKey());
                 final Object field = getField(entry.getValue(), tuple);
-                if (null == id && null != field) {
-                    if (!field.equals("")) {
-                        element.putProperty(entry.getKey(), field);
-                    }
+                if (null == id && null != field && !field.equals("")) {
+                    element.putProperty(entry.getKey(), field);
                 }
             }
         }

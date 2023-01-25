@@ -97,11 +97,8 @@ public class NamedView extends View {
     @Override
     public boolean canMerge(final View addingView, final View srcView) {
         if (addingView instanceof NamedView && !(srcView instanceof NamedView)) {
-            if (((NamedView) addingView).getName() != null) {
-                if (!((NamedView) addingView).getName().isEmpty()) {
-                    return false;
-                }
-            }
+            final String addingViewName = ((NamedView) addingView).getName();
+            return !(addingViewName != null && addingViewName.isEmpty());
         }
         return true;
     }

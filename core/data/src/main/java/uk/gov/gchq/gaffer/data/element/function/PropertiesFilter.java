@@ -76,7 +76,7 @@ public class PropertiesFilter extends TupleAdaptedPredicateComposite<String> {
                     .append(": ")
                     .append(valueStr);
         }
-        builder.append("}");
+        builder.append('}');
 
         return builder.toString();
     }

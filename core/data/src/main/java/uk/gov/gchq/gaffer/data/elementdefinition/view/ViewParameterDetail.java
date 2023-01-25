@@ -34,10 +34,10 @@ import java.io.Serializable;
 @JsonDeserialize(builder = ViewParameterDetail.Builder.class)
 public class ViewParameterDetail implements Serializable {
     private static final long serialVersionUID = -2732125973172603774L;
-    private String description;
-    private Object defaultValue;
-    private Class valueClass;
-    private boolean required;
+    private final String description;
+    private final Object defaultValue;
+    private final Class valueClass;
+    private final boolean required;
 
     public ViewParameterDetail(final String description, final Class clazz, final boolean required, final Object defaultValue) {
         if (null == description) {

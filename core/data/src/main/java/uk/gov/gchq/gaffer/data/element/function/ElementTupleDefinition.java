@@ -48,10 +48,8 @@ public class ElementTupleDefinition extends HashMap<String, Object> {
     @Override
     public Object get(final Object key) {
         Object value = super.get(key);
-        if (null == value) {
-            if (DIRECTED.equals(key)) {
-                value = true;
-            }
+        if (null == value && DIRECTED.equals(key)) {
+            value = true;
         }
         return value;
     }

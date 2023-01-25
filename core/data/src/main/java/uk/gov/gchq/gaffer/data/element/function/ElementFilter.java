@@ -73,7 +73,7 @@ public class ElementFilter extends TupleAdaptedPredicateComposite<String> {
                     .append(": ")
                     .append(valueStr);
         }
-        builder.append("}");
+        builder.append('}');
 
         return builder.toString();
     }

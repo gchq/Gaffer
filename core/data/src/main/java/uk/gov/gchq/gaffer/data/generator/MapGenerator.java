@@ -117,8 +117,8 @@ public class MapGenerator implements OneToOneObjectGenerator<Map<String, Object>
     }
 
     public static class Builder {
-        private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
-        private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
+        private final LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+        private final LinkedHashMap<String, String> constants = new LinkedHashMap<>();
 
         /**
          * Stores the group of an {@link Element}.
