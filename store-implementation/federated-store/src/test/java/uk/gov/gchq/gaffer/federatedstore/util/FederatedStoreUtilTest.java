@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -104,7 +105,7 @@ public class FederatedStoreUtilTest {
     @Test
     public void shouldNotUpdateOperationViewIfNotRequired() {
         // Given
-        final Graph graph = createGraph();
+        final GraphSerialisable graph = createGraph();
         final GetElements operation = new GetElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
@@ -122,7 +123,7 @@ public class FederatedStoreUtilTest {
     @Test
     public void shouldUpdateOperationView() {
         // Given
-        final Graph graph = createGraph();
+        final GraphSerialisable graph = createGraph();
         final GetElements operation = new GetElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition())
@@ -147,7 +148,7 @@ public class FederatedStoreUtilTest {
     @Test
     public void shouldUpdateOperationViewAndReturnNullIfViewHasNoGroups() {
         // Given
-        final Graph graph = createGraph();
+        final GraphSerialisable graph = createGraph();
         final GetElements operation = new GetElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE_2, new ViewElementDefinition())
@@ -165,7 +166,7 @@ public class FederatedStoreUtilTest {
     @Test
     public void shouldUpdateOperationChainAndReturnNullIfNestedOperationViewHasNoGroups() {
         // Given
-        final Graph graph = createGraph();
+        final GraphSerialisable graph = createGraph();
         final OperationChain<?> operation = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .view(new View.Builder()
@@ -185,7 +186,7 @@ public class FederatedStoreUtilTest {
     @Test
     public void shouldUpdateNestedOperations() {
         // Given
-        final Graph graph = createGraph();
+        final GraphSerialisable graph = createGraph();
         final HashMap<String, String> options = new HashMap<>();
         options.put("key", "value");
         final HashMap<String, String> options2 = new HashMap<>();
@@ -225,7 +226,7 @@ public class FederatedStoreUtilTest {
     @Test
     public void shouldNotUpdateAddElementsFlagsWhenNotRequired() {
         // Given
-        final Graph graph = createGraph();
+        final GraphSerialisable graph = createGraph();
         final AddElements operation = new AddElements.Builder()
                 .validate(true)
                 .skipInvalidElements(true)
@@ -242,7 +243,7 @@ public class FederatedStoreUtilTest {
     @Test
     public void shouldUpdateAddElementsFlagsWhenNullInputAndValidateFalse() {
         // Given
-        final Graph graph = createGraph();
+        final GraphSerialisable graph = createGraph();
         final AddElements operation = new AddElements.Builder()
                 .validate(false)
                 .skipInvalidElements(true)
@@ -261,7 +262,7 @@ public class FederatedStoreUtilTest {
     @Test
     public void shouldUpdateAddElementsFlagsWhenNullInputAndSkipFalse() {
         // Given
-        final Graph graph = createGraph();
+        final GraphSerialisable graph = createGraph();
         final AddElements operation = new AddElements.Builder()
                 .validate(true)
                 .skipInvalidElements(false)
@@ -280,7 +281,7 @@ public class FederatedStoreUtilTest {
     @Test
     public void shouldUpdateAddElementsInput() {
         // Given
-        final Graph graph = createGraph();
+        final GraphSerialisable graph = createGraph();
         final AddElements operation = new AddElements.Builder()
                 .input(new Entity.Builder()
                                 .group(TestGroups.ENTITY)
@@ -313,7 +314,7 @@ public class FederatedStoreUtilTest {
                 updatedInput);
     }
 
-    protected Graph createGraph() {
+    protected GraphSerialisable createGraph() {
         final Store store = mock(Store.class);
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
@@ -342,11 +343,12 @@ public class FederatedStoreUtilTest {
 
         given(store.getProperties()).willReturn(storeProperties);
 
-        return new Graph.Builder()
+        return new GraphSerialisable.Builder(new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphId")
                         .build())
                 .store(store)
+                .build())
                 .build();
     }
 }

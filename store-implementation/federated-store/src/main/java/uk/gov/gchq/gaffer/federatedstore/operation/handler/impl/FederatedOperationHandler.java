@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Crown Copyright
+ * Copyright 2021-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,11 +63,10 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             final Collection<GraphSerialisable> graphs = getGraphs(operation, context, store);
             results = new ArrayList<>(graphs.size());
             for (final GraphSerialisable graphSerialisable : graphs) {
-                final Graph graph = graphSerialisable.getGraph();
-
-                final Operation updatedOp = FederatedStoreUtil.updateOperationForGraph(operation.getUnClonedPayload(), graph);
+                final Operation updatedOp = FederatedStoreUtil.updateOperationForGraph(operation.getUnClonedPayload(), graphSerialisable);
                 if (updatedOp != null) {
                     try {
+                        final Graph graph = graphSerialisable.getGraph();
                         if (updatedOp instanceof Output) {
                             results.add(graph.execute((Output) updatedOp, context));
                         } else {

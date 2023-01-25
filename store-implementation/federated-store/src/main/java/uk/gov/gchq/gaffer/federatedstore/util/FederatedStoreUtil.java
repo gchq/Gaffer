@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -44,7 +44,6 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -119,7 +118,7 @@ public final class FederatedStoreUtil {
      * @param <OP>      Operation type
      * @return cloned operation with modified View for the given graph.
      */
-    public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
+    public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final GraphSerialisable graph) {
         OP resultOp = (OP) operation.shallowClone();
         if (nonNull(resultOp.getOptions())) {
             resultOp.setOptions(new HashMap<>(resultOp.getOptions()));
@@ -146,10 +145,6 @@ public final class FederatedStoreUtil {
                     if (validView.hasGroups()) {
                         ((OperationView) resultOp).setView(validView);
                         // Deprecated function still in use due to Federated GetTraits bug with DYNAMIC_SCHEMA
-                    } else if (!graph.getStoreTraits().contains(StoreTrait.DYNAMIC_SCHEMA)) {
-                        // The view has no groups so the operation would return
-                        // nothing, so we shouldn't execute the operation.
-                        resultOp = null;
                     }
                 }
             }
