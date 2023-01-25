@@ -58,7 +58,6 @@
     <rule ref="category/java/codestyle.xml/IdenticalCatchBranches" />
     <rule ref="category/java/codestyle.xml/MethodArgumentCouldBeFinal" />
     <rule ref="category/java/codestyle.xml/NoPackage" />
-    <rule ref="category/java/codestyle.xml/UnnecessaryAnnotationValueElement" />
     <rule ref="category/java/codestyle.xml/UnnecessaryCast" />
     <rule ref="category/java/codestyle.xml/UnnecessaryFullyQualifiedName" />
     <rule ref="category/java/codestyle.xml/UnnecessaryImport" />
