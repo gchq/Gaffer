@@ -40,6 +40,7 @@ public final class RoaringBitmapUtils {
 
     }
 
+    @SuppressWarnings("PMD.AssignmentInOperand")
     public static byte[] upConvertSerialisedForm(final byte[] serialisedBitmap, final int offset, final int length) throws SerialisationException {
         try (DataInputStream input = new DataInputStream(new ByteArrayInputStream(serialisedBitmap, offset, length))) {
             int cookie;
