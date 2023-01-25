@@ -81,7 +81,7 @@ public class EntitySerialiser extends PropertiesSerialiser<Entity> {
 
     @Override
     public Entity deserialise(final byte[] bytes) throws SerialisationException {
-        final int[] lastDelimiter = {0};
+        final int lastDelimiter = 0;
         final String group = LengthValueBytesSerialiserUtil.deserialise(stringSerialiser, bytes, lastDelimiter);
         final Object vertex = LengthValueBytesSerialiserUtil.deserialise(vertexSerialiser, bytes, lastDelimiter);
 

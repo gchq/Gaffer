@@ -44,7 +44,7 @@ public class SerialisationFactory {
 
     private final List<Serialiser> serialisers;
     private static final Serialiser LAST_RESORT_FINALISER = new JavaSerialiser();
-    private static final Serialiser[] CORE_SERIALISERS = new Serialiser[]{
+    private static final Serialiser[] CORE_SERIALISERS = {
             new OrderedLongSerialiser(),
             new OrderedDateSerialiser(),
             new OrderedIntegerSerialiser(),

@@ -178,6 +178,7 @@ public class StoreProperties implements Cloneable {
         return (T) updateInstanceType(requiredClass, properties);
     }
 
+    @SuppressWarnings("PMD.UseTryWithResources") //Not possible
     public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
         if (null == storePropertiesStream) {
             return new StoreProperties();

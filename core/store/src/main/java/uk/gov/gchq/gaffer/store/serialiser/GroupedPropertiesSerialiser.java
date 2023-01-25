@@ -74,8 +74,7 @@ public class GroupedPropertiesSerialiser extends PropertiesSerialiser<GroupedPro
 
     @Override
     public GroupedProperties deserialise(final byte[] bytes) throws SerialisationException {
-        final int[] lastDelimiter = {0};
-
+        final int lastDelimiter = 0;
 
         final String group = LengthValueBytesSerialiserUtil.deserialise(stringSerialiser, bytes, lastDelimiter);
         if (group.isEmpty()) {

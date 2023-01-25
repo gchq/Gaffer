@@ -53,7 +53,7 @@ public class IfHandler implements OutputOperationHandler<If<Object, Object>, Obj
                 } catch (final ClassCastException e) {
                     final String inputType = null != intermediate ? intermediate.getClass().getSimpleName() : "null";
                     throw new OperationException("The predicate '" + operation.getConditional().getPredicate().getClass().getSimpleName()
-                            + "' cannot accept an input of type '" + inputType + "'");
+                            + "' cannot accept an input of type '" + inputType + "'", e);
                 }
             }
         } else {

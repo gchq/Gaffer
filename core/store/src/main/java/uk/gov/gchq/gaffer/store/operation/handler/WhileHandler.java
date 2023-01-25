@@ -103,7 +103,7 @@ public class WhileHandler implements OutputOperationHandler<While<Object, Object
             } catch (final ClassCastException e) {
                 final String inputType = null != input ? input.getClass().getSimpleName() : "null";
                 throw new OperationException("The predicate '" + operation.getConditional().getPredicate().getClass().getSimpleName()
-                        + "' cannot accept an input of type '" + inputType + "'");
+                        + "' cannot accept an input of type '" + inputType + "'", e);
             }
         }
         return satisfied;

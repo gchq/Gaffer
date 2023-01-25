@@ -85,7 +85,7 @@ public class EdgeSerialiser extends PropertiesSerialiser<Edge> {
 
     @Override
     public Edge deserialise(final byte[] bytes) throws SerialisationException {
-        final int[] lastDelimiter = {0};
+        final int lastDelimiter = 0;
         final String group = LengthValueBytesSerialiserUtil.deserialise(stringSerialiser, bytes, lastDelimiter);
         final Object source = LengthValueBytesSerialiserUtil.deserialise(vertexSerialiser, bytes, lastDelimiter);
         final Object dest = LengthValueBytesSerialiserUtil.deserialise(vertexSerialiser, bytes, lastDelimiter);

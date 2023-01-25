@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.store.Store;
  */
 public class CountGroupsHandler implements OutputOperationHandler<CountGroups, GroupCounts> {
     @Override
+    @SuppressWarnings("PMD.UseTryWithResources") //Not worthwhile
     public GroupCounts doOperation(final CountGroups operation,
                                    final Context context, final Store store)
             throws OperationException {

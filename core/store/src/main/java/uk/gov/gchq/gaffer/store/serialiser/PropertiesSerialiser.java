@@ -67,7 +67,7 @@ public abstract class PropertiesSerialiser<T> implements ToBytesSerialiser<T> {
         }
     }
 
-    protected void deserialiseProperties(final byte[] bytes, final Properties properties, final SchemaElementDefinition elementDefinition, final int[] delimiter) throws SerialisationException {
+    protected void deserialiseProperties(final byte[] bytes, final Properties properties, final SchemaElementDefinition elementDefinition, final int... delimiter) throws SerialisationException {
         final int arrayLength = bytes.length;
         final Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
         while (propertyNames.hasNext() && delimiter[0] < arrayLength) {
