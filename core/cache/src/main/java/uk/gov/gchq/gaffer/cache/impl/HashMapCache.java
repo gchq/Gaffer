@@ -36,8 +36,8 @@ import java.util.Set;
  */
 public class HashMapCache<K, V> implements ICache<K, V> {
     private static final JavaSerialiser JAVA_SERIALISER = new JavaSerialiser();
-    private boolean useJavaSerialisation;
-    private HashMap<K, Object> cache = new HashMap<>();
+    private final boolean useJavaSerialisation;
+    private final HashMap<K, Object> cache = new HashMap<>();
 
     public HashMapCache(final boolean useJavaSerialisation) {
         this.useJavaSerialisation = useJavaSerialisation;
