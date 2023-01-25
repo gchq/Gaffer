@@ -30,8 +30,13 @@ import static java.util.Objects.requireNonNull;
 /**
  * Utility methods for serialising objects to length-value byte arrays.
  */
-public abstract class LengthValueBytesSerialiserUtil {
+@SuppressWarnings("PMD.UseVarargs")
+public class LengthValueBytesSerialiserUtil {
     private static final byte[] EMPTY_BYTES = new byte[0];
+
+    private LengthValueBytesSerialiserUtil(){
+        //Cannot be instantiated
+    }
 
     public static ByteArrayOutputStream createByteArray() {
         return new ByteArrayOutputStream();
@@ -251,4 +256,3 @@ public abstract class LengthValueBytesSerialiserUtil {
 
     }
 }
-
