@@ -81,7 +81,7 @@ public class JcsCacheService implements ICacheService {
     private Properties readProperties(final String configFilePath) throws IOException {
         Properties props = new Properties();
 
-        try (InputStream is = Files.newInputStream(Paths.get(configFilePath))){
+        try (InputStream is = Files.newInputStream(Paths.get(configFilePath))) {
             props.load(is);
             return props;
         }

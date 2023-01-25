@@ -81,8 +81,8 @@ public class GetWalksIT extends AbstractStoreIT {
     final EntitySeed seedA = new EntitySeed("A");
     final EntitySeed seedE = new EntitySeed("E");
 
-    final static String AED = "AED";
-    final static String ABC = "ABC";
+    static final String AED = "AED";
+    static final String ABC = "ABC";
 
     @Override
     public void _setup() throws Exception {

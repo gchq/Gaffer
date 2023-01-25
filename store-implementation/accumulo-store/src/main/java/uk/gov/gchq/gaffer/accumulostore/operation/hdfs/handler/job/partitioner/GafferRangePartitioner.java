@@ -112,6 +112,7 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
         return cutPointArray;
     }
 
+    @SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "False Positive")
     private Scanner openCutPointsStream(final Path path) throws IOException {
         try {
             // Original way of opening the file

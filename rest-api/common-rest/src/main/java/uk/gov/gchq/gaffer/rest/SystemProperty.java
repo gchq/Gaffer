@@ -29,7 +29,7 @@ import java.util.Properties;
 /**
  * System property keys and default values.
  */
-public class SystemProperty {
+public final class SystemProperty {
     // KEYS
     public static final String GRAPH_CONFIG_PATH = "gaffer.graph.config";
     public static final String SCHEMA_PATHS = "gaffer.schemas";

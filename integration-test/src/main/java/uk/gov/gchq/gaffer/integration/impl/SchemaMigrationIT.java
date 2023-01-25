@@ -55,7 +55,7 @@ import java.util.Collections;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class SchemaMigrationIT extends AbstractStoreIT {
-    final static String COUNT = "count";
+    static final String COUNT = "count";
 
     public static final Entity ENTITY_OLD = new Builder()
             .group("entityOld")

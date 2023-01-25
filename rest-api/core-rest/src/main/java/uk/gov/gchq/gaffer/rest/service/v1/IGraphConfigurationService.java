@@ -41,7 +41,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 @Produces(APPLICATION_JSON)
 @Api(value = "/graph")
 public interface IGraphConfigurationService {
-    static final String LIST = "list";
+    String LIST = "list";
     @GET
     @Path("/schema")
     @ApiOperation(value = "Gets the schema", response = String.class, responseContainer = LIST)

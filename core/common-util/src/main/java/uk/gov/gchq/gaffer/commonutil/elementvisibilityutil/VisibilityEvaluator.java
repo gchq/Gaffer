@@ -68,7 +68,7 @@ public class VisibilityEvaluator {
         int escapeCount = 0;
         byte[] newAuth = auth;
 
-        for (byte b : auth) {
+        for (final byte b : auth) {
             if (b == '"' || b == '\\') {
                 escapeCount++;
             }
@@ -77,7 +77,7 @@ public class VisibilityEvaluator {
         if (escapeCount > 0 || quote) {
             byte[] escapedAuth = new byte[auth.length + escapeCount + (quote ? 2 : 0)];
             int index = quote ? 1 : 0;
-            for (byte b : auth) {
+            for (final byte b : auth) {
                 if (b == '"' || b == '\\') {
                     escapedAuth[index++] = '\\';
                 }
