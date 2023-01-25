@@ -45,7 +45,7 @@ public class GraphConfigurationController implements IGraphConfigurationControll
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphConfigurationController.class);
 
-    private GraphFactory graphFactory;
+    private final GraphFactory graphFactory;
 
     @Autowired
     public GraphConfigurationController(final GraphFactory graphFactory) {

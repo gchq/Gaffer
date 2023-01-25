@@ -137,6 +137,7 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
+    @SuppressWarnings("PMD.UseTryWithResources")
     public ResponseEntity<StreamingResponseBody> executeChunked(@RequestBody final Operation operation) {
         final StreamingResponseBody responseBody = response -> {
             try {
