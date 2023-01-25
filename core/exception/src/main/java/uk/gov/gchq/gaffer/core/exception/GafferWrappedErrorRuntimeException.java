@@ -20,7 +20,7 @@ package uk.gov.gchq.gaffer.core.exception;
  */
 public class GafferWrappedErrorRuntimeException extends RuntimeException {
     private static final long serialVersionUID = 5497060484135689800L;
-    private Error error;
+    private final Error error;
 
     public GafferWrappedErrorRuntimeException(final Error error) {
         super(error.getSimpleMessage());
