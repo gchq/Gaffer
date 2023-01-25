@@ -148,7 +148,7 @@ public interface OperationView {
             }
             views.forEach(view -> builder.merge(view));
 
-            setView(builder.build());
+            setView((View) builder.build());
         }
     }
 

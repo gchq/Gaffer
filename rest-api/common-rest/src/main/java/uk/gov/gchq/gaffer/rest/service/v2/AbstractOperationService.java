@@ -37,7 +37,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An abstract OperationsService which allows for implementations to ingect dependencies
+ * An abstract OperationsService which allows for implementations to inject dependencies
  * depending on what DI framework they prefer. This abstraction allows Spring and Jersey
  * implementations share the same code
  */
@@ -77,11 +77,13 @@ public abstract class AbstractOperationService {
         return operationDetails;
     }
 
-    // no action by default
-    protected abstract void preOperationHook(final OperationChain<?> opChain, final Context context);
+    protected void preOperationHook(final OperationChain<?> opChain, final Context context) {
+        // no action by default
+    }
 
-    // no action by default
-    protected abstract void postOperationHook(final OperationChain<?> opChain, final Context context);
+    protected void postOperationHook(final OperationChain<?> opChain, final Context context) {
+        // no action by default
+    }
 
     @SuppressWarnings({"ThrowFromFinallyBlock", "PMD.UseTryWithResources"})
     protected <O> Pair<O, String> _execute(final Operation operation, final Context context) {

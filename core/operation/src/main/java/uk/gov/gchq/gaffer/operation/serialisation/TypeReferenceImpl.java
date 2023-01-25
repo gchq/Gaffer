@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
  *
  * @see uk.gov.gchq.gaffer.operation.io.Output#getOutputTypeReference()
  */
+@SuppressWarnings("PMD.UnnecessaryFullyQualifiedName") //False positive, the full names are required
 public final class TypeReferenceImpl {
 
     private TypeReferenceImpl() {
@@ -38,25 +39,25 @@ public final class TypeReferenceImpl {
     public static class CountGroups extends TypeReference<GroupCounts> {
     }
 
-    public static class Void extends TypeReference<Void> {
+    public static class Void extends TypeReference<java.lang.Void> {
     }
 
-    public static class String extends TypeReference<String> {
+    public static class String extends TypeReference<java.lang.String> {
     }
 
-    public static class Long extends TypeReference<Long> {
+    public static class Long extends TypeReference<java.lang.Long> {
     }
 
-    public static class Integer extends TypeReference<Integer> {
+    public static class Integer extends TypeReference<java.lang.Integer> {
     }
 
-    public static class Object extends TypeReference<Object> {
+    public static class Object extends TypeReference<java.lang.Object> {
     }
 
     public static class Element extends TypeReference<uk.gov.gchq.gaffer.data.element.Element> {
     }
 
-    public static class Boolean extends TypeReference<Boolean> {
+    public static class Boolean extends TypeReference<java.lang.Boolean> {
     }
 
     public static class IterableObj extends
@@ -85,16 +86,16 @@ public final class TypeReferenceImpl {
     }
 
     public static class MapExporter
-            extends TypeReference<java.util.LinkedHashMap<String, uk.gov.gchq.gaffer.operation.export.Exporter>> {
+            extends TypeReference<java.util.LinkedHashMap<java.lang.String, uk.gov.gchq.gaffer.operation.export.Exporter>> {
     }
 
     public static class Map extends TypeReference<java.util.LinkedHashMap> {
     }
 
-    public static class MapStringObject extends TypeReference<java.util.Map<String, Object>> {
+    public static class MapStringObject extends TypeReference<java.util.Map<java.lang.String, java.lang.Object>> {
     }
 
-    public static class MapStringSet extends TypeReference<java.util.Map<String, java.util.Set<Object>>> {
+    public static class MapStringSet extends TypeReference<java.util.Map<java.lang.String, java.util.Set<java.lang.Object>>> {
     }
 
     public static class Operations extends TypeReference<Set<Class<uk.gov.gchq.gaffer.operation.Operation>>> {
@@ -121,16 +122,16 @@ public final class TypeReferenceImpl {
     public static class IterableEntitySeed extends TypeReference<Iterable<? extends EntitySeed>> {
     }
 
-    public static class IterableMap extends TypeReference<Iterable<? extends java.util.Map<String, Object>>> {
+    public static class IterableMap extends TypeReference<Iterable<? extends java.util.Map<java.lang.String, java.lang.Object>>> {
     }
 
-    public static class IterableString extends TypeReference<Iterable<? extends String>> {
+    public static class IterableString extends TypeReference<Iterable<? extends java.lang.String>> {
     }
 
-    public static class IterableObject extends TypeReference<Iterable<? extends Object>> {
+    public static class IterableObject extends TypeReference<Iterable<? extends java.lang.Object>> {
     }
 
-    public static class ListString extends TypeReference<java.util.List<String>> {
+    public static class ListString extends TypeReference<java.util.List<java.lang.String>> {
     }
 
     public static class IterableIterableEdge extends TypeReference<Iterable<Iterable<Edge>>> {

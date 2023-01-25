@@ -167,8 +167,9 @@ public abstract class AbstractStoreIT {
         return storeSchema.clone();
     }
 
-    // Override if required
-    abstract protected void _setup() throws Exception;
+    protected void _setup() throws Exception {
+        // Override if required
+    }
 
     protected void initialise(final TestInfo testInfo) throws Exception {
         entities = createEntities();
