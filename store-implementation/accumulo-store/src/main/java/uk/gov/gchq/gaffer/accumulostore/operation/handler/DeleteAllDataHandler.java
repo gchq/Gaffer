@@ -39,6 +39,7 @@ public class DeleteAllDataHandler implements OperationHandler<DeleteAllData> {
 
 
     @Override
+    @SuppressWarnings("PMD.PreserveStackTrace") //False Positive
     public Object doOperation(final DeleteAllData operation, final Context context, final Store store) throws OperationException {
         try {
             final String removeId = store.getGraphId();

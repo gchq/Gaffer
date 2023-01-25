@@ -183,10 +183,8 @@ public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends
 
         @Override
         public Element next() {
-            if (isNull(nextElm)) {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
+            if (isNull(nextElm) && !hasNext()) {
+                throw new NoSuchElementException();
             }
             final Element nextReturn = nextElm;
             nextElm = null;

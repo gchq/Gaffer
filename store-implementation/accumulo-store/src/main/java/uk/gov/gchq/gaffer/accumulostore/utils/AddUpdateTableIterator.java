@@ -57,6 +57,7 @@ import java.util.EnumSet;
  * of Gaffer. See the Accumulo Store README for more information on what changes
  * to your schema you are allowed to make.
  */
+@SuppressWarnings("PMD.UseVarargs") //Designed to work on arrays of a specific length
 public final class AddUpdateTableIterator {
     public static final String UPDATE_KEY = "update";
     public static final String REMOVE_KEY = "remove";
@@ -187,6 +188,7 @@ public final class AddUpdateTableIterator {
      * @param args [graphId] [schema directory path] [store properties path] [ file graph library path]
      * @throws Exception if the tables fails to be created/updated
      */
+    @SuppressWarnings("PMD.SystemPrintln") //Ok for main function
     public static void main(final String[] args) throws Exception {
         if (args.length < NUM_REQUIRED_ARGS) {
             System.err.println("Wrong number of arguments. \nUsage: "

@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.util.OperationUtil;
 public interface MultiEntityIdInputB extends MultiInputB<EntityId> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonSetter("inputB")
-    default void setInputBFromVerticesAndIds(final Object[] inputB) {
+    default void setInputBFromVerticesAndIds(final Object... inputB) {
         setInputB(OperationUtil.toEntityIds(inputB));
     }
 
@@ -40,7 +40,7 @@ public interface MultiEntityIdInputB extends MultiInputB<EntityId> {
         return MultiInputB.super.createInputBArray();
     }
 
-    default void setInputB(final EntityId[] inputB) {
+    default void setInputB(final EntityId... inputB) {
         if (null == inputB) {
             setInputB(((Iterable) null));
         }

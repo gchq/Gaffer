@@ -157,7 +157,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         try {
             directionFlag = rowKey[rowKey.length - 1];
         } catch (final NumberFormatException e) {
-            throw new AccumuloElementConversionException("Error parsing direction flag from row key - " + e);
+            throw new AccumuloElementConversionException("Error parsing direction flag from row key - " + e.getMessage(), e);
         }
 
         byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(rowKey, 0, positionsOfDelimiters[0]);

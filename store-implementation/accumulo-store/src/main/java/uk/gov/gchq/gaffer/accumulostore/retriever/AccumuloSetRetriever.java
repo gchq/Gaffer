@@ -214,11 +214,9 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
             }
             while (iterator.hasNext()) {
                 nextElm = iterator.next();
-                if (checkIfBothEndsInSet(nextElm)) {
-                    if (doPostFilter(nextElm)) {
-                        ViewUtil.removeProperties(operation.getView(), nextElm);
-                        return true;
-                    }
+                if (checkIfBothEndsInSet(nextElm) && doPostFilter(nextElm)) {
+                    ViewUtil.removeProperties(operation.getView(), nextElm);
+                    return true;
                 }
             }
             return false;
@@ -226,11 +224,9 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public Element next() {
-            if (isNull(nextElm)) {
-                if (!hasNext()) {
-                    close();
-                    throw new NoSuchElementException();
-                }
+            if (isNull(nextElm) && !hasNext()) {
+                close();
+                throw new NoSuchElementException();
             }
             final Element nextReturn = nextElm;
             nextElm = null;
@@ -326,10 +322,8 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public Element next() {
-            if (isNull(nextElm)) {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
+            if (isNull(nextElm) && !hasNext()) {
+                throw new NoSuchElementException();
             }
             final Element nextReturn = nextElm;
             nextElm = null;

@@ -216,8 +216,8 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
         private final AccumuloElementConverter elementConverter;
         private Key currentKey;
         private Value currentValue;
-        private Key workKeyRef;
-        private String group;
+        private final Key workKeyRef;
+        private final String group;
 
         public PropertiesIterator(final SortedKeyValueIterator<Key, Value> source, final Range currentRange, final Collection<ByteSequence> currentColumnFamilies, final boolean currentColumnFamiliesInclusive, final String group, final Key workKeyRef, final AccumuloElementConverter elementConverter) throws IOException {
             this.source = source;

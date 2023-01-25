@@ -70,7 +70,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         try {
             checkHdfsDirectories(operation, store);
         } catch (final IOException e) {
-            throw new OperationException("Operation failed due to filesystem error: " + e.getMessage());
+            throw new OperationException("Operation failed due to filesystem error: " + e.getMessage(), e);
         }
 
         if (!operation.isUseProvidedSplits() && needsSplitting(store)) {
@@ -79,7 +79,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         fetchElements(operation, store);
         final String skipImport = operation.getOption(AccumuloStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT);
-        if (null == skipImport || !"TRUE".equalsIgnoreCase(skipImport)) {
+        if (!"TRUE".equalsIgnoreCase(skipImport)) {
             importElements(operation, store);
         } else {
             LOGGER.info("Skipping import as {} was {}", AccumuloStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT,

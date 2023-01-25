@@ -30,7 +30,7 @@ import org.apache.hadoop.mapreduce.Partitioner;
  * points file.
  */
 public class GafferKeyRangePartitioner extends Partitioner<Key, Writable> implements Configurable {
-    private GafferRangePartitioner rp = new GafferRangePartitioner();
+    private final GafferRangePartitioner rp = new GafferRangePartitioner();
 
     @Override
     public int getPartition(final Key key, final Writable value, final int numPartitions) {

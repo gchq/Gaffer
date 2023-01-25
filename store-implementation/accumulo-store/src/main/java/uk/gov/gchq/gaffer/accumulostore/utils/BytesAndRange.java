@@ -21,9 +21,9 @@ import java.security.InvalidParameterException;
 
 public class BytesAndRange {
 
-    private byte[] bytes;
-    private int length;
-    private int offSet;
+    private final byte[] bytes;
+    private final int length;
+    private final int offSet;
 
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "This is a simple class to identify a range within the given byte array.")
     public BytesAndRange(final byte[] bytes, final int offSet, final int length) {

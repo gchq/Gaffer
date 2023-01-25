@@ -85,6 +85,7 @@ public final class ByteUtils {
         return true;
     }
 
+    @SuppressWarnings("PMD.ForLoopVariableCount")
     public static boolean areKeyBytesEqual(final BytesAndRange a, final BytesAndRange b) {
         // since sorted data is usually compared in accumulo,
         // the prefixes will normally be the same... so compare

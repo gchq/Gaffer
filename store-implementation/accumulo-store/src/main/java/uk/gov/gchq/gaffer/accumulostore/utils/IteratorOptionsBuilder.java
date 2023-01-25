@@ -27,7 +27,8 @@ public class IteratorOptionsBuilder {
     private static final String SCHEMA_DESCRIPTION = "Required: The json serialised form of the schema";
     private static final String ACCUMULO_ELEMENT_CONVERTER_CLASS_DESCRIPTION = "Required: The element converter class to be used for key/value conversion";
 
-    private IteratorOptions options;
+    private final IteratorOptions options;
+    @SuppressWarnings("PMD.ImmutableField") //False positive
     private Map<String, String> namedOptions = new HashMap<>();
 
     public IteratorOptionsBuilder(final IteratorOptions options) {

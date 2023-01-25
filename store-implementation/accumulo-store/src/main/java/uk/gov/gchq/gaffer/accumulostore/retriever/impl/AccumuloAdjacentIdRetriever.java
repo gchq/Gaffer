@@ -220,10 +220,8 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
 
         @Override
         public EntityId next() {
-            if (isNull(nextId)) {
-                if (!hasNext()) {
+            if (isNull(nextId) && !hasNext()) {
                     throw new NoSuchElementException();
-                }
             }
             final EntityId nextReturn = nextId;
             nextId = null;
@@ -245,7 +243,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         ranges.addAll(rangeFactory.getRange(seed, operation));
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "PMD.UseTryWithResources"})
     private Set<String> getGroupsWithTransforms(final View view) {
         final Set<String> groups = new HashSet<>();
 
@@ -253,10 +251,8 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         try {
             chainedIterable = new ChainedIterable<>(view.getEntities().entrySet(), view.getEdges().entrySet());
             for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
-                if (nonNull(entry.getValue())) {
-                    if (entry.getValue().hasPostTransformFilters()) {
-                        groups.add(entry.getKey());
-                    }
+                if (nonNull(entry.getValue()) && entry.getValue().hasPostTransformFilters()) {
+                    groups.add(entry.getKey());
                 }
             }
         } finally {

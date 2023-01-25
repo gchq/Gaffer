@@ -72,8 +72,8 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
 
     private static class ElementWithPropertiesRecordReader extends InputFormatBase.RecordReaderBase<Element, NullWritable> {
 
-        private AccumuloElementConverter converter;
-        private View view;
+        private final AccumuloElementConverter converter;
+        private final View view;
 
         ElementWithPropertiesRecordReader(final String keyPackageClass, final Schema schema, final View view)
                 throws StoreException, SchemaException, SerialisationException, UnsupportedEncodingException {
