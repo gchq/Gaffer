@@ -112,14 +112,14 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
         return cutPointArray;
     }
 
-    @SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "False Positive")
+    @SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "False positive + charset as charset not supported for Scanner in Java 8")
     private Scanner openCutPointsStream(final Path path) throws IOException {
         try {
             // Original way of opening the file
             return new Scanner(Files.newBufferedReader(Paths.get(path.toUri().getPath()), UTF_8));
         } catch (final IOException e) {
             LOGGER.warn("Failed to open cut points file. Attempting to use configured file system", e);
-            return new Scanner(FileSystem.get(conf).open(path), UTF_8);
+            return new Scanner(FileSystem.get(conf).open(path), UTF_8.toString());
         }
     }
 
