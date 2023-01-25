@@ -37,8 +37,8 @@ import static java.util.Objects.nonNull;
  * {@link Iterable}, and producing an {@link Iterable}. Only supports {@link Edge} and {@link Entity}
  */
 public class TransformStreamSupplier implements StreamSupplier<Element> {
-    private Iterable<? extends Element> input;
-    private Transform transform;
+    private final Iterable<? extends Element> input;
+    private final Transform transform;
 
     /**
      * Default constructor.

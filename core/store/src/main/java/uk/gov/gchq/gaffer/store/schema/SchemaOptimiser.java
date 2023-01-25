@@ -128,10 +128,8 @@ public class SchemaOptimiser {
         }
         for (final String typeName : otherTypes) {
             final TypeDefinition typeDef = types.get(typeName);
-            if (null != typeDef) {
-                if (null == typeDef.getSerialiser()) {
-                    typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), false, false));
-                }
+            if (typeDef != null && typeDef.getSerialiser() == null) {
+                typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), false, false));
             }
         }
     }

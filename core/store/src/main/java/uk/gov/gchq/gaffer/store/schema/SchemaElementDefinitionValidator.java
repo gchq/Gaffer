@@ -170,10 +170,8 @@ public class SchemaElementDefinitionValidator {
 
     private ValidationResult validateDirection(final SchemaElementDefinition elementDef) {
         final ValidationResult result = new ValidationResult();
-        if (elementDef instanceof SchemaEdgeDefinition) {
-            if (null == elementDef.getIdentifierTypeName(IdentifierType.DIRECTED)) {
-                result.addError("\"directed\" must be set");
-            }
+        if (elementDef instanceof SchemaEdgeDefinition && null == elementDef.getIdentifierTypeName(IdentifierType.DIRECTED)) {
+            result.addError("\"directed\" must be set");
         }
         return result;
     }
@@ -303,6 +301,7 @@ public class SchemaElementDefinitionValidator {
     }
 
     @Override
+    @SuppressWarnings("PMD.UselessOverridingMethod")
     public int hashCode() {
         return super.hashCode();
     }

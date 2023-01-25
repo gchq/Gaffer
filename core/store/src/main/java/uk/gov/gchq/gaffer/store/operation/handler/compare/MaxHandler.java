@@ -35,6 +35,7 @@ import java.util.List;
  */
 public class MaxHandler implements OutputOperationHandler<Max, Element> {
     @Override
+    @SuppressWarnings("PMD.UseTryWithResources")
     public Element doOperation(final Max operation, final Context context, final Store store) throws OperationException {
         // If there is no input or there are no comparators, we return null
         if (null == operation.getInput()

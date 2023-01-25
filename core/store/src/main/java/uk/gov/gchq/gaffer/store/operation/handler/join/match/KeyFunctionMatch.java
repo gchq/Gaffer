@@ -45,7 +45,7 @@ public class KeyFunctionMatch implements Match {
     private Function firstKeyFunction;
     private Function secondKeyFunction;
 
-    private HashMap<Object, List> keyedMatchCandidates = new HashMap<>();
+    private final HashMap<Object, List> keyedMatchCandidates = new HashMap<>();
 
     public KeyFunctionMatch() {
         this(new Identity(), new Identity());

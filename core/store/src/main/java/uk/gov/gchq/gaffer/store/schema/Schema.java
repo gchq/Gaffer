@@ -199,10 +199,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public boolean hasValidation() {
         for (final SchemaElementDefinition elementDef : new ChainedIterable<SchemaElementDefinition>(getEntities().values(), getEdges().values())) {
-            if (null != elementDef) {
-                if (elementDef.hasValidation()) {
-                    return true;
-                }
+            if (elementDef != null && elementDef.hasValidation()) {
+                return true;
             }
         }
         return false;
