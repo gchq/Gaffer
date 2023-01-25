@@ -31,12 +31,15 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v1.example.ExamplesService;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -48,6 +51,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+
 
 @ExtendWith(MockitoExtension.class)
 public class ExamplesServiceTest {
@@ -77,9 +83,9 @@ public class ExamplesServiceTest {
                 .build();
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws OperationException, StoreException {
         final Store store = mock(Store.class);
-        lenient().when(store.getSchema()).thenReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
         lenient().when(store.getProperties()).thenReturn(new StoreProperties());
         lenient().when(store.getOriginalSchema()).thenReturn(schema);
         final Graph graph = new Graph.Builder()
