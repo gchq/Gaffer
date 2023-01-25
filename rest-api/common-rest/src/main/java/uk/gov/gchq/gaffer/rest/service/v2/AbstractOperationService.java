@@ -41,6 +41,7 @@ import java.util.Set;
  * depending on what DI framework they prefer. This abstraction allows Spring and Jersey
  * implementations share the same code
  */
+@SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract") //Class is not particularly abstract
 public abstract class AbstractOperationService {
 
     protected abstract UserFactory getUserFactory();

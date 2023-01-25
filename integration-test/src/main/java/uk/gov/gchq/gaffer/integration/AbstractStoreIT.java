@@ -82,6 +82,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
  * {@link IntegrationTestSuiteExtension} on initialisation.
  */
 @ExtendWith(IntegrationTestSuiteExtension.class)
+@SuppressWarnings({"PMD.AbstractClassWithoutAbstractMethod", "PMD.EmptyMethodInAbstractClassShouldBeAbstract"}) //Class is not particularly abstract
 public abstract class AbstractStoreIT {
     protected static final int DUPLICATES = 2;
 
