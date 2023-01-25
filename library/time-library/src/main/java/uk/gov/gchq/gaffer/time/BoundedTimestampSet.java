@@ -53,8 +53,8 @@ public class BoundedTimestampSet implements TimestampSet {
         SAMPLE
     }
 
-    private TimeBucket timeBucket;
-    private int maxSize;
+    private final TimeBucket timeBucket;
+    private final int maxSize;
     private State state;
     private RBMBackedTimestampSet rbmBackedTimestampSet;
     private ReservoirLongsUnion reservoirLongsUnion;
