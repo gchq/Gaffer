@@ -47,7 +47,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(alphabetic = true)
 public class OperationChainLimiter implements GraphHook {
-    private ScoreOperationChainHandler scorer = new ScoreOperationChainHandler();
+    private final ScoreOperationChainHandler scorer = new ScoreOperationChainHandler();
 
     /**
      * Checks the {@link OperationChain} is allowed to be executed by the user.

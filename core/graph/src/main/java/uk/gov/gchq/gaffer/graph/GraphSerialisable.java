@@ -193,7 +193,7 @@ public class GraphSerialisable implements Serializable {
                 try {
                     storeProperties = null != serialisedProperties ? StoreProperties.loadStoreProperties(JSONSerialiser.deserialise(serialisedProperties, Properties.class)) : null;
                 } catch (final SerialisationException e) {
-                    throw new GafferRuntimeException("Unable to deserialise properties");
+                    throw new GafferRuntimeException("Unable to deserialise properties", e);
                 }
             } else {
                 storeProperties = graph.getStoreProperties();

@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.AlwaysValid;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
@@ -41,7 +40,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.impl.predicate.AreIn;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -169,11 +168,7 @@ public class GafferResultCacheExporter implements Exporter {
             try {
                 return JSONSerialiser.deserialise(resultBytes, resultClass);
             } catch (final SerialisationException e) {
-                try {
-                    LOGGER.error("Unable to deserialise result: {}", new String(resultBytes, CommonConstants.UTF_8), e);
-                } catch (final UnsupportedEncodingException e1) {
-                    throw new RuntimeException(e);
-                }
+                LOGGER.error("Unable to deserialise result: {}", new String(resultBytes, StandardCharsets.UTF_8), e);
                 throw new RuntimeException(e);
             }
         }

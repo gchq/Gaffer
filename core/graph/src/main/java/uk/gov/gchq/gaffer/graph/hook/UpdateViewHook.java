@@ -127,10 +127,8 @@ public class UpdateViewHook implements GraphHook {
         } else {
             remove = false;
         }
-        if (!remove) {
-            if (null != blackListElementGroups) {
-                remove = blackListElementGroups.contains(entry.getKey());
-            }
+        if (!remove && null != blackListElementGroups) {
+            remove = blackListElementGroups.contains(entry.getKey());
         }
         return remove;
     }

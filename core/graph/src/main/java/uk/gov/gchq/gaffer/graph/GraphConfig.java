@@ -62,7 +62,7 @@ public final class GraphConfig {
     private byte[] view;
     private GraphLibrary library;
     private String description;
-    private List<GraphHook> hooks = new ArrayList<>();
+    private final List<GraphHook> hooks = new ArrayList<>();
 
     public GraphConfig() {
     }
@@ -146,7 +146,7 @@ public final class GraphConfig {
     }
 
     public static class Builder {
-        private GraphConfig config = new GraphConfig();
+        private final GraphConfig config = new GraphConfig();
 
         public Builder json(final Path path) {
             try {

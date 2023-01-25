@@ -54,9 +54,9 @@ public class SchemaMigration implements GraphHook {
     public static final String TRUE = Boolean.toString(true);
 
     public boolean aggregateAfter = false;
-    private List<MigrateElement> entities = new ArrayList<>();
+    private final List<MigrateElement> entities = new ArrayList<>();
 
-    private List<MigrateElement> edges = new ArrayList<>();
+    private final List<MigrateElement> edges = new ArrayList<>();
 
     private MigrationOutputType outputType = DEFAULT_OUTPUT_TYPE;
 
