@@ -84,9 +84,9 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     private final LinkedHashSet<String> usedProperties;
     private final Map<String, Boolean> propertyNeedsConversion;
     private final Map<String, Converter> converterByProperty;
-    private StructType structType;
-    private SchemaToStructTypeConverter schemaConverter;
-    private Map<String, String> options;
+    private final StructType structType;
+    private final SchemaToStructTypeConverter schemaConverter;
+    private final Map<String, String> options;
 
     public AccumuloStoreRelation(final Context context,
                                  final List<Converter> converters,

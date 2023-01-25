@@ -35,7 +35,7 @@ import java.util.Arrays;
 public class AccumuloKeyRangePartitioner extends Partitioner {
 
     private static final long serialVersionUID = -5616778533667038166L;
-    private String[] splits;
+    private final String[] splits;
     private int numSubBins = 0;
 
     public AccumuloKeyRangePartitioner(final AccumuloStore store) throws OperationException {

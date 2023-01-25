@@ -34,7 +34,7 @@ import java.io.Serializable;
 public class ElementConverterFunction extends AbstractFunction1<Element, TraversableOnce<Tuple2<Key, Value>>> implements Serializable {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ElementConverterFunction.class);
     private static final long serialVersionUID = 2359835481339851648L;
-    private Broadcast<AccumuloElementConverter> converterBroadcast;
+    private final Broadcast<AccumuloElementConverter> converterBroadcast;
 
     public ElementConverterFunction(final Broadcast<AccumuloElementConverter> converterBroadcast) {
         this.converterBroadcast = converterBroadcast;

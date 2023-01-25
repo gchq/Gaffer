@@ -65,8 +65,8 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     private final List<SortedKeyValueIterator<Key, Value>> iterators = new ArrayList<>();
     private SortedKeyValueIterator<Key, Value> mergedIterator = null;
     private SortedKeyValueIterator<Key, Value> iteratorAfterIterators = null;
-    private Configuration configuration;
-    private Set<String> auths;
+    private final Configuration configuration;
+    private final Set<String> auths;
 
     public RFileReaderIterator(final Partition partition,
                                final TaskContext taskContext,
@@ -202,7 +202,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
             });
             return result;
         } catch (final IOException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new RuntimeException("Exception creating iterator of class " + is.getIteratorClass());
+            throw new RuntimeException("Exception creating iterator of class " + is.getIteratorClass(), e);
         }
     }
 
@@ -212,13 +212,13 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
 
     private void close() {
         for (final SortedKeyValueIterator<Key, Value> iterator : iterators) {
-            RFile.Reader reader = null;
+            RFile.Reader reader;
             try {
                 reader = (RFile.Reader) iterator;
                 LOGGER.debug("Closing RFile.Reader {}", reader);
                 reader.close();
             } catch (final IOException e) {
-                LOGGER.error("IOException closing reader {}", reader);
+                LOGGER.error("IOException closing reader {}", e.getMessage());
             }
         }
     }

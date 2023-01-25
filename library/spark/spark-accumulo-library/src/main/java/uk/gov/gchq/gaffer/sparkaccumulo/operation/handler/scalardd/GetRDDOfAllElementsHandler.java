@@ -184,7 +184,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
 
     public static class EntryIteratorToElementIterator
             extends AbstractFunction1<Iterator<Map.Entry<Key, Value>>, Iterator<Element>> implements Serializable {
-        private byte[] serialisedConf;
+        private final byte[] serialisedConf;
 
         public EntryIteratorToElementIterator(final byte[] serialisedConf) {
             this.serialisedConf = serialisedConf;
