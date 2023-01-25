@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.types.FreqMap;
  * for a Gaffer {@link FreqMap}
  */
 public class FreqMapKryoSerializer extends Serializer<FreqMap> {
-    private FreqMapSerialiser serialiser;
+    private final FreqMapSerialiser serialiser;
 
     public FreqMapKryoSerializer() {
         this.serialiser = new FreqMapSerialiser();

@@ -75,7 +75,7 @@ public class FiltersToOperationConverter {
 
     public FiltersToOperationConverter(final View view,
                                        final Schema schema,
-                                       final Filter[] filters) {
+                                       final Filter... filters) {
         this.view = view;
         this.schema = schema;
         this.filters = Arrays.copyOf(filters, filters.length);
@@ -358,6 +358,7 @@ public class FiltersToOperationConverter {
      * @param filter The {@link Filter} to transform.
      * @return A map from {@link String} to {@link TupleAdaptedPredicate}s implementing the provided {@link Filter}.
      */
+    @SuppressWarnings("PMD.EmptyControlStatement")
     private Map<String, List<TupleAdaptedPredicate<String, ?>>> getFunctionsFromFilter(final Filter filter) {
         final Map<String, List<TupleAdaptedPredicate<String, ?>>> map = new HashMap<>();
         if (filter instanceof EqualTo) {
