@@ -41,9 +41,10 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 @Produces(APPLICATION_JSON)
 @Api(value = "/graph")
 public interface IGraphConfigurationService {
+    static final String LIST = "list";
     @GET
     @Path("/schema")
-    @ApiOperation(value = "Gets the schema", response = String.class, responseContainer = "list")
+    @ApiOperation(value = "Gets the schema", response = String.class, responseContainer = LIST)
     Schema getSchema();
 
     @GET
@@ -53,43 +54,43 @@ public interface IGraphConfigurationService {
 
     @GET
     @Path("/filterFunctions")
-    @ApiOperation(value = "Gets available filter functions.", response = String.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available filter functions.", response = String.class, responseContainer = LIST)
     Set<Class> getFilterFunctions();
 
     @GET
     @Path("/filterFunctions/{inputClass}")
-    @ApiOperation(value = "Gets available filter functions for the given input class is provided.", response = String.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available filter functions for the given input class is provided.", response = String.class, responseContainer = LIST)
     Set<Class> getFilterFunctions(@ApiParam(value = "a function input java class") @PathParam("inputClass") final String inputClass);
 
     @GET
     @Path("/transformFunctions")
-    @ApiOperation(value = "Gets available transform functions", response = String.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available transform functions", response = String.class, responseContainer = LIST)
     Set<Class> getTransformFunctions();
 
     @GET
     @Path("/elementGenerators")
-    @ApiOperation(value = "Gets available element generators", response = String.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available element generators", response = String.class, responseContainer = LIST)
     Set<Class> getElementGenerators();
 
     @GET
     @Path("/objectGenerators")
-    @ApiOperation(value = "Gets available object generators", response = String.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available object generators", response = String.class, responseContainer = LIST)
     Set<Class> getObjectGenerators();
 
     @GET
     @Path("/operations")
-    @ApiOperation(value = "Gets all operations supported by the store.", response = String.class, responseContainer = "list")
+    @ApiOperation(value = "Gets all operations supported by the store.", response = String.class, responseContainer = LIST)
     Set<Class> getOperations();
 
     @GET
     @Path("/storeTraits")
-    @ApiOperation(value = "Gets all supported store traits", response = StoreTrait.class, responseContainer = "list")
+    @ApiOperation(value = "Gets all supported store traits", response = StoreTrait.class, responseContainer = LIST)
     Set<StoreTrait> getStoreTraits();
 
     @GET
     @Path("/nextOperations/{className}")
     @ApiOperation(value = "Gets all the compatible operations that could be added to an operation chain after the provided operation.",
-            response = String.class, responseContainer = "list")
+            response = String.class, responseContainer = LIST)
     Set<Class> getNextOperations(@ApiParam(value = "an operation class name") @PathParam("className") final String operationClassName);
 
     @POST
@@ -100,6 +101,6 @@ public interface IGraphConfigurationService {
 
     @GET
     @Path("/serialisedFields/{className}")
-    @ApiOperation(value = "Gets all serialised fields for a given java class.", response = String.class, responseContainer = "list")
+    @ApiOperation(value = "Gets all serialised fields for a given java class.", response = String.class, responseContainer = LIST)
     Set<String> getSerialisedFields(@ApiParam(value = "a java class name") @PathParam("className") final String className);
 }

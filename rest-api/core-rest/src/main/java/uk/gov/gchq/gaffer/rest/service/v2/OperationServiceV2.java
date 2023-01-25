@@ -54,6 +54,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
  */
+@SuppressWarnings("PMD.UnnecessaryFullyQualifiedName") //Not the same FQN
 public class OperationServiceV2 extends AbstractOperationService implements IOperationServiceV2 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationServiceV2.class);
 
@@ -98,6 +99,7 @@ public class OperationServiceV2 extends AbstractOperationService implements IOpe
 
     @SuppressFBWarnings
     @Override
+    @SuppressWarnings("PMD.UseTryWithResources")
     public Response executeChunkedChain(final OperationChain opChain) {
         // Create chunked output instance
         final Throwable[] threadException = new Throwable[1];
