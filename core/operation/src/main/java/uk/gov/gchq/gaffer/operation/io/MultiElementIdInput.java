@@ -37,7 +37,7 @@ public interface MultiElementIdInput extends MultiInput<ElementId> {
      */
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonSetter("input")
-    default void setInputFromVerticesAndIds(final Object[] input) {
+    default void setInputFromVerticesAndIds(final Object... input) {
         setInput(OperationUtil.toElementIds(input));
     }
 

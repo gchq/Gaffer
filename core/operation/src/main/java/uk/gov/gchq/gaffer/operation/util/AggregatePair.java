@@ -32,7 +32,7 @@ public class AggregatePair {
         this.elementAggregator = aggregator;
     }
 
-    public AggregatePair(final String[] groupBy) {
+    public AggregatePair(final String... groupBy) {
         this.groupBy = groupBy;
     }
 
@@ -45,7 +45,7 @@ public class AggregatePair {
         return groupBy;
     }
 
-    public void setGroupBy(final String[] groupBy) {
+    public void setGroupBy(final String... groupBy) {
         this.groupBy = groupBy;
     }
 

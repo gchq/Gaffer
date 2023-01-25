@@ -77,7 +77,7 @@ public interface ElementComparison {
         if (null != comparators && !comparators.isEmpty()) {
             final Set<Pair<String, String>> pairs = new HashSet<>();
             for (final Comparator<Element> comparator : comparators) {
-                if (null != comparator && comparator instanceof ElementComparator) {
+                if (comparator instanceof ElementComparator) {
                     pairs.addAll(((ElementComparator) comparator).getComparableGroupPropertyPairs());
                 }
             }

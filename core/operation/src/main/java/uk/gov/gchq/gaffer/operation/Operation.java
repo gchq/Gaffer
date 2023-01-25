@@ -160,10 +160,15 @@ public interface Operation extends Closeable {
                 : getOptions().getOrDefault(name, defaultValue);
     }
 
+    /**
+     * Gets if an operation contains an option of the given name.
+     *
+     * @param name         the name of the option
+     *
+     * @return if the operation contains the option
+     */
     default boolean containsOption(final String name) {
-        return (isNull(getOptions()))
-                ? false
-                : getOptions().containsKey(name);
+        return !isNull(getOptions()) && getOptions().containsKey(name);
     }
 
     @JsonGetter("options")

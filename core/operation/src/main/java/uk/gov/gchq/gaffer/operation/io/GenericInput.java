@@ -181,6 +181,7 @@ public abstract class GenericInput<I> implements Input<I> {
 
         @JsonTypeInfo(use = Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
         @JsonSetter("input")
+        @SuppressWarnings("PMD.UseVarargs")
         public void setInputFromArray(final Object[] input) {
             this.inputArray = input;
             this.inputIterable = null;

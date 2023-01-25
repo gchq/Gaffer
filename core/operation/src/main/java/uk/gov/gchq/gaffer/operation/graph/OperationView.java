@@ -132,10 +132,10 @@ public interface OperationView {
      */
     default void setViews(final List<View> views) {
         if (null != views) {
-            boolean isNamedView = null != getView() && getView() instanceof NamedView;
+            boolean isNamedView = getView() instanceof NamedView;
             if (!isNamedView) {
                 for (final View view : views) {
-                    if (null != view && view instanceof NamedView) {
+                    if (view instanceof NamedView) {
                         isNamedView = true;
                         break;
                     }

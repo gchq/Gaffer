@@ -101,7 +101,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         try {
             return JSONSerialiser.getJsonNodeFromString(operations);
         } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
+            throw new IllegalArgumentException(se.getMessage(), se);
         }
     }
 
@@ -115,7 +115,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
                 this.operations = new String(JSONSerialiser.serialise(dao), Charset.forName(CHARSET_NAME));
             }
         } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
+            throw new IllegalArgumentException(se.getMessage(), se);
         }
     }
 
@@ -244,7 +244,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
                     opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
                             new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
                 } catch (final SerialisationException | UnsupportedEncodingException e) {
-                    throw new IllegalArgumentException(e.getMessage());
+                    throw new IllegalArgumentException(e.getMessage(), e);
                 }
             }
         }

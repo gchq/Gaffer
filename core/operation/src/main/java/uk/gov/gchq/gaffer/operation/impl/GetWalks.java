@@ -67,7 +67,7 @@ public class GetWalks implements
     public static final String HOP_DEFINITION = "A hop is a GetElements operation that selects at least 1 edge group.";
     public static final int DEFAULT_RESULTS_LIMIT = 1000000;
 
-    private List<OperationChain<Iterable<Element>>> operations = new ArrayList<>();
+    private final List<OperationChain<Iterable<Element>>> operations = new ArrayList<>();
     private Iterable<? extends EntityId> input;
 
     private boolean includePartial = false;

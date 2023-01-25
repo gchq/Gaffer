@@ -308,18 +308,14 @@ public class JobDetail implements Serializable {
     }
 
     private static String serialiseOperationChain(final OperationChain operationChain) {
-
         if (operationChain == null) {
             return "";
         }
 
         try {
-
             return new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
-
         } catch (final Exception exception) {
-
-            throw new IllegalArgumentException(exception.getMessage());
+            throw new IllegalArgumentException(exception.getMessage(), exception);
         }
     }
 }

@@ -36,7 +36,7 @@ public class AggregatePairTest extends JSONSerialisationTest<AggregatePair> {
     public void shouldSetAndGetProperties() {
         // Given
         final AggregatePair pair = new AggregatePair();
-        pair.setGroupBy(new String[] {"timestamp"});
+        pair.setGroupBy("timestamp");
         pair.setElementAggregator(new ElementAggregator());
 
         // When / Then
