@@ -58,7 +58,7 @@ public class AddGraphWithHooks extends AddGraph {
         return hooks;
     }
 
-    public void setHooks(final GraphHook[] hooks) {
+    public void setHooks(final GraphHook... hooks) {
         this.hooks = hooks;
     }
 

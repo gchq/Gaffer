@@ -29,10 +29,6 @@ import uk.gov.gchq.gaffer.operation.io.Output;
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
 public class FederatedOutputIterableHandler<PAYLOAD extends Output< Iterable<? extends ITERABLE_ELEMENTS>>, ITERABLE_ELEMENTS> extends FederatedOutputHandler<PAYLOAD, Iterable<? extends ITERABLE_ELEMENTS>> {
-    private FederatedOutputIterableHandler(final Object defaultEmpty) {
-        this();
-    }
-
     public FederatedOutputIterableHandler() {
         super(new EmptyIterable<>());
     }

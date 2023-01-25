@@ -75,6 +75,7 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
      * @param overwrite         if true, overwrite any graphs already in the cache with the same ID
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
+    @SuppressWarnings("PMD.PreserveStackTrace") //False positive
     public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
         String graphId = graphSerialisable.getGraphId();
         Pair<GraphSerialisable, FederatedAccess> pair = new Pair<>(graphSerialisable, access);
