@@ -149,7 +149,7 @@ public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerat
         return new ChainedIterable<>(edges, entities, cardinalityEntities);
     }
 
-    private FreqMap getVehicleCounts(final String[] fields) {
+    private FreqMap getVehicleCounts(final String... fields) {
         final FreqMap freqMap = new FreqMap();
         for (final RoadTrafficDataField fieldName : RoadTrafficDataField.VEHICLE_COUNTS) {
             Long value;
