@@ -37,8 +37,8 @@ public class SimpleMapFactory implements MapFactory {
     private final ElementCloner cloner;
     private Class<? extends Map> mapClass = HashMap.class;
 
-    private Map<String, Map> maps = new HashMap<>();
-    private Map<String, MultiMap> multiMaps = new HashMap<>();
+    private final Map<String, Map> maps = new HashMap<>();
+    private final Map<String, MultiMap> multiMaps = new HashMap<>();
 
     public SimpleMapFactory() {
         this(new ElementCloner());
@@ -59,6 +59,7 @@ public class SimpleMapFactory implements MapFactory {
     }
 
     @Override
+    @SuppressWarnings("PMD.PreserveStackTrace") //Cannot be done in this case
     public <K, V> Map<K, V> getMap(final String mapName, final Class<K> keyClass, final Class<V> valueClass) {
         Map map = maps.get(mapName);
         if (null == map) {

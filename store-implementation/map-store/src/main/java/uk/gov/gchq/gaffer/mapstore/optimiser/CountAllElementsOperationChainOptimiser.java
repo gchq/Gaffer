@@ -81,6 +81,7 @@ public class CountAllElementsOperationChainOptimiser extends AbstractOperationCh
     }
 
     @Override
+    @SuppressWarnings("PMD.UselessOverridingMethod") //Required
     public int hashCode() {
         return super.hashCode();
     }
