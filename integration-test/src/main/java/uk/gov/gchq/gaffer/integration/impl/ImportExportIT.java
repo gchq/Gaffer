@@ -50,7 +50,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressFBWarnings(value = "DLS_DEAD_LOCAL_STORE", justification = "Intentional part of test")
 public class ImportExportIT extends AbstractStoreIT {
-
     private static final String INCOMING_FILE_PATH = "NeptuneEntitiesAndEdgesWithProperties.csv";
     private Path path;
     private File outgoingFile;
@@ -59,7 +58,6 @@ public class ImportExportIT extends AbstractStoreIT {
 
     @Override
     public void _setup() throws Exception {
-
         try {
             path = tempDir.resolve("outputFile.csv");
         } catch (final InvalidPathException ipe) {
@@ -72,13 +70,12 @@ public class ImportExportIT extends AbstractStoreIT {
     @Test
     public void shouldImportFromFileThenExportBackOutToDifferentFile() throws OperationException, IOException {
         // Given
-        List<String> expectedData = Arrays.asList(
+        final List<String> expectedData = Arrays.asList(
                 ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Int,DIRECTED:Boolean",
                 "A,BasicEntity,,,,1,",
                 "B,BasicEntity,,,,2,",
                 ",,BasicEdge,A,B,1,true"
         );
-
 
         final OperationChain<Iterable<? extends String>> importExportOpChain = new OperationChain.Builder()
                 .first(new ImportFromLocalFile.Builder()
@@ -98,23 +95,20 @@ public class ImportExportIT extends AbstractStoreIT {
                         .build())
                 .build();
 
-        final Iterable<? extends String> exportedData = graph.execute(importExportOpChain, getUser());
-
-        //   When
-
+        // When
+        final Iterable<String> exportedData = (Iterable<String>) graph.execute(importExportOpChain, getUser());
         Iterable<String> incomingFile = readFile(INCOMING_FILE_PATH);
         Iterable<String> outgoingFile = readFile(path.toFile().getAbsolutePath());
 
-
-        //  Then
+        // Then
+        assertThat(exportedData).containsExactlyInAnyOrderElementsOf(expectedData);
         assertThat(outgoingFile).containsExactlyInAnyOrderElementsOf(incomingFile);
     }
-
 
     public Iterable<String> readFile(final String filePath) throws OperationException {
         final OperationChain<Iterable<String>> importOpChain = new OperationChain.Builder()
                 .first(new ImportFromLocalFile.Builder()
-                        .filePath(INCOMING_FILE_PATH)
+                        .filePath(filePath)
                         .build())
                 .build();
 
