@@ -211,8 +211,8 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
 
         try {
             existing = getFromCache(namedViewDetail.getName());
-        } catch (final
-        CacheOperationException e) { // if there is no existing NamedView add one
+        } catch (final CacheOperationException e) {
+            // if there is no existing NamedView add one
             addToCache(namedViewDetail, false);
             return;
         }
