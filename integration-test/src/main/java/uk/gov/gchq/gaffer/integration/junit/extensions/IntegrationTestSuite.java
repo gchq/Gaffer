@@ -27,7 +27,7 @@ import java.util.Optional;
  * For further information on how this class is used see
  * {@link IntegrationTestSuiteExtension}.
  */
-public abstract class IntegrationTestSuite {
+public class IntegrationTestSuite {
 
     private Schema schema = null;
 

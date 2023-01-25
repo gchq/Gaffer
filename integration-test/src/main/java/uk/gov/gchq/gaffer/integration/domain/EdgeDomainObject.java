@@ -118,7 +118,7 @@ public class EdgeDomainObject extends DomainObject {
         if (!Objects.equals(intProperty, that.intProperty)) {
             return false;
         }
-        return !(!Objects.equals(count, that.count));
+        return Objects.equals(count, that.count);
 
     }
 

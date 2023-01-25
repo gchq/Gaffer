@@ -69,22 +69,18 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
                     expectedSeeds.add("D1");
                 }
 
-                if (IncludeIncomingOutgoingType.INCOMING != inOutType) {
-                    if (DirectedType.UNDIRECTED != directedType) {
-                        expectedSeeds.add(DEST_DIR + "1");
-                        expectedSeeds.add(DEST_DIR_3);
-                        expectedSeeds.add("A1");
-                        expectedSeeds.add("B1");
-                        expectedSeeds.add("C1");
-                        expectedSeeds.add("D1");
-                    }
+                if (IncludeIncomingOutgoingType.INCOMING != inOutType && DirectedType.UNDIRECTED != directedType) {
+                    expectedSeeds.add(DEST_DIR + "1");
+                    expectedSeeds.add(DEST_DIR_3);
+                    expectedSeeds.add("A1");
+                    expectedSeeds.add("B1");
+                    expectedSeeds.add("C1");
+                    expectedSeeds.add("D1");
                 }
 
-                if (IncludeIncomingOutgoingType.OUTGOING != inOutType) {
-                    if (DirectedType.UNDIRECTED != directedType) {
-                        expectedSeeds.add(SOURCE_DIR_2);
-                        expectedSeeds.add(SOURCE_DIR_3);
-                    }
+                if (IncludeIncomingOutgoingType.OUTGOING != inOutType && DirectedType.UNDIRECTED != directedType) {
+                    expectedSeeds.add(SOURCE_DIR_2);
+                    expectedSeeds.add(SOURCE_DIR_3);
                 }
 
                 shouldGetEntityIds(expectedSeeds, inOutType, directedType);

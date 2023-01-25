@@ -90,7 +90,7 @@ public class EntityDomainObject extends DomainObject {
         if (!Objects.equals(stringproperty, that.stringproperty)) {
             return false;
         }
-        return !(!Objects.equals(intProperty, that.intProperty));
+        return Objects.equals(intProperty, that.intProperty);
     }
 
     @Override

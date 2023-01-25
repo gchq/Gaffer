@@ -167,9 +167,8 @@ public abstract class AbstractStoreIT {
         return storeSchema.clone();
     }
 
-    protected void _setup() throws Exception {
-        // Override if required;
-    }
+    // Override if required
+    abstract protected void _setup() throws Exception;
 
     protected void initialise(final TestInfo testInfo) throws Exception {
         entities = createEntities();
@@ -515,7 +514,7 @@ public abstract class AbstractStoreIT {
         try {
             return (T) JSONSerialiser.deserialise(JSONSerialiser.serialise(item), item.getClass());
         } catch (final SerialisationException e) {
-            throw new RuntimeException("Unable to clone item: " + item);
+            throw new RuntimeException("Unable to clone item: " + item, e);
         }
     }
 
