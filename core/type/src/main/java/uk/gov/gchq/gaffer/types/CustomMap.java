@@ -90,15 +90,13 @@ public class CustomMap<K, V> {
         if (!canHandleKey || !canHandleValue) {
             final StringBuilder sb = new StringBuilder("Error in constructor, mismatched");
             if (!canHandleKey) {
-                sb.append(" key with keySerialiser");
-                sb.append(" Key:" + ((null == keyClass) ? null : keyClass.getSimpleName()) + ", Serialiser:" + keySerialiser.getClass().getSimpleName());
+                sb.append(" key with keySerialiser Key:" + ((null == keyClass) ? null : keyClass.getSimpleName()) + ", Serialiser:" + keySerialiser.getClass().getSimpleName());
             }
             if (!canHandleKey && !canHandleValue) {
                 sb.append(" and");
             }
             if (!canHandleValue) {
-                sb.append(" value with valueSerialiser");
-                sb.append(" Value:" + ((null == valueClass) ? null : valueClass.getSimpleName()) + ", Serialiser:" + valueSerialiser.getClass().getSimpleName());
+                sb.append(" value with valueSerialiser Value:" + ((null == valueClass) ? null : valueClass.getSimpleName()) + ", Serialiser:" + valueSerialiser.getClass().getSimpleName());
             }
             throw new IllegalArgumentException(sb.toString());
         }
