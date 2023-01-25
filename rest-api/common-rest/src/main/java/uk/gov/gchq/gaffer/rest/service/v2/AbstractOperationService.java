@@ -77,15 +77,13 @@ public abstract class AbstractOperationService {
         return operationDetails;
     }
 
-    protected void preOperationHook(final OperationChain<?> opChain, final Context context) {
-        // no action by default
-    }
+    // no action by default
+    protected abstract void preOperationHook(final OperationChain<?> opChain, final Context context);
 
-    protected void postOperationHook(final OperationChain<?> opChain, final Context context) {
-        // no action by default
-    }
+    // no action by default
+    protected abstract void postOperationHook(final OperationChain<?> opChain, final Context context);
 
-    @SuppressWarnings("ThrowFromFinallyBlock")
+    @SuppressWarnings({"ThrowFromFinallyBlock", "PMD.UseTryWithResources"})
     protected <O> Pair<O, String> _execute(final Operation operation, final Context context) {
 
         OperationChain<O> opChain = (OperationChain<O>) OperationChain.wrap(operation);

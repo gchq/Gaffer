@@ -543,7 +543,6 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
         populateOperation((Operation) operation);
     }
 
-    protected void populateOperation(final Operation operation) {
-        // override to add options to the operation
-    }
+    // override to add options to the operation
+    protected abstract void populateOperation(final Operation operation);
 }

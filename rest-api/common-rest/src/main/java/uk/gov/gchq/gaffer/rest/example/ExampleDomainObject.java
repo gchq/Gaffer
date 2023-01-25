@@ -36,7 +36,7 @@ public class ExampleDomainObject {
     }
 
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Just an example object")
-    public void setIds(final Object[] ids) {
+    public void setIds(final Object... ids) {
         this.ids = ids;
     }
 
