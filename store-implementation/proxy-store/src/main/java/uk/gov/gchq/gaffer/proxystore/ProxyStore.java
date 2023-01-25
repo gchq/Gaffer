@@ -250,7 +250,7 @@ public class ProxyStore extends Store {
                 error = JSONSerialiser.deserialise(StringUtil.toBytes(outputJson), Error.class);
             } catch (final Exception e) {
                 LOGGER.warn("Gaffer bad status {}. Detail: {}", response.getStatus(), outputJson);
-                throw new StoreException(String.format("Delegate Gaffer store returned status: %s. Response content was: %s", response.getStatus(), outputJson));
+                throw new StoreException(String.format("Delegate Gaffer store returned status: %s. Response content was: %s", response.getStatus(), outputJson), e);
             }
             throw new GafferWrappedErrorRuntimeException(error);
         }
@@ -342,7 +342,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>(opChainValidator, opChainOptimisers);
+        return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
     }
 
     protected Client createClient() {
