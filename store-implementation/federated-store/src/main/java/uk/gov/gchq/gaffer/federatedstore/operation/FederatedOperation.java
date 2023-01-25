@@ -327,6 +327,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     }
 
+    @SuppressWarnings("PMD.UselessOverridingMethod") //False positive - Generics are different
     public abstract static class BuilderParent<INPUT, OUTPUT> extends IFederationOperation.BaseBuilder<FederatedOperation<INPUT, OUTPUT>, BuilderParent<INPUT, OUTPUT>> {
         public BuilderParent(final FederatedOperation<INPUT, OUTPUT> fedOp) {
             super(fedOp);
