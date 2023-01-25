@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -31,6 +32,10 @@ import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+
+import static uk.gov.gchq.gaffer.data.element.IdentifierType.DIRECTED;
+import static uk.gov.gchq.gaffer.data.generator.OpenCypherFormat.TYPE_MAPPINGS;
+
 
 /**
  * A {@code ToCsvHandler} handles {@link ToCsv} operations by applying the provided
@@ -50,7 +55,8 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
         } else if (null != operation.getElementGenerator() && null != operation.getCsvFormat()) {
             throw new IllegalArgumentException("ToCsv operation requires either a generator or a CsvFormat not both");
         } else if (null == operation.getElementGenerator() && null != operation.getCsvFormat()) {
-            csvGenerator = createGenerator(operation.getCsvFormat(), getPropertyHeadersFromSchema(store));
+            final Schema schema = store.execute(new GetSchema(), context);
+            csvGenerator = createGenerator(operation.getCsvFormat(), getPropertyHeadersFromSchema(schema));
         } else {
             csvGenerator = operation.getElementGenerator();
         }
@@ -63,8 +69,7 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
         return csv;
     }
 
-    private LinkedHashMap<String, String> getPropertyHeadersFromSchema(final Store store) {
-        Schema schema = store.getSchema();
+    private LinkedHashMap<String, String> getPropertyHeadersFromSchema(final Schema schema) {
         LinkedHashMap<String, String> propertyHeadersFromSchema = new LinkedHashMap<>();
         for (final SchemaEntityDefinition schemaEntityDefinition : schema.getEntities().values()) {
             for (final String propertyName:schemaEntityDefinition.getProperties()) {
@@ -73,15 +78,18 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
             }
         }
         for (final SchemaEdgeDefinition schemaEdgeDefinition : schema.getEdges().values()) {
-            for (final IdentifierType identifierType:schemaEdgeDefinition.getIdentifiers()) {
-                if (identifierType.toString().equals(identifierType.DIRECTED.toString())) {
-                    String typeName = schemaEdgeDefinition.getIdentifierTypeName(identifierType);
+            for (final IdentifierType identifierType : schemaEdgeDefinition.getIdentifiers()) {
+                if (identifierType.equals(DIRECTED)) {
+                    final String typeName = schemaEdgeDefinition.getIdentifierTypeName(identifierType);
                     propertyHeadersFromSchema.put(identifierType.toString(), schema.getType(typeName).getClazz().getSimpleName());
                 }
             }
-            for (final String propertyName:schemaEdgeDefinition.getProperties()) {
-                String typeName = schemaEdgeDefinition.getPropertyTypeName(propertyName);
-                propertyHeadersFromSchema.put(propertyName, schema.getType(typeName).getClazz().getSimpleName());
+            for (final String propertyName : schemaEdgeDefinition.getProperties()) {
+                final String typeName = schemaEdgeDefinition.getPropertyTypeName(propertyName);
+                final String javaType = schema.getType(typeName).getClazz().getSimpleName();
+                final String openCypherType = TYPE_MAPPINGS.getOrDefault(javaType, javaType);
+
+                propertyHeadersFromSchema.put(propertyName, openCypherType);
             }
         }
         return propertyHeadersFromSchema;
