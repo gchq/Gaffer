@@ -118,7 +118,7 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
             return new Scanner(Files.newBufferedReader(Paths.get(path.toUri().getPath()), UTF_8));
         } catch (final IOException e) {
             LOGGER.warn("Failed to open cut points file. Attempting to use configured file system", e);
-            return new Scanner(FileSystem.get(conf).open(path));
+            return new Scanner(FileSystem.get(conf).open(path), UTF_8);
         }
     }
 
