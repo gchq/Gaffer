@@ -43,7 +43,7 @@ public class ValidateOperationChainHandler implements OutputOperationHandler<Val
         return validateOperationChain(operation.getOperationChain(), context.getUser(), store);
     }
 
-    private ValidationResult validateOperationChain(final OperationChain operationChain, final User user, final Store store) {
+    private ValidationResult validateOperationChain(final OperationChain operationChain, final User user, final Store store) throws OperationException {
         return store.getOperationChainValidator().validate(operationChain, user, store);
     }
 }

@@ -801,7 +801,7 @@ public final class Graph {
             return this;
         }
 
-        public Graph build() {
+        public Graph build() throws OperationException, StoreException {
             final GraphConfig config = configBuilder.build();
             if (null == config.getLibrary()) {
                 config.setLibrary(new NoGraphLibrary());
@@ -932,7 +932,7 @@ public final class Graph {
             properties = mergedStoreProperties;
         }
 
-        private void updateStore(final GraphConfig config) {
+        private void updateStore(final GraphConfig config) throws OperationException, StoreException {
             if (null == store) {
                 store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
             } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
@@ -942,32 +942,28 @@ public final class Graph {
                     config.setGraphId(store.getGraphId());
                 }
                 if (null == schema || schema.getGroups().isEmpty()) {
-                    schema = store.getSchema();
+                    schema = store.getOriginalSchema();
                 }
 
                 if (null == properties) {
                     properties = store.getProperties();
                 }
 
-                try {
-                    store.initialise(config.getGraphId(), cloneSchema(schema), properties);
-                } catch (final StoreException e) {
-                    throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
-                }
+                store.initialise(config.getGraphId(), cloneSchema(schema), properties);
             }
 
             store.setGraphLibrary(config.getLibrary());
 
             if (null == schema || schema.getGroups().isEmpty()) {
-                schema = store.getSchema();
+                schema = store.getOriginalSchema();
             }
         }
 
         private void updateView(final GraphConfig config) {
             if (null == config.getView()) {
                 config.setView(new View.Builder()
-                        .entities(store.getSchema().getEntityGroups())
-                        .edges(store.getSchema().getEdgeGroups())
+                        .entities(store.getOriginalSchema().getEntityGroups())
+                        .edges(store.getOriginalSchema().getEdgeGroups())
                         .build());
             }
         }

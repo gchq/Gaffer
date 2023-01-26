@@ -241,11 +241,11 @@ public abstract class Store {
         this.schemaOptimiser = createSchemaOptimiser();
     }
 
-    public static Store createStore(final String graphId, final byte[] schema, final Properties storeProperties) throws SchemaException, OperationException {
+    public static Store createStore(final String graphId, final byte[] schema, final Properties storeProperties) throws SchemaException, OperationException, StoreException {
         return createStore(graphId, Schema.fromJson(schema), StoreProperties.loadStoreProperties(storeProperties));
     }
 
-    public static Store createStore(final String graphId, final Schema schema, final StoreProperties storeProperties) throws OperationException {
+    public static Store createStore(final String graphId, final Schema schema, final StoreProperties storeProperties) throws OperationException, StoreException {
         if (isNull(storeProperties)) {
             throw new IllegalArgumentException(String.format("Store properties are required to create a store. graphId: %s", graphId));
         }
@@ -265,11 +265,7 @@ public abstract class Store {
             throw new IllegalArgumentException(String.format("Could not create store of type: %s", storeClass), e);
         }
 
-        try {
-            newStore.initialise(graphId, schema, storeProperties);
-        } catch (final StoreException e) {
-            throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
-        }
+        newStore.initialise(graphId, schema, storeProperties);
         return newStore;
     }
 

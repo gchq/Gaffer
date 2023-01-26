@@ -71,13 +71,10 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser;
-import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.store.*;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -174,7 +171,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldConstructGraphFromSchemaModules() {
+    public void shouldConstructGraphFromSchemaModules() throws OperationException, StoreException {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -254,7 +251,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldConstructGraphFromSchemaFolderPath() throws IOException {
+    public void shouldConstructGraphFromSchemaFolderPath() throws IOException, OperationException, StoreException {
         // Given
         final Schema expectedSchema = new Schema.Builder()
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
@@ -275,7 +272,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldConstructGraphFromSchemaURI() throws URISyntaxException {
+    public void shouldConstructGraphFromSchemaURI() throws URISyntaxException, OperationException, StoreException {
         // Given
         final URI typeInputUri = getResourceUri(StreamUtil.TYPES_SCHEMA);
         final URI schemaInputUri = getResourceUri(StreamUtil.ELEMENTS_SCHEMA);
@@ -308,10 +305,10 @@ public class GraphTest {
 
     @Test
     public void shouldCreateNewContextInstanceWhenExecuteOperation(@Mock final Store store)
-            throws OperationException, IOException {
+            throws OperationException, IOException, StoreException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -332,10 +329,10 @@ public class GraphTest {
 
     @Test
     public void shouldCreateNewContextInstanceWhenExecuteOutputOperation(@Mock final Store store)
-            throws OperationException, IOException {
+            throws OperationException, IOException, StoreException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -356,10 +353,10 @@ public class GraphTest {
 
     @Test
     public void shouldCreateNewContextInstanceWhenExecuteJob(@Mock final Store store)
-            throws OperationException, IOException {
+            throws OperationException, IOException, StoreException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -381,11 +378,11 @@ public class GraphTest {
     @Test
     public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenExecuted(@Mock final Store store,
                                                                                @Mock final RuntimeException exception)
-            throws OperationException, IOException {
+            throws OperationException, IOException, StoreException {
         // Given
         given(store.execute(clonedOpChain, clonedContext)).willThrow(exception);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -411,11 +408,11 @@ public class GraphTest {
     @Test
     public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenJobExecuted(@Mock final Store store,
                                                                                   @Mock final RuntimeException exception)
-            throws OperationException, IOException {
+            throws OperationException, IOException, StoreException {
         // Given
         given(store.executeJob(clonedOpChain, clonedContext)).willThrow(exception);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -442,10 +439,10 @@ public class GraphTest {
     public void shouldCallAllGraphHooksBeforeOperationChainExecuted(@Mock final Store store,
                                                                     @Mock final GraphHook hook1,
                                                                     @Mock final GraphHook hook2)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -473,10 +470,10 @@ public class GraphTest {
     public void shouldCallAllGraphHooksBeforeJobExecuted(@Mock final Store store,
                                                          @Mock final GraphHook hook1,
                                                          @Mock final GraphHook hook2)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -507,11 +504,11 @@ public class GraphTest {
                                                               @Mock final JobDetail result1,
                                                               @Mock final JobDetail result2,
                                                               @Mock final JobDetail result3)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Schema schema = new Schema();
 
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
         given(hook2.postExecute(result2, clonedOpChain, clonedContext)).willReturn(result3);
@@ -552,10 +549,10 @@ public class GraphTest {
                                                                    @Mock final JobDetail result1,
                                                                    @Mock final JobDetail result2,
                                                                    @Mock final JobDetail result3)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
         given(hook2.postExecute(result2, clonedOpChain, clonedContext)).willReturn(result3);
@@ -591,10 +588,10 @@ public class GraphTest {
                                                         @Mock final JobDetail result1,
                                                         @Mock final JobDetail result2,
                                                         @Mock final JobDetail result3)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
         given(hook2.postExecute(result2, clonedOpChain, clonedContext)).willReturn(result3);
@@ -627,10 +624,10 @@ public class GraphTest {
     public void shouldCallAllGraphHooksOnGraphHookPreExecuteFailure(@Mock final Store store,
                                                                     @Mock final GraphHook hook1,
                                                                     @Mock final GraphHook hook2)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
         doThrow(e).when(hook1).preExecute(clonedOpChain, clonedContext);
@@ -671,10 +668,10 @@ public class GraphTest {
                                                                      @Mock final JobDetail result1,
                                                                      @Mock final JobDetail result2,
                                                                      @Mock final JobDetail result3)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
@@ -718,10 +715,10 @@ public class GraphTest {
     public void shouldCallAllGraphHooksOnExecuteFailure(@Mock final Store store,
                                                         @Mock final GraphHook hook1,
                                                         @Mock final GraphHook hook2)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final RuntimeException e = new RuntimeException("Store failed to execute operation chain");
@@ -764,10 +761,10 @@ public class GraphTest {
     public void shouldCallAllGraphHooksOnGraphHookPreExecuteFailureWhenRunningJob(@Mock final Store store,
                                                                                   @Mock final GraphHook hook1,
                                                                                   @Mock final GraphHook hook2)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
         doThrow(e).when(hook1).preExecute(clonedOpChain, clonedContext);
@@ -808,11 +805,11 @@ public class GraphTest {
                                                                                    @Mock final JobDetail result1,
                                                                                    @Mock final JobDetail result2,
                                                                                    @Mock final JobDetail result3)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Schema schema = new Schema();
 
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
@@ -859,7 +856,7 @@ public class GraphTest {
                                                                       @Mock final Operation operation,
                                                                       @Mock final OperationChain<Integer> opChain,
                                                                       @Mock final OperationChain<Integer> clonedOpChain)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
@@ -867,7 +864,7 @@ public class GraphTest {
         final Schema schema = new Schema();
         final RuntimeException e = new RuntimeException("Store failed to execute operation chain");
 
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.onFailure(null, clonedOpChain, clonedContext, e))
                 .willThrow(new RuntimeException("Hook1 failed in onFailure"));
@@ -905,7 +902,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldConstructGraphAndCreateViewWithGroups(@Mock final Store store) {
+    public void shouldConstructGraphAndCreateViewWithGroups(@Mock final Store store) throws OperationException, StoreException {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -923,7 +920,7 @@ public class GraphTest {
         entities.put("entity4", new SchemaEntityDefinition());
 
         final Schema schema = new Schema.Builder().edges(edges).entities(entities).build();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
 
         // When
         final View resultView = new Graph.Builder()
@@ -951,9 +948,9 @@ public class GraphTest {
     @Test
     public void shouldExposeGetTraitsMethod(@Mock final Store store,
                                             @Mock final View view)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.getOriginalSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -977,7 +974,7 @@ public class GraphTest {
     @Test
     public void shouldGetSchemaFromStoreIfSchemaIsEmpty(@Mock final Store store,
                                                         @Mock final View view)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
@@ -985,7 +982,7 @@ public class GraphTest {
                         .build())
                 .type("string", String.class)
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -1004,9 +1001,9 @@ public class GraphTest {
     public void shouldSetGraphViewOnOperationAndDelegateDoOperationToStore(@Mock final Store store,
                                                                            @Mock final OperationChain<Integer> opChain,
                                                                            @Mock final OperationChain<Integer> clonedOpChain)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.getOriginalSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY)
@@ -1041,9 +1038,9 @@ public class GraphTest {
                                                                            @Mock final View opView,
                                                                            @Mock final OperationChain<Integer> opChain,
                                                                            @Mock final OperationChain<Integer> clonedOpChain)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.getOriginalSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -1072,9 +1069,9 @@ public class GraphTest {
                                                                        @Mock final Operation operation,
                                                                        @Mock final OperationChain<Integer> opChain,
                                                                        @Mock final OperationChain<Integer> clonedOpChain)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.getOriginalSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -1098,7 +1095,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfStoreClassPropertyIsNotSet() throws OperationException {
+    public void shouldThrowExceptionIfStoreClassPropertyIsNotSet() throws OperationException, StoreException {
         try {
             new Graph.Builder()
                     .config(new GraphConfig.Builder()
@@ -1115,7 +1112,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfSchemaIsInvalid() throws OperationException {
+    public void shouldThrowExceptionIfSchemaIsInvalid() throws OperationException, StoreException {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
         try {
@@ -1155,9 +1152,9 @@ public class GraphTest {
 
     @Test
     public void shouldDelegateGetNextOperationsToStore(@Mock final Store store,
-                                                       @Mock final Set<Class<? extends Operation>> expectedNextOperations) {
+                                                       @Mock final Set<Class<? extends Operation>> expectedNextOperations) throws OperationException, StoreException {
         // Given
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.getOriginalSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -1176,9 +1173,9 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldDelegateIsSupportedToStore(@Mock final Store store) {
+    public void shouldDelegateIsSupportedToStore(@Mock final Store store) throws OperationException, StoreException {
         // Given
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.getOriginalSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -1197,9 +1194,9 @@ public class GraphTest {
 
     @Test
     public void shouldDelegateGetSupportedOperationsToStore(@Mock final Store store,
-                                                            @Mock final Set<Class<? extends Operation>> expectedSupportedOperations) {
+                                                            @Mock final Set<Class<? extends Operation>> expectedSupportedOperations) throws OperationException, StoreException {
         // Given
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.getOriginalSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         given(store.getSupportedOperations()).willReturn(expectedSupportedOperations);
 
@@ -1218,7 +1215,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionWithInvalidSchema() {
+    public void shouldThrowExceptionWithInvalidSchema() throws OperationException, StoreException {
 
         // Given
         final StoreProperties storeProperties = new StoreProperties();
@@ -1242,7 +1239,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionWithNullSchema() {
+    public void shouldThrowExceptionWithNullSchema() throws OperationException, StoreException {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1653,7 +1650,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldBuildGraphFromConfigAndSetIdsToGraphsWhenDifferent() {
+    public void shouldBuildGraphFromConfigAndSetIdsToGraphsWhenDifferent() throws OperationException, StoreException {
         // Given
         final StoreProperties libraryStoreProperties = new StoreProperties();
         libraryStoreProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1697,7 +1694,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldBuildGraphFromConfigAndSetIdsToGraphsWhenIdentical() {
+    public void shouldBuildGraphFromConfigAndSetIdsToGraphsWhenIdentical() throws OperationException, StoreException {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1738,7 +1735,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldBuildGraphFromConfigAndSetIdsToGraphsWhenGraphSchemaAndStorePropertiesIdsAreNull() {
+    public void shouldBuildGraphFromConfigAndSetIdsToGraphsWhenGraphSchemaAndStorePropertiesIdsAreNull() throws OperationException, StoreException {
         // Given
         final StoreProperties libraryStoreProperties = new StoreProperties();
         libraryStoreProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1782,7 +1779,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldCorrectlySetViewForNestedOperationChain() throws OperationException {
+    public void shouldCorrectlySetViewForNestedOperationChain() throws OperationException, StoreException {
         // Given
         final Store store = new TestStore();
         final Graph graph = new Graph.Builder()
@@ -1824,7 +1821,7 @@ public class GraphTest {
 
     @Test
     public void shouldThrowExceptionOnExecuteWithANullContext(@Mock final OperationChain opChain)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Context context = null;
 
@@ -1844,7 +1841,7 @@ public class GraphTest {
 
     @Test
     public void shouldThrowExceptionOnExecuteJobWithANullContext(@Mock final OperationChain opChain)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Context context = null;
 
@@ -1864,7 +1861,7 @@ public class GraphTest {
 
     @Test
     public void shouldThrowExceptionOnExecuteWithANullUser(@Mock final OperationChain opChain)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final User user = null;
 
@@ -1884,7 +1881,7 @@ public class GraphTest {
 
     @Test
     public void shouldThrowExceptionOnExecuteJobWithANullUser(@Mock final OperationChain opChain)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final User user = null;
 
@@ -1904,7 +1901,7 @@ public class GraphTest {
 
     @Test
     public void shouldThrowExceptionOnExecuteJobUsingJobWithANullContext(@Mock final OperationChain opChain)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final Context context = null;
 
@@ -1925,7 +1922,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullOperation() throws OperationException {
+    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullOperation() throws OperationException, StoreException {
         // Given
         final Context context = new Context();
 
@@ -1946,7 +1943,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullJob() throws OperationException {
+    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullJob() throws OperationException, StoreException {
         // Given
         final Context context = new Context();
 
@@ -1968,7 +1965,7 @@ public class GraphTest {
 
     @Test
     public void shouldThrowExceptionOnExecuteJobUsingJobWithANullUser(@Mock final OperationChain opChain)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         final User user = null;
 
@@ -1990,7 +1987,7 @@ public class GraphTest {
 
     @Test
     public void shouldManipulateViewRemovingBlacklistedEdgeUsingUpdateViewHook(@Mock final Store store)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         operation = new GetElements.Builder()
                 .view(new View.Builder()
@@ -2007,7 +2004,7 @@ public class GraphTest {
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
 
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.getOriginalSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -2035,7 +2032,7 @@ public class GraphTest {
 
     @Test
     public void shouldManipulateViewRemovingBlacklistedEdgeLeavingEmptyViewUsingUpdateViewHook(@Mock final Store store)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         operation = new GetElements.Builder()
                 .view(new View.Builder()
@@ -2051,7 +2048,7 @@ public class GraphTest {
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
 
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.getOriginalSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -2079,7 +2076,7 @@ public class GraphTest {
 
     @Test
     public void shouldRerunMultipleUpdateViewHooksToRemoveAllBlacklistedElements(@Mock final Store store)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         operation = new GetElements.Builder()
                 .view(new View.Builder()
@@ -2102,7 +2099,7 @@ public class GraphTest {
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
 
-        given(store.getSchema()).willReturn(new Schema.Builder()
+        given(store.getOriginalSchema()).willReturn(new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition())
                 .build());
@@ -2138,7 +2135,7 @@ public class GraphTest {
 
     @Test
     public void shouldFillSchemaViewAndManipulateViewRemovingBlacklistedEdgeUsingUpdateViewHook(@Mock final Store store)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         operation = new GetElements.Builder()
                 .build();
@@ -2151,7 +2148,7 @@ public class GraphTest {
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
 
-        given(store.getSchema()).willReturn(new Schema.Builder()
+        given(store.getOriginalSchema()).willReturn(new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .edge(TestGroups.EDGE_5, new SchemaEdgeDefinition())
                 .build());
@@ -2183,7 +2180,7 @@ public class GraphTest {
     @Test
     public void shouldFillSchemaViewAndManipulateViewRemovingBlacklistedEdgeLeavingEmptyViewUsingUpdateViewHook(
                                                                                                                 @Mock final Store store)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         operation = new GetElements.Builder()
                 .build();
@@ -2196,7 +2193,7 @@ public class GraphTest {
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
 
-        given(store.getSchema()).willReturn(new Schema.Builder().edge(TestGroups.EDGE_5, new SchemaEdgeDefinition())
+        given(store.getOriginalSchema()).willReturn(new Schema.Builder().edge(TestGroups.EDGE_5, new SchemaEdgeDefinition())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition()).build());
         given(store.getProperties()).willReturn(new StoreProperties());
 
@@ -2225,7 +2222,7 @@ public class GraphTest {
 
     @Test
     public void shouldCorrectlyAddExtraGroupsFromSchemaViewWithUpdateViewHookWhenNotInBlacklist(@Mock final Store store)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         operation = new GetElements.Builder()
                 .build();
@@ -2239,7 +2236,7 @@ public class GraphTest {
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
 
-        given(store.getSchema()).willReturn(new Schema.Builder()
+        given(store.getOriginalSchema()).willReturn(new Schema.Builder()
                 .edge(TestGroups.EDGE_4, new SchemaEdgeDefinition())
                 .edge(TestGroups.EDGE_5, new SchemaEdgeDefinition())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
@@ -2272,7 +2269,7 @@ public class GraphTest {
 
     @Test
     public void shouldNotAddExtraGroupsFromSchemaViewWithUpdateViewHookWhenInBlacklist(@Mock final Store store)
-            throws OperationException {
+            throws OperationException, StoreException {
         // Given
         operation = new GetElements.Builder()
                 .build();
@@ -2287,7 +2284,7 @@ public class GraphTest {
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
 
-        given(store.getSchema()).willReturn(new Schema.Builder()
+        given(store.getOriginalSchema()).willReturn(new Schema.Builder()
                 .edge(TestGroups.EDGE_4, new SchemaEdgeDefinition())
                 .edge(TestGroups.EDGE_5, new SchemaEdgeDefinition())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
@@ -2318,11 +2315,11 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldAddSchemaGroupsIfNotIncludedInJob(@Mock final Store store) throws OperationException {
+    public void shouldAddSchemaGroupsIfNotIncludedInJob(@Mock final Store store) throws OperationException, StoreException {
         // given
         final Job job = new Job(null, new OperationChain.Builder().first(new GetAllElements()).build());
 
-        given(store.getSchema()).willReturn(new Schema.Builder()
+        given(store.getOriginalSchema()).willReturn(new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition())
@@ -2355,7 +2352,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldAddDefaultSecurityHooksIfNotAddedToHooks() {
+    public void shouldAddDefaultSecurityHooksIfNotAddedToHooks() throws OperationException, StoreException {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
@@ -2379,7 +2376,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldNotAddDefaultSecurityHooksIfAlreadyAdded() {
+    public void shouldNotAddDefaultSecurityHooksIfAlreadyAdded() throws OperationException, StoreException {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
@@ -2406,7 +2403,7 @@ public class GraphTest {
     @Test
     public void shouldExpandGlobalEdges(@Mock final Store store, @Mock final ElementFilter filter,
                                         @Mock final StoreProperties mockStoreProperties)
-            throws OperationException {
+            throws OperationException, StoreException {
 
         final Schema twoEdgesNoEntities = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
@@ -2435,7 +2432,7 @@ public class GraphTest {
         final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
 
-        given(store.getSchema()).willReturn(twoEdgesNoEntities);
+        given(store.getOriginalSchema()).willReturn(twoEdgesNoEntities);
         given(store.getProperties()).willReturn(mockStoreProperties);
 
         final Graph graph = new Graph.Builder()
@@ -2481,7 +2478,7 @@ public class GraphTest {
     @Test
     public void shouldExpandAllEdges(@Mock final Store store, @Mock final ElementFilter filter,
                                      @Mock final StoreProperties mockStoreProperties)
-            throws OperationException {
+            throws OperationException, StoreException {
         final Schema twoEdgesNoEntities = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -2509,7 +2506,7 @@ public class GraphTest {
         final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
 
-        given(store.getSchema()).willReturn(twoEdgesNoEntities);
+        given(store.getOriginalSchema()).willReturn(twoEdgesNoEntities);
         given(store.getOriginalSchema()).willReturn(twoEdgesNoEntities);
         given(store.getProperties()).willReturn(mockStoreProperties);
 
@@ -2552,7 +2549,7 @@ public class GraphTest {
     @Test
     public void preserveAllEntitiesIfNoEntitiesInSchema(@Mock final Store store, @Mock final ElementFilter filter,
                                                         @Mock final StoreProperties mockStoreProperties)
-            throws OperationException {
+            throws OperationException, StoreException {
         final Schema twoEdgesNoEntities = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -2580,7 +2577,7 @@ public class GraphTest {
         final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
 
-        given(store.getSchema()).willReturn(twoEdgesNoEntities);
+        given(store.getOriginalSchema()).willReturn(twoEdgesNoEntities);
         given(store.getOriginalSchema()).willReturn(twoEdgesNoEntities);
         given(store.getProperties()).willReturn(mockStoreProperties);
 
@@ -2624,10 +2621,10 @@ public class GraphTest {
     public void shouldNotExpandGlobalEdgesWhereNotPresentInSchema(@Mock final Store store,
                                                                   @Mock final ElementFilter filter,
                                                                   @Mock final StoreProperties mockStoreProperties)
-            throws OperationException {
+            throws OperationException, StoreException {
         final Schema federatedStoreSchema = new Schema.Builder().build();
 
-        given(store.getSchema()).willReturn(federatedStoreSchema);
+        given(store.getOriginalSchema()).willReturn(federatedStoreSchema);
         given(store.getProperties()).willReturn(mockStoreProperties);
         final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
