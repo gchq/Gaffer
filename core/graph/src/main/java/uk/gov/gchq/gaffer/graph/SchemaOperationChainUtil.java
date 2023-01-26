@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.SchemaOperationChainValidator;
@@ -33,7 +34,7 @@ public final class SchemaOperationChainUtil {
         // Private constructor to prevent instantiation.
     }
 
-    public static ValidationResult validate(final Schema schema, final OperationChain operationChain) {
+    public static ValidationResult validate(final Schema schema, final OperationChain operationChain) throws OperationException {
         updateOperationChainViews(operationChain, schema);
         SchemaOperationChainValidator validator = new SchemaOperationChainValidator(new ViewValidator(), schema);
 

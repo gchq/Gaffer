@@ -24,9 +24,11 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -71,7 +73,7 @@ public class SchemaOperationChainUtilTest {
             .build();
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws OperationException, StoreException {
         storeProperties.setStoreClass(TestStore.class);
         graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -84,7 +86,7 @@ public class SchemaOperationChainUtilTest {
     }
 
     @Test
-    public void shouldValidateValidOperationChainAgainstSchema() {
+    public void shouldValidateValidOperationChainAgainstSchema() throws OperationException {
         // When
         final ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, validOperationChain);
 
@@ -93,7 +95,7 @@ public class SchemaOperationChainUtilTest {
     }
 
     @Test
-    public void shouldValidateInvalidOperationChainAgainstSchema() {
+    public void shouldValidateInvalidOperationChainAgainstSchema() throws OperationException {
         // When
         final ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, invalidOperationChain);
 
