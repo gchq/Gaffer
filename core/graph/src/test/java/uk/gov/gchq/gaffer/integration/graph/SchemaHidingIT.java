@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -91,7 +92,7 @@ public abstract class SchemaHidingIT {
 
     protected abstract void cleanUp();
 
-    protected Store createStore(final Schema schema) throws IOException {
+    protected Store createStore(final Schema schema) throws IOException, OperationException, StoreException {
         return Store.createStore("graphId", schema, storeProperties);
     }
 
