@@ -27,6 +27,8 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -86,9 +88,11 @@ public class GraphSerialisable implements Serializable {
     /**
      * @return returns a new {@link Graph} built from the contents of a this
      * class.
+     * @throws StoreException
+     * @throws OperationException
      */
     @JsonIgnore
-    public Graph getGraph() {
+    public Graph getGraph() throws OperationException, StoreException {
         return getGraph(null);
     }
 
@@ -96,9 +100,11 @@ public class GraphSerialisable implements Serializable {
      * @param library the library to use and add into the builder.
      * @return returns a new {@link Graph} built from the contents of a this
      * class.
+     * @throws StoreException
+     * @throws OperationException
      */
     @JsonIgnore
-    public Graph getGraph(final GraphLibrary library) {
+    public Graph getGraph(final GraphLibrary library) throws OperationException, StoreException {
         if (isNull(graph)) {
 
             graph = new Graph.Builder()
