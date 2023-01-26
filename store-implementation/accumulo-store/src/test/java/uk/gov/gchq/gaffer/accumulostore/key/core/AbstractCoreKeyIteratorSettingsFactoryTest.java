@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -39,6 +40,7 @@ import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -54,7 +56,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         // Given
         final AccumuloStore store = mock(AccumuloStore.class);
         final Schema schema = createSchema();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         // When
         final IteratorSetting iterator = factory.getValidatorIteratorSetting(store);
@@ -76,7 +78,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         final AccumuloKeyPackage keyPackage = mock(AccumuloKeyPackage.class);
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
 
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
         given(store.getKeyPackage()).willReturn(keyPackage);
         given(keyPackage.getKeyConverter()).willReturn(converter);
 
@@ -104,7 +106,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
                                 .build())
                         .build())
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         // When
         final IteratorSetting iterator = factory.getElementPreAggregationFilterIteratorSetting(view, store);
@@ -129,7 +131,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         final AccumuloKeyPackage keyPackage = mock(AccumuloKeyPackage.class);
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
 
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
         given(store.getKeyPackage()).willReturn(keyPackage);
         given(keyPackage.getKeyConverter()).willReturn(converter);
 
@@ -158,7 +160,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
                                 .build())
                         .build())
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
 
         // When
         final IteratorSetting iterator = factory.getElementPostAggregationFilterIteratorSetting(view, store);
@@ -183,7 +185,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         final AccumuloKeyPackage keyPackage = mock(AccumuloKeyPackage.class);
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
 
-        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
         given(store.getKeyPackage()).willReturn(keyPackage);
         given(keyPackage.getKeyConverter()).willReturn(converter);
 
