@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ public class ExamplesServiceTest {
     @BeforeEach
     public void setup() throws OperationException, StoreException {
         final Store store = mock(Store.class);
-        given(store.execute(any(GetSchema.class), any())).willReturn(schema);
+        lenient().when(store.execute(any(GetSchema.class), any())).thenReturn(schema);
         lenient().when(store.getProperties()).thenReturn(new StoreProperties());
         lenient().when(store.getOriginalSchema()).thenReturn(schema);
         final Graph graph = new Graph.Builder()
