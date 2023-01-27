@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -310,35 +310,6 @@ public abstract class AbstractLoaderIT extends AbstractStoreIT {
         return Iterables.concat(getDuplicateEdges(), getDuplicateEntities());
     }
 
-    @Deprecated
-    private void getAllElements(final List<Element> expectedElements) throws Exception {
-        for (final boolean includeEntities : Arrays.asList(true, false)) {
-            for (final boolean includeEdges : Arrays.asList(true, false)) {
-                if (!includeEntities && !includeEdges) {
-                    // Cannot query for nothing!
-                    continue;
-                }
-                for (final DirectedType directedType : DirectedType.values()) {
-                    try {
-                        final View.Builder viewBuilder = new View.Builder();
-                        if (includeEntities) {
-                            viewBuilder.entity(TestGroups.ENTITY);
-                        }
-                        if (includeEdges) {
-                            viewBuilder.edge(TestGroups.EDGE);
-                        }
-                        getAllElements(expectedElements, directedType, viewBuilder.build());
-                    } catch (final AssertionError e) {
-                        throw new AssertionError(
-                                "GetAllElements failed with parameters: includeEntities=" + includeEntities
-                                        + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(),
-                                e);
-                    }
-                }
-            }
-        }
-    }
-
     private void getAllElements() throws Exception {
         for (final boolean includeEntities : Arrays.asList(true, false)) {
             for (final boolean includeEdges : Arrays.asList(true, false)) {
@@ -363,18 +334,6 @@ public abstract class AbstractLoaderIT extends AbstractStoreIT {
                                 e);
                     }
                 }
-            }
-        }
-    }
-
-    @Deprecated
-    private void getAllElementsWithView(final List<Element> expectedElements, final View view) throws Exception {
-        for (final DirectedType directedType : DirectedType.values()) {
-            try {
-                getAllElements(expectedElements, directedType, view);
-            } catch (final AssertionError e) {
-                throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + view.hasEntities()
-                        + ", includeEdges=" + view.hasEdges() + ", directedType=" + directedType.name(), e);
             }
         }
     }

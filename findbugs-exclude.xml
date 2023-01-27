@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2020 Crown Copyright
+  ~ Copyright 2016-2023 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 <FindBugsFilter>
-    <Match>
-        <Source name="~.*\.scala" />
-    </Match>
+    <Match><Source name="~.*\.scala" /></Match>
+    <Match><Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS" /></Match>
+    <Match><Bug pattern="EI_EXPOSE_REP" /></Match>
+    <Match><Bug pattern="EI_EXPOSE_REP2" /></Match>
 </FindBugsFilter>
