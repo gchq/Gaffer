@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -255,11 +255,11 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final Job job, final Context context) throws OperationException {
-        if (null == context) {
+        if (context == null) {
             throw new IllegalArgumentException("A context is required");
         }
 
-        if (null == job) {
+        if (job == null) {
             throw new IllegalArgumentException("A job is required");
         }
 
@@ -297,11 +297,11 @@ public final class Graph {
     }
 
     private <O> GraphResult<O> _execute(final StoreExecuter<O> storeExecuter, final GraphRequest<?> request) throws OperationException {
-        if (null == request) {
+        if (request == null) {
             throw new IllegalArgumentException("A request is required");
         }
 
-        if (null == request.getContext()) {
+        if (request.getContext() == null) {
             throw new IllegalArgumentException("A context is required");
         }
 
@@ -360,7 +360,7 @@ public final class Graph {
                 updateOperationChainView((Operations) operation);
             } else if (operation instanceof OperationView) {
                 View opView = ((OperationView) operation).getView();
-                if (null == opView) {
+                if (opView == null) {
                     opView = config.getView();
                 } else if (!(opView instanceof NamedView) && !opView.hasGroups() && !opView.isAllEdges() && !opView.isAllEntities()) {
 
@@ -560,12 +560,12 @@ public final class Graph {
         }
 
         public Builder storeProperties(final Properties properties) {
-            return storeProperties(null != properties ? StoreProperties.loadStoreProperties(properties) : null);
+            return storeProperties(properties != null ? StoreProperties.loadStoreProperties(properties) : null);
         }
 
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
-            if (null != properties) {
+            if (properties != null) {
                 ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
                 JSONSerialiser.update(
                         properties.getJsonSerialiserClass(),
@@ -576,11 +576,11 @@ public final class Graph {
         }
 
         public Builder storeProperties(final String propertiesPath) {
-            return storeProperties(null != propertiesPath ? StoreProperties.loadStoreProperties(propertiesPath) : null);
+            return storeProperties(propertiesPath != null ? StoreProperties.loadStoreProperties(propertiesPath) : null);
         }
 
         public Builder storeProperties(final Path propertiesPath) {
-            if (null == propertiesPath) {
+            if (propertiesPath == null) {
                 properties = null;
             } else {
                 storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
@@ -589,7 +589,7 @@ public final class Graph {
         }
 
         public Builder storeProperties(final InputStream propertiesStream) {
-            if (null == propertiesStream) {
+            if (propertiesStream == null) {
                 properties = null;
             } else {
                 storeProperties(StoreProperties.loadStoreProperties(propertiesStream));
@@ -598,7 +598,7 @@ public final class Graph {
         }
 
         public Builder storeProperties(final URI propertiesURI) {
-            if (null != propertiesURI) {
+            if (propertiesURI != null) {
                 try {
                     storeProperties(StreamUtil.openStream(propertiesURI));
                 } catch (final IOException e) {
@@ -610,7 +610,7 @@ public final class Graph {
         }
 
         public Builder addStoreProperties(final Properties properties) {
-            if (null != properties) {
+            if (properties != null) {
                 addStoreProperties(StoreProperties.loadStoreProperties(properties));
             }
             return this;
@@ -803,11 +803,11 @@ public final class Graph {
 
         public Graph build() throws OperationException, StoreException {
             final GraphConfig config = configBuilder.build();
-            if (null == config.getLibrary()) {
+            if (config.getLibrary() == null) {
                 config.setLibrary(new NoGraphLibrary());
             }
 
-            if (null == config.getGraphId() && null != store) {
+            if (config.getGraphId() == null && store != null) {
                 config.setGraphId(store.getGraphId());
             }
 
@@ -815,26 +815,26 @@ public final class Graph {
 
             updateSchema(config);
 
-            if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
+            if (config.getLibrary() != null && config.getLibrary().exists(config.getGraphId())) {
                 // Set Props & Schema if null.
                 final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
-                properties = (null == properties) ? pair.getSecond() : properties;
-                schema = (null == schema) ? pair.getFirst() : schema;
+                properties = (properties == null) ? pair.getSecond() : properties;
+                schema = (schema == null) ? pair.getFirst() : schema;
             }
 
             updateStore(config);
 
-            if (null != config.getGraphId()) {
+            if (config.getGraphId() != null) {
                 config.getLibrary().checkExisting(config.getGraphId(), schema, properties);
             }
 
             updateView(config);
 
-            if (null == config.getGraphId()) {
+            if (config.getGraphId() == null) {
                 config.setGraphId(store.getGraphId());
             }
 
-            if (null == config.getGraphId()) {
+            if (config.getGraphId() == null) {
                 throw new IllegalArgumentException("graphId is required");
             }
 
@@ -874,12 +874,12 @@ public final class Graph {
         private void updateSchema(final GraphConfig config) {
             Schema mergedParentSchema = null;
 
-            if (null != parentSchemaIds) {
+            if (parentSchemaIds != null) {
                 for (final String parentSchemaId : parentSchemaIds) {
-                    if (null != parentSchemaId) {
+                    if (parentSchemaId != null) {
                         final Schema parentSchema = config.getLibrary().getSchema(parentSchemaId);
-                        if (null != parentSchema) {
-                            if (null == mergedParentSchema) {
+                        if (parentSchema != null) {
+                            if (mergedParentSchema == null) {
                                 mergedParentSchema = parentSchema;
                             } else {
                                 mergedParentSchema = new Schema.Builder()
@@ -892,8 +892,8 @@ public final class Graph {
                 }
             }
 
-            if (null != mergedParentSchema) {
-                if (null == schema) {
+            if (mergedParentSchema != null) {
+                if (schema == null) {
                     schema = mergedParentSchema;
                 } else {
                     schema = new Schema.Builder()
@@ -904,7 +904,7 @@ public final class Graph {
             }
 
             if (!schemaBytesList.isEmpty()) {
-                if (null == properties) {
+                if (properties == null) {
                     throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
                 }
 
@@ -933,19 +933,19 @@ public final class Graph {
         }
 
         private void updateStore(final GraphConfig config) throws OperationException, StoreException {
-            if (null == store) {
+            if (store == null) {
                 store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
-            } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
-                    || (null != schema)
-                    || (null != properties && !properties.equals(store.getProperties()))) {
-                if (null == config.getGraphId()) {
+            } else if ((config.getGraphId() != null && !config.getGraphId().equals(store.getGraphId()))
+                    || (schema != null)
+                    || (properties != null && !properties.equals(store.getProperties()))) {
+                if (config.getGraphId() == null) {
                     config.setGraphId(store.getGraphId());
                 }
-                if (null == schema || schema.getGroups().isEmpty()) {
+                if (schema == null || schema.getGroups().isEmpty()) {
                     schema = store.getOriginalSchema();
                 }
 
-                if (null == properties) {
+                if (properties == null) {
                     properties = store.getProperties();
                 }
 
@@ -954,13 +954,13 @@ public final class Graph {
 
             store.setGraphLibrary(config.getLibrary());
 
-            if (null == schema || schema.getGroups().isEmpty()) {
+            if (schema == null || schema.getGroups().isEmpty()) {
                 schema = store.getOriginalSchema();
             }
         }
 
         private void updateView(final GraphConfig config) {
-            if (null == config.getView()) {
+            if (config.getView() == null) {
                 config.setView(new View.Builder()
                         .entities(store.getOriginalSchema().getEntityGroups())
                         .edges(store.getOriginalSchema().getEdgeGroups())
@@ -969,7 +969,7 @@ public final class Graph {
         }
 
         private Schema cloneSchema(final Schema schema) {
-            return null != schema ? schema.clone() : null;
+            return schema != null ? schema.clone() : null;
         }
     }
 

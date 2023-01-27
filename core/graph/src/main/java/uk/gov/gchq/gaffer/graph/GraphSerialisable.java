@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,7 +105,7 @@ public class GraphSerialisable implements Serializable {
      */
     @JsonIgnore
     public Graph getGraph(final GraphLibrary library) throws OperationException, StoreException {
-        if (isNull(graph)) {
+        if (graph == null) {
 
             graph = new Graph.Builder()
                     .addSchema(getSchema())
