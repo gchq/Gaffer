@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,13 +44,13 @@ public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? 
     }
 
     public Iterable<? extends Element> doOperation(final Filter operation, final Schema schema) throws OperationException {
-        if (null == operation.getInput()) {
+        if (operation.getInput() == null) {
             throw new OperationException("Filter operation has null iterable of elements");
         }
 
         // If no entities or edges have been provided then we will assume
         // all elements should be used. This matches the way a View works.
-        if (null == operation.getEntities() && null == operation.getEdges()) {
+        if (operation.getEntities() == null && operation.getEdges() == null) {
             final Map<String, ElementFilter> entityMap = new HashMap<>();
             schema.getEntityGroups().forEach(e -> entityMap.put(e, new ElementFilter()));
             operation.setEntities(entityMap);

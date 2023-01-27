@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ public class OperationChainValidator {
 
     protected Class<? extends Output> validateInputOutputTypes(final Operation operation, final ValidationResult validationResult, final Store store, final Class<? extends Output> input) {
         Class<? extends Output> output = input;
-        if (null == input) {
+        if (input == null) {
             if (operation instanceof Output) {
                 output = ((Output) operation).getClass();
             }
@@ -119,7 +119,7 @@ public class OperationChainValidator {
             final Schema schema = getSchema(op, user, store);
             for (final Pair<String, String> pair : ((ElementComparison) op).getComparableGroupPropertyPairs()) {
                 final SchemaElementDefinition elementDef = schema.getElement(pair.getFirst());
-                if (null == elementDef) {
+                if (elementDef == null) {
                     validationResult.addError(op.getClass().getName()
                             + " references " + pair.getFirst()
                             + " group that does not exist in the schema");

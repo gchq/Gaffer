@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,15 +43,15 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
     public Iterable<? extends String> doOperation(final ToCsv operation, final Context context, final Store store) throws OperationException {
         CsvGenerator csvGenerator;
         final Schema schema;
-        if (null == operation.getInput()) {
+        if (operation.getInput() == null) {
             return null;
         }
 
-        if (null == operation.getElementGenerator() && null == operation.getCsvFormat()) {
+        if (operation.getElementGenerator() == null && operation.getCsvFormat() == null) {
             throw new IllegalArgumentException("ToCsv operation requires a generator, supply one or provide a CsvFormat");
-        } else if (null != operation.getElementGenerator() && null != operation.getCsvFormat()) {
+        } else if (operation.getElementGenerator() != null && operation.getCsvFormat() != null) {
             throw new IllegalArgumentException("ToCsv operation requires either a generator or a CsvFormat not both");
-        } else if (null == operation.getElementGenerator() && null != operation.getCsvFormat()) {
+        } else if (operation.getElementGenerator() == null && operation.getCsvFormat() != null) {
             schema = store.execute(new GetSchema(), context);
 
             csvGenerator = createGenerator(operation.getCsvFormat(), getPropertyHeadersFromSchema(schema));

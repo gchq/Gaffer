@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class ValidateHandler implements OutputOperationHandler<Validate, Iterabl
     }
 
     public Iterable<? extends Element> doOperation(final Validate operation, final Schema schema) {
-        if (null == operation.getInput()) {
+        if (operation.getInput() == null) {
             return null;
         }
         return new ValidatedElements(operation.getInput(), schema, operation.isSkipInvalidElements());
