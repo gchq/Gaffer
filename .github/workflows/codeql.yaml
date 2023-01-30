@@ -1,0 +1,38 @@
+name: CodeQL test
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**/README.md'
+  push:
+    branches:
+      - 'release/**'
+      - 'hotfix/**'
+      - 'alpha-release/**'
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    env:
+      MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: java
+
+      - name: Build Code
+        run: mvn -B -ntp clean install -Pquick
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2

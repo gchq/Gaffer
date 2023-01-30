@@ -32,7 +32,7 @@ public class OrderedFloatSerialiserTest extends ToBytesSerialisationTest<Float> 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         // Given
-        for (float i = 0; i < 1000; i += 1.1) {
+        for (float i = 0; i < 1000; i += 1.1f) {
             // When
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
