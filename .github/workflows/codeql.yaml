@@ -26,6 +26,15 @@ jobs:
           distribution: 'zulu'
           java-version: '8'
 
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/uk
+          key: all-gaffer-dependencies
+          restore-keys: Accumulo-gaffer-dependencies
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
