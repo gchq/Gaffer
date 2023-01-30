@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ public class EntitySerialiser extends PropertiesSerialiser<Entity> {
 
     @Override
     public Entity deserialise(final byte[] bytes) throws SerialisationException {
-        final int lastDelimiter = 0;
+        final int lastDelimiter[] = {0};
         final String group = LengthValueBytesSerialiserUtil.deserialise(stringSerialiser, bytes, lastDelimiter);
         final Object vertex = LengthValueBytesSerialiserUtil.deserialise(vertexSerialiser, bytes, lastDelimiter);
 
