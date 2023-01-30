@@ -41,7 +41,7 @@ jobs:
           languages: java
 
       - name: Build Code
-        run: mvn -B -ntp clean install -Pquick
+        run: mvn -B -ntp clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
