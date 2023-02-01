@@ -19,8 +19,6 @@ package uk.gov.gchq.gaffer.traffic.generator;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.SuppliedIterable;
@@ -43,9 +41,6 @@ import java.nio.file.Files;
 import java.util.function.Supplier;
 
 public class RoadTrafficDataLoader {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RoadTrafficDataLoader.class.getName());
-
     private final Graph graph;
     private final User user;
 
@@ -93,9 +88,10 @@ public class RoadTrafficDataLoader {
         }
     }
 
+    @SuppressWarnings("PMD.SystemPrintln") //Ok for main function
     public static void main(final String[] args) {
         if (args.length != 4) {
-            LOGGER.error("Usage: " + RoadTrafficDataLoader.class.getSimpleName() + " <graphConfigFile> <schemaDir> <storePropsFile> <roadTrafficDataFile.csv>");
+            System.err.println("Usage: " + RoadTrafficDataLoader.class.getSimpleName() + " <graphConfigFile> <schemaDir> <storePropsFile> <roadTrafficDataFile.csv>");
             System.exit(1);
         }
 
@@ -118,12 +114,12 @@ public class RoadTrafficDataLoader {
 
         final RoadTrafficDataLoader dataLoader = new RoadTrafficDataLoader(graph, user);
 
-        LOGGER.info("Loading data");
+        System.out.println("Loading data");
         try {
             dataLoader.load(new File(dataFile));
-            LOGGER.info("Data has been loaded");
+            System.out.println("Data has been loaded");
         } catch (final Exception e) {
-            LOGGER.info("Unable to load data: {}", e.getMessage());
+            System.err.println("Unable to load data: " + e.getMessage());
             throw new RuntimeException("Unable to load data", e);
         }
     }

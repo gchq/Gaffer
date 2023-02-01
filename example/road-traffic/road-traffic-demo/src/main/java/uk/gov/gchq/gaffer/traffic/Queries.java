@@ -18,9 +18,6 @@ package uk.gov.gchq.gaffer.traffic;
 
 import org.apache.commons.io.IOUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -55,9 +52,8 @@ import java.io.IOException;
 /**
  * This class runs simple java queries against the road traffic graph.
  */
+@SuppressWarnings("PMD.SystemPrintln") //Ok for main function and method called only from it
 public class Queries {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Queries.class.getName());
-
     public static void main(final String[] args) throws OperationException, IOException {
         new Queries().run();
     }
@@ -67,7 +63,7 @@ public class Queries {
         final Graph graph = createGraph(user);
 
         // Get the schema
-        LOGGER.info(graph.getSchema().toString());
+        System.out.println(graph.getSchema().toString());
 
         // Full example
         runFullExample(graph, user);
@@ -141,9 +137,9 @@ public class Queries {
 
         final Iterable<? extends String> results = graph.execute(opChain, user);
 
-        LOGGER.info("Full example results:");
+        System.out.println("Full example results:");
         for (final String result : results) {
-            LOGGER.info(result);
+            System.out.println(result);
         }
     }
 
