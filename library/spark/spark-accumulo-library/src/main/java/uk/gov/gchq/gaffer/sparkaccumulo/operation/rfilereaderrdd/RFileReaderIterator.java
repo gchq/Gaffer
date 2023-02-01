@@ -218,7 +218,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
                 LOGGER.debug("Closing RFile.Reader {}", reader);
                 reader.close();
             } catch (final IOException e) {
-                LOGGER.error("IOException closing reader {}", e.getMessage());
+                LOGGER.error("IOException closing reader", e);
             }
         }
     }
