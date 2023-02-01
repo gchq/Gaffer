@@ -54,7 +54,6 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentIds, EntityId> {

@@ -46,7 +46,6 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends Element>> & GraphFilters, I_ITEM>
