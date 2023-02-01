@@ -170,7 +170,7 @@ public class SchemaElementDefinitionValidator {
 
     private ValidationResult validateDirection(final SchemaElementDefinition elementDef) {
         final ValidationResult result = new ValidationResult();
-        if (elementDef instanceof SchemaEdgeDefinition && null == elementDef.getIdentifierTypeName(IdentifierType.DIRECTED)) {
+        if (elementDef instanceof SchemaEdgeDefinition && elementDef.getIdentifierTypeName(IdentifierType.DIRECTED) == null) {
             result.addError("\"directed\" must be set");
         }
         return result;

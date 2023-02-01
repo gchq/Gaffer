@@ -220,7 +220,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
 
         @Override
         public EntityId next() {
-            if (isNull(nextId) && !hasNext()) {
+            if (nextId == null && !hasNext()) {
                     throw new NoSuchElementException();
             }
             final EntityId nextReturn = nextId;
@@ -251,7 +251,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         try {
             chainedIterable = new ChainedIterable<>(view.getEntities().entrySet(), view.getEdges().entrySet());
             for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
-                if (nonNull(entry.getValue()) && entry.getValue().hasPostTransformFilters()) {
+                if (entry.getValue() != null && entry.getValue().hasPostTransformFilters()) {
                     groups.add(entry.getKey());
                 }
             }

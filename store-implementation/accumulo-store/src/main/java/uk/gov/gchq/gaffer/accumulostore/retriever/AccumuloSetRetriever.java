@@ -224,7 +224,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public Element next() {
-            if (isNull(nextElm) && !hasNext()) {
+            if (nextElm == null && !hasNext()) {
                 close();
                 throw new NoSuchElementException();
             }
@@ -322,7 +322,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public Element next() {
-            if (isNull(nextElm) && !hasNext()) {
+            if (nextElm) == null && !hasNext()) {
                 throw new NoSuchElementException();
             }
             final Element nextReturn = nextElm;

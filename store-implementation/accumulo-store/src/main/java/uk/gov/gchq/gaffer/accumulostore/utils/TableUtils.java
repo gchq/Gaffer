@@ -395,7 +395,7 @@ public final class TableUtils {
             if (Property.TABLE_BLOOM_ENABLED.getKey().equals(tableProp.getKey()) && Boolean.parseBoolean(tableProp.getValue())) {
                 bloomFilterEnabled = true;
             } else if (Property.TABLE_BLOOM_KEY_FUNCTOR.getKey().equals(tableProp.getKey())
-                    && (null == bloomKeyFunctor || CoreKeyBloomFunctor.class.getName().equals(tableProp.getValue()))) {
+                    && (bloomKeyFunctor == null || CoreKeyBloomFunctor.class.getName().equals(tableProp.getValue()))) {
                 bloomKeyFunctor = tableProp.getValue();
             }
         }
