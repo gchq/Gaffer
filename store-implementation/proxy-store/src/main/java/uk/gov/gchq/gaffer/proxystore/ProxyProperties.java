@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class ProxyProperties extends StoreProperties {
     public static final String READ_TIMEOUT = "gaffer.read-timeout";
 
     public static final String DEFAULT_GAFFER_HOST = "localhost";
-    public static final String DEFAULT_GAFFER_CONTEXT_ROOT = "/rest/v2";
+    public static final String DEFAULT_GAFFER_CONTEXT_ROOT = "/rest";
     public static final int DEFAULT_GAFFER_PORT = 8080;
     public static final int DEFAULT_CONNECT_TIMEOUT = 10000;
     public static final int DEFAULT_READ_TIMEOUT = 10000;

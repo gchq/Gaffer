@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2021 Crown Copyright
+ * Copyright 2021-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.proxystore.operation.handler;
 
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ public class GetProxyUrlHandlerTest {
         storeProperties.set(GAFFER_HOST, host);
         storeProperties.set(GAFFER_CONTEXT_ROOT, DEFAULT_GAFFER_CONTEXT_ROOT);
         Mockito.when(store.getProperties()).thenReturn(storeProperties);
-        String expected = String.format("http://%s:%s/rest/v2", host, port, DEFAULT_GAFFER_CONTEXT_ROOT);
+        String expected = String.format("http://%s:%s/rest", host, port, DEFAULT_GAFFER_CONTEXT_ROOT);
 
         //when
         String url = new GetProxyUrlHandler().doOperation(new GetProxyUrl(), new Context(), store);
