@@ -326,6 +326,7 @@ public class FederatedGraphStorage {
                 .map(Pair::getFirst);
     }
 
+    @SuppressWarnings("PMD.PreserveStackTrace") //Not Required
     private void addToCache(final GraphSerialisable newGraph, final FederatedAccess access) {
         if (federatedStoreCache.contains(newGraph.getGraphId())) {
             validateSameAsFromCache(newGraph);
@@ -333,7 +334,7 @@ public class FederatedGraphStorage {
             try {
                 federatedStoreCache.addGraphToCache(newGraph, access, false);
             } catch (final OverwritingException e) {
-                throw new OverwritingException((String.format("User is attempting to overwrite a graph within the cacheService. GraphId: %s", newGraph.getGraphId())), e);
+                throw new OverwritingException((String.format("User is attempting to overwrite a graph within the cacheService. GraphId: %s", newGraph.getGraphId())));
             } catch (final CacheOperationException e) {
                 throw new RuntimeException(e);
             }
