@@ -48,6 +48,7 @@ import uk.gov.gchq.koryphe.impl.predicate.range.InDateRangeDual;
 import uk.gov.gchq.koryphe.predicate.PredicateMap;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This class runs simple java queries against the road traffic graph.
@@ -154,7 +155,7 @@ public class Queries {
 
         final OperationChain<Void> populateChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
-                        .input(IOUtils.readLines(StreamUtil.openStream(getClass(), "roadTrafficSampleData.csv")))
+                        .input(IOUtils.readLines(StreamUtil.openStream(getClass(), "roadTrafficSampleData.csv"), StandardCharsets.UTF_8))
                         .generator(new RoadTrafficStringElementGenerator())
                         .build())
                 .then(new AddElements.Builder()

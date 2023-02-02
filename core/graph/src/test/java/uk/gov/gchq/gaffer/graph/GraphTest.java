@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,6 +96,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -1453,7 +1454,7 @@ public class GraphTest {
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
         final File graphHooks = tempDir.resolve("graphHooks.json").toFile();
-        FileUtils.writeLines(graphHooks, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphHooks.json")));
+        FileUtils.writeLines(graphHooks, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphHooks.json"), StandardCharsets.UTF_8));
 
         // When
         final Graph graph = new Graph.Builder()
@@ -1480,10 +1481,10 @@ public class GraphTest {
 
         final File graphHook1File = tempDir.resolve("opChainLimiter.json").toFile();
         FileUtils.writeLines(graphHook1File,
-                IOUtils.readLines(StreamUtil.openStream(getClass(), "opChainLimiter.json")));
+                IOUtils.readLines(StreamUtil.openStream(getClass(), "opChainLimiter.json"), StandardCharsets.UTF_8));
 
         final File graphHook2File = tempDir.resolve("opAuthoriser.json").toFile();
-        FileUtils.writeLines(graphHook2File, IOUtils.readLines(StreamUtil.openStream(getClass(), "opAuthoriser.json")));
+        FileUtils.writeLines(graphHook2File, IOUtils.readLines(StreamUtil.openStream(getClass(), "opAuthoriser.json"), StandardCharsets.UTF_8));
 
         // When
         final Graph graph = new Graph.Builder()

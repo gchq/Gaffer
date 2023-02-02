@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import uk.gov.gchq.koryphe.tuple.Tuple;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -160,7 +161,7 @@ public class RoadTrafficCsvElementGenerator2Test {
         // Uncomment the following for debugging
         // System.out.println(new String(JSONSerialiser.serialise(generator2, true)));
 
-        final List<String> lines = IOUtils.readLines(createInputStream());
+        final List<String> lines = IOUtils.readLines(createInputStream(), StandardCharsets.UTF_8);
         final List<Element> elements2 = Lists.newArrayList(generator2.apply(lines));
 
         // Then - the results should be the same as those generated using the original element generator
