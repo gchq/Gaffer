@@ -268,12 +268,11 @@ public abstract class GraphLibrary {
         final Pair<Schema, StoreProperties> existingPair = get(graphId);
         if (null != existingPair) {
             if (existingPair.getFirst() != null && !JsonUtil.equals(existingPair.getFirst().toJson(false), schema)) {
-``
                 throw new OverwritingException("GraphId " + graphId + " already exists with a different schema:\n"
                         + "existing schema:\n" + StringUtil.toString(existingPair.getFirst().toJson(false))
                         + "\nnew schema:\n" + StringUtil.toString(schema));
             }
-            if (existingPair.getSecond()  != null && !existingPair.getSecond().getProperties().equals(properties.getProperties())) {
+            if (existingPair.getSecond() != null && !existingPair.getSecond().getProperties().equals(properties.getProperties())) {
                 throw new OverwritingException("GraphId " + graphId + " already exists with a different store properties:\n"
                         + "existing storeProperties:\n" + existingPair.getSecond().toString()
                         + "\nnew storeProperties:\n" + properties);
