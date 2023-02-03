@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class NamedOperation<I_ITEM, O> implements
 
     @Required
     private String operationName;
-    private LinkedHashMap<String, Object> parameters;
+    private Map<String, Object> parameters;
     private Map<String, String> options;
 
     @Override

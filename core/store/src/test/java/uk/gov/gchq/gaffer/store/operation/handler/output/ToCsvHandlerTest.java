@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -49,6 +50,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -227,19 +229,19 @@ public class ToCsvHandlerTest {
         final ToCsvHandler handler = new ToCsvHandler();
 
         //When
-        when(storeMock.getSchema()).thenReturn(makeSchema());
+        when(storeMock.execute(any(GetSchema.class), any())).thenReturn(makeSchema());
         final Iterable<? extends String> results = handler.doOperation(operation, new Context(), storeMock);
 
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
-                ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Integer,DIRECTED:Boolean",
+                ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Int,DIRECTED:Boolean",
                 "vertex1,BasicEntity,,,,1,",
                 "vertex2,BasicEntity,,,,,",
                 ",,BasicEdge,source1,dest1,1,true",
                 ",,BasicEdge,source2,dest2,,true"
         );
-        assertThat(expected).isEqualTo(resultList);
+        assertThat(resultList).isEqualTo(expected);
     }
 
     @Test
@@ -261,19 +263,19 @@ public class ToCsvHandlerTest {
         final ToCsvHandler handler = new ToCsvHandler();
 
         //When
-        when(storeMock.getSchema()).thenReturn(makeSchema());
+        when(storeMock.execute(any(GetSchema.class), any())).thenReturn(makeSchema());
         final Iterable<? extends String> results = handler.doOperation(operation, new Context(), storeMock);
 
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
-                "_id,_labels,_type,_start,_end,count:Integer,DIRECTED:Boolean",
+                "_id,_labels,_type,_start,_end,count:Int,DIRECTED:Boolean",
                 "vertex1,BasicEntity,,,,1,",
                 "vertex2,BasicEntity,,,,,",
                 ",,BasicEdge,source1,dest1,1,true",
                 ",,BasicEdge,source2,dest2,,true"
         );
-        assertThat(expected).isEqualTo(resultList);
+        assertThat(resultList).isEqualTo(expected);
     }
 
     @Test

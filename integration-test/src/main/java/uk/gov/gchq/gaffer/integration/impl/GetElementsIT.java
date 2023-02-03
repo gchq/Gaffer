@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,44 +72,44 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetElementsIT extends AbstractStoreIT {
     // ElementId Seeds
-    public static final Collection<ElementId> ENTITY_SEEDS_EXIST = Arrays.asList(
+    private static final Collection<ElementId> ENTITY_SEEDS_EXIST = Arrays.asList(
             (ElementId) new EntitySeed(SOURCE_2),
             new EntitySeed(DEST_3),
             new EntitySeed(SOURCE_DIR_2),
             new EntitySeed(DEST_DIR_3));
 
-    public static final Collection<Element> ENTITIES_EXIST = getElements(ENTITY_SEEDS_EXIST, null);
+    private static final Collection<Element> ENTITIES_EXIST = getElements(ENTITY_SEEDS_EXIST, null);
 
-    public static final Collection<ElementId> EDGE_SEEDS_EXIST = Arrays.asList(
+    private static final Collection<ElementId> EDGE_SEEDS_EXIST = Arrays.asList(
             (ElementId) new EdgeSeed(SOURCE_1, DEST_1, false),
-            (ElementId) new EdgeSeed(VERTEX_PREFIXES[0] + 0, VERTEX_PREFIXES[1] + 0),
-            (ElementId) new EdgeSeed(VERTEX_PREFIXES[0] + 2, VERTEX_PREFIXES[1] + 2));
+            (ElementId) new EdgeSeed(VERTEX_PREFIXES.get(0) + 0, VERTEX_PREFIXES.get(1) + 0),
+            (ElementId) new EdgeSeed(VERTEX_PREFIXES.get(0) + 2, VERTEX_PREFIXES.get(1) + 2));
 
-    public static final Collection<ElementId> EDGE_SEEDS_BOTH = Arrays.asList(
-            (ElementId) new EdgeSeed(VERTEX_PREFIXES[0] + 0, VERTEX_PREFIXES[1] + 0),
-            (ElementId) new EdgeSeed(VERTEX_PREFIXES[0] + 2, VERTEX_PREFIXES[1] + 2));
+    private static final Collection<ElementId> EDGE_SEEDS_BOTH = Arrays.asList(
+            (ElementId) new EdgeSeed(VERTEX_PREFIXES.get(0) + 0, VERTEX_PREFIXES.get(1) + 0),
+            (ElementId) new EdgeSeed(VERTEX_PREFIXES.get(0) + 2, VERTEX_PREFIXES.get(1) + 2));
 
-    public static final Collection<Element> EDGES_EXIST = getElements(EDGE_SEEDS_EXIST, false);
+    private static final Collection<Element> EDGES_EXIST = getElements(EDGE_SEEDS_EXIST, false);
 
-    public static final Collection<ElementId> EDGE_DIR_SEEDS_EXIST = Arrays.asList(
+    private static final Collection<ElementId> EDGE_DIR_SEEDS_EXIST = Arrays.asList(
             (ElementId) new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true),
-            (ElementId) new EdgeSeed(VERTEX_PREFIXES[0] + 0, VERTEX_PREFIXES[1] + 0),
-            (ElementId) new EdgeSeed(VERTEX_PREFIXES[0] + 2, VERTEX_PREFIXES[1] + 2));
+            (ElementId) new EdgeSeed(VERTEX_PREFIXES.get(0) + 0, VERTEX_PREFIXES.get(1) + 0),
+            (ElementId) new EdgeSeed(VERTEX_PREFIXES.get(0) + 2, VERTEX_PREFIXES.get(1) + 2));
 
-    public static final Collection<Element> EDGES_DIR_EXIST = getElements(EDGE_DIR_SEEDS_EXIST, true);
+    private static final Collection<Element> EDGES_DIR_EXIST = getElements(EDGE_DIR_SEEDS_EXIST, true);
 
-    public static final Collection<ElementId> EDGE_SEEDS_DONT_EXIST = Arrays.asList(
+    private static final Collection<ElementId> EDGE_SEEDS_DONT_EXIST = Arrays.asList(
             (ElementId) new EdgeSeed(SOURCE_1, "dest2DoesNotExist", false),
             new EdgeSeed("source2DoesNotExist", DEST_1, false),
             new EdgeSeed(SOURCE_1, DEST_1, true)); // does not exist
 
-    public static final Collection<ElementId> ENTITY_SEEDS_DONT_EXIST = Collections.singletonList(
+    private static final Collection<ElementId> ENTITY_SEEDS_DONT_EXIST = Collections.singletonList(
             (ElementId) new EntitySeed("idDoesNotExist"));
 
-    public static final Collection<ElementId> ENTITY_SEEDS = getEntityIds();
-    public static final Collection<ElementId> EDGE_SEEDS = getEdgeIds();
-    public static final Collection<ElementId> ALL_SEEDS = getAllSeeds();
-    public static final Collection<Object> ALL_SEED_VERTICES = getAllSeededVertices();
+    private static final Collection<ElementId> ENTITY_SEEDS = getEntityIds();
+    private static final Collection<ElementId> EDGE_SEEDS = getEdgeIds();
+    private static final Collection<ElementId> ALL_SEEDS = getAllSeeds();
+    private static final Collection<Object> ALL_SEED_VERTICES = getAllSeededVertices();
 
     @Override
     public void _setup() throws Exception {
@@ -135,14 +135,14 @@ public class GetElementsIT extends AbstractStoreIT {
                         try {
                             shouldGetElementsBySeed(includeEntities, false, directedType, inOutType);
                         } catch (final Throwable e) {
-                            throw new AssertionError(String.format("GetElementsBySeed failed with parameters: \nincludeEntities=%s \nincludeEdges=%s \ndirectedType=%s \ninOutType=%s",
+                            throw new AssertionError(String.format("GetElementsBySeed failed with parameters: %nincludeEntities=%s %nincludeEdges=%s %ndirectedType=%s %ninOutType=%s",
                                     includeEntities, includeEdges, directedType, inOutType), e);
                         }
 
                         try {
                             shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
                         } catch (final Throwable e) {
-                            throw new AssertionError(String.format("GetRelatedElements failed with parameters: \nincludeEntities=%s \nincludeEdges=%s \ndirectedType=%s \ninOutType=%s",
+                            throw new AssertionError(String.format("GetRelatedElements failed with parameters: %nincludeEntities=%s %nincludeEdges=%s %ndirectedType=%s %ninOutType=%s",
                                     includeEntities, includeEdges, directedType, inOutType), e);
                         }
                     }
@@ -472,7 +472,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 .build(), getUser());
 
         final Entity expectedEntity = testEntity;
-        expectedEntity.putProperty(TestTypes.VISIBILITY, new String());
+        expectedEntity.putProperty(TestTypes.VISIBILITY, "");
 
         // Then
         // Create a new iterator that should have 1 result, A

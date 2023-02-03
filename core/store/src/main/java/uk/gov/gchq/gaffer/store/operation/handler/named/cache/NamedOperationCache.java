@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,6 +143,7 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
      * @throws CacheOperationException thrown if the user doesn't have write access to the NamedOperationDetail requested,
      *                                 or if the add operation fails for some reason.
      */
+    @SuppressFBWarnings(value = "DCN_NULLPOINTER_EXCEPTION", justification = "Investigate an improved null checking approach")
     public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user,
                                   final String adminAuth)
             throws CacheOperationException {

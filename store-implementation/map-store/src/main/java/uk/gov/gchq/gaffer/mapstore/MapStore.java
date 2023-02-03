@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,7 +75,7 @@ import static java.util.Objects.isNull;
  */
 public class MapStore extends Store {
 
-    public static final Set<StoreTrait> TRAITS = new HashSet<>(asList(
+    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(asList(
             StoreTrait.VISIBILITY,
             StoreTrait.QUERY_AGGREGATION,
             StoreTrait.INGEST_AGGREGATION,
@@ -82,7 +83,7 @@ public class MapStore extends Store {
             StoreTrait.POST_AGGREGATION_FILTERING,
             StoreTrait.TRANSFORMATION,
             StoreTrait.POST_TRANSFORMATION_FILTERING,
-            StoreTrait.MATCHED_VERTEX));
+            StoreTrait.MATCHED_VERTEX)));
     private static final Logger LOGGER = LoggerFactory.getLogger(MapStore.class);
     private static MapImpl staticMapImpl;
     private MapImpl mapImpl;

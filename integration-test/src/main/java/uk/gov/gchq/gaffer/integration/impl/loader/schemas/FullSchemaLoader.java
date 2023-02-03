@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static uk.gov.gchq.gaffer.integration.AbstractStoreIT.VERTEX_PREFIXES;
+
 /**
  * {@link SchemaLoader} implementation to load fully featured {@link uk.gov.gchq.gaffer.store.schema.Schema}s
  * for testing purposes.
@@ -39,13 +41,13 @@ public class FullSchemaLoader implements SchemaLoader {
     public Map<EdgeId, Edge> createEdges() {
         final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
-            for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
+            for (int j = 0; j < VERTEX_PREFIXES.size(); j++) {
                 final FreqMap freqMap = new FreqMap();
                 freqMap.upsert("key");
                 final Edge edge = new Edge.Builder()
                         .group(TestGroups.EDGE)
-                        .source(VERTEX_PREFIXES[0] + i)
-                        .dest(VERTEX_PREFIXES[j] + i)
+                        .source(VERTEX_PREFIXES.get(0) + i)
+                        .dest(VERTEX_PREFIXES.get(j) + i)
                         .directed(false)
                         .property(TestPropertyNames.COUNT, 1L)
                         .property(TestPropertyNames.PROP_1, 1)
@@ -63,8 +65,8 @@ public class FullSchemaLoader implements SchemaLoader {
                 freqMap2.upsert("key");
                 final Edge edgeDir = new Edge.Builder()
                         .group(TestGroups.EDGE)
-                        .source(VERTEX_PREFIXES[0] + i)
-                        .dest(VERTEX_PREFIXES[j] + i)
+                        .source(VERTEX_PREFIXES.get(0) + i)
+                        .dest(VERTEX_PREFIXES.get(j) + i)
                         .directed(true)
                         .property(TestPropertyNames.COUNT, 1L)
                         .property(TestPropertyNames.PROP_1, 1)
@@ -125,11 +127,11 @@ public class FullSchemaLoader implements SchemaLoader {
     public Map<EntityId, Entity> createEntities() {
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
-            for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
+            for (int j = 0; j < VERTEX_PREFIXES.size(); j++) {
                 final FreqMap freqMap = new FreqMap();
                 freqMap.upsert("key");
 
-                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
+                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES.get(j) + i);
                 entity.putProperty(TestPropertyNames.COUNT, 1L);
                 entity.putProperty(TestPropertyNames.PROP_1, 1);
                 entity.putProperty(TestPropertyNames.PROP_2, 1L);

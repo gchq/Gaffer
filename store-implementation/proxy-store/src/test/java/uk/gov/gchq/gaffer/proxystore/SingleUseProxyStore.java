@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,9 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.File;
 import java.io.IOException;
 
+import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.DEFAULT_GAFFER_CONTEXT_ROOT;
+import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.GAFFER_CONTEXT_ROOT;
+
 /**
  * An extension of {@link ProxyStore} that starts a REST API backed by a
  * {@link SingleUseProxyStore} with the provided schema. This store
@@ -41,10 +44,12 @@ import java.io.IOException;
 public abstract class SingleUseProxyStore extends ProxyStore {
     public static final File TEST_FOLDER = CommonTestConstants.TMP_DIRECTORY;
     private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
+    public static final String CONTEXT_ROOT_SINGLE_USE_PROXY = DEFAULT_GAFFER_CONTEXT_ROOT + "/v2";
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties proxyProps) throws StoreException {
         startRemoteStoreRestApi(schema);
+        proxyProps.getProperties().putIfAbsent(GAFFER_CONTEXT_ROOT, CONTEXT_ROOT_SINGLE_USE_PROXY);
         super.initialise(graphId, new Schema(), proxyProps);
     }
 

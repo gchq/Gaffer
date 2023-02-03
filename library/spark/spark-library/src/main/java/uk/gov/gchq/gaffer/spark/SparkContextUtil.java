@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.spark;
 
 import org.apache.spark.sql.SparkSession;
@@ -21,6 +22,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -107,8 +109,8 @@ public final class SparkContextUtil {
         if (Boolean.parseBoolean(storeProperties.get(SparkConstants.USE_SPARK_DEFAULT_CONF, "false"))) {
             final Properties properties = new Properties();
             final String sparkDefaultConfPath = storeProperties.get(SparkConstants.SPARK_DEFAULT_CONF_PATH, SparkConstants.DEFAULT_SPARK_DEFAULT_CONF_PATH);
-            try {
-                properties.load(Files.newBufferedReader(Paths.get(sparkDefaultConfPath)));
+            try (BufferedReader reader = Files.newBufferedReader(Paths.get(sparkDefaultConfPath))) {
+                properties.load(reader);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Failed to read spark-default conf from " + sparkDefaultConfPath, e);
             }

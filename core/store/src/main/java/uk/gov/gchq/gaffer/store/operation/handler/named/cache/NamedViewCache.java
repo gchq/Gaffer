@@ -196,9 +196,7 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
     public void addNamedView(final NamedViewDetail namedViewDetail, final boolean overwrite, final User user,
                              final String adminAuth)
             throws CacheOperationException {
-        if (Objects.nonNull(namedViewDetail.getName())) {
-            namedViewDetail.getName();
-        } else {
+        if (namedViewDetail.getName() == null) {
             throw new CacheOperationException("NamedView name cannot be null");
         }
 
