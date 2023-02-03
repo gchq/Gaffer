@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
