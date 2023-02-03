@@ -106,7 +106,7 @@ public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
             }
         }
 
-        if (null != key && (bytes.length > lastDelimiter)) {
+        if (key != null && (bytes.length > lastDelimiter)) {
             // Deserialise value
             final Long value = longSerialiser.deserialise(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, bytes.length));
             freqMap.put(key, value);

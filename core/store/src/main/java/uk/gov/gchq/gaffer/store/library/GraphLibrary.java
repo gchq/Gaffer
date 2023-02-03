@@ -267,12 +267,13 @@ public abstract class GraphLibrary {
     private void checkExisting(final String graphId, final byte[] schema, final StoreProperties properties) {
         final Pair<Schema, StoreProperties> existingPair = get(graphId);
         if (null != existingPair) {
-            if (null != existingPair.getFirst() && !JsonUtil.equals(existingPair.getFirst().toJson(false), schema)) {
+            if (existingPair.getFirst() != null && !JsonUtil.equals(existingPair.getFirst().toJson(false), schema)) {
+``
                 throw new OverwritingException("GraphId " + graphId + " already exists with a different schema:\n"
                         + "existing schema:\n" + StringUtil.toString(existingPair.getFirst().toJson(false))
                         + "\nnew schema:\n" + StringUtil.toString(schema));
             }
-            if (null != existingPair.getSecond() && !existingPair.getSecond().getProperties().equals(properties.getProperties())) {
+            if (existingPair.getSecond()  != null && !existingPair.getSecond().getProperties().equals(properties.getProperties())) {
                 throw new OverwritingException("GraphId " + graphId + " already exists with a different store properties:\n"
                         + "existing storeProperties:\n" + existingPair.getSecond().toString()
                         + "\nnew storeProperties:\n" + properties);
@@ -294,7 +295,7 @@ public abstract class GraphLibrary {
 
     private boolean checkPropertiesExist(final String id, final StoreProperties properties) {
         final StoreProperties existingProperties = _getProperties(id);
-        final boolean exists = null != existingProperties;
+        final boolean exists = existingProperties != null;
         if (exists && !existingProperties.getProperties().equals(properties.getProperties())) {
             throw new OverwritingException("propertiesId " + id + " already exists with a different store properties:\n"
                     + "existing storeProperties:\n" + existingProperties.getProperties().toString()

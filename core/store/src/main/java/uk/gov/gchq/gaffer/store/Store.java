@@ -689,7 +689,7 @@ public abstract class Store {
         } catch (final OperationException e) {
             throw new GafferRuntimeException("Error performing HasTrait Operation while optimising schema.", e);
         }
-        schema = schemaOptimiser.optimise(schema, null != isOrdered && isOrdered);
+        schema = schemaOptimiser.optimise(schema, isOrdered != null && isOrdered);
     }
 
     public void validateSchemas() {

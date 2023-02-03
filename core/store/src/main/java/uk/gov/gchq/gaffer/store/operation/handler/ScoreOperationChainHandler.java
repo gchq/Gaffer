@@ -97,7 +97,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         Integer maxUserScore = 0;
         for (final String opAuth : opAuths) {
             Integer authScore = authScores.get(opAuth);
-            if (null != authScore && (authScore > maxUserScore)) {
+            if (authScore != null  && (authScore > maxUserScore)) {
                 maxUserScore = authScore;
             }
         }
