@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,12 +114,13 @@ public final class FederatedStoreUtil {
      * schemas at the same time without causing validation errors.
      * </p>
      *
+     * @param <OP>      Operation type
      * @param operation current operation
      * @param graph     current graph
-     * @param <OP>      Operation type
+     * @param context   current context, used for getSchema operation
      * @return cloned operation with modified View for the given graph.
      */
-    public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
+    public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph, final Context context) {
         OP resultOp = (OP) operation.shallowClone();
         if (nonNull(resultOp.getOptions())) {
             resultOp.setOptions(new HashMap<>(resultOp.getOptions()));
@@ -128,7 +129,7 @@ public final class FederatedStoreUtil {
             final Operations<Operation> operations = (Operations) resultOp;
             final List<Operation> resultOperations = new ArrayList<>();
             for (final Operation nestedOp : operations.getOperations()) {
-                final Operation updatedNestedOp = updateOperationForGraph(nestedOp, graph);
+                final Operation updatedNestedOp = updateOperationForGraph(nestedOp, graph, context);
                 if (null == updatedNestedOp) {
                     resultOp = null;
                     break;
@@ -164,12 +165,17 @@ public final class FederatedStoreUtil {
                 }
             } else {
                 resultOp = (OP) addElements.shallowClone();
-                final Set<String> graphGroups = graph.getSchema().getGroups();
-                final Iterable<? extends Element> filteredInput = Iterables.filter(
-                        addElements.getInput(),
-                        element -> graphGroups.contains(null != element ? element.getGroup() : null)
-                );
-                ((AddElements) resultOp).setInput(filteredInput);
+                try {
+                    final Set<String> graphGroups = graph.execute(new GetSchema(), context).getGroups();
+                    final Iterable<? extends Element> filteredInput = Iterables.filter(
+                            addElements.getInput(),
+                            element -> graphGroups.contains(null != element ? element.getGroup() : null)
+                    );
+                    ((AddElements) resultOp).setInput(filteredInput);
+                } catch (final Exception e) {
+                    LOGGER.error("Error getting schema to filter Input based on legal groups for the graphId={}. Will attempt with No input filtering. Error was due to: {}", graph.getGraphId(), e.getMessage());
+                    ((AddElements) resultOp).setInput(addElements.getInput());
+                }
             }
         }
 
