@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -176,7 +177,7 @@ public class FederatedAccess implements AccessControlledResource {
 
     public static String serialisePredicate(final AccessPredicate accessPredicate) {
         try {
-            return accessPredicate != null ? new String(JSONSerialiser.serialise(accessPredicate)) : null;
+            return accessPredicate != null ? new String(JSONSerialiser.serialise(accessPredicate), StandardCharsets.UTF_8) : null;
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Read and write accessPredicates must be JsonSerialisable", e);
         }
