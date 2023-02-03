@@ -50,6 +50,9 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -372,20 +375,32 @@ public final class FederatedStoreUtil {
         }
     }
 
-    public static List<String> loadStoreConfiguredGraphIdsListFrom(final String path) throws IOException {
-        if (isNull(path)) {
+    public static List<String> loadStoreConfiguredGraphIdsListFrom(final String pathStr) throws IOException {
+        if (isNull(pathStr)) {
             return null;
-        } else {
-            return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), List.class);
         }
+        final Path path = Paths.get(pathStr);
+        byte[] json;
+        if (path.toFile().exists()) {
+            json = Files.readAllBytes(path);
+        } else {
+            json = IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, pathStr));
+        }
+        return JSONSerialiser.deserialise(json, List.class);
     }
 
-    public static Map<String, BiFunction> loadStoreConfiguredMergeFunctionMapFrom(final String path) throws IOException {
-        if (isNull(path)) {
+    public static Map<String, BiFunction> loadStoreConfiguredMergeFunctionMapFrom(final String pathStr) throws IOException {
+        if (isNull(pathStr)) {
             return Collections.emptyMap();
-        } else {
-            return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), SerialisableConfiguredMergeFunctionsMap.class).getMap();
         }
+        final Path path = Paths.get(pathStr);
+        byte[] json;
+        if (path.toFile().exists()) {
+            json = Files.readAllBytes(path);
+        } else {
+            json = IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, pathStr));
+        }
+        return JSONSerialiser.deserialise(json, SerialisableConfiguredMergeFunctionsMap.class).getMap();
     }
 
     public static class SerialisableConfiguredMergeFunctionsMap {
