@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -64,7 +64,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
                                             @Mock final GetAdjacentIds op1,
                                             @Mock final GetElements op2,
                                             @Mock final Iterable<? extends EntityId> input)
-            throws CacheOperationFailedException {
+            throws CacheOperationException {
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
@@ -100,7 +100,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
                                                   @Mock final GetAdjacentIds op1,
                                                   @Mock final GetElements op2,
                                                   @Mock final Iterable<? extends EntityId> input)
-            throws OperationException, CacheOperationFailedException {
+            throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
@@ -143,7 +143,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
                                                                   @Mock final GetElements op2,
                                                                   @Mock final Iterable<? extends EntityId> input,
                                                                   @Mock final Iterable mockIterable)
-            throws OperationException, CacheOperationFailedException {
+            throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
@@ -174,7 +174,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     @Test
     public void shouldResolveNamedOperationWithParameter(@Mock final User user,
                                                          @Mock final NamedOperationCache cache)
-            throws OperationException, CacheOperationFailedException {
+            throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
@@ -222,7 +222,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     @Test
     public void shouldNotExecuteNamedOperationWithParameterOfWrongType(@Mock final User user,
                                                                        @Mock final NamedOperationCache cache)
-            throws OperationException, CacheOperationFailedException {
+            throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
@@ -262,7 +262,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     @Test
     public void shouldNotExecuteNamedOperationWithWrongParameterName(@Mock final User user,
                                                                      @Mock final NamedOperationCache cache)
-            throws OperationException, CacheOperationFailedException {
+            throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
@@ -301,7 +301,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     @Test
     public void shouldNotExecuteNamedOperationWithMissingRequiredArg(@Mock final User user,
                                                                      @Mock final NamedOperationCache cache)
-            throws OperationException, CacheOperationFailedException {
+            throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);

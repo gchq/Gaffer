@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,8 +76,7 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
         final FederatedAccess access = new FederatedAccess(graphAuths, ADDING_USER_ID);
         final FederatedAccess accessFromCacheVersion1_12 = federatedStoreCache.getAccessFromCache(MAP_ID_1);
 
-        assertEquals(access.getReadAccessPredicate(), accessFromCacheVersion1_12.getReadAccessPredicate());
-        assertEquals(access.getWriteAccessPredicate(), accessFromCacheVersion1_12.getWriteAccessPredicate());
+        assertEquals(access, accessFromCacheVersion1_12);
         assertEquals(access.getOrDefaultReadAccessPredicate(), accessFromCacheVersion1_12.getOrDefaultReadAccessPredicate());
         assertEquals(access.getOrDefaultWriteAccessPredicate(), accessFromCacheVersion1_12.getOrDefaultWriteAccessPredicate());
     }

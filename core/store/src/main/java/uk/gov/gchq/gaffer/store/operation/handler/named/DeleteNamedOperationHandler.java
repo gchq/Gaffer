@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -52,7 +53,7 @@ public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamed
     public Void doOperation(final DeleteNamedOperation operation, final Context context, final Store store) throws OperationException {
         try {
             cache.deleteNamedOperation(operation.getOperationName(), context.getUser(), store.getProperties().getAdminAuth());
-        } catch (final CacheOperationFailedException e) {
+        } catch (final CacheOperationException e) {
             throw new OperationException(e.getMessage(), e);
         }
         return null;
