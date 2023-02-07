@@ -303,15 +303,6 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    public Set<StoreTrait> getTraits() {
-        try {
-            return fetchTraits();
-        } catch (final StoreException e) {
-            throw new GafferRuntimeException(e.getMessage(), e);
-        }
-    }
-
-    @Override
     protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
         return null;
     }

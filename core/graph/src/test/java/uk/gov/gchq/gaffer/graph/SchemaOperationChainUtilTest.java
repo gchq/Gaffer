@@ -27,8 +27,12 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -37,6 +41,9 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class SchemaOperationChainUtilTest {
@@ -84,9 +91,12 @@ public class SchemaOperationChainUtilTest {
     }
 
     @Test
-    public void shouldValidateValidOperationChainAgainstSchema() {
+    public void shouldValidateValidOperationChainAgainstSchema() throws Exception {
         // When
-        final ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, validOperationChain);
+        final Store store = mock(Store.class);
+        given(store.execute(any(GetTraits.class), any(Context.class))).willReturn(StoreTrait.ALL_TRAITS);
+
+        final ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, validOperationChain, store);
 
         // Then
         assertTrue(validationResult.isValid());
@@ -95,7 +105,7 @@ public class SchemaOperationChainUtilTest {
     @Test
     public void shouldValidateInvalidOperationChainAgainstSchema() {
         // When
-        final ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, invalidOperationChain);
+        final ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, invalidOperationChain, null);
 
         // Then
         assertFalse(validationResult.isValid());

@@ -355,17 +355,6 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * @return the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
-     * @see Store#getTraits()
-     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetTraits Operation.
-     */
-    @Deprecated
-    @Override
-    public Set<StoreTrait> getTraits() {
-        return StoreTrait.ALL_TRAITS;
-    }
-
-    /**
      * <p>
      * Gets a collection of graph objects within FederatedStore scope from the
      * given csv of graphIds, with visibility of the given user.

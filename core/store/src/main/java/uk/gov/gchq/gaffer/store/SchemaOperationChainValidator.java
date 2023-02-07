@@ -22,8 +22,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.Set;
-
 public class SchemaOperationChainValidator extends OperationChainValidator {
 
     Schema schema;
@@ -44,10 +42,5 @@ public class SchemaOperationChainValidator extends OperationChainValidator {
     @Override
     protected Schema getSchema(final Operation operation, final User user, final Store store) {
         return schema;
-    }
-
-    @Override
-    protected Set<StoreTrait> getStoreTraits(final Store store) {
-        return StoreTrait.ALL_TRAITS;
     }
 }

@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
@@ -33,7 +34,9 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
@@ -195,6 +198,11 @@ public class OperationChainValidatorTest {
         final Schema schema = mock(Schema.class);
 
         given(store.getSchema()).willReturn(schema);
+        try {
+            given(store.execute(any(GetTraits.class), any(Context.class))).willReturn(StoreTrait.ALL_TRAITS);
+        } catch (OperationException e) {
+            throw new RuntimeException(e);
+        }
 
         // TODO: wouldn't work as statndard as the schema was null...
         given(viewValidator.validate(any(), any(Schema.class), any(Set.class))).willReturn(new ValidationResult());

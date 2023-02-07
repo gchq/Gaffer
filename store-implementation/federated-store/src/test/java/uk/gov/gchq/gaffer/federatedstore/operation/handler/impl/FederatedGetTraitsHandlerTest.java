@@ -260,11 +260,6 @@ public class FederatedGetTraitsHandlerTest {
                 StoreTrait.MATCHED_VERTEX);
 
         @Override
-        public Set<StoreTrait> getTraits() {
-            return STORE_TRAITS;
-        }
-
-        @Override
         protected void addAdditionalOperationHandlers() {
 
         }
@@ -304,11 +299,6 @@ public class FederatedGetTraitsHandlerTest {
     public static class TestStoreAltImpl extends TestStoreImpl {
 
         private static final Set<StoreTrait> STORE_TRAITS = ImmutableSet.of(StoreTrait.VISIBILITY);
-
-        @Override
-        public Set<StoreTrait> getTraits() {
-            return STORE_TRAITS;
-        }
 
         @Override
         protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {

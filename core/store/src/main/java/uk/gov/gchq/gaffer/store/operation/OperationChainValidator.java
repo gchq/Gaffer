@@ -16,14 +16,19 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -38,6 +43,7 @@ import java.util.Set;
  * Validation class for validating {@link OperationChain}s against {@link ViewValidator}s.
  */
 public class OperationChainValidator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationChainValidator.class);
     private final ViewValidator viewValidator;
 
     public OperationChainValidator(final ViewValidator viewValidator) {
@@ -137,12 +143,19 @@ public class OperationChainValidator {
     protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (shouldValidate(op)) {
             final Schema schema = getSchema(op, user, store);
-            final ValidationResult viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store));
-            if (!viewValidationResult.isValid()) {
-                validationResult.addError("View for operation "
-                        + op.getClass().getName()
-                        + " is not valid. ");
-                validationResult.add(viewValidationResult);
+            final ValidationResult viewValidationResult;
+            try {
+                viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store, new Context(user)));
+                if (!viewValidationResult.isValid()) {
+                    validationResult.addError("View for operation "
+                            + op.getClass().getName()
+                            + " is not valid. ");
+                    validationResult.add(viewValidationResult);
+                }
+            } catch (final Exception e) {
+                final String message = "Error getting Traits for view validation of the Operation Chain, see logs";
+                validationResult.addError(message);
+                LOGGER.error("{}, caused by {}", message, e.getMessage());
             }
         }
     }
@@ -159,7 +172,7 @@ public class OperationChainValidator {
         return store.getSchema();
     }
 
-    protected Set<StoreTrait> getStoreTraits(final Store store) {
-        return store.getTraits();
+    protected Set<StoreTrait> getStoreTraits(final Store store, final Context context) throws OperationException {
+        return store.execute(new GetTraits(), context);
     }
 }

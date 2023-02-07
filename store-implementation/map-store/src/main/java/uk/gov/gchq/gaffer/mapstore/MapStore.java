@@ -109,11 +109,6 @@ public class MapStore extends Store {
         return mapImpl;
     }
 
-    @Override
-    public Set<StoreTrait> getTraits() {
-        return TRAITS;
-    }
-
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be MapStoreProperties")
     @Override
     public MapStoreProperties getProperties() {

@@ -56,10 +56,6 @@ public class GetTraitsHandlerTest {
 
         store = new TestAddToGraphLibraryImpl() {
             @Override
-            public Set<StoreTrait> getTraits() {
-                return Sets.newHashSet(expectedTraits);
-            }
-            @Override
             protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
                 return new GetTraitsHandler(expectedTraits);
             }

@@ -25,7 +25,6 @@ import org.mockito.MockitoAnnotations;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -34,9 +33,11 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
@@ -52,6 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
@@ -320,7 +322,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeserialiseGetStoreTraits() throws SerialisationException {
+    public void shouldSerialiseAndDeserialiseGetStoreTraits() throws Exception {
         // Given
         Store store = mock(Store.class);
 
@@ -334,7 +336,7 @@ public class GraphConfigurationControllerTest {
 
         when(store.getSchema()).thenReturn(schema);
         when(store.getProperties()).thenReturn(props);
-        when(store.getTraits()).thenReturn(storeTraits);
+        when(store.execute(any(GetTraits.class),any(Context.class))).thenReturn(storeTraits);
 
         Graph graph = new Graph.Builder()
                 .config(new GraphConfig("id"))

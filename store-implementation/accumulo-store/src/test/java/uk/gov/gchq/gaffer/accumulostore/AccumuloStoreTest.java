@@ -65,6 +65,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
@@ -334,7 +335,12 @@ public class AccumuloStoreTest {
     }
 
     public void testStoreTraits(final AccumuloStore store) {
-        final Collection<StoreTrait> traits = store.getTraits();
+        final Collection<StoreTrait> traits;
+        try {
+            traits = store.execute(new GetTraits(), new Context());
+        } catch (OperationException e) {
+            throw new RuntimeException(e);
+        }
         assertThat(traits).isNotNull();
         assertThat(traits).withFailMessage("Collection size should be 10").hasSize(10);
 

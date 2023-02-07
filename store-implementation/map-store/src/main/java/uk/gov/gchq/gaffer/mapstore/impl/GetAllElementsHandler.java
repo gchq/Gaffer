@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
@@ -23,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -64,7 +66,11 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
             this.getAllElements = getAllElements;
             this.schema = mapStore.getSchema();
             this.user = user;
-            this.supportsVisibility = mapStore.getTraits().contains(StoreTrait.VISIBILITY);
+            try {
+                this.supportsVisibility = mapStore.execute(new GetTraits(), new Context(user)).contains(StoreTrait.VISIBILITY);
+            } catch (OperationException e) {
+                throw new GafferRuntimeException("Error getting supportsVisibility, was unable to GetTraits.", e);
+            }
         }
 
         @Override

@@ -33,11 +33,6 @@ import java.util.Set;
 
 public class TestAddToGraphLibraryImpl extends Store {
     @Override
-    public Set<StoreTrait> getTraits() {
-        return new HashSet<>(0);
-    }
-
-    @Override
     protected void addAdditionalOperationHandlers() {
     }
 

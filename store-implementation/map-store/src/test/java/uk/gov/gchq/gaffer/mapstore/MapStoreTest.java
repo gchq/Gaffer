@@ -18,8 +18,9 @@ package uk.gov.gchq.gaffer.mapstore;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.mapstore.optimiser.CountAllElementsOperationChainOptimiser;
-import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Arrays;
@@ -32,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class MapStoreTest {
 
     @Test
-    public void testTraits() throws StoreException {
+    public void testTraits() throws Exception {
         final MapStore mapStore = new MapStore();
         mapStore.initialise("graphId", new Schema(), new MapStoreProperties());
         final Set<StoreTrait> expectedTraits = new HashSet<>(Arrays.asList(
@@ -44,7 +45,7 @@ public class MapStoreTest {
                 StoreTrait.TRANSFORMATION,
                 StoreTrait.POST_TRANSFORMATION_FILTERING,
                 StoreTrait.MATCHED_VERTEX));
-        assertEquals(expectedTraits, mapStore.getTraits());
+        assertEquals(expectedTraits, mapStore.execute(new GetTraits(), new Context()));
     }
 
     @Test

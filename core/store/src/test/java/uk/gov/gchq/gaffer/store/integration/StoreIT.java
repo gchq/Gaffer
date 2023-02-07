@@ -79,11 +79,6 @@ public class StoreIT {
         private final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION));
 
         @Override
-        public Set<StoreTrait> getTraits() {
-            return traits;
-        }
-
-        @Override
         protected void addAdditionalOperationHandlers() {
         }
 
