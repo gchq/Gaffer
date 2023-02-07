@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
@@ -83,7 +83,7 @@ public class NamedOperationResolver implements GraphHook {
         final NamedOperationDetail namedOpDetail;
         try {
             namedOpDetail = cache.getNamedOperation(namedOp.getOperationName(), user);
-        } catch (final CacheOperationFailedException e) {
+        } catch (final CacheOperationException e) {
             // Unable to find named operation - just return the original named operation
             return Collections.singletonList(namedOp);
         }

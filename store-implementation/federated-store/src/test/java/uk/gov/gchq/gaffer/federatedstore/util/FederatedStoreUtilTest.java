@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,10 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.TestTypes;
@@ -49,6 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -112,7 +115,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertEquals(operation, updatedOp);
@@ -133,7 +136,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNotSame(operation, updatedOp);
@@ -156,7 +159,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNull(updatedOp);
@@ -176,7 +179,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final OperationChain<?> updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final OperationChain<?> updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNull(updatedOp);
@@ -205,7 +208,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final OperationChain<?> updatedOpChain = FederatedStoreUtil.updateOperationForGraph(opChain, graph);
+        final OperationChain<?> updatedOpChain = FederatedStoreUtil.updateOperationForGraph(opChain, graph, new Context());
 
         // Then
         assertNotSame(opChain, updatedOpChain);
@@ -232,7 +235,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertEquals(operation, updatedOp);
@@ -249,7 +252,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNotSame(operation, updatedOp);
@@ -268,7 +271,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNotSame(operation, updatedOp);
@@ -297,7 +300,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNotSame(operation, updatedOp);
@@ -336,6 +339,11 @@ public class FederatedStoreUtilTest {
                 .build();
 
         given(store.getSchema()).willReturn(schema);
+        try {
+            given(store.execute(any(OperationChain.class), any(Context.class))).willReturn(schema);
+        } catch (final OperationException e) {
+            throw new RuntimeException(e);
+        }
         given(store.getOriginalSchema()).willReturn(schema);
 
         StoreProperties storeProperties = new StoreProperties();

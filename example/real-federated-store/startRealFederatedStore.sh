@@ -14,6 +14,8 @@ PROP_RESOURCE=../federated-demo/src/main/resources/$PROP
 CONF_RESOURCE=../federated-demo/src/main/resources/$CONF
 SCHEMA_RESOURCE=../federated-demo/src/main/resources/$SCHEMA
 OP_DEC_RESOURCE=../federated-demo/src/main/resources/$OP_DEC
+DEFAULT_PORT_VALUE=8080
+PORT=$DEFAULT_PORT_VALUE
 
 if [[ ! -f $CONF ]] 
 then
@@ -52,4 +54,4 @@ then
 	# mvn clean -f ../../
 fi
 
-java -Dgaffer.storeProperties=$PROP -Dgaffer.graph.config=$CONF -Dgaffer.schemas=$SCHEMA -jar $SPRING_JAR
+java -Dgaffer.storeProperties=$PROP -Dgaffer.graph.config=$CONF -Dgaffer.schemas=$SCHEMA -Dserver.port=$PORT -jar $SPRING_JAR

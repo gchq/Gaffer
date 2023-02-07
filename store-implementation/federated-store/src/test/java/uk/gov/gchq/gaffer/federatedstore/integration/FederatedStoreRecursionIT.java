@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
+import static uk.gov.gchq.gaffer.proxystore.SingleUseProxyStore.CONTEXT_ROOT_SINGLE_USE_PROXY;
 
 public class FederatedStoreRecursionIT {
     public static final String INNER_FEDERATED_GRAPH = "innerFederatedGraph";
@@ -150,6 +151,7 @@ public class FederatedStoreRecursionIT {
 
     private void createInnerProxyToOuterFederatedStore() throws OperationException {
         ProxyProperties storeProperties = new ProxyProperties();
+        storeProperties.setGafferContextRoot(CONTEXT_ROOT_SINGLE_USE_PROXY);
         storeProperties.setReadTimeout(120000);
         storeProperties.setConnectTimeout(120000);
         proxyToRestServiceFederatedGraph.execute(getFederatedOperation(
@@ -173,6 +175,7 @@ public class FederatedStoreRecursionIT {
     private void createProxyToRestServiceFederatedGraph() {
         final Graph proxyToRestServiceFederatedGraph;
         ProxyProperties singleUseFedProperties = new ProxyProperties();
+        singleUseFedProperties.setGafferContextRoot(CONTEXT_ROOT_SINGLE_USE_PROXY);
         singleUseFedProperties.setStoreClass(SingleUseFederatedStore.class);
         singleUseFedProperties.setReadTimeout(120000);
         singleUseFedProperties.setConnectTimeout(120000);

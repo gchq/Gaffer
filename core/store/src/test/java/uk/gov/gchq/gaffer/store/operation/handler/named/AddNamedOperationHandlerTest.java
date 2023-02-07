@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -81,7 +81,7 @@ public class AddNamedOperationHandlerTest {
     private AddNamedOperationHandler handler;
 
     @BeforeEach
-    public void before() throws CacheOperationFailedException {
+    public void before() throws CacheOperationException {
         storedOperations.clear();
         handler = new AddNamedOperationHandler(mockCache);
 
@@ -100,7 +100,7 @@ public class AddNamedOperationHandlerTest {
             final String name = (String) invocationOnMock.getArguments()[0];
             final NamedOperationDetail result = storedOperations.get(name);
             if (result == null) {
-                throw new CacheOperationFailedException();
+                throw new CacheOperationException();
             }
             return result;
         }).when(mockCache).getNamedOperation(anyString(), any(User.class), eq(EMPTY_ADMIN_AUTH));
@@ -109,7 +109,7 @@ public class AddNamedOperationHandlerTest {
     }
 
     @AfterEach
-    public void after() throws CacheOperationFailedException {
+    public void after() throws CacheOperationException {
         addNamedOperation.setOperationName(null);
         addNamedOperation.setOperationChain((String) null);
         addNamedOperation.setDescription(null);
@@ -117,7 +117,7 @@ public class AddNamedOperationHandlerTest {
         addNamedOperation.setReadAccessPredicate(null);
         addNamedOperation.setWriteAccessPredicate(null);
         storedOperations.clear();
-        mockCache.clear();
+        mockCache.clearCache();
     }
 
     @SuppressWarnings({"rawtypes"})
@@ -215,7 +215,7 @@ public class AddNamedOperationHandlerTest {
     }
 
     @Test
-    public void shouldAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
+    public void shouldAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationException {
         final List<String> readAuths = asList("readAuth1", "readAuth2");
         final List<String> writeAuths = asList("writeAuth1", "writeAuth2");
         final OperationChain<?> opChain = new OperationChain.Builder().first(new AddElements()).build();
@@ -244,7 +244,7 @@ public class AddNamedOperationHandlerTest {
 
     @Test
     public void shouldAddCustomAccessPredicateFieldsToNamedOperationDetailCorrectly()
-            throws OperationException, CacheOperationFailedException {
+            throws OperationException, CacheOperationException {
         final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         final OperationChain<?> opChain = new OperationChain.Builder().first(new AddElements()).build();

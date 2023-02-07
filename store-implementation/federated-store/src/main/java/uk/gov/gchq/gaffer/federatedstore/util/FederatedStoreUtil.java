@@ -50,6 +50,9 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -114,12 +117,13 @@ public final class FederatedStoreUtil {
      * schemas at the same time without causing validation errors.
      * </p>
      *
+     * @param <OP>      Operation type
      * @param operation current operation
      * @param graph     current graph
-     * @param <OP>      Operation type
+     * @param context   current context, used for getSchema operation
      * @return cloned operation with modified View for the given graph.
      */
-    public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
+    public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph, final Context context) {
         OP resultOp = (OP) operation.shallowClone();
         if (nonNull(resultOp.getOptions())) {
             resultOp.setOptions(new HashMap<>(resultOp.getOptions()));
@@ -128,7 +132,7 @@ public final class FederatedStoreUtil {
             final Operations<Operation> operations = (Operations) resultOp;
             final List<Operation> resultOperations = new ArrayList<>();
             for (final Operation nestedOp : operations.getOperations()) {
-                final Operation updatedNestedOp = updateOperationForGraph(nestedOp, graph);
+                final Operation updatedNestedOp = updateOperationForGraph(nestedOp, graph, context);
                 if (null == updatedNestedOp) {
                     resultOp = null;
                     break;
@@ -164,12 +168,17 @@ public final class FederatedStoreUtil {
                 }
             } else {
                 resultOp = (OP) addElements.shallowClone();
-                final Set<String> graphGroups = graph.getSchema().getGroups();
-                final Iterable<? extends Element> filteredInput = Iterables.filter(
-                        addElements.getInput(),
-                        element -> graphGroups.contains(null != element ? element.getGroup() : null)
-                );
-                ((AddElements) resultOp).setInput(filteredInput);
+                try {
+                    final Set<String> graphGroups = graph.execute(new GetSchema(), context).getGroups();
+                    final Iterable<? extends Element> filteredInput = Iterables.filter(
+                            addElements.getInput(),
+                            element -> graphGroups.contains(null != element ? element.getGroup() : null)
+                    );
+                    ((AddElements) resultOp).setInput(filteredInput);
+                } catch (final Exception e) {
+                    LOGGER.error("Error getting schema to filter Input based on legal groups for the graphId={}. Will attempt with No input filtering. Error was due to: {}", graph.getGraphId(), e.getMessage());
+                    ((AddElements) resultOp).setInput(addElements.getInput());
+                }
             }
         }
 
@@ -366,20 +375,32 @@ public final class FederatedStoreUtil {
         }
     }
 
-    public static List<String> loadStoreConfiguredGraphIdsListFrom(final String path) throws IOException {
-        if (isNull(path)) {
+    public static List<String> loadStoreConfiguredGraphIdsListFrom(final String pathStr) throws IOException {
+        if (isNull(pathStr)) {
             return null;
-        } else {
-            return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), List.class);
         }
+        final Path path = Paths.get(pathStr);
+        byte[] json;
+        if (path.toFile().exists()) {
+            json = Files.readAllBytes(path);
+        } else {
+            json = IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, pathStr));
+        }
+        return JSONSerialiser.deserialise(json, List.class);
     }
 
-    public static Map<String, BiFunction> loadStoreConfiguredMergeFunctionMapFrom(final String path) throws IOException {
-        if (isNull(path)) {
+    public static Map<String, BiFunction> loadStoreConfiguredMergeFunctionMapFrom(final String pathStr) throws IOException {
+        if (isNull(pathStr)) {
             return Collections.emptyMap();
-        } else {
-            return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), SerialisableConfiguredMergeFunctionsMap.class).getMap();
         }
+        final Path path = Paths.get(pathStr);
+        byte[] json;
+        if (path.toFile().exists()) {
+            json = Files.readAllBytes(path);
+        } else {
+            json = IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, pathStr));
+        }
+        return JSONSerialiser.deserialise(json, SerialisableConfiguredMergeFunctionsMap.class).getMap();
     }
 
     public static class SerialisableConfiguredMergeFunctionsMap {

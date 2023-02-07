@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -76,7 +76,7 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
 
         try {
             cache.addNamedView(namedViewDetail, operation.isOverwriteFlag(), context.getUser(), store.getProperties().getAdminAuth());
-        } catch (final CacheOperationFailedException e) {
+        } catch (final CacheOperationException e) {
             throw new OperationException(e.getMessage(), e);
         }
         return null;
