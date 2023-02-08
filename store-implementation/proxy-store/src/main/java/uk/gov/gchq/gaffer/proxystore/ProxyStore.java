@@ -87,6 +87,7 @@ import static java.util.Objects.nonNull;
  */
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
+    public static final String ERROR_FETCHING_SCHEMA_FROM_REMOTE_STORE = "Error fetching schema from remote store.";
     private Client client;
     private Schema schema;
 
@@ -159,7 +160,22 @@ public class ProxyStore extends Store {
     }
 
     protected Schema fetchSchema() throws OperationException {
-        return executeOpChainViaUrl(new OperationChain<>(new GetSchema()), new Context());
+        return fetchSchema(true);
+    }
+
+    protected Schema fetchSchema(final boolean getOptimisedSchema) throws OperationException {
+        final GetSchema.Builder getSchema = new GetSchema.Builder();
+        getSchema.option("UnsupportedGetOptimisedSchema", String.valueOf(getOptimisedSchema));
+        return executeOpChainViaUrl(new OperationChain<>(getSchema.build()), new Context());
+    }
+
+    @Override
+    public Schema getOriginalSchema() {
+        try {
+            return fetchSchema(false);
+        } catch (OperationException e) {
+            throw new GafferRuntimeException(ERROR_FETCHING_SCHEMA_FROM_REMOTE_STORE, e);
+        }
     }
 
     @Override
@@ -300,7 +316,7 @@ public class ProxyStore extends Store {
         try {
             return fetchSchema();
         } catch (OperationException e) {
-            throw new GafferRuntimeException("Error fetching schema from remote store.", e);
+            throw new GafferRuntimeException(ERROR_FETCHING_SCHEMA_FROM_REMOTE_STORE, e);
         }
     }
 
