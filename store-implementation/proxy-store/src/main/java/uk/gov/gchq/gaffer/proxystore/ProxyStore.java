@@ -54,6 +54,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -99,9 +100,8 @@ public class ProxyStore extends Store {
             throws StoreException {
         setProperties(properties);
         client = createClient();
-        schema = fetchSchema();
 
-        super.initialise(graphId, schema, getProperties());
+        super.initialise(graphId, new Schema(), getProperties());
         checkDelegateStoreStatus();
     }
 
@@ -158,10 +158,8 @@ public class ProxyStore extends Store {
         return newTraits;
     }
 
-    protected Schema fetchSchema() throws StoreException {
-        final URL url = getProperties().getGafferUrl("graph/config/schema");
-        final ResponseDeserialiser<Schema> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceStoreImpl.Schema());
-        return doGet(url, responseDeserialiser, null);
+    protected Schema fetchSchema() throws OperationException {
+        return executeOpChainViaUrl(new OperationChain<>(new GetSchema()), new Context());
     }
 
     @Override
@@ -299,7 +297,11 @@ public class ProxyStore extends Store {
     @Override
     @Deprecated
     public Schema getSchema() {
-        return schema;
+        try {
+            return fetchSchema();
+        } catch (OperationException e) {
+            throw new GafferRuntimeException("Error fetching schema from remote store.", e);
+        }
     }
 
     @Override
