@@ -336,9 +336,9 @@ public class FederatedStore extends Store {
     /**
      * Get {@link Schema} for this FederatedStore
      *
+     * @param context context with User.
      * @return schema
      */
-    @Deprecated
     public Schema getSchema(final Context context) {
         return getSchema(getFederatedWrappedSchema(), context);
     }
