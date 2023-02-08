@@ -616,7 +616,7 @@ public abstract class Store {
      */
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Getters are called to trigger the loading data")
     public Element populateElement(final Element lazyElement) {
-        final SchemaElementDefinition elementDefinition = getSchema().getElement(
+        final SchemaElementDefinition elementDefinition = schema.getElement(
                 lazyElement.getGroup());
         if (nonNull(elementDefinition)) {
             for (final IdentifierType identifierType : elementDefinition.getIdentifiers()) {
@@ -741,9 +741,9 @@ public abstract class Store {
                         }
                     }));
 
-            validateSchema(validationResult, getSchema().getVertexSerialiser());
+            validateSchema(validationResult, schema.getVertexSerialiser());
 
-            getSchema().getTypes().forEach((k, v) -> validateSchema(validationResult, v.getSerialiser()));
+            schema.getTypes().forEach((k, v) -> validateSchema(validationResult, v.getSerialiser()));
         }
 
         if (!validationResult.isValid()) {
@@ -764,8 +764,8 @@ public abstract class Store {
      * inconsistent.
      */
     protected void validateConsistentVertex() {
-        if (nonNull(getSchema().getVertexSerialiser())
-                && !getSchema().getVertexSerialiser().isConsistent()) {
+        if (nonNull(schema.getVertexSerialiser())
+                && !schema.getVertexSerialiser().isConsistent()) {
             throw new SchemaException("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
         }
     }
@@ -918,8 +918,8 @@ public abstract class Store {
 
     protected HashMap<String, SchemaElementDefinition> getSchemaElements() {
         final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
-        schemaElements.putAll(getSchema().getEdges());
-        schemaElements.putAll(getSchema().getEntities());
+        schemaElements.putAll(schema.getEdges());
+        schemaElements.putAll(schema.getEntities());
         return schemaElements;
     }
 
