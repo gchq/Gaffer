@@ -435,6 +435,10 @@ public final class Graph {
     /**
      * Get the Store's original {@link Schema}.
      *
+     * This is not the same as the {@link Schema} used internally by
+     * the {@link Store}. See {@link Store#getOriginalSchema()} and
+     * {@link Store#getSchema()} for more details.
+     *
      * @return the original {@link Schema} used to create this graph
      */
     public Schema getSchema() {
