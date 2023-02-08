@@ -74,7 +74,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     private List<GlobalViewElementDefinition> globalElements;
     private List<GlobalViewElementDefinition> globalEntities;
     private List<GlobalViewElementDefinition> globalEdges;
-    private Map<String, String> config = new HashMap<>();
+    private final Map<String, String> config = new HashMap<>();
     private boolean allEntities = false;
     private boolean allEdges = false;
 
@@ -551,11 +551,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         public CHILD_CLASS expandGlobalDefinitions() {
             getThisView().expandGlobalDefinitions();
             return self();
-        }
-
-        @Override
-        public View build() {
-            return super.build();
         }
 
         private View getThisView() {

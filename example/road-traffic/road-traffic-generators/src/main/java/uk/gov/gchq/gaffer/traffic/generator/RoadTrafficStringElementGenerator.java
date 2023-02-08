@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerat
         return new ChainedIterable<>(edges, entities, cardinalityEntities);
     }
 
-    private FreqMap getVehicleCounts(final String[] fields) {
+    private FreqMap getVehicleCounts(final String... fields) {
         final FreqMap freqMap = new FreqMap();
         for (final RoadTrafficDataField fieldName : RoadTrafficDataField.VEHICLE_COUNTS) {
             Long value;

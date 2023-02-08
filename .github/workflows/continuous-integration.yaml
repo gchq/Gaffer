@@ -29,6 +29,15 @@ jobs:
           distribution: 'zulu'
           java-version: '8'
 
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/uk
+          key: all-gaffer-dependencies
+          restore-keys: Accumulo-gaffer-dependencies
+
       - name: Build Javadoc
         run: |
           mvn -ntp clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
@@ -97,6 +106,7 @@ jobs:
             ~/.m2/repository
             !~/.m2/repository/uk
           key: ${{matrix.modules.name}}-gaffer-dependencies
+          restore-keys: ${{matrix.modules.name}}
 
       - name: Install
         run: mvn -B -ntp clean install -P quick -pl ${{matrix.modules.values}} -am

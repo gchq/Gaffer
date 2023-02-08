@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,11 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -36,7 +32,6 @@ import java.io.Serializable;
 public class JavaSerialiser implements ToBytesSerialiser<Object> {
     private static final long serialVersionUID = 2073581763875104361L;
     private static final Class<Serializable> SERIALISABLE = Serializable.class;
-    private static final Logger LOGGER = LoggerFactory.getLogger(JavaSerialiser.class);
 
     @Override
     public byte[] serialise(final Object object) throws SerialisationException {
@@ -68,16 +63,6 @@ public class JavaSerialiser implements ToBytesSerialiser<Object> {
     @Override
     public Object deserialiseEmpty() {
         return null;
-    }
-
-    private void close(final Closeable close) {
-        if (null != close) {
-            try {
-                close.close();
-            } catch (final IOException e) {
-                LOGGER.warn("Resource leak: unable to close stream in JavaSerialiser.class", e);
-            }
-        }
     }
 
     @Override

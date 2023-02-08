@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityP
  * This class is copied from org.apache.accumulo.core.security.VisibilityEvaluator.
  */
 public class VisibilityEvaluator {
-    private Authorisations auths;
+    private final Authorisations auths;
 
     public VisibilityEvaluator(final Authorisations auths) {
         this.auths = auths;
@@ -68,8 +68,8 @@ public class VisibilityEvaluator {
         int escapeCount = 0;
         byte[] newAuth = auth;
 
-        for (int i = 0; i < auth.length; i++) {
-            if (auth[i] == '"' || auth[i] == '\\') {
+        for (final byte b : auth) {
+            if (b == '"' || b == '\\') {
                 escapeCount++;
             }
         }
@@ -77,11 +77,11 @@ public class VisibilityEvaluator {
         if (escapeCount > 0 || quote) {
             byte[] escapedAuth = new byte[auth.length + escapeCount + (quote ? 2 : 0)];
             int index = quote ? 1 : 0;
-            for (int i = 0; i < auth.length; i++) {
-                if (auth[i] == '"' || auth[i] == '\\') {
+            for (final byte b : auth) {
+                if (b == '"' || b == '\\') {
                     escapedAuth[index++] = '\\';
                 }
-                escapedAuth[index++] = auth[i];
+                escapedAuth[index++] = b;
             }
 
             if (quote) {

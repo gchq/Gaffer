@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.hdfs.operation;
 
 import com.google.common.collect.Sets;
@@ -69,7 +70,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 .maxReducers(20)
                 .splitsFilePath("/path/to/splits/file")
                 .useProvidedSplits(false)
-                .commandLineArgs(new String[] {"-libjars", "libjar1,libjar2"})
+                .commandLineArgs("-libjars", "libjar1,libjar2")
                 .build();
 
         // When

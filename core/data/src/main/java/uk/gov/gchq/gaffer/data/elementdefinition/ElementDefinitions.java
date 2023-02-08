@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
  * @param <ENTITY_DEF> the type of {@link ElementDefinition} for the entities
  * @param <EDGE_DEF>   the type of {@link ElementDefinition} for the edges
  */
-public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, EDGE_DEF extends ElementDefinition> {
+public class ElementDefinitions<ENTITY_DEF extends ElementDefinition, EDGE_DEF extends ElementDefinition> {
     /**
      * Map of edge type to edge definition.
      */
@@ -286,6 +286,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             return json(clazz, (Object[]) filePaths);
         }
 
+        @SuppressWarnings("PMD.UseTryWithResources")
         public CHILD_CLASS json(final Class<? extends ELEMENT_DEFS> clazz, final InputStream... inputStreams) throws SchemaException {
             try {
                 return json(clazz, (Object[]) inputStreams);
@@ -302,7 +303,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             return json(clazz, (Object[]) jsonBytes);
         }
 
-        public CHILD_CLASS json(final Class<? extends ELEMENT_DEFS> clazz, final Object[] jsonItems) throws SchemaException {
+        public CHILD_CLASS json(final Class<? extends ELEMENT_DEFS> clazz, final Object... jsonItems) throws SchemaException {
             if (null != jsonItems) {
                 for (final Object jsonItem : jsonItems) {
                     try {

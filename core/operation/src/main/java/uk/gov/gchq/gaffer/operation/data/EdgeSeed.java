@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,6 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
                     final Object destination,
                     final DirectedType directed,
                     final MatchedVertex matchedVertex) {
-        this.matchedVertex = matchedVertex;
         this.source = source;
         this.destination = destination;
         this.directed = directed;
@@ -113,10 +112,8 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
     }
 
     private void orderVertices() {
-        if (!DirectedType.isDirected(directed)) {
-            if (VERTEX_COMPARATOR.compare(source, destination) > 0) {
-                swapVertices();
-            }
+        if (!DirectedType.isDirected(directed) && VERTEX_COMPARATOR.compare(source, destination) > 0) {
+            swapVertices();
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,10 +91,8 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
             for (final Map.Entry<String, Object> entry : elementDef.entrySet()) {
                 final IdentifierType id = IdentifierType.fromName(entry.getKey());
                 final Object field = getField(entry.getValue(), tuple);
-                if (null == id && null != field) {
-                    if (!field.equals("")) {
-                        element.putProperty(entry.getKey(), field);
-                    }
+                if (id == null && field != null && !field.equals("")) {
+                    element.putProperty(entry.getKey(), field);
                 }
             }
         }

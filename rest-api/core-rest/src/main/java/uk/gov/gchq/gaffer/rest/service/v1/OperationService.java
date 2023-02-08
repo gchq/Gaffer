@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.rest.service.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,8 +71,8 @@ public class OperationService implements IOperationService {
         return _execute(operation);
     }
 
-    @SuppressFBWarnings
     @Override
+    @SuppressWarnings("PMD.UseTryWithResources")
     public ChunkedOutput<String> executeChunkedChain(final OperationChainDAO opChain) {
         // Create chunked output instance
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
@@ -92,7 +91,6 @@ public class OperationService implements IOperationService {
         return output;
     }
 
-    @SuppressFBWarnings
     @Override
     public ChunkedOutput<String> executeChunked(final Operation operation) {
         if (operation instanceof OperationChainDAO) {
@@ -146,7 +144,7 @@ public class OperationService implements IOperationService {
         return _execute(new OperationChainDAO<O>(operation));
     }
 
-    @SuppressWarnings("ThrowFromFinallyBlock")
+    @SuppressWarnings({"ThrowFromFinallyBlock", "PMD.UseTryWithResources"})
     protected <O> O _execute(final OperationChainDAO<O> opChain) {
         final Context context = userFactory.createContext();
         preOperationHook(opChain, context);

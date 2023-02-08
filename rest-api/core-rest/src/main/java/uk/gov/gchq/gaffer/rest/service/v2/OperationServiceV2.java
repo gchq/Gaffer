@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
  */
+@SuppressWarnings("PMD.UnnecessaryFullyQualifiedName") //Not the same FQN
 public class OperationServiceV2 extends AbstractOperationService implements IOperationServiceV2 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationServiceV2.class);
 
@@ -98,6 +99,7 @@ public class OperationServiceV2 extends AbstractOperationService implements IOpe
 
     @SuppressFBWarnings
     @Override
+    @SuppressWarnings("PMD.UseTryWithResources")
     public Response executeChunkedChain(final OperationChain opChain) {
         // Create chunked output instance
         final Throwable[] threadException = new Throwable[1];

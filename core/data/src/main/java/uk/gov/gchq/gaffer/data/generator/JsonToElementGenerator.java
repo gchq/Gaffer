@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.data.generator;
 
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -31,7 +32,7 @@ public class JsonToElementGenerator implements OneToOneElementGenerator<String> 
         try {
             return JSONSerialiser.deserialise(json, Element.class);
         } catch (final SerialisationException ex) {
-            throw new GafferRuntimeException("Unable to process JSON string: " + json + ". Message: " + ex.getMessage());
+            throw new GafferRuntimeException("Unable to process JSON string: " + json + ". Message: " + ex.getMessage(), ex);
         }
     }
 }

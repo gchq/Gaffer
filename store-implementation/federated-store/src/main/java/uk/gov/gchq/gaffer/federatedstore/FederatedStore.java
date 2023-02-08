@@ -137,7 +137,7 @@ public class FederatedStore extends Store {
     private List<String> storeConfiguredGraphIds;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private Map<String, BiFunction> storeConfiguredMergeFunctions;
-    private Set<Class<? extends Operation>> externallySupportedOperations = new HashSet<>();
+    private final Set<Class<? extends Operation>> externallySupportedOperations = new HashSet<>();
 
     @JsonCreator
     @SuppressFBWarnings(value = "DMI_RANDOM_USED_ONLY_ONCE", justification = "Random used once only and this class will not usually be created more than once")

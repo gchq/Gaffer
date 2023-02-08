@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class KeyFunctionMatch implements Match {
     private Function firstKeyFunction;
     private Function secondKeyFunction;
 
-    private HashMap<Object, List> keyedMatchCandidates = new HashMap<>();
+    private final HashMap<Object, List> keyedMatchCandidates = new HashMap<>();
 
     public KeyFunctionMatch() {
         this(new Identity(), new Identity());

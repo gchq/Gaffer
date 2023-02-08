@@ -117,10 +117,8 @@ public class AuthorisedGraphForExportDelegate extends GraphDelegate {
                 }
             }
 
-            if (null != parentStorePropertiesId) {
-                if (!isAuthorised(user, idAuths.get(parentStorePropertiesId))) {
-                    result.addError(String.format(USER_IS_NOT_AUTHORISED_TO_EXPORT_USING_S_S, STORE_PROPERTIES_ID, parentStorePropertiesId));
-                }
+            if (parentStorePropertiesId != null && !isAuthorised(user, idAuths.get(parentStorePropertiesId))) {
+                result.addError(String.format(USER_IS_NOT_AUTHORISED_TO_EXPORT_USING_S_S, STORE_PROPERTIES_ID, parentStorePropertiesId));
             }
 
             if (store.getGraphLibrary().exists(graphId)) {

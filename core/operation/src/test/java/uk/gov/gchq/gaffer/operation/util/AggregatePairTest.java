@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.operation.util;
 
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ public class AggregatePairTest extends JSONSerialisationTest<AggregatePair> {
     public void shouldSetAndGetProperties() {
         // Given
         final AggregatePair pair = new AggregatePair();
-        pair.setGroupBy(new String[] {"timestamp"});
+        pair.setGroupBy("timestamp");
         pair.setElementAggregator(new ElementAggregator());
 
         // When / Then

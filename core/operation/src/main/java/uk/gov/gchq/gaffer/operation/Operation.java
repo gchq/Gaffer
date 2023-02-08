@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,10 +160,15 @@ public interface Operation extends Closeable {
                 : getOptions().getOrDefault(name, defaultValue);
     }
 
+    /**
+     * Gets if an operation contains an option of the given name.
+     *
+     * @param name         the name of the option
+     *
+     * @return if the operation contains the option
+     */
     default boolean containsOption(final String name) {
-        return (isNull(getOptions()))
-                ? false
-                : getOptions().containsKey(name);
+        return !isNull(getOptions()) && getOptions().containsKey(name);
     }
 
     @JsonGetter("options")

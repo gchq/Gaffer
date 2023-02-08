@@ -43,6 +43,7 @@ public class SortHandler implements OutputOperationHandler<Sort, Iterable<? exte
     private static final MaxHandler MAX_HANDLER = new MaxHandler();
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "Appears to be a false positive")
+    @SuppressWarnings("PMD.UseTryWithResources")
     @Override
     public Iterable<? extends Element> doOperation(final Sort operation, final Context context, final Store store) throws OperationException {
         // If there is no input or there are no comparators, we return null

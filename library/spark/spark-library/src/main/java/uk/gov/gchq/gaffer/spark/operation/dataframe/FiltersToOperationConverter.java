@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
 import org.apache.commons.lang3.StringUtils;
@@ -75,7 +76,7 @@ public class FiltersToOperationConverter {
 
     public FiltersToOperationConverter(final View view,
                                        final Schema schema,
-                                       final Filter[] filters) {
+                                       final Filter... filters) {
         this.view = view;
         this.schema = schema;
         this.filters = Arrays.copyOf(filters, filters.length);
@@ -358,6 +359,7 @@ public class FiltersToOperationConverter {
      * @param filter The {@link Filter} to transform.
      * @return A map from {@link String} to {@link TupleAdaptedPredicate}s implementing the provided {@link Filter}.
      */
+    @SuppressWarnings("PMD.EmptyControlStatement")
     private Map<String, List<TupleAdaptedPredicate<String, ?>>> getFunctionsFromFilter(final Filter filter) {
         final Map<String, List<TupleAdaptedPredicate<String, ?>>> map = new HashMap<>();
         if (filter instanceof EqualTo) {

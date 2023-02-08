@@ -330,7 +330,7 @@ public final class FederatedStoreUtil {
                 functionContext.put(VIEW, ((OperationView) payload).getView());
             } catch (final ClassCastException e) {
                 throw new GafferCheckedException("Merge function requires a view for payload operation, " +
-                        "but it is not an instance of OperationView, likely the wrong merge function has been asked. payload:" + payload.getClass());
+                        "but it is not an instance of OperationView, likely the wrong merge function has been asked. payload:" + payload.getClass(), e);
             }
         }
         return functionContext;

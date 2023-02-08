@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,7 +157,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         try {
             directionFlag = rowKey[rowKey.length - 1];
         } catch (final NumberFormatException e) {
-            throw new AccumuloElementConversionException("Error parsing direction flag from row key - " + e);
+            throw new AccumuloElementConversionException("Error parsing direction flag from row key - " + e.getMessage(), e);
         }
 
         byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(rowKey, 0, positionsOfDelimiters[0]);

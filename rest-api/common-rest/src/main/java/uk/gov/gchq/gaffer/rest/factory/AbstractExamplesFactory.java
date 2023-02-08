@@ -79,6 +79,7 @@ import static java.lang.reflect.Modifier.isStatic;
 /**
  * Abstract Examples factory which can create examples using a schema and class inspection.
  */
+@SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract") //Class is not particularly abstract
 public abstract class AbstractExamplesFactory implements ExamplesFactory {
     private Map<Class<? extends Operation>, Operation> examplesMap;
 

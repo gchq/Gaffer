@@ -104,7 +104,7 @@ public final class Graph {
      */
     private final Store store;
 
-    private GraphConfig config;
+    private final GraphConfig config;
 
     /**
      * Constructs a {@code Graph} with the given {@link uk.gov.gchq.gaffer.store.Store}
@@ -691,6 +691,7 @@ public final class Graph {
             return this;
         }
 
+        @SuppressWarnings("PMD.UseTryWithResources")
         public Builder addSchemas(final InputStream... schemaStreams) {
             if (null != schemaStreams) {
                 try {
@@ -738,6 +739,7 @@ public final class Graph {
             return this;
         }
 
+        @SuppressWarnings("PMD.UseTryWithResources")
         public Builder addSchema(final InputStream schemaStream) {
             if (null != schemaStream) {
                 try {
