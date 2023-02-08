@@ -654,6 +654,9 @@ public abstract class Store {
      *
      * This is used to keep an (unoptimised, unchanged) copy of the original
      * schema used to create the store initially.
+     *
+     * @param originalSchema the {@link Schema} to be set as the original
+     *                       schema used to create this store
      */
     public void setOriginalSchema(final Schema originalSchema) {
         this.originalSchema = originalSchema;
