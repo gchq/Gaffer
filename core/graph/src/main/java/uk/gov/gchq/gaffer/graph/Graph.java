@@ -851,6 +851,9 @@ public final class Graph {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
             }
 
+            // Set the original schema used to create the graph.
+            // This is stored inside the Store but is primarily
+            // used by this class.
             store.setOriginalSchema(schema);
 
             return new Graph(config, store);
