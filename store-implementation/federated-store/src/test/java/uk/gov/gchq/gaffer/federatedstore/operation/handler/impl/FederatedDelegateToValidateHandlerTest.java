@@ -42,7 +42,7 @@ public class FederatedDelegateToValidateHandlerTest {
         final Iterable expectedResult = mock(Iterable.class);
         final Schema schema = mock(Schema.class);
 
-        given(store.getSchema(context)).willReturn(schema);
+        given(store.getSchema(context, true)).willReturn(schema);
         given(handler.doOperation(op, schema)).willReturn(expectedResult);
 
         final FederatedDelegateToHandler federatedHandler = new FederatedDelegateToHandler(handler);

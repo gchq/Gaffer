@@ -245,16 +245,20 @@ public class FederatedGraphStorage {
         final Stream<GraphSerialisable> graphs = getStream(context.getUser(), graphIds);
         final Builder schemaBuilder = new Builder();
         try {
-            if (nonNull(operation) && operation.hasPayloadOperation() && operation.payloadInstanceOf(GetSchema.class) && ((GetSchema) operation.getPayloadOperation()).isCompact()) {
-                graphs.forEach(gs -> {
-                    try {
-                        schemaBuilder.merge(gs.getGraph().execute((GetSchema) operation.getPayloadOperation(), context));
-                    } catch (final Exception e) {
-                        throw new GafferRuntimeException("Unable to fetch schema from graph " + gs.getGraphId(), e);
-                    }
-                });
+            if (nonNull(operation) && operation.hasPayloadOperation() && operation.payloadInstanceOf(GetSchema.class)) {
+                if (((GetSchema) operation.getPayloadOperation()).isCompact()) {
+                    graphs.forEach(gs -> {
+                        try {
+                            schemaBuilder.merge(gs.getGraph().execute((GetSchema) operation.getPayloadOperation(), context));
+                        } catch (final Exception e) {
+                            throw new GafferRuntimeException("Unable to fetch schema from graph " + gs.getGraphId(), e);
+                        }
+                    });
+                } else {
+                    graphs.forEach(g -> schemaBuilder.merge(g.getSchema(graphLibrary)));
+                }
             } else {
-                graphs.forEach(g -> schemaBuilder.merge(g.getSchema(graphLibrary)));
+                throw new GafferRuntimeException(String.format("getSchema cannot be performed without getSchema operation found:%s", operation.getPayloadClass()));
             }
         } catch (final SchemaException e) {
             final List<String> resultGraphIds = getStream(context.getUser(), graphIds).map(GraphSerialisable::getGraphId).collect(Collectors.toList());

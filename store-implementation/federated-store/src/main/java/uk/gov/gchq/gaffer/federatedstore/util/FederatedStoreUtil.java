@@ -282,7 +282,12 @@ public final class FederatedStoreUtil {
 
     @Deprecated
     public static FederatedOperation<Void, Iterable<Schema>> getFederatedWrappedSchema() {
-        return new FederatedOperation.Builder().<Void, Iterable<Schema>>op(new GetSchema()).build();
+        return getFederatedWrappedSchema(true);
+    }
+    public static FederatedOperation<Void, Iterable<Schema>> getFederatedWrappedSchema(final boolean getOptimisedSchema) {
+        final GetSchema.Builder getSchema = new GetSchema.Builder();
+        getSchema.option("UnsupportedGetOptimisedSchema", String.valueOf(getOptimisedSchema));
+        return new FederatedOperation.Builder().<Void, Iterable<Schema>>op(getSchema.build()).build();
     }
 
     /**

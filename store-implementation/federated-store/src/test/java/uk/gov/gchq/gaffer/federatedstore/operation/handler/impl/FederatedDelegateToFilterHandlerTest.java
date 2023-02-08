@@ -42,7 +42,7 @@ public class FederatedDelegateToFilterHandlerTest {
         final Iterable expectedResult = mock(Iterable.class);
         final Schema schema = mock(Schema.class);
 
-        given(store.getSchema(context)).willReturn(schema);
+        given(store.getSchema(context, true)).willReturn(schema);
         given(handler.doOperation(op, schema)).willReturn(expectedResult);
 
         final FederatedDelegateToHandler federatedHandler = new FederatedDelegateToHandler(handler);
@@ -53,6 +53,6 @@ public class FederatedDelegateToFilterHandlerTest {
         // Then
         assertSame(expectedResult, result);
         verify(handler).doOperation(op, schema);
-        verify(store).getSchema(context);
+        verify(store).getSchema(context, true);
     }
 }

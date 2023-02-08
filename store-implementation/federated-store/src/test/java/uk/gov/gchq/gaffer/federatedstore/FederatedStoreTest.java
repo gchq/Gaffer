@@ -323,9 +323,9 @@ public class FederatedStoreTest {
     public void shouldUpdateSchemaWhenNewGraphIsAdded() throws Exception {
         // Given
         addGraphWithPaths(ACC_ID_1, propertiesAlt, blankUserContext, SCHEMA_ENTITY_BASIC_JSON);
-        final Schema before = store.getSchema(new Context(blankUser));
+        final Schema before = store.getSchema(new Context(blankUser), true);
         addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_EDGE_BASIC_JSON);
-        final Schema after = store.getSchema(new Context(blankUser));
+        final Schema after = store.getSchema(new Context(blankUser), true);
         // Then
         assertThat(before).isNotEqualTo(after);
     }
@@ -335,15 +335,15 @@ public class FederatedStoreTest {
     public void shouldUpdateSchemaWhenNewGraphIsRemoved() throws Exception {
         // Given
         addGraphWithPaths(ACC_ID_1, propertiesAlt, blankUserContext, SCHEMA_ENTITY_BASIC_JSON);
-        final Schema was = store.getSchema(new Context(blankUser));
+        final Schema was = store.getSchema(new Context(blankUser), true);
         addGraphWithPaths(ACC_ID_2, propertiesAlt, blankUserContext, SCHEMA_EDGE_BASIC_JSON);
 
-        final Schema before = store.getSchema(new Context(blankUser));
+        final Schema before = store.getSchema(new Context(blankUser), true);
 
         // When
         store.remove(ACC_ID_2, blankUser);
 
-        final Schema after = store.getSchema(new Context(blankUser));
+        final Schema after = store.getSchema(new Context(blankUser), true);
         assertThat(before).isNotEqualTo(after);
         assertThat(was).isEqualTo(after);
     }
@@ -1160,8 +1160,8 @@ public class FederatedStoreTest {
         final Iterable<? extends Element> elements = store
                 .execute(new GetAllElements.Builder()
                         .view(new View.Builder()
-                                .edges(store.getSchema(context).getEdgeGroups()) //here
-                                .entities(store.getSchema(context).getEntityGroups()) //here 59 -> 58
+                                .edges(store.getSchema(context, true).getEdgeGroups()) //here
+                                .entities(store.getSchema(context, true).getEntityGroups()) //here 59 -> 58
                                 .build())
                         .build(), context);
 

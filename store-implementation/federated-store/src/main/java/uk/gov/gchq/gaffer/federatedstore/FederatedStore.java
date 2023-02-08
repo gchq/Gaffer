@@ -330,17 +330,23 @@ public class FederatedStore extends Store {
     @Override
     @Deprecated
     public Schema getSchema() {
-        return getSchema((Context) null);
+        return getSchema(new Context(), true);
+    }
+
+    @Override
+    public Schema getOriginalSchema() {
+        return getSchema(new Context(), false);
     }
 
     /**
-     * @param context context with User.
+     * @param context            context with User.
+     * @param getOptimisedSchema
      * @return schema
      * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetSchema Operation.
      */
     @Deprecated
-    public Schema getSchema(final Context context) {
-        return getSchema(getFederatedWrappedSchema(), context);
+    public Schema getSchema(final Context context, final boolean getOptimisedSchema) {
+        return getSchema(getFederatedWrappedSchema(getOptimisedSchema), context);
     }
 
     /**
@@ -589,8 +595,8 @@ public class FederatedStore extends Store {
 
             final List<String> graphIds = new ArrayList<>(storeConfiguredGraphIds);
             final List<String> federatedStoreSystemUser = getAllGraphIds(new User.Builder()
-                    .userId(FEDERATED_STORE_SYSTEM_USER)
-                    .opAuths(this.getProperties().getAdminAuth()).build(),
+                            .userId(FEDERATED_STORE_SYSTEM_USER)
+                            .opAuths(this.getProperties().getAdminAuth()).build(),
                     true);
             graphIds.retainAll(federatedStoreSystemUser);
 

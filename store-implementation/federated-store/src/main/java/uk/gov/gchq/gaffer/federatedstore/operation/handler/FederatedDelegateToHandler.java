@@ -44,7 +44,7 @@ public class FederatedDelegateToHandler implements OutputOperationHandler<InputO
                 || ValidateHandler.class.isAssignableFrom(handler.getClass())
                 || AggregateHandler.class.isAssignableFrom(handler.getClass())) {
             // Use the doOperation which requires a schema.
-            return (Iterable<? extends Element>) ((OperationWithSchemaHandler) handler).doOperation(operation, ((FederatedStore) store).getSchema(context));
+            return (Iterable<? extends Element>) ((OperationWithSchemaHandler) handler).doOperation(operation, ((FederatedStore) store).getSchema(context, true));
         } else {
             return handler.doOperation(operation, context, store);
         }

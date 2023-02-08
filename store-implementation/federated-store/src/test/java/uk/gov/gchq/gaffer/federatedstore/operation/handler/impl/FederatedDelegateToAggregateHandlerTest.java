@@ -74,7 +74,7 @@ public class FederatedDelegateToAggregateHandlerTest {
                                         @Mock final Schema schema)
             throws OperationException {
         // Given
-        given(store.getSchema(context)).willReturn(schema);
+        given(store.getSchema(context, true)).willReturn(schema);
         given(handler.doOperation(op, schema)).willReturn((Iterable) expectedResult);
 
         final FederatedDelegateToHandler federatedHandler = new FederatedDelegateToHandler(handler);
