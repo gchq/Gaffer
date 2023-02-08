@@ -213,7 +213,8 @@ public abstract class Store {
     private Schema schema;
 
     /**
-     * The original schema containing all of the original descriptions and parent groups.
+     * The original user supplied schema containing all the original descriptions and parent
+     * groups. In most cases this will differ from the schema used internally which is optimised.
      */
     private Schema originalSchema;
 
@@ -635,15 +636,36 @@ public abstract class Store {
     }
 
     /**
-     * Get this Store's {@link Schema}.
+     * Get this Store's internal {@link Schema}.
+     *
+     * This is optimised and will usually differ from the original schema used to
+     * create the store initially.
      *
      * @return the instance of {@link Schema} used for describing the type of
      *         {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to
      *         aggregate the elements.
      */
-    @Deprecated
     public Schema getSchema() {
         return schema;
+    }
+
+    /**
+     * Set the Store's original {@link Schema}.
+     *
+     * This is used to keep an (unoptimised, unchanged) copy of the original
+     * schema used to create the store initially.
+     */
+    public void setOriginalSchema(final Schema originalSchema) {
+        this.originalSchema = originalSchema;
+    }
+
+    /**
+     * Get the Store's original {@link Schema}.
+     *
+     * @return the {@link Schema} used to create this store, null if not set
+     */
+    public Schema getOriginalSchema() {
+        return originalSchema;
     }
 
     /**
@@ -1108,13 +1130,5 @@ public abstract class Store {
 
     protected void startCacheServiceLoader(final StoreProperties properties) {
         CacheServiceLoader.initialise(properties.getProperties());
-    }
-
-    public void setOriginalSchema(final Schema originalSchema) {
-        this.originalSchema = originalSchema;
-    }
-
-    public Schema getOriginalSchema() {
-        return originalSchema;
     }
 }

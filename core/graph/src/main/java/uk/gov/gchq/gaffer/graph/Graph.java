@@ -433,7 +433,9 @@ public final class Graph {
     }
 
     /**
-     * @return the original schema.
+     * Get the Store's original {@link Schema}.
+     *
+     * @return the original {@link Schema} used to create this graph
      */
     public Schema getSchema() {
         return store.getOriginalSchema();
