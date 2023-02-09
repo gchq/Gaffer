@@ -340,7 +340,7 @@ public class FederatedStore extends Store {
 
     /**
      * @param context            context with User.
-     * @param getOptimisedSchema
+     * @param getOptimisedSchema use the optimisedSchema flag
      * @return schema
      * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetSchema Operation.
      */

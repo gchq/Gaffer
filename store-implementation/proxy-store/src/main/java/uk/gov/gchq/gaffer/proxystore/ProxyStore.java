@@ -173,7 +173,7 @@ public class ProxyStore extends Store {
     public Schema getOriginalSchema() {
         try {
             return fetchSchema(false);
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new GafferRuntimeException(ERROR_FETCHING_SCHEMA_FROM_REMOTE_STORE, e);
         }
     }
@@ -315,7 +315,7 @@ public class ProxyStore extends Store {
     public Schema getSchema() {
         try {
             return fetchSchema();
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new GafferRuntimeException(ERROR_FETCHING_SCHEMA_FROM_REMOTE_STORE, e);
         }
     }
