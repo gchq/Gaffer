@@ -248,8 +248,8 @@ public class FederatedGraphStorage {
         final Stream<GraphSerialisable> graphs = getStream(context.getUser(), graphIds);
         final Builder schemaBuilder = new Builder();
         try {
+            final GetSchema op = isNull(operation) ? new GetSchema() : (GetSchema) operation.getPayloadOperation();
             graphs.forEach(g -> {
-                GetSchema op = isNull(operation) ? new GetSchema() : (GetSchema) operation.getPayloadOperation();
                 try {
                     schemaBuilder.merge(g.getGraph().execute(op, context));
                 } catch (final Exception e) {
