@@ -89,7 +89,6 @@ public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
     public static final String ERROR_FETCHING_SCHEMA_FROM_REMOTE_STORE = "Error fetching schema from remote store.";
     private Client client;
-    private Schema schema;
 
     public ProxyStore() {
         super(false);
