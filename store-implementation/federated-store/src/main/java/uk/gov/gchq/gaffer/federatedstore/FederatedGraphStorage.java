@@ -240,26 +240,22 @@ public class FederatedGraphStorage {
             // no user then return an empty schema
             return new Schema();
         }
+        if (operation != null && !operation.payloadInstanceOf(GetSchema.class)) {
+            throw new GafferRuntimeException(String.format("Incorrect FederatedOperation payload, requires GetSchema operation, instead found: %s", operation.getPayloadClass()));
+        }
         final List<String> graphIds = isNull(operation) ? null : operation.getGraphIds();
 
         final Stream<GraphSerialisable> graphs = getStream(context.getUser(), graphIds);
         final Builder schemaBuilder = new Builder();
         try {
-            if (nonNull(operation) && operation.hasPayloadOperation() && operation.payloadInstanceOf(GetSchema.class)) {
-                if (((GetSchema) operation.getPayloadOperation()).isCompact()) {
-                    graphs.forEach(gs -> {
-                        try {
-                            schemaBuilder.merge(gs.getGraph().execute((GetSchema) operation.getPayloadOperation(), context));
-                        } catch (final Exception e) {
-                            throw new GafferRuntimeException("Unable to fetch schema from graph " + gs.getGraphId(), e);
-                        }
-                    });
-                } else {
-                    graphs.forEach(g -> schemaBuilder.merge(g.getSchema(graphLibrary)));
+            graphs.forEach(g -> {
+                GetSchema op = isNull(operation) ? new GetSchema() : (GetSchema) operation.getPayloadOperation();
+                try {
+                    schemaBuilder.merge(g.getGraph().execute(op, context));
+                } catch (final Exception e) {
+                    throw new GafferRuntimeException("Unable to fetch schema from graph " + g.getGraphId(), e);
                 }
-            } else {
-                throw new GafferRuntimeException(String.format("getSchema cannot be performed without getSchema operation found:%s", operation.getPayloadClass()));
-            }
+            });
         } catch (final SchemaException e) {
             final List<String> resultGraphIds = getStream(context.getUser(), graphIds).map(GraphSerialisable::getGraphId).collect(Collectors.toList());
             throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the FederatedOperation.graphIds option.", e);
