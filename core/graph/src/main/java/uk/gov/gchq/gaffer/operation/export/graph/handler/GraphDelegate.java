@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ public class GraphDelegate {
         return createGraphInstance(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, null);
     }
 
-    public GraphSerialisable createGraphSerialisable(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
+    public GraphSerialisable createGraphSerialisable(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook... hooks) {
         final GraphLibrary graphLibrary = store.getGraphLibrary();
         final Pair<Schema, StoreProperties> existingGraphPair = null != graphLibrary ? graphLibrary.get(graphId) : null;
 
@@ -93,7 +93,7 @@ public class GraphDelegate {
                 .build();
     }
 
-    public Graph createGraphInstance(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
+    public Graph createGraphInstance(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook... hooks) {
         return createGraphSerialisable(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, hooks).getGraph();
     }
 
@@ -238,7 +238,7 @@ public class GraphDelegate {
         return result;
     }
 
-    public abstract static class BaseBuilder<BUILDER extends BaseBuilder> {
+    public static class BaseBuilder<BUILDER extends BaseBuilder> {
         protected Store store;
         protected String graphId;
         protected Schema schema;
@@ -300,7 +300,7 @@ public class GraphDelegate {
     public static class Builder extends BaseBuilder<Builder> {
         private GraphHook[] hooks = null;
 
-        public Builder hooks(final GraphHook[] hooks) {
+        public Builder hooks(final GraphHook... hooks) {
             this.hooks = hooks;
             return _self();
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.store.Store;
  */
 public class CountGroupsHandler implements OutputOperationHandler<CountGroups, GroupCounts> {
     @Override
+    @SuppressWarnings("PMD.UseTryWithResources") //Not worthwhile
     public GroupCounts doOperation(final CountGroups operation,
                                    final Context context, final Store store)
             throws OperationException {

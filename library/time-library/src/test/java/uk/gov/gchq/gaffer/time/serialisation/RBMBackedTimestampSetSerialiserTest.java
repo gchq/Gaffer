@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.time.serialisation;
 
 import com.google.common.collect.Lists;
@@ -35,6 +36,7 @@ import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.gaffer.types.CustomMap;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -191,7 +193,7 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
     }
 
     protected String jsonFromFile(final String path) throws IOException {
-        return String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), path)));
+        return String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), path), StandardCharsets.UTF_8));
     }
 
     @Override

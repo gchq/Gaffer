@@ -330,6 +330,7 @@ public class FederatedGraphStorage {
                 .map(Pair::getFirst);
     }
 
+    @SuppressWarnings("PMD.PreserveStackTrace") //Not Required
     private void addToCache(final GraphSerialisable newGraph, final FederatedAccess access) {
         if (federatedStoreCache.contains(newGraph.getGraphId())) {
             validateSameAsFromCache(newGraph);

@@ -123,7 +123,7 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
         }
         final NamedOperationDetail op = super.getFromCache(name);
 
-        if (Objects.nonNull(op)) {
+        if (nonNull(op)) {
             return op;
         }
         throw new CacheOperationException(String.format("No named operation with the name %s exists in the cache", name));

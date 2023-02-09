@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,7 +40,7 @@ public class ElementVisibility {
     }
 
     public ElementVisibility(final String expression) {
-        this(expression.getBytes(StandardCharsets.UTF_8));
+        this(expression.getBytes(UTF_8));
     }
 
     public ElementVisibility(final byte[] expression) {
@@ -60,8 +59,8 @@ public class ElementVisibility {
     public static byte[] quote(final byte[] term) {
         boolean needsQuote = false;
 
-        for (int i = 0; i < term.length; i++) {
-            if (!Authorisations.isValidAuthChar(term[i])) {
+        for (final byte b : term) {
+            if (!Authorisations.isValidAuthChar(b)) {
                 needsQuote = true;
                 break;
             }
@@ -75,11 +74,11 @@ public class ElementVisibility {
     }
 
     public String toString() {
-        return "[" + new String(this.expression, StandardCharsets.UTF_8) + "]";
+        return "[" + new String(this.expression, UTF_8) + "]";
     }
 
     public boolean equals(final Object obj) {
-        return obj instanceof ElementVisibility ? this.equals((ElementVisibility) obj) : false;
+        return obj instanceof ElementVisibility && this.equals((ElementVisibility) obj);
     }
 
     public boolean equals(final ElementVisibility otherLe) {
@@ -185,9 +184,9 @@ public class ElementVisibility {
             if (expression.length > 0) {
                 ElementVisibility.Node node = this.parse_(expression);
                 if (node == null) {
-                    throw new PatternSyntaxException("operator or missing parens", new String(expression, StandardCharsets.UTF_8), this.index - 1);
+                    throw new PatternSyntaxException("operator or missing parens", new String(expression, UTF_8), this.index - 1);
                 } else if (this.parens != 0) {
-                    throw new PatternSyntaxException("parenthesis mis-match", new String(expression, StandardCharsets.UTF_8), this.index - 1);
+                    throw new PatternSyntaxException("parenthesis mis-match", new String(expression, UTF_8), this.index - 1);
                 } else {
                     return node;
                 }
@@ -199,12 +198,12 @@ public class ElementVisibility {
         ElementVisibility.Node processTerm(final int start, final int end, final ElementVisibility.Node expr, final byte[] expression) {
             if (start != end) {
                 if (expr != null) {
-                    throw new PatternSyntaxException("expression needs | or &", new String(expression, StandardCharsets.UTF_8), start);
+                    throw new PatternSyntaxException("expression needs | or &", new String(expression, UTF_8), start);
                 } else {
                     return new ElementVisibility.Node(start, end);
                 }
             } else if (expr == null) {
-                throw new PatternSyntaxException("empty term", new String(expression, StandardCharsets.UTF_8), start);
+                throw new PatternSyntaxException("empty term", new String(expression, UTF_8), start);
             } else {
                 return expr;
             }
@@ -223,24 +222,24 @@ public class ElementVisibility {
                 switch (expression[this.index++]) {
                     case 34:
                         if (subtermStart != this.index - 1) {
-                            throw new PatternSyntaxException("expression needs & or |", new String(expression, StandardCharsets.UTF_8), this.index - 1);
+                            throw new PatternSyntaxException("expression needs & or |", new String(expression, UTF_8), this.index - 1);
                         }
 
                         for (; this.index < expression.length && expression[this.index] != 34; ++this.index) {
                             if (expression[this.index] == 92) {
                                 ++this.index;
                                 if (expression[this.index] != 92 && expression[this.index] != 34) {
-                                    throw new PatternSyntaxException("invalid escaping within quotes", new String(expression, StandardCharsets.UTF_8), this.index - 1);
+                                    throw new PatternSyntaxException("invalid escaping within quotes", new String(expression, UTF_8), this.index - 1);
                                 }
                             }
                         }
 
                         if (this.index == expression.length) {
-                            throw new PatternSyntaxException("unclosed quote", new String(expression, StandardCharsets.UTF_8), subtermStart);
+                            throw new PatternSyntaxException("unclosed quote", new String(expression, UTF_8), subtermStart);
                         }
 
                         if (subtermStart + 1 == this.index) {
-                            throw new PatternSyntaxException("empty term", new String(expression, StandardCharsets.UTF_8), subtermStart);
+                            throw new PatternSyntaxException("empty term", new String(expression, UTF_8), subtermStart);
                         }
 
                         ++this.index;
@@ -250,7 +249,7 @@ public class ElementVisibility {
                         expr = this.processTerm(subtermStart, this.index - 1, expr, expression);
                         if (result != null) {
                             if (!result.type.equals(ElementVisibility.NodeType.AND)) {
-                                throw new PatternSyntaxException("cannot mix & and |", new String(expression, StandardCharsets.UTF_8), this.index - 1);
+                                throw new PatternSyntaxException("cannot mix & and |", new String(expression, UTF_8), this.index - 1);
                             }
                         } else {
                             result = new ElementVisibility.Node(ElementVisibility.NodeType.AND, wholeTermStart);
@@ -270,12 +269,12 @@ public class ElementVisibility {
                             break;
                         }
 
-                        throw new PatternSyntaxException("expression needs & or |", new String(expression, StandardCharsets.UTF_8), this.index - 1);
+                        throw new PatternSyntaxException("expression needs & or |", new String(expression, UTF_8), this.index - 1);
                     case 41:
                         --this.parens;
                         child = this.processTerm(subtermStart, this.index - 1, expr, expression);
                         if (child == null && result == null) {
-                            throw new PatternSyntaxException("empty expression not allowed", new String(expression, StandardCharsets.UTF_8), this.index);
+                            throw new PatternSyntaxException("empty expression not allowed", new String(expression, UTF_8), this.index);
                         }
 
                         if (result == null) {
@@ -299,7 +298,7 @@ public class ElementVisibility {
                         expr = this.processTerm(subtermStart, this.index - 1, expr, expression);
                         if (result != null) {
                             if (!result.type.equals(ElementVisibility.NodeType.OR)) {
-                                throw new PatternSyntaxException("cannot mix | and &", new String(expression, StandardCharsets.UTF_8), this.index - 1);
+                                throw new PatternSyntaxException("cannot mix | and &", new String(expression, UTF_8), this.index - 1);
                             }
                         } else {
                             result = new ElementVisibility.Node(ElementVisibility.NodeType.OR, wholeTermStart);
@@ -312,12 +311,12 @@ public class ElementVisibility {
                         break;
                     default:
                         if (subtermComplete) {
-                            throw new PatternSyntaxException("expression needs & or |", new String(expression, StandardCharsets.UTF_8), this.index - 1);
+                            throw new PatternSyntaxException("expression needs & or |", new String(expression, UTF_8), this.index - 1);
                         }
 
                         byte var10 = expression[this.index - 1];
                         if (!Authorisations.isValidAuthChar(var10)) {
-                            throw new PatternSyntaxException("bad character (" + var10 + ")", new String(expression, StandardCharsets.UTF_8), this.index - 1);
+                            throw new PatternSyntaxException("bad character (" + var10 + ")", new String(expression, UTF_8), this.index - 1);
                         }
                 }
             }
@@ -331,7 +330,7 @@ public class ElementVisibility {
             }
 
             if (result.type != ElementVisibility.NodeType.TERM && result.children.size() < 2) {
-                throw new PatternSyntaxException("missing term", new String(expression, StandardCharsets.UTF_8), this.index);
+                throw new PatternSyntaxException("missing term", new String(expression, UTF_8), this.index);
             } else {
                 return result;
             }

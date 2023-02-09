@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ByteEntityRangeElementPropertyFilterIterator.class);
 
     // This converter does not have the schema so not all converter methods can be used.
-    private ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(null);
+    private final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(null);
     private boolean edges = false;
     private boolean entities = false;
     private boolean unDirectedEdges = false;
@@ -102,14 +102,10 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
     }
 
     private boolean checkDirection(final byte flag) {
-        if (incomingEdges) {
-            if (flag == ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE) {
-                return false;
-            }
-        } else if (outgoingEdges) {
-            if (flag == ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE) {
-                return false;
-            }
+        if (incomingEdges && flag == ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE) {
+            return false;
+        } else if (outgoingEdges && flag == ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE) {
+            return false;
         }
         return true;
     }

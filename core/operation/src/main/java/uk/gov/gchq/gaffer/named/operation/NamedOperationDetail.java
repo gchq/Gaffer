@@ -49,6 +49,7 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonDeserialize(builder = NamedOperationDetail.Builder.class)
+@SuppressWarnings("PMD.ImmutableField") //False positives
 public class NamedOperationDetail implements AccessControlledResource, Serializable {
 
     private static final long serialVersionUID = -8831783492657131469L;
@@ -195,7 +196,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
                     opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
                             new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
                 } catch (final SerialisationException | UnsupportedEncodingException e) {
-                    throw new IllegalArgumentException(e.getMessage());
+                    throw new IllegalArgumentException(e.getMessage(), e);
                 }
             }
         }
@@ -204,7 +205,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         try {
             opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChainDAO.class);
         } catch (final Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
 
         return opChain;
@@ -246,7 +247,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
                         throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
                     }
                 } catch (final SerialisationException | UnsupportedEncodingException e) {
-                    throw new IllegalArgumentException(e.getMessage());
+                    throw new IllegalArgumentException(e.getMessage(), e);
                 }
             }
         }
@@ -256,7 +257,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         try {
             opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChainDAO.class);
         } catch (final Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
 
         return opChain;
@@ -463,7 +464,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
             try {
                 return new String(JSONSerialiser.serialise(pojo), Charset.forName(CHARSET_NAME));
             } catch (final SerialisationException se) {
-                throw new IllegalArgumentException(se.getMessage());
+                throw new IllegalArgumentException(se.getMessage(), se);
             }
         }
     }

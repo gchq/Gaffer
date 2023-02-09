@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,11 +97,9 @@ public class NamedView extends View {
     @Override
     public boolean canMerge(final View addingView, final View srcView) {
         if (addingView instanceof NamedView && !(srcView instanceof NamedView)) {
-            if (((NamedView) addingView).getName() != null) {
-                if (!((NamedView) addingView).getName().isEmpty()) {
-                    return false;
-                }
-            }
+            final String addingViewName = ((NamedView) addingView).getName();
+            // False if there is a name which is not empty, True otherwise
+            return !(addingViewName != null && !addingViewName.isEmpty());
         }
         return true;
     }

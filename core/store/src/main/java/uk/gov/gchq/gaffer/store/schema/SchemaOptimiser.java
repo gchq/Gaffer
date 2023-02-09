@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,10 +128,8 @@ public class SchemaOptimiser {
         }
         for (final String typeName : otherTypes) {
             final TypeDefinition typeDef = types.get(typeName);
-            if (null != typeDef) {
-                if (null == typeDef.getSerialiser()) {
-                    typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), false, false));
-                }
+            if (typeDef != null && typeDef.getSerialiser() == null) {
+                typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), false, false));
             }
         }
     }

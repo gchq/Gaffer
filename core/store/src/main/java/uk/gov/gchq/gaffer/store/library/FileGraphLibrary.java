@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -123,7 +123,7 @@ public class FileGraphLibrary extends GraphLibrary {
                                   final StoreProperties properties) {
         if (null != properties) {
             Boolean dirCreated = getPropertiesPath(propertiesId).toFile().getParentFile().mkdirs();
-            try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
+            try (OutputStream propertiesFileOutputStream = Files.newOutputStream(getPropertiesPath(propertiesId))) {
                 properties.getProperties().store(propertiesFileOutputStream, null);
             } catch (final IOException e) {
                 throw new IllegalArgumentException(String.format("Could not write properties to path: %s. Directory created: %s",
@@ -141,7 +141,7 @@ public class FileGraphLibrary extends GraphLibrary {
         try {
             return path.toFile().exists() ? Files.readAllBytes(path) : null;
         } catch (final IOException e) {
-            throw new SchemaException("Unable to read schema bytes from file: " + getSchemaPath(graphId));
+            throw new SchemaException("Unable to read schema bytes from file: " + getSchemaPath(graphId), e);
         }
     }
 

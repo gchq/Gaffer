@@ -57,6 +57,7 @@ public class ImportExportIT extends AbstractStoreIT {
     Path tempDir;
 
     @Override
+    @SuppressWarnings("PMD.PreserveStackTrace") //Cannot be done in this case
     public void _setup() throws Exception {
         try {
             path = tempDir.resolve("outputFile.csv");

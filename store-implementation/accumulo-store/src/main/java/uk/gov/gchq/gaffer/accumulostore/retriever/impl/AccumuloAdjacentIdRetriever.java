@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,6 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentIds, EntityId> {
@@ -220,10 +219,8 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
 
         @Override
         public EntityId next() {
-            if (isNull(nextId)) {
-                if (!hasNext()) {
+            if (nextId == null && !hasNext()) {
                     throw new NoSuchElementException();
-                }
             }
             final EntityId nextReturn = nextId;
             nextId = null;
@@ -245,7 +242,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         ranges.addAll(rangeFactory.getRange(seed, operation));
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "PMD.UseTryWithResources"})
     private Set<String> getGroupsWithTransforms(final View view) {
         final Set<String> groups = new HashSet<>();
 
@@ -253,10 +250,8 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         try {
             chainedIterable = new ChainedIterable<>(view.getEntities().entrySet(), view.getEdges().entrySet());
             for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
-                if (nonNull(entry.getValue())) {
-                    if (entry.getValue().hasPostTransformFilters()) {
-                        groups.add(entry.getKey());
-                    }
+                if (entry.getValue() != null && entry.getValue().hasPostTransformFilters()) {
+                    groups.add(entry.getKey());
                 }
             }
         } finally {

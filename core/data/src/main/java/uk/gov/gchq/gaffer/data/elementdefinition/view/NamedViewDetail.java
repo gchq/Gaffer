@@ -124,7 +124,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
             try {
                 this.view = new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
             } catch (final SerialisationException se) {
-                throw new IllegalArgumentException(se.getMessage());
+                throw new IllegalArgumentException(se.getMessage(), se);
             }
         } else {
             throw new IllegalArgumentException("View cannot be null");
@@ -201,7 +201,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
                     viewStringWithDefaults = viewStringWithDefaults.replace(buildParamNameString(paramKey),
                             StringUtil.toString(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue())));
                 } catch (final SerialisationException e) {
-                    throw new IllegalArgumentException(e.getMessage());
+                    throw new IllegalArgumentException(e.getMessage(), e);
                 }
             }
         }
@@ -245,7 +245,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
                 viewString = viewString.replace(buildParamNameString(paramKey),
                         StringUtil.toString(JSONSerialiser.serialise(paramValueObj)));
             } catch (final SerialisationException e) {
-                throw new IllegalArgumentException(e.getMessage());
+                throw new IllegalArgumentException(e.getMessage(), e);
             }
         }
 
@@ -254,7 +254,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
         try {
             view = JSONSerialiser.deserialise(StringUtil.toBytes(viewString), View.class);
         } catch (final Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
         return view;
     }
@@ -379,7 +379,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
                     this.view = new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
                     return this;
                 } catch (final SerialisationException se) {
-                    throw new IllegalArgumentException(se.getMessage());
+                    throw new IllegalArgumentException(se.getMessage(), se);
                 }
             } else {
                 throw new IllegalArgumentException("View cannot be null");

@@ -252,10 +252,9 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                     }
                 }
                 for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                    if (!aggregatorProperties.contains(entry.getKey())) {
-                        if (!groupBy.contains(entry.getKey()) && !entry.getKey().equals(schemaReference.getVisibilityProperty())) {
-                            addTypeAggregateFunction(ingestAggregatorCache, entry.getKey(), entry.getValue());
-                        }
+                    if (!aggregatorProperties.contains(entry.getKey()) && !groupBy.contains(entry.getKey())
+                            && !entry.getKey().equals(schemaReference.getVisibilityProperty())) {
+                        addTypeAggregateFunction(ingestAggregatorCache, entry.getKey(), entry.getValue());
                     }
                 }
             }
@@ -356,13 +355,10 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         typeNames.addAll(properties.values());
         for (final String typeName : typeNames) {
             final TypeDefinition typeDef = getTypeDef(typeName);
-            if (null != typeDef) {
-                if (null != typeDef.getValidateFunctions() && !typeDef.getValidateFunctions().isEmpty()) {
-                    return true;
-                }
+            if (typeDef != null && typeDef.getValidateFunctions() != null && !typeDef.getValidateFunctions().isEmpty()) {
+                return true;
             }
         }
-
         return false;
     }
 

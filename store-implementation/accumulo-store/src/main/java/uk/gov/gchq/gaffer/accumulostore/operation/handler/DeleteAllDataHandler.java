@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ public class DeleteAllDataHandler implements OperationHandler<DeleteAllData> {
 
 
     @Override
+    @SuppressWarnings("PMD.PreserveStackTrace") //False Positive
     public Object doOperation(final DeleteAllData operation, final Context context, final Store store) throws OperationException {
         try {
             final String removeId = store.getGraphId();

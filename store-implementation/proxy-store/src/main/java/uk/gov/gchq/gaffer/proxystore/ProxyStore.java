@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -264,7 +264,7 @@ public class ProxyStore extends Store {
                 error = JSONSerialiser.deserialise(StringUtil.toBytes(outputJson), Error.class);
             } catch (final Exception e) {
                 LOGGER.warn("Gaffer bad status {}. Detail: {}", response.getStatus(), outputJson);
-                throw new StoreException(String.format("Delegate Gaffer store returned status: %s. Response content was: %s", response.getStatus(), outputJson));
+                throw new StoreException(String.format("Delegate Gaffer store returned status: %s. Response content was: %s", response.getStatus(), outputJson), e);
             }
             throw new GafferWrappedErrorRuntimeException(error);
         }
@@ -360,7 +360,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>(opChainValidator, opChainOptimisers);
+        return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
     }
 
     protected Client createClient() {

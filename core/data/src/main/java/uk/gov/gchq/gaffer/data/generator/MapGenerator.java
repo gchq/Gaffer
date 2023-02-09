@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,8 +117,8 @@ public class MapGenerator implements OneToOneObjectGenerator<Map<String, Object>
     }
 
     public static class Builder {
-        private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
-        private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
+        private final LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+        private final LinkedHashMap<String, String> constants = new LinkedHashMap<>();
 
         /**
          * Stores the group of an {@link Element}.

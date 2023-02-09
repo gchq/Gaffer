@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,6 +134,7 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
     }
 
     @Override
+    @SuppressWarnings("PMD.UseTryWithResources")
     public Iterator<E> iterator() {
         if (backingMap.isEmpty()) {
             return Collections.emptyIterator();

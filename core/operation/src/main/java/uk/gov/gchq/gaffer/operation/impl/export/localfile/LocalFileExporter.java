@@ -56,7 +56,7 @@ public class LocalFileExporter implements Exporter {
                 linesFromFile = reader.lines().collect(Collectors.toList());
             }
         } catch (final IOException e) {
-            throw new OperationException(e.getMessage());
+            throw new OperationException(e.getMessage(), e);
         }
         return linesFromFile;
     }

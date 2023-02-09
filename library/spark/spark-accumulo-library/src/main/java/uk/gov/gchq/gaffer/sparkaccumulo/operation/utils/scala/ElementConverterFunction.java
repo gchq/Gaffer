@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala;
 
 import org.apache.accumulo.core.data.Key;
@@ -34,7 +35,7 @@ import java.io.Serializable;
 public class ElementConverterFunction extends AbstractFunction1<Element, TraversableOnce<Tuple2<Key, Value>>> implements Serializable {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ElementConverterFunction.class);
     private static final long serialVersionUID = 2359835481339851648L;
-    private Broadcast<AccumuloElementConverter> converterBroadcast;
+    private final Broadcast<AccumuloElementConverter> converterBroadcast;
 
     public ElementConverterFunction(final Broadcast<AccumuloElementConverter> converterBroadcast) {
         this.converterBroadcast = converterBroadcast;

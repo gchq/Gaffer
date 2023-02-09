@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,10 +34,10 @@ import java.util.List;
 @JsonDeserialize(builder = ParameterDetail.Builder.class)
 public class ParameterDetail implements Serializable {
     private static final long serialVersionUID = -883113279877131469L;
-    private String description;
-    private Object defaultValue;
-    private Class valueClass;
-    private boolean required;
+    private final String description;
+    private final Object defaultValue;
+    private final Class valueClass;
+    private final boolean required;
     private List options;
 
     public ParameterDetail(final String description, final Class clazz, final boolean required, final Object defaultValue, final List options) {

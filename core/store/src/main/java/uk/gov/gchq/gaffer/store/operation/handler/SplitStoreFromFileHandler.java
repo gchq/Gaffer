@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.apache.commons.io.FileUtils;
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.store.Store;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class SplitStoreFromFileHandler implements OperationHandler<SplitStoreFromFile> {
@@ -52,7 +54,7 @@ public class SplitStoreFromFileHandler implements OperationHandler<SplitStoreFro
         }
 
         try {
-            return FileUtils.readLines(file);
+            return FileUtils.readLines(file, StandardCharsets.UTF_8);
         } catch (final IOException e) {
             throw new OperationException("Unable to read splits from file: " + operation.getInputPath(), e);
         }

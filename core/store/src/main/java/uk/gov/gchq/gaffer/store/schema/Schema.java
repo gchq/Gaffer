@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -199,10 +199,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public boolean hasValidation() {
         for (final SchemaElementDefinition elementDef : new ChainedIterable<SchemaElementDefinition>(getEntities().values(), getEdges().values())) {
-            if (null != elementDef) {
-                if (elementDef.hasValidation()) {
-                    return true;
-                }
+            if (elementDef != null && elementDef.hasValidation()) {
+                return true;
             }
         }
         return false;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -60,15 +62,15 @@ public class ExampleGeneratorTest {
     @BeforeEach
     public void before(@TempDir Path tempDir) throws IllegalAccessException, NoSuchFieldException, IOException {
         final File storePropertiesFile = Files.createFile(tempDir.resolve("store.properties")).toFile();
-        FileUtils.writeLines(storePropertiesFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "store.properties")));
+        FileUtils.writeLines(storePropertiesFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "store.properties"), StandardCharsets.UTF_8));
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropertiesFile.getAbsolutePath());
 
         final File schemaFile = Files.createFile(tempDir.resolve("schema.json")).toFile();
-        FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "/schema/schema.json")));
+        FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "/schema/schema.json"), StandardCharsets.UTF_8));
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
 
         final File graphConfigFile = Files.createFile(tempDir.resolve("graphConfig.json")).toFile();
-        FileUtils.writeLines(graphConfigFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "graphConfig.json")));
+        FileUtils.writeLines(graphConfigFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "graphConfig.json"), StandardCharsets.UTF_8));
         System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigFile.getAbsolutePath());
 
         // Manually inject GraphFactory

@@ -219,7 +219,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         final boolean rtn;
         if (this == o) {
             rtn = true;
-        } else if (o == null || !(o instanceof FederatedOperation)) {
+        } else if (!(o instanceof FederatedOperation)) {
             rtn = false;
         } else {
             FederatedOperation that = (FederatedOperation) o;
@@ -327,6 +327,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     }
 
+    @SuppressWarnings("PMD.UselessOverridingMethod") //False positive - Generics are different
     public abstract static class BuilderParent<INPUT, OUTPUT> extends IFederationOperation.BaseBuilder<FederatedOperation<INPUT, OUTPUT>, BuilderParent<INPUT, OUTPUT>> {
         public BuilderParent(final FederatedOperation<INPUT, OUTPUT> fedOp) {
             super(fedOp);

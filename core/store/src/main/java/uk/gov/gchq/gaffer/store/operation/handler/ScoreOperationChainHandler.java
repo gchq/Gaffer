@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,10 +97,8 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         Integer maxUserScore = 0;
         for (final String opAuth : opAuths) {
             Integer authScore = authScores.get(opAuth);
-            if (null != authScore) {
-                if (authScore > maxUserScore) {
-                    maxUserScore = authScore;
-                }
+            if (authScore != null  && (authScore > maxUserScore)) {
+                maxUserScore = authScore;
             }
         }
         LOGGER.debug("Returning users max operation chain limit score of {}", maxUserScore);

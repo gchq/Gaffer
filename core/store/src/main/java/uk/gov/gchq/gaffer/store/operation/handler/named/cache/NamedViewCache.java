@@ -98,7 +98,7 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
      */
     public NamedViewDetail getNamedView(final String name, final User user, final String adminAuth)
             throws CacheOperationException {
-        if (Objects.nonNull(name)) {
+        if (nonNull(name)) {
             final NamedViewDetail namedViewDetail = getFromCache(name);
             if (namedViewDetail.hasReadAccess(user, adminAuth)) {
                 return namedViewDetail;
@@ -214,7 +214,7 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
             addToCache(namedViewDetail, false);
             return;
         }
-        if (Objects.nonNull(user)) {
+        if (nonNull(user)) {
             if (existing.hasWriteAccess(user, adminAuth)) {
                 addToCache(namedViewDetail, true);
             } else {
@@ -244,7 +244,7 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
         } catch (final CacheOperationException e) {
             return;
         }
-        if (Objects.nonNull(user)) {
+        if (nonNull(user)) {
             if (existing.hasWriteAccess(user, adminAuth)) {
                 deleteFromCache(name);
             } else {

@@ -164,7 +164,7 @@ public class ElementPropertyComparator implements ElementComparator {
 
     public static class Builder {
 
-        private ElementPropertyComparator comparator = new ElementPropertyComparator();
+        private final ElementPropertyComparator comparator = new ElementPropertyComparator();
 
         public ElementPropertyComparator build() {
             return comparator;

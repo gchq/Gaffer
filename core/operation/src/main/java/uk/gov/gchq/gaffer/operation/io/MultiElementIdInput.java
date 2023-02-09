@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public interface MultiElementIdInput extends MultiInput<ElementId> {
      */
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonSetter("input")
-    default void setInputFromVerticesAndIds(final Object[] input) {
+    default void setInputFromVerticesAndIds(final Object... input) {
         setInput(OperationUtil.toElementIds(input));
     }
 
