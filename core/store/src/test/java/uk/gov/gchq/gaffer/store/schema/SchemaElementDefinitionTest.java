@@ -36,6 +36,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import java.util.Collections;
 import java.util.Date;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,13 +60,22 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         final T elementDef = createBuilder().build();
 
         // When / Then
-        try {
-            elementDef.getPropertyMap()
-                    .put("new property", "string");
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> elementDef.getPropertyMap().put("new property", "string"))
+                .isNotNull();
+    }
+
+    @Test
+    public void shouldReturnPropertiesOrdered() {
+        // Given
+        final T elementDef = createBuilder()
+                .property("property", PROPERTY_STRING_TYPE)
+                .property("property2", PROPERTY_STRING_TYPE)
+                .property("property1", PROPERTY_STRING_TYPE)
+                .build();
+
+        // When / Then
+        assertThat(elementDef.getProperties()).containsExactly("property", "property2", "property1");
     }
 
     @Test
@@ -74,13 +84,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         final T elementDef = createBuilder().build();
 
         // When / Then
-        try {
-            elementDef.getIdentifierMap()
-                    .put(IdentifierType.SOURCE, "string");
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> elementDef.getIdentifierMap().put(IdentifierType.SOURCE, "string"))
+                .isNotNull();
     }
 
     @Test
@@ -97,6 +103,17 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
     }
 
     @Test
+    public void shouldReturnGroupByOrdered() {
+        // Given
+        final T elementDef = createBuilder()
+                .groupBy("property", "property2", "property1")
+                .build();
+
+        // When / Then
+        assertThat(elementDef.getGroupBy()).containsExactly("property", "property2", "property1");
+    }
+
+    @Test
     public void shouldNotBeAbleToModifyParentsOnceBuilt() {
         // Given
         final T elementDef = createBuilder()
@@ -108,6 +125,19 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertThatExceptionOfType(UnsupportedOperationException.class)
                 .isThrownBy(() -> elementDef.getParents().add("parentGroup2"))
                 .isNotNull();
+    }
+
+    @Test
+    public void shouldReturnParentsOrdered() {
+        // Given
+        final T elementDef = createBuilder()
+                .parents("parentGroup")
+                .parents("parentGroup2")
+                .parents("parentGroup1")
+                .build();
+
+        // When / Then
+        assertThat(elementDef.getParents()).containsExactly("parentGroup", "parentGroup2", "parentGroup1");
     }
 
     @Test

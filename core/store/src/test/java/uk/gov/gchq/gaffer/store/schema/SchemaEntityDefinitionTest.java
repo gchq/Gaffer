@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ package uk.gov.gchq.gaffer.store.schema;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.koryphe.ValidationResult;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SchemaEntityDefinitionTest extends SchemaElementDefinitionTest<SchemaEntityDefinition> {
 
@@ -45,8 +44,8 @@ public class SchemaEntityDefinitionTest extends SchemaElementDefinitionTest<Sche
         setupSchema(elementDef);
 
         // Then
-        assertEquals(1, elementDef.getIdentifiers().size());
-        assertEquals("id.integer", elementDef.getVertex());
+        assertThat(elementDef.getIdentifiers()).hasSize(1);
+        assertThat(elementDef.getVertex()).isEqualTo("id.integer");
     }
 
     @Test
@@ -67,7 +66,7 @@ public class SchemaEntityDefinitionTest extends SchemaElementDefinitionTest<Sche
                 .build();
 
         // Then
-        assertEquals("vertex.string", mergedDef.getVertex());
+        assertThat(mergedDef.getVertex()).isEqualTo("vertex.string");
     }
 
     @Test
@@ -88,7 +87,7 @@ public class SchemaEntityDefinitionTest extends SchemaElementDefinitionTest<Sche
         final ValidationResult result = validator.validate(elementDef);
 
         // Then
-        assertTrue(result.isValid());
+        assertThat(result.isValid()).isTrue();
     }
 
     @Test
@@ -109,6 +108,17 @@ public class SchemaEntityDefinitionTest extends SchemaElementDefinitionTest<Sche
         final ValidationResult result = validator.validate(elementDef);
 
         // Then
-        assertFalse(result.isValid());
+        assertThat(result.isValid()).isFalse();
+    }
+
+    @Test
+    public void shouldReturnIdentifiersOrdered() {
+        // Given
+        final SchemaEntityDefinition elementDef = createBuilder()
+                .identifier(IdentifierType.GROUP, PROPERTY_STRING_TYPE)
+                .build();
+
+        // When / Then
+        assertThat(elementDef.getIdentifiers()).containsExactly(IdentifierType.VERTEX, IdentifierType.GROUP);
     }
 }
