@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -166,7 +166,7 @@ public class SchemaElementDefinitionValidator {
         return result;
     }
 
-    private ValidationResult validateDirection(final SchemaElementDefinition elementDef) {
+    protected ValidationResult validateDirection(final SchemaElementDefinition elementDef) {
         final ValidationResult result = new ValidationResult();
         if (elementDef instanceof SchemaEdgeDefinition) {
             if (null == elementDef.getIdentifierTypeName(IdentifierType.DIRECTED)) {
