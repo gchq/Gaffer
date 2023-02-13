@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,16 +114,14 @@ public final class TableUtils {
         }
         try {
             final String namespace = store.getProperties().getNamespace();
-            if (StringUtils.isNotBlank(namespace)) {
-                if (!connector.namespaceOperations().exists(namespace)) {
-                    LOGGER.info("Creating namespace {} as user {}", namespace, connector.whoami());
-                    try {
-                        connector.namespaceOperations().create(namespace);
-                    } catch (final NamespaceExistsException e) {
-                        // This method is synchronised, if you are using the same store only
-                        // through one client in one JVM you shouldn't get here
-                        // Someone else got there first, never mind...
-                    }
+            if (StringUtils.isNotBlank(namespace) && !connector.namespaceOperations().exists(namespace)) {
+                LOGGER.info("Creating namespace {} as user {}", namespace, connector.whoami());
+                try {
+                    connector.namespaceOperations().create(namespace);
+                } catch (final NamespaceExistsException e) {
+                    // This method is synchronised, if you are using the same store only
+                    // through one client in one JVM you shouldn't get here
+                    // Someone else got there first, never mind...
                 }
             }
             LOGGER.info("Creating table {} as user {}", tableName, connector.whoami());
@@ -394,14 +392,11 @@ public final class TableUtils {
         boolean bloomFilterEnabled = false;
         String bloomKeyFunctor = null;
         for (final Map.Entry<String, String> tableProp : tableProps) {
-            if (Property.TABLE_BLOOM_ENABLED.getKey().equals(tableProp.getKey())) {
-                if (Boolean.parseBoolean(tableProp.getValue())) {
-                    bloomFilterEnabled = true;
-                }
-            } else if (Property.TABLE_BLOOM_KEY_FUNCTOR.getKey().equals(tableProp.getKey())) {
-                if (null == bloomKeyFunctor || CoreKeyBloomFunctor.class.getName().equals(tableProp.getValue())) {
-                    bloomKeyFunctor = tableProp.getValue();
-                }
+            if (Property.TABLE_BLOOM_ENABLED.getKey().equals(tableProp.getKey()) && Boolean.parseBoolean(tableProp.getValue())) {
+                bloomFilterEnabled = true;
+            } else if (Property.TABLE_BLOOM_KEY_FUNCTOR.getKey().equals(tableProp.getKey())
+                    && (bloomKeyFunctor == null || CoreKeyBloomFunctor.class.getName().equals(tableProp.getValue()))) {
+                bloomKeyFunctor = tableProp.getValue();
             }
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,11 @@ import org.apache.hadoop.mapreduce.Partitioner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Scanner;
@@ -113,14 +112,14 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
         return cutPointArray;
     }
 
-    @SuppressFBWarnings("DM_DEFAULT_ENCODING")
+    @SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "False positive + charset as charset not supported for Scanner in Java 8")
     private Scanner openCutPointsStream(final Path path) throws IOException {
         try {
             // Original way of opening the file
-            return new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(path.toUri().getPath()), UTF_8)));
+            return new Scanner(Files.newBufferedReader(Paths.get(path.toUri().getPath()), UTF_8));
         } catch (final IOException e) {
             LOGGER.warn("Failed to open cut points file. Attempting to use configured file system", e);
-            return new Scanner(FileSystem.get(conf).open(path));
+            return new Scanner(FileSystem.get(conf).open(path), UTF_8.toString());
         }
     }
 

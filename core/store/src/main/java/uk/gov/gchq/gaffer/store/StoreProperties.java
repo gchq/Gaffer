@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,6 +178,7 @@ public class StoreProperties implements Cloneable {
         return (T) updateInstanceType(requiredClass, properties);
     }
 
+    @SuppressWarnings("PMD.UseTryWithResources") //Not possible
     public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
         if (null == storePropertiesStream) {
             return new StoreProperties();

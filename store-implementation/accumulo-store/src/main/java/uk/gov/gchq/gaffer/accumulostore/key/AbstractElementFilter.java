@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ import static java.util.Objects.isNull;
  * The AbstractElementFilter will filter out {@link Element}s based on the filtering
  * instructions given in the {@link Schema} or {@link View} that is passed to this iterator.
  */
+@SuppressWarnings("PMD.ImmutableField") //False positive
 public abstract class AbstractElementFilter extends Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractElementFilter.class);
     protected Schema schema;
@@ -171,6 +172,7 @@ public abstract class AbstractElementFilter extends Filter {
         return true;
     }
 
+    @SuppressWarnings("PMD.UseTryWithResources")
     private void updateViewGroupsWithoutFilters(final View view,
                                                 final Function<ViewElementDefinition, Boolean> hasFilters) {
         groupsWithoutFilters = new HashSet<>();
@@ -190,7 +192,7 @@ public abstract class AbstractElementFilter extends Filter {
         LOGGER.debug("The following groups will not be filtered: {}", StringUtils.join(groupsWithoutFilters, ','));
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "PMD.UseTryWithResources"})
     private void updateSchemaGroupsWithoutFilters() {
         groupsWithoutFilters = new HashSet<>();
         ChainedIterable<Entry<String, ? extends SchemaElementDefinition>> chainedIterable = null;

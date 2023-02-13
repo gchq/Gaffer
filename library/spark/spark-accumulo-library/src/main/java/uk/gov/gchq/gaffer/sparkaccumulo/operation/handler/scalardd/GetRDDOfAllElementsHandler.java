@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -184,7 +184,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
 
     public static class EntryIteratorToElementIterator
             extends AbstractFunction1<Iterator<Map.Entry<Key, Value>>, Iterator<Element>> implements Serializable {
-        private byte[] serialisedConf;
+        private final byte[] serialisedConf;
 
         public EntryIteratorToElementIterator(final byte[] serialisedConf) {
             this.serialisedConf = serialisedConf;

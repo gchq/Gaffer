@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore.factory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -37,8 +38,8 @@ public class SimpleMapFactory implements MapFactory {
     private final ElementCloner cloner;
     private Class<? extends Map> mapClass = HashMap.class;
 
-    private Map<String, Map> maps = new HashMap<>();
-    private Map<String, MultiMap> multiMaps = new HashMap<>();
+    private final Map<String, Map> maps = new HashMap<>();
+    private final Map<String, MultiMap> multiMaps = new HashMap<>();
 
     public SimpleMapFactory() {
         this(new ElementCloner());
@@ -59,6 +60,7 @@ public class SimpleMapFactory implements MapFactory {
     }
 
     @Override
+    @SuppressWarnings("PMD.PreserveStackTrace") //Cannot be done in this case
     public <K, V> Map<K, V> getMap(final String mapName, final Class<K> keyClass, final Class<V> valueClass) {
         Map map = maps.get(mapName);
         if (null == map) {

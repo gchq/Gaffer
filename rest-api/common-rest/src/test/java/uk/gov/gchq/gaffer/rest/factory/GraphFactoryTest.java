@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -94,7 +95,7 @@ public class GraphFactoryTest {
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, "store.properties");
 
         final File schemaFile = Files.createFile(tempDir.resolve("schema.json")).toFile();
-        FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "/schema/schema.json")));
+        FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "/schema/schema.json"), StandardCharsets.UTF_8));
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
 
         System.clearProperty(SystemProperty.GRAPH_CONFIG_PATH);
@@ -113,15 +114,15 @@ public class GraphFactoryTest {
             throws IOException {
         // Given
         final File storePropertiesFile = Files.createFile(tempDir.resolve("store.properties")).toFile();
-        FileUtils.writeLines(storePropertiesFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "store.properties")));
+        FileUtils.writeLines(storePropertiesFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "store.properties"), StandardCharsets.UTF_8));
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropertiesFile.getAbsolutePath());
 
         final File schemaFile = Files.createFile(tempDir.resolve("schema.json")).toFile();
-        FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "/schema/schema.json")));
+        FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "/schema/schema.json"), StandardCharsets.UTF_8));
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
 
         final File graphConfigFile = Files.createFile(tempDir.resolve("graphConfig.json")).toFile();
-        FileUtils.writeLines(graphConfigFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphConfigWithHooks.json")));
+        FileUtils.writeLines(graphConfigFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphConfigWithHooks.json"), StandardCharsets.UTF_8));
         System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigFile.getAbsolutePath());
 
         final GraphFactory factory = new DefaultGraphFactory();

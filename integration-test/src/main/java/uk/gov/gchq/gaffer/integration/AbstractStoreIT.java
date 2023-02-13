@@ -82,6 +82,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
  * {@link IntegrationTestSuiteExtension} on initialisation.
  */
 @ExtendWith(IntegrationTestSuiteExtension.class)
+@SuppressWarnings({"PMD.AbstractClassWithoutAbstractMethod", "PMD.EmptyMethodInAbstractClassShouldBeAbstract"}) //Class is not particularly abstract
 public abstract class AbstractStoreIT {
     protected static final int DUPLICATES = 2;
 
@@ -168,7 +169,7 @@ public abstract class AbstractStoreIT {
     }
 
     protected void _setup() throws Exception {
-        // Override if required;
+        // Override if required
     }
 
     protected void initialise(final TestInfo testInfo) throws Exception {
@@ -515,7 +516,7 @@ public abstract class AbstractStoreIT {
         try {
             return (T) JSONSerialiser.deserialise(JSONSerialiser.serialise(item), item.getClass());
         } catch (final SerialisationException e) {
-            throw new RuntimeException("Unable to clone item: " + item);
+            throw new RuntimeException("Unable to clone item: " + item, e);
         }
     }
 

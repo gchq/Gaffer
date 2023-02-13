@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public interface MultiInput<I_ITEM> extends Input<Iterable<? extends I_ITEM>> {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonSetter("input")
-    default void setInput(final I_ITEM[] input) {
+    default void setInput(final I_ITEM... input) {
         setInput(Lists.newArrayList(input));
     }
 

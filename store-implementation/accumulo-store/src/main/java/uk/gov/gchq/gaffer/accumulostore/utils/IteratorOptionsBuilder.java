@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ public class IteratorOptionsBuilder {
     private static final String SCHEMA_DESCRIPTION = "Required: The json serialised form of the schema";
     private static final String ACCUMULO_ELEMENT_CONVERTER_CLASS_DESCRIPTION = "Required: The element converter class to be used for key/value conversion";
 
-    private IteratorOptions options;
+    private final IteratorOptions options;
+    @SuppressWarnings("PMD.ImmutableField") //False positive
     private Map<String, String> namedOptions = new HashMap<>();
 
     public IteratorOptionsBuilder(final IteratorOptions options) {

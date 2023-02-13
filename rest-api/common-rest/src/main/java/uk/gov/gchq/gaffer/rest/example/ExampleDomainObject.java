@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class ExampleDomainObject {
     }
 
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Just an example object")
-    public void setIds(final Object[] ids) {
+    public void setIds(final Object... ids) {
         this.ids = ids;
     }
 

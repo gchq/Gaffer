@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,10 +127,8 @@ public class UpdateViewHook implements GraphHook {
         } else {
             remove = false;
         }
-        if (!remove) {
-            if (null != blackListElementGroups) {
-                remove = blackListElementGroups.contains(entry.getKey());
-            }
+        if (!remove && blackListElementGroups != null) {
+            remove = blackListElementGroups.contains(entry.getKey());
         }
         return remove;
     }

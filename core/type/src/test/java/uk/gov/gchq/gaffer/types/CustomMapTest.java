@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSeri
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -104,7 +105,7 @@ public class CustomMapTest {
     }
 
     protected String jsonFromFile(final String path) throws IOException {
-        return String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), path)));
+        return String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), path), StandardCharsets.UTF_8));
     }
 
 }

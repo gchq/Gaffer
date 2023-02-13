@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,7 +160,7 @@ public class OperationChain<OUT> implements Output<OUT>,
     }
 
     @JsonSetter("operations")
-    void setOperationArray(final Operation[] operations) {
+    void setOperationArray(final Operation... operations) {
         if (null != operations) {
             this.operations = Lists.newArrayList(operations);
         } else {
@@ -213,7 +213,7 @@ public class OperationChain<OUT> implements Output<OUT>,
     @Override
     public boolean equals(final Object obj) {
         boolean isEqual = false;
-        if (null != obj && obj instanceof OperationChain) {
+        if (obj instanceof OperationChain) {
             final OperationChain that = (OperationChain) obj;
 
             isEqual = new EqualsBuilder()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,7 +193,7 @@ public class GraphSerialisable implements Serializable {
                 try {
                     storeProperties = null != serialisedProperties ? StoreProperties.loadStoreProperties(JSONSerialiser.deserialise(serialisedProperties, Properties.class)) : null;
                 } catch (final SerialisationException e) {
-                    throw new GafferRuntimeException("Unable to deserialise properties");
+                    throw new GafferRuntimeException("Unable to deserialise properties", e);
                 }
             } else {
                 storeProperties = graph.getStoreProperties();

@@ -83,9 +83,9 @@ public class CustomMapSerialiser implements ToBytesSerialiser<CustomMap> {
 
     private static class CustomMapInterim implements Serializable {
         private static final long serialVersionUID = 8084628302737276436L;
-        private ToBytesSerialiser keySerialiser;
-        private ToBytesSerialiser valueSerialiser;
-        private byte[] byteMap;
+        private final ToBytesSerialiser keySerialiser;
+        private final ToBytesSerialiser valueSerialiser;
+        private final byte[] byteMap;
 
         CustomMapInterim(final ToBytesSerialiser keySerialiser, final ToBytesSerialiser valueSerialiser, final byte[] byteMap) throws NullPointerException {
             requireNonNull(keySerialiser, "keySerialier can't be null");

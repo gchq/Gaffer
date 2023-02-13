@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import java.text.ParseException;
 
 public class VisibilityParseException extends ParseException {
     private static final long serialVersionUID = -6515226652254225554L;
-    private String visibility;
+    private final String visibility;
 
     public VisibilityParseException(final String reason, final byte[] visibility, final int errorOffset) {
         super(reason, errorOffset);

@@ -168,10 +168,8 @@ public class SchemaElementDefinitionValidator {
 
     protected ValidationResult validateDirection(final SchemaElementDefinition elementDef) {
         final ValidationResult result = new ValidationResult();
-        if (elementDef instanceof SchemaEdgeDefinition) {
-            if (null == elementDef.getIdentifierTypeName(IdentifierType.DIRECTED)) {
-                LOGGER.warn("Edge definition does not have directed set.");
-            }
+        if (elementDef instanceof SchemaEdgeDefinition && elementDef.getIdentifierTypeName(IdentifierType.DIRECTED) == null) {
+            LOGGER.warn("Edge definition does not have directed set.");
         }
         return result;
     }
@@ -301,6 +299,7 @@ public class SchemaElementDefinitionValidator {
     }
 
     @Override
+    @SuppressWarnings("PMD.UselessOverridingMethod")
     public int hashCode() {
         return super.hashCode();
     }

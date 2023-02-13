@@ -81,7 +81,7 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
         try {
             addToCache(graphId, pair, overwrite);
         } catch (final CacheOperationException e) {
-            throw new CacheOperationException(String.format(ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S, graphId), e.getCause());
+            throw new CacheOperationException(String.format(ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S, graphId), e);
         }
     }
 
