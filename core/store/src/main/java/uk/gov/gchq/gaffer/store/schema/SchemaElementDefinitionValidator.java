@@ -63,9 +63,7 @@ public class SchemaElementDefinitionValidator {
         result.add(validateFunctionArgumentTypes(aggregator, elementDef));
         result.add(validateRequiredParameters(elementDef));
         result.add(validatePropertyNames(elementDef));
-        // Currently removed as it will cause breaking changes
-        // TODO - re-add this on a major version release
-        //result.add(validateDirection(elementDef));
+        result.add(validateDirection(elementDef));
 
         return result;
     }
@@ -168,10 +166,10 @@ public class SchemaElementDefinitionValidator {
         return result;
     }
 
-    private ValidationResult validateDirection(final SchemaElementDefinition elementDef) {
+    protected ValidationResult validateDirection(final SchemaElementDefinition elementDef) {
         final ValidationResult result = new ValidationResult();
         if (elementDef instanceof SchemaEdgeDefinition && elementDef.getIdentifierTypeName(IdentifierType.DIRECTED) == null) {
-            result.addError("\"directed\" must be set");
+            LOGGER.warn("Edge definition does not have directed set.");
         }
         return result;
     }

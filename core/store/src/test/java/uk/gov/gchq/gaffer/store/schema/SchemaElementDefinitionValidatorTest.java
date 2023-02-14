@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -623,5 +623,18 @@ public class SchemaElementDefinitionValidatorTest {
                 "Unknown property used in an aggregator: " + TestPropertyNames.PROP_1
                 ),
                 result.getErrors());
+    }
+
+    @Test
+    public void shouldValidateAndReturnTrueWhenEdgeDirectionUnset() {
+        // Given
+        final SchemaEdgeDefinition elementDef = mock(SchemaEdgeDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        // When
+        final ValidationResult result = validator.validateDirection(elementDef);
+
+        // Then
+        assertTrue(result.isValid());
     }
 }
