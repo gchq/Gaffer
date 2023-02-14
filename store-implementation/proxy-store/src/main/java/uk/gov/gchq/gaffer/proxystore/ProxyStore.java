@@ -297,12 +297,6 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    @Deprecated
-    public Schema getSchema() {
-        return schema;
-    }
-
-    @Override
     public Set<StoreTrait> getTraits() {
         try {
             return fetchTraits();

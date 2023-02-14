@@ -433,7 +433,13 @@ public final class Graph {
     }
 
     /**
-     * @return the original schema.
+     * Get the Store's original {@link Schema}.
+     *
+     * This is not the same as the {@link Schema} used internally by
+     * the {@link Store}. See {@link Store#getOriginalSchema()} and
+     * {@link Store#getSchema()} for more details.
+     *
+     * @return the original {@link Schema} used to create this graph
      */
     public Schema getSchema() {
         return store.getOriginalSchema();
@@ -845,6 +851,9 @@ public final class Graph {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
             }
 
+            // Set the original schema used to create the graph.
+            // This is stored inside the Store but is primarily
+            // used by this class.
             store.setOriginalSchema(schema);
 
             return new Graph(config, store);

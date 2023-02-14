@@ -324,32 +324,32 @@ public class FederatedStore extends Store {
     }
 
     /**
+     * Get {@link Schema} for this FederatedStore
+     *
      * @return schema
-     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetSchema Operation.
      */
     @Override
-    @Deprecated
     public Schema getSchema() {
         return getSchema((Context) null);
     }
 
     /**
+     * Get {@link Schema} for this FederatedStore
+     *
      * @param context context with User.
      * @return schema
-     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetSchema Operation.
      */
-    @Deprecated
     public Schema getSchema(final Context context) {
         return getSchema(getFederatedWrappedSchema(), context);
     }
 
     /**
+     * Get {@link Schema} for this FederatedStore
+     *
      * @param operation operation with graphIds.
      * @param context   context with User.
      * @return schema
-     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetSchema Operation.
      */
-    @Deprecated
     public Schema getSchema(final FederatedOperation operation, final Context context) {
         return graphStorage.getSchema(operation, context);
     }
