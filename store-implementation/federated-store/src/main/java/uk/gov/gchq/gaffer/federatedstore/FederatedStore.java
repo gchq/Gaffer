@@ -324,15 +324,26 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * Get {@link Schema} for this FederatedStore
+     * Get {@link Schema} for this FederatedStore.
      *
-     * @return schema
+     * This will return a merged schema of the optimised compact
+     * schemas of the stores inside this FederatedStore.
+     *
+     * @return {@link Schema} of merged optimised compact schemas
      */
     @Override
     public Schema getSchema() {
         return getSchema(new Context(), true);
     }
 
+    /**
+     * Get original {@link Schema} for this FederatedStore.
+     *
+     * This will return a merged schema of the original schemas
+     * of the stores inside this FederatedStore.
+     *
+     * @return {@link Schema} of merged original schemas
+     */
     @Override
     public Schema getOriginalSchema() {
         return getSchema(new Context(), false);
