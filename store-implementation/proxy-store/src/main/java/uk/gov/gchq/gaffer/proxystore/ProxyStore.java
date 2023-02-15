@@ -310,7 +310,6 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    @Deprecated
     public Schema getSchema() {
         try {
             return fetchSchema();
