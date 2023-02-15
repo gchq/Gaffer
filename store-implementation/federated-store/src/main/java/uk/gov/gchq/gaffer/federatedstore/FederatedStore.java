@@ -342,11 +342,11 @@ public class FederatedStore extends Store {
      * Get {@link Schema} for this FederatedStore
      *
      * @param context context with User.
-     * @param getOptimisedSchema use the optimisedSchema flag
+     * @param getCompactSchema use the compact flag of the getSchema Operation
      * @return schema
      */
-    public Schema getSchema(final Context context, final boolean getOptimisedSchema) {
-        return getSchema(getFederatedWrappedSchema(getOptimisedSchema), context);
+    public Schema getSchema(final Context context, final boolean getCompactSchema) {
+        return getSchema(getFederatedWrappedSchema(getCompactSchema), context);
     }
 
     /**
