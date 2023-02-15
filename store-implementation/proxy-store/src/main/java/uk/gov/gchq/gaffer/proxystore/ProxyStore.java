@@ -158,20 +158,35 @@ public class ProxyStore extends Store {
         return newTraits;
     }
 
-    protected Schema fetchSchema() throws OperationException {
-        return fetchSchema(true);
-    }
-
-    protected Schema fetchSchema(final boolean getOptimisedSchema) throws OperationException {
+    protected Schema fetchSchema(final boolean getCompactSchema) throws OperationException {
         final GetSchema.Builder getSchema = new GetSchema.Builder();
-        getSchema.option("UnsupportedGetOptimisedSchema", String.valueOf(getOptimisedSchema));
+        getSchema.compact(getCompactSchema);
         return executeOpChainViaUrl(new OperationChain<>(getSchema.build()), new Context());
     }
 
+    /**
+     * Get original {@link Schema} from the remote Store.
+     *
+     * @return original {@link Schema}
+     */
     @Override
     public Schema getOriginalSchema() {
         try {
             return fetchSchema(false);
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException(ERROR_FETCHING_SCHEMA_FROM_REMOTE_STORE, e);
+        }
+    }
+
+    /**
+     * Get {@link Schema} from the remote Store.
+     *
+     * @return optimised compact {@link Schema}
+     */
+    @Override
+    public Schema getSchema() {
+        try {
+            return fetchSchema(true);
         } catch (final OperationException e) {
             throw new GafferRuntimeException(ERROR_FETCHING_SCHEMA_FROM_REMOTE_STORE, e);
         }
@@ -307,15 +322,6 @@ public class ProxyStore extends Store {
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(OperationChain.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
         addOperationHandler(OperationChainDAO.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
-    }
-
-    @Override
-    public Schema getSchema() {
-        try {
-            return fetchSchema();
-        } catch (final OperationException e) {
-            throw new GafferRuntimeException(ERROR_FETCHING_SCHEMA_FROM_REMOTE_STORE, e);
-        }
     }
 
     @Override

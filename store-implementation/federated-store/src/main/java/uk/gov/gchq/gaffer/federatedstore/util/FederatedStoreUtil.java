@@ -280,10 +280,10 @@ public final class FederatedStoreUtil {
         return deprecatedGraphIds;
     }
 
-    @Deprecated
     public static FederatedOperation<Void, Iterable<Schema>> getFederatedWrappedSchema() {
         return getFederatedWrappedSchema(false);
     }
+
     public static FederatedOperation<Void, Iterable<Schema>> getFederatedWrappedSchema(final boolean getCompactSchema) {
         final GetSchema.Builder getSchema = new GetSchema.Builder();
         getSchema.compact(getCompactSchema);
