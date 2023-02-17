@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
             return (op instanceof FederatedOperation)
                     ? store.execute(new FederatedOperation.Builder().<Void, Schema>op(new GetSchema()).graphIds(((FederatedOperation<?, ?>) op).getGraphIds()).build(), new Context(user))
                     : store.execute(new GetSchema(), new Context(user));
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new GafferRuntimeException("Unable to execute GetSchema Operation", e);
         }
     }

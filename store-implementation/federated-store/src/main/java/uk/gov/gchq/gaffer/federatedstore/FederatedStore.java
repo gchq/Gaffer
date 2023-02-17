@@ -367,7 +367,7 @@ public class FederatedStore extends Store {
         getSchema.compact(getCompactSchema);
         try {
             return execute(getSchema.build(), context);
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new GafferRuntimeException("Unable to execute GetSchema Operation", e);
         }
     }

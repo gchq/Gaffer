@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,11 +56,26 @@ import java.util.stream.Collectors;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.*;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.DEST_BASIC;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_A;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_B;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_C;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_EDGE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_2;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SOURCE_BASIC;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.VALUE_1;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.VALUE_2;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.property;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
-import static uk.gov.gchq.gaffer.user.StoreUser.ALL_USERS;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
@@ -908,7 +923,7 @@ public class FederatedStoreSchemaTest {
         addGraphWith(GRAPH_ID_B, stringSchema, PROPERTY_1, PROPERTY_2);
     }
 
-    private AddGraph.Builder getAddGraphBuilder(final String graphId, final Schema stringType, final String edgeGroup, final String... property){
+    private AddGraph.Builder getAddGraphBuilder(final String graphId, final Schema stringType, final String edgeGroup, final String... property) {
         return new AddGraph.Builder()
                 .graphId(graphId)
                 .schema(new Schema.Builder()
