@@ -234,35 +234,6 @@ public class FederatedGraphStorage {
         return Collections.unmodifiableList(rtn);
     }
 
-    @Deprecated
-    public Schema getSchema(final FederatedOperation<Void, Object> operation, final Context context) {
-        if (null == context || null == context.getUser()) {
-            // no user then return an empty schema
-            return new Schema();
-        }
-        if (operation != null && !operation.payloadInstanceOf(GetSchema.class)) {
-            throw new GafferRuntimeException(String.format("Incorrect FederatedOperation payload, requires GetSchema operation, instead found: %s", operation.getPayloadClass()));
-        }
-        final List<String> graphIds = isNull(operation) ? null : operation.getGraphIds();
-
-        final Stream<GraphSerialisable> graphs = getStream(context.getUser(), graphIds);
-        final Builder schemaBuilder = new Builder();
-        try {
-            final GetSchema op = isNull(operation) ? new GetSchema() : (GetSchema) operation.getPayloadOperation();
-            graphs.forEach(g -> {
-                try {
-                    schemaBuilder.merge(g.getGraph().execute(op, context));
-                } catch (final Exception e) {
-                    throw new GafferRuntimeException("Unable to fetch schema from graph " + g.getGraphId(), e);
-                }
-            });
-        } catch (final SchemaException e) {
-            final List<String> resultGraphIds = getStream(context.getUser(), graphIds).map(GraphSerialisable::getGraphId).collect(Collectors.toList());
-            throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the FederatedOperation.graphIds option.", e);
-        }
-        return schemaBuilder.build();
-    }
-
     private void validateAllGivenGraphIdsAreVisibleForUser(final User user, final Collection<String> graphIds, final String adminAuth) {
         if (null != graphIds) {
             final Collection<String> visibleIds = getAllIds(user, adminAuth);

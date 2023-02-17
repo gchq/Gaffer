@@ -58,6 +58,7 @@ import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.MergeSchema;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
@@ -108,7 +109,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBL
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.STORE_CONFIGURED_GRAPHIDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.STORE_CONFIGURED_MERGE_FUNCTIONS;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.loadStoreConfiguredGraphIdsListFrom;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.loadStoreConfiguredMergeFunctionMapFrom;
 
@@ -324,25 +324,27 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * Get {@link Schema} for this FederatedStore.
+     * This method exists for compatibility only. It will
+     * always return a blank {@link Schema}. Either use the
+     * {@link FederatedStore#getSchema} method and supply a
+     * {@link Context}, or ideally use the {@link GetSchema}
+     * operation instead.
      *
-     * This will return a merged schema of the optimised compact
-     * schemas of the stores inside this FederatedStore.
-     *
-     * @return {@link Schema} of merged optimised compact schemas
+     * @return {@link Schema} blank schema
      */
     @Override
     public Schema getSchema() {
-        return getSchema(new Context(), true);
+        return getSchema(new Context(), true); // Try with contextBlankUser() instead - might work in simple cases? Same for originalSchema
     }
 
     /**
-     * Get original {@link Schema} for this FederatedStore.
+     * This method exists for compatibility only. It will
+     * always return a blank {@link Schema}. Either use the
+     * {@link FederatedStore#getSchema} method and supply a
+     * {@link Context}, or ideally use the {@link GetSchema}
+     * operation instead.
      *
-     * This will return a merged schema of the original schemas
-     * of the stores inside this FederatedStore.
-     *
-     * @return {@link Schema} of merged original schemas
+     * @return {@link Schema} blank schema
      */
     @Override
     public Schema getOriginalSchema() {
@@ -350,25 +352,24 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * Get {@link Schema} for this FederatedStore
+     * Get {@link Schema} for this FederatedStore.
+     * <p>
+     * This will return a merged schema of the original schemas
+     * or the optimised compact schemas of the stores inside
+     * this FederatedStore.
      *
      * @param context context with User.
-     * @param getCompactSchema use the compact flag of the getSchema Operation
+     * @param getCompactSchema if true, gets the optimised compact schemas
      * @return schema
      */
     public Schema getSchema(final Context context, final boolean getCompactSchema) {
-        return getSchema(getFederatedWrappedSchema(getCompactSchema), context);
-    }
-
-    /**
-     * Get {@link Schema} for this FederatedStore
-     *
-     * @param operation operation with graphIds.
-     * @param context   context with User.
-     * @return schema
-     */
-    public Schema getSchema(final FederatedOperation operation, final Context context) {
-        return graphStorage.getSchema(operation, context);
+        final GetSchema.Builder getSchema = new GetSchema.Builder();
+        getSchema.compact(getCompactSchema);
+        try {
+            return execute(getSchema.build(), context);
+        } catch (OperationException e) {
+            throw new GafferRuntimeException("Unable to execute GetSchema Operation", e);
+        }
     }
 
     /**
