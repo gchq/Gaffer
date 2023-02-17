@@ -334,7 +334,7 @@ public class FederatedStore extends Store {
      */
     @Override
     public Schema getSchema() {
-        return getSchema(new Context(), true); // Try with contextBlankUser() instead - might work in simple cases? Same for originalSchema
+        return getSchema(new Context(), true);
     }
 
     /**
@@ -358,7 +358,7 @@ public class FederatedStore extends Store {
      * or the optimised compact schemas of the stores inside
      * this FederatedStore.
      *
-     * @param context context with User.
+     * @param context context with valid User
      * @param getCompactSchema if true, gets the optimised compact schemas
      * @return schema
      */

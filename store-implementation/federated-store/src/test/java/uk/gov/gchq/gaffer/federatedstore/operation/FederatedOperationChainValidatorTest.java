@@ -38,7 +38,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -59,13 +58,13 @@ public class FederatedOperationChainValidatorTest {
         // When
         final Schema actualSchema = validator.getSchema(op, user, store);
 
-        verify(store).execute(any(GetSchema.class), any(Context.class));//.getSchema(any(Context.class), eq(false));
+        verify(store).execute(any(GetSchema.class), any(Context.class));
         // Then
         assertEquals(schema, actualSchema);
     }
 
     @Test
-    public void shouldNotErrorWithInvalidViewFromMissingGraph() throws OperationException {
+    public void shouldNotErrorWithInvalidViewFromMissingGraph() {
         //given
         String missingGraph = "missingGraph";
         final Graph graph = new Graph.Builder()
