@@ -211,8 +211,7 @@ public class StoreProperties implements Cloneable {
         } else {
             try {
                 storeProperties = Class.forName(storePropertiesClass).asSubclass(StoreProperties.class).newInstance();
-            } catch (final ClassNotFoundException | InstantiationException |
-                           IllegalAccessException e) {
+            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 throw new RuntimeException("Failed to create store properties file : " + e.getMessage(), e);
             }
         }
