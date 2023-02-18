@@ -101,9 +101,9 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         final StoreProperties storeProperties = operation.getStoreProperties();
         if (storeProperties.containsKey(CACHE_SERVICE_CLASS)) {
             LOGGER.info(String.format("%s is removing %s from properties of the operation and substituting the FederatedStore's cache", this.getClass().getSimpleName(), CACHE_SERVICE_CLASS));
+            storeProperties.setCacheServiceClass(store.getProperties().getCacheServiceClass());
+            operation.setStoreProperties(storeProperties);
         }
-        storeProperties.setCacheServiceClass(store.getProperties().getCacheServiceClass());
-        operation.setStoreProperties(storeProperties);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
