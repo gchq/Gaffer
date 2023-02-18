@@ -136,7 +136,7 @@ public class NamedOperationScoreResolverTest {
     public void shouldCatchExceptionForCacheFailures() {
         // Given
         final NamedOperation<Element, Iterable<? extends Element>> namedOp = mock(NamedOperation.class);
-        final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver((String) null);
+        final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver();
 
         // When
         final Integer result = resolver.getScore(namedOp);

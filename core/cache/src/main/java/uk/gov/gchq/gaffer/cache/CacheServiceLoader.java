@@ -22,13 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 /**
  * Initialised when the store is initialised. Looks at a system property to determine the cache service to load.
@@ -38,10 +32,8 @@ import static java.util.Objects.nonNull;
 public final class CacheServiceLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheServiceLoader.class);
-
-    private static HashMap<String, ICacheService> services;
-
-    private static List<String> shutdownHooks;
+    private static ICacheService service;
+    private static boolean shutdownHookAdded = false;
 
     /**
      * Looks at a system property and initialises an appropriate cache service. Adds a shutdown hook
@@ -49,88 +41,62 @@ public final class CacheServiceLoader {
      * in a servlet context - use the ServletLifecycleListener located in the REST module instead
      *
      * @param properties the cache service properties
-     * @return the created cache service
      * @throws IllegalArgumentException if an invalid cache class is specified in the system property
      */
-    public static ICacheService initialise(final Properties properties) {
+    public static void initialise(final Properties properties) {
         if (null == properties) {
             LOGGER.warn("received null properties - exiting initialise method without creating service");
-            return null;
+            return;
         }
         final String cacheClass = properties.getProperty(CacheProperties.CACHE_SERVICE_CLASS);
 
         if (null == cacheClass) {
-            LOGGER.debug("No cache service class was specified in properties.");
-            return null;
+            if (null == service) {
+                LOGGER.debug("No cache service class was specified in properties.");
+            }
+            return;
         }
-
-        final ICacheService service;
         try {
             service = Class.forName(cacheClass).asSubclass(ICacheService.class).newInstance();
 
-        } catch (final InstantiationException | IllegalAccessException |
-                       ClassNotFoundException e) {
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new IllegalArgumentException("Failed to instantiate cache using class " + cacheClass, e);
         }
 
         service.initialise(properties);
 
-        if (isNull(services)) {
-            services = new HashMap<>();
+        if (!shutdownHookAdded) {
+            Runtime.getRuntime().addShutdownHook(new Thread(CacheServiceLoader::shutdown));
+            shutdownHookAdded = true;
         }
-
-        if (services.containsKey(cacheClass)) {
-            LOGGER.debug(String.format("Trying to overwrite an existing Cache service: %s cache should be shut down first", cacheClass));
-        } else {
-            LOGGER.info(String.format("Cache added to services: %s", cacheClass));
-            services.put(cacheClass, service);
-        }
-
-        if (isNull(shutdownHooks)) {
-            shutdownHooks = new ArrayList<>();
-        }
-
-        if (!shutdownHooks.contains(cacheClass)) {
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> CacheServiceLoader.shutdown(cacheClass)));
-            shutdownHooks.add(cacheClass);
-        }
-
-        return service;
     }
 
     /**
      * Get the cache service object.
      *
-     * @param cacheClass the cache class to use.
      * @return the cache service
      */
     @SuppressFBWarnings(value = "MS_EXPOSE_REP", justification = "Intended behaviour")
-    public static ICacheService getService(final String cacheClass) {
-        return nonNull(cacheClass) ? services.get(cacheClass) : null;
+    public static ICacheService getService() {
+        return service;
     }
 
     /**
      * @return true if the cache is enabled
      */
     public static boolean isEnabled() {
-        return nonNull(services) && !services.isEmpty();
+        return null != service;
     }
 
     /**
      * Gracefully shutdown and reset the cache service.
      */
-    public static void shutdownAll() {
-        if (nonNull(services)) {
-            services.forEach((k, service) -> service.shutdown());
-            services.clear();
+    public static void shutdown() {
+        if (null != service) {
+            service.shutdown();
         }
-    }
 
-    public static void shutdown(final String cacheClass) {
-        if (nonNull(services) && services.containsKey(cacheClass)) {
-            services.remove(cacheClass).shutdown();
-            LOGGER.debug(String.format("Cache service removed %s", cacheClass));
-        }
+        service = null;
     }
 
     private CacheServiceLoader() {

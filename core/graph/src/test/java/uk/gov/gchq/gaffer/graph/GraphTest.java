@@ -1403,7 +1403,7 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
-        final NamedOperationResolver graphHook2 = new NamedOperationResolver(storeProperties.getCacheServiceClass());
+        final NamedOperationResolver graphHook2 = new NamedOperationResolver();
 
         // When
         final Graph graph = new Graph.Builder()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
@@ -47,10 +48,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 
 public class NamedOperationCacheIT {
-    public static final String CACHE_SERVICE = HashMapCacheService.class.getCanonicalName();
     private static final String CACHE_NAME = "NamedOperation";
     private final Properties cacheProps = new Properties();
     private final Store store = mock(Store.class);
@@ -72,10 +71,10 @@ public class NamedOperationCacheIT {
     private User authorisedUser = new User.Builder().userId("authorisedUser").opAuth("authorised").build();
     private User adminAuthUser = new User.Builder().userId("adminAuthUser").opAuth(adminAuth).build();
     private Context context = new Context(user);
-    private GetAllNamedOperationsHandler getAllNamedOperationsHandler;
-    private AddNamedOperationHandler addNamedOperationHandler;
-    private GetAllNamedOperationsHandler getAllNamedOperationsHandler1;
-    private DeleteNamedOperationHandler deleteNamedOperationHandler;
+    private GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler();
+    private AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler();
+    private GetAllNamedOperationsHandler getAllNamedOperationsHandler1 = new GetAllNamedOperationsHandler();
+    private DeleteNamedOperationHandler deleteNamedOperationHandler = new DeleteNamedOperationHandler();
     private GetAllNamedOperations get = new GetAllNamedOperations();
 
     @BeforeEach
@@ -87,23 +86,19 @@ public class NamedOperationCacheIT {
 
     @AfterEach
     public void after() throws CacheOperationException {
-        CacheServiceLoader.getService(CACHE_SERVICE).clearCache(CACHE_NAME);
+        CacheServiceLoader.getService().clearCache(CACHE_NAME);
     }
 
     @Test
     public void shouldWorkUsingHashMapServiceClass() throws OperationException, CacheOperationException {
-        reInitialiseCacheService();
+        reInitialiseCacheService(HashMapCacheService.class);
         runTests();
     }
 
-    private void reInitialiseCacheService() throws CacheOperationException {
-        cacheProps.setProperty(CACHE_SERVICE_CLASS, CACHE_SERVICE);
+    private void reInitialiseCacheService(final Class clazz) throws CacheOperationException {
+        cacheProps.setProperty(CacheProperties.CACHE_SERVICE_CLASS, clazz.getCanonicalName());
         CacheServiceLoader.initialise(cacheProps);
-        CacheServiceLoader.getService(CACHE_SERVICE).clearCache(CACHE_NAME);
-        getAllNamedOperationsHandler = new GetAllNamedOperationsHandler(CACHE_SERVICE);
-        addNamedOperationHandler = new AddNamedOperationHandler(CACHE_SERVICE);
-        getAllNamedOperationsHandler1 = new GetAllNamedOperationsHandler(CACHE_SERVICE);
-        deleteNamedOperationHandler = new DeleteNamedOperationHandler(CACHE_SERVICE);
+        CacheServiceLoader.getService().clearCache(CACHE_NAME);
     }
 
     private void runTests() throws OperationException, CacheOperationException {
@@ -140,7 +135,7 @@ public class NamedOperationCacheIT {
                 .build();
 
         List<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
-        List<NamedOperationDetail> results = Lists.newArrayList(new GetAllNamedOperationsHandler(store.getProperties().getCacheServiceClass()).doOperation(get, context, store));
+        List<NamedOperationDetail> results = Lists.newArrayList(new GetAllNamedOperationsHandler().doOperation(get, context, store));
 
         // then
         assertThat(results)
@@ -154,7 +149,7 @@ public class NamedOperationCacheIT {
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(properties);
 
-        new AddNamedOperationHandler(store.getProperties().getCacheServiceClass()).doOperation(add, context, store);
+        new AddNamedOperationHandler().doOperation(add, context, store);
 
         DeleteNamedOperation del = new DeleteNamedOperation.Builder()
                 .name("op")
@@ -178,7 +173,7 @@ public class NamedOperationCacheIT {
         final StoreProperties storeProps = mock(StoreProperties.class);
         given(store.getProperties()).willReturn(storeProps);
 
-        new AddNamedOperationHandler(store.getProperties().getCacheServiceClass()).doOperation(add, context, store);
+        new AddNamedOperationHandler().doOperation(add, context, store);
 
         AddNamedOperation update = new AddNamedOperation.Builder()
                 .name(add.getOperationName())
@@ -191,7 +186,7 @@ public class NamedOperationCacheIT {
         GetAllNamedOperations get = new GetAllNamedOperations();
 
         // when
-        new AddNamedOperationHandler(store.getProperties().getCacheServiceClass()).doOperation(add, context, store);
+        new AddNamedOperationHandler().doOperation(add, context, store);
 
         List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
 
@@ -217,7 +212,7 @@ public class NamedOperationCacheIT {
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(properties);
 
-        new AddNamedOperationHandler(store.getProperties().getCacheServiceClass()).doOperation(add, context, store);
+        new AddNamedOperationHandler().doOperation(add, context, store);
 
         AddNamedOperation update = new AddNamedOperation.Builder()
                 .name(add.getOperationName())
@@ -230,7 +225,7 @@ public class NamedOperationCacheIT {
         GetAllNamedOperations get = new GetAllNamedOperations();
 
         // when
-        new AddNamedOperationHandler(store.getProperties().getCacheServiceClass()).doOperation(add, context, store);
+        new AddNamedOperationHandler().doOperation(add, context, store);
 
         List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
 

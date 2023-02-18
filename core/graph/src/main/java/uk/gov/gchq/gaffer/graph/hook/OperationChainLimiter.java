@@ -116,7 +116,7 @@ public class OperationChainLimiter implements GraphHook {
         return scorer.getScoreResolvers();
     }
 
-    public void setScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers, final String cacheServiceClass) {
-        scorer.setScoreResolvers(resolvers, cacheServiceClass);
+    public void setScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers) {
+        scorer.setScoreResolvers(resolvers);
     }
 }

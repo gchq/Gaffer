@@ -36,8 +36,8 @@ import java.util.List;
 public class NamedOperationScoreResolver implements ScoreResolver<NamedOperation> {
     private final NamedOperationCache cache;
 
-    public NamedOperationScoreResolver(final String cacheServiceClass) {
-        this(new NamedOperationCache(cacheServiceClass));
+    public NamedOperationScoreResolver() {
+        this(new NamedOperationCache());
     }
 
     public NamedOperationScoreResolver(final NamedOperationCache cache) {

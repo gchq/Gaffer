@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -44,11 +43,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 
 public class DeleteNamedViewHandlerTest {
     private static final String WRITE_ACCESS_ROLE = "writeRole";
-    private final NamedViewCache namedViewCache = new NamedViewCache(HashMapCacheService.class.getCanonicalName());
+    private final NamedViewCache namedViewCache = new NamedViewCache();
     private final AddNamedViewHandler addNamedViewHandler = new AddNamedViewHandler(namedViewCache);
     private final DeleteNamedViewHandler deleteNamedViewHandler = new DeleteNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
@@ -66,7 +64,7 @@ public class DeleteNamedViewHandlerTest {
 
     @BeforeEach
     public void before() throws OperationException {
-        properties.set(CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
+        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
 
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -94,7 +92,7 @@ public class DeleteNamedViewHandlerTest {
 
     @AfterAll
     public static void tearDown() {
-        CacheServiceLoader.shutdownAll();
+        CacheServiceLoader.shutdown();
     }
 
     @Test

@@ -905,7 +905,7 @@ public abstract class Store {
      * @return the implementation of the handler for {@link
      * uk.gov.gchq.gaffer.store.operation.GetTraits}
      */
-    protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler();
+    protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>>  getGetTraitsHandler();
 
     /**
      * Get this Store's implementation of the handler for {@link
@@ -1054,18 +1054,17 @@ public abstract class Store {
         addOperationHandler(ToStream.class, new ToStreamHandler<>());
         addOperationHandler(ToVertices.class, new ToVerticesHandler());
 
-        final String cacheServiceClass = this.properties.getCacheServiceClass();
-        if (nonNull(cacheServiceClass) && nonNull(CacheServiceLoader.getService(cacheServiceClass))) {
+        if (nonNull(CacheServiceLoader.getService())) {
             // Named operation
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
-            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(cacheServiceClass));
-            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler(cacheServiceClass));
-            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(cacheServiceClass));
+            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler());
+            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler());
+            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler());
 
             // Named view
-            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(cacheServiceClass));
-            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler(cacheServiceClass));
-            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler(cacheServiceClass));
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler());
+            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler());
+            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler());
         }
 
         // ElementComparison

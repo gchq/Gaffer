@@ -84,9 +84,9 @@ public class NamedOperationCacheTest {
     @BeforeAll
     public static void setUp() {
         final Properties properties = new Properties();
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
+        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
         CacheServiceLoader.initialise(properties);
-        cache = new NamedOperationCache(properties.getProperty(CacheProperties.CACHE_SERVICE_CLASS));
+        cache = new NamedOperationCache();
     }
 
     @BeforeEach

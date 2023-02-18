@@ -80,7 +80,7 @@ public class FederatedStoreRecursionIT {
          *                                                                      v                   |
          *                                                                      innerProxy -------->
          */
-        CacheServiceLoader.shutdownAll();
+        CacheServiceLoader.shutdown();
 
         createProxyToRestServiceFederatedGraph();
         createTheInnerFederatedStore();

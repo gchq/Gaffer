@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -39,10 +38,11 @@ import uk.gov.gchq.gaffer.user.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 
 @ExtendWith(MockitoExtension.class)
 public class GetAllNamedViewsHandlerTest {
+    private final NamedViewCache namedViewCache = new NamedViewCache();
+    private final AddNamedViewHandler addNamedViewHandler = new AddNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
     private final String testUserId = "testUser";
 
@@ -86,15 +86,13 @@ public class GetAllNamedViewsHandlerTest {
 
     @AfterAll
     public static void tearDown() {
-        CacheServiceLoader.shutdownAll();
+        CacheServiceLoader.shutdown();
     }
 
     @Test
     public void shouldGetAllAccessibleNamedViewsFromCache() throws OperationException {
         // Given
         initialiseCache();
-        AddNamedViewHandler addNamedViewHandler = new AddNamedViewHandler(new NamedViewCache(store.getProperties().get(CACHE_SERVICE_CLASS)));
-
         final NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder()
                 .name(testNamedViewName)
                 .view(view)
@@ -112,7 +110,7 @@ public class GetAllNamedViewsHandlerTest {
         final GetAllNamedViews getAllNamedViews = new GetAllNamedViews.Builder().build();
 
         // when
-        final GetAllNamedViewsHandler getAllNamedViewsHandler = new GetAllNamedViewsHandler(new NamedViewCache(store.getProperties().get(CACHE_SERVICE_CLASS)));
+        final GetAllNamedViewsHandler getAllNamedViewsHandler = new GetAllNamedViewsHandler(namedViewCache);
         final Iterable<NamedViewDetail> namedViewList = getAllNamedViewsHandler.doOperation(getAllNamedViews, context, store);
 
         // Then
@@ -125,7 +123,7 @@ public class GetAllNamedViewsHandlerTest {
     private void initialiseCache() {
         given(store.getProperties()).willReturn(new StoreProperties());
         final StoreProperties properties = new StoreProperties();
-        properties.set(CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
+        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
     }
 }

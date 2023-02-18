@@ -62,6 +62,8 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
             Collections.unmodifiableMap(opScores), Collections.unmodifiableMap(scoreResolvers)
     );
 
+    private static final Map<Class<? extends Operation>, ScoreResolver> DEFAULT_SCORE_RESOLVERS = addDefaultScoreResolvers();
+
     /**
      * Returns the OperationChainLimiter score for the OperationChain provided.
      *
@@ -95,7 +97,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         Integer maxUserScore = 0;
         for (final String opAuth : opAuths) {
             Integer authScore = authScores.get(opAuth);
-            if (authScore != null && (authScore > maxUserScore)) {
+            if (authScore != null  && (authScore > maxUserScore)) {
                 maxUserScore = authScore;
             }
         }
@@ -146,9 +148,9 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         return Collections.unmodifiableMap(scoreResolvers);
     }
 
-    public void setScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers, final String cacheServiceClass) {
+    public void setScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers) {
         this.scoreResolvers.clear();
-        scoreResolvers.putAll(addDefaultScoreResolvers(cacheServiceClass));
+        scoreResolvers.putAll(DEFAULT_SCORE_RESOLVERS);
         if (null != resolvers) {
             this.scoreResolvers.putAll(resolvers);
         }
@@ -177,21 +179,20 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
      * Adds Gaffer's native {@link ScoreResolver} implementations to the list of available <code>ScoreResolver</code>s.
      * Any new implementations should be added to the map in this method, along with their respective class.
      *
-     * @param cacheServiceClass the cache to use.
      * @return a map of Operation class to ScoreResolver implementation
      */
-    private static Map<Class<? extends Operation>, ScoreResolver> addDefaultScoreResolvers(final String cacheServiceClass) {
+    private static Map<Class<? extends Operation>, ScoreResolver> addDefaultScoreResolvers() {
         final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = new HashMap<>();
 
-        defaultResolvers.put(NamedOperation.class, new NamedOperationScoreResolver(cacheServiceClass));
+        defaultResolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
         defaultResolvers.put(If.class, new IfScoreResolver());
         defaultResolvers.put(While.class, new WhileScoreResolver());
 
         return Collections.unmodifiableMap(defaultResolvers);
     }
 
-    public static Map<Class<? extends Operation>, ScoreResolver> getDefaultScoreResolvers(final String cacheServiceClass) {
-        return Collections.unmodifiableMap(addDefaultScoreResolvers(cacheServiceClass));
+    public static Map<Class<? extends Operation>, ScoreResolver> getDefaultScoreResolvers() {
+        return Collections.unmodifiableMap(DEFAULT_SCORE_RESOLVERS);
     }
 
 }

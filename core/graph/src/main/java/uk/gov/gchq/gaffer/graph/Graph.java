@@ -861,12 +861,11 @@ public final class Graph {
 
         private void updateGraphHooks(final GraphConfig config) {
             List<GraphHook> hooks = config.getHooks();
-                final String cacheServiceClass = this.properties.getCacheServiceClass();
             if (!hasHook(hooks, NamedViewResolver.class)) {
-                hooks.add(0, new NamedViewResolver(cacheServiceClass));
+                hooks.add(0, new NamedViewResolver());
             }
             if (store.isSupported(NamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
-                config.getHooks().add(0, new NamedOperationResolver(cacheServiceClass));
+                config.getHooks().add(0, new NamedOperationResolver());
             }
             if (!hasHook(hooks, FunctionAuthoriser.class)) {
                 config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));

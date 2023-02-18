@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamedOperation> {
     private final NamedOperationCache cache;
 
-    public DeleteNamedOperationHandler(final String cacheServiceClass) {
-        this(new NamedOperationCache(cacheServiceClass));
+    public DeleteNamedOperationHandler() {
+        this(new NamedOperationCache());
     }
 
     public DeleteNamedOperationHandler(final NamedOperationCache cache) {

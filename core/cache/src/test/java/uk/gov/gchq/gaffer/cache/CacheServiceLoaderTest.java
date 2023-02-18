@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CacheServiceLoaderTest {
@@ -47,12 +48,11 @@ public class CacheServiceLoaderTest {
     @Test
     public void shouldLoadServiceFromSystemVariable() {
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, EmptyCacheService.class.getName());
-        final ICacheService initialise = CacheServiceLoader.initialise(serviceLoaderProperties);
+        CacheServiceLoader.initialise(serviceLoaderProperties);
 
-        final ICacheService service = CacheServiceLoader.getService(EmptyCacheService.class.getName());
+        final ICacheService service = CacheServiceLoader.getService();
 
         assertThat(service).isInstanceOf(EmptyCacheService.class);
-        assertThat(initialise).isEqualTo(service);
     }
 
     @Test
@@ -67,13 +67,13 @@ public class CacheServiceLoaderTest {
 
     @Test
     public void shouldUseTheSameServiceAcrossDifferentComponents() {
-        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
-        final ICacheService initialise = CacheServiceLoader.initialise(serviceLoaderProperties);
+        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        CacheServiceLoader.initialise(serviceLoaderProperties);
 
-        final ICacheService component1Service = CacheServiceLoader.getService(HashMapCacheService.class.getCanonicalName());
-        final ICacheService component2Service = CacheServiceLoader.getService(serviceLoaderProperties.getProperty(CacheProperties.CACHE_SERVICE_CLASS));
+        final ICacheService component1Service = CacheServiceLoader.getService();
+        final ICacheService component2Service = CacheServiceLoader.getService();
 
-        assertThat(component1Service).isEqualTo(component2Service).isEqualTo(initialise);
+        assertEquals(component1Service, component2Service);
     }
 
     @Test
@@ -81,18 +81,8 @@ public class CacheServiceLoaderTest {
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, EmptyCacheService.class.getName());
         CacheServiceLoader.initialise(serviceLoaderProperties);
 
-        CacheServiceLoader.shutdown(EmptyCacheService.class.getName());
+        CacheServiceLoader.shutdown();
 
-        assertNull(CacheServiceLoader.getService(EmptyCacheService.class.getName()));
-    }
-
-    @Test
-    public void shouldSetServiceToNullAfterCallingShutdownAll() {
-        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, EmptyCacheService.class.getName());
-        CacheServiceLoader.initialise(serviceLoaderProperties);
-
-        CacheServiceLoader.shutdownAll();
-
-        assertNull(CacheServiceLoader.getService(EmptyCacheService.class.getName()));
+        assertNull(CacheServiceLoader.getService());
     }
 }

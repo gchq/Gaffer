@@ -35,15 +35,15 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
     public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";
     private static final String CACHE_SERVICE_NAME_PREFIX = "federatedStoreGraphs";
 
-    public FederatedStoreCacheTransient(final String cacheServiceClass) {
-        this(null, cacheServiceClass);
+    public FederatedStoreCacheTransient() {
+        this(null);
     }
 
-    public FederatedStoreCacheTransient(final String cacheNameSuffix, final String cacheServiceClass) {
+    public FederatedStoreCacheTransient(final String cacheNameSuffix) {
         super(String.format("%s%s", CACHE_SERVICE_NAME_PREFIX,
                 nonNull(cacheNameSuffix)
                         ? "_" + cacheNameSuffix.toLowerCase()
-                        : ""), cacheServiceClass);
+                        : ""));
     }
 
     /**

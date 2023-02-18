@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2023 Crown Copyright
+ * Copyright 2018-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore = new FederatedStore();
         properties = new FederatedStoreProperties();
         HashMapGraphLibrary.clear();
-        CacheServiceLoader.shutdownAll();
+        CacheServiceLoader.shutdown();
         storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class);
     }
@@ -80,7 +80,7 @@ public class FederatedGetTraitsHandlerTest {
     @AfterEach
     void afterEach() {
         HashMapGraphLibrary.clear();
-        CacheServiceLoader.shutdownAll();
+        CacheServiceLoader.shutdown();
     }
 
     @Test

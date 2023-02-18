@@ -359,6 +359,6 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
 
     @Override
     public NamedOperationResolver getTestObject() {
-        return new NamedOperationResolver((String) null);
+        return new NamedOperationResolver();
     }
 }

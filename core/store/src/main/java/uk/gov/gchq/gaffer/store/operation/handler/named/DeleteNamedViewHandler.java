@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 public class DeleteNamedViewHandler implements OperationHandler<DeleteNamedView> {
     private final NamedViewCache cache;
 
-    public DeleteNamedViewHandler(final String cacheServiceClass) {
-        this(new NamedViewCache(cacheServiceClass));
+    public DeleteNamedViewHandler() {
+        this(new NamedViewCache());
     }
 
     public DeleteNamedViewHandler(final NamedViewCache cache) {

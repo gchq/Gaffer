@@ -36,13 +36,13 @@ import static java.util.Objects.isNull;
 public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, FederatedAccess>> {
     private final FederatedStoreCacheTransient cacheTransient;
 
-    public FederatedStoreCache(final String cacheServiceClass) {
-        this(null, cacheServiceClass);
+    public FederatedStoreCache() {
+        this(null);
     }
 
-    public FederatedStoreCache(final String cacheNameSuffix, final String cacheServiceClass) {
-        super(null, cacheServiceClass);
-        cacheTransient = new FederatedStoreCacheTransient(cacheNameSuffix, cacheServiceClass);
+    public FederatedStoreCache(final String cacheNameSuffix) {
+        super(null);
+        cacheTransient = new FederatedStoreCacheTransient(cacheNameSuffix);
     }
 
     /**
@@ -96,7 +96,7 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
      *
      * @param graphId the ID of the {@link Graph} to retrieve
      * @return the {@link GraphSerialisable} related to the specified ID
-     * @throws CacheOperationException exception
+     * @exception CacheOperationException exception
      */
     public GraphSerialisable getGraphFromCache(final String graphId) throws CacheOperationException {
         return cacheTransient.getGraphFromCache(graphId);
