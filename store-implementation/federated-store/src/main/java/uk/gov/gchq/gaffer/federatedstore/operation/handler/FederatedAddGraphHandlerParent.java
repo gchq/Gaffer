@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,12 @@ import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.store.StoreProperties.CACHE_SERVICE_CLASS;
 
 /**
  * A handler for operations that addGraph to the FederatedStore.
@@ -58,6 +60,8 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         if (isLimitedToLibraryProperties && nonNull(operation.getStoreProperties())) {
             throw new OperationException(String.format(USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, operation.getProperties().toString()));
         }
+
+        overwriteCacheProperty(operation, store);
 
         final GraphSerialisable graphSerialisable;
         try {
@@ -87,6 +91,19 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         addGenericHandler((FederatedStore) store, graph);
 
         return null;
+    }
+
+    private void overwriteCacheProperty(final OP operation, final Store store) {
+        /*
+         * FederatedStore can't survive if a subgraph changes the static
+         * cache to another cache, or re-initialises the cache.
+         */
+        final StoreProperties storeProperties = operation.getStoreProperties();
+        if (storeProperties.containsKey(CACHE_SERVICE_CLASS)) {
+            LOGGER.info(String.format("%s is removing %s from properties of the operation and substituting the FederatedStore's cache", this.getClass().getSimpleName(), CACHE_SERVICE_CLASS));
+        }
+        storeProperties.setCacheServiceClass(store.getProperties().getCacheServiceClass());
+        operation.setStoreProperties(storeProperties);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

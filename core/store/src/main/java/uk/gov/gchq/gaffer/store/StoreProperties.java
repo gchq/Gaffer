@@ -211,7 +211,8 @@ public class StoreProperties implements Cloneable {
         } else {
             try {
                 storeProperties = Class.forName(storePropertiesClass).asSubclass(StoreProperties.class).newInstance();
-            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            } catch (final ClassNotFoundException | InstantiationException |
+                           IllegalAccessException e) {
                 throw new RuntimeException("Failed to create store properties file : " + e.getMessage(), e);
             }
         }
@@ -438,6 +439,10 @@ public class StoreProperties implements Cloneable {
 
     public void setCacheServiceClass(final String cacheServiceClassString) {
         set(CACHE_SERVICE_CLASS, cacheServiceClassString);
+    }
+
+    public String getCacheServiceClass() {
+        return getCacheServiceClass(null);
     }
 
     public String getCacheServiceClass(final String defaultValue) {
