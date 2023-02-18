@@ -64,7 +64,7 @@ public class Cache<K, V> {
             } else {
                 throw new GafferRuntimeException("Cache is not enabled, check it was Initialised");
             }
-            return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
+            return (null == allKeysFromCache) ? Collections.emptySet() : Collections.unmodifiableSet(allKeysFromCache);
         } catch (final Exception e) {
             throw new GafferRuntimeException("Error getting all keys", e);
         }

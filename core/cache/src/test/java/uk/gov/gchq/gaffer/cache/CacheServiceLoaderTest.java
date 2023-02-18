@@ -37,6 +37,7 @@ public class CacheServiceLoaderTest {
     @BeforeEach
     public void before() {
         serviceLoaderProperties.clear();
+        CacheServiceLoader.shutdown();
     }
 
     @DisplayName("Should not throw NullPointer when Loader is initialised with null properties")

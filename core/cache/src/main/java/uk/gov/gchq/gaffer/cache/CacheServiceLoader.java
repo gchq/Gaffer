@@ -56,6 +56,12 @@ public final class CacheServiceLoader {
             }
             return;
         }
+
+        if (isEnabled()) {
+            LOGGER.debug("Will not initialise as Cache service was already enabled.");
+            return;
+        }
+
         try {
             service = Class.forName(cacheClass).asSubclass(ICacheService.class).newInstance();
 
