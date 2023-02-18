@@ -35,15 +35,15 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
 
     private static final String CACHE_SERVICE_NAME_PREFIX = "NamedView";
 
-    public NamedViewCache() {
-        this(null);
+    public NamedViewCache(final String cacheServiceClass) {
+        this(null, cacheServiceClass);
     }
 
-    public NamedViewCache(final String cacheNameSuffix) {
+    public NamedViewCache(final String cacheNameSuffix, final String cacheServiceClass) {
         super(String.format("%s%s", CACHE_SERVICE_NAME_PREFIX,
                 nonNull(cacheNameSuffix)
                         ? "_" + cacheNameSuffix.toLowerCase()
-                        : ""));
+                        : ""), cacheServiceClass);
     }
 
     /**

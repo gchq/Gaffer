@@ -39,8 +39,8 @@ import java.util.Map;
 public class NamedViewResolver implements GraphHook {
     private final NamedViewCache cache;
 
-    public NamedViewResolver() {
-        cache = new NamedViewCache();
+    public NamedViewResolver(final String cacheServiceClass) {
+        cache = new NamedViewCache(cacheServiceClass);
     }
 
     public NamedViewResolver(final NamedViewCache cache) {

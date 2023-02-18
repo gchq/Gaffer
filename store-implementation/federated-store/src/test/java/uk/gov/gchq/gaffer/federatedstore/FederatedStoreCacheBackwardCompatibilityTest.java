@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.impl.JcsCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -47,7 +48,7 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
 
     @AfterAll
     public static void tearDown() {
-        CacheServiceLoader.shutdown();
+        CacheServiceLoader.shutdownAll();
     }
 
     @BeforeEach
@@ -61,7 +62,7 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
         properties.setProperty(CacheProperties.CACHE_CONFIG_FILE, "src/test/resources/gaffer-1.12.0-cache/cache.ccf");
 
         CacheServiceLoader.initialise(properties);
-        federatedStoreCache = new FederatedStoreCache();
+        federatedStoreCache = new FederatedStoreCache(HashMapCacheService.class.getCanonicalName());
 
         new Graph.Builder().config(new GraphConfig(MAP_ID_1))
                 .addStoreProperties(loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES))

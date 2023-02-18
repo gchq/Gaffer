@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,7 +175,7 @@ public class ScoreOperationChainHandlerTest {
         namedOp.setOperationName(opName);
 
         resolvers.put(namedOp.getClass(), scoreResolver);
-        handler.setScoreResolvers(resolvers);
+        handler.setScoreResolvers(resolvers, null);
 
         given(scoreResolver.getScore(eq(namedOp), any())).willReturn(3);
         final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2, op3, namedOp));
@@ -224,7 +224,7 @@ public class ScoreOperationChainHandlerTest {
         namedOp.setOperationName(opName);
 
         resolvers.put(namedOp.getClass(), scoreResolver);
-        handler.setScoreResolvers(resolvers);
+        handler.setScoreResolvers(resolvers, null);
 
         given(scoreResolver.getScore(eq(namedOp), any())).willReturn(null);
         final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2, op3, namedOp));
@@ -273,7 +273,7 @@ public class ScoreOperationChainHandlerTest {
 
         resolvers.put(namedOp.getClass(), scoreResolver);
         resolvers.put(op2.getClass(), scoreResolver1);
-        handler.setScoreResolvers(resolvers);
+        handler.setScoreResolvers(resolvers, null);
 
         given(scoreResolver.getScore(eq(namedOp), any())).willReturn(3);
         given(scoreResolver1.getScore(eq(op2), any())).willReturn(5);
@@ -302,7 +302,7 @@ public class ScoreOperationChainHandlerTest {
         final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
         final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
 
-        handler.setScoreResolvers(resolvers);
+        handler.setScoreResolvers(resolvers, null);
 
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
@@ -357,7 +357,7 @@ public class ScoreOperationChainHandlerTest {
         namedOp.setOperationName(opName);
 
         resolvers.put(namedOp.getClass(), scoreResolver);
-        handler.setScoreResolvers(resolvers);
+        handler.setScoreResolvers(resolvers, null);
 
         given(scoreResolver.getScore(eq(namedOp), any())).willReturn(3);
 
@@ -500,7 +500,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldAddDefaultScoreResolvers() {
         // Given
-        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = ScoreOperationChainHandler.getDefaultScoreResolvers();
+        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = ScoreOperationChainHandler.getDefaultScoreResolvers(null);
 
         // When / Then
         assertTrue(defaultResolvers.keySet().contains(NamedOperation.class));
@@ -513,7 +513,7 @@ public class ScoreOperationChainHandlerTest {
     public void shouldReAddDefaultScoreResolversWhenCallingSetMethod() {
         // Given
         final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
-        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = ScoreOperationChainHandler.getDefaultScoreResolvers();
+        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = ScoreOperationChainHandler.getDefaultScoreResolvers(null);
 
         final Map<Class<? extends Operation>, ScoreResolver> expectedMap = new HashMap<>();
         expectedMap.putAll(defaultResolvers);
@@ -525,7 +525,7 @@ public class ScoreOperationChainHandlerTest {
         expectedMap.putAll(inputMap);
 
         // When
-        handler.setScoreResolvers(inputMap);
+        handler.setScoreResolvers(inputMap, null);
         final Map<Class<? extends Operation>, ScoreResolver> results = handler.getScoreResolvers();
 
         // Then

@@ -76,9 +76,9 @@ public class NamedViewCacheTest {
     @BeforeAll
     public static void setUp() {
         final Properties properties = new Properties();
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
         CacheServiceLoader.initialise(properties);
-        cache = new NamedViewCache();
+        cache = new NamedViewCache(properties.getProperty(CacheProperties.CACHE_SERVICE_CLASS));
     }
 
     @BeforeEach

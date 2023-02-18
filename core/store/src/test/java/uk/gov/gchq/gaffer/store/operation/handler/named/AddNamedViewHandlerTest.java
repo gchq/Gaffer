@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
@@ -47,9 +48,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 
 public class AddNamedViewHandlerTest {
-    private final NamedViewCache namedViewCache = new NamedViewCache();
+    private final NamedViewCache namedViewCache = new NamedViewCache(HashMapCacheService.class.getCanonicalName());
     private final AddNamedViewHandler handler = new AddNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
     private final String testUserId = "testUser";
@@ -87,14 +89,14 @@ public class AddNamedViewHandlerTest {
                 .build();
 
         StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        properties.set(CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
         CacheServiceLoader.initialise(properties.getProperties());
         given(store.getProperties()).willReturn(new StoreProperties());
     }
 
     @AfterAll
     public static void tearDown() {
-        CacheServiceLoader.shutdown();
+        CacheServiceLoader.shutdownAll();
     }
 
     @Test

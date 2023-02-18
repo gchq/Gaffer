@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,7 +167,7 @@ public class OperationControllerIT extends AbstractRestApiIT {
         // Given
         StoreProperties properties = new MapStoreProperties();
         properties.setJobTrackerEnabled(true);
-        properties.set(CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        properties.set(CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
 
         Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))

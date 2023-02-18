@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -858,7 +858,7 @@ public class FederatedStoreTest {
         final String error = "test Something went wrong";
         Mockito.when(mockLibrary.getProperties(ID_PROPS_ACC_2)).thenThrow(new IllegalArgumentException(error));
         store.setGraphLibrary(mockLibrary);
-        CacheServiceLoader.shutdown();
+        CacheServiceLoader.shutdownAll();
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties);
 
         // When / Then
@@ -880,7 +880,7 @@ public class FederatedStoreTest {
         final String error = "test Something went wrong";
         Mockito.when(mockLibrary.getSchema(ID_SCHEMA_ENTITY)).thenThrow(new IllegalArgumentException(error));
         store.setGraphLibrary(mockLibrary);
-        CacheServiceLoader.shutdown();
+        CacheServiceLoader.shutdownAll();
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties);
 
         // When / Then
@@ -921,7 +921,7 @@ public class FederatedStoreTest {
     public void shouldThrowExceptionWithInvalidCacheClass() {
         federatedProperties.setCacheServiceClass(INVALID_CACHE_SERVICE_CLASS_STRING);
 
-        CacheServiceLoader.shutdown();
+        CacheServiceLoader.shutdownAll();
 
         assertThatIllegalArgumentException().isThrownBy(() -> store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties))
                 .withMessageContaining("Failed to instantiate cache");
@@ -930,9 +930,9 @@ public class FederatedStoreTest {
     @Test
     public void shouldReuseGraphsAlreadyInCache() throws Exception {
         // Check cache is empty
-        CacheServiceLoader.shutdown();
+        CacheServiceLoader.shutdownAll();
         federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
-        assertThat(CacheServiceLoader.getService()).isNull();
+        assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING)).isNull();
 
         // initialise FedStore
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties);
@@ -948,7 +948,7 @@ public class FederatedStoreTest {
 
         // check the store and the cache
         assertThat(store.getAllGraphIds(blankUser)).hasSize(1);
-        assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME))
+        assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING).getAllKeysFromCache(CACHE_SERVICE_NAME))
                 .contains(ACC_ID_2, ACC_ID_2);
 
         // restart the store
@@ -956,19 +956,19 @@ public class FederatedStoreTest {
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties);
 
         // check the graph is already in there from the cache
-        assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME))
-                .withFailMessage(String.format("Keys: %s did not contain %s", CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME), ACC_ID_2)).contains(ACC_ID_2);
+        assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING).getAllKeysFromCache(CACHE_SERVICE_NAME))
+                .withFailMessage(String.format("Keys: %s did not contain %s", CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING).getAllKeysFromCache(CACHE_SERVICE_NAME), ACC_ID_2)).contains(ACC_ID_2);
         assertThat(store.getAllGraphIds(blankUser)).hasSize(1);
     }
 
     @Test
     public void shouldInitialiseWithCache() throws StoreException {
-        CacheServiceLoader.shutdown();
-        assertThat(CacheServiceLoader.getService()).isNull();
+        CacheServiceLoader.shutdownAll();
+        assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING)).isNull();
         federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
-        assertThat(CacheServiceLoader.getService()).isNull();
+        assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING)).isNull();
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties);
-        assertThat(CacheServiceLoader.getService()).isNotNull();
+        assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING)).isNotNull();
     }
 
     @Test
@@ -983,7 +983,7 @@ public class FederatedStoreTest {
                 .schema(StreamUtil.openStream(FederatedStoreTest.class, SCHEMA_EDGE_BASIC_JSON))
                 .build();
 
-        CacheServiceLoader.shutdown();
+        CacheServiceLoader.shutdownAll();
 
         // When / Then
         assertThatExceptionOfType(Exception.class)
@@ -1026,14 +1026,14 @@ public class FederatedStoreTest {
         final Collection<GraphSerialisable> storeGraphs = store.getGraphs(blankUser, null, new GetAllGraphIds());
 
         // Then
-        assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_1);
+        assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING).getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_1);
         assertThat(storeGraphs).contains(graphToAdd);
 
         // When
         store = new FederatedStore();
 
         // Then
-        assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_1);
+        assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING).getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_1);
     }
 
     @Test
@@ -1056,7 +1056,7 @@ public class FederatedStoreTest {
 
         // Then
         for (int i = 0; i < 10; i++) {
-            assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_1 + i);
+            assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING).getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_1 + i);
         }
 
         // When
@@ -1064,7 +1064,7 @@ public class FederatedStoreTest {
 
         // Then
         for (int i = 0; i < 10; i++) {
-            assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_1 + i);
+            assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING).getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_1 + i);
         }
     }
 
@@ -1088,9 +1088,9 @@ public class FederatedStoreTest {
     @Test
     public void shouldNotAddGraphToLibraryWhenReinitialisingFederatedStoreWithGraphFromCache() throws Exception {
         // Check cache is empty
-        CacheServiceLoader.shutdown();
+        CacheServiceLoader.shutdownAll();
         federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
-        assertThat(CacheServiceLoader.getService()).isNull();
+        assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING)).isNull();
 
         // initialise FedStore
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedProperties);
@@ -1107,7 +1107,7 @@ public class FederatedStoreTest {
         // check is in the store
         assertThat(store.getAllGraphIds(blankUser)).hasSize(1);
         // check is in the cache
-        assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_1);
+        assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING).getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_1);
         // check isn't in the LIBRARY
         assertThat(store.getGraphLibrary().get(ACC_ID_1)).isNull();
 
@@ -1119,8 +1119,8 @@ public class FederatedStoreTest {
         store.setGraphLibrary(library);
 
         // check is in the cache still
-        assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME))
-                .withFailMessage(String.format("Keys: %s did not contain %s", CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME), ACC_ID_1)).contains(ACC_ID_1);
+        assertThat(CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING).getAllKeysFromCache(CACHE_SERVICE_NAME))
+                .withFailMessage(String.format("Keys: %s did not contain %s", CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING).getAllKeysFromCache(CACHE_SERVICE_NAME), ACC_ID_1)).contains(ACC_ID_1);
         // check is in the store from the cache
         assertThat(store.getAllGraphIds(blankUser)).hasSize(1);
         // check the graph isn't in the GraphLibrary

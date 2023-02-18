@@ -40,8 +40,8 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
 
     private final NamedOperationCache cache;
 
-    public AddNamedOperationHandler() {
-        this(new NamedOperationCache());
+    public AddNamedOperationHandler(final String cacheServiceClass) {
+        this(new NamedOperationCache(cacheServiceClass));
     }
 
     public AddNamedOperationHandler(final NamedOperationCache cache) {

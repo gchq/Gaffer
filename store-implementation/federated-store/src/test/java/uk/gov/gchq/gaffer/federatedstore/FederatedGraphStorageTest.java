@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.EDGES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ENTITIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
@@ -102,7 +103,7 @@ public class FederatedGraphStorageTest {
         FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
         CacheServiceLoader.initialise(federatedStoreProperties.getProperties());
-        graphStorage = new FederatedGraphStorage();
+        graphStorage = new FederatedGraphStorage(CACHE_SERVICE_CLASS_STRING);
     }
 
     @Test
@@ -617,10 +618,10 @@ public class FederatedGraphStorageTest {
     public void shouldAddGraphWithCacheEnabled() throws StorageException {
         //given
         final Properties serviceLoaderProperties = new Properties();
-        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
         CacheServiceLoader.initialise(serviceLoaderProperties);
         graphStorage.startCacheServiceLoader();
-        final ICacheService cacheService = CacheServiceLoader.getService();
+        final ICacheService cacheService = CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING);
 
         //when
         graphStorage.put(graphSerialisableA, auth1Access);
@@ -637,10 +638,10 @@ public class FederatedGraphStorageTest {
     public void shouldAddGraphReplicatedBetweenInstances() throws StorageException {
         //given
         final Properties serviceLoaderProperties = new Properties();
-        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
         CacheServiceLoader.initialise(serviceLoaderProperties);
-        final ICacheService cacheService = CacheServiceLoader.getService();
-        final FederatedGraphStorage otherGraphStorage = new FederatedGraphStorage();
+        final ICacheService cacheService = CacheServiceLoader.getService(CACHE_SERVICE_CLASS_STRING);
+        final FederatedGraphStorage otherGraphStorage = new FederatedGraphStorage(CACHE_SERVICE_CLASS_STRING);
         graphStorage.startCacheServiceLoader();
 
         //when

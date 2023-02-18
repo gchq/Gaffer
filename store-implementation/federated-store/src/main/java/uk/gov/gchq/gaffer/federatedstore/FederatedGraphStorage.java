@@ -64,12 +64,12 @@ public class FederatedGraphStorage {
     private final FederatedStoreCache federatedStoreCache;
     private GraphLibrary graphLibrary;
 
-    public FederatedGraphStorage() {
-        this(null);
+    public FederatedGraphStorage(final String cacheServiceClass) {
+        this(null, cacheServiceClass);
     }
 
-    public FederatedGraphStorage(final String cacheNameSuffix) {
-        federatedStoreCache = new FederatedStoreCache(cacheNameSuffix);
+    public FederatedGraphStorage(final String cacheNameSuffix, final String cacheServiceClass) {
+        federatedStoreCache = new FederatedStoreCache(cacheNameSuffix, cacheServiceClass);
     }
 
     protected void startCacheServiceLoader() throws StorageException {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class NamedViewCacheBackwardCompatibilityTest {
         // This data includes ADDING_USER and VIEW_NAME
         properties.setProperty(CacheProperties.CACHE_CONFIG_FILE, "src/test/resources/gaffer-1.12.0-cache/cache.ccf");
         CacheServiceLoader.initialise(properties);
-        viewCache = new NamedViewCache();
+        viewCache = new NamedViewCache(properties.getProperty(CacheProperties.CACHE_SERVICE_CLASS));
     }
 
     @Test

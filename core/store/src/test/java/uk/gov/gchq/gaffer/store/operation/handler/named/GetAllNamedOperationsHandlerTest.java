@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
@@ -37,11 +38,12 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 
 @ExtendWith(MockitoExtension.class)
 public class GetAllNamedOperationsHandlerTest {
 
-    private final NamedOperationCache cache = new NamedOperationCache();
+    private final NamedOperationCache cache = new NamedOperationCache(HashMapCacheService.class.getCanonicalName());
     private final AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler(cache);
     private final GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler(cache);
     private final Context context = new Context(new User.Builder()
@@ -70,14 +72,14 @@ public class GetAllNamedOperationsHandlerTest {
 
     @AfterAll
     public static void tearDown() {
-        CacheServiceLoader.shutdown();
+        CacheServiceLoader.shutdownAll();
     }
 
     @BeforeEach
     public void before() {
         given(store.getProperties()).willReturn(new StoreProperties());
         final StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        properties.set(CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
         CacheServiceLoader.initialise(properties.getProperties());
     }
 

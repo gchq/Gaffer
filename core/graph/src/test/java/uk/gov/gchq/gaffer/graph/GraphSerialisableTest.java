@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class GraphSerialisableTest {
 
         config = new GraphConfig.Builder()
                 .graphId("testGraphId")
-                .addHook(new NamedViewResolver())
+                .addHook(new NamedViewResolver((String) null))
                 .addHook(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS))
                 .view(new View.Builder()
                         .entity("e1")

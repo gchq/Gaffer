@@ -40,7 +40,7 @@ public class CacheTest {
     public static void setUp() {
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
         CacheServiceLoader.initialise(properties);
-        cache = new Cache<>("serviceName1");
+        cache = new Cache<>("serviceName1", CACHE_SERVICE_CLASS_STRING);
     }
 
     @BeforeEach

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.assertj.core.api.ListAssert;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -93,7 +94,7 @@ public final class FederatedStoreTestUtil {
     public static final String VALUE_1 = value(1);
     public static final String VALUE_2 = value(2);
     public static final String INTEGER = "integer";
-    public static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    public static final String CACHE_SERVICE_CLASS_STRING = HashMapCacheService.class.getCanonicalName();
     public static final Set<String> GRAPH_AUTHS_ALL_USERS = ImmutableSet.of(ALL_USERS);
 
     private FederatedStoreTestUtil() {
@@ -110,7 +111,7 @@ public final class FederatedStoreTestUtil {
 
     public static void resetForFederatedTests() {
         HashMapGraphLibrary.clear();
-        CacheServiceLoader.shutdown();
+        CacheServiceLoader.shutdownAll();
         ExecutorService.shutdown();
         SingleUseFederatedStore.cleanUp();
     }

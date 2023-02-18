@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.NoAccessUserPredicate;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -178,7 +179,7 @@ public class FederatedStore extends Store {
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
-        graphStorage = new FederatedGraphStorage(properties.getCacheServiceNameSuffix());
+        graphStorage = new FederatedGraphStorage(properties.getCacheServiceNameSuffix(), properties.get(CacheProperties.CACHE_SERVICE_CLASS));
         super.initialise(graphId, new Schema(), properties);
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
@@ -589,8 +590,8 @@ public class FederatedStore extends Store {
 
             final List<String> graphIds = new ArrayList<>(storeConfiguredGraphIds);
             final List<String> federatedStoreSystemUser = getAllGraphIds(new User.Builder()
-                    .userId(FEDERATED_STORE_SYSTEM_USER)
-                    .opAuths(this.getProperties().getAdminAuth()).build(),
+                            .userId(FEDERATED_STORE_SYSTEM_USER)
+                            .opAuths(this.getProperties().getAdminAuth()).build(),
                     true);
             graphIds.retainAll(federatedStoreSystemUser);
 

@@ -29,14 +29,16 @@ import java.util.Set;
  */
 public class Cache<K, V> {
     public static final String ERROR_ADDING_KEY_TO_CACHE_KEY_S = "Error adding key to cache. key: %s";
+    private final String cacheServiceClass;
     protected String cacheName;
 
-    public Cache(final String cacheName) {
+    public Cache(final String cacheName, final String cacheServiceClass) {
         this.cacheName = cacheName;
+         this.cacheServiceClass = cacheServiceClass;
     }
 
     public V getFromCache(final String key) throws CacheOperationException {
-        return CacheServiceLoader.getService().getFromCache(cacheName, key);
+        return CacheServiceLoader.getService(cacheServiceClass).getFromCache(cacheName, key);
     }
 
     public String getCacheName() {
@@ -44,7 +46,7 @@ public class Cache<K, V> {
     }
 
     protected void addToCache(final K key, final V value, final boolean overwrite) throws CacheOperationException {
-        final ICacheService service = CacheServiceLoader.getService();
+        final ICacheService service = CacheServiceLoader.getService(cacheServiceClass);
         try {
             if (overwrite) {
                 service.putInCache(getCacheName(), key, value);
@@ -60,7 +62,7 @@ public class Cache<K, V> {
         try {
             final Set<K> allKeysFromCache;
             if (CacheServiceLoader.isEnabled()) {
-                allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
+                allKeysFromCache = CacheServiceLoader.getService(cacheServiceClass).getAllKeysFromCache(cacheName);
             } else {
                 throw new GafferRuntimeException("Cache is not enabled, check it was Initialised");
             }
@@ -76,7 +78,7 @@ public class Cache<K, V> {
      * @throws CacheOperationException if there was an error trying to clear the cache
      */
     public void clearCache() throws CacheOperationException {
-        CacheServiceLoader.getService().clearCache(cacheName);
+        CacheServiceLoader.getService(cacheServiceClass).clearCache(cacheName);
     }
 
     public boolean contains(final String graphId) {
@@ -89,7 +91,7 @@ public class Cache<K, V> {
      * @param key the ID of the key to be deleted
      */
     public void deleteFromCache(final String key) {
-        CacheServiceLoader.getService().removeFromCache(cacheName, key);
+        CacheServiceLoader.getService(cacheServiceClass).removeFromCache(cacheName, key);
     }
 
     /**
@@ -98,8 +100,8 @@ public class Cache<K, V> {
      * @return ICache
      */
     public ICache getCache() {
-        if (CacheServiceLoader.getService() != null) {
-            return CacheServiceLoader.getService().getCache(cacheName);
+        if (CacheServiceLoader.getService(cacheServiceClass) != null) {
+            return CacheServiceLoader.getService(cacheServiceClass).getCache(cacheName);
         } else {
             return null;
         }

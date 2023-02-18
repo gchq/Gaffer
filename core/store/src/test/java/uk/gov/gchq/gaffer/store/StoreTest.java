@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -453,7 +453,7 @@ public class StoreTest {
     public void shouldReturnAllSupportedOperations(@Mock final StoreProperties properties) throws Exception {
         // Given
         final Properties cacheProperties = new Properties();
-        cacheProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        cacheProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
         CacheServiceLoader.initialise(cacheProperties);
 
         final Schema schema = createSchemaMock();
@@ -568,7 +568,7 @@ public class StoreTest {
     public void shouldReturnAllSupportedOperationsWhenJobTrackerIsDisabled(@Mock final StoreProperties properties) throws Exception {
         // Given
         final Properties cacheProperties = new Properties();
-        cacheProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        cacheProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
         CacheServiceLoader.initialise(cacheProperties);
 
         final Schema schema = createSchemaMock();
