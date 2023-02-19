@@ -17,7 +17,8 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -276,8 +277,13 @@ public class FederatedStoreConfiguredGraphIdsTest {
                 .build();
     }
 
-    @AfterEach
-    public void after() {
+    @AfterAll
+    public static void after() {
+        resetForFederatedTests();
+    }
+
+    @BeforeEach
+    public void before() {
         resetForFederatedTests();
     }
 }
