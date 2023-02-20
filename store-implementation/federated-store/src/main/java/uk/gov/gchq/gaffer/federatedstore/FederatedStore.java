@@ -363,10 +363,8 @@ public class FederatedStore extends Store {
      * @return schema
      */
     public Schema getSchema(final Context context, final boolean getCompactSchema) {
-        final GetSchema.Builder getSchema = new GetSchema.Builder();
-        getSchema.compact(getCompactSchema);
         try {
-            return execute(getSchema.build(), context);
+            return execute(new GetSchema.Builder().compact(getCompactSchema).build(), context);
         } catch (final OperationException e) {
             throw new GafferRuntimeException("Unable to execute GetSchema Operation", e);
         }
