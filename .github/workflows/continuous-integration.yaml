@@ -43,7 +43,8 @@ jobs:
           mvn -ntp clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
           mvn -ntp javadoc:javadoc -Pquick
 
-  build:
+  build-and-run-tests:
+    name: Tests
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
@@ -94,13 +95,13 @@ jobs:
           fetch-depth: 0
 
       - name: Setup JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '8'
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.m2/repository
