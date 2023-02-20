@@ -12,6 +12,7 @@ on:
 
 jobs:
   check-all-modules-are-tested:
+    name: Check all modules are tested
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -19,6 +20,7 @@ jobs:
         run: ./cd/check_modules.sh
 
   build-javadoc:
+    name: Build Javadoc
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
