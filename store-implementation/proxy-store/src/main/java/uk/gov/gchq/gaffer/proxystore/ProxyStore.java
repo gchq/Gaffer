@@ -159,9 +159,7 @@ public class ProxyStore extends Store {
     }
 
     protected Schema fetchSchema(final boolean getCompactSchema) throws OperationException {
-        final GetSchema.Builder getSchema = new GetSchema.Builder();
-        getSchema.compact(getCompactSchema);
-        return executeOpChainViaUrl(new OperationChain<>(getSchema.build()), new Context());
+        return executeOpChainViaUrl(new OperationChain<>(new GetSchema.Builder().compact(getCompactSchema).build()), new Context());
     }
 
     /**

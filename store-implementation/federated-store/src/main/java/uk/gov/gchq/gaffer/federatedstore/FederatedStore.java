@@ -380,7 +380,7 @@ public class FederatedStore extends Store {
     public Set<StoreTrait> getTraits() {
         try {
             return this.execute(new GetTraits(), new Context());
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new GafferRuntimeException("Error with default GetTraits with No User", e);
         }
     }
