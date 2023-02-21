@@ -49,7 +49,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -450,17 +449,6 @@ public final class Graph {
      */
     public String getDescription() {
         return config.getDescription();
-    }
-
-    /**
-     * Returns all the {@link StoreTrait}s for the contained {@link Store}
-     * implementation
-     *
-     * @return a {@link Set} of all of the {@link StoreTrait}s that the store has.
-     */
-    @Deprecated
-    public Set<StoreTrait> getStoreTraits() {
-        return store.getTraits();
     }
 
     /**
