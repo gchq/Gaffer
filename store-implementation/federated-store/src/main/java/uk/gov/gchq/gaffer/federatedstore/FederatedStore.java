@@ -553,7 +553,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-        return new FederatedOutputHandler<>(/*default null value*/);
+            return new FederatedOutputHandler<>(Collections.emptySet());
     }
 
     @SuppressWarnings("rawtypes")
