@@ -33,11 +33,6 @@ public class SingleUseMapStoreWithoutVisibilitySupport extends SingleUseMapStore
     };
 
     @Override
-    public Set<StoreTrait> getTraits() {
-        return TRAITS;
-    }
-
-    @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
         return new GetTraitsHandler(TRAITS);
     }

@@ -64,7 +64,7 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
             this.getAllElements = getAllElements;
             this.schema = mapStore.getSchema();
             this.user = user;
-            this.supportsVisibility = mapStore.getTraits().contains(StoreTrait.VISIBILITY);
+            this.supportsVisibility = mapStore.TRAITS.contains(StoreTrait.VISIBILITY);
         }
 
         @Override

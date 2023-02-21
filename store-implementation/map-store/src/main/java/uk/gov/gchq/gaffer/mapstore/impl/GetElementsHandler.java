@@ -75,7 +75,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, I
             this.getElements = getElements;
             this.schema = mapStore.getSchema();
             this.user = user;
-            this.supportsVisibility = mapStore.getTraits().contains(StoreTrait.VISIBILITY);
+            this.supportsVisibility = mapStore.TRAITS.contains(StoreTrait.VISIBILITY);
         }
 
         @Override

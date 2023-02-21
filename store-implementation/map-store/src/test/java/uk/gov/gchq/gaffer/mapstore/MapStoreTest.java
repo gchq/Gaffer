@@ -44,7 +44,7 @@ public class MapStoreTest {
                 StoreTrait.TRANSFORMATION,
                 StoreTrait.POST_TRANSFORMATION_FILTERING,
                 StoreTrait.MATCHED_VERTEX));
-        assertEquals(expectedTraits, mapStore.getTraits());
+        assertEquals(expectedTraits, mapStore.TRAITS);
     }
 
     @Test
