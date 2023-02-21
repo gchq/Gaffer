@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class FederatedDelegateToTransHandlerTest {
         final Iterable expectedResult = mock(Iterable.class);
         final Schema schema = mock(Schema.class);
 
-        given(store.getSchema(context)).willReturn(schema);
+        given(store.getSchema(context, true)).willReturn(schema);
         given(handler.doOperation(op, schema)).willReturn(expectedResult);
 
         final FederatedDelegateToHandler federatedHandler = new FederatedDelegateToHandler(handler);
@@ -53,6 +53,6 @@ public class FederatedDelegateToTransHandlerTest {
         // Then
         assertSame(expectedResult, result);
         verify(handler).doOperation(op, schema);
-        verify(store).getSchema(context);
+        verify(store).getSchema(context, true);
     }
 }

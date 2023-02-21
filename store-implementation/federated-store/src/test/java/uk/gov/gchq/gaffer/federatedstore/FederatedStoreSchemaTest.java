@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ package uk.gov.gchq.gaffer.federatedstore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -47,8 +50,10 @@ import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
@@ -71,6 +76,9 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForF
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
+import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreSchemaTest {
@@ -261,6 +269,133 @@ public class FederatedStoreSchemaTest {
         assertThat(schema.validate().isValid())
                 .withFailMessage(schema.validate().getErrorString())
                 .isTrue();
+    }
+
+    @Test
+    public void shouldGetSchemaWithOperationAndMethodWithContext() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
+
+        // When
+        final Schema schemaFromOperation = federatedStore.execute(new GetSchema.Builder().build(), testContext);
+        final Schema schemaFromStore = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaFromOperation).isEqualTo(schemaFromStore);
+    }
+
+    @Test
+    public void shouldGetBlankSchemaWhenUsingDefaultMethod() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
+
+        // When
+        final Schema schemaFromStoreMethod = federatedStore.getOriginalSchema(); // No Context, results in blank schema returned
+
+        // Then
+        assertThat(schemaFromStoreMethod).isEqualTo(new Schema());
+    }
+
+    @Test
+    public void shouldGetSchemaWhenUsingDefaultMethodWhenPermissiveReadAccessPredicateConfigured() throws OperationException {
+        // Given
+        addGraphWithContextAndAccess(GRAPH_ID_A, STRING_TYPE, GROUP_BASIC_EDGE, testContext, new UnrestrictedAccessPredicate(), PROPERTY_1);
+
+        // When
+        final Schema schemaFromStoreMethod = federatedStore.getOriginalSchema();
+
+        // Then
+        assertThat(schemaFromStoreMethod.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_1);
+    }
+
+    @Test
+    public void shouldChangeSchemaWhenAddingGraphB() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
+
+        // When
+        final Schema schemaA = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaA.getTypes().size()).isEqualTo(2);
+        assertThat(schemaA.getType(STRING).getClazz()).isEqualTo(String.class);
+        assertThat(schemaA.getEdge(GROUP_BASIC_EDGE).getProperties().size()).isEqualTo(1);
+
+        // Given
+        addGraphWith(GRAPH_ID_B, STRING_REQUIRED_TYPE, PROPERTY_2);
+
+        // When
+        final Schema schemaAB = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaAB).isNotEqualTo(schemaA);
+        assertThat(schemaAB.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_2);
+    }
+
+    @Test
+    public void shouldGetSchemaForOwningUser() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_REQUIRED_TYPE, PROPERTY_1);
+        addGraphWithContextAndAuths(GRAPH_ID_B, STRING_TYPE, "hidden" + GROUP_BASIC_EDGE, singleton(AUTH_1), new Context(authUser()), PROPERTY_2);
+
+        // When
+        final Schema schemaFromOwningUser = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaFromOwningUser.getEdge("hidden" + GROUP_BASIC_EDGE)).withFailMessage("Revealing hidden schema").isNull();
+        assertThat(schemaFromOwningUser.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_1);
+    }
+
+    @Test
+    public void shouldNotGetSchemaForOwningUserWhenBlockingReadAccessPredicateConfigured() throws OperationException {
+        // Given
+        addGraphWithContextAndAccess(GRAPH_ID_A, STRING_TYPE, GROUP_BASIC_EDGE, testContext, new NoAccessPredicate(), PROPERTY_1);
+
+        // When
+        final Schema schemaFromOwningUser = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaFromOwningUser).withFailMessage("Revealing blocked schema, should be empty").isEqualTo(new Schema());
+    }
+
+    @Test
+    public void shouldGetSchemaForAuthUser() throws OperationException {
+        // Given
+        final User authUser = new User.Builder().userId("authUser2").opAuths(AUTH_1).build();
+        addGraphWithContextAndAuths(GRAPH_ID_B, STRING_TYPE, GROUP_BASIC_EDGE, singleton(AUTH_1), new Context(authUser()), PROPERTY_1);
+
+        // When
+        final Schema schemaFromAuthUser = federatedStore.getSchema(new Context(authUser), false);
+        final Schema schemaFromTestUser = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaFromTestUser.getEdge("hidden" + GROUP_BASIC_EDGE)).withFailMessage("Revealing hidden schema").isNull();
+        assertThat(schemaFromTestUser).withFailMessage("Revealing hidden schema, should be empty").isEqualTo(new Schema());
+        assertThat(schemaFromAuthUser.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_1);
+    }
+
+    @Test
+    public void shouldNotGetSchemaForBlankUser() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_REQUIRED_TYPE, PROPERTY_1);
+
+        // When
+        final Schema schemaFromBlankUser = federatedStore.getSchema(new Context(blankUser()), false);
+
+        // Then
+        assertThat(schemaFromBlankUser).withFailMessage("Revealing schema to blank user, should be empty").isEqualTo(new Schema());
+    }
+
+    @Test
+    public void shouldGetSchemaForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws OperationException {
+        // Given
+        addGraphWithContextAndAccess(GRAPH_ID_A, STRING_TYPE, GROUP_BASIC_EDGE, testContext, new UnrestrictedAccessPredicate(), PROPERTY_1);
+
+        // When
+        final Schema schemaFromBlankUser = federatedStore.getSchema(new Context(blankUser()), false);
+
+        // Then
+        assertThat(schemaFromBlankUser.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_1);
     }
 
     @Test
@@ -788,11 +923,11 @@ public class FederatedStoreSchemaTest {
         addGraphWith(GRAPH_ID_B, stringSchema, PROPERTY_1, PROPERTY_2);
     }
 
-    private void addGraphWith(final String graphId, final Schema stringType, final String... property) throws OperationException {
-        federatedStore.execute(new AddGraph.Builder()
+    private AddGraph.Builder getAddGraphBuilder(final String graphId, final Schema stringType, final String edgeGroup, final String... property) {
+        return new AddGraph.Builder()
                 .graphId(graphId)
                 .schema(new Schema.Builder()
-                        .edge(GROUP_BASIC_EDGE, new SchemaEdgeDefinition.Builder()
+                        .edge(edgeGroup, new SchemaEdgeDefinition.Builder()
                                 .source(STRING)
                                 .destination(STRING)
                                 .directed(DIRECTED_EITHER)
@@ -801,8 +936,26 @@ public class FederatedStoreSchemaTest {
                         .type(DIRECTED_EITHER, Boolean.class)
                         .merge(stringType)
                         .build())
-                .storeProperties(STORE_PROPERTIES.clone())
+                .storeProperties(STORE_PROPERTIES.clone());
+    }
+
+    private void addGraphWith(final String graphId, final Schema stringType, final String... property) throws OperationException {
+        federatedStore.execute(getAddGraphBuilder(graphId, stringType, GROUP_BASIC_EDGE, property)
                 .build(), testContext);
+    }
+
+    private void addGraphWithContextAndAuths(final String graphId, final Schema stringType, final String edgeGroup, Set<String> graphAuths,
+                                             Context context, final String... property) throws OperationException {
+        federatedStore.execute(getAddGraphBuilder(graphId, stringType, edgeGroup, property)
+                .graphAuths(graphAuths.toArray(new String[0]))
+                .build(), context);
+    }
+
+    private void addGraphWithContextAndAccess(final String graphId, final Schema stringType, final String edgeGroup, Context context,
+                                              AccessPredicate read, final String... property) throws OperationException {
+        federatedStore.execute(getAddGraphBuilder(graphId, stringType, edgeGroup, property)
+                .readAccessPredicate(read)
+                .build(), context);
     }
 
     private void addEdgeBasicWith(final String destination, final Integer... propertyValues) throws OperationException {

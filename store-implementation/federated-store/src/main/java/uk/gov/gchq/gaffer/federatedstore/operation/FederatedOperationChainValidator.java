@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,16 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
@@ -35,7 +38,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.shallowCloneWithDeepOptions;
 
 /**
@@ -51,9 +53,13 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
 
     @Override
     protected Schema getSchema(final Operation op, final User user, final Store store) {
-        return (op instanceof FederatedOperation)
-                ? ((FederatedStore) store).getSchema(getFederatedWrappedSchema().graphIds(((FederatedOperation) op).getGraphIds()), new Context(user))
-                : ((FederatedStore) store).getSchema(getFederatedWrappedSchema(), new Context(user));
+        try {
+            return (op instanceof FederatedOperation)
+                    ? store.execute(new FederatedOperation.Builder().<Void, Schema>op(new GetSchema()).graphIds(((FederatedOperation<?, ?>) op).getGraphIds()).build(), new Context(user))
+                    : store.execute(new GetSchema(), new Context(user));
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException("Unable to execute GetSchema Operation", e);
+        }
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
@@ -60,9 +59,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.EDGES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ENTITIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextAuthUser;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextBlankUser;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
@@ -293,82 +289,6 @@ public class FederatedGraphStorageTest {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> graphStorage.get(blankUser(), singletonList(X)))
                 .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, singleton(X)));
-    }
-
-    @Test
-    @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
-    public void shouldChangeSchemaWhenAddingGraphB() throws Exception {
-        //given
-        graphStorage.put(graphSerialisableA, auth1Access);
-        final Schema schemaA = graphStorage.getSchema(null, contextTestUser());
-        assertEquals(1, schemaA.getTypes().size());
-        assertEquals(String.class, schemaA.getType(STRING + 1).getClazz());
-        assertEquals(getEntityDefinition(1), schemaA.getElement(ENTITIES + 1));
-        graphStorage.put(graphSerialisableB, auth1Access);
-        final Schema schemaAB = graphStorage.getSchema(null, contextTestUser());
-        assertNotEquals(schemaA, schemaAB);
-        assertEquals(2, schemaAB.getTypes().size());
-        assertEquals(String.class, schemaAB.getType(STRING + 1).getClazz());
-        assertEquals(String.class, schemaAB.getType(STRING + 2).getClazz());
-        assertEquals(getEntityDefinition(1), schemaAB.getElement(ENTITIES + 1));
-        assertEquals(getEntityDefinition(2), schemaAB.getElement(ENTITIES + 2));
-    }
-
-
-    @Test
-    @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
-    public void shouldGetSchemaForOwningUser() throws Exception {
-        graphStorage.put(graphSerialisableA, auth1Access);
-        graphStorage.put(graphSerialisableB, new FederatedAccess(singleton(X), X));
-        final Schema schema = graphStorage.getSchema(null, contextTestUser());
-        assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
-        assertEquals(1, schema.getTypes().size());
-        assertEquals(String.class, schema.getType(STRING + 1).getClazz());
-        assertEquals(getEntityDefinition(1), schema.getElement(ENTITIES + 1));
-    }
-
-    @Test
-    @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
-    public void shouldNotGetSchemaForOwningUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
-        graphStorage.put(graphSerialisableA, blockingReadAccess);
-        graphStorage.put(graphSerialisableB, new FederatedAccess(singleton(X), X));
-        final Schema schema = graphStorage.getSchema(null, contextTestUser());
-        assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
-        assertEquals(0, schema.getTypes().size(), "Revealing hidden schema");
-    }
-
-    @Test
-    @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
-    public void shouldGetSchemaForAuthUser() throws Exception {
-        graphStorage.put(graphSerialisableA, auth1Access);
-        graphStorage.put(graphSerialisableB, new FederatedAccess(singleton(X), X));
-        final Schema schema = graphStorage.getSchema(null, contextAuthUser());
-        assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
-        assertEquals(1, schema.getTypes().size());
-        assertEquals(String.class, schema.getType(STRING + 1).getClazz());
-        assertEquals(getEntityDefinition(1), schema.getElement(ENTITIES + 1));
-    }
-
-    @Test
-    @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
-    public void shouldNotGetSchemaForBlankUser() throws Exception {
-        graphStorage.put(graphSerialisableA, auth1Access);
-        graphStorage.put(graphSerialisableB, new FederatedAccess(singleton(X), X));
-        final Schema schema = graphStorage.getSchema(null, contextBlankUser());
-        assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
-        assertEquals(0, schema.getTypes().size(), "Revealing hidden schema");
-    }
-
-    @Test
-    @Deprecated // TODO FS move to FedSchema Tests, when getSchema is deleted
-    public void shouldGetSchemaForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws Exception {
-        graphStorage.put(graphSerialisableA, permissiveReadAccess);
-        graphStorage.put(graphSerialisableB, new FederatedAccess(singleton(X), X));
-        final Schema schema = graphStorage.getSchema(null, contextBlankUser());
-        assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
-        assertEquals(1, schema.getTypes().size());
-        assertEquals(String.class, schema.getType(STRING + 1).getClazz());
-        assertEquals(getEntityDefinition(1), schema.getElement(ENTITIES + 1));
     }
 
     @Test
