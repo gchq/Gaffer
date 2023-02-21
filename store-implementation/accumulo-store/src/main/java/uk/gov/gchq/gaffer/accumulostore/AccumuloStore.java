@@ -408,11 +408,6 @@ public class AccumuloStore extends Store {
         return new GetTraitsHandler(TRAITS);
     }
 
-    @Override
-    public Set<StoreTrait> getTraits() {
-        return TRAITS;
-    }
-
     /**
      * Method to add {@link Element}s into Accumulo.
      *
