@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -183,7 +182,7 @@ public class OperationChainValidator {
     }
 
     protected Schema getSchema(final Operation operation, final User user, final Store store) throws OperationException {
-        return store.execute(new GetSchema.Builder().compact(true).build(), new Context(user));
+        return store.execute(new GetSchema(), new Context(user));
     }
 
     protected Set<StoreTrait> getStoreTraits(final Store store) {
