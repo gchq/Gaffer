@@ -124,14 +124,14 @@ public class FederatedStoreToFederatedStoreTest {
                         .build(), new User());
 
         // When
-        assertThatExceptionOfType(OperationException.class)
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> federatedStoreGraph.execute(
                         new GetAllElements.Builder()
                                 .view(new View.Builder()
                                         .edge(GROUP_BASIC_EDGE)
                                         .build())
                                 .build(), new User()))
-                .withStackTraceContaining("View is not valid for graphIds:[mapStore]");
+                .withStackTraceContaining("View is not valid for graphIds:[RestProxy]");
     }
 
     @Test
@@ -165,8 +165,7 @@ public class FederatedStoreToFederatedStoreTest {
 
         // Then
         assertThat(results)
-                .hasSize(1)
-                .first().isEqualTo(entity);
+                .containsExactly(entity);
     }
 
     @Test

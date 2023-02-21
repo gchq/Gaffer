@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,19 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -38,6 +43,8 @@ import java.util.Set;
  * Validation class for validating {@link OperationChain}s against {@link ViewValidator}s.
  */
 public class OperationChainValidator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationChainValidator.class);
+
     private final ViewValidator viewValidator;
 
     public OperationChainValidator(final ViewValidator viewValidator) {
@@ -114,7 +121,15 @@ public class OperationChainValidator {
 
     protected void validateComparables(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (op instanceof ElementComparison) {
-            final Schema schema = getSchema(op, user, store);
+            final Schema schema;
+            try {
+                schema = getSchema(op, user, store);
+            } catch (final Exception e) {
+                final String message = "Unable to getSchema to validate groups";
+                LOGGER.info(message, e);
+                validationResult.addError(message);
+                return;
+            }
             for (final Pair<String, String> pair : ((ElementComparison) op).getComparableGroupPropertyPairs()) {
                 final SchemaElementDefinition elementDef = schema.getElement(pair.getFirst());
                 if (null == elementDef) {
@@ -136,7 +151,15 @@ public class OperationChainValidator {
 
     protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (shouldValidate(op)) {
-            final Schema schema = getSchema(op, user, store);
+            final Schema schema;
+            try {
+                schema = getSchema(op, user, store);
+            } catch (final Exception e) {
+                final String message = "Unable to getSchema to validate groups";
+                LOGGER.info(message, e);
+                validationResult.addError(message);
+                return;
+            }
             final ValidationResult viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store));
             if (!viewValidationResult.isValid()) {
                 validationResult.addError("View for operation "
@@ -155,8 +178,8 @@ public class OperationChainValidator {
         return op instanceof GraphFilters;
     }
 
-    protected Schema getSchema(final Operation operation, final User user, final Store store) {
-        return store.getSchema();
+    protected Schema getSchema(final Operation operation, final User user, final Store store) throws OperationException {
+        return store.execute(new GetSchema(), new Context(user));
     }
 
     protected Set<StoreTrait> getStoreTraits(final Store store) {

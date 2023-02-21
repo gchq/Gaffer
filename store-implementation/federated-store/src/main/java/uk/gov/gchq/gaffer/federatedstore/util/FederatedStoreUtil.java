@@ -44,7 +44,6 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -149,6 +148,10 @@ public final class FederatedStoreUtil {
                     // then clone the operation and add the new view.
                     if (validView.hasGroups()) {
                         ((OperationView) resultOp).setView(validView);
+                    } else {
+                        // The view has no groups so the operation would return
+                        // nothing, so we shouldn't execute the operation.
+                        resultOp = null;
                     }
                 }
             }
@@ -156,7 +159,7 @@ public final class FederatedStoreUtil {
             final AddElements addElements = ((AddElements) resultOp);
             if (null == addElements.getInput()) {
                 if (!addElements.isValidate() || !addElements.isSkipInvalidElements()) {
-                    LOGGER.debug("Invalid elements will be skipped when added to {}", graph.getGraphId());
+                    LOGGER.debug("Invalid elements will be skipped");
                     resultOp = (OP) addElements.shallowClone();
                     ((AddElements) resultOp).setValidate(true);
                     ((AddElements) resultOp).setSkipInvalidElements(true);
