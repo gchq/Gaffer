@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -378,10 +379,11 @@ public class FederatedAddGraphHandlerTest {
      * cache service used by FederatedStore in the same JVM.
      * loosing all graphs and cached info.
      *
-     * @throws StoreException Store.Initialise throws exceptions.
+     * @throws StoreException Store.Initialise throws exception.
+     * @throws OperationException addGraph throws exception.
      */
     @Test
-    public void shouldAddGraphWithACache() throws StoreException {
+    public void shouldAddGraphWithACache() throws StoreException, OperationException {
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
         final Schema expectedSchema = new Schema.Builder().build();
 
