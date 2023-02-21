@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation;
 
 import com.google.common.collect.Lists;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
@@ -33,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
@@ -40,6 +43,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +53,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class OperationChainValidatorTest {
+    private final ViewValidator viewValidator = mock(ViewValidator.class);
+    private final OperationChainValidator validator = new OperationChainValidator(viewValidator);
+    private final Store store = mock(Store.class);
+    private final User user = mock(User.class);
+    private final Schema schema = mock(Schema.class);
+
+    @BeforeEach
+    public void setup() throws OperationException {
+        given(store.getSchema()).willReturn(schema);
+        given(store.execute(any(GetTraits.class), any(Context.class))).willReturn(new HashSet<>());
+        given(viewValidator.validate(any(), any(Schema.class), any(Set.class))).willReturn(new ValidationResult());
+    }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
@@ -172,7 +188,6 @@ public class OperationChainValidatorTest {
     @SuppressWarnings({"rawtypes"})
     @Test
     public void shouldNotValidateInvalidOperationChain() {
-
         // Given
         final Operation operation = Mockito.mock(Operation.class);
         given(operation.validate()).willReturn(new ValidationResult("SparkContext is required"));
@@ -187,18 +202,6 @@ public class OperationChainValidatorTest {
     }
 
     private void validateOperationChain(final OperationChain opChain, final boolean expectedResult) {
-        // Given
-        final ViewValidator viewValidator = mock(ViewValidator.class);
-        final OperationChainValidator validator = new OperationChainValidator(viewValidator);
-        final Store store = mock(Store.class);
-        final User user = mock(User.class);
-        final Schema schema = mock(Schema.class);
-
-        given(store.getSchema()).willReturn(schema);
-
-        // TODO: wouldn't work as statndard as the schema was null...
-        given(viewValidator.validate(any(), any(Schema.class), any(Set.class))).willReturn(new ValidationResult());
-
         // When
         final ValidationResult validationResult = validator.validate(opChain, user, store);
 

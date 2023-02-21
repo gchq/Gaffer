@@ -1073,11 +1073,6 @@ public class StoreTest {
             return operationChainValidator;
         }
 
-        @Override
-        public Set<StoreTrait> getTraits() {
-            return traits;
-        }
-
         @SuppressWarnings("rawtypes")
         public OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
             return super.getOperationHandler(opClass);
@@ -1174,11 +1169,6 @@ public class StoreTest {
         @Override
         protected OperationChainValidator createOperationChainValidator() {
             return operationChainValidator;
-        }
-
-        @Override
-        public Set<StoreTrait> getTraits() {
-            return traits;
         }
 
         @Override

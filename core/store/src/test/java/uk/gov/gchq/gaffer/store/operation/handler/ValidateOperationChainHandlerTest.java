@@ -28,13 +28,17 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+import java.util.HashSet;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -54,6 +58,7 @@ public class ValidateOperationChainHandlerTest {
         ValidateOperationChain validateOperationChain = new ValidateOperationChain.Builder().operationChain(chain).build();
 
         given(store.getOperationChainValidator()).willReturn(new OperationChainValidator(new ViewValidator()));
+        given(store.execute(any(GetTraits.class), any(Context.class))).willReturn(new HashSet<>());
         ValidateOperationChainHandler handler = new ValidateOperationChainHandler();
 
         // When

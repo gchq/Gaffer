@@ -59,11 +59,6 @@ public class TestStore extends Store {
     }
 
     @Override
-    public Set<StoreTrait> getTraits() {
-        return mockStore.getTraits();
-    }
-
-    @Override
     protected void addAdditionalOperationHandlers() {
     }
 
@@ -89,8 +84,7 @@ public class TestStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-        // mockStore.getGetTraitsHandler() would be better but protected
-        return new GetTraitsHandler(mockStore.getTraits());
+        return mock(GetTraitsHandler.class);
     }
 
     @Override
