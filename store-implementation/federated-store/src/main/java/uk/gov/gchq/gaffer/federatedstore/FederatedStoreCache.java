@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -96,7 +97,7 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
      *
      * @param graphId the ID of the {@link Graph} to retrieve
      * @return the {@link GraphSerialisable} related to the specified ID
-     * @exception CacheOperationException exception
+     * @throws CacheOperationException exception
      */
     public GraphSerialisable getGraphFromCache(final String graphId) throws CacheOperationException {
         return cacheTransient.getGraphFromCache(graphId);
@@ -125,7 +126,7 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
             final byte[] accessFromCache = cacheTransient.getAccessFromCache(graphId);
             return (isNull(accessFromCache)) ? null : JSONSerialiser.deserialise(accessFromCache, FederatedAccess.class);
         } catch (final Exception e) {
-            throw new RuntimeException(e);
+            throw new GafferRuntimeException(String.format("Error Getting Access from Cache for graphId:%s", graphId), e);
         }
     }
 
