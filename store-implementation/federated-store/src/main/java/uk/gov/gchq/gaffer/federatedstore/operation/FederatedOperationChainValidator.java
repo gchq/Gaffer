@@ -35,6 +35,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
@@ -142,5 +143,10 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                 ? allGraphIds.stream().filter(graphIdsFromOperation::contains).collect(Collectors.toList())
                 : allGraphIds;
 
+    }
+
+    @Override
+    protected Set<StoreTrait> getStoreTraits(final Store store, final User user) {
+        return super.getStoreTraits(store, user);
     }
 }

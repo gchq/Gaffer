@@ -137,7 +137,8 @@ public class OperationChainValidator {
     protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (shouldValidate(op)) {
             final Schema schema = getSchema(op, user, store);
-            final ValidationResult viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store));
+            final ValidationResult viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store, user
+            ));
             if (!viewValidationResult.isValid()) {
                 validationResult.addError("View for operation "
                         + op.getClass().getName()
@@ -159,7 +160,7 @@ public class OperationChainValidator {
         return store.getSchema();
     }
 
-    protected Set<StoreTrait> getStoreTraits(final Store store) {
+    protected Set<StoreTrait> getStoreTraits(final Store store, final User user) {
         return store.getTraits();
     }
 }
