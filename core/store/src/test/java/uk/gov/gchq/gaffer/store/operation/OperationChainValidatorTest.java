@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,8 +196,7 @@ public class OperationChainValidatorTest {
 
         given(store.getSchema()).willReturn(schema);
 
-        // TODO: wouldn't work as statndard as the schema was null...
-        given(viewValidator.validate(any(), any(Schema.class), any(Set.class))).willReturn(new ValidationResult());
+        given(viewValidator.validate(any(), any(), any())).willReturn(new ValidationResult());
 
         // When
         final ValidationResult validationResult = validator.validate(opChain, user, store);
