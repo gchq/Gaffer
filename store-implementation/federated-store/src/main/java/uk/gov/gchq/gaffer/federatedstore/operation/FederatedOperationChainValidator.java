@@ -107,10 +107,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                 if (graphIdValid) {
                     currentResult = new ValidationResult();
                     clonedOp.graphIdsCSV(graphId);
-                    // Deprecated function still in use due to Federated GetTraits bug with DYNAMIC_SCHEMA
-                    if (!graphSerialisable.getGraph().getStoreTraits().contains(StoreTrait.DYNAMIC_SCHEMA)) {
-                        super.validateViews(clonedOp, user, store, currentResult);
-                    }
+                    super.validateViews(clonedOp, user, store, currentResult);
                     if (currentResult.isValid()) {
                         // If any graph has a valid View, break with valid current result
                         break;
@@ -138,7 +135,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
 
         final List<String> graphIdsFromOperation = (op instanceof IFederatedOperation) ? ((IFederatedOperation) op).getGraphIds() : new ArrayList<String>();
 
-      return  (nonNull(graphIdsFromOperation) && !graphIdsFromOperation.isEmpty())
+        return (nonNull(graphIdsFromOperation) && !graphIdsFromOperation.isEmpty())
                 ? allGraphIds.stream().filter(graphIdsFromOperation::contains).collect(Collectors.toList())
                 : allGraphIds;
 

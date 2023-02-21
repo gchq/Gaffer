@@ -149,11 +149,6 @@ public final class FederatedStoreUtil {
                     // then clone the operation and add the new view.
                     if (validView.hasGroups()) {
                         ((OperationView) resultOp).setView(validView);
-                        // Deprecated function still in use due to Federated GetTraits bug with DYNAMIC_SCHEMA
-                    } else if (!graph.getStoreTraits().contains(StoreTrait.DYNAMIC_SCHEMA)) {
-                        // The view has no groups so the operation would return
-                        // nothing, so we shouldn't execute the operation.
-                        resultOp = null;
                     }
                 }
             }
