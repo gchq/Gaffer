@@ -327,9 +327,9 @@ public class ProxyStore extends Store {
     @Override
     public Set<StoreTrait> getTraits() {
         try {
-            return fetchTraits();
-        } catch (final StoreException e) {
-            throw new GafferRuntimeException(e.getMessage(), e);
+            return this.executeOpChainViaUrl(new OperationChain.Builder().first(new GetTraits()).build(), new Context());
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException("Error with default GetTraits with No User", e);
         }
     }
 
@@ -355,11 +355,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-        try {
-            return new GetTraitsHandler(fetchTraits());
-        } catch (final StoreException e) {
-            throw new GafferRuntimeException(e.getMessage(), e);
-        }
+        return new GetTraitsHandler(getTraits());
     }
 
     @Override

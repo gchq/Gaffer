@@ -378,7 +378,11 @@ public class FederatedStore extends Store {
     @Deprecated
     @Override
     public Set<StoreTrait> getTraits() {
-        return StoreTrait.ALL_TRAITS;
+        try {
+            return this.execute(new GetTraits(), new Context());
+        } catch (OperationException e) {
+            throw new GafferRuntimeException("Error with default GetTraits with No User", e);
+        }
     }
 
     /**

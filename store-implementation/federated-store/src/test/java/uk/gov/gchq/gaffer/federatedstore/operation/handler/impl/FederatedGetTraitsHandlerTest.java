@@ -25,11 +25,13 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -261,7 +263,11 @@ public class FederatedGetTraitsHandlerTest {
 
         @Override
         public Set<StoreTrait> getTraits() {
-            return STORE_TRAITS;
+            try {
+                return this.execute(new GetTraits(), new Context());
+            } catch (OperationException e) {
+                throw new GafferRuntimeException("Error with default GetTraits with No User", e);
+            }
         }
 
         @Override
@@ -307,7 +313,11 @@ public class FederatedGetTraitsHandlerTest {
 
         @Override
         public Set<StoreTrait> getTraits() {
-            return STORE_TRAITS;
+            try {
+                return this.execute(new GetTraits(), new Context());
+            } catch (OperationException e) {
+                throw new GafferRuntimeException("Error with default GetTraits with No User", e);
+            }
         }
 
         @Override
