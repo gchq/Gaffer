@@ -31,9 +31,12 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -52,6 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
@@ -253,13 +257,22 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetStoreTraits() {
+    public void shouldGetStoreTraits() throws OperationException {
         // Given
-        when(graphFactory.getGraph()).thenReturn(new Graph.Builder()
+        Store store = mock(Store.class);
+        Schema schema = new Schema();
+        StoreProperties props = new StoreProperties();
+        when(store.getSchema()).thenReturn(schema);
+        when(store.getProperties()).thenReturn(props);
+        when(store.execute(any(OperationChain.class), any(Context.class))).thenReturn(MapStore.TRAITS);
+
+        Graph graph = new Graph.Builder()
                 .config(new GraphConfig("id"))
                 .addSchema(new Schema())
-                .storeProperties(new MapStoreProperties()) // Will be a map store
-                .build());
+                .store(store)
+                .build();
+
+        when(graphFactory.getGraph()).thenReturn(graph);
 
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -320,7 +333,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeserialiseGetStoreTraits() throws SerialisationException {
+    public void shouldSerialiseAndDeserialiseGetStoreTraits() throws SerialisationException, OperationException {
         // Given
         Store store = mock(Store.class);
 
@@ -334,7 +347,7 @@ public class GraphConfigurationControllerTest {
 
         when(store.getSchema()).thenReturn(schema);
         when(store.getProperties()).thenReturn(props);
-        when(store.getTraits()).thenReturn(storeTraits);
+        when(store.execute(any(OperationChain.class), any(Context.class))).thenReturn(storeTraits);
 
         Graph graph = new Graph.Builder()
                 .config(new GraphConfig("id"))

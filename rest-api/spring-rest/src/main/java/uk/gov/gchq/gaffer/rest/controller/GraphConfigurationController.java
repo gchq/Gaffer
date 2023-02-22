@@ -23,11 +23,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.signature.Signature;
@@ -134,7 +138,11 @@ public class GraphConfigurationController implements IGraphConfigurationControll
 
     @Override
     public Set<StoreTrait> getStoreTraits() {
-        return graphFactory.getGraph().getStoreTraits();
+        try {
+            return graphFactory.getGraph().execute(new GetTraits(), new Context());
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException("Unable to get Traits using GetTraits Operation", e);
+        }
     }
 
     @Override
