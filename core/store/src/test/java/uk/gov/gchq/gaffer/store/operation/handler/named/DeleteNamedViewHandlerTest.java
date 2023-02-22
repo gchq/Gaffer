@@ -64,6 +64,8 @@ public class DeleteNamedViewHandlerTest {
 
     @BeforeEach
     public void before() throws OperationException {
+        CacheServiceLoader.shutdown();
+
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
 

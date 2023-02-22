@@ -440,6 +440,10 @@ public class StoreProperties implements Cloneable {
         set(CACHE_SERVICE_CLASS, cacheServiceClassString);
     }
 
+    public String getCacheServiceClass() {
+        return getCacheServiceClass(null);
+    }
+
     public String getCacheServiceClass(final String defaultValue) {
         return get(CACHE_SERVICE_CLASS, defaultValue);
     }

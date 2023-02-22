@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -92,8 +92,8 @@ public class AddNamedViewHandlerTest {
         given(store.getProperties()).willReturn(new StoreProperties());
     }
 
-    @AfterAll
-    public static void tearDown() {
+    @AfterEach
+    public void tearDown() {
         CacheServiceLoader.shutdown();
     }
 

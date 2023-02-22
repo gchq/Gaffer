@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -32,8 +33,10 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -61,7 +64,7 @@ public class FederatedAddGraphHandlerTest {
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final String EXPECTED_GRAPH_ID_2 = "testGraphID2";
-    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    private static final String CACHE_SERVICE_CLASS_STRING = HashMapCacheService.class.getCanonicalName();
     private User testUser;
     private User authUser;
     private User blankUser;
@@ -369,5 +372,61 @@ public class FederatedAddGraphHandlerTest {
 
         assertThat(store.getGraphs(blankUser, null, new AddGraph())).hasSize(1);
         assertThat(store.getGraphs(testUser, null, new AddGraph())).hasSize(1);
+    }
+
+    /**
+     * Adding a Graph with Cache previously would erase the static
+     * cache service used by FederatedStore in the same JVM.
+     * loosing all graphs and cached info.
+     *
+     * @throws StoreException Store.Initialise throws exception.
+     * @throws OperationException addGraph throws exception.
+     */
+    @Test
+    public void shouldAddGraphWithACache() throws StoreException, OperationException {
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        final Schema expectedSchema = new Schema.Builder().build();
+
+        assertThat(store.getGraphs(testUser, null, new AddGraph())).hasSize(0);
+
+        final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        final AccumuloProperties properties = new AccumuloProperties();
+        properties.setProperties(PROPERTIES.getProperties());
+        properties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+
+        federatedAddGraphHandler.doOperation(
+                new AddGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .schema(expectedSchema)
+                        .storeProperties(properties)
+                        .build(),
+                new Context(testUser),
+                store);
+
+        Collection<GraphSerialisable> graphs = store.getGraphs(testUser, null, new AddGraph());
+
+        assertThat(graphs).hasSize(1);
+        final GraphSerialisable next = graphs.iterator().next();
+        assertThat(next.getGraphId()).isEqualTo(EXPECTED_GRAPH_ID);
+        assertThat(next.getSchema()).isEqualTo(expectedSchema);
+
+        federatedAddGraphHandler.doOperation(
+                new AddGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID_2)
+                        .schema(expectedSchema)
+                        .storeProperties(properties)
+                        .build(),
+                new Context(testUser),
+                store);
+
+        graphs = store.getGraphs(testUser, null, new AddGraph());
+
+        assertThat(graphs).hasSize(2);
+        final Iterator<GraphSerialisable> iterator = graphs.iterator();
+        final HashSet<String> set = new HashSet<>();
+        while (iterator.hasNext()) {
+            set.add(iterator.next().getGraphId());
+        }
+        assertThat(set).contains(EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID_2);
     }
 }
