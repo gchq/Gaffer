@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
@@ -35,6 +36,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
@@ -52,8 +54,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
@@ -79,16 +84,20 @@ public class GraphConfigurationServiceTest {
     private Store store;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws OperationException {
+        // TODO: Mockito stubbing should be personalised on a per test basis. This wasn't done, instead lenient() has been used to bypass warnings about this.
         final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
-        lenient().when(store.getSchema()).thenReturn(new Schema());
-        lenient().when(store.getProperties()).thenReturn(new StoreProperties());
-        final Graph graph = new Graph.Builder()
+        when(store.getSchema()).thenReturn(new Schema());
+        when(store.getProperties()).thenReturn(new StoreProperties());
+        // Spy on the Graph, so we can stub only GetTraits Operation execution
+        final Graph graph = spy(new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
                         .build())
                 .store(store)
-                .build();
+                .build());
+        lenient().doReturn(traits).when(graph).execute(any(GetTraits.class), any(Context.class));
+
         final Set<Class<? extends Operation>> operations = new HashSet<>();
         operations.add(AddElements.class);
         lenient().when(graphFactory.getGraph()).thenReturn(graph);
@@ -96,8 +105,6 @@ public class GraphConfigurationServiceTest {
         lenient().when(graph.isSupported(AddElements.class)).thenReturn(true);
 
         lenient().when(userFactory.createContext()).thenReturn(new Context());
-
-        lenient().when(graph.getStoreTraits()).thenReturn(traits);
     }
 
     @Test
@@ -147,7 +154,7 @@ public class GraphConfigurationServiceTest {
     public void shouldGetNextOperations() throws IOException {
         // Given
         final Set<Class<? extends Operation>> expectedNextOperations = mock(Set.class);
-        lenient().when(store.getNextOperations(GetElements.class)).thenReturn(expectedNextOperations);
+        when(store.getNextOperations(GetElements.class)).thenReturn(expectedNextOperations);
 
         // When
         final Set<Class> nextOperations = service.getNextOperations(GetElements.class.getName());
