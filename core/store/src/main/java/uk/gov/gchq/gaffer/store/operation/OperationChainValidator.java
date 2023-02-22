@@ -140,7 +140,7 @@ public class OperationChainValidator {
     protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (shouldValidate(op)) {
             final Schema schema = getSchema(op, user, store);
-            final ValidationResult viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store));
+            final ValidationResult viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store, new Context(user)));
             if (!viewValidationResult.isValid()) {
                 validationResult.addError("View for operation "
                         + op.getClass().getName()
@@ -162,9 +162,9 @@ public class OperationChainValidator {
         return store.getSchema();
     }
 
-    protected Set<StoreTrait> getStoreTraits(final Store store) {
+    protected Set<StoreTrait> getStoreTraits(final Store store, final Context context) {
         try {
-            return store.execute(new GetTraits(), new Context());
+            return store.execute(new GetTraits(), context);
         } catch (final OperationException e) {
             throw new GafferRuntimeException("Unable to get Traits using GetTraits Operation", e);
         }

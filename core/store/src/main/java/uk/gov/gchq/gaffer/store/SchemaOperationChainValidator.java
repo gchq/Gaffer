@@ -47,7 +47,7 @@ public class SchemaOperationChainValidator extends OperationChainValidator {
     }
 
     @Override
-    protected Set<StoreTrait> getStoreTraits(final Store store) {
+    protected Set<StoreTrait> getStoreTraits(final Store store, final Context context) {
         return StoreTrait.ALL_TRAITS;
     }
 }
