@@ -55,6 +55,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -140,6 +141,10 @@ public class ProxyStore extends Store {
     @Override
     public boolean isSupported(final Class<? extends Operation> operationClass) {
         return getSupportedOperations().contains(operationClass);
+    }
+
+    protected Set<StoreTrait> fetchTraits() throws StoreException, OperationException {
+        return executeOpChainViaUrl(new OperationChain<>(new GetTraits()), new Context());
     }
 
     protected Schema fetchSchema(final boolean getCompactSchema) throws OperationException {
@@ -330,7 +335,11 @@ public class ProxyStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-        return null;
+        try {
+            return new GetTraitsHandler(fetchTraits());
+        } catch (final OperationException | StoreException e) {
+            throw new GafferRuntimeException("Error fetching traits from remote store.", e);
+        }
     }
 
     @Override
