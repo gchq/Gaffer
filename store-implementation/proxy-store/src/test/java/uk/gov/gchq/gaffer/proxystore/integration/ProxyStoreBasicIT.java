@@ -50,9 +50,11 @@ import uk.gov.gchq.gaffer.proxystore.ProxyStore;
 import uk.gov.gchq.gaffer.proxystore.SingleUseMapProxyStore;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
@@ -216,13 +218,13 @@ public class ProxyStoreBasicIT {
     }
 
     @Test
-    public void shouldHaveAllOfDelegateStoreTraitsApartFromVisibility() {
+    public void shouldHaveAllOfDelegateStoreTraitsApartFromVisibility() throws OperationException {
         // Given
         final Set<StoreTrait> expectedTraits = new HashSet<>(MapStore.TRAITS);
         expectedTraits.remove(StoreTrait.VISIBILITY);
 
         // When
-        final Set<StoreTrait> storeTraits = graph.getStoreTraits();
+        final Set<StoreTrait> storeTraits = graph.execute(new GetTraits(), new Context());
 
         // Then
         assertThat(storeTraits).isEqualTo(expectedTraits);

@@ -53,10 +53,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
-import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -76,7 +74,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -143,19 +140,6 @@ public class ProxyStore extends Store {
     @Override
     public boolean isSupported(final Class<? extends Operation> operationClass) {
         return getSupportedOperations().contains(operationClass);
-    }
-
-    protected Set<StoreTrait> fetchTraits() throws StoreException {
-        final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
-        final ResponseDeserialiser<Set<StoreTrait>> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceStoreImpl.StoreTraits());
-        Set<StoreTrait> newTraits = doGet(url, responseDeserialiser, null);
-        if (isNull(newTraits)) {
-            newTraits = new HashSet<>(0);
-        } else {
-            // This proxy store cannot handle visibility due to the simple rest api using a default user.
-            newTraits.remove(StoreTrait.VISIBILITY);
-        }
-        return newTraits;
     }
 
     protected Schema fetchSchema(final boolean getCompactSchema) throws OperationException {
@@ -325,15 +309,6 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    public Set<StoreTrait> getTraits() {
-        try {
-            return fetchTraits();
-        } catch (final StoreException e) {
-            throw new GafferRuntimeException(e.getMessage(), e);
-        }
-    }
-
-    @Override
     protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
         return null;
     }
@@ -355,11 +330,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-        try {
-            return new GetTraitsHandler(fetchTraits());
-        } catch (final StoreException e) {
-            throw new GafferRuntimeException(e.getMessage(), e);
-        }
+        return null;
     }
 
     @Override
