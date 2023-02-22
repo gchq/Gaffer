@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedRemoveGraphHandlerTest {
@@ -100,7 +101,7 @@ public class FederatedRemoveGraphHandlerTest {
 
         assertEquals(1, store.getGraphs(testUser, null, new RemoveGraph()).size());
 
-        new FederatedRemoveGraphHandler().doOperation(
+        final Boolean removed = new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .build(),
@@ -110,6 +111,30 @@ public class FederatedRemoveGraphHandlerTest {
         Collection<GraphSerialisable> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
         assertThat(graphs).hasSize(1);
+        assertFalse(removed);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenNoGraphWasRemoved() throws Exception {
+        FederatedStore store = new FederatedStore();
+        final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
+        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+
+        assertEquals(0, store.getGraphs(testUser, null, new RemoveGraph()).size());
+
+        final Boolean removed = new FederatedRemoveGraphHandler().doOperation(
+                new RemoveGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .build(),
+                new Context(testUser),
+                store);
+
+        Collection<GraphSerialisable> graphs = store.getGraphs(testUser, null, new RemoveGraph());
+
+        assertThat(graphs).hasSize(0);
+        assertFalse(removed);
 
     }
 

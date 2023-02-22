@@ -280,11 +280,6 @@ public final class FederatedStoreUtil {
         return deprecatedGraphIds;
     }
 
-    @Deprecated
-    public static FederatedOperation<Void, Iterable<Schema>> getFederatedWrappedSchema() {
-        return new FederatedOperation.Builder().<Void, Iterable<Schema>>op(new GetSchema()).build();
-    }
-
     /**
      * Return a clone of the given operations with a deep clone of options.
      * <p>

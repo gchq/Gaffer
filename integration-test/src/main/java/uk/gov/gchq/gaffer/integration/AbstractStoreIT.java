@@ -322,7 +322,6 @@ public abstract class AbstractStoreIT {
                         .vertex(TestTypes.ID_STRING)
                         .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
                         .property(TestPropertyNames.SET, TestTypes.PROP_SET_STRING)
-                        .groupBy(TestPropertyNames.INT)
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)

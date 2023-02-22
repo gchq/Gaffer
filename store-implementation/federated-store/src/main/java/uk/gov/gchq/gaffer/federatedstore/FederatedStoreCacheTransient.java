@@ -114,6 +114,7 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
     }
 
     public byte[] getAccessFromCache(final String graphId) throws CacheOperationException {
-        return getFromCache(graphId).getSecond();
+        final Pair<GraphSerialisable, byte[]> fromCache = getFromCache(graphId);
+        return isNull(fromCache) ? null : fromCache.getSecond();
     }
 }

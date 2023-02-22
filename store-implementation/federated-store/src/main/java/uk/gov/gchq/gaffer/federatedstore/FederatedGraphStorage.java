@@ -27,17 +27,10 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
-import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.GetSchema;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -232,35 +225,6 @@ public class FederatedGraphStorage {
         }
         final List<GraphSerialisable> rtn = graphs.distinct().collect(Collectors.toList());
         return Collections.unmodifiableList(rtn);
-    }
-
-    @Deprecated
-    public Schema getSchema(final FederatedOperation<Void, Object> operation, final Context context) {
-        if (null == context || null == context.getUser()) {
-            // no user then return an empty schema
-            return new Schema();
-        }
-        final List<String> graphIds = isNull(operation) ? null : operation.getGraphIds();
-
-        final Stream<GraphSerialisable> graphs = getStream(context.getUser(), graphIds);
-        final Builder schemaBuilder = new Builder();
-        try {
-            if (nonNull(operation) && operation.hasPayloadOperation() && operation.payloadInstanceOf(GetSchema.class) && ((GetSchema) operation.getPayloadOperation()).isCompact()) {
-                graphs.forEach(gs -> {
-                    try {
-                        schemaBuilder.merge(gs.getGraph().execute((GetSchema) operation.getPayloadOperation(), context));
-                    } catch (final Exception e) {
-                        throw new GafferRuntimeException("Unable to fetch schema from graph " + gs.getGraphId(), e);
-                    }
-                });
-            } else {
-                graphs.forEach(g -> schemaBuilder.merge(g.getSchema(graphLibrary)));
-            }
-        } catch (final SchemaException e) {
-            final List<String> resultGraphIds = getStream(context.getUser(), graphIds).map(GraphSerialisable::getGraphId).collect(Collectors.toList());
-            throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the FederatedOperation.graphIds option.", e);
-        }
-        return schemaBuilder.build();
     }
 
     private void validateAllGivenGraphIdsAreVisibleForUser(final User user, final Collection<String> graphIds, final String adminAuth) {

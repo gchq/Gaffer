@@ -54,6 +54,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -86,8 +87,8 @@ import static java.util.Objects.nonNull;
  */
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
+    public static final String ERROR_FETCHING_SCHEMA_FROM_REMOTE_STORE = "Error fetching schema from remote store.";
     private Client client;
-    private Schema schema;
 
     public ProxyStore() {
         super(false);
@@ -99,9 +100,8 @@ public class ProxyStore extends Store {
             throws StoreException {
         setProperties(properties);
         client = createClient();
-        schema = fetchSchema();
 
-        super.initialise(graphId, schema, getProperties());
+        super.initialise(graphId, new Schema(), getProperties());
         checkDelegateStoreStatus();
     }
 
@@ -158,10 +158,38 @@ public class ProxyStore extends Store {
         return newTraits;
     }
 
-    protected Schema fetchSchema() throws StoreException {
-        final URL url = getProperties().getGafferUrl("graph/config/schema");
-        final ResponseDeserialiser<Schema> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceStoreImpl.Schema());
-        return doGet(url, responseDeserialiser, null);
+    protected Schema fetchSchema(final boolean getCompactSchema) throws OperationException {
+        final GetSchema.Builder getSchema = new GetSchema.Builder();
+        getSchema.compact(getCompactSchema);
+        return executeOpChainViaUrl(new OperationChain<>(getSchema.build()), new Context());
+    }
+
+    /**
+     * Get original {@link Schema} from the remote Store.
+     *
+     * @return original {@link Schema}
+     */
+    @Override
+    public Schema getOriginalSchema() {
+        try {
+            return fetchSchema(false);
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException(ERROR_FETCHING_SCHEMA_FROM_REMOTE_STORE, e);
+        }
+    }
+
+    /**
+     * Get {@link Schema} from the remote Store.
+     *
+     * @return optimised compact {@link Schema}
+     */
+    @Override
+    public Schema getSchema() {
+        try {
+            return fetchSchema(true);
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException(ERROR_FETCHING_SCHEMA_FROM_REMOTE_STORE, e);
+        }
     }
 
     @Override
