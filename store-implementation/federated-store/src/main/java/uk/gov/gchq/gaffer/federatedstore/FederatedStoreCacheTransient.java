@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 
-import java.util.Locale;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
