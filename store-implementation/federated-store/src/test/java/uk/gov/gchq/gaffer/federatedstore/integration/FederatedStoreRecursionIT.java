@@ -45,6 +45,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,12 +84,20 @@ public class FederatedStoreRecursionIT {
         CacheServiceLoader.shutdown();
 
         createProxyToRestServiceFederatedGraph();
+        testOuterGetGraphIds();
+
         createTheInnerFederatedStore();
+        testOuterGetGraphIds(INNER_FEDERATED_GRAPH);
+        testInnerGetGraphIds();
+
         createInnerProxyToOuterFederatedStore();
         testOuterGetGraphIds(INNER_FEDERATED_GRAPH);
         testInnerGetGraphIds(INNER_PROXY);
+
         createEntityGraph();
         testOuterGetGraphIds(INNER_FEDERATED_GRAPH, ENTITY_GRAPH);
+        testInnerGetGraphIds(INNER_PROXY);
+
         addEntity();
         testGetAllElements(1);
         addEntity();
@@ -137,16 +146,13 @@ public class FederatedStoreRecursionIT {
     }
 
     private void testInnerGetGraphIds(final String... ids) throws OperationException {
-        ArrayList<? extends String> list = (ArrayList<? extends String>) proxyToRestServiceFederatedGraph.execute(
+        final Iterable<String> graphIds = (Iterable<String>) proxyToRestServiceFederatedGraph.execute(
                 getFederatedOperation(
                         OperationChain.wrap(
                                 new GetAllGraphIds()
-                        )),
+                        )).graphIds(Collections.singletonList(INNER_FEDERATED_GRAPH)),
                 user);
-        assertThat(list).hasSameSizeAs(ids);
-        for (String id : ids) {
-            Assertions.<String>assertThat(list).as(list.toString()).contains(id);
-        }
+        assertThat(graphIds).containsExactly(ids);
     }
 
     private void createInnerProxyToOuterFederatedStore() throws OperationException {
@@ -154,12 +160,13 @@ public class FederatedStoreRecursionIT {
         storeProperties.setGafferContextRoot(CONTEXT_ROOT_SINGLE_USE_PROXY);
         storeProperties.setReadTimeout(120000);
         storeProperties.setConnectTimeout(120000);
-        proxyToRestServiceFederatedGraph.execute(getFederatedOperation(
-                OperationChain.wrap(new AddGraph.Builder()
-                        .graphId(INNER_PROXY)
-                        .schema(new Schema())
-                        .storeProperties(storeProperties)
-                        .build())), user);
+        proxyToRestServiceFederatedGraph.execute(
+                getFederatedOperation(
+                        new AddGraph.Builder()
+                                .graphId(INNER_PROXY)
+                                .schema(new Schema())
+                                .storeProperties(storeProperties)
+                                .build()).graphIds(Collections.singletonList(INNER_FEDERATED_GRAPH)), user);
     }
 
     private void createTheInnerFederatedStore() throws OperationException {
@@ -172,7 +179,7 @@ public class FederatedStoreRecursionIT {
                 .build(), user);
     }
 
-    private void createProxyToRestServiceFederatedGraph() {
+    private void createProxyToRestServiceFederatedGraph() throws OperationException {
         final Graph proxyToRestServiceFederatedGraph;
         ProxyProperties singleUseFedProperties = new ProxyProperties();
         singleUseFedProperties.setGafferContextRoot(CONTEXT_ROOT_SINGLE_USE_PROXY);
@@ -189,10 +196,7 @@ public class FederatedStoreRecursionIT {
     }
 
     private void testOuterGetGraphIds(final String... ids) throws OperationException {
-        ArrayList<? extends String> list = Lists.newArrayList(proxyToRestServiceFederatedGraph.execute(new GetAllGraphIds(), user));
-        assertThat(list).hasSameSizeAs(ids);
-        for (String id : ids) {
-            Assertions.<String>assertThat(list).as(list.toString()).contains(id);
-        }
+        final Iterable<String> graphIds = (Iterable<String>) proxyToRestServiceFederatedGraph.execute(new GetAllGraphIds(), user);
+        assertThat(graphIds).containsExactly(ids);
     }
 }
