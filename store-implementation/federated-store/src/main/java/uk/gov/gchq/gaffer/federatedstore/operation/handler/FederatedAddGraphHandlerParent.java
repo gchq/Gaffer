@@ -19,6 +19,9 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -70,6 +73,8 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
             throw new OperationException(String.format(ERROR_BUILDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
 
+        processNonViableFedStoreWithNonPersistentCaches(graphSerialisable);
+
         Graph graph;
         try {
             //created at this position to capture errors before adding to cache.
@@ -91,6 +96,20 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         addGenericHandler((FederatedStore) store, graph);
 
         return null;
+    }
+
+    private static void processNonViableFedStoreWithNonPersistentCaches(final GraphSerialisable graphSerialisable) throws OperationException {
+        final String storeClass = graphSerialisable.getStoreProperties().getStoreClass();
+        final Class<? extends Store> aClass;
+        try {
+            aClass = Class.forName(storeClass).asSubclass(Store.class);
+        } catch (ClassNotFoundException e) {
+            throw new GafferRuntimeException("Error creating Store class from properties", e);
+        }
+        if (FederatedStore.class.isAssignableFrom(aClass) && CacheServiceLoader.getService() instanceof HashMapCacheService) {
+            throw new OperationException("Error: A sub-graph of type FederatedStore cannot exist with a non-persistent cache service HashMapCacheService. " +
+                    "The sub-graph is unusable and will loose all knowledge.");
+        }
     }
 
     private void overwriteCacheProperty(final OP operation, final Store store) {
