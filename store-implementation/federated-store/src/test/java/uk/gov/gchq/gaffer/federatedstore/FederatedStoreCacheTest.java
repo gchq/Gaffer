@@ -55,7 +55,7 @@ public class FederatedStoreCacheTest {
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
         CacheServiceLoader.initialise(properties);
 
-        federatedStoreCache = new FederatedStoreCache();
+        federatedStoreCache = new FederatedStoreCache("GRAPH_ID_ACCUMULO");
         testGraph = new Graph.Builder().config(new GraphConfig(GRAPH_ID_ACCUMULO))
                 .addStoreProperties(loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES))
                 .addSchema(loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON))

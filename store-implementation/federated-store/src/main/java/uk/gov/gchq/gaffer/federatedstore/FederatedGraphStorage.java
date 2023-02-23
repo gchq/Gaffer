@@ -57,10 +57,6 @@ public class FederatedGraphStorage {
     private final FederatedStoreCache federatedStoreCache;
     private GraphLibrary graphLibrary;
 
-    public FederatedGraphStorage() {
-        this(null);
-    }
-
     public FederatedGraphStorage(final String cacheNameSuffix) {
         federatedStoreCache = new FederatedStoreCache(cacheNameSuffix);
     }
