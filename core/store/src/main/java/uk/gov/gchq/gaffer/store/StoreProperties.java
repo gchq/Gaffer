@@ -211,7 +211,8 @@ public class StoreProperties implements Cloneable {
         } else {
             try {
                 storeProperties = Class.forName(storePropertiesClass).asSubclass(StoreProperties.class).newInstance();
-            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            } catch (final ClassNotFoundException | InstantiationException |
+                           IllegalAccessException e) {
                 throw new RuntimeException("Failed to create store properties file : " + e.getMessage(), e);
             }
         }
@@ -453,7 +454,11 @@ public class StoreProperties implements Cloneable {
     }
 
     public String getCacheServiceNameSuffix() {
-        return get(CACHE_SERVICE_NAME_SUFFIX, null);
+        return getCacheServiceNameSuffix(null);
+    }
+
+    public String getCacheServiceNameSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_NAME_SUFFIX, defaultValue);
     }
 
     public Properties getProperties() {
