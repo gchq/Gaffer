@@ -184,7 +184,8 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
     private static Map<Class<? extends Operation>, ScoreResolver> addDefaultScoreResolvers() {
         final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = new HashMap<>();
 
-        defaultResolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
+        //TODO Possible DEFAULT_SCORE_RESOLVERS is never used?
+        defaultResolvers.put(NamedOperation.class, new NamedOperationScoreResolver("defaultScoreResolvers"));
         defaultResolvers.put(If.class, new IfScoreResolver());
         defaultResolvers.put(While.class, new WhileScoreResolver());
 

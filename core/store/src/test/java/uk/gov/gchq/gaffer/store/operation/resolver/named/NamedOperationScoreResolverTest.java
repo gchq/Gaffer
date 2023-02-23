@@ -43,6 +43,8 @@ import static org.mockito.Mockito.mock;
 
 public class NamedOperationScoreResolverTest {
 
+    public static final String SUFFIX_CACHE_NAME = "suffix";
+
     @Test
     public void shouldGetScore() throws CacheOperationException {
         // Given
@@ -136,7 +138,7 @@ public class NamedOperationScoreResolverTest {
     public void shouldCatchExceptionForCacheFailures() {
         // Given
         final NamedOperation<Element, Iterable<? extends Element>> namedOp = mock(NamedOperation.class);
-        final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver();
+        final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver(SUFFIX_CACHE_NAME);
 
         // When
         final Integer result = resolver.getScore(namedOp);

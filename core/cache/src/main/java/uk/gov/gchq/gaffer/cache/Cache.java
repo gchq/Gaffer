@@ -20,7 +20,10 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Set;
+
+import static java.util.Objects.nonNull;
 
 /**
  * Type safe cache, adding and getting is guaranteed to be same type.
@@ -103,5 +106,12 @@ public class Cache<K, V> {
         } else {
             return null;
         }
+    }
+
+    public static String getCacheNameFrom(final String prefixCacheServiceName, final String SuffixCacheName) {
+        return String.format("%s%s", prefixCacheServiceName,
+                nonNull(SuffixCacheName)
+                        ? "_" + SuffixCacheName.toLowerCase(Locale.UK)
+                        : "");
     }
 }

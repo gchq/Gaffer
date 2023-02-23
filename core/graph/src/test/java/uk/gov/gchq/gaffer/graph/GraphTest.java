@@ -136,6 +136,7 @@ public class GraphTest {
     private static final String GRAPH_ID = "graphId";
     public static final String SCHEMA_ID_1 = "schemaId1";
     public static final String STORE_PROPERTIES_ID_1 = "storePropertiesId1";
+    public static final String SUFFIX_CACHE_NAME = "suffix";
 
     @TempDir
     Path tempDir;
@@ -1403,7 +1404,7 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
-        final NamedOperationResolver graphHook2 = new NamedOperationResolver();
+        final NamedOperationResolver graphHook2 = new NamedOperationResolver(SUFFIX_CACHE_NAME);
 
         // When
         final Graph graph = new Graph.Builder()

@@ -41,8 +41,8 @@ public class GetAllNamedOperationsHandler
         implements OutputOperationHandler<GetAllNamedOperations, Iterable<NamedOperationDetail>> {
     private final NamedOperationCache cache;
 
-    public GetAllNamedOperationsHandler() {
-        this(new NamedOperationCache());
+    public GetAllNamedOperationsHandler(final String suffixCacheName) {
+        this(new NamedOperationCache(suffixCacheName));
     }
 
     public GetAllNamedOperationsHandler(final NamedOperationCache cache) {

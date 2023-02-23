@@ -51,6 +51,7 @@ import static org.mockito.Mockito.mock;
 
 public class NamedOperationCacheIT {
     private static final String CACHE_NAME = "NamedOperation";
+    public static final String SUFFIX = "suffix";
     private final Properties cacheProps = new Properties();
     private final Store store = mock(Store.class);
     private final String adminAuth = "admin auth";
@@ -71,10 +72,10 @@ public class NamedOperationCacheIT {
     private User authorisedUser = new User.Builder().userId("authorisedUser").opAuth("authorised").build();
     private User adminAuthUser = new User.Builder().userId("adminAuthUser").opAuth(adminAuth).build();
     private Context context = new Context(user);
-    private GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler();
-    private AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler();
-    private GetAllNamedOperationsHandler getAllNamedOperationsHandler1 = new GetAllNamedOperationsHandler();
-    private DeleteNamedOperationHandler deleteNamedOperationHandler = new DeleteNamedOperationHandler();
+    private GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler(SUFFIX);
+    private AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler(SUFFIX);
+    private GetAllNamedOperationsHandler getAllNamedOperationsHandler1 = new GetAllNamedOperationsHandler(SUFFIX);
+    private DeleteNamedOperationHandler deleteNamedOperationHandler = new DeleteNamedOperationHandler(SUFFIX);
     private GetAllNamedOperations get = new GetAllNamedOperations();
 
     @BeforeEach
@@ -87,6 +88,7 @@ public class NamedOperationCacheIT {
     @AfterEach
     public void after() throws CacheOperationException {
         CacheServiceLoader.getService().clearCache(CACHE_NAME);
+        CacheServiceLoader.getService().clearCache(SUFFIX);
     }
 
     @Test
@@ -135,7 +137,7 @@ public class NamedOperationCacheIT {
                 .build();
 
         List<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
-        List<NamedOperationDetail> results = Lists.newArrayList(new GetAllNamedOperationsHandler().doOperation(get, context, store));
+        List<NamedOperationDetail> results = Lists.newArrayList(new GetAllNamedOperationsHandler(SUFFIX).doOperation(get, context, store));
 
         // then
         assertThat(results)
@@ -149,7 +151,7 @@ public class NamedOperationCacheIT {
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(properties);
 
-        new AddNamedOperationHandler().doOperation(add, context, store);
+        new AddNamedOperationHandler(SUFFIX).doOperation(add, context, store);
 
         DeleteNamedOperation del = new DeleteNamedOperation.Builder()
                 .name("op")
@@ -173,7 +175,7 @@ public class NamedOperationCacheIT {
         final StoreProperties storeProps = mock(StoreProperties.class);
         given(store.getProperties()).willReturn(storeProps);
 
-        new AddNamedOperationHandler().doOperation(add, context, store);
+        new AddNamedOperationHandler(SUFFIX).doOperation(add, context, store);
 
         AddNamedOperation update = new AddNamedOperation.Builder()
                 .name(add.getOperationName())
@@ -186,7 +188,7 @@ public class NamedOperationCacheIT {
         GetAllNamedOperations get = new GetAllNamedOperations();
 
         // when
-        new AddNamedOperationHandler().doOperation(add, context, store);
+        new AddNamedOperationHandler(SUFFIX).doOperation(add, context, store);
 
         List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
 
@@ -212,7 +214,7 @@ public class NamedOperationCacheIT {
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(properties);
 
-        new AddNamedOperationHandler().doOperation(add, context, store);
+        new AddNamedOperationHandler(SUFFIX).doOperation(add, context, store);
 
         AddNamedOperation update = new AddNamedOperation.Builder()
                 .name(add.getOperationName())
@@ -225,7 +227,7 @@ public class NamedOperationCacheIT {
         GetAllNamedOperations get = new GetAllNamedOperations();
 
         // when
-        new AddNamedOperationHandler().doOperation(add, context, store);
+        new AddNamedOperationHandler(SUFFIX).doOperation(add, context, store);
 
         List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
 

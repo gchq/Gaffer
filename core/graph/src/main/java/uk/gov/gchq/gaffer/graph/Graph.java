@@ -865,7 +865,7 @@ public final class Graph {
                 hooks.add(0, new NamedViewResolver());
             }
             if (store.isSupported(NamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
-                config.getHooks().add(0, new NamedOperationResolver());
+                config.getHooks().add(0, new NamedOperationResolver(config.getGraphId()));
             }
             if (!hasHook(hooks, FunctionAuthoriser.class)) {
                 config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));

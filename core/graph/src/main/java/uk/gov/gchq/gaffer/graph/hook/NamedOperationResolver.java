@@ -41,8 +41,8 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
 public class NamedOperationResolver implements GraphHook {
     private final NamedOperationCache cache;
 
-    public NamedOperationResolver() {
-        this(new NamedOperationCache());
+    public NamedOperationResolver(final String suffixCacheName) {
+        this(new NamedOperationCache(suffixCacheName));
     }
 
     public NamedOperationResolver(final NamedOperationCache cache) {

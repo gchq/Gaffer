@@ -40,15 +40,12 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationCache.class);
     private static final String CACHE_SERVICE_NAME_PREFIX = "NamedOperation";
 
-    public NamedOperationCache() {
-        this(null);
+    public NamedOperationCache(final String suffixCacheName) {
+        super(getCacheNameFrom(suffixCacheName));
     }
 
-    public NamedOperationCache(final String cacheNameSuffix) {
-        super(String.format("%s%s", CACHE_SERVICE_NAME_PREFIX,
-                nonNull(cacheNameSuffix)
-                        ? "_" + cacheNameSuffix.toLowerCase()
-                        : ""));
+    public static String getCacheNameFrom(final String suffixCacheName) {
+        return Cache.getCacheNameFrom(CACHE_SERVICE_NAME_PREFIX, suffixCacheName);
     }
 
     /**

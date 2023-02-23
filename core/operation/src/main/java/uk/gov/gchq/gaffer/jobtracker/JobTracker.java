@@ -36,15 +36,12 @@ public class JobTracker extends Cache<String, JobDetail> {
 
     public static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
 
-    public JobTracker() {
-        this(null);
+    public JobTracker(final String suffixCacheName) {
+        super(getCacheNameFrom(suffixCacheName));
     }
 
-    public JobTracker(final String cacheNameSuffix) {
-        super(String.format("%s%s", CACHE_SERVICE_NAME_PREFIX,
-                nonNull(cacheNameSuffix)
-                        ? "_" + cacheNameSuffix.toLowerCase()
-                        : ""));
+    public static String getCacheNameFrom(final String suffixCacheName) {
+        return Cache.getCacheNameFrom(CACHE_SERVICE_NAME_PREFIX, suffixCacheName);
     }
 
     /**

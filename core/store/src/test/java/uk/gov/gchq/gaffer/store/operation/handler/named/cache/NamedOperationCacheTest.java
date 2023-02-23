@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class NamedOperationCacheTest {
 
+    public static final String SUFFIX_CACHE_NAME = "Suffix";
     private static NamedOperationCache cache;
     private static final String GAFFER_USER = "gaffer user";
     private static final String ADVANCED_GAFFER_USER = "advanced gaffer user";
@@ -86,7 +87,7 @@ public class NamedOperationCacheTest {
         final Properties properties = new Properties();
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
         CacheServiceLoader.initialise(properties);
-        cache = new NamedOperationCache();
+        cache = new NamedOperationCache(SUFFIX_CACHE_NAME);
     }
 
     @BeforeEach
