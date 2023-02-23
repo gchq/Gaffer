@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ public class FederatedStoreMultiCacheTest {
     public static final User TEST_USER = testUser();
     public static final User BLANK_USER = blankUser();
     private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
+    public static final String USER_SAME_CACHE_SUFFIX = "UseSameCacheSuffix";
     public FederatedStore federatedStore;
     public FederatedStore federatedStore2WithSameCache;
     public FederatedStoreProperties federatedStoreProperties;
@@ -59,6 +60,7 @@ public class FederatedStoreMultiCacheTest {
         federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         federatedStoreProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
+        federatedStoreProperties.setCacheServiceNameSuffix(USER_SAME_CACHE_SUFFIX);
         federatedStore = new FederatedStore();
         federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
         federatedStore.execute(new AddGraph.Builder()

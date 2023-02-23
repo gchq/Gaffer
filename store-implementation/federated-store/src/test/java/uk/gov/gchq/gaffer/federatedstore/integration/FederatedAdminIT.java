@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldRemoveGraphFromCache() throws Exception {
         //given
-        FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+        FederatedStoreCache federatedStoreCache = new FederatedStoreCache(graph.getGraphId());
         graph.execute(new AddGraph.Builder()
                 .graphId(GRAPH_ID_A)
                 .schema(new Schema())
@@ -532,7 +532,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldStartWithEmptyCache() throws Exception {
         //given
-        FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+        FederatedStoreCache federatedStoreCache = new FederatedStoreCache(graph.getGraphId());
 
         //then
         assertThat(federatedStoreCache.getAllGraphIds()).isEmpty();
@@ -567,7 +567,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     public void shouldChangeGraphIdInCache() throws Exception {
         //given
         String newName = "newName" + 23452335;
-        FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+        FederatedStoreCache federatedStoreCache = new FederatedStoreCache(graph.getGraphId());
 
         graph.execute(new AddGraph.Builder()
                 .graphId(GRAPH_ID_A)
@@ -621,7 +621,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldChangeGraphAccessIdInCache() throws Exception {
         //given
-        FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+        FederatedStoreCache federatedStoreCache = new FederatedStoreCache(graph.getGraphId());
         graph.execute(new AddGraph.Builder()
                 .graphId(GRAPH_ID_A)
                 .schema(new Schema())
