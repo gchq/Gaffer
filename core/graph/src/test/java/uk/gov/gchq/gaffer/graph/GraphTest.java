@@ -1380,6 +1380,8 @@ public class GraphTest {
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         final NamedOperationResolver graphHook2 = new NamedOperationResolver(SUFFIX_CACHE_NAME);
 
         // When
@@ -1406,6 +1408,8 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
 
@@ -2335,6 +2339,8 @@ public class GraphTest {
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         // When
         final GraphConfig config = new GraphConfig.Builder()
                 .graphId("test")
@@ -2358,6 +2364,8 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         // When
