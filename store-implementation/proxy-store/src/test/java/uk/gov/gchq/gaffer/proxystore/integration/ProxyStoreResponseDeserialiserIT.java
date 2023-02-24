@@ -94,8 +94,6 @@ public class ProxyStoreResponseDeserialiserIT {
                 .store(proxyStore)
                 .build();
 
-        verify(operationResponseDeserialiser).deserialise(anyString());
-
         final Set<Class<? extends Operation>> actualOperationClasses = proxyStore.getSupportedOperations();
         final Set<Class<? extends Operation>> expectedOperationClasses = new HashSet<>();
         expectedOperationClasses.addAll(storeOperations);
@@ -118,6 +116,8 @@ public class ProxyStoreResponseDeserialiserIT {
                 .containsExactlyInAnyOrderElementsOf(expectedOperationClasses)
                 //This is actually what is getting inserted via the mock during a fetchOperations()
                 .contains(AddElements.class);
+
+        verify(operationResponseDeserialiser).deserialise(anyString());
     }
 
 
