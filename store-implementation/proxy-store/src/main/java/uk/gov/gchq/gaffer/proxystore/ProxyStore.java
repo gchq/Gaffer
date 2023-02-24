@@ -111,8 +111,7 @@ public class ProxyStore extends Store {
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
-    public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties)
-            throws StoreException {
+    public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         setProperties(properties);
         client = createClient();
 
@@ -157,7 +156,10 @@ public class ProxyStore extends Store {
 
     @Override
     public boolean isSupported(final Class<? extends Operation> operationClass) {
-        return getSupportedOperations().contains(operationClass);
+        return AddNamedView.class.isAssignableFrom(operationClass)
+                || AddNamedOperation.class.isAssignableFrom(operationClass)
+                ? super.getSupportedOperations().contains(operationClass)
+                : getSupportedOperations().contains(operationClass);
     }
 
     protected Set<StoreTrait> fetchTraits() throws StoreException {
@@ -269,9 +271,7 @@ public class ProxyStore extends Store {
         return handleResponse(response, responseDeserialiser);
     }
 
-    protected <O> O doGet(final URL url, final ResponseDeserialiser<O> responseDeserialiser,
-                          final Context context)
-            throws StoreException {
+    protected <O> O doGet(final URL url, final ResponseDeserialiser<O> responseDeserialiser, final Context context) throws StoreException {
         final Invocation.Builder request = createRequest(null, url, context);
         final Response response;
         try {
@@ -339,8 +339,6 @@ public class ProxyStore extends Store {
         addOperationHandler(OperationChainDAO.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
 
         if (nonNull(CacheServiceLoader.getService())) {
-            //Because of Graph.updateGraphHooks the hook resolvers are forced in, requiring these Handlers
-
             // Named operation
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
             addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));

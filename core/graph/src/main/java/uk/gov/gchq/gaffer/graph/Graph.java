@@ -38,7 +38,8 @@ import uk.gov.gchq.gaffer.graph.hook.UpdateViewHook;
 import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -861,16 +862,10 @@ public final class Graph {
 
         private void updateGraphHooks(final GraphConfig config) {
             List<GraphHook> hooks = config.getHooks();
-            /*
-             * This does not support masquerading graphs like Proxy and Federation,
-             * which may not locally have AddNamedViewHandlers.
-             * However, due to this hook NamedViewResolver being added the masquerading graph
-             * will look for a view and error.
-             */
-            if (!hasHook(hooks, NamedViewResolver.class)) {
+            if (store.isSupported(AddNamedView.class) && !hasHook(hooks, NamedViewResolver.class)) {
                 hooks.add(0, new NamedViewResolver(config.getGraphId()));
             }
-            if (store.isSupported(NamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
+            if (store.isSupported(AddNamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
                 config.getHooks().add(0, new NamedOperationResolver(config.getGraphId()));
             }
             if (!hasHook(hooks, FunctionAuthoriser.class)) {
