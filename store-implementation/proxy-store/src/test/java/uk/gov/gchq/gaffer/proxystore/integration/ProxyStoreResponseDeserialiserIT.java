@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
@@ -43,6 +44,13 @@ import uk.gov.gchq.gaffer.proxystore.response.deserialiser.ResponseDeserialiser;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedViewHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedViewsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.File;
@@ -51,6 +59,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.util.Objects.nonNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -94,7 +103,37 @@ public class ProxyStoreResponseDeserialiserIT {
                 .store(proxyStore)
                 .build();
 
+        final Set<Class<? extends Operation>> actualOperationClasses = proxyStore.getSupportedOperations();
+        final Set<Class<? extends Operation>> expectedOperationClasses = new HashSet<>();
+        expectedOperationClasses.addAll(storeOperations);
+        expectedOperationClasses.add(OperationChain.class);
+        expectedOperationClasses.add(OperationChainDAO.class);
+
+        Assertions.assertThat(actualOperationClasses)
+                .containsExactlyInAnyOrderElementsOf(expectedOperationClasses)
+                //This is actually what is getting inserted via the mock during a fetchOperations()
+                .contains(AddElements.class);
+
         verify(operationResponseDeserialiser).deserialise(anyString());
+    }
+
+    @Test
+    public void shouldUseOperationsResponseDeserialiserToDeserialiseOperationsResponse2() throws Exception {
+        final ResponseDeserialiser<Set<Class<? extends Operation>>> operationResponseDeserialiser = mock(ResponseDeserialiser.class);
+        final Set<Class<? extends Operation>> storeOperations = Collections.singleton(AddElements.class);
+        when(operationResponseDeserialiser.deserialise(anyString())).thenReturn(storeOperations);
+
+        final TestProxyStore proxyStore = new TestProxyStore2.Builder(operationResponseDeserialiser)
+                .graphId("graph1")
+                .host("localhost")
+                .port(8080)
+                .contextRoot("rest/v2")
+                .build();
+
+        // Create Graph and initialise ProxyStore
+        new Graph.Builder()
+                .store(proxyStore)
+                .build();
 
         final Set<Class<? extends Operation>> actualOperationClasses = proxyStore.getSupportedOperations();
         final Set<Class<? extends Operation>> expectedOperationClasses = new HashSet<>();
@@ -118,6 +157,8 @@ public class ProxyStoreResponseDeserialiserIT {
                 .containsExactlyInAnyOrderElementsOf(expectedOperationClasses)
                 //This is actually what is getting inserted via the mock during a fetchOperations()
                 .contains(AddElements.class);
+
+        verify(operationResponseDeserialiser).deserialise(anyString());
     }
 
 
@@ -168,6 +209,78 @@ public class ProxyStoreResponseDeserialiserIT {
             }
 
             public TestProxyStore build() {
+                try {
+                    store.initialise(graphId, new Schema(), properties);
+                } catch (final StoreException e) {
+                    throw new IllegalArgumentException("The store could not be initialised with the provided properties", e);
+                }
+                return store;
+            }
+        }
+    }
+
+    public static class TestProxyStore2 extends TestProxyStore {
+
+        public TestProxyStore2(final ResponseDeserialiser<Set<Class<? extends Operation>>> operationsResponseDeserialiser) {
+            super(operationsResponseDeserialiser);
+        }
+
+        @Override
+        protected void addAdditionalOperationHandlers() {
+            /*
+             * this must be a copy past of addAdditionalOperationHandlers in ProxyStoreWithNamedOpNamedView.java
+             */
+            super.addAdditionalOperationHandlers();
+
+            if (nonNull(CacheServiceLoader.getService())) {
+                //Because of Graph.updateGraphHooks the hook resolvers are forced in, requiring these Handlers
+
+                // Named operation
+                addOperationHandler(NamedOperation.class, new NamedOperationHandler());
+                addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+                addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+                addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+
+                // Named view
+                addOperationHandler(AddNamedView.class, new AddNamedViewHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+                addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+                addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+            }
+        }
+        public static final class Builder {
+            private final TestProxyStore2 store;
+            private final ProxyProperties properties;
+            private String graphId;
+
+            public Builder(final ResponseDeserialiser<Set<Class<? extends Operation>>> operationsResponseDeserialiser) {
+                store = new TestProxyStore2(operationsResponseDeserialiser);
+                properties = new ProxyProperties();
+                properties.setStoreClass(ProxyStore.class);
+                properties.setStorePropertiesClass(ProxyProperties.class);
+            }
+
+            public TestProxyStore2.Builder host(final String host) {
+                properties.setGafferHost(host);
+                return this;
+            }
+
+            public TestProxyStore2.Builder port(final int port) {
+                properties.setGafferPort(port);
+                return this;
+            }
+
+            public TestProxyStore2.Builder contextRoot(final String contextRoot) {
+                properties.setGafferContextRoot(contextRoot);
+                return this;
+            }
+
+
+            public TestProxyStore2.Builder graphId(final String graphId) {
+                this.graphId = graphId;
+                return this;
+            }
+
+            public TestProxyStore2 build() {
                 try {
                     store.initialise(graphId, new Schema(), properties);
                 } catch (final StoreException e) {
