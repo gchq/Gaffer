@@ -850,6 +850,12 @@ public final class Graph {
 
         private void updateGraphHooks(final GraphConfig config) {
             List<GraphHook> hooks = config.getHooks();
+            /*
+             * This does not support masquerading graphs like Proxy and Federation,
+             * which may not locally have AddNamedViewHandlers.
+             * However, due to this hook NamedViewResolver being added the masquerading graph
+             * will look for a view and error.
+             */
             if (store.isSupported(AddNamedView.class) && !hasHook(hooks, NamedViewResolver.class)) {
                 hooks.add(0, new NamedViewResolver(config.getGraphId()));
             }
