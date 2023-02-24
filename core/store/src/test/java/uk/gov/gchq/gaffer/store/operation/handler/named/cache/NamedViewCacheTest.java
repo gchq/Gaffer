@@ -41,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 public class NamedViewCacheTest {
 
+    public static final String SUFFIX_CACHE_NAME = "suffix";
     private static NamedViewCache cache;
     private static final String GAFFER_USER_A = "gaffer user A";
     private static final String GAFFER_USER_B = "gaffer user B";
@@ -78,7 +79,7 @@ public class NamedViewCacheTest {
         final Properties properties = new Properties();
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
         CacheServiceLoader.initialise(properties);
-        cache = new NamedViewCache();
+        cache = new NamedViewCache(SUFFIX_CACHE_NAME);
     }
 
     @BeforeEach

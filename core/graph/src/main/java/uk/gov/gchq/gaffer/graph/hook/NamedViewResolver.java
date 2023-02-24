@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -39,12 +41,17 @@ import java.util.Map;
 public class NamedViewResolver implements GraphHook {
     private final NamedViewCache cache;
 
-    public NamedViewResolver() {
-        cache = new NamedViewCache();
+    @JsonCreator
+    public NamedViewResolver(@JsonProperty("suffixCacheName") final String suffixCacheName) {
+        cache = new NamedViewCache(suffixCacheName);
     }
 
     public NamedViewResolver(final NamedViewCache cache) {
         this.cache = cache;
+    }
+
+    public String getCacheNameSuffix() {
+        return cache.getCacheName().substring(NamedViewCache.CACHE_SERVICE_NAME_PREFIX.length() + 1);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -88,7 +89,7 @@ public class NamedOperationCacheIT {
     @AfterEach
     public void after() throws CacheOperationException {
         CacheServiceLoader.getService().clearCache(CACHE_NAME);
-        CacheServiceLoader.getService().clearCache(SUFFIX);
+        CacheServiceLoader.getService().clearCache(NamedOperationCache.getCacheNameFrom(SUFFIX));
     }
 
     @Test

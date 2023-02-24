@@ -14,10 +14,12 @@
         },
         "scoreResolvers": {
           "uk.gov.gchq.gaffer.named.operation.NamedOperation": {
-            "class": "uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver"
+            "class": "uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver",
+            "cacheNameSuffix": "suffix"
           },
           "uk.gov.gchq.gaffer.operation.impl.add.AddElements": {
-            "class": "uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver"
+            "class": "uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver",
+            "cacheNameSuffix": "suffix"
           }
         }
       }

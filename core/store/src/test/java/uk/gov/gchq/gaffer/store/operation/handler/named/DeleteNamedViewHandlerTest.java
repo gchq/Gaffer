@@ -46,7 +46,8 @@ import static org.mockito.Mockito.mock;
 
 public class DeleteNamedViewHandlerTest {
     private static final String WRITE_ACCESS_ROLE = "writeRole";
-    private final NamedViewCache namedViewCache = new NamedViewCache();
+    public static final String SUFFIX = "suffix";
+    private final NamedViewCache namedViewCache = new NamedViewCache(SUFFIX);
     private final AddNamedViewHandler addNamedViewHandler = new AddNamedViewHandler(namedViewCache);
     private final DeleteNamedViewHandler deleteNamedViewHandler = new DeleteNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";

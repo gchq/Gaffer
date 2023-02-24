@@ -71,6 +71,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
             .name(NAMED_VIEW_NAME)
             .view(FULL_VIEW)
             .build();
+    public static final String SUFFIX_CACHE_NAME = "suffix";
 
     public NamedViewResolverTest() {
         super(NamedViewResolver.class);
@@ -510,6 +511,6 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
 
     @Override
     public NamedViewResolver getTestObject() {
-        return new NamedViewResolver();
+        return new NamedViewResolver(SUFFIX_CACHE_NAME);
     }
 }

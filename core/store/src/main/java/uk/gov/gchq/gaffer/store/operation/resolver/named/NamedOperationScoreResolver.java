@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.resolver.named;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +37,12 @@ import java.util.List;
 public class NamedOperationScoreResolver implements ScoreResolver<NamedOperation> {
     private final NamedOperationCache cache;
 
-    public NamedOperationScoreResolver(final String suffixCacheName) {
+    public NamedOperationScoreResolver(@JsonProperty("cacheNameSuffix") final String suffixCacheName) {
         this(new NamedOperationCache(suffixCacheName));
+    }
+
+    public String getCacheNameSuffix() {
+        return cache.getCacheName().substring(NamedOperationCache.CACHE_SERVICE_NAME_PREFIX.length() + 1);
     }
 
     public NamedOperationScoreResolver(final NamedOperationCache cache) {

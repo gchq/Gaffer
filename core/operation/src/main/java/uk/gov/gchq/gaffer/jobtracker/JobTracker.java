@@ -26,8 +26,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.nonNull;
-
 /**
  * A {@code JobTracker} is an entry in a Gaffer cache service which is used to store
  * details of jobs submitted to the graph.

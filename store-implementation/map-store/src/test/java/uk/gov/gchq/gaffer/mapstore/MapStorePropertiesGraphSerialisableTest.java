@@ -44,7 +44,7 @@ public class MapStorePropertiesGraphSerialisableTest {
     public void setUp() throws Exception {
         config = new GraphConfig.Builder()
                 .graphId("testGraphId")
-                .addHook(new NamedViewResolver())
+                .addHook(new NamedViewResolver("testGraphId"))
                 .addHook(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS))
                 .view(new View.Builder()
                         .entity("e1")

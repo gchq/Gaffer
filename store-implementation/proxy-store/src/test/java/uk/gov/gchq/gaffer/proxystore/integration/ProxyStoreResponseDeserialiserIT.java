@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.proxystore.integration;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,13 @@ import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
+import uk.gov.gchq.gaffer.named.view.DeleteNamedView;
+import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
@@ -43,8 +51,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -96,8 +102,22 @@ public class ProxyStoreResponseDeserialiserIT {
         expectedOperationClasses.add(OperationChain.class);
         expectedOperationClasses.add(OperationChainDAO.class);
 
-        assertEquals(actualOperationClasses.size(), expectedOperationClasses.size());
-        assertTrue(actualOperationClasses.containsAll(expectedOperationClasses));
+        //Because of Graph.updateGraphHooks the hook resolvers are forced in, requiring these Handlers
+        // Named operation
+        expectedOperationClasses.add(NamedOperation.class);
+        expectedOperationClasses.add(AddNamedOperation.class);
+        expectedOperationClasses.add(GetAllNamedOperations.class);
+        expectedOperationClasses.add(DeleteNamedOperation.class);
+
+        // Named view
+        expectedOperationClasses.add(AddNamedView.class);
+        expectedOperationClasses.add(GetAllNamedViews.class);
+        expectedOperationClasses.add(DeleteNamedView.class);
+
+        Assertions.assertThat(actualOperationClasses)
+                .containsExactlyInAnyOrderElementsOf(expectedOperationClasses)
+                //This is actually what is getting inserted via the mock during a fetchOperations()
+                .contains(AddElements.class);
     }
 
 

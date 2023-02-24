@@ -1063,9 +1063,9 @@ public abstract class Store {
             addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(properties.getCacheServiceNameSuffix(graphId)));
 
             // Named view
-            addOperationHandler(AddNamedView.class, new AddNamedViewHandler());
-            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler());
-            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler());
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(properties.getCacheServiceNameSuffix(graphId)));
+            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler(properties.getCacheServiceNameSuffix(graphId)));
+            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler(properties.getCacheServiceNameSuffix(graphId)));
         }
 
         // ElementComparison

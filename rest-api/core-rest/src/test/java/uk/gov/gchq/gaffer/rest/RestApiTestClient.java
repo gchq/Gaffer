@@ -114,7 +114,7 @@ public abstract class RestApiTestClient {
         }
 
         final GraphConfig config = new GraphConfig.Builder()
-                .graphId("graphId")
+                .graphId("RestServiceGraph")
                 .build();
         FileUtils.writeByteArrayToFile(new File(testFolder, "/graphConfig.json"), JSONSerialiser.serialise(config));
 

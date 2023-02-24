@@ -33,11 +33,7 @@ import static java.util.Objects.nonNull;
  */
 public class NamedViewCache extends Cache<String, NamedViewDetail> {
 
-    private static final String CACHE_SERVICE_NAME_PREFIX = "NamedView";
-
-    public NamedViewCache() {
-        this(null);
-    }
+    public static final String CACHE_SERVICE_NAME_PREFIX = "NamedView";
 
     public NamedViewCache(final String suffixCacheName) {
         super(getCacheNameFrom(suffixCacheName));

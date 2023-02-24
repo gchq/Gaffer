@@ -38,7 +38,7 @@ import static java.util.Objects.nonNull;
 public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationCache.class);
-    private static final String CACHE_SERVICE_NAME_PREFIX = "NamedOperation";
+    public static final String CACHE_SERVICE_NAME_PREFIX = "NamedOperation";
 
     public NamedOperationCache(final String suffixCacheName) {
         super(getCacheNameFrom(suffixCacheName));
