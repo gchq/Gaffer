@@ -141,7 +141,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                 .store(store)
                 .graphId(operation.getGraphId())
                 .schema(operation.getSchema())
-                .storeProperties(operation.getStoreProperties())
+                .storeProperties(operation.getStoreProperties()) //TODO add OperationDeclarations
                 .parentSchemaIds(operation.getParentSchemaIds())
                 .parentStorePropertiesId(operation.getParentPropertiesId())
                 .buildGraphSerialisable();
