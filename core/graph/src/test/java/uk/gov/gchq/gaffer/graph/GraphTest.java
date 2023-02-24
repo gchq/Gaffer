@@ -57,7 +57,9 @@ import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.Repeat;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -82,6 +84,7 @@ import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -1404,6 +1407,8 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         final NamedOperationResolver graphHook2 = new NamedOperationResolver(SUFFIX_CACHE_NAME);
 
         // When
@@ -1431,6 +1436,8 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
 
         // When
         final Graph graph = new Graph.Builder()
@@ -2362,6 +2369,8 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         // When
         final GraphConfig config = new GraphConfig.Builder()
                 .graphId("test")
@@ -2386,6 +2395,8 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         // When
         final GraphConfig config = new GraphConfig.Builder()
                 .graphId("test")
@@ -2680,6 +2691,7 @@ public class GraphTest {
 
         @Override
         protected void addAdditionalOperationHandlers() {
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
         }
 
         @Override
