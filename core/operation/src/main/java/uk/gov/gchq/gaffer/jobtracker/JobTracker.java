@@ -34,7 +34,7 @@ import static java.util.Objects.nonNull;
  */
 public class JobTracker extends Cache<String, JobDetail> {
 
-    public static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
+    private static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
 
     public JobTracker() {
         this(null);
