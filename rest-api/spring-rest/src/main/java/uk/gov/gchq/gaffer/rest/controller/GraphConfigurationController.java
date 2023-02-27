@@ -139,7 +139,7 @@ public class GraphConfigurationController implements IGraphConfigurationControll
     @Override
     public Set<StoreTrait> getStoreTraits() {
         try {
-            return graphFactory.getGraph().execute(new GetTraits(), new Context());
+            return graphFactory.getGraph().execute(new GetTraits.Builder().currentTraits(false).build(), new Context());
         } catch (final OperationException e) {
             throw new GafferRuntimeException("Unable to get Traits using GetTraits Operation", e);
         }

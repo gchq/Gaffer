@@ -154,7 +154,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
     @Override
     public Set<StoreTrait> getStoreTraits() {
         try {
-            return graphFactory.getGraph().execute(new GetTraits(), userFactory.createContext());
+            return graphFactory.getGraph().execute(new GetTraits.Builder().currentTraits(false).build(), userFactory.createContext());
         } catch (final OperationException e) {
             throw new GafferRuntimeException("Unable to get Traits using GetTraits Operation", e);
         }

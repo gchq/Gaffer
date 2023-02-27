@@ -164,7 +164,7 @@ public class OperationChainValidator {
 
     protected Set<StoreTrait> getStoreTraits(final Store store, final Context context) {
         try {
-            return store.execute(new GetTraits(), context);
+            return store.execute(new GetTraits.Builder().currentTraits(false).build(), context);
         } catch (final OperationException e) {
             throw new GafferRuntimeException("Unable to get Traits using GetTraits Operation", e);
         }
