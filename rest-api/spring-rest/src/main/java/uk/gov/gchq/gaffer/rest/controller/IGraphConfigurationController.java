@@ -130,7 +130,7 @@ public interface IGraphConfigurationController {
             produces = APPLICATION_JSON_VALUE
     )
     @Operation(
-            summary = "Gets the store traits"
+            summary = "Gets all store traits supported by this store"
     )
     Set<StoreTrait> getStoreTraits();
 
