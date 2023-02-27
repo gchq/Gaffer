@@ -140,7 +140,8 @@ public class OperationChainValidator {
     protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (shouldValidate(op)) {
             final Schema schema = getSchema(op, user, store);
-            final ValidationResult viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store, new Context(user)));
+            final Context context = (user != null) ? new Context(user) : new Context();
+            final ValidationResult viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store, context));
             if (!viewValidationResult.isValid()) {
                 validationResult.addError("View for operation "
                         + op.getClass().getName()
