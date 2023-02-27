@@ -76,6 +76,7 @@ public class FederatedStoreUtilTest {
                     .validateFunctions(new IsTrue())
                     .build())
             .build();
+
     @Test
     public void shouldGetNullStringsWhenNullCsv() {
         // Given
@@ -301,14 +302,10 @@ public class FederatedStoreUtilTest {
     }
 
     @Test
-    public void shouldUpdateAddElementsInput() {
+    public void shouldUpdateAddElementsInput() throws OperationException {
         // Given
         final Store store = mock(Store.class);
-        try {
-            given(store.execute(any(OperationChain.class), any(Context.class))).willReturn(schema);
-        } catch (final OperationException e) {
-            throw new RuntimeException(e);
-        }
+        given(store.execute(any(OperationChain.class), any(Context.class))).willReturn(schema);
         final Graph graph = createGraphWithStore(store);
         final AddElements operation = new AddElements.Builder()
                 .input(new Entity.Builder()
