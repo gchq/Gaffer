@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,12 +32,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Collections.emptySet();
     }
 
@@ -45,22 +46,38 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
     public abstract void builderShouldCreatePopulatedOperation();
 
     @Test
-    public abstract void shouldShallowCloneOperation();
+    public void shouldShallowCloneOperation() {
 
+        final Operation operation = getTestObject();
+
+        final Operation clone = operation.shallowClone();
+
+        assertNotNull(clone);
+        assertThat(operation).isEqualTo(clone);
+        assertThat(new String(toJson((T) operation))).isEqualTo(new String(toJson((T) clone)));
+    }
+
+    protected abstract T getEmptyTestObject();
+
+    /**
+     * If new fields are added to a operation it is more likely the developer will omit adding the required flag.
+     * So this tests explicity the un-required parameters
+     *
+     * @throws Exception
+     */
     @Test
-    public void shouldValidateRequiredFields() throws Exception {
+    public void shouldValidateNonRequiredFields() throws Exception {
         // Given
-        final Operation op = getTestObject();
+        final Operation op = getEmptyTestObject();
 
         // When
         final ValidationResult validationResult = op.validate();
 
         // Then
-        final Set<String> requiredFields = getRequiredFields();
-        final Set<String> requiredFieldsErrors = requiredFields.stream()
+        final Set<String> nonRequiredFieldsErrors = getNonRequiredFields().stream()
                 .map(f -> f + " is required for: " + op.getClass().getSimpleName()).collect(Collectors.toSet());
 
-        assertEquals(requiredFieldsErrors, validationResult.getErrors());
+        assertThat(validationResult.getErrors()).doesNotContainAnyElementsOf(nonRequiredFieldsErrors);
     }
 
     @Test
