@@ -44,7 +44,7 @@ public class CountAllElementsDefaultViewHandler implements OutputOperationHandle
 
         final User user = context.getUser();
         final Schema schema = mapStore.getSchema();
-        final boolean supportsVisibility = mapStore.TRAITS.contains(StoreTrait.VISIBILITY);
+        final boolean supportsVisibility = mapStore.getTraits().contains(StoreTrait.VISIBILITY);
 
         Stream<Element> elementStream = Stream.concat(
                 mapStore.getMapImpl().getAllAggElements(schema.getGroups()),

@@ -73,7 +73,7 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
             this.getAdjacentIds = getAdjacentIds;
             this.schema = mapStore.getSchema();
             this.user = user;
-            this.supportsVisibility = mapStore.TRAITS.contains(StoreTrait.VISIBILITY);
+            this.supportsVisibility = mapStore.getTraits().contains(StoreTrait.VISIBILITY);
         }
 
         @Override

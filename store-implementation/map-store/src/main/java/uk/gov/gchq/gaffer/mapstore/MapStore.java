@@ -109,6 +109,16 @@ public class MapStore extends Store {
         return mapImpl;
     }
 
+    /**
+     * Get the traits supported by this Map Store.
+     * This method is for internal Map Store use
+     * only.
+     * @return Map Store Traits
+     */
+    public Set<StoreTrait> getTraits() {
+        return TRAITS;
+    }
+
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be MapStoreProperties")
     @Override
     public MapStoreProperties getProperties() {
