@@ -84,8 +84,7 @@ public class FederatedGraphStorage {
 
     /**
      * places a graph into storage, protected by the given access.
-     * <p> GraphId can't already exist, otherwise {@link
-     * OverwritingException} is thrown.
+     * <p> GraphId can't already exist, otherwise {@link OverwritingException} is thrown.
      * <p> Access can't be null otherwise {@link IllegalArgumentException} is
      * thrown
      *
