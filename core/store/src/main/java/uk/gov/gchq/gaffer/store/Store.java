@@ -261,8 +261,7 @@ public abstract class Store {
             newStore = Class.forName(storeClass)
                     .asSubclass(Store.class)
                     .newInstance();
-        } catch (final InstantiationException | IllegalAccessException |
-                       ClassNotFoundException e) {
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new IllegalArgumentException(String.format("Could not create store of type: %s", storeClass), e);
         }
 
