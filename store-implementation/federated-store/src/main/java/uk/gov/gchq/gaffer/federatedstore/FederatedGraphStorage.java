@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.google.common.collect.Lists;
 import org.apache.accumulo.core.client.Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,14 +24,19 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -163,27 +169,54 @@ public class FederatedGraphStorage {
      *
      * @param graphId the graphId to remove.
      * @param user    to match visibility against.
+     * @param removeCache to remove associated caches with this graph.
      * @return if a graph was removed.
      * @see #isValidToView(User, FederatedAccess)
      */
-    public boolean remove(final String graphId, final User user) {
-        return remove(graphId, federatedAccess -> federatedAccess.hasWriteAccess(user));
+    public boolean remove(final String graphId, final User user, final boolean removeCache) {
+        return remove(graphId, federatedAccess -> federatedAccess.hasWriteAccess(user), removeCache);
     }
 
-    protected boolean remove(final String graphId, final User user, final String adminAuth) {
-        return remove(graphId, federatedAccess -> federatedAccess.hasWriteAccess(user, adminAuth));
+    protected boolean remove(final String graphId, final User user, final boolean removeCache, final String adminAuth) {
+        return remove(graphId, federatedAccess -> federatedAccess.hasWriteAccess(user, adminAuth), removeCache);
     }
 
-    private boolean remove(final String graphId, final Predicate<FederatedAccess> accessPredicate) {
+    private boolean remove(final String graphId, final Predicate<FederatedAccess> accessPredicate, final boolean removeCache) {
         FederatedAccess accessFromCache = federatedStoreCache.getAccessFromCache(graphId);
         boolean rtn;
         if (nonNull(accessFromCache) && accessPredicate.test(accessFromCache)) {
+
+            removeGraphCaches(graphId, removeCache);
+
             federatedStoreCache.deleteFromCache(graphId);
             rtn = true;
         } else {
             rtn = false;
         }
         return rtn;
+    }
+
+    private void removeGraphCaches(final String graphId, final boolean removeCache) {
+        if (removeCache && CacheServiceLoader.isEnabled()) {
+            try {
+                final GraphSerialisable graphFromCache = federatedStoreCache.getGraphFromCache(graphId);
+                final String cacheServiceNameSuffix = graphFromCache.getStoreProperties().getCacheServiceNameSuffix(graphId);
+                final ArrayList<String> cacheNames = Lists.newArrayList(
+                        NamedViewCache.getCacheNameFrom(cacheServiceNameSuffix),
+                        NamedOperationCache.getCacheNameFrom(cacheServiceNameSuffix),
+                        JobTracker.getCacheNameFrom(cacheServiceNameSuffix));
+                for (final String cacheName : cacheNames) {
+                    final ICache<Object, Object> cache = CacheServiceLoader.getService().getCache(cacheName);
+                    if (nonNull(cache)) {
+                        cache.clear();
+                    } else {
+                        LOGGER.debug(String.format("No cache found graphId:%s with cacheName:%s", graphId, cacheName));
+                    }
+                }
+            } catch (final CacheOperationException e) {
+                throw new GafferRuntimeException(String.format("Error clearing Cache while removing graphId: %s", graphId), e);
+            }
+        }
     }
 
     /**
@@ -356,7 +389,7 @@ public class FederatedGraphStorage {
 
         if (nonNull(graphToUpdate)) {
             //remove graph to be moved
-            remove(graphId, federatedAccess -> true);
+            remove(graphId, federatedAccess -> true, false);
 
             updateCacheWithNewAccess(graphId, newFederatedAccess, graphToUpdate);
 
@@ -393,7 +426,7 @@ public class FederatedGraphStorage {
             //get access before removing old graphId.
             FederatedAccess access = federatedStoreCache.getAccessFromCache(graphId);
             //Removed first, to stop a sync issue when sharing the cache with another store.
-            remove(graphId, federatedAccess -> true);
+            remove(graphId, federatedAccess -> true, false);
 
             updateTablesWithNewGraphId(newGraphId, graphToUpdate);
 

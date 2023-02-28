@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class FederatedRemoveGraphHandler implements OutputOperationHandler<Remov
         boolean removed;
         Set<Class<? extends Operation>> originalSupportedOperations = getSupportedOperationsFromSubGraphs(context, (FederatedStore) store);
         try {
-            removed = ((FederatedStore) store).remove(operation.getGraphId(), context.getUser(), operation.isUserRequestingAdminUsage());
+            removed = ((FederatedStore) store).remove(operation.getGraphId(), context.getUser(), operation.isRemoveCache(), operation.isUserRequestingAdminUsage());
         } catch (final Exception e) {
             throw new OperationException("Error removing graph: " + operation.getGraphId(), e);
         }

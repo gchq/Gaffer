@@ -62,6 +62,7 @@ public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
 
         assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
         assertTrue(op.isUserRequestingAdminUsage());
+        assertTrue(op.isRemoveCache());
     }
 
     @Test
