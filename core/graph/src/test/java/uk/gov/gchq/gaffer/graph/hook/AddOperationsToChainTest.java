@@ -534,7 +534,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
     }
 
     @Override
-    protected AddOperationsToChain getTestObject() {
+    protected AddOperationsToChain getTestObjectOld() {
         return fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
     }
 }

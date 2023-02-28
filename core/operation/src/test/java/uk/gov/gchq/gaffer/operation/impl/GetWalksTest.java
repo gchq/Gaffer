@@ -73,7 +73,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     @Test
     public void shouldFailValidationWithNoHops() {
         // Given
-        final GetWalks operation = getTestObject();
+        final GetWalks operation = getTestObjectOld();
 
         // When
         ValidationResult result = operation.validate();
@@ -240,7 +240,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final List<EntitySeed> input = Lists.newArrayList(new EntitySeed("1"), new EntitySeed("2"));
         final GetElements getElements = new GetElements();
@@ -262,12 +262,12 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     }
 
     @Override
-    protected GetWalks getTestObject() {
+    protected GetWalks getTestObjectOld() {
         return new GetWalks();
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("operations");
     }
 }

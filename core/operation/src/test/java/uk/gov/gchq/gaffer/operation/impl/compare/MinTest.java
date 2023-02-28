@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 public class MinTest extends OperationTest<Min> {
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("comparators");
     }
 
@@ -67,7 +67,7 @@ public class MinTest extends OperationTest<Min> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Entity input = new Entity.Builder()
                 .group(TestGroups.ENTITY)
@@ -91,14 +91,14 @@ public class MinTest extends OperationTest<Min> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Element.class, outputClass);
     }
 
     @Override
-    protected Min getTestObject() {
+    protected Min getTestObjectOld() {
         return new Min();
     }
 }

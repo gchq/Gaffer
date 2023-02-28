@@ -50,7 +50,7 @@ public class ReduceTest extends OperationTest<Reduce> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Iterable<Integer> input = Arrays.asList(1, 2, 3);
 
@@ -69,12 +69,12 @@ public class ReduceTest extends OperationTest<Reduce> {
     }
 
     @Override
-    protected Reduce getTestObject() {
+    protected Reduce getTestObjectOld() {
         return new Reduce();
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("aggregateFunction");
     }
 }

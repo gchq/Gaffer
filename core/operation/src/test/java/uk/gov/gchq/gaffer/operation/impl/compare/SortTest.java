@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class SortTest extends OperationTest<Sort> {
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("comparators");
     }
 
@@ -68,7 +68,7 @@ public class SortTest extends OperationTest<Sort> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Entity input = new Entity.Builder()
                 .group(TestGroups.ENTITY)
@@ -98,14 +98,14 @@ public class SortTest extends OperationTest<Sort> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Iterable.class, outputClass);
     }
 
     @Override
-    protected Sort getTestObject() {
+    protected Sort getTestObjectOld() {
         return new Sort();
     }
 }

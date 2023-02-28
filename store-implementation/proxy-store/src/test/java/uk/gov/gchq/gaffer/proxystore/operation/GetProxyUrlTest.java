@@ -31,7 +31,7 @@ public class GetProxyUrlTest extends OperationTest<GetProxyUrl> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         //given
-        GetProxyUrl op = getTestObject();
+        GetProxyUrl op = getTestObjectOld();
 
         //when
         String actual = op.getOption(A);
@@ -42,15 +42,15 @@ public class GetProxyUrlTest extends OperationTest<GetProxyUrl> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
-        GetProxyUrl testObject = getTestObject();
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
+        GetProxyUrl testObject = getTestObjectOld();
         GetProxyUrl operation = testObject.shallowClone();
         assertEquals(testObject, operation);
         assertFalse(testObject == operation);
     }
 
     @Override
-    protected GetProxyUrl getTestObject() {
+    protected GetProxyUrl getTestObjectOld() {
         return new GetProxyUrl.Builder().option(A, ONE).build();
     }
 }

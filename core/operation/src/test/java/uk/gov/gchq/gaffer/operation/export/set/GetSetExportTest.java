@@ -68,7 +68,7 @@ public class GetSetExportTest extends OperationTest<GetSetExport> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String key = "key";
         final String jobId = "jobId";
@@ -95,14 +95,14 @@ public class GetSetExportTest extends OperationTest<GetSetExport> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Iterable.class, outputClass);
     }
 
     @Override
-    protected GetSetExport getTestObject() {
+    protected GetSetExport getTestObjectOld() {
         return new GetSetExport();
     }
 }

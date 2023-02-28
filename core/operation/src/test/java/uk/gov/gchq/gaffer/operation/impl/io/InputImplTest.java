@@ -109,7 +109,7 @@ public class InputImplTest extends OperationTest<InputImpl> {
     }
 
     @Test
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String requiredField1 = "value1";
         final CustomVertex requiredField2 = new CustomVertex("type1", "value1");
@@ -136,12 +136,12 @@ public class InputImplTest extends OperationTest<InputImpl> {
     }
 
     @Override
-    public Set<String> getRequiredFields() {
+    public Set<String> getNonRequiredFields() {
         return Sets.newHashSet("requiredField1", "requiredField2");
     }
 
     @Override
-    protected InputImpl getTestObject() {
+    protected InputImpl getTestObjectOld() {
         return new InputImpl();
     }
 }

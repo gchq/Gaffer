@@ -27,7 +27,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 public class HasTraitTest extends OperationTest<HasTrait> {
 
     @Override
-    protected HasTrait getTestObject() {
+    protected HasTrait getTestObjectOld() {
         return new HasTrait();
     }
 
@@ -45,7 +45,7 @@ public class HasTraitTest extends OperationTest<HasTrait> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         HasTrait op = new Builder()
                 .currentTraits(false)
                 .trait(VISIBILITY)

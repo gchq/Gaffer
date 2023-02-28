@@ -50,12 +50,12 @@ public class AddSchemaToLibraryTest extends OperationTest<AddSchemaToLibrary> {
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("schema", "id");
     }
 
     @Override
-    protected AddSchemaToLibrary getTestObject() {
+    protected AddSchemaToLibrary getTestObjectOld() {
         return new AddSchemaToLibrary();
     }
 
@@ -69,7 +69,7 @@ public class AddSchemaToLibraryTest extends OperationTest<AddSchemaToLibrary> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         //when
         AddSchemaToLibrary clone = op.shallowClone();
         //then

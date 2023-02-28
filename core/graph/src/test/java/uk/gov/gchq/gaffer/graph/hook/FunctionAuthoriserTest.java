@@ -268,7 +268,7 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
     }
 
     @Override
-    protected FunctionAuthoriser getTestObject() {
+    protected FunctionAuthoriser getTestObjectOld() {
         return fromJson(JSON_PATH);
     }
 }

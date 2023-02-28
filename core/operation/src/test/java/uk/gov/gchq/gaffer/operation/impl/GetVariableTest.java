@@ -39,7 +39,7 @@ public class GetVariableTest extends OperationTest<GetVariable> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final GetVariable op = new GetVariable.Builder().variableName(varName).build();
 
@@ -52,7 +52,7 @@ public class GetVariableTest extends OperationTest<GetVariable> {
     }
 
     @Override
-    protected GetVariable getTestObject() {
+    protected GetVariable getTestObjectOld() {
         return new GetVariable();
     }
 }

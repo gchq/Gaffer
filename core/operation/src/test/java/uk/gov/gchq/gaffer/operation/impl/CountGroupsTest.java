@@ -49,7 +49,7 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final int limit = 3;
         final Entity input = new Entity(TestGroups.ENTITY);
@@ -69,13 +69,13 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
 
     @Test
     public void shouldGetOutputClass() {
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         assertEquals(GroupCounts.class, outputClass);
     }
 
     @Override
-    protected CountGroups getTestObject() {
+    protected CountGroups getTestObjectOld() {
         return new CountGroups();
     }
 }

@@ -115,7 +115,7 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final GetGraphFrameOfElements op = new GetGraphFrameOfElements.Builder()
                 .view(new View.Builder()
@@ -133,12 +133,12 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
     }
 
     @Override
-    protected GetGraphFrameOfElements getTestObject() {
+    protected GetGraphFrameOfElements getTestObjectOld() {
         return new GetGraphFrameOfElements();
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("view");
     }
 }

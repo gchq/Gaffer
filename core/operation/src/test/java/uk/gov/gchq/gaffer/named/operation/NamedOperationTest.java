@@ -67,7 +67,7 @@ public class NamedOperationTest extends OperationTest<NamedOperation> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String testOpName = "testOpName";
         final Map testParamsMap = Collections.singletonMap("test", "testVal");
@@ -85,12 +85,12 @@ public class NamedOperationTest extends OperationTest<NamedOperation> {
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("operationName");
     }
 
     @Override
-    protected NamedOperation getTestObject() {
+    protected NamedOperation getTestObjectOld() {
         return new NamedOperation();
     }
 }

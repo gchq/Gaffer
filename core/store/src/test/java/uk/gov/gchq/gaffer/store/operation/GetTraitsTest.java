@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class GetTraitsTest extends OperationTest<GetTraits> {
 
     @Override
-    protected GetTraits getTestObject() {
+    protected GetTraits getTestObjectOld() {
         return new GetTraits();
     }
 
@@ -40,7 +40,7 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         GetTraits op = new Builder().currentTraits(false).build();
 
         GetTraits clone = op.shallowClone();

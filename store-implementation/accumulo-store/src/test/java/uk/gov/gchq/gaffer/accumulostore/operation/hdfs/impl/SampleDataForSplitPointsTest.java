@@ -38,7 +38,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     private static final String TEST_OPTION_KEY = "testOption";
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet(
                 "jobInitialiser",
                 "outputPath",
@@ -93,7 +93,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
                 .addInputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
@@ -144,7 +144,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     }
 
     @Override
-    protected SampleDataForSplitPoints getTestObject() {
+    protected SampleDataForSplitPoints getTestObjectOld() {
         return new SampleDataForSplitPoints();
     }
 }

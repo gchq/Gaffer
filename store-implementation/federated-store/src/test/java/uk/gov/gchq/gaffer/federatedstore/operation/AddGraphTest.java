@@ -39,7 +39,7 @@ public class AddGraphTest extends FederationOperationTest<AddGraph> {
     private static final AccessPredicate WRITE_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return singleton("graphId");
     }
 
@@ -66,7 +66,7 @@ public class AddGraphTest extends FederationOperationTest<AddGraph> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         final AddGraph a = new Builder()
                 .graphId("graphId")
                 .parentPropertiesId("testPropID")
@@ -113,7 +113,7 @@ public class AddGraphTest extends FederationOperationTest<AddGraph> {
     }
 
     @Override
-    protected AddGraph getTestObject() {
+    protected AddGraph getTestObjectOld() {
         return new AddGraph();
     }
 }

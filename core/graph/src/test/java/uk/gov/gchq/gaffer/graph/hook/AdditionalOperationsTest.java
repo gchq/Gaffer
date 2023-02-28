@@ -109,7 +109,7 @@ public class AdditionalOperationsTest extends GraphHookTest<AdditionalOperations
     }
 
     @Override
-    protected AdditionalOperations getTestObject() {
+    protected AdditionalOperations getTestObjectOld() {
         return new AdditionalOperations();
     }
 

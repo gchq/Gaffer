@@ -61,7 +61,7 @@ public class ImportFromLocalFileTest extends OperationTest<ImportFromLocalFile> 
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         ImportFromLocalFile op = getPopulatedObject();
 
@@ -76,14 +76,14 @@ public class ImportFromLocalFileTest extends OperationTest<ImportFromLocalFile> 
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertThat(Iterable.class).isEqualTo(outputClass);
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return new HashSet(Collections.singleton("filePath"));
     }
 
@@ -94,7 +94,7 @@ public class ImportFromLocalFileTest extends OperationTest<ImportFromLocalFile> 
     }
 
     @Override
-    protected ImportFromLocalFile getTestObject() {
+    protected ImportFromLocalFile getTestObjectOld() {
         return new ImportFromLocalFile();
     }
 }

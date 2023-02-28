@@ -42,7 +42,7 @@ public class GetFromEndpointTest extends OperationTest<GetFromEndpoint> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         GetFromEndpoint op = new GetFromEndpoint.Builder()
                 .endpoint("testEndpoint")
@@ -59,12 +59,12 @@ public class GetFromEndpointTest extends OperationTest<GetFromEndpoint> {
     }
 
     @Override
-    protected GetFromEndpoint getTestObject() {
+    protected GetFromEndpoint getTestObjectOld() {
         return new GetFromEndpoint();
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("endpoint");
     }
 }

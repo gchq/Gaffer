@@ -83,7 +83,7 @@ public class GetRDDOfElementsInRangesTest extends OperationTest<GetRDDOfElements
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Pair<ElementId, ElementId> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final View view = new View.Builder().edge("testEdgeGroup").build();
@@ -108,7 +108,7 @@ public class GetRDDOfElementsInRangesTest extends OperationTest<GetRDDOfElements
     }
 
     @Override
-    protected GetRDDOfElementsInRanges getTestObject() {
+    protected GetRDDOfElementsInRanges getTestObjectOld() {
         return new GetRDDOfElementsInRanges();
     }
 }

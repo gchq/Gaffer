@@ -45,7 +45,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
             "}");
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return singleton("payloadOperation");
     }
 
@@ -90,7 +90,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
 
         FederatedOperation a = new FederatedOperation.Builder()
                 .op(new GetAdjacentIds.Builder()
@@ -105,7 +105,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
     }
 
     @Override
-    protected FederatedOperation getTestObject() {
+    protected FederatedOperation getTestObjectOld() {
         return new FederatedOperation();
     }
 }

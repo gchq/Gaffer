@@ -55,7 +55,7 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Iterable.class, outputClass);
@@ -142,7 +142,7 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         EntityId input = new EntitySeed("A");
         View view = new View.Builder()
@@ -183,7 +183,7 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
     }
 
     @Override
-    protected GetAdjacentIds getTestObject() {
+    protected GetAdjacentIds getTestObjectOld() {
         return new GetAdjacentIds();
     }
 }

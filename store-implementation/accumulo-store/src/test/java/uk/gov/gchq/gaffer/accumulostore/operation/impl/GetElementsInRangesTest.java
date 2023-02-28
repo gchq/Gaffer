@@ -83,7 +83,7 @@ public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> 
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Pair<ElementId, ElementId> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final View view = new View.Builder().edge("testEdgeGroup").build();
@@ -108,7 +108,7 @@ public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> 
     }
 
     @Override
-    protected GetElementsInRanges getTestObject() {
+    protected GetElementsInRanges getTestObjectOld() {
         return new GetElementsInRanges();
     }
 }

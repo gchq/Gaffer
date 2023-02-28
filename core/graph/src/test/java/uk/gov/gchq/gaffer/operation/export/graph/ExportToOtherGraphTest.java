@@ -92,7 +92,7 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
@@ -119,12 +119,12 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("graphId");
     }
 
     @Override
-    protected ExportToOtherGraph getTestObject() {
+    protected ExportToOtherGraph getTestObjectOld() {
         return new ExportToOtherGraph();
     }
 }

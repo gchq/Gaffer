@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 public class LimitTest extends OperationTest<Limit> {
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("resultLimit");
     }
 
@@ -50,7 +50,7 @@ public class LimitTest extends OperationTest<Limit> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String input = "1";
         final int resultLimit = 4;
@@ -73,14 +73,14 @@ public class LimitTest extends OperationTest<Limit> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Iterable.class, outputClass);
     }
 
     @Override
-    protected Limit getTestObject() {
+    protected Limit getTestObjectOld() {
         return new Limit();
     }
 }

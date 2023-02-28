@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GetAllGraphIdsTest extends FederationOperationTest<GetAllGraphIds> {
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return new HashSet<>();
     }
 
@@ -43,7 +43,7 @@ public class GetAllGraphIdsTest extends FederationOperationTest<GetAllGraphIds> 
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         GetAllGraphIds operation = new GetAllGraphIds.Builder()
                 .option("a", "b")
                 .build();
@@ -54,7 +54,7 @@ public class GetAllGraphIdsTest extends FederationOperationTest<GetAllGraphIds> 
     }
 
     @Override
-    protected GetAllGraphIds getTestObject() {
+    protected GetAllGraphIds getTestObjectOld() {
         return new GetAllGraphIds();
     }
 }

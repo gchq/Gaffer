@@ -187,7 +187,7 @@ public class EntitySeedTest extends JSONSerialisationTest<EntitySeed> {
     }
 
     @Override
-    protected EntitySeed getTestObject() {
+    protected EntitySeed getTestObjectOld() {
         return new EntitySeed();
     }
 }

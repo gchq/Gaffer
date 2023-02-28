@@ -66,7 +66,7 @@ public class ValidateOperationChainTest extends OperationTest<ValidateOperationC
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final ValidateOperationChain validateOperationChain = new ValidateOperationChain.Builder()
                 .operationChain(operationChain)
@@ -83,7 +83,7 @@ public class ValidateOperationChainTest extends OperationTest<ValidateOperationC
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(ValidationResult.class, outputClass);
@@ -91,12 +91,12 @@ public class ValidateOperationChainTest extends OperationTest<ValidateOperationC
 
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("operationChain");
     }
 
     @Override
-    protected ValidateOperationChain getTestObject() {
+    protected ValidateOperationChain getTestObjectOld() {
         return new ValidateOperationChain();
     }
 }

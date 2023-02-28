@@ -77,7 +77,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertThat(outputClass).isEqualTo(Iterable.class);
@@ -204,7 +204,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final EntitySeed input = new EntitySeed("A");
         final View view = new View.Builder()
@@ -244,7 +244,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
     }
 
     @Override
-    protected GetElements getTestObject() {
+    protected GetElements getTestObjectOld() {
         return new GetElements();
     }
 }

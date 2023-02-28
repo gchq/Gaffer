@@ -92,7 +92,7 @@ class PropertiesFilterTest extends JSONSerialisationTest<PropertiesFilter> {
     }
 
     @Override
-    protected PropertiesFilter getTestObject() {
+    protected PropertiesFilter getTestObjectOld() {
         return new PropertiesFilter();
     }
 }

@@ -67,7 +67,7 @@ public class AddElementsTest extends OperationTest<AddElements> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Boolean validatable = false;
         final Boolean skipInvalidElements = false;
@@ -94,7 +94,7 @@ public class AddElementsTest extends OperationTest<AddElements> {
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final AddElements addElements = getTestObject();
+        final AddElements addElements = getTestObjectOld();
 
         final Map<String, String> options = new HashMap<>();
         options.put("option", "value");
@@ -186,7 +186,7 @@ public class AddElementsTest extends OperationTest<AddElements> {
     }
 
     @Override
-    protected AddElements getTestObject() {
+    protected AddElements getTestObjectOld() {
         return new AddElements();
     }
 }

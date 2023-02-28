@@ -40,7 +40,7 @@ public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String input = "1";
         final ToEntitySeeds toEntitySeeds = new ToEntitySeeds.Builder()
@@ -58,14 +58,14 @@ public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Iterable.class, outputClass);
     }
 
     @Override
-    protected ToEntitySeeds getTestObject() {
+    protected ToEntitySeeds getTestObjectOld() {
         return new ToEntitySeeds();
     }
 }

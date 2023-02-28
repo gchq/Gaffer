@@ -99,7 +99,7 @@ public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> 
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String filename = "filename";
         final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
@@ -126,12 +126,12 @@ public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> 
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("filename", "elementGenerator");
     }
 
     @Override
-    protected AddElementsFromFile getTestObject() {
+    protected AddElementsFromFile getTestObjectOld() {
         return new AddElementsFromFile();
     }
 }

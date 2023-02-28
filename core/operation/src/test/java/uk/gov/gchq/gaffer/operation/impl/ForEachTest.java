@@ -54,9 +54,9 @@ public class ForEachTest extends OperationTest<ForEach> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
-        final ForEach forEachOp = getTestObject();
+        final ForEach forEachOp = getTestObjectOld();
 
         // When
         final ForEach clone = forEachOp.shallowClone();
@@ -99,7 +99,7 @@ public class ForEachTest extends OperationTest<ForEach> {
     }
 
     @Override
-    protected ForEach<Object, Object> getTestObject() {
+    protected ForEach<Object, Object> getTestObjectOld() {
         return new ForEach<>();
     }
 }

@@ -32,7 +32,7 @@ public class GetProxyPropertiesTest extends OperationTest<GetProxyProperties> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         //given
-        GetProxyProperties op = getTestObject();
+        GetProxyProperties op = getTestObjectOld();
 
         //when
         String actual = op.getOption(A);
@@ -43,15 +43,15 @@ public class GetProxyPropertiesTest extends OperationTest<GetProxyProperties> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
-        GetProxyProperties testObject = getTestObject();
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
+        GetProxyProperties testObject = getTestObjectOld();
         Operation operation = testObject.shallowClone();
         assertEquals(testObject, operation);
         assertFalse(testObject == operation);
     }
 
     @Override
-    protected GetProxyProperties getTestObject() {
+    protected GetProxyProperties getTestObjectOld() {
         String expected = ONE;
         String a = A;
         return new GetProxyProperties.Builder().option(a, expected).build();

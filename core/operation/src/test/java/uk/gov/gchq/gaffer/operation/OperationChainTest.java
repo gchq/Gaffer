@@ -373,7 +373,7 @@ public class OperationChainTest extends OperationsTest<OperationChain<?>> {
     }
 
     @Override
-    protected OperationChain<?> getTestObject() {
+    protected OperationChain<?> getTestObjectOld() {
         return new OperationChain<>();
     }
 

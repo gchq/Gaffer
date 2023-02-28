@@ -85,7 +85,7 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final View view = new View.Builder()
                 .edge("testEdgeGroup")
@@ -132,7 +132,7 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
     }
 
     @Override
-    protected GetElementsBetweenSets getTestObject() {
+    protected GetElementsBetweenSets getTestObjectOld() {
         return new GetElementsBetweenSets();
     }
 }

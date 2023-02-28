@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 public class AggregatePairTest extends JSONSerialisationTest<AggregatePair> {
 
     @Override
-    protected AggregatePair getTestObject() {
+    protected AggregatePair getTestObjectOld() {
         return new AggregatePair();
     }
 

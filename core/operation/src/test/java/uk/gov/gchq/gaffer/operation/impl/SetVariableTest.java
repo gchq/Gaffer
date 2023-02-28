@@ -44,7 +44,7 @@ public class SetVariableTest extends OperationTest<SetVariable> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final SetVariable op = new SetVariable.Builder()
                 .variableName("varName")
@@ -61,7 +61,7 @@ public class SetVariableTest extends OperationTest<SetVariable> {
     }
 
     @Override
-    protected SetVariable getTestObject() {
+    protected SetVariable getTestObjectOld() {
         return new SetVariable();
     }
 }

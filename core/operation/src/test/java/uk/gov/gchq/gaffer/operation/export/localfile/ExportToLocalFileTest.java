@@ -62,7 +62,7 @@ public class ExportToLocalFileTest extends OperationTest<ExportToLocalFile>  {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         ExportToLocalFile op = getPopulatedObject();
 
@@ -78,14 +78,14 @@ public class ExportToLocalFileTest extends OperationTest<ExportToLocalFile>  {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertThat(Iterable.class).isEqualTo(outputClass);
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return new HashSet(Collections.singleton("filePath"));
     }
 
@@ -97,7 +97,7 @@ public class ExportToLocalFileTest extends OperationTest<ExportToLocalFile>  {
     }
 
     @Override
-    protected ExportToLocalFile getTestObject() {
+    protected ExportToLocalFile getTestObjectOld() {
         return new ExportToLocalFile();
     }
 }

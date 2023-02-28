@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 public class ToMapTest extends OperationTest<ToMap> {
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("elementGenerator");
     }
 
@@ -55,7 +55,7 @@ public class ToMapTest extends OperationTest<ToMap> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Entity input = new Entity(TestGroups.ENTITY);
         final MapGenerator generator = new MapGenerator();
@@ -75,14 +75,14 @@ public class ToMapTest extends OperationTest<ToMap> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Iterable.class, outputClass);
     }
 
     @Override
-    protected ToMap getTestObject() {
+    protected ToMap getTestObjectOld() {
         return new ToMap();
     }
 }

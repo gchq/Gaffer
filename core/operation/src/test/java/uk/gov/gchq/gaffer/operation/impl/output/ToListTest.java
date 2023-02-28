@@ -42,7 +42,7 @@ public class ToListTest extends OperationTest<ToList> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String input = "1";
         final ToList toList = new ToList.Builder<>()
@@ -60,14 +60,14 @@ public class ToListTest extends OperationTest<ToList> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(List.class, outputClass);
     }
 
     @Override
-    protected ToList getTestObject() {
+    protected ToList getTestObjectOld() {
         return new ToList();
     }
 }

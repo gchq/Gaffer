@@ -36,7 +36,7 @@ public class ImportAccumuloKeyValueFilesTest extends OperationTest<ImportAccumul
     private static final String TEST_OPTION_KEY = "testOption";
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("failurePath", "inputPath");
     }
 
@@ -76,7 +76,7 @@ public class ImportAccumuloKeyValueFilesTest extends OperationTest<ImportAccumul
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final ImportAccumuloKeyValueFiles importAccumuloKeyValueFiles = new ImportAccumuloKeyValueFiles.Builder()
                 .inputPath(INPUT_DIRECTORY)
@@ -95,7 +95,7 @@ public class ImportAccumuloKeyValueFilesTest extends OperationTest<ImportAccumul
     }
 
     @Override
-    protected ImportAccumuloKeyValueFiles getTestObject() {
+    protected ImportAccumuloKeyValueFiles getTestObjectOld() {
         return new ImportAccumuloKeyValueFiles();
     }
 }

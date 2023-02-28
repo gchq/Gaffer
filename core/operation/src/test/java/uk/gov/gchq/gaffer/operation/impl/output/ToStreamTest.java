@@ -43,7 +43,7 @@ public class ToStreamTest extends OperationTest<ToStream> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String input = "1";
         final ToStream toStream = new ToStream.Builder<>()
@@ -61,14 +61,14 @@ public class ToStreamTest extends OperationTest<ToStream> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Stream.class, outputClass);
     }
 
     @Override
-    protected ToStream getTestObject() {
+    protected ToStream getTestObjectOld() {
         return new ToStream();
     }
 }

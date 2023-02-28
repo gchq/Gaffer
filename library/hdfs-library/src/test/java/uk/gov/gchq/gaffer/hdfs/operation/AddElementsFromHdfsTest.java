@@ -45,7 +45,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
             "}");
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet(
                 "jobInitialiser",
                 "outputPath",
@@ -121,7 +121,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         Map<String, String> inputMapperPairs = new HashMap<>();
         inputMapperPairs.put("inputPath1", MapperGenerator.class.getName());
@@ -160,7 +160,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         // Given
         final Map<String, String> inputMapperPairs = new HashMap<>();
         inputMapperPairs.put("TestInput", MapperGenerator.class.getName());
-        final AddElementsFromHdfs addElementsFromHdfs = getTestObject();
+        final AddElementsFromHdfs addElementsFromHdfs = getTestObjectOld();
         addElementsFromHdfs.setInputMapperPairs(inputMapperPairs);
         addElementsFromHdfs.setOutputPath("TestOutput");
 
@@ -185,7 +185,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
     }
 
     @Override
-    protected AddElementsFromHdfs getTestObject() {
+    protected AddElementsFromHdfs getTestObjectOld() {
         return new AddElementsFromHdfs();
     }
 }

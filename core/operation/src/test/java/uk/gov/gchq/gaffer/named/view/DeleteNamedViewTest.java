@@ -42,7 +42,7 @@ public class DeleteNamedViewTest extends OperationTest<DeleteNamedView> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         DeleteNamedView deleteNamedView = new DeleteNamedView.Builder().name(namedViewName).build();
 
@@ -55,12 +55,12 @@ public class DeleteNamedViewTest extends OperationTest<DeleteNamedView> {
     }
 
     @Override
-    protected DeleteNamedView getTestObject() {
+    protected DeleteNamedView getTestObjectOld() {
         return new DeleteNamedView();
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Collections.singleton("name");
     }
 }

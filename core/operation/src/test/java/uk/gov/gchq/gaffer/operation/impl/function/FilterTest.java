@@ -56,7 +56,7 @@ public class FilterTest extends OperationTest<Filter> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final List<Element> input = new ArrayList<>();
         final Edge edge = new Edge("road");
@@ -77,14 +77,14 @@ public class FilterTest extends OperationTest<Filter> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Iterable.class, outputClass);
     }
 
     @Override
-    protected Filter getTestObject() {
+    protected Filter getTestObjectOld() {
         return new Filter();
     }
 }

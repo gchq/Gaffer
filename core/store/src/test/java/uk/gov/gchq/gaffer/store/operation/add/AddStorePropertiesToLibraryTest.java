@@ -48,12 +48,12 @@ public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePrope
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("storeProperties", "id");
     }
 
     @Override
-    protected AddStorePropertiesToLibrary getTestObject() {
+    protected AddStorePropertiesToLibrary getTestObjectOld() {
         return new AddStorePropertiesToLibrary();
     }
 
@@ -68,7 +68,7 @@ public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePrope
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         //when
         AddStorePropertiesToLibrary clone = op.shallowClone();
 

@@ -34,7 +34,7 @@ public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo
     public static final List<String> GRAPH_IDS = asList("a", "b", "c");
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return new HashSet<>();
     }
 
@@ -52,7 +52,7 @@ public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         GetAllGraphInfo operation = new GetAllGraphInfo.Builder()
                 .option("a", "b")
                 .graphIDs(GRAPH_IDS)
@@ -70,7 +70,7 @@ public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo
     }
 
     @Override
-    protected GetAllGraphInfo getTestObject() {
+    protected GetAllGraphInfo getTestObjectOld() {
         return new GetAllGraphInfo();
     }
 }

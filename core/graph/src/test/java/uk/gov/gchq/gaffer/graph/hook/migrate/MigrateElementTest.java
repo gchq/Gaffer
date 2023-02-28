@@ -29,7 +29,7 @@ public class MigrateElementTest extends JSONSerialisationTest<MigrateElement> {
     @Test
     public void shouldJsonSerialiseAndDeserialiseTwice() {
         // Given
-        final MigrateElement testObject = getTestObject();
+        final MigrateElement testObject = getTestObjectOld();
 
         // When
         final byte[] serialisedOnceJson = toJson(testObject);
@@ -41,7 +41,7 @@ public class MigrateElementTest extends JSONSerialisationTest<MigrateElement> {
     }
 
     @Override
-    protected MigrateElement getTestObject() {
+    protected MigrateElement getTestObjectOld() {
         return new MigrateElement(
                 MigrateElement.ElementType.ENTITY,
                 "entityOld",

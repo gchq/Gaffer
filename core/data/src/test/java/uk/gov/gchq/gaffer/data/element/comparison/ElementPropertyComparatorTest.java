@@ -234,7 +234,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
     }
 
     @Override
-    protected ElementPropertyComparator getTestObject() {
+    protected ElementPropertyComparator getTestObjectOld() {
         return new ElementPropertyComparator();
     }
 

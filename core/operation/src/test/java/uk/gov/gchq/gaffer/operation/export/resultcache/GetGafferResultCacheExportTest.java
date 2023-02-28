@@ -57,7 +57,7 @@ public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResul
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String key = "key";
         final String jobId = "jobId";
@@ -78,14 +78,14 @@ public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResul
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertThat(outputClass).isEqualTo(Iterable.class);
     }
 
     @Override
-    protected GetGafferResultCacheExport getTestObject() {
+    protected GetGafferResultCacheExport getTestObjectOld() {
         return new GetGafferResultCacheExport();
     }
 }

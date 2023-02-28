@@ -29,7 +29,7 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // When
-        final GetAllJobDetails op = getTestObject();
+        final GetAllJobDetails op = getTestObjectOld();
 
         // Then
         assertThat(op).isNotNull();
@@ -38,7 +38,7 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertThat(outputClass).isEqualTo(Iterable.class);
@@ -46,7 +46,7 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final GetAllJobDetails getAllJobDetails = new GetAllJobDetails.Builder()
                 .build();
@@ -60,7 +60,7 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
     }
 
     @Override
-    protected GetAllJobDetails getTestObject() {
+    protected GetAllJobDetails getTestObjectOld() {
         return new GetAllJobDetails();
     }
 }

@@ -66,7 +66,7 @@ public class WhileTest extends OperationTest<While> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final EntitySeed input = new EntitySeed("E");
         final Predicate predicate = new Exists();
@@ -90,7 +90,7 @@ public class WhileTest extends OperationTest<While> {
     }
 
     @Override
-    protected While getTestObject() {
+    protected While getTestObjectOld() {
         return new While();
     }
 }

@@ -216,7 +216,7 @@ public class LongTimeSeriesTest extends JSONSerialisationTest<LongTimeSeries> {
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
-        final LongTimeSeries obj = getTestObject();
+        final LongTimeSeries obj = getTestObjectOld();
 
         // When
         final byte[] json = toJson(obj);
@@ -255,7 +255,7 @@ public class LongTimeSeriesTest extends JSONSerialisationTest<LongTimeSeries> {
     }
 
     @Override
-    protected LongTimeSeries getTestObject() {
+    protected LongTimeSeries getTestObjectOld() {
         final LongTimeSeries timeSeries = new LongTimeSeries(TimeBucket.SECOND);
         timeSeries.put(Instant.ofEpochMilli(1000L), 10L);
         timeSeries.put(Instant.ofEpochMilli(100000L), 1000L);

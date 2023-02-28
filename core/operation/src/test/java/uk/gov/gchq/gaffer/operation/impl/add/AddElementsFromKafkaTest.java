@@ -112,7 +112,7 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final boolean validate = true;
         final boolean skipInvalid = false;
@@ -148,12 +148,12 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("topic", "groupId", "bootstrapServers", "elementGenerator");
     }
 
     @Override
-    protected AddElementsFromKafka getTestObject() {
+    protected AddElementsFromKafka getTestObjectOld() {
         return new AddElementsFromKafka();
     }
 }

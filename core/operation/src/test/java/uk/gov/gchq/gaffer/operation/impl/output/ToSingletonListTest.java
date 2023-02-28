@@ -40,7 +40,7 @@ public class ToSingletonListTest extends OperationTest<ToSingletonList> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final int input = 1;
         final ToSingletonList operation = new ToSingletonList.Builder<>()
@@ -56,7 +56,7 @@ public class ToSingletonListTest extends OperationTest<ToSingletonList> {
     }
 
     @Override
-    protected ToSingletonList getTestObject() {
+    protected ToSingletonList getTestObjectOld() {
         return new ToSingletonList();
     }
 }

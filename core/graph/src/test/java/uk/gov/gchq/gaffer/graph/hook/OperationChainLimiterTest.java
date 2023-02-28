@@ -181,7 +181,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
     }
 
     @Override
-    protected OperationChainLimiter getTestObject() {
+    protected OperationChainLimiter getTestObjectOld() {
         return fromJson(OP_CHAIN_LIMITER_PATH);
     }
 

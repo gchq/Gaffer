@@ -233,7 +233,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
     }
 
     @Override
-    protected View getTestObject() {
+    protected View getTestObjectOld() {
         return new View();
     }
 

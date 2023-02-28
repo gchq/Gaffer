@@ -30,14 +30,14 @@ public class DeleteAllDataTest extends OperationTest<DeleteAllData> {
     }
 
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         final DeleteAllData a = new DeleteAllData();
         final DeleteAllData b = a.shallowClone();
         assertThat(a).isNotSameAs(b).isEqualTo(b);
     }
 
     @Override
-    protected DeleteAllData getTestObject() {
+    protected DeleteAllData getTestObjectOld() {
         return new DeleteAllData();
     }
 }

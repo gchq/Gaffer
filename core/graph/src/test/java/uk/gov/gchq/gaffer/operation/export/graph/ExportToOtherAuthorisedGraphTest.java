@@ -61,7 +61,7 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // When
         ExportToOtherAuthorisedGraph clone = op.shallowClone();
 
@@ -73,12 +73,12 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("graphId");
     }
 
     @Override
-    protected ExportToOtherAuthorisedGraph getTestObject() {
+    protected ExportToOtherAuthorisedGraph getTestObjectOld() {
         return new ExportToOtherAuthorisedGraph();
     }
 }

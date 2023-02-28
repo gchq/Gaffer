@@ -33,7 +33,7 @@ public class SplitStoreFromFileTest extends OperationTest<SplitStoreFromFile> {
     private static final String TEST_OPTION_KEY = "testOption";
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("inputPath");
     }
 
@@ -63,7 +63,7 @@ public class SplitStoreFromFileTest extends OperationTest<SplitStoreFromFile> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final SplitStoreFromFile splitStore = new SplitStoreFromFile.Builder()
                 .inputPath(INPUT_DIRECTORY)
@@ -80,7 +80,7 @@ public class SplitStoreFromFileTest extends OperationTest<SplitStoreFromFile> {
     }
 
     @Override
-    protected SplitStoreFromFile getTestObject() {
+    protected SplitStoreFromFile getTestObjectOld() {
         return new SplitStoreFromFile();
     }
 }

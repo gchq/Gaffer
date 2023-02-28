@@ -21,15 +21,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ChangeGraphIdTest extends FederationOperationTest<ChangeGraphId> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final ChangeGraphId testObject = getTestObject();
+        final ChangeGraphId testObject = getTestObjectOld();
         assertThat(testObject.isUserRequestingAdminUsage()).isTrue();
         assertThat(testObject.getGraphId()).isEqualTo("graphA");
         assertThat(testObject.getOptions()).containsEntry("a", "b");
     }
 
     @Override
-    public void shouldShallowCloneOperation() {
-        final ChangeGraphId testObject = getTestObject();
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
+        final ChangeGraphId testObject = getTestObjectOld();
 
         final ChangeGraphId changeGraphId = testObject.shallowClone();
 
@@ -39,7 +39,7 @@ public class ChangeGraphIdTest extends FederationOperationTest<ChangeGraphId> {
     }
 
     @Override
-    protected ChangeGraphId getTestObject() {
+    protected ChangeGraphId getTestObjectOld() {
         return new ChangeGraphId.Builder()
                 .graphId("graphA")
                 .setUserRequestingAdminUsage(true)

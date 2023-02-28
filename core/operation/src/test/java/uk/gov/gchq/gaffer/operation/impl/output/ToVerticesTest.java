@@ -83,7 +83,7 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Entity input = new Entity(TestGroups.ENTITY);
         final ToVertices toVertices = new ToVertices.Builder()
@@ -105,14 +105,14 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Iterable.class, outputClass);
     }
 
     @Override
-    protected ToVertices getTestObject() {
+    protected ToVertices getTestObjectOld() {
         return new ToVertices();
     }
 }

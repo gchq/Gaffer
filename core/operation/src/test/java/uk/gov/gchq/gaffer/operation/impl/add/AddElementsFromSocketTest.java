@@ -114,7 +114,7 @@ public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSock
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Integer parallelism = 2;
         final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
@@ -148,13 +148,13 @@ public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSock
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         // port is required but as it is an int it cannot be null
         return Sets.newHashSet("hostname", "elementGenerator");
     }
 
     @Override
-    protected AddElementsFromSocket getTestObject() {
+    protected AddElementsFromSocket getTestObjectOld() {
         return new AddElementsFromSocket();
     }
 }

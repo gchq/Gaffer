@@ -58,7 +58,7 @@ public class ScoreOperationChainTest extends OperationTest<ScoreOperationChain> 
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final OperationChain opChain = new OperationChain();
         final ScoreOperationChain scoreOperationChain = new ScoreOperationChain.Builder()
@@ -76,14 +76,14 @@ public class ScoreOperationChainTest extends OperationTest<ScoreOperationChain> 
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Integer.class, outputClass);
     }
 
     @Override
-    protected ScoreOperationChain getTestObject() {
+    protected ScoreOperationChain getTestObjectOld() {
         return new ScoreOperationChain();
     }
 }

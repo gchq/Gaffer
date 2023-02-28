@@ -467,7 +467,7 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
     }
 
     @Override
-    protected EdgeSeed getTestObject() {
+    protected EdgeSeed getTestObjectOld() {
         return new EdgeSeed();
     }
 

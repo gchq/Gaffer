@@ -107,7 +107,7 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
     }
 
     @Override
-    protected GenericInput getTestObject() {
+    protected GenericInput getTestObjectOld() {
         return new GenericInputImpl();
     }
 

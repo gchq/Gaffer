@@ -344,7 +344,7 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
     }
 
     @Override
-    protected OperationAuthoriser getTestObject() {
+    protected OperationAuthoriser getTestObjectOld() {
         return fromJson(OP_AUTHS_PATH);
     }
 }

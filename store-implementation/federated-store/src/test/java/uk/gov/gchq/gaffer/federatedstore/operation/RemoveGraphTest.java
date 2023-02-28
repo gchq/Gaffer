@@ -48,7 +48,7 @@ public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return singleton("graphId");
     }
 
@@ -66,14 +66,14 @@ public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
-        final RemoveGraph a = getTestObject();
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
+        final RemoveGraph a = getTestObjectOld();
         final RemoveGraph b = a.shallowClone();
         assertEquals(a.getGraphId(), b.getGraphId());
     }
 
     @Override
-    protected RemoveGraph getTestObject() {
+    protected RemoveGraph getTestObjectOld() {
         return new RemoveGraph();
     }
 }

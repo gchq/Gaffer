@@ -182,7 +182,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         Map<String, ParameterDetail> parameters = new HashMap<>();
         parameters.put("testParameter", mock(ParameterDetail.class));
@@ -310,12 +310,12 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     }
 
     @Override
-    protected AddNamedOperation getTestObject() {
+    protected AddNamedOperation getTestObjectOld() {
         return new AddNamedOperation();
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("operations");
     }
 

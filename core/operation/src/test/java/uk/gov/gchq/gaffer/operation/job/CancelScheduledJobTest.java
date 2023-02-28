@@ -47,7 +47,7 @@ public class CancelScheduledJobTest extends OperationTest<CancelScheduledJob> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         CancelScheduledJob op = new CancelScheduledJob.Builder()
                 .jobId(testJobId)
@@ -64,12 +64,12 @@ public class CancelScheduledJobTest extends OperationTest<CancelScheduledJob> {
     }
 
     @Override
-    protected CancelScheduledJob getTestObject() {
+    protected CancelScheduledJob getTestObjectOld() {
         return new CancelScheduledJob();
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Collections.singleton("jobId");
     }
 }

@@ -40,7 +40,7 @@ public class ToArrayTest extends OperationTest<ToArray> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String input = "input";
         final ToArray toArray = new ToArray.Builder<>()
@@ -58,14 +58,14 @@ public class ToArrayTest extends OperationTest<ToArray> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Object.class, outputClass);
     }
 
     @Override
-    protected ToArray getTestObject() {
+    protected ToArray getTestObjectOld() {
         return new ToArray();
     }
 }

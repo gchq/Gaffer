@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 public class MaxTest extends OperationTest<Max> {
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("comparators");
     }
 
@@ -66,7 +66,7 @@ public class MaxTest extends OperationTest<Max> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Entity input = new Entity.Builder()
                 .group(TestGroups.ENTITY)
@@ -90,14 +90,14 @@ public class MaxTest extends OperationTest<Max> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Element.class, outputClass);
     }
 
     @Override
-    protected Max getTestObject() {
+    protected Max getTestObjectOld() {
         return new Max();
     }
 }

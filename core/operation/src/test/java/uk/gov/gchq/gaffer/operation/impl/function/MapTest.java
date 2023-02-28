@@ -47,7 +47,7 @@ public class MapTest extends OperationTest<Map> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Iterable<Integer> input = Arrays.asList(1, 2, 3);
 
@@ -65,12 +65,12 @@ public class MapTest extends OperationTest<Map> {
     }
 
     @Override
-    protected Map getTestObject() {
+    protected Map getTestObjectOld() {
         return new Map();
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("functions");
     }
 }

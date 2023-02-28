@@ -653,7 +653,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
     }
 
     @Override
-    protected UpdateViewHook getTestObject() {
+    protected UpdateViewHook getTestObjectOld() {
         return new UpdateViewHook();
     }
 }

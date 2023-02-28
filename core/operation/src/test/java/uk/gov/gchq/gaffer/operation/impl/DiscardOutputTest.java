@@ -37,9 +37,9 @@ public class DiscardOutputTest extends OperationTest<DiscardOutput> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
-        final DiscardOutput op = getTestObject();
+        final DiscardOutput op = getTestObjectOld();
 
         // When
         final DiscardOutput clone = op.shallowClone();
@@ -49,7 +49,7 @@ public class DiscardOutputTest extends OperationTest<DiscardOutput> {
     }
 
     @Override
-    protected DiscardOutput getTestObject() {
+    protected DiscardOutput getTestObjectOld() {
         return new DiscardOutput();
     }
 }

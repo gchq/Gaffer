@@ -61,7 +61,7 @@ public class IfTest extends OperationTest<If> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Object input = "testInput";
         final If ifOp = new If.Builder<>()
@@ -289,7 +289,7 @@ public class IfTest extends OperationTest<If> {
     }
 
     @Override
-    protected If<Object, Object> getTestObject() {
+    protected If<Object, Object> getTestObjectOld() {
         return new If<>();
     }
 }

@@ -67,7 +67,7 @@ public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferR
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String key = "key";
         final HashSet<String> opAuths = Sets.newHashSet("1", "2");
@@ -91,14 +91,14 @@ public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferR
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Object.class, outputClass);
     }
 
     @Override
-    protected ExportToGafferResultCache getTestObject() {
+    protected ExportToGafferResultCache getTestObjectOld() {
         return new ExportToGafferResultCache();
     }
 }

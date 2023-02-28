@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
 public class ElementFilterTest extends JSONSerialisationTest<ElementFilter> {
 
     @Override
-    protected ElementFilter getTestObject() {
+    protected ElementFilter getTestObjectOld() {
         return new ElementFilter();
     }
 
@@ -276,7 +276,7 @@ public class ElementFilterTest extends JSONSerialisationTest<ElementFilter> {
 
     @Test
     public void shouldReturnUnmodifiableComponentsWhenLocked() {
-        final ElementFilter filter = getTestObject();
+        final ElementFilter filter = getTestObjectOld();
 
         filter.lock();
         final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
@@ -286,7 +286,7 @@ public class ElementFilterTest extends JSONSerialisationTest<ElementFilter> {
 
     @Test
     public void shouldReturnModifiableComponentsWhenNotLocked() {
-        final ElementFilter filter = getTestObject();
+        final ElementFilter filter = getTestObjectOld();
 
         final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
 

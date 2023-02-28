@@ -509,7 +509,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     }
 
     @Override
-    public NamedViewResolver getTestObject() {
+    public NamedViewResolver getTestObjectOld() {
         return new NamedViewResolver();
     }
 }

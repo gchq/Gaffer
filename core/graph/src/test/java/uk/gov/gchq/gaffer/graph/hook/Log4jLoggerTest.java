@@ -35,7 +35,7 @@ public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
     @Test
     public void shouldReturnResultWithoutModification() {
         // Given
-        final Log4jLogger hook = getTestObject();
+        final Log4jLogger hook = getTestObjectOld();
         final Object result = mock(Object.class);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GenerateObjects<>())
@@ -49,7 +49,7 @@ public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
     }
 
     @Override
-    public Log4jLogger getTestObject() {
+    public Log4jLogger getTestObjectOld() {
         return new Log4jLogger();
     }
 }

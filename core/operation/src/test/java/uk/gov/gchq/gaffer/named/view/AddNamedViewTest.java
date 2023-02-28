@@ -73,7 +73,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         parameters.put("testParameter", mock(ViewParameterDetail.class));
 
@@ -102,12 +102,12 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
     }
 
     @Override
-    protected AddNamedView getTestObject() {
+    protected AddNamedView getTestObjectOld() {
         return new AddNamedView();
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("name", "view");
     }
 }

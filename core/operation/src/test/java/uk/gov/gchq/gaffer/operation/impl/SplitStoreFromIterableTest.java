@@ -65,7 +65,7 @@ public class SplitStoreFromIterableTest extends OperationTest<SplitStoreFromIter
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final SplitStoreFromIterable<String> op = new SplitStoreFromIterable.Builder<String>()
                 .input("1", "2", "3")
@@ -82,7 +82,7 @@ public class SplitStoreFromIterableTest extends OperationTest<SplitStoreFromIter
     }
 
     @Override
-    protected SplitStoreFromIterable getTestObject() {
+    protected SplitStoreFromIterable getTestObjectOld() {
         return new SplitStoreFromIterable();
     }
 }

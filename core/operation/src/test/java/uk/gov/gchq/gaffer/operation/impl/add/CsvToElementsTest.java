@@ -93,7 +93,7 @@ class CsvToElementsTest extends OperationTest<CsvToElements> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final CsvToElements op = new CsvToElements.Builder()
                 .validate(VALIDATE)
@@ -112,7 +112,7 @@ class CsvToElementsTest extends OperationTest<CsvToElements> {
     }
 
     @Override
-    protected CsvToElements getTestObject() {
+    protected CsvToElements getTestObjectOld() {
         return new CsvToElements();
     }
 }

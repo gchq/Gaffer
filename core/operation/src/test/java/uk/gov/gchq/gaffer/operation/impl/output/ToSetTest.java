@@ -43,7 +43,7 @@ public class ToSetTest extends OperationTest<ToSet> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String input = "1";
         final ToSet toSet = new ToSet.Builder<>()
@@ -61,14 +61,14 @@ public class ToSetTest extends OperationTest<ToSet> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Set.class, outputClass);
     }
 
     @Override
-    protected ToSet getTestObject() {
+    protected ToSet getTestObjectOld() {
         return new ToSet();
     }
 }

@@ -87,7 +87,7 @@ public class SummariseGroupOverRangesTest extends OperationTest<SummariseGroupOv
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Pair<ElementId, ElementId> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final View view = new View.Builder().edge("testEdgeGroup").build();
@@ -113,7 +113,7 @@ public class SummariseGroupOverRangesTest extends OperationTest<SummariseGroupOv
     }
 
     @Override
-    protected SummariseGroupOverRanges getTestObject() {
+    protected SummariseGroupOverRanges getTestObjectOld() {
         return new SummariseGroupOverRanges();
     }
 }

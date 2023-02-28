@@ -39,14 +39,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
     @Override
-    protected Set<String> getRequiredFields() {
+    protected Set<String> getNonRequiredFields() {
         return Sets.newHashSet("elementGenerator");
     }
 
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Iterable.class, outputClass);
@@ -114,7 +114,7 @@ public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         Element input = new Entity("testEntityGroup", "A");
         ObjectGeneratorImpl generator = new ObjectGeneratorImpl();
@@ -133,7 +133,7 @@ public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
     }
 
     @Override
-    protected GenerateObjects getTestObject() {
+    protected GenerateObjects getTestObjectOld() {
         return new GenerateObjects();
     }
 }

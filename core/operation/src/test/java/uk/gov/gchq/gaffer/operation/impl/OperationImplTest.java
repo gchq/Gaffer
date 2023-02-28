@@ -81,7 +81,7 @@ public class OperationImplTest extends OperationTest<OperationImpl> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String requiredField1 = "value1";
         final CustomVertex requiredField2 = new CustomVertex("type1", "value1");
@@ -128,12 +128,12 @@ public class OperationImplTest extends OperationTest<OperationImpl> {
     }
 
     @Override
-    public Set<String> getRequiredFields() {
+    public Set<String> getNonRequiredFields() {
         return Sets.newHashSet("requiredField1", "requiredField2");
     }
 
     @Override
-    protected OperationImpl getTestObject() {
+    protected OperationImpl getTestObjectOld() {
         return new OperationImpl();
     }
 }

@@ -68,7 +68,7 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final GetJobResults getJobResults = new GetJobResults.Builder()
                 .jobId("id1")
@@ -87,14 +87,14 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertThat(outputClass).isEqualTo(Iterable.class);
     }
 
     @Override
-    protected GetJobResults getTestObject() {
+    protected GetJobResults getTestObjectOld() {
         return new GetJobResults();
     }
 }

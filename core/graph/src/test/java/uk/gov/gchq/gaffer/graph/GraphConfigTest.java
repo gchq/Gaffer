@@ -49,7 +49,7 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
-        final GraphConfig obj = getTestObject();
+        final GraphConfig obj = getTestObjectOld();
 
         // When
         final byte[] json = toJson(obj);
@@ -114,7 +114,7 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
     }
 
     @Override
-    protected GraphConfig getTestObject() {
+    protected GraphConfig getTestObjectOld() {
         final String graphId = "graphId";
 
         final GraphLibrary library = new HashMapGraphLibrary();

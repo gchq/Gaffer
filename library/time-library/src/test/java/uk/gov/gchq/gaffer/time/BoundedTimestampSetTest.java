@@ -40,7 +40,7 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
     @Test
     public void shouldSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final BoundedTimestampSet boundedTimestampSet = getTestObject();
+        final BoundedTimestampSet boundedTimestampSet = getTestObjectOld();
         IntStream.range(0, 20)
                 .forEach(i -> {
                     boundedTimestampSet.add(Instant.ofEpochMilli(i * 1000L));
@@ -63,7 +63,7 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
     @Test
     public void testStateTransitionsCorrectly() throws SerialisationException {
         // Given
-        final BoundedTimestampSet boundedTimestampSet = getTestObject();
+        final BoundedTimestampSet boundedTimestampSet = getTestObjectOld();
 
         // When / Then
         IntStream.range(0, 20)
@@ -85,7 +85,7 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
         final Set<Instant> instants = new HashSet<>();
         instants.add(instant1);
         instants.add(instant2);
-        final BoundedTimestampSet boundedTimestampSet = getTestObject();
+        final BoundedTimestampSet boundedTimestampSet = getTestObjectOld();
         boundedTimestampSet.add(instant1);
         boundedTimestampSet.add(instant2);
 
@@ -109,7 +109,7 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
         final Set<Instant> instants = new HashSet<>();
         IntStream.range(0, 1000)
                 .forEach(i -> instants.add(Instant.ofEpochMilli(i * 1000L)));
-        final BoundedTimestampSet boundedTimestampSet = getTestObject();
+        final BoundedTimestampSet boundedTimestampSet = getTestObjectOld();
         instants.forEach(boundedTimestampSet::add);
 
         // When
@@ -143,7 +143,7 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
         final Set<Instant> instants = new HashSet<>();
         IntStream.range(0, 1000)
                 .forEach(i -> instants.add(Instant.ofEpochMilli(i * 1000L)));
-        final BoundedTimestampSet boundedTimestampSet = getTestObject();
+        final BoundedTimestampSet boundedTimestampSet = getTestObjectOld();
         instants.forEach(boundedTimestampSet::add);
 
         // When
@@ -159,7 +159,7 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
     @Test
     public void testGetNumberOfTimestampsWhenNotFull() {
         // Given
-        final BoundedTimestampSet timestampSet = getTestObject();
+        final BoundedTimestampSet timestampSet = getTestObjectOld();
         final Instant instant = Instant.ofEpochMilli(1000L);
         timestampSet.add(instant);
         timestampSet.add(instant.plus(Duration.ofDays(100L)));
@@ -181,7 +181,7 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
         final Set<Instant> instants = new HashSet<>();
         IntStream.range(0, 1000)
                 .forEach(i -> instants.add(Instant.ofEpochMilli(i * 1000L)));
-        final BoundedTimestampSet boundedTimestampSet = getTestObject();
+        final BoundedTimestampSet boundedTimestampSet = getTestObjectOld();
         instants.forEach(boundedTimestampSet::add);
 
         // When
@@ -192,7 +192,7 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
     }
 
     @Override
-    protected BoundedTimestampSet getTestObject() {
+    protected BoundedTimestampSet getTestObjectOld() {
         return new BoundedTimestampSet(TimeBucket.SECOND, 10);
     }
 }

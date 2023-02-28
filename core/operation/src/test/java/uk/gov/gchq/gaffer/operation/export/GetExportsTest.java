@@ -72,7 +72,7 @@ public class GetExportsTest extends OperationTest<GetExports> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final GetSetExport getSetExport = new GetSetExport.Builder()
                 .key("key1")
@@ -93,14 +93,14 @@ public class GetExportsTest extends OperationTest<GetExports> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Map.class, outputClass);
     }
 
     @Override
-    protected GetExports getTestObject() {
+    protected GetExports getTestObjectOld() {
         return new GetExports();
     }
 }

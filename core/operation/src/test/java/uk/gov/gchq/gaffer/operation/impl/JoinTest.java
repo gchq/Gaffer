@@ -58,7 +58,7 @@ public class JoinTest extends OperationTest<Join> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Join op = new Join.Builder<>().input(Arrays.asList(1, 2, 3))
                 .operation(new GetAllElements.Builder().build()).matchMethod(new TestMatchImpl())
@@ -94,7 +94,7 @@ public class JoinTest extends OperationTest<Join> {
     }
 
     @Override
-    protected Join getTestObject() {
+    protected Join getTestObjectOld() {
         return new Join();
     }
 

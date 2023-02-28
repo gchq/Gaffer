@@ -52,7 +52,7 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final GenerateSplitPointsFromSample op = getTestObject();
+        final GenerateSplitPointsFromSample op = getTestObjectOld();
 
         // When
         byte[] json = JSONSerialiser.serialise(op, true);
@@ -66,7 +66,7 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given / When
-        final GenerateSplitPointsFromSample op = getTestObject();
+        final GenerateSplitPointsFromSample op = getTestObjectOld();
 
         // Then
         assertExpected(op);
@@ -74,9 +74,9 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
-        final GenerateSplitPointsFromSample op = getTestObject();
+        final GenerateSplitPointsFromSample op = getTestObjectOld();
 
         // When
         final GenerateSplitPointsFromSample clone = op.shallowClone();
@@ -86,7 +86,7 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
     }
 
     @Override
-    protected GenerateSplitPointsFromSample getTestObject() {
+    protected GenerateSplitPointsFromSample getTestObjectOld() {
         return new GenerateSplitPointsFromSample.Builder<>()
                 .numSplits(TEST_NUM_SPLITS)
                 .input(TEST_INPUT)

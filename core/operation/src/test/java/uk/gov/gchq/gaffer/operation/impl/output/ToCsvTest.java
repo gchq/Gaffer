@@ -73,7 +73,7 @@ public class ToCsvTest extends OperationTest<ToCsv> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Entity input = new Entity(TestGroups.ENTITY);
         final CsvFormat csvFormat = new Neo4jFormat();
@@ -98,14 +98,14 @@ public class ToCsvTest extends OperationTest<ToCsv> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Iterable.class, outputClass);
     }
 
     @Override
-    protected ToCsv getTestObject() {
+    protected ToCsv getTestObjectOld() {
         return new ToCsv();
     }
 }

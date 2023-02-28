@@ -98,7 +98,7 @@ public class ValidateTest extends OperationTest<Validate> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final Element input = new Edge.Builder()
                 .group("testGroup")
@@ -122,14 +122,14 @@ public class ValidateTest extends OperationTest<Validate> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Iterable.class, outputClass);
     }
 
     @Override
-    protected Validate getTestObject() {
+    protected Validate getTestObjectOld() {
         return new Validate();
     }
 }

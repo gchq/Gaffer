@@ -78,7 +78,7 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final View view = new View.Builder()
                 .edge("testEdgegroup")
@@ -116,7 +116,7 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
     }
 
     @Override
-    protected GetElementsWithinSet getTestObject() {
+    protected GetElementsWithinSet getTestObjectOld() {
         return new GetElementsWithinSet();
     }
 }

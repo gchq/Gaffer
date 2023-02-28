@@ -62,7 +62,7 @@ public class ConditionalTest extends JSONSerialisationTest<Conditional> {
     }
 
     @Override
-    protected Conditional getTestObject() {
+    protected Conditional getTestObjectOld() {
         return new Conditional();
     }
 }

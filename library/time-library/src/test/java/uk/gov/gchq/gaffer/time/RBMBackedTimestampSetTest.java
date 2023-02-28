@@ -266,7 +266,7 @@ public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTi
     }
 
     @Override
-    protected RBMBackedTimestampSet getTestObject() {
+    protected RBMBackedTimestampSet getTestObjectOld() {
         return new RBMBackedTimestampSet(TimeBucket.SECOND);
     }
 }

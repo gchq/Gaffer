@@ -94,7 +94,7 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>().numSplits(10)
                 .proportionToSample(0.5f).input(new Entity(TestGroups.ENTITY, "vertex")).build();
@@ -109,7 +109,7 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
     }
 
     @Override
-    protected SampleElementsForSplitPoints getTestObject() {
+    protected SampleElementsForSplitPoints getTestObjectOld() {
         return new SampleElementsForSplitPoints();
     }
 }

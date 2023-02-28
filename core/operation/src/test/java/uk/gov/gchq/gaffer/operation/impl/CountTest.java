@@ -40,7 +40,7 @@ public class CountTest extends OperationTest<Count> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String input = "1";
         final Count count = new Count.Builder<>()
@@ -58,14 +58,14 @@ public class CountTest extends OperationTest<Count> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Long.class, outputClass);
     }
 
     @Override
-    protected Count getTestObject() {
+    protected Count getTestObjectOld() {
         return new Count();
     }
 }

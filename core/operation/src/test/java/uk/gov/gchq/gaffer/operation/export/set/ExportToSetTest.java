@@ -57,7 +57,7 @@ public class ExportToSetTest extends OperationTest<ExportToSet> {
 
     @Test
     @Override
-    public void shouldShallowCloneOperation() {
+    public void shouldShallowCloneOperationREVIEWMAYBEDELETE() {
         // Given
         final String key = "key";
         final String input = "input";
@@ -78,14 +78,14 @@ public class ExportToSetTest extends OperationTest<ExportToSet> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = getTestObjectOld().getOutputClass();
 
         // Then
         assertEquals(Object.class, outputClass);
     }
 
     @Override
-    protected ExportToSet getTestObject() {
+    protected ExportToSet getTestObjectOld() {
         return new ExportToSet();
     }
 }
