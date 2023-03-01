@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -324,17 +324,8 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void testStoreTraitsGaffer1() {
-        testStoreTraits(GAFFER_1_KEY_STORE);
-    }
-
-    @Test
-    public void testStoreTraitsByteEntity() {
-        testStoreTraits(BYTE_ENTITY_STORE);
-    }
-
-    public void testStoreTraits(final AccumuloStore store) {
-        final Collection<StoreTrait> traits = store.getTraits();
+    public void shouldHaveSupportedStoreTraits() {
+        final Collection<StoreTrait> traits = AccumuloStore.TRAITS;
         assertThat(traits).isNotNull();
         assertThat(traits).withFailMessage("Collection size should be 10").hasSize(10);
 

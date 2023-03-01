@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.integration.store;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -59,11 +60,6 @@ public class TestStore extends Store {
     }
 
     @Override
-    public Set<StoreTrait> getTraits() {
-        return mockStore.getTraits();
-    }
-
-    @Override
     protected void addAdditionalOperationHandlers() {
     }
 
@@ -89,8 +85,7 @@ public class TestStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-        // mockStore.getGetTraitsHandler() would be better but protected
-        return new GetTraitsHandler(mockStore.getTraits());
+        return mock(GetTraitsHandler.class);
     }
 
     @Override

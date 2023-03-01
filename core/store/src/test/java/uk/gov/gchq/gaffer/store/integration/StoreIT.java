@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,11 +77,6 @@ public class StoreIT {
 
     private class TestStore extends Store {
         private final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION));
-
-        @Override
-        public Set<StoreTrait> getTraits() {
-            return traits;
-        }
 
         @Override
         protected void addAdditionalOperationHandlers() {
