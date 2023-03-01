@@ -44,6 +44,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,6 +57,26 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class FederatedStoreUtilTest {
+    private final Schema schema = new Schema.Builder()
+            .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                    .vertex(TestTypes.ID_STRING)
+                    .aggregate(false)
+                    .build())
+            .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                    .source(TestTypes.ID_STRING)
+                    .destination(TestTypes.ID_STRING)
+                    .directed(TestTypes.DIRECTED_TRUE)
+                    .aggregate(false)
+                    .build())
+            .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                    .clazz(String.class)
+                    .build())
+            .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
+                    .clazz(Boolean.class)
+                    .validateFunctions(new IsTrue())
+                    .build())
+            .build();
+
     @Test
     public void shouldGetNullStringsWhenNullCsv() {
         // Given
@@ -281,9 +302,11 @@ public class FederatedStoreUtilTest {
     }
 
     @Test
-    public void shouldUpdateAddElementsInput() {
+    public void shouldUpdateAddElementsInput() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Store store = mock(Store.class);
+        given(store.execute(any(OperationChain.class), any(Context.class))).willReturn(schema);
+        final Graph graph = createGraphWithStore(store);
         final AddElements operation = new AddElements.Builder()
                 .input(new Entity.Builder()
                                 .group(TestGroups.ENTITY)
@@ -318,32 +341,17 @@ public class FederatedStoreUtilTest {
 
     protected Graph createGraph() {
         final Store store = mock(Store.class);
-        final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex(TestTypes.ID_STRING)
-                        .aggregate(false)
-                        .build())
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source(TestTypes.ID_STRING)
-                        .destination(TestTypes.ID_STRING)
-                        .directed(TestTypes.DIRECTED_TRUE)
-                        .aggregate(false)
-                        .build())
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
-                .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
-                        .clazz(Boolean.class)
-                        .validateFunctions(new IsTrue())
-                        .build())
-                .build();
-
-        given(store.getSchema()).willReturn(schema);
         try {
-            given(store.execute(any(OperationChain.class), any(Context.class))).willReturn(schema);
+            // Mock GetTraits operation that returns empty traits
+            given(store.execute(any(OperationChain.class), any(Context.class))).willReturn(new HashSet<>());
         } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
+        return createGraphWithStore(store);
+    }
+
+    protected Graph createGraphWithStore(final Store store) {
+        given(store.getSchema()).willReturn(schema);
         given(store.getOriginalSchema()).willReturn(schema);
 
         StoreProperties storeProperties = new StoreProperties();

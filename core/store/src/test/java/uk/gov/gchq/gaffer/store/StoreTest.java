@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1073,11 +1073,6 @@ public class StoreTest {
             return operationChainValidator;
         }
 
-        @Override
-        public Set<StoreTrait> getTraits() {
-            return traits;
-        }
-
         @SuppressWarnings("rawtypes")
         public OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
             return super.getOperationHandler(opClass);
@@ -1174,11 +1169,6 @@ public class StoreTest {
         @Override
         protected OperationChainValidator createOperationChainValidator() {
             return operationChainValidator;
-        }
-
-        @Override
-        public Set<StoreTrait> getTraits() {
-            return traits;
         }
 
         @Override

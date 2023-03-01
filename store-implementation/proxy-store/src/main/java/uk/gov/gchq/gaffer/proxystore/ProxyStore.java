@@ -53,7 +53,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
@@ -76,7 +75,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -145,11 +143,9 @@ public class ProxyStore extends Store {
         return getSupportedOperations().contains(operationClass);
     }
 
-    protected Set<StoreTrait> fetchTraits() throws StoreException {
-        final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
-        final ResponseDeserialiser<Set<StoreTrait>> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceStoreImpl.StoreTraits());
-        Set<StoreTrait> newTraits = doGet(url, responseDeserialiser, null);
-        if (isNull(newTraits)) {
+    protected Set<StoreTrait> fetchTraits() throws OperationException {
+        Set<StoreTrait> newTraits = executeOpChainViaUrl(new OperationChain<>(new GetTraits.Builder().currentTraits(false).build()), new Context());
+        if (newTraits == null) {
             newTraits = new HashSet<>(0);
         } else {
             // This proxy store cannot handle visibility due to the simple rest api using a default user.
@@ -322,15 +318,7 @@ public class ProxyStore extends Store {
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(OperationChain.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
         addOperationHandler(OperationChainDAO.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
-    }
-
-    @Override
-    public Set<StoreTrait> getTraits() {
-        try {
-            return fetchTraits();
-        } catch (final StoreException e) {
-            throw new GafferRuntimeException(e.getMessage(), e);
-        }
+        addOperationHandler(GetTraits.class, getGetTraitsHandler());
     }
 
     @Override
@@ -357,14 +345,14 @@ public class ProxyStore extends Store {
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
         try {
             return new GetTraitsHandler(fetchTraits());
-        } catch (final StoreException e) {
-            throw new GafferRuntimeException(e.getMessage(), e);
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException("Unable to fetch traits from remote store", e);
         }
     }
 
     @Override
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
+        return null;
     }
 
     protected Client createClient() {
