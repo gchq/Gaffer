@@ -94,12 +94,7 @@ public enum StoreTrait {
      * {@link uk.gov.gchq.gaffer.data.element.Edge}s
      * for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements} operations.
      */
-    MATCHED_VERTEX,
-
-    /**
-     * Stores with this trait have schemas that may change and should do less view validation
-     */
-    DYNAMIC_SCHEMA;
+    MATCHED_VERTEX;
 
     public static final Set<StoreTrait> ALL_TRAITS = Collections.unmodifiableSet(Sets.newHashSet(StoreTrait.values()));
 }
