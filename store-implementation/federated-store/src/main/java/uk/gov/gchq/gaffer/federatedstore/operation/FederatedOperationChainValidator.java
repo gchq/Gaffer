@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -107,10 +106,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                 if (graphIdValid) {
                     currentResult = new ValidationResult();
                     clonedOp.graphIdsCSV(graphId);
-                    // Deprecated function still in use due to Federated GetTraits bug with DYNAMIC_SCHEMA
-                    if (!graphSerialisable.getGraph().getStoreTraits().contains(StoreTrait.DYNAMIC_SCHEMA)) {
-                        super.validateViews(clonedOp, user, store, currentResult);
-                    }
+                    super.validateViews(clonedOp, user, store, currentResult);
                     if (currentResult.isValid()) {
                         // If any graph has a valid View, break with valid current result
                         break;

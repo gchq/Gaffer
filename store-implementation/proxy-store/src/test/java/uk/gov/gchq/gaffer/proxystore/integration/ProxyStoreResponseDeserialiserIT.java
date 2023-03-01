@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.proxystore.response.deserialiser.ResponseDeserialiser;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.File;
@@ -95,10 +96,10 @@ public class ProxyStoreResponseDeserialiserIT {
                 .build();
 
         final Set<Class<? extends Operation>> actualOperationClasses = proxyStore.getSupportedOperations();
-        final Set<Class<? extends Operation>> expectedOperationClasses = new HashSet<>();
-        expectedOperationClasses.addAll(storeOperations);
+        final Set<Class<? extends Operation>> expectedOperationClasses = new HashSet<>(storeOperations);
         expectedOperationClasses.add(OperationChain.class);
         expectedOperationClasses.add(OperationChainDAO.class);
+        expectedOperationClasses.add(GetTraits.class);
 
         //Because of Graph.updateGraphHooks the hook resolvers are forced in, requiring these Handlers
         // Named operation

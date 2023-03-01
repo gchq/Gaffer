@@ -104,7 +104,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -951,32 +950,6 @@ public class GraphTest {
             assertEquals(0, resultElementDef.getTransientProperties().size());
             assertNull(resultElementDef.getTransformer());
         }
-    }
-
-    @Test
-    public void shouldExposeGetTraitsMethod(@Mock final Store store,
-                                            @Mock final View view)
-            throws OperationException {
-        // Given
-        given(store.getSchema()).willReturn(new Schema());
-        given(store.getProperties()).willReturn(new StoreProperties());
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .view(view)
-                        .build())
-                .store(store)
-                .build();
-
-        // When
-        final Set<StoreTrait> storeTraits = new HashSet<>(
-                Arrays.asList(StoreTrait.INGEST_AGGREGATION, StoreTrait.TRANSFORMATION));
-        given(store.getTraits()).willReturn(storeTraits);
-        final Collection<StoreTrait> returnedTraits = graph.getStoreTraits();
-
-        // Then
-        assertEquals(returnedTraits, storeTraits);
-
     }
 
     @Test
@@ -2684,11 +2657,6 @@ public class GraphTest {
     }
 
     public static class TestStoreImpl extends Store {
-        @Override
-        public Set<StoreTrait> getTraits() {
-            return new HashSet<>(0);
-        }
-
         @Override
         protected void addAdditionalOperationHandlers() {
             addOperationHandler(AddNamedView.class, new AddNamedViewHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));

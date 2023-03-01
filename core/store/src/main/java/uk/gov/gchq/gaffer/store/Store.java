@@ -344,20 +344,6 @@ public abstract class Store {
     }
 
     /**
-     * Returns the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
-     * Most stores should support FILTERING.
-     * <p>
-     * If you use Operation.validateFilter(Element) in you handlers, it will
-     * deal with the filtering for you.
-     * </p>
-     *
-     * @return the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
-     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetTraits Operation.
-     */
-    @Deprecated
-    public abstract Set<StoreTrait> getTraits();
-
-    /**
      * Executes a given operation and returns the result.
      *
      * @param operation the operation to execute.

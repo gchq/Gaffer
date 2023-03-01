@@ -109,7 +109,12 @@ public class MapStore extends Store {
         return mapImpl;
     }
 
-    @Override
+    /**
+     * Get the traits supported by this Map Store.
+     * This method is for internal Map Store use
+     * only.
+     * @return Map Store Traits
+     */
     public Set<StoreTrait> getTraits() {
         return TRAITS;
     }

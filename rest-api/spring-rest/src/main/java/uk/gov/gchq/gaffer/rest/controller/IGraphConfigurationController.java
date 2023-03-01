@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ public interface IGraphConfigurationController {
             produces = APPLICATION_JSON_VALUE
     )
     @Operation(
-            summary = "Gets the store traits"
+            summary = "Gets all store traits supported by this store"
     )
     Set<StoreTrait> getStoreTraits();
 
