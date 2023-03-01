@@ -224,7 +224,7 @@ public class ProxyStoreBasicIT {
         expectedTraits.remove(StoreTrait.VISIBILITY);
 
         // When
-        final Set<StoreTrait> storeTraits = graph.execute(new GetTraits(), new Context());
+        final Set<StoreTrait> storeTraits = graph.execute(new GetTraits.Builder().currentTraits(false).build(), new Context());
 
         // Then
         assertThat(storeTraits).isEqualTo(expectedTraits);
