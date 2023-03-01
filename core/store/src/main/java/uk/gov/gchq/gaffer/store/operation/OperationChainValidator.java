@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,16 @@
 package uk.gov.gchq.gaffer.store.operation;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -137,7 +140,8 @@ public class OperationChainValidator {
     protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (shouldValidate(op)) {
             final Schema schema = getSchema(op, user, store);
-            final ValidationResult viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store));
+            final Context context = (user != null) ? new Context(user) : new Context();
+            final ValidationResult viewValidationResult = viewValidator.validate(getView(op), schema, getStoreTraits(store, context));
             if (!viewValidationResult.isValid()) {
                 validationResult.addError("View for operation "
                         + op.getClass().getName()
@@ -159,7 +163,11 @@ public class OperationChainValidator {
         return store.getSchema();
     }
 
-    protected Set<StoreTrait> getStoreTraits(final Store store) {
-        return store.getTraits();
+    protected Set<StoreTrait> getStoreTraits(final Store store, final Context context) {
+        try {
+            return store.execute(new GetTraits.Builder().currentTraits(false).build(), context);
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException("Unable to get Traits using GetTraits Operation", e);
+        }
     }
 }

@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 public class JobTracker extends Cache<String, JobDetail> {
 
-    public static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
+    private static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
 
     public JobTracker(final String suffixCacheName) {
         super(getCacheNameFrom(suffixCacheName));

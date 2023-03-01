@@ -253,8 +253,7 @@ public abstract class Store {
 
         final String storeClass = storeProperties.getStoreClass();
         if (isNull(storeClass)) {
-            throw new IllegalArgumentException(String.format("The Store class name was not found in the store properties for key: %s, GraphId: %s",
-                    StoreProperties.STORE_CLASS, graphId));
+            throw new IllegalArgumentException(String.format("The Store class name was not found in the store properties for key: %s, GraphId: %s", StoreProperties.STORE_CLASS, graphId));
         }
 
         final Store newStore;
@@ -262,8 +261,7 @@ public abstract class Store {
             newStore = Class.forName(storeClass)
                     .asSubclass(Store.class)
                     .newInstance();
-        } catch (final InstantiationException | IllegalAccessException |
-                       ClassNotFoundException e) {
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new IllegalArgumentException(String.format("Could not create store of type: %s", storeClass), e);
         }
 
@@ -344,20 +342,6 @@ public abstract class Store {
     public void updateJsonSerialiser() {
         updateJsonSerialiser(getProperties());
     }
-
-    /**
-     * Returns the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
-     * Most stores should support FILTERING.
-     * <p>
-     * If you use Operation.validateFilter(Element) in you handlers, it will
-     * deal with the filtering for you.
-     * </p>
-     *
-     * @return the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
-     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetTraits Operation.
-     */
-    @Deprecated
-    public abstract Set<StoreTrait> getTraits();
 
     /**
      * Executes a given operation and returns the result.
@@ -775,8 +759,7 @@ public abstract class Store {
     }
 
     /**
-     * Ensures that each of the GroupBy properties in the {@link
-     * SchemaElementDefinition} is consistent,
+     * Ensures that each of the GroupBy properties in the {@link SchemaElementDefinition} is consistent,
      * otherwise an error is added to the {@link ValidationResult}.
      *
      * @param schemaElementDefinitionEntry A map of SchemaElementDefinitions
@@ -860,28 +843,23 @@ public abstract class Store {
     protected abstract void addAdditionalOperationHandlers();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetElements}. All Stores must
+     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}. All Stores must
      * implement this.
      *
-     * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetElements}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}
      */
     protected abstract OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}. All Stores must
+     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}. All Stores must
      * implement this.
      *
-     * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
      */
     protected abstract OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * GetAdjacentIds}.
+     * Get this Stores implementation of the handler for {@link GetAdjacentIds}.
      * All Stores must implement this.
      *
      * @return the implementation of the handler for {@link GetAdjacentIds}
@@ -889,32 +867,26 @@ public abstract class Store {
     protected abstract OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.add.AddElements}.
+     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.add.AddElements}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}
      */
     protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.store.operation.GetTraits}.
+     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.store.operation.GetTraits}.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.store.operation.GetTraits}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.store.operation.GetTraits}
      */
     protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler();
 
     /**
-     * Get this Store's implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.OperationChain}.
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.OperationChain}.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.OperationChain}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.OperationChain}
      */
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
         return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
@@ -931,8 +903,7 @@ public abstract class Store {
     protected abstract Class<? extends Serialiser> getRequiredParentSerialiserClass();
 
     /**
-     * Should deal with any unhandled operations, simply throws an {@link
-     * UnsupportedOperationException}.
+     * Should deal with any unhandled operations, simply throws an {@link UnsupportedOperationException}.
      *
      * @param operation the operation that does not have a registered handler.
      * @param context   operation execution context

@@ -44,14 +44,14 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreMultiCacheTest {
 
-    public static final User AUTH_USER = authUser();
-    public static final User TEST_USER = testUser();
-    public static final User BLANK_USER = blankUser();
+    private static final User AUTH_USER = authUser();
+    private static final User TEST_USER = testUser();
+    private static final User BLANK_USER = blankUser();
     private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
-    public static final String USER_SAME_CACHE_SUFFIX = "UseSameCacheSuffix";
-    public FederatedStore federatedStore;
-    public FederatedStore federatedStore2WithSameCache;
-    public FederatedStoreProperties federatedStoreProperties;
+    private static final String USER_SAME_CACHE_SUFFIX = "UseSameCacheSuffix";
+    private FederatedStore federatedStore;
+    private FederatedStore federatedStore2WithSameCache;
+    private FederatedStoreProperties federatedStoreProperties;
 
     @BeforeEach
     public void setUp() throws Exception {

@@ -57,7 +57,9 @@ import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.Repeat;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -82,6 +84,7 @@ import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -101,7 +104,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -951,32 +953,6 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldExposeGetTraitsMethod(@Mock final Store store,
-                                            @Mock final View view)
-            throws OperationException {
-        // Given
-        given(store.getSchema()).willReturn(new Schema());
-        given(store.getProperties()).willReturn(new StoreProperties());
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .view(view)
-                        .build())
-                .store(store)
-                .build();
-
-        // When
-        final Set<StoreTrait> storeTraits = new HashSet<>(
-                Arrays.asList(StoreTrait.INGEST_AGGREGATION, StoreTrait.TRANSFORMATION));
-        given(store.getTraits()).willReturn(storeTraits);
-        final Collection<StoreTrait> returnedTraits = graph.getStoreTraits();
-
-        // Then
-        assertEquals(returnedTraits, storeTraits);
-
-    }
-
-    @Test
     public void shouldGetSchemaFromStoreIfSchemaIsEmpty(@Mock final Store store,
                                                         @Mock final View view)
             throws OperationException {
@@ -1404,6 +1380,8 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         final NamedOperationResolver graphHook2 = new NamedOperationResolver(SUFFIX_CACHE_NAME);
 
         // When
@@ -1431,6 +1409,8 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
 
         // When
         final Graph graph = new Graph.Builder()
@@ -2362,6 +2342,8 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         // When
         final GraphConfig config = new GraphConfig.Builder()
                 .graphId("test")
@@ -2386,6 +2368,8 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         // When
         final GraphConfig config = new GraphConfig.Builder()
                 .graphId("test")
@@ -2674,12 +2658,8 @@ public class GraphTest {
 
     public static class TestStoreImpl extends Store {
         @Override
-        public Set<StoreTrait> getTraits() {
-            return new HashSet<>(0);
-        }
-
-        @Override
         protected void addAdditionalOperationHandlers() {
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
         }
 
         @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class TestAddToGraphLibraryImpl extends Store {
-    @Override
-    public Set<StoreTrait> getTraits() {
-        return new HashSet<>(0);
-    }
-
     @Override
     protected void addAdditionalOperationHandlers() {
     }
