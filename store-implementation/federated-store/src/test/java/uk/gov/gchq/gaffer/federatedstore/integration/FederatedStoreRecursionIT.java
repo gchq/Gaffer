@@ -68,9 +68,6 @@ public class FederatedStoreRecursionIT {
     }
 
     @Test
-    // TODO: Re-enable once gh-2580 is complete.
-    // This is disabled due to a loop of getTrait operations. Gh-2580 will remove these, fixing the problem.
-    @Disabled
     @Timeout(value = 1, unit = TimeUnit.MINUTES)
     public void shouldNotInfinityLoopWhenAddingElements() throws Exception {
         /*
