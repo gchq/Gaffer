@@ -143,8 +143,15 @@ public class ProxyStore extends Store {
         return getSupportedOperations().contains(operationClass);
     }
 
-    protected Set<StoreTrait> fetchTraits() throws StoreException, OperationException {
-        return executeOpChainViaUrl(new OperationChain<>(new GetTraits()), new Context());
+    protected Set<StoreTrait> fetchTraits() throws OperationException {
+        Set<StoreTrait> newTraits = executeOpChainViaUrl(new OperationChain<>(new GetTraits.Builder().currentTraits(false).build()), new Context());
+        if (newTraits == null) {
+            newTraits = new HashSet<>(0);
+        } else {
+            // This proxy store cannot handle visibility due to the simple rest api using a default user.
+            newTraits.remove(StoreTrait.VISIBILITY);
+        }
+        return newTraits;
     }
 
     protected Schema fetchSchema(final boolean getCompactSchema) throws OperationException {
@@ -311,6 +318,7 @@ public class ProxyStore extends Store {
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(OperationChain.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
         addOperationHandler(OperationChainDAO.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
+        addOperationHandler(GetTraits.class, getGetTraitsHandler());
     }
 
     @Override
@@ -337,14 +345,14 @@ public class ProxyStore extends Store {
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
         try {
             return new GetTraitsHandler(fetchTraits());
-        } catch (final OperationException | StoreException e) {
-            throw new GafferRuntimeException("Error fetching traits from remote store.", e);
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException("Unable to fetch traits from remote store", e);
         }
     }
 
     @Override
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
+        return null;
     }
 
     protected Client createClient() {
