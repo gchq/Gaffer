@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 import com.google.common.collect.Lists;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -68,9 +67,6 @@ public class FederatedStoreRecursionIT {
     }
 
     @Test
-    // TODO: Re-enable once gh-2580 is complete.
-    // This is disabled due to a loop of getTrait operations. Gh-2580 will remove these, fixing the problem.
-    @Disabled
     @Timeout(value = 1, unit = TimeUnit.MINUTES)
     public void shouldNotInfinityLoopWhenAddingElements() throws Exception {
         /*
