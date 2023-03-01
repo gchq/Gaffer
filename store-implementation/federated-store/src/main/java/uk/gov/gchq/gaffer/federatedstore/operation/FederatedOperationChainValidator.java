@@ -24,9 +24,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
-import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
@@ -36,7 +34,6 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
@@ -109,16 +106,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                 if (graphIdValid) {
                     currentResult = new ValidationResult();
                     clonedOp.graphIdsCSV(graphId);
-                    // TODO: gh-2580 Removal of DYNAMIC_SCHEMA and the getTraits operation below
-                    final Set<StoreTrait> traits;
-                    try {
-                        traits = graphSerialisable.getGraph().execute(new GetTraits(), new Context(user));
-                    } catch (final OperationException e) {
-                        throw new GafferRuntimeException("Unable to get Traits using GetTraits Operation", e);
-                    }
-                    if (!traits.contains(StoreTrait.DYNAMIC_SCHEMA)) {
-                        super.validateViews(clonedOp, user, store, currentResult);
-                    }
+                    super.validateViews(clonedOp, user, store, currentResult);
                     if (currentResult.isValid()) {
                         // If any graph has a valid View, break with valid current result
                         break;
