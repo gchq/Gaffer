@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -64,6 +63,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -80,6 +80,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreCacheTransient.getCacheNameFrom;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES_ALT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
@@ -113,22 +114,22 @@ import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreTest {
-    public static final String ID_SCHEMA_ENTITY = "basicEntitySchema";
-    public static final String ID_SCHEMA_EDGE = "basicEdgeSchema";
-    public static final String ID_PROPS_ACC_1 = "miniAccProps1";
-    public static final String ID_PROPS_ACC_2 = "miniAccProps2";
-    public static final String ID_PROPS_ACC_ALT = "miniAccProps3";
-    public static final String INVALID = "invalid";
-    public static final String UNUSUAL_KEY = "unusualKey";
-    public static final String KEY_DOES_NOT_BELONG = UNUSUAL_KEY + " was added to " + ID_PROPS_ACC_2 + " it should not be there";
-    public static final String PATH_INCOMPLETE_SCHEMA = "/schema/edgeX2NoTypesSchema.json";
-    public static final String PATH_INCOMPLETE_SCHEMA_PART_2 = "/schema/edgeTypeSchema.json";
+    private static final String ID_SCHEMA_ENTITY = "basicEntitySchema";
+    private static final String ID_SCHEMA_EDGE = "basicEdgeSchema";
+    private static final String ID_PROPS_ACC_1 = "miniAccProps1";
+    private static final String ID_PROPS_ACC_2 = "miniAccProps2";
+    private static final String ID_PROPS_ACC_ALT = "miniAccProps3";
+    private static final String INVALID = "invalid";
+    private static final String UNUSUAL_KEY = "unusualKey";
+    private static final String KEY_DOES_NOT_BELONG = UNUSUAL_KEY + " was added to " + ID_PROPS_ACC_2 + " it should not be there";
+    private static final String PATH_INCOMPLETE_SCHEMA = "/schema/edgeX2NoTypesSchema.json";
+    private static final String PATH_INCOMPLETE_SCHEMA_PART_2 = "/schema/edgeTypeSchema.json";
     private static final String ACC_ID_1 = "miniAccGraphId1";
     private static final String ACC_ID_2 = "miniAccGraphId2";
     private static final String MAP_ID_1 = "miniMapGraphId1";
     private static final String FED_ID_1 = "subFedGraphId1";
     private static final String INVALID_CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.invalid";
-    private static final String CACHE_SERVICE_NAME = "federatedStoreGraphs";
+    private static final String CACHE_SERVICE_NAME = getCacheNameFrom(GRAPH_ID_TEST_FEDERATED_STORE);
     private static AccumuloProperties properties1;
     private static AccumuloProperties properties2;
     private static AccumuloProperties propertiesAlt;
@@ -177,12 +178,12 @@ public class FederatedStoreTest {
         assertThat(properties2).withFailMessage("Library has changed: " + ID_PROPS_ACC_2).isEqualTo(library.getProperties(ID_PROPS_ACC_2));
         assertThat(propertiesAlt).withFailMessage("Library has changed: " + ID_PROPS_ACC_ALT).isEqualTo(library.getProperties(ID_PROPS_ACC_ALT));
 
-        assertThat(new String(getSchemaFromPath(SCHEMA_EDGE_BASIC_JSON).toJson(false), CommonConstants.UTF_8))
+        assertThat(new String(getSchemaFromPath(SCHEMA_EDGE_BASIC_JSON).toJson(false), StandardCharsets.UTF_8))
                 .withFailMessage("Library has changed: " + ID_SCHEMA_EDGE)
-                .isEqualTo(new String(library.getSchema(ID_SCHEMA_EDGE).toJson(false), CommonConstants.UTF_8));
-        assertThat(new String(getSchemaFromPath(SCHEMA_ENTITY_BASIC_JSON).toJson(false), CommonConstants.UTF_8))
+                .isEqualTo(new String(library.getSchema(ID_SCHEMA_EDGE).toJson(false), StandardCharsets.UTF_8));
+        assertThat(new String(getSchemaFromPath(SCHEMA_ENTITY_BASIC_JSON).toJson(false), StandardCharsets.UTF_8))
                 .withFailMessage("Library has changed: " + ID_SCHEMA_ENTITY)
-                .isEqualTo(new String(library.getSchema(ID_SCHEMA_ENTITY).toJson(false), CommonConstants.UTF_8));
+                .isEqualTo(new String(library.getSchema(ID_SCHEMA_ENTITY).toJson(false), StandardCharsets.UTF_8));
     }
 
     @Test
@@ -227,7 +228,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldThrowErrorForMissingProperty() {
         // When / Then
-        final List<String> schemas = asList(ID_SCHEMA_EDGE);
+        final List<String> schemas = singletonList(ID_SCHEMA_EDGE);
         final Exception actual = assertThrows(Exception.class,
                 () -> store.execute(new AddGraph.Builder()
                         .graphId(ACC_ID_2)
@@ -590,7 +591,7 @@ public class FederatedStoreTest {
                 .graphId(ACC_ID_2)
                 .storeProperties(propertiesAlt)
                 .isPublic(true)
-                .parentSchemaIds(asList(ID_SCHEMA_ENTITY))
+                .parentSchemaIds(singletonList(ID_SCHEMA_ENTITY))
                 .build(), blankUserContext);
 
         // Then
@@ -638,7 +639,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldAddGraphWithSchemaFromGraphLibraryOverridden() throws Exception {
-        final List<String> schemas = asList(ID_SCHEMA_ENTITY);
+        final List<String> schemas = singletonList(ID_SCHEMA_ENTITY);
         store.execute(new AddGraph.Builder()
                 .graphId(ACC_ID_2)
                 .isPublic(true)
@@ -669,7 +670,7 @@ public class FederatedStoreTest {
                 .storeProperties(propertiesAlt)
                 .parentPropertiesId(ID_PROPS_ACC_2)
                 .schema(tempSchema.build())
-                .parentSchemaIds(asList(ID_SCHEMA_ENTITY))
+                .parentSchemaIds(singletonList(ID_SCHEMA_ENTITY))
                 .build(), blankUserContext);
 
         // Then
@@ -698,7 +699,7 @@ public class FederatedStoreTest {
         actual = assertThrows(Exception.class,
                 () -> store.execute(new AddGraph.Builder()
                         .graphId(ACC_ID_2)
-                        .parentSchemaIds(asList(ID_SCHEMA_EDGE))
+                        .parentSchemaIds(singletonList(ID_SCHEMA_EDGE))
                         .isPublic(true)
                         .build(), blankUserContext));
 
@@ -889,7 +890,7 @@ public class FederatedStoreTest {
                         .graphId(ACC_ID_2)
                         .storeProperties(propertiesAlt)
                         .isPublic(true)
-                        .parentSchemaIds(asList(ID_SCHEMA_ENTITY))
+                        .parentSchemaIds(singletonList(ID_SCHEMA_ENTITY))
                         .build(), blankUserContext))
                 .withStackTraceContaining(error);
         Mockito.verify(mockLibrary).getSchema(ID_SCHEMA_ENTITY);
@@ -1242,8 +1243,8 @@ public class FederatedStoreTest {
         final Entity A = getEntityA();
         final Entity B = getEntityB();
 
-        final List<Entity> expectedA = asList(A);
-        final List<Entity> expectedB = asList(B);
+        final List<Entity> expectedA = singletonList(A);
+        final List<Entity> expectedB = singletonList(B);
 
         addElementsToNewGraph(A, "graphA", SCHEMA_ENTITY_A_JSON);
         addElementsToNewGraph(B, "graphB", SCHEMA_ENTITY_B_JSON);

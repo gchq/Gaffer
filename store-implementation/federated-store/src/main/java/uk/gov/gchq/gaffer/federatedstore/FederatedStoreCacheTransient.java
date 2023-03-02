@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 
+import java.util.Locale;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
@@ -40,10 +41,14 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
     }
 
     public FederatedStoreCacheTransient(final String cacheNameSuffix) {
-        super(String.format("%s%s", CACHE_SERVICE_NAME_PREFIX,
+        super(getCacheNameFrom(cacheNameSuffix));
+    }
+
+    public static String getCacheNameFrom(final String cacheNameSuffix) {
+        return String.format("%s%s", CACHE_SERVICE_NAME_PREFIX,
                 nonNull(cacheNameSuffix)
-                        ? "_" + cacheNameSuffix.toLowerCase()
-                        : ""));
+                        ? "_" + cacheNameSuffix.toLowerCase(Locale.getDefault())
+                        : "");
     }
 
     /**

@@ -453,7 +453,11 @@ public class StoreProperties implements Cloneable {
     }
 
     public String getCacheServiceNameSuffix() {
-        return get(CACHE_SERVICE_NAME_SUFFIX, null);
+        return getCacheServiceNameSuffix(null);
+    }
+
+    public String getCacheServiceNameSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_NAME_SUFFIX, defaultValue);
     }
 
     public Properties getProperties() {

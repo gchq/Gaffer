@@ -178,7 +178,7 @@ public class FederatedStore extends Store {
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
-        graphStorage = new FederatedGraphStorage(properties.getCacheServiceNameSuffix());
+        graphStorage = new FederatedGraphStorage(properties.getCacheServiceNameSuffix(graphId));
         super.initialise(graphId, new Schema(), properties);
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
