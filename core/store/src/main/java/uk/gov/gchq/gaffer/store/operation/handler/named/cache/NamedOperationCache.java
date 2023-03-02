@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
+import com.google.common.base.Strings;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,9 +40,13 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationCache.class);
     public static final String CACHE_SERVICE_NAME_PREFIX = "NamedOperation";
+    public static final String NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX = "NamedOperation Cache was made with Null or Empty suffix, This is very likely a mistake. GraphId or a supplied suffix is normal";
 
     public NamedOperationCache(final String suffixCacheName) {
         super(getCacheNameFrom(suffixCacheName));
+        if (Strings.isNullOrEmpty(suffixCacheName)) {
+            LOGGER.error(NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX);
+        }
     }
 
     public static String getCacheNameFrom(final String suffixCacheName) {

@@ -111,7 +111,7 @@ public class Cache<K, V> {
     public static String getCacheNameFrom(final String prefixCacheServiceName, final String suffixCacheName) {
         return String.format("%s%s", prefixCacheServiceName,
                 nonNull(suffixCacheName)
-                        ? "_" + suffixCacheName.toLowerCase(Locale.UK)
+                        ? "_" + suffixCacheName.toLowerCase(Locale.getDefault())
                         : "");
     }
 }

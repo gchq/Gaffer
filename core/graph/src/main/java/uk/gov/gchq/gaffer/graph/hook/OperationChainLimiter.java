@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
@@ -48,7 +50,16 @@ import java.util.Map;
  */
 @JsonPropertyOrder(alphabetic = true)
 public class OperationChainLimiter implements GraphHook {
-    private final ScoreOperationChainHandler scorer = new ScoreOperationChainHandler();
+    private final ScoreOperationChainHandler scorer;
+
+    @JsonCreator
+    public OperationChainLimiter(@JsonProperty("namedOperationCacheNameSuffix") final String cacheServiceNameSuffix) {
+        scorer = new ScoreOperationChainHandler(cacheServiceNameSuffix);
+    }
+
+    public String getNamedOperationCacheNameSuffix() {
+        return scorer.getNamedOperationCacheNameSuffix();
+    }
 
     /**
      * Checks the {@link OperationChain} is allowed to be executed by the user.

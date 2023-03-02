@@ -126,7 +126,7 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
                 .build();
 
         final GraphHook hook1 = new AddOperationsToChain();
-        final GraphHook hook2 = new OperationChainLimiter();
+        final GraphHook hook2 = new OperationChainLimiter(null);
 
         return new GraphConfig.Builder()
                 .graphId(graphId)
