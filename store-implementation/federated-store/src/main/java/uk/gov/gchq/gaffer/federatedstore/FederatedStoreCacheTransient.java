@@ -47,7 +47,7 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
     public static String getCacheNameFrom(final String cacheNameSuffix) {
         return String.format("%s%s", CACHE_SERVICE_NAME_PREFIX,
                 nonNull(cacheNameSuffix)
-                        ? "_" + cacheNameSuffix.toLowerCase(Locale.UK)
+                        ? "_" + cacheNameSuffix.toLowerCase(Locale.getDefault())
                         : "");
     }
 
