@@ -142,8 +142,8 @@ public class ProxyStore extends Store {
         return getSupportedOperations().contains(operationClass);
     }
 
-    protected Set<StoreTrait> fetchTraits(final boolean currentTraits) throws OperationException {
-        Set<StoreTrait> newTraits = executeOpChainViaUrl(new OperationChain<>(new GetTraits.Builder().currentTraits(currentTraits).build()), new Context());
+    protected Set<StoreTrait> fetchTraits(final Operation operation) throws OperationException {
+        Set<StoreTrait> newTraits = executeOpChainViaUrl(new OperationChain<>(operation), new Context());
         if (newTraits == null) {
             newTraits = new HashSet<>(0);
         } else {
@@ -342,7 +342,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-        return (operation, context, store) -> ((ProxyStore) store).fetchTraits(operation.isCurrentTraits());
+        return (operation, context, store) -> ((ProxyStore) store).fetchTraits(operation);
     }
 
     @Override
