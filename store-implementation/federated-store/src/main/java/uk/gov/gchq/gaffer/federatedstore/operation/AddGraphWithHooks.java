@@ -62,14 +62,20 @@ public class AddGraphWithHooks extends AddGraph {
         this.hooks = hooks;
     }
 
-    public static class Builder extends AddGraphBuilder<AddGraphWithHooks, Builder> {
-        public Builder() {
-            super(new AddGraphWithHooks());
+    public abstract static class AddGraphWithHooksBuilder<OP extends AddGraphWithHooks, B extends AddGraphWithHooksBuilder<OP, ?>> extends AddGraphBuilder<OP, B> {
+        protected AddGraphWithHooksBuilder(final OP addGraph) {
+            super(addGraph);
         }
 
-        public Builder hooks(final GraphHook... hooks) {
+        public B hooks(final GraphHook... hooks) {
             _getOp().setHooks(hooks);
             return _self();
+        }
+    }
+
+    public static class Builder extends AddGraphWithHooksBuilder<AddGraphWithHooks, Builder> {
+        public Builder() {
+            super(new AddGraphWithHooks());
         }
     }
 }

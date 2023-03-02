@@ -199,6 +199,7 @@ import static java.util.Objects.nonNull;
  */
 public abstract class Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
+    public static final String ADD_GRAPH_DECLARATIONS = "gaffer.federatedstore.addgraph.declarations";
     private final Class<? extends Serialiser> requiredParentSerialiserClass;
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     protected final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
@@ -253,7 +254,8 @@ public abstract class Store {
 
         final String storeClass = storeProperties.getStoreClass();
         if (isNull(storeClass)) {
-            throw new IllegalArgumentException(String.format("The Store class name was not found in the store properties for key: %s, GraphId: %s", StoreProperties.STORE_CLASS, graphId));
+            throw new IllegalArgumentException(String.format("The Store class name was not found in the store properties for key: %s, GraphId: %s",
+                    StoreProperties.STORE_CLASS, graphId));
         }
 
         final Store newStore;
@@ -1101,6 +1103,15 @@ public abstract class Store {
                 addOperationHandler(definition.getOperation(), definition.getHandler());
             }
         }
+
+        if (properties.containsKey(ADD_GRAPH_DECLARATIONS)) {
+            final String json = properties.get(ADD_GRAPH_DECLARATIONS);
+            final OperationDeclarations operationDeclarations = OperationDeclarations.fromJson(json);
+            for (final OperationDeclaration definition : operationDeclarations.getOperations()) {
+                addOperationHandler(definition.getOperation(), definition.getHandler());
+            }
+        }
+
     }
 
     protected void startCacheServiceLoader(final StoreProperties properties) {
