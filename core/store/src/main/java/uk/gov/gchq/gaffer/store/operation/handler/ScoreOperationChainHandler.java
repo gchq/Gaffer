@@ -67,7 +67,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
             Collections.unmodifiableMap(opScores), Collections.unmodifiableMap(scoreResolvers)
     );
 
-    private Map<Class<? extends Operation>, ScoreResolver> defaultScoreResolvers;
+    private final Map<Class<? extends Operation>, ScoreResolver> defaultScoreResolvers;
 
     @JsonCreator
     public ScoreOperationChainHandler(@JsonProperty("namedOperationCacheNameSuffix") final String namedOperationCacheNameSuffix) {

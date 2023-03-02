@@ -188,7 +188,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
     @Test
     public void shouldSetAndGetAuthScores() {
         // Given
-        final OperationChainLimiter hook = new OperationChainLimiter(null);
+        final OperationChainLimiter hook = new OperationChainLimiter("testSuffix");
         final Map<String, Integer> authScores = new HashMap<>();
         authScores.put("auth1", 1);
         authScores.put("auth2", 2);
@@ -205,7 +205,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
     @Test
     public void shouldSetAndGetOpScores() {
         // Given
-        final OperationChainLimiter hook = new OperationChainLimiter(null);
+        final OperationChainLimiter hook = new OperationChainLimiter("testSuffix");
         final LinkedHashMap<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
         opScores.put(Operation.class, 1);
         opScores.put(GetElements.class, 2);
@@ -222,7 +222,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
     @Test
     public void shouldSetAndGetOpScoresAsStrings() throws ClassNotFoundException {
         // Given
-        final OperationChainLimiter hook = new OperationChainLimiter(null);
+        final OperationChainLimiter hook = new OperationChainLimiter("testSuffix");
         final LinkedHashMap<String, Integer> opScores = new LinkedHashMap<>();
         opScores.put(Operation.class.getName(), 1);
         opScores.put(GetElements.class.getName(), 2);

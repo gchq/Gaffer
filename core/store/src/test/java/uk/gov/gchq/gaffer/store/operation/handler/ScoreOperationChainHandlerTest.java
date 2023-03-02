@@ -77,7 +77,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldExecuteScoreChainOperation() throws OperationException {
         // Given
-        final ScoreOperationChainHandler operationHandler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler operationHandler = new ScoreOperationChainHandler("testSuffix");
 
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
@@ -112,7 +112,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldExecuteScoreChainOperationForNestedOperationChain() throws OperationException {
         // Given
-        final ScoreOperationChainHandler operationHandler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler operationHandler = new ScoreOperationChainHandler("testSuffix");
 
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
@@ -149,7 +149,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldExecuteScoreOperationChainContainingNamedOperation() throws OperationException {
         // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler("testSuffix");
         final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
 
         final ScoreResolver scoreResolver = mock(NamedOperationScoreResolver.class);
@@ -199,7 +199,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldCorrectlyExecuteScoreOperationChainWhenNamedOperationScoreIsNull() throws OperationException {
         // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler("testSuffix");
         final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
 
         final ScoreResolver scoreResolver = mock(NamedOperationScoreResolver.class);
@@ -249,7 +249,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldResolveScoreOperationChainWithMultipleScoreResolvers() throws OperationException {
         // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler("testSuffix");
         final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
 
         final ScoreResolver scoreResolver = mock(NamedOperationScoreResolver.class);
@@ -299,7 +299,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldCorrectlyResolveScoreForNullListOfOperations() throws OperationException {
         // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler("testSuffix");
         final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
 
         handler.setScoreResolvers(resolvers);
@@ -334,7 +334,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldCorrectlyResolveScoreForNestedOperationWithNullOperationList() throws OperationException {
         // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler("testSuffix");
         final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
 
         final ScoreResolver scoreResolver = mock(NamedOperationScoreResolver.class);
@@ -390,7 +390,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldReturnZeroForANullOperationChain() throws OperationException {
         // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler("testSuffix");
 
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
@@ -419,7 +419,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldSetAndGetAuthScores() {
         // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler("testSuffix");
         final Map<String, Integer> authScores = new HashMap<>();
         authScores.put("auth1", 1);
         authScores.put("auth2", 2);
@@ -436,7 +436,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldSetAndGetOpScores() {
         // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler("testSuffix");
         final LinkedHashMap<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
         opScores.put(Operation.class, 1);
         opScores.put(GetElements.class, 2);
@@ -453,7 +453,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldSetAndGetOpScoresAsStrings() throws ClassNotFoundException {
         // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler("testSuffix");
         final LinkedHashMap<String, Integer> opScores = new LinkedHashMap<>();
         opScores.put(Operation.class.getName(), 1);
         opScores.put(GetElements.class.getName(), 2);
@@ -470,7 +470,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldPassValidationOfOperationScores() throws ClassNotFoundException {
         // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler("testSuffix");
         final LinkedHashMap<String, Integer> opScores = new LinkedHashMap<>();
         opScores.put(Operation.class.getName(), 1);
         opScores.put(GetElements.class.getName(), 2);
@@ -485,7 +485,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldFailValidationOfOperationScores() throws ClassNotFoundException {
         // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler(null);
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler("testSuffix");
         final LinkedHashMap<String, Integer> opScores = new LinkedHashMap<>();
         opScores.put(GetElements.class.getName(), 2);
         opScores.put(GetAllElements.class.getName(), 3);
@@ -500,7 +500,7 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldAddDefaultScoreResolvers() {
         // Given
-        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = new ScoreOperationChainHandler(null).getDefaultScoreResolvers();
+        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = new ScoreOperationChainHandler("testSuffix").getDefaultScoreResolvers();
 
         // When / Then
         assertTrue(defaultResolvers.keySet().contains(NamedOperation.class));
@@ -512,8 +512,8 @@ public class ScoreOperationChainHandlerTest {
     @Test
     public void shouldReAddDefaultScoreResolversWhenCallingSetMethod() {
         // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler(null);
-        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = new ScoreOperationChainHandler(null).getDefaultScoreResolvers();
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler("testSuffix");
+        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = new ScoreOperationChainHandler("testSuffix").getDefaultScoreResolvers();
 
         final Map<Class<? extends Operation>, ScoreResolver> expectedMap = new HashMap<>();
         expectedMap.putAll(defaultResolvers);
