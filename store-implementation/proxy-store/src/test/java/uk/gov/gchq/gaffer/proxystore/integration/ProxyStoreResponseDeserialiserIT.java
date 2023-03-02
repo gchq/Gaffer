@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.proxystore.integration;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +51,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -113,7 +113,7 @@ public class ProxyStoreResponseDeserialiserIT {
         expectedOperationClasses.add(GetAllNamedViews.class);
         expectedOperationClasses.add(DeleteNamedView.class);
 
-        Assertions.assertThat(actualOperationClasses)
+        assertThat(actualOperationClasses)
                 .containsExactlyInAnyOrderElementsOf(expectedOperationClasses)
                 //This is actually what is getting inserted via the mock during a fetchOperations()
                 .contains(AddElements.class);

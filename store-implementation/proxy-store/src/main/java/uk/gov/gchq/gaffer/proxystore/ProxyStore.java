@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.proxystore;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
@@ -146,7 +145,7 @@ public class ProxyStore extends Store {
 
     @Override
     public Set<Class<? extends Operation>> getSupportedOperations() {
-        final HashSet<Class<? extends Operation>> allSupportedOperations = Sets.newHashSet();
+        final HashSet<Class<? extends Operation>> allSupportedOperations = new HashSet<>();
         allSupportedOperations.addAll(fetchOperations());
         allSupportedOperations.addAll(super.getSupportedOperations());
         return Collections.unmodifiableSet(allSupportedOperations);
@@ -154,8 +153,8 @@ public class ProxyStore extends Store {
 
     @Override
     public boolean isSupported(final Class<? extends Operation> operationClass) {
-        return AddNamedView.class.isAssignableFrom(operationClass)
-                || AddNamedOperation.class.isAssignableFrom(operationClass)
+        final boolean isClassAddNamedViewOrAddNamedOperation = AddNamedView.class.isAssignableFrom(operationClass) || AddNamedOperation.class.isAssignableFrom(operationClass);
+        return isClassAddNamedViewOrAddNamedOperation
                 ? super.getSupportedOperations().contains(operationClass)
                 : getSupportedOperations().contains(operationClass);
     }
