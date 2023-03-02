@@ -342,12 +342,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-        return new OutputOperationHandler<GetTraits, Set<StoreTrait>>() {
-            @Override
-            public Set<StoreTrait> doOperation(GetTraits operation, Context context, Store store) throws OperationException {
-                return ((ProxyStore) store).fetchTraits(operation.isCurrentTraits());
-            }
-        };
+        return (operation, context, store) -> ((ProxyStore) store).fetchTraits(operation.isCurrentTraits());
     }
 
     @Override
