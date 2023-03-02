@@ -55,7 +55,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
-import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -143,15 +142,19 @@ public class ProxyStore extends Store {
         return getSupportedOperations().contains(operationClass);
     }
 
-    protected Set<StoreTrait> fetchTraits() throws OperationException {
-        Set<StoreTrait> newTraits = executeOpChainViaUrl(new OperationChain<>(new GetTraits.Builder().currentTraits(false).build()), new Context());
-        if (newTraits == null) {
-            newTraits = new HashSet<>(0);
-        } else {
-            // This proxy store cannot handle visibility due to the simple rest api using a default user.
-            newTraits.remove(StoreTrait.VISIBILITY);
+    protected Set<StoreTrait> fetchTraits(final Operation operation) throws OperationException {
+        try {
+            Set<StoreTrait> newTraits = executeOpChainViaUrl(new OperationChain<>(operation), new Context());
+            if (newTraits == null) {
+                newTraits = new HashSet<>(0);
+            } else {
+                // This proxy store cannot handle visibility due to the simple rest api using a default user.
+                newTraits.remove(StoreTrait.VISIBILITY);
+            }
+            return newTraits;
+        } catch (final Exception e) {
+            throw new OperationException("Proxy Store failed to fetch traits from remote store", e);
         }
-        return newTraits;
     }
 
     protected Schema fetchSchema(final boolean getCompactSchema) throws OperationException {
@@ -343,11 +346,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-        try {
-            return new GetTraitsHandler(fetchTraits());
-        } catch (final OperationException e) {
-            throw new GafferRuntimeException("Unable to fetch traits from remote store", e);
-        }
+        return (operation, context, store) -> ((ProxyStore) store).fetchTraits(operation);
     }
 
     @Override
