@@ -143,19 +143,18 @@ public class ProxyStore extends Store {
     }
 
     protected Set<StoreTrait> fetchTraits(final Operation operation) throws OperationException {
-        Set<StoreTrait> newTraits;
         try {
-            newTraits = executeOpChainViaUrl(new OperationChain<>(operation), new Context());
-        } catch (final OperationException e) {
+            Set<StoreTrait> newTraits = executeOpChainViaUrl(new OperationChain<>(operation), new Context());
+            if (newTraits == null) {
+                newTraits = new HashSet<>(0);
+            } else {
+                // This proxy store cannot handle visibility due to the simple rest api using a default user.
+                newTraits.remove(StoreTrait.VISIBILITY);
+            }
+            return newTraits;
+        } catch (final Exception e) {
             throw new OperationException("Proxy Store failed to fetch traits from remote store", e);
         }
-        if (newTraits == null) {
-            newTraits = new HashSet<>(0);
-        } else {
-            // This proxy store cannot handle visibility due to the simple rest api using a default user.
-            newTraits.remove(StoreTrait.VISIBILITY);
-        }
-        return newTraits;
     }
 
     protected Schema fetchSchema(final boolean getCompactSchema) throws OperationException {
