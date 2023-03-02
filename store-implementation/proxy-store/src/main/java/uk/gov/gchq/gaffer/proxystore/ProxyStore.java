@@ -322,6 +322,7 @@ public class ProxyStore extends Store {
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(OperationChain.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
         addOperationHandler(OperationChainDAO.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
+        addOperationHandler(GetTraits.class, getGetTraitsHandler());
     }
 
     @Override
