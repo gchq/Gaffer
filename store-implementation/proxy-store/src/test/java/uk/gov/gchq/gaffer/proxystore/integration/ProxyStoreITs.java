@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.proxystore.integration;
 
 import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.ExcludeClassNamePatterns;
-import org.junit.platform.suite.api.IncludeClassNamePatterns;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
