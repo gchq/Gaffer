@@ -254,8 +254,7 @@ public abstract class Store {
 
         final String storeClass = storeProperties.getStoreClass();
         if (isNull(storeClass)) {
-            throw new IllegalArgumentException(String.format("The Store class name was not found in the store properties for key: %s, GraphId: %s",
-                    StoreProperties.STORE_CLASS, graphId));
+            throw new IllegalArgumentException(String.format("The Store class name was not found in the store properties for key: %s, GraphId: %s", StoreProperties.STORE_CLASS, graphId));
         }
 
         final Store newStore;
