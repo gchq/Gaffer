@@ -31,8 +31,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 public class GetAllNamedViewsHandler implements OutputOperationHandler<GetAllNamedViews, Iterable<NamedViewDetail>> {
     private final NamedViewCache cache;
 
-    public GetAllNamedViewsHandler() {
-        this(new NamedViewCache());
+    public GetAllNamedViewsHandler(final String suffixCacheName) {
+        this(new NamedViewCache(suffixCacheName));
     }
 
     public GetAllNamedViewsHandler(final NamedViewCache cache) {

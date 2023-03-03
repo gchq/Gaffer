@@ -36,8 +36,8 @@ import java.util.Map;
 public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
     private final NamedViewCache cache;
 
-    public AddNamedViewHandler() {
-        this(new NamedViewCache());
+    public AddNamedViewHandler(final String suffixCacheName) {
+        this(new NamedViewCache(suffixCacheName));
     }
 
     public AddNamedViewHandler(final NamedViewCache cache) {

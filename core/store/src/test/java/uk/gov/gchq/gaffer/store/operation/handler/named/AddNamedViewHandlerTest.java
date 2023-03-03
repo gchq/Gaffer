@@ -49,7 +49,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedViewHandlerTest {
-    private final NamedViewCache namedViewCache = new NamedViewCache();
+    public static final String SUFFIX_CACHE_NAME = "suffix";
+    private final NamedViewCache namedViewCache = new NamedViewCache(SUFFIX_CACHE_NAME);
     private final AddNamedViewHandler handler = new AddNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
     private final String testUserId = "testUser";

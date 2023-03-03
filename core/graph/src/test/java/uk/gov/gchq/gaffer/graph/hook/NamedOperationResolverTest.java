@@ -52,6 +52,8 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 public class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
 
+    public static final String SUFFIX_CACHE_NAME = "suffix";
+
     public NamedOperationResolverTest() {
         super(NamedOperationResolver.class);
     }
@@ -359,6 +361,6 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
 
     @Override
     public NamedOperationResolver getTestObject() {
-        return new NamedOperationResolver();
+        return new NamedOperationResolver(SUFFIX_CACHE_NAME);
     }
 }

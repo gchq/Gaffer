@@ -17,12 +17,12 @@
 package uk.gov.gchq.gaffer.proxystore;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.core.exception.Error;
@@ -33,6 +33,13 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
+import uk.gov.gchq.gaffer.named.view.DeleteNamedView;
+import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
@@ -57,6 +64,13 @@ import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedViewHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedViewsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import javax.ws.rs.client.Client;
@@ -93,8 +107,7 @@ public class ProxyStore extends Store {
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
-    public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties)
-            throws StoreException {
+    public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         setProperties(properties);
         client = createClient();
 
@@ -131,7 +144,7 @@ public class ProxyStore extends Store {
 
     @Override
     public Set<Class<? extends Operation>> getSupportedOperations() {
-        final HashSet<Class<? extends Operation>> allSupportedOperations = Sets.newHashSet();
+        final HashSet<Class<? extends Operation>> allSupportedOperations = new HashSet<>();
         allSupportedOperations.addAll(fetchOperations());
         allSupportedOperations.addAll(super.getSupportedOperations());
         return Collections.unmodifiableSet(allSupportedOperations);
@@ -139,7 +152,10 @@ public class ProxyStore extends Store {
 
     @Override
     public boolean isSupported(final Class<? extends Operation> operationClass) {
-        return getSupportedOperations().contains(operationClass);
+        final boolean isClassAddNamedViewOrAddNamedOperation = AddNamedView.class.isAssignableFrom(operationClass) || AddNamedOperation.class.isAssignableFrom(operationClass);
+        return isClassAddNamedViewOrAddNamedOperation
+                ? super.getSupportedOperations().contains(operationClass)
+                : getSupportedOperations().contains(operationClass);
     }
 
     protected Set<StoreTrait> fetchTraits(final Operation operation) throws OperationException {
@@ -253,9 +269,7 @@ public class ProxyStore extends Store {
         return handleResponse(response, responseDeserialiser);
     }
 
-    protected <O> O doGet(final URL url, final ResponseDeserialiser<O> responseDeserialiser,
-                          final Context context)
-            throws StoreException {
+    protected <O> O doGet(final URL url, final ResponseDeserialiser<O> responseDeserialiser, final Context context) throws StoreException {
         final Invocation.Builder request = createRequest(null, url, context);
         final Response response;
         try {
@@ -322,6 +336,19 @@ public class ProxyStore extends Store {
         addOperationHandler(OperationChain.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
         addOperationHandler(OperationChainDAO.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
         addOperationHandler(GetTraits.class, getGetTraitsHandler());
+
+        if (nonNull(CacheServiceLoader.getService())) {
+            // Named operation
+            addOperationHandler(NamedOperation.class, new NamedOperationHandler());
+            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+
+            // Named view
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+        }
     }
 
     @Override

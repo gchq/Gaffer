@@ -33,17 +33,14 @@ import static java.util.Objects.nonNull;
  */
 public class NamedViewCache extends Cache<String, NamedViewDetail> {
 
-    private static final String CACHE_SERVICE_NAME_PREFIX = "NamedView";
+    public static final String CACHE_SERVICE_NAME_PREFIX = "NamedView";
 
-    public NamedViewCache() {
-        this(null);
+    public NamedViewCache(final String suffixCacheName) {
+        super(getCacheNameFrom(suffixCacheName));
     }
 
-    public NamedViewCache(final String cacheNameSuffix) {
-        super(String.format("%s%s", CACHE_SERVICE_NAME_PREFIX,
-                nonNull(cacheNameSuffix)
-                        ? "_" + cacheNameSuffix.toLowerCase()
-                        : ""));
+    public static String getCacheNameFrom(final String suffixCacheName) {
+        return Cache.getCacheNameFrom(CACHE_SERVICE_NAME_PREFIX, suffixCacheName);
     }
 
     /**

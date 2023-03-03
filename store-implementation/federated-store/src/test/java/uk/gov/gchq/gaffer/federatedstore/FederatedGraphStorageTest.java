@@ -53,6 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreCacheTransient.getCacheNameFrom;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.EDGES;
@@ -79,6 +80,7 @@ public class FederatedGraphStorageTest {
     private static final String GROUP_EDGE = EDGES + "Unusual";
     private static final Set<String> NULL_GRAPH_AUTHS = null;
     private static final AccumuloProperties PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
+    public static final String CACHE_NAME_SUFFIX = "suffix";
     private final GraphSerialisable graphSerialisableA = getGraphSerialisable(GRAPH_ID_A, 1);
     private final GraphSerialisable graphSerialisableB = getGraphSerialisable(GRAPH_ID_B, 2);
     private final User nullUser = null;
@@ -98,7 +100,7 @@ public class FederatedGraphStorageTest {
         FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
         CacheServiceLoader.initialise(federatedStoreProperties.getProperties());
-        graphStorage = new FederatedGraphStorage();
+        graphStorage = new FederatedGraphStorage(CACHE_NAME_SUFFIX);
     }
 
     @Test
@@ -241,6 +243,7 @@ public class FederatedGraphStorageTest {
         //then
         assertThat(allGraphs).containsExactly(graphSerialisableA);
     }
+
     @Test
     public void shouldNotGetGraphForBlankUserWithCorrectId() throws Exception {
         //given
@@ -547,7 +550,7 @@ public class FederatedGraphStorageTest {
         final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
         //then
-        assertEquals(1, cacheService.getCache("federatedStoreGraphs").getAllValues().size());
+        assertEquals(1, cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues().size());
         assertEquals(1, allIds.size());
         assertEquals(GRAPH_ID_A, allIds.iterator().next());
 
@@ -560,7 +563,7 @@ public class FederatedGraphStorageTest {
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
         CacheServiceLoader.initialise(serviceLoaderProperties);
         final ICacheService cacheService = CacheServiceLoader.getService();
-        final FederatedGraphStorage otherGraphStorage = new FederatedGraphStorage();
+        final FederatedGraphStorage otherGraphStorage = new FederatedGraphStorage(CACHE_NAME_SUFFIX);
         graphStorage.startCacheServiceLoader();
 
         //when
@@ -569,7 +572,7 @@ public class FederatedGraphStorageTest {
         final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
         //then
-        assertEquals(1, cacheService.getCache("federatedStoreGraphs").getAllValues().size());
+        assertEquals(1, cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues().size());
         assertEquals(1, allIds.size());
         assertEquals(GRAPH_ID_A, allIds.iterator().next());
 

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -41,12 +43,17 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
 public class NamedOperationResolver implements GraphHook {
     private final NamedOperationCache cache;
 
-    public NamedOperationResolver() {
-        this(new NamedOperationCache());
+    @JsonCreator
+    public NamedOperationResolver(@JsonProperty("cacheNameSuffix") final String suffixCacheName) {
+        this(new NamedOperationCache(suffixCacheName));
     }
 
     public NamedOperationResolver(final NamedOperationCache cache) {
         this.cache = cache;
+    }
+
+    public String getCacheNameSuffix() {
+        return cache.getCacheName().substring(NamedOperationCache.CACHE_SERVICE_NAME_PREFIX.length() + 1);
     }
 
     @Override

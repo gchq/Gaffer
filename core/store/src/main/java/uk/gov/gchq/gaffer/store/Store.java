@@ -253,8 +253,7 @@ public abstract class Store {
 
         final String storeClass = storeProperties.getStoreClass();
         if (isNull(storeClass)) {
-            throw new IllegalArgumentException(String.format("The Store class name was not found in the store properties for key: %s, GraphId: %s",
-                            StoreProperties.STORE_CLASS, graphId));
+            throw new IllegalArgumentException(String.format("The Store class name was not found in the store properties for key: %s, GraphId: %s", StoreProperties.STORE_CLASS, graphId));
         }
 
         final Store newStore;
@@ -623,13 +622,13 @@ public abstract class Store {
 
     /**
      * Get this Store's internal {@link Schema}.
-     *
+     * <p>
      * This is optimised and will usually differ from the original schema used to
      * create the store initially.
      *
      * @return the instance of {@link Schema} used for describing the type of
-     *         {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to
-     *         aggregate the elements.
+     * {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to
+     * aggregate the elements.
      */
     public Schema getSchema() {
         return schema;
@@ -637,7 +636,7 @@ public abstract class Store {
 
     /**
      * Set the Store's original {@link Schema}.
-     *
+     * <p>
      * This is used to keep an (unoptimised, unchanged) copy of the original
      * schema used to create the store initially.
      *
@@ -661,7 +660,7 @@ public abstract class Store {
      * Get this Store's {@link uk.gov.gchq.gaffer.store.StoreProperties}.
      *
      * @return the instance of {@link uk.gov.gchq.gaffer.store.StoreProperties},
-     *         this may contain details such as database connection details.
+     * this may contain details such as database connection details.
      */
     public StoreProperties getProperties() {
         return properties;
@@ -760,8 +759,7 @@ public abstract class Store {
     }
 
     /**
-     * Ensures that each of the GroupBy properties in the {@link
-     * SchemaElementDefinition} is consistent,
+     * Ensures that each of the GroupBy properties in the {@link SchemaElementDefinition} is consistent,
      * otherwise an error is added to the {@link ValidationResult}.
      *
      * @param schemaElementDefinitionEntry A map of SchemaElementDefinitions
@@ -845,28 +843,23 @@ public abstract class Store {
     protected abstract void addAdditionalOperationHandlers();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetElements}. All Stores must
+     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}. All Stores must
      * implement this.
      *
-     * @return the implementation of the handler for {@link
-     *         uk.gov.gchq.gaffer.operation.impl.get.GetElements}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}
      */
     protected abstract OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}. All Stores must
+     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}. All Stores must
      * implement this.
      *
-     * @return the implementation of the handler for {@link
-     *         uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
      */
     protected abstract OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * GetAdjacentIds}.
+     * Get this Stores implementation of the handler for {@link GetAdjacentIds}.
      * All Stores must implement this.
      *
      * @return the implementation of the handler for {@link GetAdjacentIds}
@@ -874,32 +867,26 @@ public abstract class Store {
     protected abstract OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.add.AddElements}.
+     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link
-     *         uk.gov.gchq.gaffer.operation.impl.add.AddElements}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}
      */
     protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.store.operation.GetTraits}.
+     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.store.operation.GetTraits}.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.store.operation.GetTraits}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.store.operation.GetTraits}
      */
-    protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>>  getGetTraitsHandler();
+    protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler();
 
     /**
-     * Get this Store's implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.OperationChain}.
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.OperationChain}.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link
-     *         uk.gov.gchq.gaffer.operation.OperationChain}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.OperationChain}
      */
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
         return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
@@ -916,8 +903,7 @@ public abstract class Store {
     protected abstract Class<? extends Serialiser> getRequiredParentSerialiserClass();
 
     /**
-     * Should deal with any unhandled operations, simply throws an {@link
-     * UnsupportedOperationException}.
+     * Should deal with any unhandled operations, simply throws an {@link UnsupportedOperationException}.
      *
      * @param operation the operation that does not have a registered handler.
      * @param context   operation execution context
@@ -1043,14 +1029,14 @@ public abstract class Store {
         if (nonNull(CacheServiceLoader.getService())) {
             // Named operation
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
-            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler());
-            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler());
-            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler());
+            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(properties.getCacheServiceNameSuffix(graphId)));
+            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler(properties.getCacheServiceNameSuffix(graphId)));
+            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(properties.getCacheServiceNameSuffix(graphId)));
 
             // Named view
-            addOperationHandler(AddNamedView.class, new AddNamedViewHandler());
-            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler());
-            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler());
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(properties.getCacheServiceNameSuffix(graphId)));
+            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler(properties.getCacheServiceNameSuffix(graphId)));
+            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler(properties.getCacheServiceNameSuffix(graphId)));
         }
 
         // ElementComparison

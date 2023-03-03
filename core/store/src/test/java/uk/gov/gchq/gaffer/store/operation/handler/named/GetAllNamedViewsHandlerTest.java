@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@ import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class GetAllNamedViewsHandlerTest {
-    private final NamedViewCache namedViewCache = new NamedViewCache();
+    public static final String SUFFIX_CACHE_NAME = "suffix";
+    private final NamedViewCache namedViewCache = new NamedViewCache(SUFFIX_CACHE_NAME);
     private final AddNamedViewHandler addNamedViewHandler = new AddNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
     private final String testUserId = "testUser";
