@@ -36,7 +36,9 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
 import static uk.gov.gchq.gaffer.store.StoreProperties.CACHE_SERVICE_CLASS;
 
 /**
@@ -98,10 +100,11 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
          * FederatedStore can't survive if a subgraph changes the static
          * cache to another cache, or re-initialises the cache.
          */
+        final String cacheServiceClass = isNull(store.getProperties()) ? null : store.getProperties().getCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
         final StoreProperties storeProperties = operation.getStoreProperties();
-        if (nonNull(storeProperties) && storeProperties.containsKey(CACHE_SERVICE_CLASS)) {
-            LOGGER.info(String.format("%s is removing %s from properties of the operation and substituting the FederatedStore's cache", this.getClass().getSimpleName(), CACHE_SERVICE_CLASS));
-            storeProperties.setCacheServiceClass(store.getProperties().getCacheServiceClass());
+        if (nonNull(storeProperties) && !storeProperties.getCacheServiceClass(cacheServiceClass).equals(cacheServiceClass)) {
+            LOGGER.info(String.format("Removing %s from properties of the operation and substituting the FederatedStore's cache", CACHE_SERVICE_CLASS));
+            storeProperties.setCacheServiceClass(cacheServiceClass);
             operation.setStoreProperties(storeProperties);
         }
     }

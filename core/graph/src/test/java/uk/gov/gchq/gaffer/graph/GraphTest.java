@@ -58,7 +58,6 @@ import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.Repeat;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -1379,7 +1378,6 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         final NamedOperationResolver graphHook2 = new NamedOperationResolver(SUFFIX_CACHE_NAME);
@@ -1408,7 +1406,6 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
 
@@ -1509,8 +1506,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldBuildGraphFromConfigAndMergeConfigWithExistingConfig(
-                                                                           @Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
+    public void shouldBuildGraphFromConfigAndMergeConfigWithExistingConfig(@Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
                                                                            @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3)
             throws Exception {
         // Given
@@ -1557,8 +1553,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldBuildGraphFromConfigAndOverrideFields(
-                                                            @Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
+    public void shouldBuildGraphFromConfigAndOverrideFields(@Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
                                                             @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3)
             throws Exception {
         // Given
@@ -2163,9 +2158,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldFillSchemaViewAndManipulateViewRemovingBlacklistedEdgeLeavingEmptyViewUsingUpdateViewHook(
-                                                                                                                @Mock final Store store)
-            throws OperationException {
+    public void shouldFillSchemaViewAndManipulateViewRemovingBlacklistedEdgeLeavingEmptyViewUsingUpdateViewHook(@Mock final Store store) throws OperationException {
         // Given
         operation = new GetElements.Builder()
                 .build();
@@ -2253,8 +2246,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldNotAddExtraGroupsFromSchemaViewWithUpdateViewHookWhenInBlacklist(@Mock final Store store)
-            throws OperationException {
+    public void shouldNotAddExtraGroupsFromSchemaViewWithUpdateViewHookWhenInBlacklist(@Mock final Store store) throws OperationException {
         // Given
         operation = new GetElements.Builder()
                 .build();
@@ -2341,7 +2333,6 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         // When
@@ -2367,7 +2358,6 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         // When
@@ -2391,8 +2381,7 @@ public class GraphTest {
 
     @Test
     public void shouldExpandGlobalEdges(@Mock final Store store, @Mock final ElementFilter filter,
-                                        @Mock final StoreProperties mockStoreProperties)
-            throws OperationException {
+                                        @Mock final StoreProperties mockStoreProperties) throws OperationException {
 
         final Schema twoEdgesNoEntities = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
@@ -2537,8 +2526,7 @@ public class GraphTest {
 
     @Test
     public void preserveAllEntitiesIfNoEntitiesInSchema(@Mock final Store store, @Mock final ElementFilter filter,
-                                                        @Mock final StoreProperties mockStoreProperties)
-            throws OperationException {
+                                                        @Mock final StoreProperties mockStoreProperties) throws OperationException {
         final Schema twoEdgesNoEntities = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -2609,8 +2597,7 @@ public class GraphTest {
     @Test
     public void shouldNotExpandGlobalEdgesWhereNotPresentInSchema(@Mock final Store store,
                                                                   @Mock final ElementFilter filter,
-                                                                  @Mock final StoreProperties mockStoreProperties)
-            throws OperationException {
+                                                                  @Mock final StoreProperties mockStoreProperties) throws OperationException {
         final Schema federatedStoreSchema = new Schema.Builder().build();
 
         given(store.getSchema()).willReturn(federatedStoreSchema);
@@ -2702,6 +2689,7 @@ public class GraphTest {
                 }
             }
         }
+
         @Override
         public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
             return result;

@@ -61,7 +61,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
-import static uk.gov.gchq.gaffer.store.Store.ADD_GRAPH_DECLARATIONS;
+import static uk.gov.gchq.gaffer.store.StoreProperties.OPERATION_DECLARATIONS_JSON;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -443,7 +443,7 @@ public class FederatedAddGraphHandlerTest {
 
         final AccumuloProperties clone = PROPERTIES.clone();
 
-        clone.set(ADD_GRAPH_DECLARATIONS, new String(JSONSerialiser.serialise(new OperationDeclarations.Builder()
+        clone.set(OPERATION_DECLARATIONS_JSON, new String(JSONSerialiser.serialise(new OperationDeclarations.Builder()
                 .declaration(new OperationDeclaration.Builder()
                         .handler(new TestErrorHandler())
                         .operation(GetAllElements.class)
