@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.proxystore.integration;
 
 import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.ExcludeClassNamePatterns;
+import org.junit.platform.suite.api.IncludeClassNamePatterns;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
@@ -29,6 +30,7 @@ import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSui
 @ExcludeClassNamePatterns({"uk.gov.gchq.gaffer.integration.impl.JoinIT",
                            "uk.gov.gchq.gaffer.integration.impl.GeneratorsIT"}) // Skipped because: The output type reference doesn't deserialise the output correctly
 @ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.proxystore.integration.ProxyStoreITs")
+@IncludeClassNamePatterns(".*GraphHooksIT")
 public class ProxyStoreITs extends AbstractStoreITs {
 
     private static final ProxyProperties STORE_PROPERTIES = ProxyProperties
