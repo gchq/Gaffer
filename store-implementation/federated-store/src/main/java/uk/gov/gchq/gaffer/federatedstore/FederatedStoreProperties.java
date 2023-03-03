@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ public class FederatedStoreProperties extends StoreProperties {
      */
     public static final String CUSTOM_PROPERTIES_AUTHS = "gaffer.federatedstore.customPropertiesAuths";
     public static final String CUSTOM_PROPERTIES_AUTHS_DEFAULT = null;
-
     public static final String CACHE_SERVICE_CLASS_DEFAULT = HashMapCacheService.class.getCanonicalName();
     public static final String STORE_CONFIGURED_MERGE_FUNCTIONS = "gaffer.federatedstore.storeConfiguredMergeFunctions";
     public static final String STORE_CONFIGURED_GRAPHIDS = "gaffer.federatedstore.storeConfiguredGraphIds";
@@ -62,10 +61,6 @@ public class FederatedStoreProperties extends StoreProperties {
 
     public void setCustomPropertyAuths(final String auths) {
         set(CUSTOM_PROPERTIES_AUTHS, auths);
-    }
-
-    public String getCacheServiceClass() {
-        return get(CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_DEFAULT);
     }
 
     public String getCustomPropsValue() {
