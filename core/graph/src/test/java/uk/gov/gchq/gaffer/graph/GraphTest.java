@@ -1410,8 +1410,6 @@ public class GraphTest {
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
-        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
-        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
 
         // When
         final Graph graph = new Graph.Builder()
@@ -2339,8 +2337,6 @@ public class GraphTest {
         storeProperties.setStoreClass(TestStore.class.getName());
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
-        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
-        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         // When
         final GraphConfig config = new GraphConfig.Builder()
                 .graphId("test")
@@ -2364,8 +2360,6 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
-        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         // When
