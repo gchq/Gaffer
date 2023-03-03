@@ -61,6 +61,7 @@ public class StoreProperties implements Cloneable {
 
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
+    public static final String OPERATION_DECLARATIONS_JSON = "gaffer.store.operation.declarations.json";
 
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
 
@@ -275,18 +276,21 @@ public class StoreProperties implements Cloneable {
      */
     @JsonIgnore
     public OperationDeclarations getOperationDeclarations() {
-        OperationDeclarations declarations = null;
+        OperationDeclarations.Builder declarations = new OperationDeclarations.Builder();
 
         final String declarationsPaths = get(StoreProperties.OPERATION_DECLARATIONS);
         if (null != declarationsPaths) {
-            declarations = OperationDeclarations.fromPaths(declarationsPaths);
+            OperationDeclarations.fromPaths(declarationsPaths).getOperations()
+                    .forEach(d -> declarations.declaration(d));
         }
 
-        if (null == declarations) {
-            declarations = new OperationDeclarations.Builder().build();
+        if (containsKey(OPERATION_DECLARATIONS_JSON)) {
+            final String json = get(OPERATION_DECLARATIONS_JSON);
+            OperationDeclarations.fromJson(json).getOperations()
+                    .forEach(d -> declarations.declaration(d));
         }
 
-        return declarations;
+        return declarations.build();
     }
 
     public String getStoreClass() {

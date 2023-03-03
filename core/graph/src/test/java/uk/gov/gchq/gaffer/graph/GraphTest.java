@@ -58,8 +58,6 @@ import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.Repeat;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
-import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
