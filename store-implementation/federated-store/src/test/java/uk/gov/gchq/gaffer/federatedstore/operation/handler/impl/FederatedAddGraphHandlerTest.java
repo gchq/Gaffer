@@ -57,7 +57,6 @@ import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
@@ -460,7 +459,8 @@ public class FederatedAddGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        assertThatThrownBy(() -> store.execute(new GetAllElements(), new Context(testUser)))
-                .hasStackTraceContaining(TestErrorHandler.TEST_ERROR_HANDLER_FLAG);
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> store.execute(new GetAllElements(), new Context(testUser)))
+                .withStackTraceContaining(TestErrorHandler.TEST_ERROR_HANDLER_FLAG);
     }
 }
