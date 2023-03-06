@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.named.view.DeleteNamedView;
 import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
@@ -45,6 +44,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
+import static uk.gov.gchq.gaffer.store.StoreProperties.OPERATION_DECLARATIONS_JSON;
 
 @ExcludeClassNamePatterns({"uk.gov.gchq.gaffer.integration.impl.JoinIT",
         "uk.gov.gchq.gaffer.integration.impl.GeneratorsIT"}) // Skipped because: The output type reference doesn't deserialise the output correctly
@@ -61,7 +61,7 @@ public class ProxyStoreWithNamedOpNamedViewITs extends AbstractStoreITs {
         setSchema(SCHEMA);
         try {
             final String proxyGraphWithExtraHandlers = "proxyGraphWithExtraHandlers";
-            STORE_PROPERTIES.set(Store.ADD_GRAPH_DECLARATIONS, new String(JSONSerialiser.serialise(new OperationDeclarations.Builder()
+            STORE_PROPERTIES.set(OPERATION_DECLARATIONS_JSON, new String(JSONSerialiser.serialise(new OperationDeclarations.Builder()
                     // Named operation
                     .declaration(new OperationDeclaration.Builder().operation(NamedOperation.class).handler(new NamedOperationHandler()).build())
                     .declaration(new OperationDeclaration.Builder().operation(AddNamedOperation.class).handler(new AddNamedOperationHandler(STORE_PROPERTIES.getCacheServiceNameSuffix(proxyGraphWithExtraHandlers))).build())
