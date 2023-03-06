@@ -167,8 +167,8 @@ public class FederatedGraphStorage {
      * must
      * have visibility of the graph to be able to remove it.
      *
-     * @param graphId the graphId to remove.
-     * @param user    to match visibility against.
+     * @param graphId     the graphId to remove.
+     * @param user        to match visibility against.
      * @param removeCache to remove associated caches with this graph.
      * @return if a graph was removed.
      * @see #isValidToView(User, FederatedAccess)
@@ -186,7 +186,9 @@ public class FederatedGraphStorage {
         boolean rtn;
         if (nonNull(accessFromCache) && accessPredicate.test(accessFromCache)) {
 
-            removeGraphCaches(graphId, removeCache);
+            if (removeCache) {
+                removeGraphCaches(graphId);
+            }
 
             federatedStoreCache.deleteFromCache(graphId);
             rtn = true;
@@ -196,8 +198,8 @@ public class FederatedGraphStorage {
         return rtn;
     }
 
-    private void removeGraphCaches(final String graphId, final boolean removeCache) {
-        if (removeCache && CacheServiceLoader.isEnabled()) {
+    private void removeGraphCaches(final String graphId) {
+        if (CacheServiceLoader.isEnabled()) {
             try {
                 final GraphSerialisable graphFromCache = federatedStoreCache.getGraphFromCache(graphId);
                 final String cacheServiceNameSuffix = graphFromCache.getStoreProperties().getCacheServiceNameSuffix(graphId);
