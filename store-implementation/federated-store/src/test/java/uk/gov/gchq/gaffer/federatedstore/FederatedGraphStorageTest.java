@@ -299,7 +299,7 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
-        final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser());
+        final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser(), false);
         final Collection<GraphSerialisable> graphs = graphStorage.getAll(testUser());
         //when
         assertTrue(remove);
@@ -311,7 +311,7 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, blockingWriteAccess);
         //when
-        final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser());
+        final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser(), false);
         final Collection<GraphSerialisable> graphs = graphStorage.getAll(testUser());
         //then
         assertFalse(remove);
@@ -323,7 +323,7 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
-        final boolean remove = graphStorage.remove(GRAPH_ID_A, authUser());
+        final boolean remove = graphStorage.remove(GRAPH_ID_A, authUser(), false);
         //then
         assertFalse(remove);
     }
@@ -333,7 +333,7 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, auth1Access);
         //when
-        final boolean remove = graphStorage.remove(GRAPH_ID_A, blankUser());
+        final boolean remove = graphStorage.remove(GRAPH_ID_A, blankUser(), false);
         //then
         assertFalse(remove);
     }
@@ -343,7 +343,7 @@ public class FederatedGraphStorageTest {
         //given
         graphStorage.put(graphSerialisableA, permissiveWriteAccess);
         //when
-        final boolean remove = graphStorage.remove(GRAPH_ID_A, blankUser());
+        final boolean remove = graphStorage.remove(GRAPH_ID_A, blankUser(), false);
         //then
         assertTrue(remove);
     }
