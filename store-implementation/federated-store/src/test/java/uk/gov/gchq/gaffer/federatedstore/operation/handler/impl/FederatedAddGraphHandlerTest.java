@@ -31,14 +31,18 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
@@ -56,6 +60,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
+import static uk.gov.gchq.gaffer.store.StoreProperties.OPERATION_DECLARATIONS_JSON;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -379,7 +384,7 @@ public class FederatedAddGraphHandlerTest {
      * cache service used by FederatedStore in the same JVM.
      * loosing all graphs and cached info.
      *
-     * @throws StoreException Store.Initialise throws exception.
+     * @throws StoreException     Store.Initialise throws exception.
      * @throws OperationException addGraph throws exception.
      */
     @Test
@@ -428,5 +433,34 @@ public class FederatedAddGraphHandlerTest {
             set.add(iterator.next().getGraphId());
         }
         assertThat(set).contains(EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID_2);
+    }
+
+    @Test
+    public void shouldAddGraphWithHandler() throws Exception {
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        final Schema expectedSchema = new Schema.Builder().build();
+
+        final AccumuloProperties clone = PROPERTIES.clone();
+
+        clone.set(OPERATION_DECLARATIONS_JSON, new String(JSONSerialiser.serialise(new OperationDeclarations.Builder()
+                .declaration(new OperationDeclaration.Builder()
+                        .handler(new TestErrorHandler())
+                        .operation(GetAllElements.class)
+                        .build())
+                .build(), true)));
+
+        new FederatedAddGraphHandler().doOperation(
+                new AddGraphWithHooks.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .schema(expectedSchema)
+                        .storeProperties(clone)
+                        .hooks()
+                        .build(),
+                new Context(testUser),
+                store);
+
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> store.execute(new GetAllElements(), new Context(testUser)))
+                .withStackTraceContaining(TestErrorHandler.TEST_ERROR_HANDLER_FLAG);
     }
 }
