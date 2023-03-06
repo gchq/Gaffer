@@ -30,8 +30,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import static java.util.Objects.nonNull;
-
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for handling
  * the {@link uk.gov.gchq.gaffer.named.operation.NamedOperation}s for a Gaffer graph.
@@ -65,8 +63,7 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
      * @throws CacheOperationException thrown if the user doesn't have write access to the NamedOperationDetail requested,
      *                                 or if the add operation fails for some reason.
      */
-    public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user)
-            throws CacheOperationException {
+    public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user) throws CacheOperationException {
         addNamedOperation(namedOperation, overwrite, user, null);
     }
 
@@ -94,8 +91,7 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
      * @throws CacheOperationException thrown if the NamedOperationDetail doesn't exist or the User doesn't have permission
      *                                 to read it.
      */
-    public NamedOperationDetail getNamedOperation(final String name, final User user)
-            throws CacheOperationException {
+    public NamedOperationDetail getNamedOperation(final String name, final User user) throws CacheOperationException {
         return getNamedOperation(name, user, null);
     }
 
@@ -125,10 +121,7 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
         }
         final NamedOperationDetail op = super.getFromCache(name);
 
-        if (nonNull(op)) {
-            return op;
-        }
-        throw new CacheOperationException(String.format("No named operation with the name %s exists in the cache", name));
+        return op;
     }
 
     /**
@@ -145,36 +138,23 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
      *                                 or if the add operation fails for some reason.
      */
     @SuppressFBWarnings(value = "DCN_NULLPOINTER_EXCEPTION", justification = "Investigate an improved null checking approach")
-    public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user,
-                                  final String adminAuth)
-            throws CacheOperationException {
-        String name;
-        try {
-            name = namedOperation.getOperationName();
-        } catch (final NullPointerException e) {
-            throw new CacheOperationException("NamedOperation cannot be null", e);
+    public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user, final String adminAuth) throws CacheOperationException {
+        if (namedOperation == null) {
+            throw new CacheOperationException("NamedOperation cannot be null");
         }
-        if (Objects.isNull(name)) {
-            throw new CacheOperationException("NamedOperation name cannot be null");
-        }
-        if (!overwrite) {
-            addToCache(name, namedOperation, false);
-            return;
-        }
-
-        NamedOperationDetail existing;
-
-        try {
-            existing = getFromCache(name);
-        } catch (final CacheOperationException e) { // if there is no existing named Operation add one
-            addToCache(name, namedOperation, false);
-            return;
-        }
-        if (existing.hasWriteAccess(user, adminAuth)) {
-            addToCache(name, namedOperation, true);
+        String name = namedOperation.getOperationName();
+        if (contains(name) && overwrite) {
+            final boolean doesUserHavePermissionToWrite = getFromCache(name).hasWriteAccess(user, adminAuth);
+            if (doesUserHavePermissionToWrite) {
+                addToCache(name, namedOperation, true);
+            } else {
+                throw new CacheOperationException(String.format("User %s does not have permission to overwrite", user.getUserId()));
+            }
         } else {
-            throw new CacheOperationException(String.format("User %s does not have permission to overwrite", user.getUserId()));
+            addToCache(name, namedOperation, overwrite);
         }
+
+
     }
 
     /**
@@ -187,8 +167,7 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
      * @throws CacheOperationException Thrown when the NamedOperationDetail doesn't exist or the User doesn't have
      *                                 write permission on the NamedOperationDetail.
      */
-    public void deleteNamedOperation(final String name, final User user, final String adminAuth)
-            throws CacheOperationException {
+    public void deleteNamedOperation(final String name, final User user, final String adminAuth) throws CacheOperationException {
         if (Objects.isNull(name)) {
             throw new CacheOperationException("NamedOperation name cannot be null");
         }
@@ -213,8 +192,7 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
      * @throws CacheOperationException thrown if the NamedOperationDetail doesn't exist or the User doesn't have permission
      *                                 to read it.
      */
-    public NamedOperationDetail getNamedOperation(final String name, final User user, final String adminAuth)
-            throws CacheOperationException {
+    public NamedOperationDetail getNamedOperation(final String name, final User user, final String adminAuth) throws CacheOperationException {
         final NamedOperationDetail op = getFromCache(name);
         if (op.hasReadAccess(user, adminAuth)) {
             return op;

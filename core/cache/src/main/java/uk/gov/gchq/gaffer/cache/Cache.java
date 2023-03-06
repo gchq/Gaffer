@@ -47,8 +47,8 @@ public class Cache<K, V> {
     }
 
     protected void addToCache(final K key, final V value, final boolean overwrite) throws CacheOperationException {
-        final ICacheService service = CacheServiceLoader.getService();
         try {
+            final ICacheService service = CacheServiceLoader.getService();
             if (overwrite) {
                 service.putInCache(getCacheName(), key, value);
             } else {

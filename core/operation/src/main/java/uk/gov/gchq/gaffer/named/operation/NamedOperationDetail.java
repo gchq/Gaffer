@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -67,9 +68,8 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
     private String readAccessPredicateJson;
     private String writeAccessPredicateJson;
 
-    public NamedOperationDetail() {
+    protected NamedOperationDetail() {
     }
-
 
     public NamedOperationDetail(final String operationName, final String description, final String userId,
                                 final String operations, final List<String> readers,
@@ -92,6 +92,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         this(operationName, labels, inputType, description, userId, operations, readers, writers, parameters, score, null, null);
     }
 
+    @JsonCreator
     public NamedOperationDetail(final String operationName, final List<String> labels, final String inputType, final String description,
                                 final String userId, final String operations, final List<String> readers,
                                 final List<String> writers, final Map<String, ParameterDetail> parameters,
