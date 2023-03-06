@@ -101,7 +101,7 @@ public class ProxyStoreResponseDeserialiserIT {
         expectedOperationClasses.add(OperationChainDAO.class);
         expectedOperationClasses.add(GetTraits.class);
 
-        //Because of Proxy not gets its handlers and handlers from the remote store.
+        //Because Proxy supports its own handlers and gets handlers from the remote store.
         // Named operation
         expectedOperationClasses.add(NamedOperation.class);
         expectedOperationClasses.add(AddNamedOperation.class);
