@@ -342,7 +342,7 @@ public class FederatedStoreTest {
         final Schema before = store.getSchema(new Context(blankUser), true);
 
         // When
-        store.remove(ACC_ID_2, blankUser);
+        store.remove(ACC_ID_2, blankUser, false);
 
         final Schema after = store.getSchema(new Context(blankUser), true);
         assertThat(before).isNotEqualTo(after);
@@ -515,7 +515,7 @@ public class FederatedStoreTest {
         assertThat(allGraphId2).hasSize(2).contains(ACC_ID_1, ACC_ID_2);
 
         // When
-        store.remove(ACC_ID_1, blankUser);
+        store.remove(ACC_ID_1, blankUser, false);
         final Collection<String> allGraphId3 = store.getAllGraphIds(blankUser);
 
         // Then

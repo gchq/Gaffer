@@ -166,4 +166,7 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
         return cacheTransient.getCache();
     }
 
+    public static String getCacheNameFrom(final String suffixCacheName) {
+        return FederatedStoreCacheTransient.getCacheNameFrom(suffixCacheName);
+    }
 }

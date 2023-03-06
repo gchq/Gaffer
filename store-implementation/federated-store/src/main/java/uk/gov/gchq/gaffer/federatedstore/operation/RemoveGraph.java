@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
     private String graphId;
     private Map<String, String> options;
     private boolean userRequestingAdminUsage;
+    private boolean removeCache = true;
 
     public String getGraphId() {
         return graphId;
@@ -92,6 +93,14 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
         return new TypeReferenceImpl.Boolean();
     }
 
+    public boolean isRemoveCache() {
+        return removeCache;
+    }
+
+    public void setRemoveCache(final boolean removeCache) {
+        this.removeCache = removeCache;
+    }
+
     public static class Builder extends IFederationOperation.BaseBuilder<RemoveGraph, Builder> {
 
         public Builder() {
@@ -100,6 +109,10 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
 
         public Builder graphId(final String graphId) {
             _getOp().setGraphId(graphId);
+            return _self();
+        }
+        public Builder removeCache(final boolean removeCache) {
+            _getOp().setRemoveCache(removeCache);
             return _self();
         }
     }

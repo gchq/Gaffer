@@ -281,16 +281,17 @@ public class FederatedStore extends Store {
      *
      * @param graphId to be removed from scope
      * @param user    to match visibility against
+     * @param removeCache to remove associated caches with this graph.
      * @return success of removal
      */
-    public boolean remove(final String graphId, final User user) {
-        return remove(graphId, user, false);
+    public boolean remove(final String graphId, final User user, final boolean removeCache) {
+        return remove(graphId, user, removeCache, false);
     }
 
-    public boolean remove(final String graphId, final User user, final boolean asAdmin) {
+    public boolean remove(final String graphId, final User user, final boolean removeCache, final boolean asAdmin) {
         return asAdmin
-                ? graphStorage.remove(graphId, user, this.getProperties().getAdminAuth())
-                : graphStorage.remove(graphId, user);
+                ? graphStorage.remove(graphId, user, removeCache, this.getProperties().getAdminAuth())
+                : graphStorage.remove(graphId, user, removeCache);
     }
 
     /**
