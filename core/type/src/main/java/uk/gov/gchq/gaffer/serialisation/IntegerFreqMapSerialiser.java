@@ -15,11 +15,11 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.types.IntegerFreqMap;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -56,12 +56,8 @@ public class IntegerFreqMapSerialiser implements ToBytesSerialiser<IntegerFreqMa
             }
             builder.append(SEPERATOR);
         }
-        try {
-            return builder.toString()
-                          .getBytes(CommonConstants.ISO_8859_1_ENCODING);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
+        return builder.toString()
+                      .getBytes(StandardCharsets.ISO_8859_1);
     }
 
     @Override
@@ -71,11 +67,7 @@ public class IntegerFreqMapSerialiser implements ToBytesSerialiser<IntegerFreqMa
             return freqMap;
         }
         String stringMap;
-        try {
-            stringMap = new String(bytes, CommonConstants.ISO_8859_1_ENCODING);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
+        stringMap = new String(bytes, StandardCharsets.ISO_8859_1);
         if (stringMap.isEmpty()) {
             //No values so return the empty map
             return freqMap;

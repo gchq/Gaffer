@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
@@ -38,6 +37,7 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +51,7 @@ import java.util.Map;
 @Since("1.3.0")
 @Summary("Adds a new named view")
 public class AddNamedView implements Operation {
-    private static final String CHARSET_NAME = CommonConstants.UTF_8;
+    private static final String CHARSET_NAME = String.valueOf(StandardCharsets.UTF_8);
     @Required
     private String name;
     @Required

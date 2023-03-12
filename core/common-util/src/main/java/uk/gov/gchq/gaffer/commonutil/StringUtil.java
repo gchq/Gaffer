@@ -20,7 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,11 +44,7 @@ public final class StringUtil {
      * @return the resulting string
      */
     public static String toString(final byte[] bytes) {
-        try {
-            return new String(bytes, CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException("Unable to convert bytes to string", e);
-        }
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     /**
@@ -61,11 +57,7 @@ public final class StringUtil {
         if (null == string) {
             return new byte[0];
         }
-        try {
-            return string.getBytes(CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException("Unable to convert bytes to string", e);
-        }
+        return string.getBytes(StandardCharsets.UTF_8);
     }
 
     /**

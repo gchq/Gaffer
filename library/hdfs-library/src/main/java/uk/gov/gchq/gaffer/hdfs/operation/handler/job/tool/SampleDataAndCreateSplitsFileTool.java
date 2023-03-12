@@ -30,7 +30,6 @@ import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.SampleDataForSplitPointsJobFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -39,6 +38,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 
@@ -155,7 +155,7 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
         try (final SequenceFile.Reader reader = new SequenceFile.Reader(fs.getConf(), Reader.file(resultsFile));
              final PrintStream splitsWriter = new PrintStream(
                      new BufferedOutputStream(fs.create(new Path(operation.getSplitsFilePath()), true)),
-                     false, CommonConstants.UTF_8)
+                     false, String.valueOf(StandardCharsets.UTF_8))
         ) {
             while (numberSplitPointsOutput < numberSplitsExpected) {
                 if (!reader.next(key, value)) {
@@ -168,7 +168,7 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
                             numberSplitPointsOutput,
                             Base64.encodeBase64(split));
                     numberSplitPointsOutput++;
-                    splitsWriter.println(new String(Base64.encodeBase64(split), CommonConstants.UTF_8));
+                    splitsWriter.println(new String(Base64.encodeBase64(split), StandardCharsets.UTF_8));
                 }
             }
             LOGGER.info("Total number of records read was {}", count);

@@ -26,9 +26,7 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -37,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class IteratorSettingBuilder {
@@ -133,20 +132,12 @@ public class IteratorSettingBuilder {
     }
 
     public IteratorSettingBuilder schema(final Schema schema) {
-        try {
-            setting.addOption(AccumuloStoreConstants.SCHEMA, new String(schema.toCompactJson(), CommonConstants.UTF_8));
-        } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise schema from JSON", e);
-        }
+        setting.addOption(AccumuloStoreConstants.SCHEMA, new String(schema.toCompactJson(), StandardCharsets.UTF_8));
         return this;
     }
 
     public IteratorSettingBuilder view(final View view) {
-        try {
-            setting.addOption(AccumuloStoreConstants.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
-        } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise view from JSON", e);
-        }
+        setting.addOption(AccumuloStoreConstants.VIEW, new String(view.toCompactJson(), StandardCharsets.UTF_8));
         return this;
     }
 

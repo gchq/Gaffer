@@ -15,8 +15,9 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * @deprecated this is not very efficient and should only be used for compatibility
@@ -28,7 +29,7 @@ public class IntegerSerialiser extends ToBytesViaStringDeserialiser<Integer> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     public IntegerSerialiser() {
-        super(CommonConstants.ISO_8859_1_ENCODING);
+        super(String.valueOf(StandardCharsets.ISO_8859_1));
     }
 
     @Override

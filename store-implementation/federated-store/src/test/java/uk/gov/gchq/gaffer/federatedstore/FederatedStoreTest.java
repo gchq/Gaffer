@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -65,6 +64,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -171,11 +171,11 @@ public class FederatedStoreTest {
                 "Library has changed: " + ID_PROPS_ACC_2);
         assertEquals(library.getProperties(ID_PROPS_ACC_ALT), PROPERTIES_ALT,
                 "Library has changed: " + ID_PROPS_ACC_ALT);
-        assertEquals(new String(library.getSchema(ID_SCHEMA_EDGE).toJson(false), CommonConstants.UTF_8),
-                new String(getSchemaFromPath(PATH_BASIC_EDGE_SCHEMA_JSON).toJson(false), CommonConstants.UTF_8),
+        assertEquals(new String(library.getSchema(ID_SCHEMA_EDGE).toJson(false), StandardCharsets.UTF_8),
+                new String(getSchemaFromPath(PATH_BASIC_EDGE_SCHEMA_JSON).toJson(false), StandardCharsets.UTF_8),
                 "Library has changed: " + ID_SCHEMA_EDGE);
-        assertEquals(new String(library.getSchema(ID_SCHEMA_ENTITY).toJson(false), CommonConstants.UTF_8),
-                new String(getSchemaFromPath(PATH_BASIC_ENTITY_SCHEMA_JSON).toJson(false), CommonConstants.UTF_8),
+        assertEquals(new String(library.getSchema(ID_SCHEMA_ENTITY).toJson(false), StandardCharsets.UTF_8),
+                new String(getSchemaFromPath(PATH_BASIC_ENTITY_SCHEMA_JSON).toJson(false), StandardCharsets.UTF_8),
                 "Library has changed: " + ID_SCHEMA_ENTITY);
 
         clearLibrary();

@@ -19,7 +19,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.JobFactory;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.JsonMapperGenerator;
@@ -29,6 +28,7 @@ import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
@@ -64,7 +64,7 @@ public abstract class AbstractGafferMapperTest {
 
     private Configuration createConfiguration() {
         final Configuration configuration = new Configuration();
-        configuration.set(JobFactory.SCHEMA, new String(Schema.fromJson(StreamUtil.schemas(getClass())).toCompactJson()), CommonConstants.UTF_8);
+        configuration.set(JobFactory.SCHEMA, new String(Schema.fromJson(StreamUtil.schemas(getClass())).toCompactJson()), String.valueOf(StandardCharsets.UTF_8));
         configuration.set(JobFactory.MAPPER_GENERATOR, JsonMapperGenerator.class.getName());
         configuration.setBoolean(JobFactory.VALIDATE, true);
 

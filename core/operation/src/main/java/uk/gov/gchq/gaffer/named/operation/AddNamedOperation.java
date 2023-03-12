@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -37,6 +36,7 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -71,7 +71,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
     private AccessPredicate readAccessPredicate;
     private AccessPredicate writeAccessPredicate;
 
-    private static final String CHARSET_NAME = CommonConstants.UTF_8;
+    private static final String CHARSET_NAME = String.valueOf(StandardCharsets.UTF_8);
 
     public boolean isOverwriteFlag() {
         return overwriteFlag;

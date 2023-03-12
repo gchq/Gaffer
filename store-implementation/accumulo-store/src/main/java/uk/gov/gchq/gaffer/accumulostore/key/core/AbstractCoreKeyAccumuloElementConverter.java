@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionE
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.LongUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -46,7 +45,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -189,20 +188,12 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @Override
     public byte[] buildColumnFamily(final String group) {
-        try {
-            return group.getBytes(CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new AccumuloElementConversionException(e.getMessage(), e);
-        }
+        return group.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
     public String getGroupFromColumnFamily(final byte[] columnFamily) {
-        try {
-            return new String(columnFamily, CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new AccumuloElementConversionException(e.getMessage(), e);
-        }
+        return new String(columnFamily, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -492,11 +483,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     protected String getGroupFromKey(final Key key) {
-        try {
-            return new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new AccumuloElementConversionException("Failed to get element group from key", e);
-        }
+        return new String(key.getColumnFamilyData().getBackingArray(), StandardCharsets.UTF_8);
     }
 
     protected boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
