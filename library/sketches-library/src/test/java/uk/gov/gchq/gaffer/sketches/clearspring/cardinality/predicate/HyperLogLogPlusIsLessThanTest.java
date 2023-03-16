@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,13 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.predicate.PredicateTest;
 
 import java.util.Arrays;
-import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
+public class HyperLogLogPlusIsLessThanTest extends PredicateTest<HyperLogLogPlusIsLessThan> {
 
     private static HyperLogLogPlus hyperLogLogPlusWithCardinality5;
     private static HyperLogLogPlus hyperLogLogPlusWithCardinality15;
@@ -133,12 +132,7 @@ public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
     }
 
     @Override
-    protected Class<? extends Predicate> getPredicateClass() {
-        return HyperLogLogPlusIsLessThan.class;
-    }
-
-    @Override
-    protected Predicate getInstance() {
+    protected HyperLogLogPlusIsLessThan getInstance() {
         return new HyperLogLogPlusIsLessThan(10);
     }
 
