@@ -89,7 +89,6 @@ public final class GetElementsUtil {
                         && ((Edge) e).isDirected()
                         && (EdgeId.MatchedVertex.DESTINATION == ((Edge) e).getMatchedVertex()));
             }
-            // TODO 2552: Can this be improved?
             // Remove Edges if searching with EntityId and View has no Edges
             if (view.hasEntities() && !view.hasEdges()) {
                 isFiltered = isFiltered.or(e -> e instanceof Edge);
@@ -115,7 +114,6 @@ public final class GetElementsUtil {
                     .filter(e -> e instanceof Entity)
                     .forEach(relevantElements::add);
 
-            // TODO 2552: Can this be improved?
             // Remove Entities if searching with EdgeId and View has no Entities
             if (view.hasEdges() && !view.hasEntities()) {
                 isFiltered = isFiltered.or(e -> e instanceof Entity);
