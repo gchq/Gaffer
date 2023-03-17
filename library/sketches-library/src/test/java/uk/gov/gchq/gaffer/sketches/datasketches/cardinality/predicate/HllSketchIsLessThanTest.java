@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.predicate;
 
 import com.yahoo.sketches.hll.HllSketch;
