@@ -35,8 +35,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +49,6 @@ import java.util.Map;
 @Since("1.3.0")
 @Summary("Adds a new named view")
 public class AddNamedView implements Operation {
-    private static final String CHARSET_NAME = String.valueOf(StandardCharsets.UTF_8);
     @Required
     private String name;
     @Required
@@ -99,7 +96,7 @@ public class AddNamedView implements Operation {
     @JsonIgnore
     public void setView(final View view) {
         try {
-            this.view = null == view ? null : new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
+            this.view = null == view ? null : new String(JSONSerialiser.serialise(view), StandardCharsets.UTF_8);
         } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }
@@ -108,8 +105,8 @@ public class AddNamedView implements Operation {
     @JsonIgnore
     public View getView() {
         try {
-            return null == view ? null : JSONSerialiser.deserialise(view.getBytes(CHARSET_NAME), View.class);
-        } catch (final UnsupportedEncodingException | SerialisationException e) {
+            return null == view ? null : JSONSerialiser.deserialise(view.getBytes(StandardCharsets.UTF_8), View.class);
+        } catch (final SerialisationException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
