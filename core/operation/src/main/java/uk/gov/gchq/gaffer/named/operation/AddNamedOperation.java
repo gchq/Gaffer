@@ -238,7 +238,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
 
                 try {
                     opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
-                            new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), String.valueOf(StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
+                            new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue()), StandardCharsets.UTF_8));
                 } catch (final SerialisationException e) {
                     throw new IllegalArgumentException(e.getMessage());
                 }

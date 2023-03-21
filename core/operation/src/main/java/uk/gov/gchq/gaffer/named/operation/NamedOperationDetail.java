@@ -189,7 +189,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
 
                 try {
                     opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
-                            new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), String.valueOf(StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
+                            new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue()), StandardCharsets.UTF_8));
                 } catch (final SerialisationException e) {
                     throw new IllegalArgumentException(e.getMessage());
                 }
@@ -234,10 +234,10 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
                         Object paramObj = JSONSerialiser.deserialise(JSONSerialiser.serialise(executionParams.get(paramKey)), parameterDetailPair.getValue().getValueClass());
 
                         opStringWithParams = opStringWithParams.replace(buildParamNameString(paramKey),
-                                new String(JSONSerialiser.serialise(paramObj, String.valueOf(StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
+                                new String(JSONSerialiser.serialise(paramObj), StandardCharsets.UTF_8));
                     } else if (!parameterDetailPair.getValue().isRequired()) {
                         opStringWithParams = opStringWithParams.replace(buildParamNameString(paramKey),
-                                new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), String.valueOf(StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
+                                new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue()), StandardCharsets.UTF_8));
                     } else {
                         throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
                     }
