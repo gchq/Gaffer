@@ -458,7 +458,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
 
         private String serialise(final Object pojo) {
             try {
-                return new String(JSONSerialiser.serialise(pojo), Charset.forName(CHARSET_NAME));
+                return new String(JSONSerialiser.serialise(pojo), StandardCharsets.UTF_8);
             } catch (final SerialisationException se) {
                 throw new IllegalArgumentException(se.getMessage());
             }
