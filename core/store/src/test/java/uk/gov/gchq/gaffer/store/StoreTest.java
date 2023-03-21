@@ -941,7 +941,7 @@ public class StoreTest {
                 .build();
         final Context context = new Context(user);
         final String operationChainOverviewString = opChain.toOverviewString();
-        final String serialisedOperationChain = new String(JSONSerialiser.serialise(opChain), Charset.forName(String.valueOf(StandardCharsets.UTF_8)));
+        final String serialisedOperationChain = new String(JSONSerialiser.serialise(opChain), StandardCharsets.UTF_8);
 
         // When - setup job
         JobDetail parentJobDetail = store.executeJob(new Job(repeat, opChain), context);
