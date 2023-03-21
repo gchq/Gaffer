@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -33,7 +32,6 @@ import java.nio.charset.StandardCharsets;
  */
 public class JobDetail implements Serializable {
     private static final long serialVersionUID = -1677432285205724269L;
-    private static final String CHARSET_NAME = String.valueOf(StandardCharsets.UTF_8);
     private String parentJobId;
     private Repeat repeat;
     private String jobId;
@@ -359,7 +357,7 @@ public class JobDetail implements Serializable {
 
         try {
 
-            return new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
+            return new String(JSONSerialiser.serialise(operationChain), StandardCharsets.UTF_8);
 
         } catch (final Exception exception) {
 
