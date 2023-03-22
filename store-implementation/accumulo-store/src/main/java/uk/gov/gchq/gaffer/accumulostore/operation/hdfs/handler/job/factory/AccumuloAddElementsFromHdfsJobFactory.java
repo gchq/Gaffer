@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueR
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IngestUtils;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.hdfs.operation.partitioner.NoPartitioner;
@@ -43,6 +42,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAddElementsFromHdfsJobFactory.class);
@@ -68,8 +68,8 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         final JobConf jobConf = new JobConf(configuration);
 
         LOGGER.info("Setting up job conf");
-        jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
-        LOGGER.debug("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
+        jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), StandardCharsets.UTF_8));
+        LOGGER.debug("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), StandardCharsets.UTF_8));
         jobConf.set(MAPPER_GENERATOR, mapperGeneratorClassName);
         LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGeneratorClassName);
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));

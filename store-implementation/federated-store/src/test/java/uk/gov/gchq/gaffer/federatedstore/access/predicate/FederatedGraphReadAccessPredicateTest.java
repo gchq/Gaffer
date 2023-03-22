@@ -20,10 +20,10 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicateTest;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -86,8 +86,8 @@ public class FederatedGraphReadAccessPredicateTest implements AccessPredicateTes
         final byte[] bytes = JSONSerialiser.serialise(predicate);
         assertEquals("{" +
                 "\"class\":\"uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphReadAccessPredicate\"," +
-                "\"userPredicate\":{\"class\":\"uk.gov.gchq.gaffer.federatedstore.access.predicate.user.FederatedGraphReadUserPredicate\",\"creatingUserId\":\"authUser\",\"auths\":[\"auth1\",\"auth2\"],\"public\":false}" +
-                "}", new String(bytes, CommonConstants.UTF_8));
+                "\"userPredicate\":{\"class\":\"uk.gov.gchq.gaffer.federatedstore.access.predicate.user.FederatedGraphReadUserPredicate\",\"creatingUserId\":\"TestUser\",\"auths\":[\"auth1\",\"auth2\"],\"public\":false}" +
+                "}", new String(bytes, StandardCharsets.UTF_8));
         assertEquals(predicate, JSONSerialiser.deserialise(bytes, FederatedGraphReadAccessPredicate.class));
     }
 

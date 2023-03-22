@@ -17,10 +17,10 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import com.google.common.base.Splitter;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -35,7 +35,7 @@ public class TreeSetStringSerialiser extends ToBytesViaStringDeserialiser<TreeSe
     private static final String CLOSE = "}";
 
     public TreeSetStringSerialiser() {
-        super(CommonConstants.UTF_8);
+        super(StandardCharsets.UTF_8.name());
     }
 
     @Override

@@ -19,10 +19,10 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.DefaultAccessPredicateTest;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -44,7 +44,7 @@ public class NamedViewWriteAccessPredicateTest extends DefaultAccessPredicateTes
                 "\"creatingUserId\":\"TestUser\"," +
                 "\"auths\":[\"auth1\",\"auth2\"]" +
                 "}" +
-                "}", new String(bytes, CommonConstants.UTF_8));
+                "}", new String(bytes, StandardCharsets.UTF_8));
         assertEquals(predicate, JSONSerialiser.deserialise(bytes, NamedViewWriteAccessPredicate.class));
     }
 

@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.GroupUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -37,7 +36,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -262,13 +261,9 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     @Override
     public String toString() {
-        try {
-            return new ToStringBuilder(this)
-                    .append(new String(toJson(true), CommonConstants.UTF_8))
-                    .build();
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        return new ToStringBuilder(this)
+                .append(new String(toJson(true), StandardCharsets.UTF_8))
+                .build();
     }
 
     public byte[] toCompactJson() throws SchemaException {

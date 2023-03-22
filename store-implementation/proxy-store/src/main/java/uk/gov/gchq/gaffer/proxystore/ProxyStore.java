@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -81,8 +80,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -228,8 +227,8 @@ public class ProxyStore extends Store {
             throws OperationException {
         final String opChainJson;
         try {
-            opChainJson = new String(JSONSerialiser.serialise(opChain), CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException | SerialisationException e) {
+            opChainJson = new String(JSONSerialiser.serialise(opChain), StandardCharsets.UTF_8);
+        } catch (final SerialisationException e) {
             throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
 
@@ -247,8 +246,8 @@ public class ProxyStore extends Store {
                            final Context context)
             throws StoreException {
         try {
-            return doPost(url, new String(JSONSerialiser.serialise(body), CommonConstants.UTF_8), responseDeserialiser, context);
-        } catch (final SerialisationException | UnsupportedEncodingException e) {
+            return doPost(url, new String(JSONSerialiser.serialise(body), StandardCharsets.UTF_8), responseDeserialiser, context);
+        } catch (final SerialisationException e) {
             throw new StoreException("Unable to serialise body of request into json.", e);
         }
     }

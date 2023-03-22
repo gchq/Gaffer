@@ -31,7 +31,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -136,7 +135,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -919,7 +918,7 @@ public class StoreTest {
         final OperationChain opChain = new OperationChain.Builder().first(new DiscardOutput()).build();
         final Context context = new Context(user);
         final String operationChainOverviewString = opChain.toOverviewString();
-        final String serialisedOperationChain = new String(JSONSerialiser.serialise(opChain), Charset.forName(CommonConstants.UTF_8));
+        final String serialisedOperationChain = new String(JSONSerialiser.serialise(opChain), StandardCharsets.UTF_8);
 
         // When - setup job
         final JobDetail parentJobDetail = store.executeJob(new Job(repeat, opChain), context);

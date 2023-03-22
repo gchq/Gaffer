@@ -43,7 +43,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -181,7 +181,7 @@ public class AddNamedOperationHandlerTest {
     }
 
     @Test
-    public void shouldNotAllowForOperationChainJSONWithInvalidParameter() throws UnsupportedEncodingException, SerialisationException {
+    public void shouldNotAllowForOperationChainJSONWithInvalidParameter() throws SerialisationException {
         final String opChainJSON = "{" +
                 "  \"operations\": [" +
                 "      {" +
@@ -211,7 +211,7 @@ public class AddNamedOperationHandlerTest {
                 "}";
 
         assertThatExceptionOfType(SerialisationException.class)
-                .isThrownBy(() -> JSONSerialiser.deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class));
+                .isThrownBy(() -> JSONSerialiser.deserialise(opChainJSON.getBytes(StandardCharsets.UTF_8), OperationChain.class));
     }
 
     @Test
