@@ -105,7 +105,7 @@ public final class IngestUtils {
         LOGGER.info("Found {} splits from table {}", splits.size(), table);
 
         try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false,
-                String.valueOf(StandardCharsets.UTF_8))) {
+                StandardCharsets.UTF_8.name())) {
             // Write the splits to file
             if (splits.isEmpty()) {
                 out.close();
