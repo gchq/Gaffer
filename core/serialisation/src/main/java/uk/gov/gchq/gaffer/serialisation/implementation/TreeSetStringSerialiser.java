@@ -35,7 +35,7 @@ public class TreeSetStringSerialiser extends ToBytesViaStringDeserialiser<TreeSe
     private static final String CLOSE = "}";
 
     public TreeSetStringSerialiser() {
-        super(String.valueOf(StandardCharsets.UTF_8));
+        super(StandardCharsets.UTF_8.name());
     }
 
     @Override
