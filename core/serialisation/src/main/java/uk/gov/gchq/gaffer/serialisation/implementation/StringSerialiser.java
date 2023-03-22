@@ -28,7 +28,7 @@ public class StringSerialiser extends ToBytesViaStringDeserialiser<String> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     public StringSerialiser() {
-        super(String.valueOf(StandardCharsets.UTF_8));
+        super(StandardCharsets.UTF_8.name());
     }
 
     @Override
