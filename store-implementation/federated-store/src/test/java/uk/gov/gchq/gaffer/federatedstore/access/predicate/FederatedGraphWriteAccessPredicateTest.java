@@ -19,9 +19,10 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicateTest;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.user.User;
+
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,7 +64,7 @@ public class FederatedGraphWriteAccessPredicateTest implements AccessPredicateTe
         assertEquals("{" +
                 "\"class\":\"uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphWriteAccessPredicate\"," +
                 "\"userPredicate\":{\"class\":\"uk.gov.gchq.gaffer.federatedstore.access.predicate.user.FederatedGraphWriteUserPredicate\",\"creatingUserId\":\"TestUser\"}" +
-                "}", new String(bytes, CommonConstants.UTF_8));
+                "}", new String(bytes, StandardCharsets.UTF_8));
         assertEquals(predicate, JSONSerialiser.deserialise(bytes, FederatedGraphWriteAccessPredicate.class));
     }
 

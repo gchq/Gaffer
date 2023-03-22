@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.access.AccessControlledResource;
 import uk.gov.gchq.gaffer.access.ResourceType;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.NamedViewWriteAccessPredicate;
@@ -39,7 +38,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,7 +53,6 @@ import static java.util.Collections.emptyList;
 @JsonDeserialize(builder = NamedViewDetail.Builder.class)
 public class NamedViewDetail implements AccessControlledResource, Serializable {
     private static final long serialVersionUID = -8354836093398004122L;
-    private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String name;
     private String view;
     private String description;
@@ -122,7 +120,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
     public void setView(final View view) {
         if (null != view) {
             try {
-                this.view = new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
+                this.view = new String(JSONSerialiser.serialise(view), StandardCharsets.UTF_8);
             } catch (final SerialisationException se) {
                 throw new IllegalArgumentException(se.getMessage());
             }
@@ -381,7 +379,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
         public Builder view(final View view) {
             if (null != view) {
                 try {
-                    this.view = new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
+                    this.view = new String(JSONSerialiser.serialise(view), StandardCharsets.UTF_8);
                     return this;
                 } catch (final SerialisationException se) {
                     throw new IllegalArgumentException(se.getMessage());

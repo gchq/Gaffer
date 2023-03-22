@@ -29,7 +29,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.reducer.AddElementsFromHdfsReducer;
@@ -41,6 +41,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseAddElementsFromHdfsJobFactory.class);
@@ -64,8 +65,8 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
         final JobConf jobConf = new JobConf(configuration);
 
         LOGGER.info("Setting up job conf");
-        jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
-        LOGGER.info("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
+        jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), StandardCharsets.UTF_8));
+        LOGGER.info("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), StandardCharsets.UTF_8));
         jobConf.set(MAPPER_GENERATOR, mapperGeneratorClassName);
         LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGeneratorClassName);
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));

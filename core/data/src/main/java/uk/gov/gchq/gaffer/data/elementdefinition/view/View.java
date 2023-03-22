@@ -30,14 +30,13 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -100,13 +99,9 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
 
     @Override
     public String toString() {
-        try {
-            return new ToStringBuilder(this)
-                    .append(new String(toJson(true), CommonConstants.UTF_8))
-                    .build();
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        return new ToStringBuilder(this)
+                .append(new String(toJson(true), StandardCharsets.UTF_8))
+                .build();
     }
 
     @Override

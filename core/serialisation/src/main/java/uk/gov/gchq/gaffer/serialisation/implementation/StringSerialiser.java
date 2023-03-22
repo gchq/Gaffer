@@ -15,9 +15,10 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * A {@code StringSerialiser} is used to serialise {@link String}s.
@@ -27,7 +28,7 @@ public class StringSerialiser extends ToBytesViaStringDeserialiser<String> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     public StringSerialiser() {
-        super(CommonConstants.UTF_8);
+        super(StandardCharsets.UTF_8.name());
     }
 
     @Override

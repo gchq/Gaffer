@@ -28,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -38,6 +37,7 @@ import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
 import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -188,7 +188,7 @@ public class JSONSerialiserTest {
         final SimpleTestObject obj = new SimpleTestObject();
 
         // When
-        final String json = new String(JSONSerialiser.serialise(obj, "x"), CommonConstants.UTF_8);
+        final String json = new String(JSONSerialiser.serialise(obj, "x"), StandardCharsets.UTF_8);
 
         // Then
         assertFalse(json.contains("x"));
@@ -200,7 +200,7 @@ public class JSONSerialiserTest {
         final SimpleTestObject obj = new SimpleTestObject();
 
         // When
-        final String json = new String(JSONSerialiser.serialise(obj), CommonConstants.UTF_8);
+        final String json = new String(JSONSerialiser.serialise(obj), StandardCharsets.UTF_8);
 
         // Then
         assertTrue(json.contains("x"));

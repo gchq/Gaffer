@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.accumulostore.key.AbstractElementFilter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -33,7 +32,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ElementPostAggregationFilterTest {
     @Test
-    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoSchema() throws Exception {
+    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoSchema() {
         // Given
         final AbstractElementFilter filter = new ElementPostAggregationFilter();
 
@@ -60,7 +59,7 @@ public class ElementPostAggregationFilterTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionWhenInitWithNoView() throws Exception {
+    public void shouldThrowIllegalArgumentExceptionWhenInitWithNoView() {
         // Given
         final AbstractElementFilter filter = new ElementPostAggregationFilter();
 
@@ -76,7 +75,7 @@ public class ElementPostAggregationFilterTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithElementConverterClass() throws Exception {
+    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithElementConverterClass() {
         // Given
         final AbstractElementFilter filter = new ElementPostAggregationFilter();
 
@@ -91,7 +90,7 @@ public class ElementPostAggregationFilterTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenValidOptions() throws Exception {
+    public void shouldReturnTrueWhenValidOptions() {
         // Given
         final AbstractElementFilter filter = new ElementPostAggregationFilter();
 
@@ -170,22 +169,22 @@ public class ElementPostAggregationFilterTest {
         assertFalse(accept);
     }
 
-    private String getViewJson() throws UnsupportedEncodingException {
+    private String getViewJson() {
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .build();
 
-        return new String(view.toCompactJson(), CommonConstants.UTF_8);
+        return new String(view.toCompactJson(), StandardCharsets.UTF_8);
     }
 
-    private String getEmptyViewJson() throws UnsupportedEncodingException {
+    private String getEmptyViewJson() {
         final View view = new View.Builder()
                 .build();
 
-        return new String(view.toCompactJson(), CommonConstants.UTF_8);
+        return new String(view.toCompactJson(), StandardCharsets.UTF_8);
     }
 
-    private Schema getSchema() throws UnsupportedEncodingException {
+    private Schema getSchema() {
         return new Schema.Builder()
                 .type("string", String.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
@@ -196,7 +195,7 @@ public class ElementPostAggregationFilterTest {
                 .build();
     }
 
-    private String getSchemaJson() throws UnsupportedEncodingException {
-        return new String(getSchema().toCompactJson(), CommonConstants.UTF_8);
+    private String getSchemaJson() {
+        return new String(getSchema().toCompactJson(), StandardCharsets.UTF_8);
     }
 }

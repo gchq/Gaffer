@@ -28,7 +28,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.access.AccessControlledResource;
 import uk.gov.gchq.gaffer.access.ResourceType;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -37,8 +36,7 @@ import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +49,6 @@ import java.util.Set;
 public class NamedOperationDetail implements AccessControlledResource, Serializable {
 
     private static final long serialVersionUID = -8831783492657131469L;
-    private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String operationName;
     private List<String> labels;
     private String inputType;
@@ -192,8 +189,8 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
 
                 try {
                     opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
-                            new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
-                } catch (final SerialisationException | UnsupportedEncodingException e) {
+                            new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue()), StandardCharsets.UTF_8));
+                } catch (final SerialisationException e) {
                     throw new IllegalArgumentException(e.getMessage());
                 }
             }
@@ -201,7 +198,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
 
         OperationChain opChain;
         try {
-            opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChainDAO.class);
+            opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(StandardCharsets.UTF_8), OperationChainDAO.class);
         } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -237,14 +234,14 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
                         Object paramObj = JSONSerialiser.deserialise(JSONSerialiser.serialise(executionParams.get(paramKey)), parameterDetailPair.getValue().getValueClass());
 
                         opStringWithParams = opStringWithParams.replace(buildParamNameString(paramKey),
-                                new String(JSONSerialiser.serialise(paramObj, CHARSET_NAME), CHARSET_NAME));
+                                new String(JSONSerialiser.serialise(paramObj), StandardCharsets.UTF_8));
                     } else if (!parameterDetailPair.getValue().isRequired()) {
                         opStringWithParams = opStringWithParams.replace(buildParamNameString(paramKey),
-                                new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
+                                new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue()), StandardCharsets.UTF_8));
                     } else {
                         throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
                     }
-                } catch (final SerialisationException | UnsupportedEncodingException e) {
+                } catch (final SerialisationException e) {
                     throw new IllegalArgumentException(e.getMessage());
                 }
             }
@@ -253,7 +250,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         OperationChain opChain;
 
         try {
-            opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChainDAO.class);
+            opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(StandardCharsets.UTF_8), OperationChainDAO.class);
         } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -460,7 +457,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
 
         private String serialise(final Object pojo) {
             try {
-                return new String(JSONSerialiser.serialise(pojo), Charset.forName(CHARSET_NAME));
+                return new String(JSONSerialiser.serialise(pojo), StandardCharsets.UTF_8);
             } catch (final SerialisationException se) {
                 throw new IllegalArgumentException(se.getMessage());
             }

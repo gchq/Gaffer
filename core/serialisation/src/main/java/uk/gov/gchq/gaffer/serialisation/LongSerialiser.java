@@ -15,10 +15,9 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @deprecated this is not very efficient and should only be used for compatibility
@@ -36,18 +35,14 @@ public class LongSerialiser implements ToBytesSerialiser<Long> {
 
     @Override
     public byte[] serialise(final Long value) throws SerialisationException {
-        try {
-            return value.toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
+        return value.toString().getBytes(StandardCharsets.ISO_8859_1);
     }
 
     @Override
     public Long deserialise(final byte[] bytes) throws SerialisationException {
         try {
-            return Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
-        } catch (final NumberFormatException | UnsupportedEncodingException e) {
+            return Long.parseLong(new String(bytes, StandardCharsets.ISO_8859_1));
+        } catch (final NumberFormatException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }

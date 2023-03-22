@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
@@ -42,7 +41,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map.Entry;
 
 /**
@@ -57,12 +56,12 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
 
     @Override
     public RecordReader<Element, NullWritable> createRecordReader(final InputSplit split, final TaskAttemptContext context)
-            throws IOException, InterruptedException {
+            throws IOException {
         log.setLevel(getLogLevel(context));
         final Configuration conf = context.getConfiguration();
         final String keyPackageClass = conf.get(KEY_PACKAGE);
-        final Schema schema = Schema.fromJson(conf.get(SCHEMA).getBytes(CommonConstants.UTF_8));
-        final View view = View.fromJson(conf.get(VIEW).getBytes(CommonConstants.UTF_8));
+        final Schema schema = Schema.fromJson(conf.get(SCHEMA).getBytes(StandardCharsets.UTF_8));
+        final View view = View.fromJson(conf.get(VIEW).getBytes(StandardCharsets.UTF_8));
         try {
             return new ElementWithPropertiesRecordReader(keyPackageClass, schema, view);
         } catch (final StoreException | SchemaException | SerialisationException e) {
@@ -76,7 +75,7 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
         private View view;
 
         ElementWithPropertiesRecordReader(final String keyPackageClass, final Schema schema, final View view)
-                throws StoreException, SchemaException, SerialisationException, UnsupportedEncodingException {
+                throws StoreException, SchemaException, SerialisationException {
             super();
             final AccumuloKeyPackage keyPackage;
             try {
@@ -90,7 +89,7 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
         }
 
         @Override
-        public boolean nextKeyValue() throws IOException, InterruptedException {
+        public boolean nextKeyValue() throws IOException {
             currentV = NullWritable.get();
             while (scannerIterator.hasNext()) {
                 ++numKeysRead;
