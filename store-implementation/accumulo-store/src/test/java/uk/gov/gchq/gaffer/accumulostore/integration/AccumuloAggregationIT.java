@@ -45,7 +45,6 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -192,7 +191,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
     }
 
     @Test
-    public void shouldHandleAggregationWhenGroupByPropertiesAreNull() throws OperationException, UnsupportedEncodingException {
+    public void shouldHandleAggregationWhenGroupByPropertiesAreNull() throws OperationException {
         final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -240,7 +239,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
     }
 
     @Test
-    public void shouldHandleAggregationWhenAllColumnQualifierPropertiesAreGroupByProperties() throws OperationException, UnsupportedEncodingException {
+    public void shouldHandleAggregationWhenAllColumnQualifierPropertiesAreGroupByProperties() throws OperationException {
         final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -286,7 +285,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
     }
 
     @Test
-    public void shouldHandleAggregationWhenGroupByPropertiesAreNotSet() throws OperationException, UnsupportedEncodingException {
+    public void shouldHandleAggregationWhenGroupByPropertiesAreNotSet() throws OperationException {
         final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -332,7 +331,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
     }
 
     @Test
-    public void shouldHandleAggregationWithMultipleCombinations() throws OperationException, UnsupportedEncodingException {
+    public void shouldHandleAggregationWithMultipleCombinations() throws OperationException {
         final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
