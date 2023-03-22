@@ -64,7 +64,7 @@ public abstract class AbstractGafferMapperTest {
 
     private Configuration createConfiguration() {
         final Configuration configuration = new Configuration();
-        configuration.set(JobFactory.SCHEMA, new String(Schema.fromJson(StreamUtil.schemas(getClass())).toCompactJson()), String.valueOf(StandardCharsets.UTF_8));
+        configuration.set(JobFactory.SCHEMA, new String(Schema.fromJson(StreamUtil.schemas(getClass())).toCompactJson()), StandardCharsets.UTF_8.name());
         configuration.set(JobFactory.MAPPER_GENERATOR, JsonMapperGenerator.class.getName());
         configuration.setBoolean(JobFactory.VALIDATE, true);
 
