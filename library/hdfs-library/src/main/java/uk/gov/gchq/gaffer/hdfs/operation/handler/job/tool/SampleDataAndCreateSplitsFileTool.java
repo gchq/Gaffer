@@ -155,7 +155,7 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
         try (final SequenceFile.Reader reader = new SequenceFile.Reader(fs.getConf(), Reader.file(resultsFile));
              final PrintStream splitsWriter = new PrintStream(
                      new BufferedOutputStream(fs.create(new Path(operation.getSplitsFilePath()), true)),
-                     false, String.valueOf(StandardCharsets.UTF_8))
+                     false, StandardCharsets.UTF_8.name())
         ) {
             while (numberSplitPointsOutput < numberSplitsExpected) {
                 if (!reader.next(key, value)) {
