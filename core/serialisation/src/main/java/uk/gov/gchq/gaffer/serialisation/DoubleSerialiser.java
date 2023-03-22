@@ -30,7 +30,7 @@ public class DoubleSerialiser extends ToBytesViaStringDeserialiser<Double> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     public DoubleSerialiser() {
-        super(String.valueOf(StandardCharsets.ISO_8859_1));
+        super(StandardCharsets.ISO_8859_1.name());
     }
 
     @Override
