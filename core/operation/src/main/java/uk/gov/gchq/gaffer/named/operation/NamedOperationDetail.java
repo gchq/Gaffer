@@ -193,7 +193,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
                     opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
                             new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue()), StandardCharsets.UTF_8));
                 } catch (final SerialisationException e) {
-                    throw new IllegalArgumentException(e.getMessage());
+                    throw new IllegalArgumentException(e.getMessage(), e);
                 }
             }
         }
@@ -244,7 +244,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
                         throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
                     }
                 } catch (final SerialisationException e) {
-                    throw new IllegalArgumentException(e.getMessage());
+                    throw new IllegalArgumentException(e.getMessage(), e);
                 }
             }
         }

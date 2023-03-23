@@ -240,7 +240,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
                     opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
                             new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue()), StandardCharsets.UTF_8));
                 } catch (final SerialisationException e) {
-                    throw new IllegalArgumentException(e.getMessage());
+                    throw new IllegalArgumentException(e.getMessage(), e);
                 }
             }
         }

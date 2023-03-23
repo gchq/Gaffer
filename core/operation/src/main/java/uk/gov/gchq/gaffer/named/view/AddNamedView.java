@@ -107,7 +107,7 @@ public class AddNamedView implements Operation {
         try {
             return null == view ? null : JSONSerialiser.deserialise(view.getBytes(StandardCharsets.UTF_8), View.class);
         } catch (final SerialisationException e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 
