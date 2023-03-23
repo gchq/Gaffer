@@ -86,7 +86,7 @@ public class FederatedGraphReadAccessPredicateTest implements AccessPredicateTes
         final byte[] bytes = JSONSerialiser.serialise(predicate);
         assertEquals("{" +
                 "\"class\":\"uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphReadAccessPredicate\"," +
-                "\"userPredicate\":{\"class\":\"uk.gov.gchq.gaffer.federatedstore.access.predicate.user.FederatedGraphReadUserPredicate\",\"creatingUserId\":\"TestUser\",\"auths\":[\"auth1\",\"auth2\"],\"public\":false}" +
+                "\"userPredicate\":{\"class\":\"uk.gov.gchq.gaffer.federatedstore.access.predicate.user.FederatedGraphReadUserPredicate\",\"creatingUserId\":\"authUser\",\"auths\":[\"auth1\",\"auth2\"],\"public\":false}" +
                 "}", new String(bytes, StandardCharsets.UTF_8));
         assertEquals(predicate, JSONSerialiser.deserialise(bytes, FederatedGraphReadAccessPredicate.class));
     }
