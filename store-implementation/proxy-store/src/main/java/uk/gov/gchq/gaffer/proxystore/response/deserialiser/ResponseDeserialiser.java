@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Crown Copyright
+ * Copyright 2021-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.proxystore.response.deserialiser;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public interface ResponseDeserialiser<O> {
 
     O deserialise(final String jsonString) throws SerialisationException;
 
     default byte[] encodeString(final String jsonString) throws SerialisationException {
-        try {
-            return jsonString.getBytes(CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException("Unable to deserialise JSON: " + jsonString, e);
-        }
+        return jsonString.getBytes(StandardCharsets.UTF_8);
     }
 }

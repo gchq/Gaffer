@@ -36,7 +36,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -54,6 +53,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat.KEY_PACKAGE;
@@ -139,7 +139,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
         addIterators(accumuloStore, conf, context.getUser(), operation);
         try {
             // Add view to conf so that any transformations can be applied
-            conf.set(AbstractGetRDDHandler.VIEW, new String(operation.getView().toCompactJson(), CommonConstants.UTF_8));
+            conf.set(AbstractGetRDDHandler.VIEW, new String(operation.getView().toCompactJson(), StandardCharsets.UTF_8));
             final byte[] serialisedConf = Utils.serialiseConfiguration(conf);
             final RDD<Map.Entry<Key, Value>> rdd = new RFileReaderRDD(
                     SparkContextUtil.getSparkSession(context, accumuloStore.getProperties()).sparkContext(),
@@ -217,7 +217,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
             try {
                 final Configuration conf = Utils.deserialiseConfiguration(serialisedConf);
                 final String keyPackageClass = conf.get(KEY_PACKAGE);
-                final Schema schema = Schema.fromJson(conf.get(SCHEMA).getBytes(CommonConstants.UTF_8));
+                final Schema schema = Schema.fromJson(conf.get(SCHEMA).getBytes(StandardCharsets.UTF_8));
                 final AccumuloKeyPackage keyPackage = Class
                         .forName(keyPackageClass)
                         .asSubclass(AccumuloKeyPackage.class)
@@ -225,7 +225,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
                 keyPackage.setSchema(schema);
                 converter = keyPackage.getKeyConverter();
                 LOGGER.info("Initialised EntryToElement with AccumuloElementConverter of {}", converter.getClass().getName());
-                view = View.fromJson(conf.get(AbstractGetRDDHandler.VIEW).getBytes(CommonConstants.UTF_8));
+                view = View.fromJson(conf.get(AbstractGetRDDHandler.VIEW).getBytes(StandardCharsets.UTF_8));
                 LOGGER.info("Initialised EntryToElement with View of {}", view.toString());
             } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException | IOException e) {
                 throw new RuntimeException("Exception creating AccumuloKeyPackage from Configuration", e);

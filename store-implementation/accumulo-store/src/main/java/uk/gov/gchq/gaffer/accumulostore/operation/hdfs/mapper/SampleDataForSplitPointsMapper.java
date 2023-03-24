@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper;
 
 import org.apache.accumulo.core.data.Key;
@@ -22,16 +23,14 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory.AccumuloSampleDataForSplitPointsJobFactory;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.GafferMapper;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Mapper class used for estimating the split points to ensure even distribution of
@@ -47,12 +46,8 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends GafferMapp
         super.setup(context);
         proportionToSample = context.getConfiguration().getFloat(AccumuloSampleDataForSplitPointsJobFactory.PROPORTION_TO_SAMPLE, 0.001f);
         final Schema schema;
-        try {
-            schema = Schema.fromJson(context.getConfiguration()
-                    .get(AccumuloSampleDataForSplitPointsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
-        } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise Store Schema from JSON", e);
-        }
+        schema = Schema.fromJson(context.getConfiguration()
+                .get(AccumuloSampleDataForSplitPointsJobFactory.SCHEMA).getBytes(StandardCharsets.UTF_8));
         try {
             elementConverter = Class
                     .forName(context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))

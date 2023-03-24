@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -35,8 +34,7 @@ import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,8 +68,6 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
     private Integer score;
     private AccessPredicate readAccessPredicate;
     private AccessPredicate writeAccessPredicate;
-
-    private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
     public boolean isOverwriteFlag() {
         return overwriteFlag;
@@ -109,10 +105,10 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
     public void setOperationChain(final OperationChain operationChain) {
         try {
             if (operationChain instanceof OperationChainDAO) {
-                this.operations = new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
+                this.operations = new String(JSONSerialiser.serialise(operationChain), StandardCharsets.UTF_8);
             } else {
                 final OperationChainDAO dao = new OperationChainDAO(operationChain.getOperations());
-                this.operations = new String(JSONSerialiser.serialise(dao), Charset.forName(CHARSET_NAME));
+                this.operations = new String(JSONSerialiser.serialise(dao), StandardCharsets.UTF_8);
             }
         } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage(), se);
@@ -242,8 +238,8 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
 
                 try {
                     opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
-                            new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
-                } catch (final SerialisationException | UnsupportedEncodingException e) {
+                            new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue()), StandardCharsets.UTF_8));
+                } catch (final SerialisationException e) {
                     throw new IllegalArgumentException(e.getMessage(), e);
                 }
             }
@@ -254,7 +250,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
             opChain = null;
         } else {
             try {
-                opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChainDAO.class);
+                opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(StandardCharsets.UTF_8), OperationChainDAO.class);
             } catch (final Exception e) {
                 opChain = null;
             }
