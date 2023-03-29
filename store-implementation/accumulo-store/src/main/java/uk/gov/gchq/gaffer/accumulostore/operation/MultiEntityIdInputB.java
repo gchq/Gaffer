@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.util.OperationUtil;
  * {@code MultiEntityIdInputB} operations are Gaffer operations which consume multiple
  * {@link EntityId}s.
  */
+@Deprecated
 public interface MultiEntityIdInputB extends MultiInputB<EntityId> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonSetter("inputB")
