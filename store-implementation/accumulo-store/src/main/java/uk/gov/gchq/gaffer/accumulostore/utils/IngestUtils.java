@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,13 @@ import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 /**
@@ -81,7 +81,7 @@ public final class IngestUtils {
         LOGGER.info("Found {} splits from table {}", splits.size(), table);
 
         try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false,
-                CommonConstants.UTF_8)) {
+                StandardCharsets.UTF_8.name())) {
             // Write the splits to file
             if (splits.isEmpty()) {
                 out.close();
@@ -89,7 +89,7 @@ public final class IngestUtils {
             }
 
             for (final Text split : splits) {
-                out.println(new String(Base64.encodeBase64(split.getBytes()), CommonConstants.UTF_8));
+                out.println(new String(Base64.encodeBase64(split.getBytes()), StandardCharsets.UTF_8));
             }
         }
         return splits.size();
@@ -112,7 +112,7 @@ public final class IngestUtils {
     public static int getNumSplits(final FileSystem fs, final Path splitsFile) throws IOException {
         int numSplits = 0;
         try (final FSDataInputStream fis = fs.open(splitsFile);
-             final InputStreamReader streamReader = new InputStreamReader(fis, CommonConstants.UTF_8);
+             final InputStreamReader streamReader = new InputStreamReader(fis, StandardCharsets.UTF_8);
              final BufferedReader reader = new BufferedReader(streamReader)) {
             while (null != reader.readLine()) {
                 ++numSplits;

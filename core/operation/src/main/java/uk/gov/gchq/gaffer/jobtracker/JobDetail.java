@@ -20,21 +20,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * POJO containing details of a Gaffer job.
  */
 public class JobDetail implements Serializable {
     private static final long serialVersionUID = -1677432285205724269L;
-    private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String parentJobId;
     private Repeat repeat;
     private String jobId;
@@ -314,7 +312,7 @@ public class JobDetail implements Serializable {
         }
 
         try {
-            return new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
+            return new String(JSONSerialiser.serialise(operationChain), StandardCharsets.UTF_8);
         } catch (final Exception exception) {
             throw new IllegalArgumentException(exception.getMessage(), exception);
         }

@@ -49,8 +49,8 @@ public class JobTracker extends Cache<String, JobDetail> {
      * @param user      the user making the request
      */
     public void addOrUpdateJob(final JobDetail jobDetail, final User user) {
-        validateJobDetail(jobDetail);
         try {
+            validateJobDetail(jobDetail);
             super.addToCache(jobDetail.getJobId(), jobDetail, true);
         } catch (final CacheOperationException e) {
             throw new RuntimeException("Failed to add jobDetail " + jobDetail.toString() + " to the cache", e);

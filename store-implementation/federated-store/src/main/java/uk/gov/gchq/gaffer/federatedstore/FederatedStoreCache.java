@@ -132,7 +132,7 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
             final Pair<GraphSerialisable, byte[]> fromCache = cacheTransient.getFromCache(key);
             return new Pair<>(fromCache.getFirst(), JSONSerialiser.deserialise(fromCache.getSecond(), FederatedAccess.class));
         } catch (final Exception e) {
-            throw new RuntimeException("Error deserialising FedearedAccess object from cache", e);
+            throw new RuntimeException("Error deserialising FederatedAccess object from cache", e);
         }
     }
 

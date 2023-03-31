@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.hdfs.operation.mapper;
 
 import org.apache.hadoop.conf.Configuration;
@@ -20,7 +21,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory.MAPPER_GENERATOR;
 import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory.SCHEMA;
@@ -58,11 +58,7 @@ public abstract class GafferMapper<KEY_IN, VALUE_IN, KEY_OUT, VALUE_OUT> extends
     @Override
     protected void setup(final Context context) {
         doValidation = Boolean.parseBoolean(context.getConfiguration().get(VALIDATE));
-        try {
-            schema = Schema.fromJson(context.getConfiguration().get(SCHEMA).getBytes(CommonConstants.UTF_8));
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        schema = Schema.fromJson(context.getConfiguration().get(SCHEMA).getBytes(StandardCharsets.UTF_8));
         elementValidator = new ElementValidator(schema);
 
         final String generatorClass = context.getConfiguration().get(MAPPER_GENERATOR);

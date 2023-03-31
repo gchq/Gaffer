@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.accumulostore.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -34,7 +33,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ValidatorFilterTest {
     @Test
-    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoSchema() throws Exception {
+    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoSchema() {
         // Given
         final ValidatorFilter filter = new ValidatorFilter();
 
@@ -61,7 +60,7 @@ public class ValidatorFilterTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithElementConverterClass() throws Exception {
+    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithElementConverterClass() {
         // Given
         final ValidatorFilter filter = new ValidatorFilter();
 
@@ -77,7 +76,7 @@ public class ValidatorFilterTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenValidOptions() throws Exception {
+    public void shouldReturnTrueWhenValidOptions() {
         // Given
         final ValidatorFilter filter = new ValidatorFilter();
 
@@ -152,11 +151,11 @@ public class ValidatorFilterTest {
         assertFalse(accept);
     }
 
-    private String getSchemaJson() throws UnsupportedEncodingException {
-        return new String(getSchema().toCompactJson(), CommonConstants.UTF_8);
+    private String getSchemaJson() {
+        return new String(getSchema().toCompactJson(), StandardCharsets.UTF_8);
     }
 
-    private Schema getSchema() throws UnsupportedEncodingException {
+    private Schema getSchema() {
         return new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
