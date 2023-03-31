@@ -49,7 +49,6 @@ import static uk.gov.gchq.gaffer.store.StoreProperties.OPERATION_DECLARATIONS_JS
 @ExcludeClassNamePatterns({"uk.gov.gchq.gaffer.integration.impl.JoinIT",
         "uk.gov.gchq.gaffer.integration.impl.GeneratorsIT"}) // Skipped because: The output type reference doesn't deserialise the output correctly
 @ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.proxystore.integration.ProxyStoreWithNamedOpNamedViewITs")
-@IncludeClassNamePatterns(".*IT")
 public class ProxyStoreWithNamedOpNamedViewITs extends AbstractStoreITs {
 
     private static final ProxyProperties STORE_PROPERTIES = ProxyProperties

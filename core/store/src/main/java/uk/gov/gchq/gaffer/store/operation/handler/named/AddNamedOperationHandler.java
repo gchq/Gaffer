@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -40,7 +43,8 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
 
     private final NamedOperationCache cache;
 
-    public AddNamedOperationHandler(final String suffixCacheName) {
+    @JsonCreator
+    public AddNamedOperationHandler(@JsonProperty("suffixCacheName") final String suffixCacheName) {
         this(new NamedOperationCache(suffixCacheName));
     }
 
