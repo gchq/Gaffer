@@ -124,8 +124,8 @@ public class GetElementsBetweenSetsPairs implements
 
     public GetElementsBetweenSets getBackwardsCompatibleOperation() {
         return new GetElementsBetweenSets.Builder()
-                .input(getInput().getFirst())
-                .inputB(getInput().getSecond())
+                .input(getInput() != null ? getInput().getFirst() : null)
+                .inputB(getInput() != null ? getInput().getSecond() : null)
                 .view(getView())
                 .directedType(getDirectedType())
                 .inOutType(getIncludeIncomingOutGoing())

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsPairsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
@@ -32,6 +33,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKey
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSetsPairs;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
@@ -292,6 +294,8 @@ public class AccumuloStoreTest {
         assertThat(op).isInstanceOf(AddElementsFromHdfsHandler.class);
         op = store.getOperationHandler(GetElementsBetweenSets.class);
         assertThat(op).isInstanceOf(GetElementsBetweenSetsHandler.class);
+        op = store.getOperationHandler(GetElementsBetweenSetsPairs.class);
+        assertThat(op).isInstanceOf(GetElementsBetweenSetsPairsHandler.class);
         op = store.getOperationHandler(GetElementsInRanges.class);
         assertThat(op).isInstanceOf(GetElementsInRangesHandler.class);
         op = store.getOperationHandler(GetElementsWithinSet.class);
