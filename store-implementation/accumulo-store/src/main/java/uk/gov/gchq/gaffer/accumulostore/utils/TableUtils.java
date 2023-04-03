@@ -60,6 +60,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class TableUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
+    private static Boolean initialKerberosLoginComplete = false;
     public static final String COLUMN_FAMILIES_OPTION = "columns";
 
     private TableUtils() {
@@ -244,13 +245,14 @@ public final class TableUtils {
                 conf.set("hadoop.security.authorization", "true");
                 UserGroupInformation.setConfiguration(conf);
             }
-            // If already logged in with Keytab, then check if ticket needs renewal, else do initial login
-            if (UserGroupInformation.isLoginKeytabBased()) {
+            // If initial login is complete and logged in using Keytab, then check if ticket needs renewal, else do initial login
+            if (UserGroupInformation.isLoginKeytabBased() && initialKerberosLoginComplete) {
                 UserGroupInformation.getCurrentUser().checkTGTAndReloginFromKeytab();
                 LOGGER.debug("Already logged into Kerberos, TGT rechecked for principal '{}'", UserGroupInformation.getCurrentUser().getUserName());
             } else {
                 LOGGER.info("Attempting Kerberos login with principal '{}' & keytab path '{}'", principal, keytabPath);
                 UserGroupInformation.loginUserFromKeytab(principal, keytabPath);
+                initialKerberosLoginComplete = true;
             }
             KerberosToken token = new KerberosToken();
             Connector conn = instance.getConnector(token.getPrincipal(), token);
