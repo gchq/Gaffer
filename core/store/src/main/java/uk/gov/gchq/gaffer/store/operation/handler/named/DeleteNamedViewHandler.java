@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.named.view.DeleteNamedView;
@@ -39,6 +40,11 @@ public class DeleteNamedViewHandler implements OperationHandler<DeleteNamedView>
 
     public DeleteNamedViewHandler(final NamedViewCache cache) {
         this.cache = cache;
+    }
+
+    @JsonGetter("suffixCacheName")
+    public String getSuffixCacheName() {
+        return cache.getSuffixCacheName();
     }
 
     /**

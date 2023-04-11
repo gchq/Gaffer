@@ -43,6 +43,10 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
         return Cache.getCacheNameFrom(CACHE_SERVICE_NAME_PREFIX, suffixCacheName);
     }
 
+    public String getSuffixCacheName() {
+        return getSuffixCacheNameWithPrefix(CACHE_SERVICE_NAME_PREFIX);
+    }
+
     /**
      * Adds the supplied {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} to the cache. If the overwrite flag is set to false, and
      * the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} already exists,
