@@ -133,7 +133,7 @@ public class ProxyStore extends Store {
 
     protected ResponseDeserialiser getResponseDeserialiserForNamedOperation(final NamedOperation operation, final Context context) throws OperationException {
         Iterable<NamedOperationDetail> namedOpDetails = executeOpChainViaUrl(OperationChain.wrap(new GetAllNamedOperations()), context);
-        for (NamedOperationDetail detail : namedOpDetails) {
+        for (final NamedOperationDetail detail : namedOpDetails) {
             if (detail.getOperationName().equals(operation.getOperationName())) {
                 return getResponseDeserialiserFor(detail.getOperationChainWithDefaultParams().getOutputTypeReference());
             }
