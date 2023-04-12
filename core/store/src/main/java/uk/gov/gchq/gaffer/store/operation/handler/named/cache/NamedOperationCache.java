@@ -51,6 +51,10 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
         return Cache.getCacheNameFrom(CACHE_SERVICE_NAME_PREFIX, suffixCacheName);
     }
 
+    public String getSuffixCacheName() {
+        return getSuffixCacheNameWithPrefix(CACHE_SERVICE_NAME_PREFIX);
+    }
+
     /**
      * If the user is just adding to the cache, ie the overwrite flag is set to false, then no security is added.
      * However if the user is overwriting the named operation stored in the cache, then their opAuths must be checked
