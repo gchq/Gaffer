@@ -41,6 +41,7 @@ public class NamedViewCacheBackwardCompatibilityTest {
 
     @BeforeAll
     public static void setUp() {
+        CacheServiceLoader.shutdown();
         final Properties properties = new Properties();
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, JcsCacheService.class.getName());
         // Note that this config causes a binary resource file containing data to be loaded into the cache
