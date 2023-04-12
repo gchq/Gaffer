@@ -74,7 +74,7 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
     }
 
     @Test
-    public void shouldReturnExpectedFederatedAccessUsingCacheDataFromVersion1_12() {
+    public void shouldReturnExpectedFederatedAccessUsingCacheDataFromVersion2() {
         final Set<String> graphAuths = new HashSet<>(asList(AUTH_1, AUTH_2));
 
         final FederatedAccess access = new FederatedAccess(graphAuths, ADDING_USER_ID);

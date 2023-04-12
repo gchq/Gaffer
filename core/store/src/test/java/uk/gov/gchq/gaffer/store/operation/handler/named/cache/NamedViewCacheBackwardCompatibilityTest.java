@@ -51,7 +51,7 @@ public class NamedViewCacheBackwardCompatibilityTest {
     }
 
     @Test
-    public void shouldReturnExpectedNamedViewDetailUsingCacheDataFromVersion1_12() throws Exception {
+    public void shouldReturnExpectedNamedViewDetailUsingCacheDataFromVersion2() throws Exception {
         final NamedViewDetail namedViewDetail = new NamedViewDetail.Builder()
                 .name(VIEW_NAME)
                 .description("standard View")
