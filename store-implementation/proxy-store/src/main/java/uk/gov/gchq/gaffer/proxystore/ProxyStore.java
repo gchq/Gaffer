@@ -32,6 +32,9 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -128,6 +131,16 @@ public class ProxyStore extends Store {
         return new DefaultResponseDeserialiser<>(typeReference);
     }
 
+    protected ResponseDeserialiser getResponseDeserialiserForNamedOperation(final NamedOperation operation, final Context context) throws OperationException {
+        Iterable<NamedOperationDetail> namedOpDetails = executeOpChainViaUrl(OperationChain.wrap(new GetAllNamedOperations()), context);
+        for (NamedOperationDetail detail : namedOpDetails) {
+            if (detail.getOperationName().equals(operation.getOperationName())) {
+                return getResponseDeserialiserFor(detail.getOperationChainWithDefaultParams().getOutputTypeReference());
+            }
+        }
+        return getResponseDeserialiserFor(operation.getOutputTypeReference());
+    }
+
     @Override
     public Set<Class<? extends Operation>> getSupportedOperations() {
         final HashSet<Class<? extends Operation>> allSupportedOperations = new HashSet<>();
@@ -221,7 +234,13 @@ public class ProxyStore extends Store {
 
         final URL url = getProperties().getGafferUrl("graph/operations/execute");
         try {
-            final ResponseDeserialiser<O> responseDeserialiser = getResponseDeserialiserFor(opChain.getOutputTypeReference());
+            final ResponseDeserialiser<O> responseDeserialiser;
+            final Operation lastOp = opChain.getOperations().get(opChain.getOperations().size() - 1);
+            if (lastOp instanceof NamedOperation) {
+                responseDeserialiser = getResponseDeserialiserForNamedOperation((NamedOperation) lastOp, context);
+            } else {
+                responseDeserialiser = getResponseDeserialiserFor(opChain.getOutputTypeReference());
+            }
             return doPost(url, opChainJson, responseDeserialiser, context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
