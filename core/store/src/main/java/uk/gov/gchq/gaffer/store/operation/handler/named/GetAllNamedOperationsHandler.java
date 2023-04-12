@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.collections4.CollectionUtils;
 
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
@@ -41,12 +44,18 @@ public class GetAllNamedOperationsHandler
         implements OutputOperationHandler<GetAllNamedOperations, Iterable<NamedOperationDetail>> {
     private final NamedOperationCache cache;
 
-    public GetAllNamedOperationsHandler(final String suffixCacheName) {
+    @JsonCreator
+    public GetAllNamedOperationsHandler(@JsonProperty("suffixCacheName") final String suffixCacheName) {
         this(new NamedOperationCache(suffixCacheName));
     }
 
     public GetAllNamedOperationsHandler(final NamedOperationCache cache) {
         this.cache = cache;
+    }
+
+    @JsonGetter("suffixCacheName")
+    public String getSuffixCacheName() {
+        return cache.getSuffixCacheName();
     }
 
     /**

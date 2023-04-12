@@ -46,6 +46,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.handler.GenerateSplitPointsFro
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsPairsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
@@ -57,13 +58,13 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SampleDataForSpli
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitStoreFromIterableHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSetsPairs;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
@@ -102,7 +103,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -263,9 +264,9 @@ public class AccumuloStore extends Store {
             // Add keypackage, schema and view to conf
             conf.set(ElementInputFormat.KEY_PACKAGE, getProperties().getKeyPackageClass());
             LOGGER.info("Updating configuration with key package of {}", getProperties().getKeyPackageClass());
-            conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), CommonConstants.UTF_8));
+            conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), StandardCharsets.UTF_8));
             LOGGER.debug("Updating configuration with Schema of {}", getSchema());
-            conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
+            conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), StandardCharsets.UTF_8));
             LOGGER.debug("Updating configuration with View of {}", view);
 
             if (view.hasGroups()) {
@@ -301,7 +302,7 @@ public class AccumuloStore extends Store {
                     LOGGER.info("Added edge direction filter iterator of {}", edgeEntityDirFilter);
                 }
             }
-        } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
+        } catch (final AccumuloSecurityException | IteratorSettingException e) {
             throw new StoreException(e);
         }
     }
@@ -366,6 +367,7 @@ public class AccumuloStore extends Store {
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
         addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
+        addOperationHandler(GetElementsBetweenSetsPairs.class, new GetElementsBetweenSetsPairsHandler());
         addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
         addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
         addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "input", "inputB", "view"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Gets edges that exist between 2 sets and entities in the first set")
+@Deprecated
 public class GetElementsBetweenSets implements
         InputOutput<Iterable<? extends EntityId>, Iterable<? extends Element>>,
         MultiEntityIdInput,

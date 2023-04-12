@@ -16,6 +16,10 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
@@ -31,12 +35,18 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 public class GetAllNamedViewsHandler implements OutputOperationHandler<GetAllNamedViews, Iterable<NamedViewDetail>> {
     private final NamedViewCache cache;
 
-    public GetAllNamedViewsHandler(final String suffixCacheName) {
+    @JsonCreator
+    public GetAllNamedViewsHandler(@JsonProperty("suffixCacheName") final String suffixCacheName) {
         this(new NamedViewCache(suffixCacheName));
     }
 
     public GetAllNamedViewsHandler(final NamedViewCache cache) {
         this.cache = cache;
+    }
+
+    @JsonGetter("suffixCacheName")
+    public String getSuffixCacheName() {
+        return cache.getSuffixCacheName();
     }
 
     /**

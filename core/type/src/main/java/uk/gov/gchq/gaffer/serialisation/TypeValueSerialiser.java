@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.serialisation;
 
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A {@code TypeValueSerialiser} is used to serialise and deserialise {@link TypeValue}
@@ -47,7 +47,7 @@ public class TypeValueSerialiser implements ToBytesSerialiser<TypeValue> {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         if (null != type) {
             try {
-                out.write(ByteArrayEscapeUtils.escape(type.getBytes(CommonConstants.UTF_8)));
+                out.write(ByteArrayEscapeUtils.escape(type.getBytes(StandardCharsets.UTF_8)));
             } catch (final IOException e) {
                 throw new SerialisationException("Failed to serialise the Type from TypeValue Object", e);
             }
@@ -55,7 +55,7 @@ public class TypeValueSerialiser implements ToBytesSerialiser<TypeValue> {
         out.write(ByteArrayEscapeUtils.DELIMITER);
         if (null != value) {
             try {
-                out.write(ByteArrayEscapeUtils.escape(value.getBytes(CommonConstants.UTF_8)));
+                out.write(ByteArrayEscapeUtils.escape(value.getBytes(StandardCharsets.UTF_8)));
             } catch (final IOException e) {
                 throw new SerialisationException("Failed to serialise the Value from TypeValue Object", e);
             }
@@ -70,22 +70,14 @@ public class TypeValueSerialiser implements ToBytesSerialiser<TypeValue> {
         for (int i = 0; i < bytes.length; i++) {
             if (bytes[i] == ByteArrayEscapeUtils.DELIMITER) {
                 if (i > 0) {
-                    try {
-                        typeValue.setType(new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, i), CommonConstants.UTF_8));
-                    } catch (final UnsupportedEncodingException e) {
-                        throw new SerialisationException("Failed to deserialise the Type from TypeValue Object", e);
-                    }
+                    typeValue.setType(new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, i), StandardCharsets.UTF_8));
                 }
                 lastDelimiter = i + 1;
                 break;
             }
         }
         if (bytes.length > lastDelimiter) {
-            try {
-                typeValue.setValue(new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, bytes.length), CommonConstants.UTF_8));
-            } catch (final UnsupportedEncodingException e) {
-                throw new SerialisationException("Failed to deserialise the Value from TypeValue Object", e);
-            }
+            typeValue.setValue(new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, bytes.length), StandardCharsets.UTF_8));
         }
         return typeValue;
     }

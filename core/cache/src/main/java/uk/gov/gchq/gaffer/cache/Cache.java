@@ -47,8 +47,8 @@ public class Cache<K, V> {
     }
 
     protected void addToCache(final K key, final V value, final boolean overwrite) throws CacheOperationException {
-        final ICacheService service = CacheServiceLoader.getService();
         try {
+            final ICacheService service = CacheServiceLoader.getService();
             if (overwrite) {
                 service.putInCache(getCacheName(), key, value);
             } else {
@@ -106,6 +106,11 @@ public class Cache<K, V> {
         } else {
             return null;
         }
+    }
+
+    public String getSuffixCacheNameWithPrefix(final String prefixCacheServiceName) {
+        return getCacheName().equals(prefixCacheServiceName) ? null :
+                getCacheName().replace(prefixCacheServiceName + "_", "");
     }
 
     public static String getCacheNameFrom(final String prefixCacheServiceName, final String suffixCacheName) {

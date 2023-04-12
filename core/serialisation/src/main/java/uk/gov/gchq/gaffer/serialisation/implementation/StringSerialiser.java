@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * A {@code StringSerialiser} is used to serialise {@link String}s.
@@ -27,7 +29,7 @@ public class StringSerialiser extends ToBytesViaStringDeserialiser<String> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     public StringSerialiser() {
-        super(CommonConstants.UTF_8);
+        super(StandardCharsets.UTF_8.name());
     }
 
     @Override
