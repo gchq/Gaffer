@@ -157,7 +157,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         distribution: 'zulu'
-        java-version: '8'
+        java-version: '11'
 
     - name: Set version
       run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }} | cut -c 2-)" >> $GITHUB_ENV
@@ -167,9 +167,12 @@ jobs:
         git remote set-branches --add origin gh-pages
         git pull
         mvn -q clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
-        mvn -q javadoc:javadoc -Pquick
+        rm -rf integration-test/src/main/*
+        mvn -q javadoc:aggregate
         git checkout gh-pages
         rm -rf uk
+        rm -rf jquery
+        rm -rf resources
         mv target/site/apidocs/* .
         git add .
         git commit -a -m "Updated javadoc - $RELEASE_VERSION"
