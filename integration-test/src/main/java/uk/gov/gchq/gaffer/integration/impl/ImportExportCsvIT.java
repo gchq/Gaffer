@@ -39,9 +39,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -49,38 +47,26 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressFBWarnings(value = "DLS_DEAD_LOCAL_STORE", justification = "Intentional part of test")
-public class ImportExportIT extends AbstractStoreIT {
-    private static final String INCOMING_FILE_PATH = "NeptuneEntitiesAndEdgesWithProperties.csv";
-    private Path path;
-    private File outgoingFile;
+public class ImportExportCsvIT extends AbstractStoreIT {
+    private static final String INPUT_FILE_PATH = "NeptuneEntitiesAndEdgesWithProperties.csv";
+    private static final String OUTPUT_FILE_PATH = "outputFile.csv";
+
+    private String absoluteOutputPath;
+
     @TempDir
     Path tempDir;
 
     @Override
-    @SuppressWarnings("PMD.PreserveStackTrace") //Cannot be done in this case
     public void _setup() throws Exception {
-        try {
-            path = tempDir.resolve("outputFile.csv");
-        } catch (final InvalidPathException ipe) {
-            throw new InvalidPathException(ipe.getInput(), "error creating temporary test file in " + this.getClass().getSimpleName());
-        }
-
-        outgoingFile = path.toFile();
+        absoluteOutputPath = tempDir.resolve(OUTPUT_FILE_PATH).toAbsolutePath().toString();
     }
 
     @Test
-    public void shouldImportFromFileThenExportBackOutToDifferentFile() throws OperationException, IOException {
+    public void shouldImportFromFileThenCorrectlyExportToFile() throws OperationException, IOException {
         // Given
-        final List<String> expectedData = Arrays.asList(
-                ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Int,DIRECTED:Boolean",
-                "A,BasicEntity,,,,1,",
-                "B,BasicEntity,,,,2,",
-                ",,BasicEdge,A,B,1,true"
-        );
-
         final OperationChain<Iterable<? extends String>> importExportOpChain = new OperationChain.Builder()
                 .first(new ImportFromLocalFile.Builder()
-                        .filePath(INCOMING_FILE_PATH)
+                        .filePath(INPUT_FILE_PATH)
                         .build())
                 .then(new CsvToElements.Builder()
                         .csvFormat(new NeptuneFormat())
@@ -92,21 +78,28 @@ public class ImportExportIT extends AbstractStoreIT {
                         .csvFormat(new NeptuneFormat())
                         .build())
                 .then(new ExportToLocalFile.Builder()
-                        .filePath(outgoingFile.getAbsolutePath())
+                        .filePath(absoluteOutputPath)
                         .build())
                 .build();
 
         // When
         final Iterable<String> exportedData = (Iterable<String>) graph.execute(importExportOpChain, getUser());
-        Iterable<String> incomingFile = readFile(INCOMING_FILE_PATH);
-        Iterable<String> outgoingFile = readFile(path.toFile().getAbsolutePath());
+        final List<String> expectedData = Arrays.asList(
+            ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Int,DIRECTED:Boolean",
+            "A,BasicEntity,,,,1,",
+            "B,BasicEntity,,,,2,",
+            ",,BasicEdge,A,B,1,true"
+        );
+
+        final Iterable<String> outputFileData = readFile(absoluteOutputPath);
+        final Iterable<String> inputFileData = readFile(INPUT_FILE_PATH);
 
         // Then
         assertThat(exportedData).containsExactlyInAnyOrderElementsOf(expectedData);
-        assertThat(outgoingFile).containsExactlyInAnyOrderElementsOf(incomingFile);
+        assertThat(outputFileData).containsExactlyInAnyOrderElementsOf(inputFileData);
     }
 
-    public Iterable<String> readFile(final String filePath) throws OperationException {
+    private Iterable<String> readFile(final String filePath) throws OperationException {
         final OperationChain<Iterable<String>> importOpChain = new OperationChain.Builder()
                 .first(new ImportFromLocalFile.Builder()
                         .filePath(filePath)
