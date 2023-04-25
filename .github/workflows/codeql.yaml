@@ -8,7 +8,8 @@ on:
     branches:
       - 'release/**'
       - 'hotfix/**'
-      - 'alpha-release/**'
+      - develop
+      - master
 
 jobs:
   analyse:
