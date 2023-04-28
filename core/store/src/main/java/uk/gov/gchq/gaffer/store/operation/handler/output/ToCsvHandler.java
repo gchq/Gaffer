@@ -73,15 +73,19 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
         LinkedHashMap<String, String> propertyHeadersFromSchema = new LinkedHashMap<>();
         for (final SchemaEntityDefinition schemaEntityDefinition : schema.getEntities().values()) {
             for (final String propertyName:schemaEntityDefinition.getProperties()) {
-                String typeName = schemaEntityDefinition.getPropertyTypeName(propertyName);
-                propertyHeadersFromSchema.put(propertyName, schema.getType(typeName).getClazz().getSimpleName());
+                final String typeName = schemaEntityDefinition.getPropertyTypeName(propertyName);
+                final String javaType = schema.getType(typeName).getClazz().getSimpleName();
+                final String openCypherType = TYPE_MAPPINGS.getOrDefault(javaType, javaType);
+                propertyHeadersFromSchema.put(propertyName, openCypherType);
             }
         }
         for (final SchemaEdgeDefinition schemaEdgeDefinition : schema.getEdges().values()) {
             for (final IdentifierType identifierType : schemaEdgeDefinition.getIdentifiers()) {
                 if (identifierType.equals(DIRECTED)) {
                     final String typeName = schemaEdgeDefinition.getIdentifierTypeName(identifierType);
-                    propertyHeadersFromSchema.put(identifierType.toString(), schema.getType(typeName).getClazz().getSimpleName());
+                    final String javaType = schema.getType(typeName).getClazz().getSimpleName();
+                    final String openCypherType = TYPE_MAPPINGS.getOrDefault(javaType, javaType);
+                    propertyHeadersFromSchema.put(identifierType.toString(), openCypherType);
                 }
             }
             for (final String propertyName : schemaEdgeDefinition.getProperties()) {
