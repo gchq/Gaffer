@@ -27,8 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Generates a Neo4j CSV string for each {@link Element}, based on the fields and constants provided.
- * <p>
+ * Generates a Neo4j CSV string for each Element, based on the fields and constants provided.
  */
 @Since("2.0.0")
 @Summary("Generates a Neo4j compatible CSV string for each element")

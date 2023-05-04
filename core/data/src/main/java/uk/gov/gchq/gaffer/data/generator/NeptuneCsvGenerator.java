@@ -23,8 +23,7 @@ import uk.gov.gchq.koryphe.Summary;
 import java.util.LinkedHashMap;
 
 /**
- * Generates a Neptune CSV string for each {@link Element}, based on the fields and constants provided.
- * <p>
+ * Generates a Neptune CSV string for each Element, based on the fields and constants provided.
  */
 @Since("2.0.0")
 @Summary("Generates a Neptune compatible CSV string for each element")
