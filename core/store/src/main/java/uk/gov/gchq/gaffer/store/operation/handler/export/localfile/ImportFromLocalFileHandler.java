@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportHandler;
  */
 public class ImportFromLocalFileHandler extends GetExportHandler<ImportFromLocalFile, LocalFileExporter> {
     @Override
-    protected Iterable<?> getExport(final ImportFromLocalFile import, final LocalFileExporter exporter) throws OperationException {
-        return exporter.get(import.getKeyOrDefault());
+    protected Iterable<?> getExport(final ImportFromLocalFile importOp, final LocalFileExporter exporter) throws OperationException {
+        return exporter.get(importOp.getKeyOrDefault());
     }
 
     @Override
@@ -40,7 +40,7 @@ public class ImportFromLocalFileHandler extends GetExportHandler<ImportFromLocal
     }
 
     @Override
-    public LocalFileExporter createExporter(final ImportFromLocalFile import, final Context context, final Store store) {
+    public LocalFileExporter createExporter(final ImportFromLocalFile importOp, final Context context, final Store store) {
         return new LocalFileExporter();
     }
 }
