@@ -23,14 +23,15 @@ import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.data.generator.NeptuneFormat;
+import uk.gov.gchq.gaffer.data.generator.NeptuneCsvElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.NeptuneCsvGenerator;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.add.CsvToElements;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.ImportFromLocalFile;
+import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -68,14 +69,14 @@ public class ImportExportCsvIT extends AbstractStoreIT {
                 .first(new ImportFromLocalFile.Builder()
                         .filePath(INPUT_FILE_PATH)
                         .build())
-                .then(new CsvToElements.Builder()
-                        .csvFormat(new NeptuneFormat())
+                .then(new GenerateElements.Builder<String>()
+                        .generator(new NeptuneCsvElementGenerator())
                         .build())
                 .then(new AddElements.Builder()
                         .build())
                 .then(new GetAllElements())
                 .then(new ToCsv.Builder()
-                        .csvFormat(new NeptuneFormat())
+                        .generator(new NeptuneCsvGenerator())
                         .build())
                 .then(new ExportToLocalFile.Builder()
                         .filePath(absoluteOutputPath)

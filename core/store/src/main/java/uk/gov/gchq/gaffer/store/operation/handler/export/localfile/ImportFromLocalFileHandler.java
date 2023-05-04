@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportHandler;
  */
 public class ImportFromLocalFileHandler extends GetExportHandler<ImportFromLocalFile, LocalFileExporter> {
     @Override
-    protected Iterable<?> getExport(final ImportFromLocalFile imprt, final LocalFileExporter exporter) throws OperationException {
-        return exporter.get(imprt.getKeyOrDefault());
+    protected Iterable<?> getExport(final ImportFromLocalFile import, final LocalFileExporter exporter) throws OperationException {
+        return exporter.get(import.getKeyOrDefault());
     }
 
     @Override
@@ -40,7 +40,7 @@ public class ImportFromLocalFileHandler extends GetExportHandler<ImportFromLocal
     }
 
     @Override
-    public LocalFileExporter createExporter(final ImportFromLocalFile imprt, final Context context, final Store store) {
+    public LocalFileExporter createExporter(final ImportFromLocalFile import, final Context context, final Store store) {
         return new LocalFileExporter();
     }
 }

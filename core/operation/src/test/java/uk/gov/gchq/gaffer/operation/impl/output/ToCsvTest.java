@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
-import uk.gov.gchq.gaffer.data.generator.Neo4jFormat;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -54,11 +52,9 @@ public class ToCsvTest extends OperationTest<ToCsv> {
     public void builderShouldCreatePopulatedOperation() {
         // Given
         final Entity input = new Entity(TestGroups.ENTITY);
-        final CsvFormat csvFormat = new Neo4jFormat();
         final CsvGenerator generator = new CsvGenerator.Builder().group("group").build();
         final ToCsv toCsv = new ToCsv.Builder()
                 .generator(generator)
-                .csvFormat(csvFormat)
                 .input(input)
                 .includeHeader(false)
                 .build();
@@ -68,7 +64,6 @@ public class ToCsvTest extends OperationTest<ToCsv> {
                 .hasSize(1);
         assertFalse(toCsv.isIncludeHeader());
         assertEquals(generator, toCsv.getElementGenerator());
-        assertEquals(csvFormat, toCsv.getCsvFormat());
     }
 
     @Test
@@ -76,11 +71,9 @@ public class ToCsvTest extends OperationTest<ToCsv> {
     public void shouldShallowCloneOperation() {
         // Given
         final Entity input = new Entity(TestGroups.ENTITY);
-        final CsvFormat csvFormat = new Neo4jFormat();
         final CsvGenerator generator = new CsvGenerator.Builder().group("group").build();
         final ToCsv toCsv = new ToCsv.Builder()
                 .generator(generator)
-                .csvFormat(csvFormat)
                 .input(input)
                 .includeHeader(false)
                 .build();
@@ -92,7 +85,6 @@ public class ToCsvTest extends OperationTest<ToCsv> {
         assertNotSame(toCsv, clone);
         assertThat(clone.getInput().iterator().next()).isEqualTo(input);
         assertEquals(generator, clone.getElementGenerator());
-        assertEquals(csvFormat, clone.getCsvFormat());
         assertFalse(clone.isIncludeHeader());
     }
     @Test

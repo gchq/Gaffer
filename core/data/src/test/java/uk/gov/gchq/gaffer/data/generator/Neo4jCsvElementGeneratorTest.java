@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,16 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+public class Neo4jCsvElementGeneratorTest extends OpenCypherCsvElementGeneratorTest<Neo4jCsvElementGenerator> {
+    protected Neo4jCsvElementGenerator getGenerator(final boolean trim, final char delimiter, final String nullString) {
+        final Neo4jCsvElementGenerator generator = new Neo4jCsvElementGenerator();
+        generator.setTrim(trim);
+        generator.setDelimiter(delimiter);
+        generator.setNullString(nullString);
+        return generator;
+    }
 
-public class Neo4jFormat extends OpenCypherFormat {
-
-    @JsonIgnore
-    @Override
-    public String getVertex() {
-        return "_id";
-    }
-    @JsonIgnore
-    @Override
-    public String getEntityGroup() {
-        return "_labels";
-    }
-    @JsonIgnore
-    @Override
-    public String getEdgeGroup() {
-        return "_type";
-    }
-    @JsonIgnore
-    @Override
-    public String getSource() {
-        return "_start";
-    }
-    @JsonIgnore
-    @Override
-    public String getDestination() {
-        return "_end";
+    protected String getResourcePath() {
+        return "Neo4j";
     }
 }
-

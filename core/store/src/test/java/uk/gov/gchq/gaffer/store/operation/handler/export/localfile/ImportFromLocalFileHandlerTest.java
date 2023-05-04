@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.handler.imprt.localfile;
+package uk.gov.gchq.gaffer.store.operation.handler.export.localfile;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +42,7 @@ class ImportFromLocalFileHandlerTest {
     @Test
     public void shouldGetInputData() throws IOException, OperationException {
         // Given
-        List<String> expectedData = Arrays.asList(
+        final List<String> expectedData = Arrays.asList(
                 ":ID,:LABEL,:START_ID,:END_ID,:TYPE",
                 "v1,person,,,",
                 "v2,software,,,",
@@ -55,10 +55,10 @@ class ImportFromLocalFileHandlerTest {
         final Context context = new Context();
         context.addExporter(new LocalFileExporter());
 
-        ImportFromLocalFileHandler handler = new ImportFromLocalFileHandler();
+        final ImportFromLocalFileHandler handler = new ImportFromLocalFileHandler();
 
         // When
-        Object dataFromFile =  handler.doOperation(importFromLocalFile, context, null);
+        final Object dataFromFile =  handler.doOperation(importFromLocalFile, context, null);
 
         // Then
         assertThat(dataFromFile)
