@@ -28,7 +28,7 @@ import java.util.LinkedHashMap;
 @Since("2.0.0")
 @Summary("Generates a Neptune compatible CSV string for each element")
 public class NeptuneCsvGenerator extends Neo4jCsvGenerator {
-    protected LinkedHashMap<String, String> neptuneFields = getIncludeDefaultFields() ? getDefaultFields() : new LinkedHashMap<>();
+    private LinkedHashMap<String, String> neptuneFields = getIncludeDefaultFields() ? getDefaultFields() : new LinkedHashMap<>();
 
     @Override
     public boolean getIncludeDefaultFields() {

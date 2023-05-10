@@ -54,13 +54,13 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
     /**
      * When set to true, fields will be set to {@link #getDefaultFields()}.
      */
-    protected boolean includeDefaultFields = false;
+    private boolean includeDefaultFields = false;
 
     /**
      * Map of fields that define what is included in the csv.
      * Key is the IdentifierType or property and value is the associated header.
      */
-    protected LinkedHashMap<String, String> fields = getIncludeDefaultFields() ? getDefaultFields() : new LinkedHashMap<>();
+    private LinkedHashMap<String, String> fields = getIncludeDefaultFields() ? getDefaultFields() : new LinkedHashMap<>();
 
     private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
 
@@ -68,7 +68,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
      * When set to true, schema properties can get added to fields.
      * This is used by the ToCsvHandler to add all of the properties in the Schema to fields.
      */
-    protected boolean includeSchemaProperties = false;
+    private boolean includeSchemaProperties = false;
 
     /**
      * When set to true, each value in the csv will be wrapped in quotes.

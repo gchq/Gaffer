@@ -43,8 +43,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * This is an abstract base class for {@link ElementGenerator}s that will generate
+ * Gaffer {@link Element}s from OpenCypher-like CSV strings.
+ * The main use case for this is to generate elements when importing csv files.
+ * Example implementations are Neo4jCsvElementGenerator and NeptuneCsvElementGenerator.
+ */
 @Since("2.0.0")
-@Summary("Generates elements from an OpenCypher CSV")
+@Summary("Base class for generating elements from an OpenCypher CSV")
 public abstract class OpenCypherCsvElementGenerator implements ElementGenerator<String> {
     private int firstRow = 1;
     private Boolean trim = false;

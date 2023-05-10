@@ -21,6 +21,10 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.LinkedHashMap;
 
+/**
+ * An {@link OpenCypherCsvElementGenerator}s that will generate
+ * Gaffer {@link Element}s from Neptune CSV strings.
+ */
 @Since("2.0.0")
 @Summary("Generates elements from a Neptune CSV")
 public class NeptuneCsvElementGenerator extends OpenCypherCsvElementGenerator {
