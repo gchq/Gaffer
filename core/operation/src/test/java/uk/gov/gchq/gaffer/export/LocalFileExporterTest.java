@@ -39,11 +39,8 @@ public class LocalFileExporterTest {
     public static final ArrayList<String> INPUT = Lists.newArrayList("header", "line1", "line2");
     private File file;
 
-    @TempDir
-    Path tempDir;
-
     @BeforeEach
-    public void setUp() {
+    public void setUp(@TempDir Path tempDir) {
         file = tempDir.resolve("testfile.csv").toFile();
     }
 
