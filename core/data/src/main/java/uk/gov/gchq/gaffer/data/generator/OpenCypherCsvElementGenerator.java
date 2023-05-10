@@ -51,7 +51,7 @@ public abstract class OpenCypherCsvElementGenerator implements ElementGenerator<
     private char delimiter = ',';
     private String nullString = "";
 
-    // Map of Indentifier name to header value
+    // Map of Identifier name to header value
     protected LinkedHashMap<String, String> fields = getFields();
 
     protected abstract LinkedHashMap<String, String> getFields();
