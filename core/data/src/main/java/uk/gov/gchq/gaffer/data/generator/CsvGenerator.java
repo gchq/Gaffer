@@ -47,7 +47,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
     protected static final String ENTITY_GROUP = "ENTITY_GROUP";
     protected static final String EDGE_GROUP = "EDGE_GROUP";
 
-    public static final String COMMA = ",";
+    private static final String COMMA = ",";
     private static final Pattern COMMA_PATTERN = Pattern.compile(COMMA);
     private static final String COMMA_REPLACEMENT_DEFAULT = " ";
 
