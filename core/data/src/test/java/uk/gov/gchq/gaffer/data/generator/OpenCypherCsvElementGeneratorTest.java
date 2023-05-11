@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,58 +31,42 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class CsvElementGeneratorTest {
+public abstract class OpenCypherCsvElementGeneratorTest<T extends OpenCypherCsvElementGenerator> {
+    protected abstract T getGenerator(final boolean trim, final char delimiter, final String nullString);
 
-    NeptuneFormat neptuneFormat = new NeptuneFormat();
-    Neo4jFormat neo4jFormat = new Neo4jFormat();
+    protected abstract String getResourcePath();
+
+    private T getGenerator() {
+        return getGenerator(true, ',', "");
+    }
+
     private Iterable<String> getInputData(String filename) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/openCypherCSVs/" + filename)))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/openCypherCSVs/" + getResourcePath() + filename)))) {
             return reader.lines().collect(Collectors.toList());
         }
     }
 
-    private CsvElementGenerator getGenerator(Iterable<String> lines, boolean trim, char delimiter, String nullString, CsvFormat csvFormat) {
-        String header = lines.iterator().next();
-        CsvElementGenerator generator = new CsvElementGenerator.Builder()
-                .header(header)
-                .delimiter(delimiter)
-                .trim(trim)
-                .nullString(nullString)
-                .csvFormat(csvFormat)
-                .build();
-        return generator;
-    }
-
-    private CsvElementGenerator getGenerator(Iterable<String> lines) {
-        return getGenerator(lines, true, ',', "", neptuneFormat);
-    }
-
     @Test
-    void shouldBuildGenerator() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("NeptuneBasicEntities.csv");
+    private void shouldBuildGenerator() throws IOException {
+        // Given
+        final T generator = getGenerator();
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines);
-
-        //Then
+        // When / Then
         assertThat(generator.getDelimiter()).isEqualTo(',');
         assertThat(generator.getNullString()).isEqualTo("");
         assertThat(generator.getTrim()).isEqualTo(true);
-        assertThat(generator.getHeader()).isEqualTo(":ID,:LABEL");
-        assertThat(generator.getCsvFormat()).isEqualTo(neptuneFormat);
     }
 
     @Test
-    void shouldGenerateBasicEntity() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("NeptuneBasicEntities.csv");
+    private void shouldGenerateBasicEntity() throws IOException {
+        // Given
+        final Iterable<String> lines = getInputData("BasicEntities.csv");
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines);
-        Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
+        // When
+        final T generator = getGenerator();
+        final Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
-        //Then
+        // Then
         assertThat(elements).containsExactly(
                 new Entity("person", "v1"),
                 new Entity("software", "v2")
@@ -90,30 +74,30 @@ public class CsvElementGeneratorTest {
     }
 
     @Test
-    void shouldGenerateBasicEdge() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("NeptuneBasicEdge.csv");
+    private void shouldGenerateBasicEdge() throws IOException {
+        // Given
+        final Iterable<String> lines = getInputData("BasicEdge.csv");
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines);
+        // When
+        final T generator = getGenerator();
         Iterable<Edge> edge = (Iterable<Edge>) generator.apply(lines);
 
-        //Then
+        // Then
         assertThat(edge).containsExactly(
                 new Edge("created", "v1", "v2", true)
         );
     }
 
     @Test
-    void shouldGenerateBasicEntityFromPipeDelimitedCsv() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("NeptuneBasicEntityPipeDelimited.csv");
+    private void shouldGenerateBasicEntityFromPipeDelimitedCsv() throws IOException {
+        // Given
+        final Iterable<String> lines = getInputData("BasicEntityPipeDelimited.csv");
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines, true, '|', "", neptuneFormat);
-        Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
+        // When
+        final T generator = getGenerator(true, '|', "");
+        final Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
-        //Then
+        // Then
         assertThat(elements).containsExactly(
                 new Entity("person", "v1"),
                 new Entity("software", "v2")
@@ -121,15 +105,15 @@ public class CsvElementGeneratorTest {
     }
 
     @Test
-    void shouldGenerateBasicEntityFromCsvWithWhiteSpacePadding() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("NeptuneBasicEntityPaddingSpaces.csv");
+    private void shouldGenerateBasicEntityFromCsvWithWhiteSpacePadding() throws IOException {
+        // Given
+        final Iterable<String> lines = getInputData("BasicEntityPaddingSpaces.csv");
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines);
-        Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
+        // When
+        final T generator = getGenerator();
+        final Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
-        //Then
+        // Then
         assertThat(elements).containsExactly(
                 new Entity("person", "v1"),
                 new Entity("software", "v2")
@@ -137,15 +121,15 @@ public class CsvElementGeneratorTest {
     }
 
     @Test
-    void shouldGenerateEdgeWithID() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("NeptuneEdgeWithID.csv");
+    private void shouldGenerateEdgeWithID() throws IOException {
+        // Given
+        final Iterable<String> lines = getInputData("EdgeWithID.csv");
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines);
+        // When
+        final T generator = getGenerator();
         Iterable<Edge> edge = (Iterable<Edge>) generator.apply(lines);
 
-        //Then
+        // Then
         assertThat(edge).containsExactly(
                 new Edge.Builder()
                         .group("created")
@@ -158,15 +142,15 @@ public class CsvElementGeneratorTest {
     }
 
     @Test
-    void shouldGenerateBasicEntityFromCsvWithValuesSurroundedByDoubleQuotes() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("NeptuneBasicEntityQuotedValues.csv");
+    private void shouldGenerateBasicEntityFromCsvWithValuesSurroundedByDoubleQuotes() throws IOException {
+        // Given
+        final Iterable<String> lines = getInputData("BasicEntityQuotedValues.csv");
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines);
-        Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
+        // When
+        final T generator = getGenerator();
+        final Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
-        //Then
+        // Then
         assertThat(elements).containsExactly(
                 new Entity("person", "v1"),
                 new Entity("software", "v2")
@@ -174,15 +158,15 @@ public class CsvElementGeneratorTest {
     }
 
     @Test
-    void shouldGenerateBasicEntitiesAndEdgesCsv() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("NeptuneBasicEntitiesAndEdges.csv");
+    private void shouldGenerateBasicEntitiesAndEdgesCsv() throws IOException {
+        // Given
+        final Iterable<String> lines = getInputData("BasicEntitiesAndEdges.csv");
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines);
-        Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
+        // When
+        final T generator = getGenerator();
+        final Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
-        //Then
+        // Then
         assertThat(elements).containsExactly(
                 new Entity("person", "v1"),
                 new Entity("software", "v2"),
@@ -197,15 +181,15 @@ public class CsvElementGeneratorTest {
     }
 
     @Test
-    void shouldGenerateEntityWithPropertiesNoTypes() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("NeptuneEntityWithPropertiesNoTypes.csv");
+    private void shouldGenerateEntityWithPropertiesNoTypes() throws IOException {
+        // Given
+        final Iterable<String> lines = getInputData("EntityWithPropertiesNoTypes.csv");
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines);
-        Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
+        // When
+        final T generator = getGenerator();
+        final Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
-        //Then
+        // Then
         assertThat(elements).containsExactly(
                 new Entity.Builder()
                         .group("person")
@@ -226,15 +210,15 @@ public class CsvElementGeneratorTest {
 
 
     @Test
-    void shouldGenerateEntityWithPropertiesWithCorrectTypes() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("NeptuneEntityWithPropertiesOfMultipleTypes.csv");
+    private void shouldGenerateEntityWithPropertiesWithCorrectTypes() throws IOException {
+        // Given
+        final Iterable<String> lines = getInputData("EntityWithPropertiesOfMultipleTypes.csv");
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines);
-        Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
+        // When
+        final T generator = getGenerator();
+        final Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
-        //Then
+        // Then
         assertThat(elements).containsExactly(
                 new Entity.Builder()
                         .group("person")
@@ -259,15 +243,15 @@ public class CsvElementGeneratorTest {
     }
 
     @Test
-    void shouldGenerateEdgeWithPropertiesWithCorrectTypes() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("NeptuneEdgeWithPropertiesOfMultipleTypes.csv");
+    private void shouldGenerateEdgeWithPropertiesWithCorrectTypes() throws IOException {
+        // Given
+        final Iterable<String> lines = getInputData("EdgeWithPropertiesOfMultipleTypes.csv");
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines);
+        // When
+        final T generator = getGenerator();
         Iterable<Edge> edge = (Iterable<Edge>) generator.apply(lines);
 
-        //Then
+        // Then
         assertThat(edge).containsExactly(
                 new Edge.Builder()
                         .group("created")
@@ -294,15 +278,15 @@ public class CsvElementGeneratorTest {
     }
 
     @Test
-    void shouldGenerateBasicEntitesAndEdgesCsvFromNeo4jExport() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("Neo4jBasicEntitiesAndEdge.csv");
+    private void shouldGenerateBasicEntitesAndEdgesCsvFromNeo4jExport() throws IOException {
+        // Given
+        final Iterable<String> lines = getInputData("Neo4jBasicEntitiesAndEdge.csv");
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines, true, ',', "", neo4jFormat);
-        Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
+        // When
+        final T generator = getGenerator(true, ',', "");
+        final Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
-        //Then
+        // Then
         assertThat(elements).containsExactly(
                 new Entity("person", "v1"),
                 new Entity("software", "v2"),
@@ -315,15 +299,16 @@ public class CsvElementGeneratorTest {
                         .build()
         );
     }
+
     @Test
-    void shouldThrowErrorUnsupportedHeaderType() throws IOException {
-        //Given
-        Iterable<String> lines = getInputData("NeptuneEntityWithPropertyWithUnsupportedType.csv");
+    private void shouldThrowErrorUnsupportedHeaderType() throws IOException {
+        // Given
+        final Iterable<String> lines = getInputData("EntityWithPropertyWithUnsupportedType.csv");
 
-        //When
-        CsvElementGenerator generator = getGenerator(lines);
+        // When
+        final T generator = getGenerator();
 
-        //Then
+        // Then
         assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(()-> generator.apply(lines))
                 .withMessage("Unsupported Type: Array");

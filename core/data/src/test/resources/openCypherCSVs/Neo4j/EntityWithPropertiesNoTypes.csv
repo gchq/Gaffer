@@ -1,0 +1,3 @@
+_id,name,age,lang,_labels
+v1,marko,29,,person
+v2,lop,,java,software

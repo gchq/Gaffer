@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,16 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-public class NeptuneFormat extends OpenCypherFormat {
-
-    @Override
-    @JsonIgnore
-    public String getVertex() {
-        return ":ID";
+public class NeptuneCsvElementGeneratorTest extends OpenCypherCsvElementGeneratorTest<NeptuneCsvElementGenerator> {
+    protected NeptuneCsvElementGenerator getGenerator(final boolean trim, final char delimiter, final String nullString) {
+        final NeptuneCsvElementGenerator generator = new NeptuneCsvElementGenerator();
+        generator.setTrim(trim);
+        generator.setDelimiter(delimiter);
+        generator.setNullString(nullString);
+        return generator;
     }
 
-    @Override
-    @JsonIgnore
-    public String getEntityGroup() {
-        return ":LABEL";
-    }
-
-    @Override
-    @JsonIgnore
-    public String getEdgeGroup() {
-        return ":TYPE";
-    }
-
-    @Override
-    @JsonIgnore
-    public String getSource() {
-        return ":START_ID";
-    }
-
-    @Override
-    @JsonIgnore
-    public String getDestination() {
-        return ":END_ID";
+    protected String getResourcePath() {
+        return "Neptune";
     }
 }

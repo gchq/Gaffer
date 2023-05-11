@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -50,9 +49,6 @@ public class ToCsv implements
     private boolean includeHeader = true;
     private Map<String, String> options;
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
-    private CsvFormat csvFormat;
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public CsvGenerator getElementGenerator() {
         return elementGenerator;
@@ -80,14 +76,6 @@ public class ToCsv implements
         this.includeHeader = includeHeader;
     }
 
-    public CsvFormat getCsvFormat() {
-        return csvFormat;
-    }
-
-    public void setCsvFormat(final CsvFormat csvFormat) {
-        this.csvFormat = csvFormat;
-    }
-
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableString();
@@ -97,7 +85,6 @@ public class ToCsv implements
     public ToCsv shallowClone() {
         return new ToCsv.Builder()
                 .generator(elementGenerator)
-                .csvFormat(csvFormat)
                 .input(input)
                 .includeHeader(includeHeader)
                 .options(options)
@@ -132,11 +119,6 @@ public class ToCsv implements
 
         public ToCsv.Builder includeHeader(final boolean includeHeader) {
             _getOp().setIncludeHeader(includeHeader);
-            return _self();
-        }
-
-        public ToCsv.Builder csvFormat(final CsvFormat csvFormat) {
-            _getOp().setCsvFormat(csvFormat);
             return _self();
         }
     }

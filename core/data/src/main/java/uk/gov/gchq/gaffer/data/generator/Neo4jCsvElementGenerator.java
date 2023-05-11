@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,20 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
-public class Neo4jFormat extends OpenCypherFormat {
+import java.util.LinkedHashMap;
 
-    @JsonIgnore
+/**
+ * An {@link OpenCypherCsvElementGenerator}s that will generate
+ * Gaffer Elements from Neo4j CSV strings.
+ */
+@Since("2.0.0")
+@Summary("Generates elements from a Neo4j CSV")
+public class Neo4jCsvElementGenerator extends OpenCypherCsvElementGenerator {
     @Override
-    public String getVertex() {
-        return "_id";
-    }
-    @JsonIgnore
-    @Override
-    public String getEntityGroup() {
-        return "_labels";
-    }
-    @JsonIgnore
-    @Override
-    public String getEdgeGroup() {
-        return "_type";
-    }
-    @JsonIgnore
-    @Override
-    public String getSource() {
-        return "_start";
-    }
-    @JsonIgnore
-    @Override
-    public String getDestination() {
-        return "_end";
+    protected LinkedHashMap<String, String> getFields() {
+        return new Neo4jCsvGenerator().getFields();
     }
 }
-
