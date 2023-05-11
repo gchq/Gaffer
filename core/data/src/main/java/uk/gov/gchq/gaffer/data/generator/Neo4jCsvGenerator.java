@@ -32,7 +32,7 @@ import java.util.Map.Entry;
 @Since("2.0.0")
 @Summary("Generates a Neo4j compatible CSV string for each element")
 public class Neo4jCsvGenerator extends CsvGenerator {
-    private LinkedHashMap<String, String> neo4jFields = getIncludeDefaultFields() ? getDefaultFields() : new LinkedHashMap<>();
+    private final LinkedHashMap<String, String> neo4jFields = getIncludeDefaultFields() ? getDefaultFields() : new LinkedHashMap<>();
 
     @Override
     public boolean getIncludeDefaultFields() {
