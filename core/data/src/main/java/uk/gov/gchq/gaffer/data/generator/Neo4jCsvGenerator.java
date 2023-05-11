@@ -55,11 +55,11 @@ public class Neo4jCsvGenerator extends CsvGenerator {
     @Override
     protected LinkedHashMap<String, String> getDefaultFields() {
         final LinkedHashMap<String, String> defaultFields = new LinkedHashMap<>();
-        defaultFields.put(String.valueOf(IdentifierType.VERTEX), "_id");
+        defaultFields.put(IdentifierType.VERTEX.name(), "_id");
         defaultFields.put(ENTITY_GROUP, "_labels");
         defaultFields.put(EDGE_GROUP, "_type");
-        defaultFields.put(String.valueOf(IdentifierType.SOURCE), "_start");
-        defaultFields.put(String.valueOf(IdentifierType.DESTINATION), "_end");
+        defaultFields.put(IdentifierType.SOURCE.name(), "_start");
+        defaultFields.put(IdentifierType.DESTINATION.name(), "_end");
         return defaultFields;
     }
 

@@ -51,11 +51,11 @@ public class NeptuneCsvGenerator extends Neo4jCsvGenerator {
     @Override
     protected LinkedHashMap<String, String> getDefaultFields() {
         final LinkedHashMap<String, String> defaultFields = new LinkedHashMap<>();
-        defaultFields.put(String.valueOf(IdentifierType.VERTEX), ":ID");
+        defaultFields.put(IdentifierType.VERTEX.name(), ":ID");
         defaultFields.put(ENTITY_GROUP, ":LABEL");
         defaultFields.put(EDGE_GROUP, ":TYPE");
-        defaultFields.put(String.valueOf(IdentifierType.SOURCE), ":START_ID");
-        defaultFields.put(String.valueOf(IdentifierType.DESTINATION), ":END_ID");
+        defaultFields.put(IdentifierType.SOURCE.name(), ":START_ID");
+        defaultFields.put(IdentifierType.DESTINATION.name(), ":END_ID");
         return defaultFields;
     }
 }
