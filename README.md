@@ -45,7 +45,7 @@ Gaffer 2.0 is currently in the alpha phase, see the [v2docs](https://gchq.github
 License
 -------
 
-Gaffer is licensed under the Apache 2 license and is covered by [Crown Copyright](https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/copyright-and-re-use/crown-copyright/).
+Gaffer is licensed under the Apache 2 license and is covered by [Crown Copyright](https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/).
 
 Getting Started
 ---------------
