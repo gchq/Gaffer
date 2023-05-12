@@ -102,7 +102,7 @@
         <dependency.plugin.version>3.2.0</dependency.plugin.version>
         <spotbugs.plugin.version>4.7.3.4</spotbugs.plugin.version>
         <pmd.plugin.version>3.20.0</pmd.plugin.version>
-        <spotless.plugin.version>2.36.0</spotless.plugin.version>
+        <spotless.plugin.version>2.34.0</spotless.plugin.version>
         <war.plugin.version>3.2.3</war.plugin.version>
         <gpg.plugin.version>3.1.0</gpg.plugin.version>
         <install.plugin.version>3.0.0-M1</install.plugin.version>
