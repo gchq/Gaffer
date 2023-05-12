@@ -94,7 +94,7 @@
         <servlet-api.version>3.1.0</servlet-api.version>
         <swagger.version>1.6.6</swagger.version>
         <zookeeper.version>3.4.14</zookeeper.version>
-        <mockserver.version>3.12</mockserver.version>
+        <mockserver.version>3.9.16</mockserver.version>
 
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
