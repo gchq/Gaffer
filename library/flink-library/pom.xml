@@ -18,8 +18,8 @@
     <dependencies>
         <!-- In Java 9+, the JAXB Module is no longer included in the JDK -->
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
             <version>${javax-xml-bind.version}</version>
         </dependency>
 
