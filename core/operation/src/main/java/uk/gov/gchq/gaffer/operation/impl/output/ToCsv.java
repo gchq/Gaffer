@@ -37,25 +37,25 @@ import java.util.Map;
  *
  * @see ToCsv.Builder
  */
-@JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "input", "csvGenerator"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Converts elements to CSV Strings")
 public class ToCsv implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends String>>,
         MultiInput<Element> {
 
-    private CsvGenerator elementGenerator;
+    private CsvGenerator csvGenerator;
     private Iterable<? extends Element> input;
     private boolean includeHeader = true;
     private Map<String, String> options;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public CsvGenerator getElementGenerator() {
-        return elementGenerator;
+    public CsvGenerator getCsvGenerator() {
+        return csvGenerator;
     }
 
-    public void setElementGenerator(final CsvGenerator elementGenerator) {
-        this.elementGenerator = elementGenerator;
+    public void setCsvGenerator(final CsvGenerator csvGenerator) {
+        this.csvGenerator = csvGenerator;
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ToCsv implements
     @Override
     public ToCsv shallowClone() {
         return new ToCsv.Builder()
-                .generator(elementGenerator)
+                .generator(csvGenerator)
                 .input(input)
                 .includeHeader(includeHeader)
                 .options(options)
@@ -109,11 +109,11 @@ public class ToCsv implements
         }
 
         /**
-         * @param generator the {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to set on the operation
+         * @param generator the {@link uk.gov.gchq.gaffer.data.generator.CsvGenerator} to set on the operation
          * @return this Builder
          */
         public ToCsv.Builder generator(final CsvGenerator generator) {
-            _getOp().setElementGenerator(generator);
+            _getOp().setCsvGenerator(generator);
             return _self();
         }
 

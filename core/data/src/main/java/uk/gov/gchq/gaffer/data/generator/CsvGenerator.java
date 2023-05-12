@@ -88,10 +88,10 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
      */
     protected LinkedHashMap<String, String> getDefaultFields() {
         final LinkedHashMap<String, String> defaultFields = new LinkedHashMap<>();
-        defaultFields.put(String.valueOf(IdentifierType.VERTEX), String.valueOf(IdentifierType.VERTEX));
-        defaultFields.put(String.valueOf(IdentifierType.GROUP), String.valueOf(IdentifierType.GROUP));
-        defaultFields.put(String.valueOf(IdentifierType.SOURCE), String.valueOf(IdentifierType.SOURCE));
-        defaultFields.put(String.valueOf(IdentifierType.DESTINATION), String.valueOf(IdentifierType.DESTINATION));
+        defaultFields.put(IdentifierType.VERTEX.name(), IdentifierType.VERTEX.name());
+        defaultFields.put(IdentifierType.GROUP.name(), IdentifierType.GROUP.name());
+        defaultFields.put(IdentifierType.SOURCE.name(), IdentifierType.SOURCE.name());
+        defaultFields.put(IdentifierType.DESTINATION.name(), IdentifierType.DESTINATION.name());
         return defaultFields;
     }
 

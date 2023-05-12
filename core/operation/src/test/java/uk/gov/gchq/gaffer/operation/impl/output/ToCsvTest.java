@@ -63,7 +63,7 @@ public class ToCsvTest extends OperationTest<ToCsv> {
         assertThat(toCsv.getInput())
                 .hasSize(1);
         assertFalse(toCsv.isIncludeHeader());
-        assertEquals(generator, toCsv.getElementGenerator());
+        assertEquals(generator, toCsv.getCsvGenerator());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class ToCsvTest extends OperationTest<ToCsv> {
         // Then
         assertNotSame(toCsv, clone);
         assertThat(clone.getInput().iterator().next()).isEqualTo(input);
-        assertEquals(generator, clone.getElementGenerator());
+        assertEquals(generator, clone.getCsvGenerator());
         assertFalse(clone.isIncludeHeader());
     }
     @Test

@@ -35,7 +35,7 @@ import static uk.gov.gchq.gaffer.data.element.IdentifierType.DIRECTED;
 
 /**
  * A {@code ToCsvHandler} handles {@link ToCsv} operations by applying the provided
- * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to each item in the
+ * {@link uk.gov.gchq.gaffer.data.generator.CsvGenerator} to each item in the
  * input {@link Iterable}.
  */
 public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? extends String>> {
@@ -45,15 +45,15 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
             return null;
         }
 
-        if (null == operation.getElementGenerator()) {
+        if (null == operation.getCsvGenerator()) {
             throw new IllegalArgumentException("ToCsv operation requires a generator");
         }
-        final CsvGenerator elementGenerator = operation.getElementGenerator();
-        elementGenerator.addAdditionalFieldsFromSchemaProperties(getPropertiesFromSchema(store.execute(new GetSchema(), context)));
+        final CsvGenerator csvGenerator = operation.getCsvGenerator();
+        csvGenerator.addAdditionalFieldsFromSchemaProperties(getPropertiesFromSchema(store.execute(new GetSchema(), context)));
 
-        final Iterable<? extends String> csv = elementGenerator.apply(operation.getInput());
+        final Iterable<? extends String> csv = csvGenerator.apply(operation.getInput());
         if (operation.isIncludeHeader()) {
-            return new ChainedIterable<>(Collections.singletonList(elementGenerator.getHeader()), csv);
+            return new ChainedIterable<>(Collections.singletonList(csvGenerator.getHeader()), csv);
         }
 
         return csv;
