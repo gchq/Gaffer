@@ -38,10 +38,6 @@ To get going with Gaffer, visit our [getting started pages](https://gchq.github.
 
 Gaffer is under active development. Version 1.0 of Gaffer was released in October 2017.
 
-Gaffer 2.0 Alpha
----------------
-Gaffer 2.0 is currently in the alpha phase, see the [v2docs](https://gchq.github.io/gaffer-doc/latest/) for a list of changes under development.
-
 License
 -------
 

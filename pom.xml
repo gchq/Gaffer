@@ -1089,7 +1089,7 @@
                 <artifactId>spotless-maven-plugin</artifactId>
                 <version>${spotless.plugin.version}</version>
                 <configuration>
-                    <ratchetFrom>origin/v2-alpha</ratchetFrom>
+                    <ratchetFrom>origin/develop</ratchetFrom>
                     <lineEndings>UNIX</lineEndings>
                     <java>
                         <licenseHeader>
