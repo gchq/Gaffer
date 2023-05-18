@@ -1,21 +1,11 @@
-Copyright 2016-2022 Crown Copyright
+<img align="right" width="300" height="auto" src="logos/logoWithText.png">
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+# Gaffer
 
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-<img src="logos/logoWithText.png" width="300">
-
-Gaffer
-======
+![ci](https://github.com/gchq/Gaffer/actions/workflows/continuous-integration.yaml/badge.svg?branch=develop)
+[![codecov](https://codecov.io/gh/gchq/Gaffer/branch/master/graph/badge.svg?token=vdFm5s0HCR)](https://codecov.io/gh/gchq/Gaffer)
+[<img src="https://img.shields.io/badge/docs-passing-success.svg?logo=readthedocs">](https://gchq.github.io/gaffer-doc/latest/)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/uk.gov.gchq.gaffer/gaffer2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/uk.gov.gchq.gaffer/gaffer2)
 
 Gaffer is a graph database framework. It allows the storage of very large graphs containing rich properties on the nodes and edges. Several storage options are available, including Accumulo and an in-memory Java Map Store.
 
@@ -38,13 +28,7 @@ To get going with Gaffer, visit our [getting started pages](https://gchq.github.
 
 Gaffer is under active development. Version 1.0 of Gaffer was released in October 2017.
 
-License
--------
-
-Gaffer is licensed under the Apache 2 license and is covered by [Crown Copyright](https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/).
-
-Getting Started
----------------
+## Getting Started
 
 ### Try it out
 
@@ -83,8 +67,7 @@ Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).
 
 We have some user guides in our [docs](https://gchq.github.io/gaffer-doc/v1docs/getting-started/user-guide/contents.html).
 
-Related repositories
---------------------
+## Related repositories
 
 The [gaffer-tools](https://github.com/gchq/gaffer-tools) repository contains useful tools to help work with Gaffer. These include:
 
@@ -94,8 +77,25 @@ The [gaffer-tools](https://github.com/gchq/gaffer-tools) repository contains use
 - `random-element-generation` - Code to generate large volumes of random graph data
 - `ui` - A basic graph visualisation tool
 
-Contributing
-------------
+## License
+
+Gaffer is licensed under the Apache 2 license and is covered by [Crown Copyright](https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/).  
+
+Copyright 2016-2023 Crown Copyright
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+## Contributing
 
 We welcome contributions to the project. Detailed information on our ways of working can be found [here](https://gchq.github.io/gaffer-doc/v1docs/other/ways-of-working.html). In brief:
 
