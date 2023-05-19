@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
@@ -34,6 +33,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -42,8 +43,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
@@ -60,45 +60,40 @@ public class StoreIT {
         testStore.initialise("graphId", schema, new StoreProperties());
 
         // Then
-        assertTrue(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE));
-        assertTrue(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE));
+        assertThat(testStore.getSchema().getEdges()).containsKey(TestGroups.EDGE)
+                                                    .containsKey(TestGroups.EDGE);
 
-        assertTrue(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY));
-        assertTrue(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY));
+        assertThat(testStore.getSchema().getEntities()).containsKey(TestGroups.ENTITY)
+                                                       .containsKey(TestGroups.ENTITY);
 
-        assertFalse(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE_2));
-        assertFalse(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY_2));
+        assertThat(testStore.getSchema().getEdges()).doesNotContainKey(TestGroups.EDGE_2);
+        assertThat(testStore.getSchema().getEntities()).doesNotContainKey(TestGroups.ENTITY_2);
 
-        assertFalse(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE_2));
-        assertFalse(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY_2));
+        assertThat(testStore.getSchema().getEdges()).doesNotContainKey(TestGroups.EDGE_2);
+        assertThat(testStore.getSchema().getEntities()).doesNotContainKey(TestGroups.ENTITY_2);
 
-        assertTrue(testStore.getSchema().validate().isValid());
+        assertThat(testStore.getSchema().validate().isValid()).isTrue();
     }
 
     private class TestStore extends Store {
         private final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION));
 
         @Override
-        public Set<StoreTrait> getTraits() {
-            return traits;
-        }
-
-        @Override
         protected void addAdditionalOperationHandlers() {
         }
 
         @Override
-        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+        protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
             return null;
         }
 
         @Override
-        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+        protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
             return null;
         }
 
         @Override
-        protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+        protected OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
             return null;
         }
 
@@ -107,6 +102,12 @@ public class StoreIT {
             return null;
         }
 
+        @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(traits);
+        }
+
+        @SuppressWarnings({"rawtypes"})
         @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return ToBytesSerialiser.class;

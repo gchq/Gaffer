@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Crown Copyright
+ * Copyright 2021-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.proxystore.integration;
 
 import org.junit.jupiter.api.AfterAll;
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -30,10 +30,12 @@ import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
+import uk.gov.gchq.gaffer.proxystore.SingleUseMapProxyStore;
 import uk.gov.gchq.gaffer.proxystore.response.deserialiser.ResponseDeserialiser;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.File;
@@ -42,8 +44,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -53,11 +54,9 @@ public class ProxyStoreResponseDeserialiserIT {
 
     private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
-    @TempDir
-    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
-
     @BeforeAll
     public static void beforeAll() {
+        SingleUseMapProxyStore.cleanUp();
         CLIENT.startServer();
     }
 
@@ -67,7 +66,7 @@ public class ProxyStoreResponseDeserialiserIT {
     }
 
     @BeforeEach
-    public void before() throws IOException {
+    public void before(@TempDir File testFolder) throws IOException {
         CLIENT.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
     }
 
@@ -89,18 +88,19 @@ public class ProxyStoreResponseDeserialiserIT {
                 .store(proxyStore)
                 .build();
 
-        verify(operationResponseDeserialiser).deserialise(anyString());
-
         final Set<Class<? extends Operation>> actualOperationClasses = proxyStore.getSupportedOperations();
-        final Set<Class<? extends Operation>> expectedOperationClasses = new HashSet<>();
-        expectedOperationClasses.addAll(storeOperations);
+        final Set<Class<? extends Operation>> expectedOperationClasses = new HashSet<>(storeOperations);
         expectedOperationClasses.add(OperationChain.class);
         expectedOperationClasses.add(OperationChainDAO.class);
+        expectedOperationClasses.add(GetTraits.class);
 
-        assertEquals(actualOperationClasses.size(), expectedOperationClasses.size());
-        assertTrue(actualOperationClasses.containsAll(expectedOperationClasses));
+        assertThat(actualOperationClasses)
+                .containsExactlyInAnyOrderElementsOf(expectedOperationClasses)
+                //This is actually what is getting inserted via the mock during a fetchOperations()
+                .contains(AddElements.class);
+
+        verify(operationResponseDeserialiser).deserialise(anyString());
     }
-
 
     public static class TestProxyStore extends ProxyStore {
 

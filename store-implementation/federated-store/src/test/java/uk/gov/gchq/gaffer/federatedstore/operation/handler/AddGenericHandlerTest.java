@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Crown Copyright
+ * Copyright 2018-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationIterableHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -64,7 +65,7 @@ public class AddGenericHandlerTest {
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.addGenericHandler(store, graph);
 
-        verify(store, times(1)).addOperationHandler(eq(GetAllElements.class), any(FederatedOperationIterableHandler.class));
+        verify(store, times(1)).addOperationHandler(eq(GetAllElements.class), any(FederatedOutputIterableHandler.class));
     }
 
     @Test
@@ -74,6 +75,6 @@ public class AddGenericHandlerTest {
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.addGenericHandler(store, graph);
 
-        verify(store, never()).addOperationHandler(any(), any(FederatedOperationIterableHandler.class));
+        verify(store, never()).addOperationHandler(any(), any(FederatedOperationHandler.class));
     }
 }

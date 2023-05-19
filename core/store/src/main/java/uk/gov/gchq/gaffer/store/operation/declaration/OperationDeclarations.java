@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,6 +90,14 @@ public class OperationDeclarations {
             return JSONSerialiser.deserialise(json, OperationDeclarations.class);
         } catch (final SerialisationException e) {
             throw new GafferRuntimeException("Failed to load element definitions from bytes. Due to " + e.getMessage(), e);
+        }
+    }
+
+    public static OperationDeclarations fromJson(final String json) {
+        try {
+            return JSONSerialiser.deserialise(json, OperationDeclarations.class);
+        } catch (final SerialisationException e) {
+            throw new GafferRuntimeException("Failed to load element definitions from JSON String. Due to " + e.getMessage(), e);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationIterableHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedNoOutputHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -32,8 +32,14 @@ import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
+import static uk.gov.gchq.gaffer.store.StoreProperties.CACHE_SERVICE_CLASS;
 
 /**
  * A handler for operations that addGraph to the FederatedStore.
@@ -51,11 +57,13 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
     @Override
     public Void doOperation(final OP operation, final Context context, final Store store) throws OperationException {
         final User user = context.getUser();
-        boolean isLimitedToLibraryProperties = ((FederatedStore) store).isLimitedToLibraryProperties(user);
+        final boolean isLimitedToLibraryProperties = ((FederatedStore) store).isLimitedToLibraryProperties(user, operation.isUserRequestingAdminUsage());
 
-        if (isLimitedToLibraryProperties && null != operation.getStoreProperties()) {
+        if (isLimitedToLibraryProperties && nonNull(operation.getStoreProperties())) {
             throw new OperationException(String.format(USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, operation.getProperties().toString()));
         }
+
+        overwriteCacheProperty(operation, store);
 
         final GraphSerialisable graphSerialisable;
         try {
@@ -64,12 +72,15 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
             throw new OperationException(String.format(ERROR_BUILDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
 
+        Graph graph;
         try {
+            //created at this position to capture errors before adding to cache.
+            graph = graphSerialisable.getGraph();
+
             ((FederatedStore) store).addGraphs(
                     operation.getGraphAuths(),
                     context.getUser().getUserId(),
                     operation.getIsPublic(),
-                    operation.isDisabledByDefault(),
                     operation.getReadAccessPredicate(),
                     operation.getWriteAccessPredicate(),
                     graphSerialisable);
@@ -79,32 +90,50 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
             throw new OperationException(String.format(ERROR_ADDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
 
-        addGenericHandler((FederatedStore) store, graphSerialisable.getGraph());
+        addGenericHandler((FederatedStore) store, graph);
 
         return null;
     }
 
+    private void overwriteCacheProperty(final OP operation, final Store store) {
+        /*
+         * FederatedStore can't survive if a subgraph changes the static
+         * cache to another cache, or re-initialises the cache.
+         */
+        final String cacheServiceClass = isNull(store.getProperties()) ? null : store.getProperties().getCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
+        final StoreProperties storeProperties = operation.getStoreProperties();
+        if (nonNull(storeProperties) && !storeProperties.getCacheServiceClass(cacheServiceClass).equals(cacheServiceClass)) {
+            LOGGER.info(String.format("Removing %s from properties of the operation and substituting the FederatedStore's cache", CACHE_SERVICE_CLASS));
+            storeProperties.setCacheServiceClass(cacheServiceClass);
+            operation.setStoreProperties(storeProperties);
+        }
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
     protected void addGenericHandler(final FederatedStore store, final Graph graph) {
         for (final Class<? extends Operation> supportedOperation : graph.getSupportedOperations()) {
-            //some operations are not suitable for FederatedOperationGenericOutputHandler
+            // some operations are not suitable for FederatedOperationGenericOutputHandler
             if (!store.isSupported(supportedOperation)) {
                 if (Output.class.isAssignableFrom(supportedOperation)) {
-                    Class<? extends Output> supportedOutputOperation = (Class<? extends Output>) supportedOperation;
+                    final Class<? extends Output> supportedOutputOperation = (Class<? extends Output>) supportedOperation;
 
-                    Class outputClass;
+                    Class<?> outputClass;
                     try {
                         outputClass = supportedOutputOperation.newInstance().getOutputClass();
-                    } catch (final InstantiationException | IllegalAccessException e) {
+                    } catch (final InstantiationException |
+                                   IllegalAccessException e) {
                         LOGGER.warn("Exception occurred while trying to create a newInstance of operation: {}", supportedOperation, e);
                         continue;
                     }
-                    if (CloseableIterable.class.equals(outputClass)) {
-                        store.addOperationHandler((Class) supportedOutputOperation, new FederatedOperationIterableHandler());
+                    if (Iterable.class.isAssignableFrom(outputClass)) {
+                        store.addOperationHandler((Class) supportedOutputOperation, new FederatedOutputIterableHandler());
+                        store.addExternallySupportedOperation(supportedOutputOperation);
                     } else {
                         LOGGER.warn("No generic default handler can be used for an Output operation that does not return CloseableIterable. operation: {}", supportedOutputOperation);
                     }
                 } else {
-                    store.addOperationHandler(supportedOperation, new FederatedOperationHandler());
+                    store.addOperationHandler(supportedOperation, new FederatedNoOutputHandler());
+                    store.addExternallySupportedOperation(supportedOperation);
                 }
             }
         }

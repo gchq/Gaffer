@@ -29,8 +29,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class OperationUtilTest {
 
@@ -43,7 +42,7 @@ public class OperationUtilTest {
         final Iterable<? extends ElementId> output = OperationUtil.toElementIds(input);
 
         // Then
-        assertNull(output);
+        assertThat(output).isNull();
     }
 
     @Test
@@ -70,9 +69,8 @@ public class OperationUtilTest {
                 new Entity("group", "4"),
                 new EdgeSeed("5", 6),
                 new Edge("group", 7L, 8, true),
-                null
-        );
-        assertEquals(expected, Lists.newArrayList(output));
+                null);
+        assertThat(Lists.newArrayList(output)).isEqualTo(expected);
     }
 
     @Test
@@ -85,8 +83,7 @@ public class OperationUtilTest {
                 new Entity("group", "4"),
                 new EdgeSeed("5", 6),
                 new Edge("group", 7L, 8, true),
-                null
-        );
+                null);
 
         // When
         final Iterable<? extends ElementId> output = OperationUtil.toElementIds(input);
@@ -99,14 +96,13 @@ public class OperationUtilTest {
                 new Entity("group", "4"),
                 new EdgeSeed("5", 6),
                 new Edge("group", 7L, 8, true),
-                null
-        );
-        assertEquals(expected, Lists.newArrayList(output));
+                null);
+        assertThat(Lists.newArrayList(output)).isEqualTo(expected);
     }
 
     @Test
     public void shouldReturnNullIfConvertFromElementIdsWithNullInput() {
-        assertNull(OperationUtil.fromElementIds(null));
+        assertThat(OperationUtil.fromElementIds(null)).isNull();
     }
 
     @Test
@@ -119,8 +115,7 @@ public class OperationUtilTest {
                 new Entity("group", "4"),
                 new EdgeSeed("5", 6),
                 new Edge("group", 7L, 8, true),
-                null
-        );
+                null);
 
         // When
         final Iterable<?> output = OperationUtil.fromElementIds(input);
@@ -133,9 +128,8 @@ public class OperationUtilTest {
                 "4",
                 new EdgeSeed("5", 6),
                 new Edge("group", 7L, 8, true),
-                null
-        );
-        assertEquals(expected, Lists.newArrayList(output));
+                null);
+        assertThat(Lists.newArrayList(output)).isEqualTo(expected);
     }
 
     @Test
@@ -147,7 +141,7 @@ public class OperationUtilTest {
         final Iterable<? extends EntityId> output = OperationUtil.toEntityIds(input);
 
         // Then
-        assertNull(OperationUtil.toEntityIds(input));
+        assertThat(OperationUtil.toEntityIds(input)).isNull();
     }
 
     @Test
@@ -170,9 +164,8 @@ public class OperationUtilTest {
                 new EntitySeed("2"),
                 new EntitySeed("3"),
                 new Entity("group", "4"),
-                null
-        );
-        assertEquals(expected, Lists.newArrayList(output));
+                null);
+        assertThat(Lists.newArrayList(output)).isEqualTo(expected);
     }
 
     @Test
@@ -183,8 +176,7 @@ public class OperationUtilTest {
                 "2",
                 new EntitySeed("3"),
                 new Entity("group", "4"),
-                null
-        );
+                null);
 
         // When
         final Iterable<? extends ElementId> output = OperationUtil.toEntityIds(input);
@@ -195,9 +187,8 @@ public class OperationUtilTest {
                 new EntitySeed("2"),
                 new EntitySeed("3"),
                 new Entity("group", "4"),
-                null
-        );
-        assertEquals(expected, Lists.newArrayList(output));
+                null);
+        assertThat(Lists.newArrayList(output)).isEqualTo(expected);
     }
 
     @Test
@@ -209,7 +200,7 @@ public class OperationUtilTest {
         final Iterable<?> output = OperationUtil.fromEntityIds(input);
 
         // Then
-        assertNull(output);
+        assertThat(output).isNull();
     }
 
     @Test
@@ -220,8 +211,7 @@ public class OperationUtilTest {
                 new EntitySeed("2"),
                 new EntitySeed("3"),
                 new Entity("group", "4"),
-                null
-        );
+                null);
 
         // When
         final Iterable<?> output = OperationUtil.fromElementIds(input);
@@ -232,8 +222,7 @@ public class OperationUtilTest {
                 "2",
                 "3",
                 "4",
-                null
-        );
-        assertEquals(expected, Lists.newArrayList(output));
+                null);
+        assertThat(Lists.newArrayList(output)).isEqualTo(expected);
     }
 }

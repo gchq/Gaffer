@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.resolver.named;
 
 import com.google.common.collect.Maps;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -42,8 +43,10 @@ import static org.mockito.Mockito.mock;
 
 public class NamedOperationScoreResolverTest {
 
+    public static final String SUFFIX_CACHE_NAME = "suffix";
+
     @Test
-    public void shouldGetScore() throws CacheOperationFailedException {
+    public void shouldGetScore() throws CacheOperationException {
         // Given
         final Integer expectedScore = 5;
         final String opName = "otherOp";
@@ -67,7 +70,7 @@ public class NamedOperationScoreResolverTest {
     }
 
     @Test
-    public void shouldGetScoreFromOperationsInParameters() throws CacheOperationFailedException {
+    public void shouldGetScoreFromOperationsInParameters() throws CacheOperationException {
         //Given
         final Integer expectedScore = 8;
 
@@ -105,7 +108,7 @@ public class NamedOperationScoreResolverTest {
     }
 
     @Test
-    public void shouldDefaultScoreFromOpChainIfNamedOpScoreEmpty() throws CacheOperationFailedException {
+    public void shouldDefaultScoreFromOpChainIfNamedOpScoreEmpty() throws CacheOperationException {
         // Given
         final String namedOpName = "namedOp";
         final Map parametersMap = new HashMap<>();
@@ -135,7 +138,7 @@ public class NamedOperationScoreResolverTest {
     public void shouldCatchExceptionForCacheFailures() {
         // Given
         final NamedOperation<Element, Iterable<? extends Element>> namedOp = mock(NamedOperation.class);
-        final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver();
+        final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver(SUFFIX_CACHE_NAME);
 
         // When
         final Integer result = resolver.getScore(namedOp);

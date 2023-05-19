@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,13 @@ import uk.gov.gchq.gaffer.access.ResourceType;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphReadAccessPredicate;
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphWriteAccessPredicate;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,33 +40,33 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
 import static uk.gov.gchq.gaffer.user.StoreUser.ALL_USERS;
+import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAccessResourceAccessPredicateTest {
 
-    private final User testUser = testUser();
-
     @Test
     public void shouldConfigureDefaultFederatedGraphAccessPredicatesWhenNoAccessPredicateConfigurationSupplied() {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(testUser.getUserId())
+                .owningUserId(TEST_USER_ID)
                 .graphAuths(ALL_USERS)
                 .build();
 
-        final AccessPredicate expectedNonPublicReadAccessPredicate = new FederatedGraphReadAccessPredicate(testUser.getUserId(), asList(ALL_USERS), false);
-        final AccessPredicate expectedWriteAccessPredicate = new FederatedGraphWriteAccessPredicate(testUser.getUserId());
+        final AccessPredicate expectedNonPublicReadAccessPredicate = new FederatedGraphReadAccessPredicate(TEST_USER_ID, asList(ALL_USERS), false);
+        final AccessPredicate expectedWriteAccessPredicate = new FederatedGraphWriteAccessPredicate(TEST_USER_ID);
 
         assertEquals(expectedNonPublicReadAccessPredicate, access.getOrDefaultReadAccessPredicate());
         assertEquals(expectedWriteAccessPredicate, access.getOrDefaultWriteAccessPredicate());
 
         final FederatedAccess publicAccess = new FederatedAccess.Builder()
-                .addingUserId(testUser.getUserId())
+                .owningUserId(TEST_USER_ID)
                 .graphAuths(ALL_USERS)
                 .makePublic()
                 .build();
 
-        final AccessPredicate expectedPublicReadAccessPredicate = new FederatedGraphReadAccessPredicate(testUser.getUserId(), asList(ALL_USERS), true);
+        final AccessPredicate expectedPublicReadAccessPredicate = new FederatedGraphReadAccessPredicate(TEST_USER_ID, asList(ALL_USERS), true);
 
         assertEquals(expectedPublicReadAccessPredicate, publicAccess.getOrDefaultReadAccessPredicate());
         assertEquals(expectedWriteAccessPredicate, publicAccess.getOrDefaultWriteAccessPredicate());
@@ -71,24 +75,24 @@ public class FederatedAccessResourceAccessPredicateTest {
     @Test
     public void shouldNotAllowReadAccessWhenNoAccessPredicateConfigured() {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(testUser.getUserId())
+                .owningUserId(TEST_USER_ID)
                 .readAccessPredicate(new NoAccessPredicate())
                 .build();
 
-        assertFalse(access.hasReadAccess(testUser));
-        assertTrue(access.hasWriteAccess(testUser));
+        assertFalse(access.hasReadAccess(testUser()));
+        assertTrue(access.hasWriteAccess(testUser()));
     }
 
     @Test
     public void shouldNotAllowWriteAccessWhenNoAccessPredicateConfigured() {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(testUser.getUserId())
+                .owningUserId(TEST_USER_ID)
                 .graphAuths(ALL_USERS)
                 .writeAccessPredicate(new NoAccessPredicate())
                 .build();
 
-        assertTrue(access.hasReadAccess(testUser));
-        assertFalse(access.hasWriteAccess(testUser));
+        assertTrue(access.hasReadAccess(testUser()));
+        assertFalse(access.hasWriteAccess(testUser()));
     }
 
     @Test
@@ -97,19 +101,26 @@ public class FederatedAccessResourceAccessPredicateTest {
     }
 
     @Test
-    public void shouldBeSerialisableWhenUsingCustomPredicate() throws IOException, ClassNotFoundException {
+    public void shouldBeSerialisableUsingCacheWhenUsingCustomPredicate() throws Exception {
         // Given
-        FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(testUser.getUserId())
+        FederatedAccess original = new FederatedAccess.Builder()
+                .owningUserId(TEST_USER_ID)
                 .graphAuths(ALL_USERS)
                 .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
                 .build();
 
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
+        CacheServiceLoader.initialise(storeProperties.getProperties());
+        final FederatedStoreCache testCache = new FederatedStoreCache("shouldBeSerialisableWithCacheWhenUsingCustomPredicate");
+        final String testKey = "testKey";
+
         // When
-        FederatedAccess deserialised = (FederatedAccess) deserialise(serialise(access));
+        testCache.addGraphToCache(new GraphSerialisable(new GraphConfig(testKey), new Schema(), new StoreProperties()), original, false);
+        FederatedAccess cached = testCache.getAccessFromCache(testKey);
 
         // Then
-        assertEquals(access, deserialised);
+        assertEquals(original, cached);
     }
 
     private static byte[] serialise(Object obj) throws IOException {

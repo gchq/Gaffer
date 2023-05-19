@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,9 +44,8 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
 @RestController
 public class JobController implements IJobController {
 
-    private GraphFactory graphFactory;
-    private UserFactory userFactory;
-
+    private final GraphFactory graphFactory;
+    private final UserFactory userFactory;
 
     @Autowired
     public JobController(final GraphFactory graphFactory, final UserFactory userFactory) {
@@ -56,8 +55,8 @@ public class JobController implements IJobController {
 
     @Override
     public ResponseEntity<JobDetail> startJob(@RequestBody final Operation operation) throws OperationException {
-        JobDetail jobDetail = graphFactory.getGraph().executeJob(OperationChain.wrap(operation), userFactory.createContext());
-        URI jobUri = ServletUriComponentsBuilder.fromCurrentRequest().pathSegment(jobDetail.getJobId()).build().toUri();
+        final JobDetail jobDetail = graphFactory.getGraph().executeJob(OperationChain.wrap(operation), userFactory.createContext());
+        final URI jobUri = ServletUriComponentsBuilder.fromCurrentRequest().pathSegment(jobDetail.getJobId()).build().toUri();
         return ResponseEntity.created(jobUri)
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .header(JOB_ID_HEADER, jobDetail.getJobId())
@@ -66,8 +65,8 @@ public class JobController implements IJobController {
 
     @Override
     public ResponseEntity<JobDetail> scheduleJob(@RequestBody final Job job) throws OperationException {
-        JobDetail jobDetail = graphFactory.getGraph().executeJob(job, userFactory.createContext());
-        URI jobUri = ServletUriComponentsBuilder.fromCurrentRequest().pathSegment(jobDetail.getJobId()).build().toUri();
+        final JobDetail jobDetail = graphFactory.getGraph().executeJob(job, userFactory.createContext());
+        final URI jobUri = ServletUriComponentsBuilder.fromCurrentRequest().pathSegment(jobDetail.getJobId()).build().toUri();
         return ResponseEntity.created(jobUri)
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .header(JOB_ID_HEADER, jobDetail.getJobId())
@@ -75,14 +74,12 @@ public class JobController implements IJobController {
     }
 
     @Override
-    public JobDetail getDetails(@PathVariable("id") @ApiParam("The Job ID") final String id) throws OperationException {
-        JobDetail jobDetail = graphFactory.getGraph().execute(new GetJobDetails.Builder()
+    public JobDetail getDetails(@PathVariable("id") @Parameter(description = "The Job ID") final String id) throws OperationException {
+        return graphFactory.getGraph().execute(new GetJobDetails.Builder()
                         .jobId(id)
                         .build(),
                 userFactory.createContext()
         );
-
-        return jobDetail;
     }
 
     @Override
@@ -91,7 +88,7 @@ public class JobController implements IJobController {
     }
 
     @Override
-    public Object getResults(@PathVariable("id") @ApiParam("The Job ID") final String id) throws OperationException {
+    public Object getResults(@PathVariable("id") @Parameter(description = "The Job ID") final String id) throws OperationException {
         return graphFactory.getGraph().execute(new GetJobResults.Builder()
                         .jobId(id)
                         .build(),

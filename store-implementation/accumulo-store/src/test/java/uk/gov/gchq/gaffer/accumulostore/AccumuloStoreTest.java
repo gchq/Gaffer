@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,31 @@
 
 package uk.gov.gchq.gaffer.accumulostore;
 
-import com.google.common.collect.Iterables;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.TableNotFoundException;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsPairsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitStoreHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSetsPairs;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
+import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -47,12 +48,12 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
@@ -66,6 +67,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
@@ -82,13 +84,8 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.Collection;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -109,103 +106,27 @@ public class AccumuloStoreTest {
     private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseMiniAccumuloStore();
     private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
 
-
     @BeforeEach
     public void beforeMethod() throws StoreException {
         BYTE_ENTITY_STORE.initialise(BYTE_ENTITY_GRAPH, SCHEMA, PROPERTIES);
         GAFFER_1_KEY_STORE.initialise(GAFFER_1_GRAPH, SCHEMA, CLASSIC_PROPERTIES);
     }
 
-
     @Test
-    public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod() throws StoreException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
+    public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod()
+            throws StoreException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
         Connector connector = BYTE_ENTITY_STORE.getConnection();
 
         connector.tableOperations().delete(BYTE_ENTITY_STORE.getTableName());
-        assertFalse(connector.tableOperations().exists(BYTE_ENTITY_STORE.getTableName()));
+        assertThat(connector.tableOperations().exists(BYTE_ENTITY_STORE.getTableName())).isFalse();
 
         BYTE_ENTITY_STORE.preInitialise(BYTE_ENTITY_GRAPH, SCHEMA, PROPERTIES);
         connector = BYTE_ENTITY_STORE.getConnection();
-        assertFalse(connector.tableOperations().exists(BYTE_ENTITY_STORE.getTableName()));
+        assertThat(connector.tableOperations().exists(BYTE_ENTITY_STORE.getTableName())).isFalse();
 
         BYTE_ENTITY_STORE.initialise(BYTE_ENTITY_GRAPH, SCHEMA, PROPERTIES);
         connector = BYTE_ENTITY_STORE.getConnection();
-        assertTrue(connector.tableOperations().exists(BYTE_ENTITY_STORE.getTableName()));
-    }
-
-    @Test
-    public void shouldCreateAStoreUsingTableName() throws Exception {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setTable("tableName");
-        final AccumuloStore store = new MiniAccumuloStore();
-
-        // When
-        store.initialise(null, SCHEMA, properties);
-
-        // Then
-        assertEquals("tableName", store.getTableName());
-        assertEquals("tableName", store.getGraphId());
-    }
-
-    @Test
-    public void shouldCreateAStoreUsingTableNameWithNamespace() throws Exception {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setNamespace("namespaceName");
-
-        final AccumuloStore store = new MiniAccumuloStore();
-
-        // When
-        store.initialise("graphId", SCHEMA, properties);
-
-        // Then
-        assertEquals("namespaceName.graphId", store.getTableName());
-        assertEquals("graphId", store.getGraphId());
-    }
-
-    @Test
-    public void shouldBuildGraphAndGetGraphIdFromTableName() {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setTable("tableName");
-
-        // When
-        final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.schemas(getClass()))
-                .storeProperties(properties)
-                .build();
-
-        // Then
-        assertEquals("tableName", graph.getGraphId());
-    }
-
-    @Test
-    public void shouldCreateAStoreUsingGraphIdIfItIsEqualToTableName() throws Exception {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setTable("tableName");
-        final AccumuloStore store = new MiniAccumuloStore();
-
-        // When
-        store.initialise("tableName", SCHEMA, properties);
-
-        // Then
-        assertEquals("tableName", store.getTableName());
-    }
-
-    @Test
-    public void shouldThrowExceptionIfGraphIdAndTableNameAreProvidedAndDifferent() throws StoreException {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setTable("tableName");
-        final AccumuloStore store = new AccumuloStore();
-
-        // When
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> store.initialise("graphId", SCHEMA, properties))
-                .withMessage("The table in store.properties should no longer be used. Please use a graphId instead " +
-                        "or for now just set the graphId to be the same value as the store.properties table.");
+        assertThat(connector.tableOperations().exists(BYTE_ENTITY_STORE.getTableName())).isTrue();
     }
 
     @Test
@@ -218,21 +139,37 @@ public class AccumuloStoreTest {
         store.initialise("graphId", SCHEMA, properties);
 
         // Then
-        assertEquals("graphId", store.getTableName());
+        assertThat(store.getTableName()).isEqualTo("graphId");
+        assertThat(store.getGraphId()).isEqualTo("graphId");
     }
 
+    @Test
+    public void shouldCreateAStoreUsingGraphIdWithNamespace() throws Exception {
+        // Given
+        final AccumuloProperties properties = PROPERTIES.clone();
+        properties.setNamespace("namespaceName");
+
+        final AccumuloStore store = new MiniAccumuloStore();
+
+        // When
+        store.initialise("graphId", SCHEMA, properties);
+
+        // Then
+        assertThat(store.getTableName()).isEqualTo("namespaceName.graphId");
+        assertThat(store.getGraphId()).isEqualTo("graphId");
+    }
 
     @Test
-    public void shouldBeAnOrderedStore() {
-        assertTrue(BYTE_ENTITY_STORE.hasTrait(StoreTrait.ORDERED));
-        assertTrue(GAFFER_1_KEY_STORE.hasTrait(StoreTrait.ORDERED));
+    public void shouldBeAnOrderedStore() throws OperationException {
+        assertThat(BYTE_ENTITY_STORE.execute(new HasTrait.Builder().trait(StoreTrait.ORDERED).currentTraits(false).build(), new Context())).isTrue();
+        assertThat(GAFFER_1_KEY_STORE.execute(new HasTrait.Builder().trait(StoreTrait.ORDERED).currentTraits(false).build(), new Context())).isTrue();
     }
 
     @Test
     public void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesPreserveObjectOrdering() throws StoreException {
         // Given
         final AccumuloStore store = new AccumuloStore();
-        final Serialiser serialiser = new StringSerialiser();
+        final Serialiser<?, ?> serialiser = new StringSerialiser();
         store.preInitialise(BYTE_ENTITY_GRAPH,
                 new Schema.Builder()
                         .vertexSerialiser(serialiser)
@@ -244,15 +181,16 @@ public class AccumuloStoreTest {
         final boolean isSummariseGroupOverRangesSupported = store.isSupported(SummariseGroupOverRanges.class);
 
         // Then
-        assertTrue(isGetElementsInRangesSupported);
-        assertTrue(isSummariseGroupOverRangesSupported);
+        assertThat(isGetElementsInRangesSupported).isTrue();
+        assertThat(isSummariseGroupOverRangesSupported).isTrue();
     }
 
     @Test
-    public void shouldNotAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
+    public void shouldNotAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering()
+            throws StoreException {
         // Given
         final AccumuloStore store = new AccumuloStore();
-        final Serialiser serialiser = new CompactRawLongSerialiser();
+        final Serialiser<?, ?> serialiser = new CompactRawLongSerialiser();
         store.preInitialise(
                 BYTE_ENTITY_GRAPH,
                 new Schema.Builder()
@@ -265,8 +203,8 @@ public class AccumuloStoreTest {
         final boolean isSummariseGroupOverRangesSupported = store.isSupported(SummariseGroupOverRanges.class);
 
         // Then
-        assertFalse(isGetElementsInRangesSupported);
-        assertFalse(isSummariseGroupOverRangesSupported);
+        assertThat(isGetElementsInRangesSupported).isFalse();
+        assertThat(isSummariseGroupOverRangesSupported).isFalse();
     }
 
     @Test
@@ -279,8 +217,9 @@ public class AccumuloStoreTest {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(BYTE_ENTITY_STORE);
     }
 
-    private void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException {
-        final Entity e = new Entity(TestGroups.ENTITY, "1");
+    private void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store)
+            throws OperationException {
+        final Element e = new Entity(TestGroups.ENTITY, "1");
         e.putProperty(TestPropertyNames.PROP_1, 1);
         e.putProperty(TestPropertyNames.PROP_2, 2);
         e.putProperty(TestPropertyNames.PROP_3, 3);
@@ -301,17 +240,10 @@ public class AccumuloStoreTest {
                 .input(entityId1)
                 .build();
 
-        CloseableIterable<? extends Element> results = null;
-        try {
-            results = store.execute(getBySeed, new Context(user));
+        final Iterable<? extends Element> results = store.execute(getBySeed, new Context(user));
 
-            assertEquals(1, Iterables.size(results));
-            assertTrue(Iterables.contains(results, e));
-        } finally {
-            if (results != null) {
-                results.close();
-            }
-        }
+        assertThat(results).hasSize(1);
+        assertThat(results).asInstanceOf(InstanceOfAssertFactories.iterable(Element.class)).contains(e);
 
         final GetElements getRelated = new GetElements.Builder()
                 .view(new View.Builder()
@@ -320,35 +252,27 @@ public class AccumuloStoreTest {
                 .input(entityId1)
                 .build();
 
-        CloseableIterable<? extends Element> relatedResults = null;
-        try {
-            relatedResults = store.execute(getRelated, store.createContext(user));
-            assertEquals(1, Iterables.size(relatedResults));
-            assertTrue(Iterables.contains(relatedResults, e));
+        Iterable<? extends Element> relatedResults = store.execute(getRelated, store.createContext(user));
+        assertThat(relatedResults).hasSize(1);
+        assertThat(relatedResults).asInstanceOf(InstanceOfAssertFactories.iterable(Element.class)).contains(e);
 
-            final GetElements getRelatedWithPostAggregationFilter = new GetElements.Builder()
-                    .view(new View.Builder()
-                            .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                    .preAggregationFilter(new ElementFilter.Builder()
-                                            .select(TestPropertyNames.PROP_1)
-                                            .execute(new IsMoreThan(0))
-                                            .build())
-                                    .postAggregationFilter(new ElementFilter.Builder()
-                                            .select(TestPropertyNames.COUNT)
-                                            .execute(new IsMoreThan(6))
-                                            .build())
-                                    .build())
-                            .build())
-                    .input(entityId1)
-                    .build();
-            relatedResults = store.execute(getRelatedWithPostAggregationFilter, store.createContext(user));
-
-            assertEquals(0, Iterables.size(relatedResults));
-        } finally {
-            if (relatedResults != null) {
-                relatedResults.close();
-            }
-        }
+        final GetElements getRelatedWithPostAggregationFilter = new GetElements.Builder()
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select(TestPropertyNames.PROP_1)
+                                        .execute(new IsMoreThan(0))
+                                        .build())
+                                .postAggregationFilter(new ElementFilter.Builder()
+                                        .select(TestPropertyNames.COUNT)
+                                        .execute(new IsMoreThan(6))
+                                        .build())
+                                .build())
+                        .build())
+                .input(entityId1)
+                .build();
+        relatedResults = store.execute(getRelatedWithPostAggregationFilter, store.createContext(user));
+        assertThat(relatedResults).hasSize(0);
     }
 
     @Test
@@ -362,27 +286,30 @@ public class AccumuloStoreTest {
     }
 
     public void testStoreReturnsHandlersForRegisteredOperations(final AccumuloStore store) {
-        OperationHandler op;
+        OperationHandler<?> op;
         // Then
-        assertNotNull(store.getOperationHandler(Validate.class));
+        assertThat(store.getOperationHandler(Validate.class)).isNotNull();
+
         op = store.getOperationHandler(AddElementsFromHdfs.class);
-        assertTrue(op instanceof AddElementsFromHdfsHandler);
+        assertThat(op).isInstanceOf(AddElementsFromHdfsHandler.class);
         op = store.getOperationHandler(GetElementsBetweenSets.class);
-        assertTrue(op instanceof GetElementsBetweenSetsHandler);
+        assertThat(op).isInstanceOf(GetElementsBetweenSetsHandler.class);
+        op = store.getOperationHandler(GetElementsBetweenSetsPairs.class);
+        assertThat(op).isInstanceOf(GetElementsBetweenSetsPairsHandler.class);
         op = store.getOperationHandler(GetElementsInRanges.class);
-        assertTrue(op instanceof GetElementsInRangesHandler);
+        assertThat(op).isInstanceOf(GetElementsInRangesHandler.class);
         op = store.getOperationHandler(GetElementsWithinSet.class);
-        assertTrue(op instanceof GetElementsWithinSetHandler);
-        op = store.getOperationHandler(SplitStore.class);
-        assertTrue(op instanceof SplitStoreHandler);
+        assertThat(op).isInstanceOf(GetElementsWithinSetHandler.class);
+        op = store.getOperationHandler(SplitStoreFromFile.class);
+        assertThat(op).isInstanceOf(HdfsSplitStoreFromFileHandler.class);
         op = store.getOperationHandler(SampleDataForSplitPoints.class);
-        assertTrue(op instanceof SampleDataForSplitPointsHandler);
+        assertThat(op).isInstanceOf(SampleDataForSplitPointsHandler.class);
         op = store.getOperationHandler(ImportAccumuloKeyValueFiles.class);
-        assertTrue(op instanceof ImportAccumuloKeyValueFilesHandler);
+        assertThat(op).isInstanceOf(ImportAccumuloKeyValueFilesHandler.class);
         op = store.getOperationHandler(GenerateElements.class);
-        assertTrue(op instanceof GenerateElementsHandler);
+        assertThat(op).isInstanceOf(GenerateElementsHandler.class);
         op = store.getOperationHandler(GenerateObjects.class);
-        assertTrue(op instanceof GenerateObjectsHandler);
+        assertThat(op).isInstanceOf(GenerateObjectsHandler.class);
     }
 
     @Test
@@ -396,33 +323,25 @@ public class AccumuloStoreTest {
     }
 
     public void testRequestForNullHandlerManaged(final AccumuloStore store) {
-        final OperationHandler returnedHandler = store.getOperationHandler(null);
-        assertNull(returnedHandler);
+        final OperationHandler<?> returnedHandler = store.getOperationHandler(null);
+        assertThat(returnedHandler).isNull();
     }
 
     @Test
-    public void testStoreTraitsGaffer1() {
-        testStoreTraits(GAFFER_1_KEY_STORE);
-    }
+    public void shouldHaveSupportedStoreTraits() {
+        final Collection<StoreTrait> traits = AccumuloStore.TRAITS;
+        assertThat(traits).isNotNull();
+        assertThat(traits).withFailMessage("Collection size should be 10").hasSize(10);
 
-    @Test
-    public void testStoreTraitsByteEntity() {
-        testStoreTraits(BYTE_ENTITY_STORE);
-    }
-
-    public void testStoreTraits(final AccumuloStore store) {
-        final Collection<StoreTrait> traits = store.getTraits();
-        assertNotNull(traits);
-        assertEquals(traits.size(), 10, "Collection size should be 10");
-        assertTrue(traits.contains(INGEST_AGGREGATION), "Collection should contain INGEST_AGGREGATION trait");
-        assertTrue(traits.contains(QUERY_AGGREGATION), "Collection should contain QUERY_AGGREGATION trait");
-        assertTrue(traits.contains(PRE_AGGREGATION_FILTERING), "Collection should contain PRE_AGGREGATION_FILTERING trait");
-        assertTrue(traits.contains(POST_AGGREGATION_FILTERING), "Collection should contain POST_AGGREGATION_FILTERING trait");
-        assertTrue(traits.contains(TRANSFORMATION), "Collection should contain TRANSFORMATION trait");
-        assertTrue(traits.contains(POST_TRANSFORMATION_FILTERING), "Collection should contain POST_TRANSFORMATION_FILTERING trait");
-        assertTrue(traits.contains(STORE_VALIDATION), "Collection should contain STORE_VALIDATION trait");
-        assertTrue(traits.contains(ORDERED), "Collection should contain ORDERED trait");
-        assertTrue(traits.contains(VISIBILITY), "Collection should contain VISIBILITY trait");
+        assertThat(traits).withFailMessage("Collection should contain INGEST_AGGREGATION trait").contains(INGEST_AGGREGATION)
+                .withFailMessage("Collection should contain QUERY_AGGREGATION trait").contains(QUERY_AGGREGATION)
+                .withFailMessage("Collection should contain PRE_AGGREGATION_FILTERING trait").contains(PRE_AGGREGATION_FILTERING)
+                .withFailMessage("Collection should contain POST_AGGREGATION_FILTERING trait").contains(POST_AGGREGATION_FILTERING)
+                .withFailMessage("Collection should contain TRANSFORMATION trait").contains(TRANSFORMATION)
+                .withFailMessage("Collection should contain POST_TRANSFORMATION_FILTERING trait").contains(POST_TRANSFORMATION_FILTERING)
+                .withFailMessage("Collection should contain STORE_VALIDATION trait").contains(STORE_VALIDATION)
+                .withFailMessage("Collection should contain ORDERED trait").contains(ORDERED)
+                .withFailMessage("Collection should contain VISIBILITY trait").contains(VISIBILITY);
     }
 
     @Test
@@ -489,7 +408,7 @@ public class AccumuloStoreTest {
                         .clazz(Long.class)
                         .aggregateFunction(new Max())
                         .build())
-                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build();
 
         // When
@@ -525,7 +444,7 @@ public class AccumuloStoreTest {
                 .type(TestTypes.TIMESTAMP_2, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .build())
-                .timestampProperty(TestPropertyNames.TIMESTAMP)
+
                 .build();
 
         // When
@@ -557,17 +476,14 @@ public class AccumuloStoreTest {
                         .clazz(Long.class)
                         .aggregateFunction(new Min())
                         .build())
-                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build();
 
         // When / Then
-        final String expectedMessage = "Schema is not valid. Validation errors: \n" +
-                "The aggregator for the timestamp property must be set to: uk.gov.gchq.koryphe.impl.binaryoperator.Max " +
-                "this cannot be overridden for this Accumulo Store, as you have told Accumulo to store this property " +
-                "in the timestamp column.";
+        final String expectedMessage = "The aggregator for the timestamp property must be set to: uk.gov.gchq.koryphe.impl.binaryoperator.Max";
 
-         assertThatExceptionOfType(SchemaException.class)
-                 .isThrownBy(() -> store.initialise("graphId", schema, PROPERTIES))
-                 .withMessage(expectedMessage);
+        assertThatExceptionOfType(SchemaException.class)
+                .isThrownBy(() -> store.initialise("graphId", schema, PROPERTIES))
+                .withMessageContaining(expectedMessage);
     }
 }

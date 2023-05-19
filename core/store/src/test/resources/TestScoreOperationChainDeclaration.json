@@ -4,6 +4,7 @@
       "operation": "uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain",
       "handler": {
         "class": "uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler",
+        "namedOperationCacheNameSuffix": "NamedOperationCacheNameSuffix",
         "opScores": {
           "uk.gov.gchq.gaffer.operation.Operation": 1,
           "uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects": 0
@@ -14,10 +15,12 @@
         },
         "scoreResolvers": {
           "uk.gov.gchq.gaffer.named.operation.NamedOperation": {
-            "class": "uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver"
+            "class": "uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver",
+            "namedOperationCacheNameSuffix": "NamedOperationCacheNameSuffix"
           },
           "uk.gov.gchq.gaffer.operation.impl.add.AddElements": {
-            "class": "uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver"
+            "class": "uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver",
+            "namedOperationCacheNameSuffix": "NamedOperationCacheNameSuffix"
           }
         }
       }

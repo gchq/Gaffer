@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore;
 
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class SingleUseMapStoreWithoutVisibilitySupport extends SingleUseMapStore {
 
-    public static final Set<StoreTrait> TRAITS = new HashSet<StoreTrait>(MapStore.TRAITS) {
+    private static final Set<StoreTrait> TRAITS = new HashSet<StoreTrait>(MapStore.TRAITS) {
         {
             remove(StoreTrait.VISIBILITY);
         }
@@ -31,5 +35,10 @@ public class SingleUseMapStoreWithoutVisibilitySupport extends SingleUseMapStore
     @Override
     public Set<StoreTrait> getTraits() {
         return TRAITS;
+    }
+
+    @Override
+    protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+        return new GetTraitsHandler(TRAITS);
     }
 }

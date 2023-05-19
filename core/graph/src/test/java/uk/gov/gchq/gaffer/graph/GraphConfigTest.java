@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,11 +76,11 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
                 "  \"hooks\": [" +
                 "    {" +
                 "      \"class\": \"uk.gov.gchq.gaffer.graph.hook.GraphHookPath\"," +
-                "      \"path\": \"" + hook1Path.getAbsolutePath() + "\"" +
+                "      \"path\": \"" + hook1Path.getAbsolutePath().replace('\\', '/') + "\"" +
                 "    }, " +
                 "    {" +
                 "      \"class\": \"uk.gov.gchq.gaffer.graph.hook.GraphHookPath\"," +
-                "      \"path\": \"" + hook2Path.getAbsolutePath() + "\"" +
+                "      \"path\": \"" + hook2Path.getAbsolutePath().replace('\\', '/') + "\"" +
                 "    }," +
                 "    {" +
                 "      \"class\": \"uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver\"" +
@@ -126,7 +126,7 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
                 .build();
 
         final GraphHook hook1 = new AddOperationsToChain();
-        final GraphHook hook2 = new OperationChainLimiter();
+        final GraphHook hook2 = new OperationChainLimiter("testSuffix");
 
         return new GraphConfig.Builder()
                 .graphId(graphId)

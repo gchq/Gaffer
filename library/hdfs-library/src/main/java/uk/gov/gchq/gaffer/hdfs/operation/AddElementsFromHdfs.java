@@ -80,14 +80,6 @@ public class AddElementsFromHdfs implements
     private Integer minMapTasks;
     private Integer maxMapTasks;
 
-    /**
-     * @deprecated the number of reduce tasks should not be set.  By default the number of reduce tasks should
-     * match the number of tablets.  Use minimum and maximum reduce tasks to specify boundaries for the number
-     * of reduce tasks.
-     */
-    @Deprecated
-    private Integer numReduceTasks;
-
     private Integer minReduceTasks;
     private Integer maxReduceTasks;
 
@@ -152,16 +144,6 @@ public class AddElementsFromHdfs implements
     @Override
     public void setNumMapTasks(final Integer numMapTasks) {
         this.numMapTasks = numMapTasks;
-    }
-
-    @Override
-    public Integer getNumReduceTasks() {
-        return numReduceTasks;
-    }
-
-    @Override
-    public void setNumReduceTasks(final Integer numReduceTasks) {
-        this.numReduceTasks = numReduceTasks;
     }
 
     @Override
@@ -272,7 +254,6 @@ public class AddElementsFromHdfs implements
                 .outputPath(outputPath)
                 .jobInitialiser(jobInitialiser)
                 .mappers(numMapTasks)
-                .reducers(numReduceTasks)
                 .minMappers(minMapTasks)
                 .minReducers(minReduceTasks)
                 .maxMappers(maxMapTasks)

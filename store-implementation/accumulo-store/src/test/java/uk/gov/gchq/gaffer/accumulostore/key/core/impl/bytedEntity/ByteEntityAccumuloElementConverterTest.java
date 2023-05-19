@@ -50,11 +50,11 @@ public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccum
                 put(AccumuloPropertyNames.COLUMN_QUALIFIER_4, 4);
             }
         };
-        byte[] historicPropertyBytes = {4, 1, 0, 0, 0, 4, 2, 0, 0, 0};
+        byte[] historicPropertyBytes = {1, 1, 1, 2, 1, 3, 1, 4};
         final byte[] columnQualifierBytes = converter.buildColumnQualifier(TestGroups.EDGE, properties);
 
         // When
-        final BytesAndRange propertiesBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, columnQualifierBytes, 2);
+        final BytesAndRange propertiesBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, columnQualifierBytes, 4);
 
         // Then
         assertTrue(ByteUtils.areKeyBytesEqual(new BytesAndRange(historicPropertyBytes, 0, historicPropertyBytes.length), propertiesBytes));
@@ -71,11 +71,11 @@ public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccum
                 put(AccumuloPropertyNames.COLUMN_QUALIFIER_4, 4);
             }
         };
-        byte[] historicPropertyBytes = {4, 1, 0, 0, 0, 4, 2, 0, 0, 0, 4, 3, 0, 0, 0, 4, 4, 0, 0, 0};
+        byte[] historicPropertyBytes = {1, 1, 1, 2, 1, 3, 1, 4};
         final byte[] columnQualifierBytes = converter.buildColumnQualifier(TestGroups.EDGE, properties);
 
         // When
-        final BytesAndRange propertiesBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, columnQualifierBytes, 5);
+        final BytesAndRange propertiesBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, columnQualifierBytes, 4);
 
         // Then
         assertArrayEquals(historicPropertyBytes, propertiesBytes.getBytes());
@@ -93,7 +93,7 @@ public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccum
                 put(AccumuloPropertyNames.COLUMN_QUALIFIER_4, Integer.MIN_VALUE);
             }
         };
-        byte[] historicColumnQualifierBytes = {4, 1, 0, 0, 0, 4, -1, -1, -1, 127, 4, 3, 0, 0, 0, 4, 0, 0, 0, -128};
+        byte[] historicColumnQualifierBytes = {1, 1, 5, -116, 127, -1, -1, -1, 1, 3, 5, -124, 127, -1, -1, -1};
 
         // When
         final byte[] columnQualifier = converter.buildColumnQualifier(TestGroups.EDGE, properties);

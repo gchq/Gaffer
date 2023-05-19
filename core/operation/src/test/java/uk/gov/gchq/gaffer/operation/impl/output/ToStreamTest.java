@@ -36,7 +36,7 @@ public class ToStreamTest extends OperationTest<ToStream> {
         final ToStream<String> toStream = new ToStream.Builder<String>().input("1", "2").build();
 
         // Then
-        assertThat(toStream.getInput())
+        assertThat((Iterable<String>) toStream.getInput())
                 .hasSize(2)
                 .containsOnly("1", "2");
     }

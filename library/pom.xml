@@ -18,7 +18,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>1.23.1-SNAPSHOT</version>
+        <version>2.0.0-alpha-1.6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,22 +34,4 @@
         <module>flink-library</module>
         <module>time-library</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>serialisation-compatibility</id>
-            <properties>
-                <jackson.version>${jackson.min.version}</jackson.version>
-            </properties>
-            <!-- Skip spark as requires a newer version of jackson-->
-            <modules>
-                <module>hdfs-library</module>
-                <module>sketches-library</module>
-                <module>bitmap-library</module>
-                <module>cache-library</module>
-                <module>flink-library</module>
-                <module>time-library</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>

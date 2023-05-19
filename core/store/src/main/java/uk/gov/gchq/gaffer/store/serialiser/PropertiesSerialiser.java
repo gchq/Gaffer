@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public abstract class PropertiesSerialiser<T> implements ToBytesSerialiser<T> {
         }
     }
 
-    protected void deserialiseProperties(final byte[] bytes, final Properties properties, final SchemaElementDefinition elementDefinition, final int[] delimiter) throws SerialisationException {
+    protected void deserialiseProperties(final byte[] bytes, final Properties properties, final SchemaElementDefinition elementDefinition, final int... delimiter) throws SerialisationException {
         final int arrayLength = bytes.length;
         final Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
         while (propertyNames.hasNext() && delimiter[0] < arrayLength) {

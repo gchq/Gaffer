@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.apache.hadoop.io.Text;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ArrayByteSequence;
@@ -91,7 +90,7 @@ public class ByteBufferUtilTest {
     }
 
     private static void assertByteBufferEquals(final String expected, final ByteBuffer bb) {
-        assertEquals(new Text(expected), ByteBufferUtil.toText(bb));
+        assertEquals(expected, ByteBufferUtil.toString(bb));
         assertEquals(expected, new String(ByteBufferUtil.toBytes(bb), UTF_8));
         assertEquals(expected, ByteBufferUtil.toString(bb));
 

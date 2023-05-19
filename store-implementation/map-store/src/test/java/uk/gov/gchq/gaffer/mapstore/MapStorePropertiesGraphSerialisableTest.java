@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class MapStorePropertiesGraphSerialisableTest {
     public void setUp() throws Exception {
         config = new GraphConfig.Builder()
                 .graphId("testGraphId")
-                .addHook(new NamedViewResolver())
+                .addHook(new NamedViewResolver("testGraphId"))
                 .addHook(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS))
                 .view(new View.Builder()
                         .entity("e1")
@@ -83,7 +83,7 @@ public class MapStorePropertiesGraphSerialisableTest {
         final MapStoreProperties mapStoreProperties = new MapStoreProperties();
         mapStoreProperties.setProperties(properties);
         final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(mapStoreProperties).config(config).build();
-        final GraphSerialisable result = new GraphSerialisable.Builder().graph(graph).build();
+        final GraphSerialisable result = new GraphSerialisable.Builder(graph).build();
         assertEquals(expected, result);
     }
 }

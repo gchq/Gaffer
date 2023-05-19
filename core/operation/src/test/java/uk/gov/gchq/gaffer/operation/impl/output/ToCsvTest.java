@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -26,8 +25,6 @@ import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,7 +63,7 @@ public class ToCsvTest extends OperationTest<ToCsv> {
         assertThat(toCsv.getInput())
                 .hasSize(1);
         assertFalse(toCsv.isIncludeHeader());
-        assertEquals(generator, toCsv.getElementGenerator());
+        assertEquals(generator, toCsv.getCsvGenerator());
     }
 
     @Test
@@ -87,15 +84,9 @@ public class ToCsvTest extends OperationTest<ToCsv> {
         // Then
         assertNotSame(toCsv, clone);
         assertThat(clone.getInput().iterator().next()).isEqualTo(input);
-        assertEquals(generator, clone.getElementGenerator());
+        assertEquals(generator, clone.getCsvGenerator());
         assertFalse(clone.isIncludeHeader());
     }
-
-    @Override
-    public Set<String> getRequiredFields() {
-        return Sets.newHashSet("elementGenerator");
-    }
-
     @Test
     public void shouldGetOutputClass() {
         // When

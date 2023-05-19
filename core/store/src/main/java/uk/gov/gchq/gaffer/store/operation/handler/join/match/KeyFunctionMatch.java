@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.store.operation.handler.join.match;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
@@ -45,7 +45,7 @@ public class KeyFunctionMatch implements Match {
     private Function firstKeyFunction;
     private Function secondKeyFunction;
 
-    private HashMap<Object, List> keyedMatchCandidates = new HashMap<>();
+    private final HashMap<Object, List> keyedMatchCandidates = new HashMap<>();
 
     public KeyFunctionMatch() {
         this(new Identity(), new Identity());

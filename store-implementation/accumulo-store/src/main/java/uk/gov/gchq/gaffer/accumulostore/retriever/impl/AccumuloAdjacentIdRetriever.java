@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,7 @@ import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -45,15 +43,21 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
+import java.io.Closeable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import static java.util.Objects.nonNull;
+
 public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentIds, EntityId> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAdjacentIdRetriever.class);
 
     private final Iterable<? extends ElementId> ids;
@@ -77,29 +81,30 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
      * @return a closeable iterator of items.
      */
     @Override
-    public CloseableIterator<EntityId> iterator() {
+    public Iterator<EntityId> iterator() {
         CloseableUtil.close(iterator);
 
         if (!operation.getView().hasEdges()) {
-            return new EmptyCloseableIterator<>();
+            return new EmptyIterator<>();
         }
 
-        final Iterator<? extends ElementId> idIterator = null != ids ? ids.iterator() : Collections.emptyIterator();
+        final Iterator<? extends ElementId> idIterator = nonNull(ids) ? ids.iterator() : Collections.emptyIterator();
         if (!idIterator.hasNext()) {
-            return new EmptyCloseableIterator<>();
+            return new EmptyIterator<>();
         }
 
         try {
             iterator = new EntityIdIterator(idIterator);
         } catch (final RetrieverException e) {
             LOGGER.error("{} returning empty iterator", e.getMessage(), e);
-            return new EmptyCloseableIterator<>();
+            return new EmptyIterator<>();
         }
 
         return iterator;
     }
 
-    private final class EntityIdIterator implements CloseableIterator<EntityId> {
+    private final class EntityIdIterator implements Iterator<EntityId>, Closeable {
+
         private final Iterator<? extends ElementId> idsIterator;
         private int count;
         private BatchScanner scanner;
@@ -132,7 +137,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         @Override
         public boolean hasNext() {
             // If current scanner has next then return true.
-            if (null != nextId) {
+            if (nonNull(nextId)) {
                 return true;
             }
             while (scannerIterator.hasNext()) {
@@ -148,11 +153,10 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                                 entry.getValue(),
                                 true);
                     } catch (final AccumuloElementConversionException e) {
-                        LOGGER.error("Failed to re-create an element from a key value entry set returning next EntityId as null",
-                                e);
+                        LOGGER.error("Failed to re-create an element from a key value entry set returning next EntityId as null", e);
                         continue;
                     }
-                    if (null != element) {
+                    if (nonNull(element)) {
                         doTransformation(element);
                         if (doPostFilter(element)) {
                             elementId = element;
@@ -167,7 +171,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                     }
                 }
 
-                if (null != elementId) {
+                if (nonNull(elementId)) {
                     if (elementId instanceof EdgeId) {
                         if (EdgeId.MatchedVertex.DESTINATION == ((EdgeId) elementId).getMatchedVertex()) {
                             nextId = new EntitySeed(((EdgeId) elementId).getSource());
@@ -215,12 +219,10 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
 
         @Override
         public EntityId next() {
-            if (null == nextId) {
-                if (!hasNext()) {
+            if (nextId == null && !hasNext()) {
                     throw new NoSuchElementException();
-                }
             }
-            EntityId nextReturn = nextId;
+            final EntityId nextReturn = nextId;
             nextId = null;
             return nextReturn;
         }
@@ -232,9 +234,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
 
         @Override
         public void close() {
-            if (null != scanner) {
-                scanner.close();
-            }
+            CloseableUtil.close(scanner);
         }
     }
 
@@ -242,14 +242,20 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         ranges.addAll(rangeFactory.getRange(seed, operation));
     }
 
+    @SuppressWarnings({"unchecked", "PMD.UseTryWithResources"})
     private Set<String> getGroupsWithTransforms(final View view) {
         final Set<String> groups = new HashSet<>();
-        for (final Map.Entry<String, ViewElementDefinition> entry : new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(view.getEntities().entrySet(), view.getEdges().entrySet())) {
-            if (null != entry.getValue()) {
-                if (entry.getValue().hasPostTransformFilters()) {
+
+        ChainedIterable<Entry<String, ViewElementDefinition>> chainedIterable = null;
+        try {
+            chainedIterable = new ChainedIterable<>(view.getEntities().entrySet(), view.getEdges().entrySet());
+            for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
+                if (entry.getValue() != null && entry.getValue().hasPostTransformFilters()) {
                     groups.add(entry.getKey());
                 }
             }
+        } finally {
+            CloseableUtil.close(chainedIterable);
         }
         return groups;
     }

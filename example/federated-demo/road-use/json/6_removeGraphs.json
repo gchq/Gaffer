@@ -5,8 +5,14 @@
       "graphId": "roadUse"
     },
     {
+      "class": "DiscardOutput"
+    },
+    {
       "class": "RemoveGraph",
       "graphId": "roadJunctions"
+    },
+    {
+      "class": "DiscardOutput"
     },
     {
       "class": "RemoveGraph",

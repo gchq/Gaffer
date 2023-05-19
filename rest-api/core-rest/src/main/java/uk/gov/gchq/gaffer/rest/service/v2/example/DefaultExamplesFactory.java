@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import javax.inject.Inject;
 
 /**
- * Default implementation of the {@link uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory}
+ * Default implementation of the {@link uk.gov.gchq.gaffer.rest.factory.ExamplesFactory}
  * interface. Required to be registered with HK2 to allow the correct {@link
  * uk.gov.gchq.gaffer.rest.factory.GraphFactory} object to be injected.
  */

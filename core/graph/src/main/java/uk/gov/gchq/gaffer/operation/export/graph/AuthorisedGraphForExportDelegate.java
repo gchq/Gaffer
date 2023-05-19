@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "Investigate")
 public class AuthorisedGraphForExportDelegate extends GraphDelegate {
 
     private static Map<String, List<String>> idAuths = new HashMap<>();
@@ -114,10 +117,8 @@ public class AuthorisedGraphForExportDelegate extends GraphDelegate {
                 }
             }
 
-            if (null != parentStorePropertiesId) {
-                if (!isAuthorised(user, idAuths.get(parentStorePropertiesId))) {
-                    result.addError(String.format(USER_IS_NOT_AUTHORISED_TO_EXPORT_USING_S_S, STORE_PROPERTIES_ID, parentStorePropertiesId));
-                }
+            if (parentStorePropertiesId != null && !isAuthorised(user, idAuths.get(parentStorePropertiesId))) {
+                result.addError(String.format(USER_IS_NOT_AUTHORISED_TO_EXPORT_USING_S_S, STORE_PROPERTIES_ID, parentStorePropertiesId));
             }
 
             if (store.getGraphLibrary().exists(graphId)) {

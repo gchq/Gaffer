@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class SchemaOperationChainValidator extends OperationChainValidator {
     }
 
     @Override
-    protected Set<StoreTrait> getStoreTraits(final Store store) {
+    protected Set<StoreTrait> getStoreTraits(final Store store, final Context context) {
         return StoreTrait.ALL_TRAITS;
     }
 }

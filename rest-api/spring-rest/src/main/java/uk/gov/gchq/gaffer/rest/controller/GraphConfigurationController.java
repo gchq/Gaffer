@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.signature.Signature;
@@ -45,7 +49,7 @@ public class GraphConfigurationController implements IGraphConfigurationControll
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphConfigurationController.class);
 
-    private GraphFactory graphFactory;
+    private final GraphFactory graphFactory;
 
     @Autowired
     public GraphConfigurationController(final GraphFactory graphFactory) {
@@ -134,7 +138,11 @@ public class GraphConfigurationController implements IGraphConfigurationControll
 
     @Override
     public Set<StoreTrait> getStoreTraits() {
-        return graphFactory.getGraph().getStoreTraits();
+        try {
+            return graphFactory.getGraph().execute(new GetTraits.Builder().currentTraits(false).build(), new Context());
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException("Unable to get Traits using GetTraits Operation", e);
+        }
     }
 
     @Override

@@ -30,9 +30,9 @@ import static java.util.Objects.nonNull;
  * the given iterable.
  */
 @Since("1.21.0")
+@JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
 @Summary("Creates a new HllSketch instance and initialises it from the given iterable")
 public class IterableToHllSketch extends KorypheFunction<Iterable<Object>, HllSketch> {
-    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
     private int logK = 5;
 
     public IterableToHllSketch() {

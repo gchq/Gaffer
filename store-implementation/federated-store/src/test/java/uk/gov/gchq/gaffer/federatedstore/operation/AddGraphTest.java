@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,23 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph.Builder;
-import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Set;
 
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class AddGraphTest extends OperationTest<AddGraph> {
+public class AddGraphTest extends FederationOperationTest<AddGraph> {
 
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());
@@ -41,7 +40,7 @@ public class AddGraphTest extends OperationTest<AddGraph> {
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("graphId");
+        return singleton("graphId");
     }
 
     @Test
@@ -71,7 +70,7 @@ public class AddGraphTest extends OperationTest<AddGraph> {
         final AddGraph a = new Builder()
                 .graphId("graphId")
                 .parentPropertiesId("testPropID")
-                .parentSchemaIds(Lists.newArrayList("testSchemaID"))
+                .parentSchemaIds(singletonList("testSchemaID"))
                 .schema(new Schema.Builder()
                         .build())
                 .graphAuths("testAuth")
@@ -97,7 +96,7 @@ public class AddGraphTest extends OperationTest<AddGraph> {
                 .parentPropertiesId(null)
                 .parentSchemaIds(null)
                 .schema(null)
-                .graphAuths(null)
+                .graphAuths((String) null)
                 .storeProperties(null)
                 .readAccessPredicate(READ_ACCESS_PREDICATE)
                 .writeAccessPredicate(WRITE_ACCESS_PREDICATE)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,16 +39,7 @@ public final class CollectionUtil {
         return collection.toArray(new Iterable[collection.size()]);
     }
 
-    public static <T> TreeSet<T> treeSet(final T item) {
-        final TreeSet<T> treeSet = new TreeSet<>();
-        if (null != item) {
-            treeSet.add(item);
-        }
-
-        return treeSet;
-    }
-
-    public static <T> TreeSet<T> treeSet(final T[] items) {
+    public static <T> TreeSet<T> treeSet(final T... items) {
         final TreeSet<T> treeSet = new TreeSet<>();
         if (null != items) {
             for (final T item : items) {
@@ -91,7 +82,7 @@ public final class CollectionUtil {
         return mapAsStrings;
     }
 
-    public static boolean containsAny(final Collection collection, final Object[] objects) {
+    public static boolean containsAny(final Collection collection, final Object... objects) {
         boolean result = false;
         if (null != collection && null != objects) {
             for (final Object object : objects) {
@@ -105,7 +96,7 @@ public final class CollectionUtil {
         return result;
     }
 
-    public static boolean anyMissing(final Collection collection, final Object[] objects) {
+    public static boolean anyMissing(final Collection collection, final Object... objects) {
         boolean result = false;
         if (null == collection || collection.isEmpty()) {
             if (null != objects && 0 < objects.length) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,16 @@
 
 package uk.gov.gchq.gaffer.proxystore.integration;
 
-import com.google.common.collect.Iterables;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
@@ -49,9 +47,16 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
+import uk.gov.gchq.gaffer.proxystore.SingleUseMapProxyStore;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
+import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
@@ -60,18 +65,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ProxyStoreBasicIT {
-    private Graph graph;
 
     private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
-    @TempDir
-    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
-
     public static final User USER = new User();
-    public static final Element[] DEFAULT_ELEMENTS = new Element[]{
+    public static final Element[] DEFAULT_ELEMENTS = new Element[] {
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("1")
@@ -103,8 +104,12 @@ public class ProxyStoreBasicIT {
                     .build()
     };
 
+    private Store store;
+    private Graph graph;
+
     @BeforeAll
     public static void beforeAll() throws Exception {
+        SingleUseMapProxyStore.cleanUp();
         CLIENT.startServer();
     }
 
@@ -114,17 +119,18 @@ public class ProxyStoreBasicIT {
     }
 
     @BeforeEach
-    public void before() throws IOException {
+    public void before(@TempDir File testFolder) throws IOException {
         CLIENT.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
 
         // setup ProxyStore
+        store = new ProxyStore.Builder()
+                .graphId("graph1")
+                .host("localhost")
+                .port(8080)
+                .contextRoot("rest/v2")
+                .build();
         graph = new Graph.Builder()
-                .store(new ProxyStore.Builder()
-                        .graphId("graph1")
-                        .host("localhost")
-                        .port(8080)
-                        .contextRoot("rest/v2")
-                        .build())
+                .store(store)
                 .build();
     }
 
@@ -133,13 +139,12 @@ public class ProxyStoreBasicIT {
         // Given
         addDefaultElements();
 
-
         // When - Get
-        final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), USER);
+        final Iterable<? extends Element> results = graph.execute(new GetAllElements(), USER);
 
         // Then
-        assertThat(Iterables.size(results)).isEqualTo(DEFAULT_ELEMENTS.length);
-        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS);
+        assertThat(results).hasSize(DEFAULT_ELEMENTS.length);
+        assertThat(results).asInstanceOf(InstanceOfAssertFactories.iterable(Element.class)).contains(DEFAULT_ELEMENTS);
     }
 
     @Test
@@ -154,11 +159,11 @@ public class ProxyStoreBasicIT {
                         .build())
                 .input(new EntitySeed("1"))
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
+        final Iterable<? extends Element> results = graph.execute(getElements, USER);
 
         // Then
         assertThat(results).hasSize(1);
-        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS[0]);
+        assertThat(results).asInstanceOf(InstanceOfAssertFactories.iterable(Element.class)).contains(DEFAULT_ELEMENTS[0]);
     }
 
     @Test
@@ -185,11 +190,11 @@ public class ProxyStoreBasicIT {
                         .build())
                 .input(new EntitySeed("1"))
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
+        final Iterable<? extends Element> results = graph.execute(getElements, USER);
 
         // Then
         assertThat(results).hasSize(2);
-        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS[0], DEFAULT_ELEMENTS[2]);
+        assertThat(results).asInstanceOf(InstanceOfAssertFactories.iterable(Element.class)).contains(DEFAULT_ELEMENTS[0], DEFAULT_ELEMENTS[2]);
     }
 
     @Test
@@ -198,30 +203,28 @@ public class ProxyStoreBasicIT {
         addDefaultElements();
 
         // When / Then
-        try {
-            graph.execute(
-                    new OperationChain.Builder()
-                            .first(new GetAllElements())
-                            .then(new Limit<>(1, false))
-                            .then(new ToList<>())
-                            .build(), USER);
-            fail("Exception expected");
-        } catch (final GafferWrappedErrorRuntimeException e) {
-            assertThat(e.getError()).isEqualTo(new Error.ErrorBuilder()
-                    .simpleMessage("Limit of 1 exceeded.")
-                    .status(Status.INTERNAL_SERVER_ERROR)
-                    .build());
-        }
+        final GafferWrappedErrorRuntimeException actual = assertThrows(GafferWrappedErrorRuntimeException.class,
+                () -> graph.execute(
+                        new OperationChain.Builder()
+                                .first(new GetAllElements())
+                                .then(new Limit<>(1, false))
+                                .then(new ToList<>())
+                                .build(),
+                        USER));
+        assertThat(actual.getError()).isEqualTo(new Error.ErrorBuilder()
+                .simpleMessage("Limit of 1 exceeded.")
+                .status(Status.INTERNAL_SERVER_ERROR)
+                .build());
     }
 
     @Test
-    public void shouldHaveAllOfDelegateStoreTraitsApartFromVisibility() {
+    public void shouldHaveAllOfDelegateStoreTraitsApartFromVisibility() throws OperationException {
         // Given
         final Set<StoreTrait> expectedTraits = new HashSet<>(MapStore.TRAITS);
         expectedTraits.remove(StoreTrait.VISIBILITY);
 
         // When
-        final Set<StoreTrait> storeTraits = graph.getStoreTraits();
+        final Set<StoreTrait> storeTraits = graph.execute(new GetTraits.Builder().currentTraits(false).build(), new Context());
 
         // Then
         assertThat(storeTraits).isEqualTo(expectedTraits);
@@ -238,8 +241,40 @@ public class ProxyStoreBasicIT {
     public void shouldNotErrorWithNonNullOptionsMapAndNullHandlerOption() throws Exception {
         final AddElements add = new AddElements.Builder()
                 .input(DEFAULT_ELEMENTS)
-                .option("Anything", "Value") //any value to create a optionsMap
+                .option("Anything", "Value") // any value to create a optionsMap
                 .build();
         graph.execute(add, USER);
+    }
+
+    @Test
+    public void shouldGetOriginalSchemaUsingMethodsAndOperation() throws OperationException {
+        // Given
+        Schema storeSchema = Schema.fromJson(StreamUtil.openStream(this.getClass(), StreamUtil.SCHEMA));
+
+        // When - Get
+        final Schema returnedSchemaFromGraphMethod = graph.getSchema(); // Indirectly runs getOriginalSchema
+        final Schema returnedSchemaFromStoreMethod = store.getOriginalSchema();
+        final Schema returnedSchemaFromOperation = graph.execute(new GetSchema(), USER);
+
+        // Then
+        assertThat(returnedSchemaFromGraphMethod).isEqualTo(storeSchema);
+        assertThat(returnedSchemaFromStoreMethod).isEqualTo(storeSchema);
+        assertThat(returnedSchemaFromOperation).isEqualTo(storeSchema);
+    }
+
+    @Test
+    public void shouldGetInternalOptimisedSchemaUsingMethodAndOperation() throws OperationException {
+        // Given
+        Schema storeSchema = Schema.fromJson(StreamUtil.openStream(this.getClass(), StreamUtil.SCHEMA));
+        Schema optimisedStoreSchema = new SchemaOptimiser().optimise(storeSchema, true);
+
+        // When - Get
+        final Schema returnedSchemaFromMethod = store.getSchema();
+        GetSchema getCompactSchema = new GetSchema.Builder().compact(true).build();
+        final Schema returnedSchemaFromOperation = graph.execute(getCompactSchema, USER);
+
+        // Then
+        assertThat(returnedSchemaFromMethod).isEqualTo(optimisedStoreSchema);
+        assertThat(returnedSchemaFromOperation).isEqualTo(optimisedStoreSchema);
     }
 }

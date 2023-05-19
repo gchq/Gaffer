@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -60,8 +61,8 @@ public class HasTraitHandlerTest {
 
         store = new TestAddToGraphLibraryImpl() {
             @Override
-            public Set<StoreTrait> getTraits() {
-                return Sets.newHashSet(expectedTraits);
+            protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+                return new GetTraitsHandler(expectedTraits);
             }
         };
         assertNotEquals(StoreTrait.ALL_TRAITS, expectedTraits);

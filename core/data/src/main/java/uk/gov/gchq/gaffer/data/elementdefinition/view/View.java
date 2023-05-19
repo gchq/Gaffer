@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     private List<GlobalViewElementDefinition> globalElements;
     private List<GlobalViewElementDefinition> globalEntities;
     private List<GlobalViewElementDefinition> globalEdges;
-    private Map<String, String> config = new HashMap<>();
+    private final Map<String, String> config = new HashMap<>();
     private boolean allEntities = false;
     private boolean allEdges = false;
 
@@ -156,6 +156,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
 
     public boolean hasPostTransformFilters() {
         return hasFilters(ViewElementDefinition::hasPostTransformFilters);
+    }
+
+    public boolean hasTransform() {
+        return hasFilters(ViewElementDefinition::hasTransform);
     }
 
     public boolean hasEntityFilters() {
@@ -300,7 +304,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     }
 
     public boolean canMerge(final View addingView, final View srcView) {
-        if (addingView instanceof View && !(srcView instanceof View)) {
+        if (addingView != null && srcView == null) {
             return false;
         }
         return true;
@@ -380,8 +384,8 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
-        public CHILD_CLASS allEntities(final boolean allEntites) {
-            getThisView().allEntities = allEntites;
+        public CHILD_CLASS allEntities(final boolean allEntities) {
+            getThisView().allEntities = allEntities;
             return self();
         }
 
@@ -542,11 +546,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         public CHILD_CLASS expandGlobalDefinitions() {
             getThisView().expandGlobalDefinitions();
             return self();
-        }
-
-        @Override
-        public View build() {
-            return super.build();
         }
 
         private View getThisView() {

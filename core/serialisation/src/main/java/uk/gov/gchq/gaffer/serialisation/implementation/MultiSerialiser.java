@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -40,17 +41,18 @@ import java.util.List;
  *             ^
  *             serialiser byte key
  * </pre>
- * When multiple serialisers that operate on the same value type are added,
- * the last one to be added will be used for serialisation. This happens
- * regardless of the key value used when adding to the MultiSerialiser (shown in example)
+ * When multiple serialisers are used that operate on the same value class then
+ * the last serialiser in the list will be used for serialisation; this happens
+ * regardless of the key's natural-ordering. In the example Integers will be serialised with no.8.
  * <br>
  * For deserialising the correct serialiser is always chosen based on the byte key at the start of the byte[].
  * <p>
  * In the below example, the MultiSerialiser has 3 Integer serialisers.
- * There is backwards compatibility to deserialise all three byte arrays. However
- * when re-serialising the Integer object, only the last serialiser will be used (key 8, OrderedIntegerSerialiser)
+ * This has backwards compatibility to read and deserialise each byte array regardless of the keyed serialiser used at the time of writing, as long as its on the classpath.
+ * However when re-serialising the Integer object, only the last serialiser will be used (key no.8, CompactRawIntegerSerialiser)
  * <br>
- * This allows the MultiSerialiser to be updated with improvements and maintain backwards compatibility.
+ * This allows the MultiSerialiser to be updated with improvements and maintain backwards compatibility. This also allows serialisation to be
+ * updated before a Serialiser is deprecated and removed.
  * <pre>
  *     Json
  *     {
@@ -64,20 +66,20 @@ import java.util.List;
  *       }, {
  *         "key" : 7,
  *         "serialiser" : {
- *           "class" : "uk.gov.gchq.gaffer.serialisation.IntegerSerialiser",
+ *           "class" : "old.deprecated.IntegerSerialiser",
  *           "charset" : "ISO-8859-1"
  *         },
  *         "valueClass" : "java.lang.Integer"
  *       }, {
  *         "key" : 24,
  *         "serialiser" : {
- *           "class" : "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
+ *           "class" : "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser"
  *         },
  *         "valueClass" : "java.lang.Integer"
  *       }, {
  *         "key" : 8,
  *         "serialiser" : {
- *           "class" : "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser"
+ *           "class" : "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
  *         },
  *         "valueClass" : "java.lang.Integer"
  *       } ]
@@ -86,6 +88,7 @@ import java.util.List;
  */
 public class MultiSerialiser implements ToBytesSerialiser<Object> {
     private static final long serialVersionUID = 8206706506883696003L;
+    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "Investigate if MultiSerialiserStorage needs to implement Serializable")
     private final MultiSerialiserStorage supportedSerialisers = new MultiSerialiserStorage();
 
     public void setSerialisers(final List<SerialiserDetail> serialisers) throws GafferCheckedException {

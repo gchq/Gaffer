@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
@@ -57,14 +58,10 @@ import java.util.Set;
 public class StoreProperties implements Cloneable {
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
-    /**
-     * @deprecated the ID should not be used. The properties ID should be supplied to the graph library separately.
-     */
-    @Deprecated
-    public static final String ID = "gaffer.store.id";
 
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
+    public static final String OPERATION_DECLARATIONS_JSON = "gaffer.store.operation.declarations.json";
 
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
 
@@ -78,6 +75,19 @@ public class StoreProperties implements Cloneable {
     public static final String ADMIN_AUTH = "gaffer.store.admin.auth";
 
     /**
+     * This is used....
+     * eg.gaffer.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
+     */
+    public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
+
+    /**
+     * This is used...
+     * CASE INSENSITIVE
+     * e.g. gaffer.cache.service.name.suffix="v2"
+     */
+    public static final String CACHE_SERVICE_NAME_SUFFIX = "gaffer.cache.service.name.suffix";
+
+    /**
      * CSV of extra packages to be included in the reflection scanning.
      */
     public static final String REFLECTION_PACKAGES = "gaffer.store.reflection.packages";
@@ -89,18 +99,6 @@ public class StoreProperties implements Cloneable {
     // Required for loading by reflection.
     public StoreProperties() {
         updateStorePropertiesClass();
-    }
-
-    /**
-     * @param id the StoreProperties id.
-     * @deprecated the id should not be used. The properties id should be supplied to the graph library separately.
-     */
-    @Deprecated
-    public StoreProperties(final String id) {
-        this();
-        if (null != id) {
-            setId(id);
-        }
     }
 
     public StoreProperties(final Path propFileLocation) {
@@ -181,6 +179,7 @@ public class StoreProperties implements Cloneable {
         return (T) updateInstanceType(requiredClass, properties);
     }
 
+    @SuppressWarnings("PMD.UseTryWithResources") //Not possible
     public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
         if (null == storePropertiesStream) {
             return new StoreProperties();
@@ -262,36 +261,8 @@ public class StoreProperties implements Cloneable {
 
     public void merge(final StoreProperties properties) {
         if (null != properties) {
-            if (null != properties.getId()
-                    && null != getId()
-                    && !properties.getId().equals(getId())) {
-                final String newId = getId() + "_" + properties.getId();
-                properties.setId(newId);
-                setId(newId);
-            }
-
             props.putAll(properties.getProperties());
         }
-    }
-
-    /**
-     * @return properties ID
-     * @deprecated the ID should be supplied to the graph library separately
-     */
-    @Deprecated
-    public String getId() {
-        return get(ID);
-    }
-
-    /**
-     * Set the ID for the StoreProperties
-     *
-     * @param id the value of the ID
-     * @deprecated the ID should be supplied to the graph library separately
-     */
-    @Deprecated
-    public void setId(final String id) {
-        set(ID, id);
     }
 
     /**
@@ -305,18 +276,21 @@ public class StoreProperties implements Cloneable {
      */
     @JsonIgnore
     public OperationDeclarations getOperationDeclarations() {
-        OperationDeclarations declarations = null;
+        OperationDeclarations.Builder declarations = new OperationDeclarations.Builder();
 
         final String declarationsPaths = get(StoreProperties.OPERATION_DECLARATIONS);
         if (null != declarationsPaths) {
-            declarations = OperationDeclarations.fromPaths(declarationsPaths);
+            OperationDeclarations.fromPaths(declarationsPaths).getOperations()
+                    .forEach(d -> declarations.declaration(d));
         }
 
-        if (null == declarations) {
-            declarations = new OperationDeclarations.Builder().build();
+        if (containsKey(OPERATION_DECLARATIONS_JSON)) {
+            final String json = get(OPERATION_DECLARATIONS_JSON);
+            OperationDeclarations.fromJson(json).getOperations()
+                    .forEach(d -> declarations.declaration(d));
         }
 
-        return declarations;
+        return declarations.build();
     }
 
     public String getStoreClass() {
@@ -464,6 +438,30 @@ public class StoreProperties implements Cloneable {
 
     public void setAdminAuth(final String adminAuth) {
         set(ADMIN_AUTH, adminAuth);
+    }
+
+    public void setCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_CLASS, cacheServiceClassString);
+    }
+
+    public String getCacheServiceClass() {
+        return getCacheServiceClass(null);
+    }
+
+    public String getCacheServiceClass(final String defaultValue) {
+        return get(CACHE_SERVICE_CLASS, defaultValue);
+    }
+
+    public void setCacheServiceNameSuffix(final String suffix) {
+        set(CACHE_SERVICE_NAME_SUFFIX, suffix);
+    }
+
+    public String getCacheServiceNameSuffix() {
+        return getCacheServiceNameSuffix(null);
+    }
+
+    public String getCacheServiceNameSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_NAME_SUFFIX, defaultValue);
     }
 
     public Properties getProperties() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,14 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.serialisation.DoubleSerialiser;
-import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.TreeSetStringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -38,7 +39,7 @@ public class CustomMapTest {
     @Test
     public void shouldJSONSerialiseStringInteger() throws IOException {
         //given
-        final CustomMap<String, Integer> expectedMap = new CustomMap<>(new StringSerialiser(), new IntegerSerialiser());
+        final CustomMap<String, Integer> expectedMap = new CustomMap<>(new StringSerialiser(), new OrderedIntegerSerialiser());
         expectedMap.put("one", 1111);
         expectedMap.put("two", 2222);
         final String expectedJson = jsonFromFile("custom-map01.json");
@@ -56,7 +57,7 @@ public class CustomMapTest {
     @Test
     public void shouldJSONSerialiseBigIntString() throws IOException {
         //given
-        final CustomMap<TreeSet<String>, Double> expectedMap = new CustomMap<>(new TreeSetStringSerialiser(), new DoubleSerialiser());
+        final CustomMap<TreeSet<String>, Double> expectedMap = new CustomMap<>(new TreeSetStringSerialiser(), new OrderedDoubleSerialiser());
         final TreeSet<String> key1 = new TreeSet<>();
         key1.add("k1");
         key1.add("k2");
@@ -104,7 +105,7 @@ public class CustomMapTest {
     }
 
     protected String jsonFromFile(final String path) throws IOException {
-        return String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), path)));
+        return String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), path), StandardCharsets.UTF_8));
     }
 
 }

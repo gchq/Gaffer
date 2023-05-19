@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ import java.util.Set;
  */
 public class HashMapCache<K, V> implements ICache<K, V> {
     private static final JavaSerialiser JAVA_SERIALISER = new JavaSerialiser();
-    private boolean useJavaSerialisation;
-    private HashMap<K, Object> cache = new HashMap<>();
+    private final boolean useJavaSerialisation;
+    private final HashMap<K, Object> cache = new HashMap<>();
 
     public HashMapCache(final boolean useJavaSerialisation) {
         this.useJavaSerialisation = useJavaSerialisation;

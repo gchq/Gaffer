@@ -21,12 +21,12 @@ and their licenses, below. For information on the dependencies of these dependen
 projects below.
 
 
-Koryphe (uk.gov.gchq.koryphe:koryphe:1.14.0):
+Koryphe (uk.gov.gchq.koryphe:koryphe:2.5.2):
 
 - Apache License, Version 2.0
 
 
-Apache Hadoop (org.apache.hadoop:hadoop-common:2.6.3):
+Apache Hadoop (org.apache.hadoop:hadoop-common:2.6.5, org.apache.hadoop:hadoop-mapreduce-client-core:2.6.5):
 
 - Apache License, Version 2.0
 
@@ -36,12 +36,12 @@ Apache Accumulo (org.apache.accumulo:accumulo-core:1.8.1):
 - Apache License, Version 2.0
 
 
-Apache Avro (org.apache.avro:avro:1.7.7, org.apache.avro:avro-mapred:1.7.7):
+Apache Avro (org.apache.avro:avro:1.8.2, org.apache.avro:avro-mapred:1.8.2):
 
 - Apache License, Version 2.0
 
 
-Apache Commons Lang (org.apache.commons:commons-lang3:3.3.2):
+Apache Commons Lang (org.apache.commons:commons-lang3:3.12.0):
 
 - Apache License, Version 2.0
 
@@ -51,7 +51,7 @@ Apache Commons JCS (org.apache.commons:commons-jcs-core:2.1):
 - Apache Licence, Version 2.0
 
 
-Apache Commons CSV (org.apache.commons:commons-csv:1.4):
+Apache Commons CSV (org.apache.commons:commons-csv:1.9.0):
 
 - Apache Licence, Version 2.0
 
@@ -61,7 +61,7 @@ Apache Commons Codec (commons-codec:commons-codec:1.6):
 - Apache Licence, Version 2.0
 
 
-Apache Spark (org.apache.spark:spark-core:2.3.2, org.apache.spark:spark-sql:2.3.2, org.apache.spark:spark-catalyst:2.3.2, org.apache.spark:spark-graphx:2.3.2)
+Apache Spark (org.apache.spark:spark-core:2.4.5, org.apache.spark:spark-sql:2.4.5, org.apache.spark:spark-catalyst:2.4.5, org.apache.spark:spark-graphx:2.4.5)
 
 - Apache License, Version 2.0
 
@@ -76,7 +76,7 @@ Datasketches (com.yahoo.sketches:sketches-core:0.12.0):
 - Apache License, Version 2.0
 
 
-Commons IO (commons-io:commons-io:2.4)
+Commons IO (commons-io:commons-io:2.11.0)
 
 - Apache License, Version 2.0
 
@@ -88,17 +88,22 @@ org.json4s:json4s-ast_2.10:3.2.11):
 - Apache License, Version 2.0
 
 
-Swagger (io.swagger:-jersey2-jaxrs:1.5.15):
+Swagger (io.swagger:swagger-annotations:1.6.4,
+io.swagger:swagger-jaxrs:1.6.4):
 
 - Apache License, Version 2.0
 
+Springfox (io.springfox:springfox-swagger2:3.0.0):
+
+- Apache License, Version 2.0
 
 FasterXML Jackson (com.fasterxml.jackson.core:jackson-annotations:2.6.5,
 com.fasterxml.jackson.core:jackson-core:2.6.5, com.fasterxml.jackson.core:jackson-databind:2.6.5,
 com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.6.5,
 com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.6.5,
 com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.5,
-com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.6.5):
+com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.6.5,
+com.fasterxml.jackson.module:jackson-module-scala_2.11:2.6.5):
 
 - Apache License, Version 2.0
 
@@ -119,7 +124,7 @@ Javax Web Api (javax:javaee-web-api:7.0)
 - Common Development and Distribution License 1.0
 
 
-Jersey Server (org.glassfish.jersey.core:jersey-server:2.25)
+Jersey Server (org.glassfish.jersey.core:jersey-server:2.25.1)
 
 - Common Development and Distribution License 1.0
 - GNU General Public License 2.0
@@ -140,7 +145,7 @@ Mockito (org.mockito:mockito-all:1.9.5):
 - MIT License
 
 
-Netty (io.netty:netty:jar:3.6.2.Final)
+Netty (io.netty:netty:3.6.2.Final)
 
 - Apache License, Version 2.0
 
@@ -150,7 +155,7 @@ MockServer (org.mock-server:mockserver-netty:3.9.16)
 -Apache License, Version 2.0
 
 
-Reflections (org.reflections:reflections:RC1:0.9.9)
+Reflections (org.reflections:reflections:0.9.12)
 
 - WTFPL
 
@@ -160,7 +165,7 @@ Scala (org.scala-lang:scala-library:2.11.12):
 - BSD 3 Clause Licence ("New" or "Revised")
 
 
-SLF4J (org.slf4j:slf4j-api:1.7.25):
+SLF4J (org.slf4j:slf4j-api:1.7.36):
 
 - MIT License
 
@@ -180,7 +185,7 @@ FindBugs Annotations (com.google.code.findbugs:annotations:3.0.2):
 - GNU Lesser Public License
 
 
-Hazelcast (com.hazelcast:hazelcast:3.8)
+Hazelcast (com.hazelcast:hazelcast:5.1)
 
 - Apache Licence, Version 2.0
 
@@ -205,12 +210,12 @@ Apache Kafka (org.apache.kafka:kafka_2.11:0.10.0.0,org.apache.kafka:kafka-client
 - Apache License, Version 2.0
 
 
-Apache Flink (org.apache.flink:flink-java:1.4.1,org.apache.flink:flink-clients_2.11:1.4.1,org.apache.flink:flink-connector-kafka_2.11:1.4.1)
+Apache Flink (org.apache.flink:flink-java:1.7.2,org.apache.flink:flink-clients_2.11:1.7.2,org.apache.flink:flink-connector-kafka-0.10_2.11:1.7.2, org.apache.flink:flink-streaming-java_2.11:1.7.2)
 
 - Apache License, Version 2.0
 
 
-Graphframes (graphframes:graphframes:0.4.0-spark2.1-s_2.11)
+Graphframes (graphframes:graphframes:0.8.1-spark2.4-s_2.11)
 
 - Apache License, Version 2.0
 

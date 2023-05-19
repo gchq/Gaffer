@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.named.operation;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.serialisation.NamedOperationTypeReference;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.koryphe.Since;
@@ -35,11 +34,11 @@ import java.util.Map;
 @Since("1.0.0")
 @Summary("Gets all available named operations")
 public class GetAllNamedOperations implements
-        Output<CloseableIterable<NamedOperationDetail>> {
+        Output<Iterable<NamedOperationDetail>> {
     private Map<String, String> options;
 
     @Override
-    public TypeReference<CloseableIterable<NamedOperationDetail>> getOutputTypeReference() {
+    public TypeReference<Iterable<NamedOperationDetail>> getOutputTypeReference() {
         return new NamedOperationTypeReference.IterableNamedOperationDetail();
     }
 
@@ -61,7 +60,7 @@ public class GetAllNamedOperations implements
     }
 
     public static class Builder extends BaseBuilder<GetAllNamedOperations, Builder>
-            implements Output.Builder<GetAllNamedOperations, CloseableIterable<NamedOperationDetail>, Builder> {
+            implements Output.Builder<GetAllNamedOperations, Iterable<NamedOperationDetail>, Builder> {
         public Builder() {
             super(new GetAllNamedOperations());
         }

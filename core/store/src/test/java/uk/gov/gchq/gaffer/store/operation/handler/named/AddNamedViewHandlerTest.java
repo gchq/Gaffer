@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,13 +24,13 @@ import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.NamedViewWriteAccessPredicate;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -49,7 +49,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedViewHandlerTest {
-    private final NamedViewCache namedViewCache = new NamedViewCache();
+    public static final String SUFFIX_CACHE_NAME = "suffix";
+    private final NamedViewCache namedViewCache = new NamedViewCache(SUFFIX_CACHE_NAME);
     private final AddNamedViewHandler handler = new AddNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
     private final String testUserId = "testUser";
@@ -92,16 +93,16 @@ public class AddNamedViewHandlerTest {
         given(store.getProperties()).willReturn(new StoreProperties());
     }
 
-    @AfterAll
-    public static void tearDown() {
+    @AfterEach
+    public void tearDown() {
         CacheServiceLoader.shutdown();
     }
 
     @Test
-    public void shouldAddNamedViewCorrectly() throws OperationException, CacheOperationFailedException {
+    public void shouldAddNamedViewCorrectly() throws OperationException, CacheOperationException {
         handler.doOperation(addNamedView, context, store);
 
-        final NamedViewDetail result = namedViewCache.getNamedView(testNamedViewName);
+        final NamedViewDetail result = namedViewCache.getNamedView(testNamedViewName, context.getUser());
 
         assertTrue(cacheContains(testNamedViewName));
         assertEquals(addNamedView.getName(), result.getName());
@@ -113,7 +114,7 @@ public class AddNamedViewHandlerTest {
     }
 
     @Test
-    public void shouldAddNamedViewContainingCustomAccessPredicatesCorrectly() throws OperationException, CacheOperationFailedException {
+    public void shouldAddNamedViewContainingCustomAccessPredicatesCorrectly() throws OperationException, CacheOperationException {
         final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         addNamedView.setReadAccessPredicate(readAccessPredicate);
@@ -122,7 +123,7 @@ public class AddNamedViewHandlerTest {
 
         handler.doOperation(addNamedView, context, store);
 
-        final NamedViewDetail result = namedViewCache.getNamedView(testNamedViewName);
+        final NamedViewDetail result = namedViewCache.getNamedView(testNamedViewName, context.getUser());
 
         assertTrue(cacheContains(testNamedViewName));
         assertEquals(addNamedView.getName(), result.getName());
@@ -163,8 +164,8 @@ public class AddNamedViewHandlerTest {
         }
     }
 
-    private boolean cacheContains(final String namedViewName) throws CacheOperationFailedException {
-        Iterable<NamedViewDetail> namedViews = namedViewCache.getAllNamedViews();
+    private boolean cacheContains(final String namedViewName) throws CacheOperationException {
+        Iterable<NamedViewDetail> namedViews = namedViewCache.getAllNamedViews(context.getUser());
         for (final NamedViewDetail namedView : namedViews) {
             if (namedView.getName().equals(namedViewName)) {
                 return true;

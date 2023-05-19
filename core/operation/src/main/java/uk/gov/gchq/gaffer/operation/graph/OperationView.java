@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,10 +132,10 @@ public interface OperationView {
      */
     default void setViews(final List<View> views) {
         if (null != views) {
-            boolean isNamedView = null != getView() && getView() instanceof NamedView;
+            boolean isNamedView = getView() instanceof NamedView;
             if (!isNamedView) {
                 for (final View view : views) {
-                    if (null != view && view instanceof NamedView) {
+                    if (view instanceof NamedView) {
                         isNamedView = true;
                         break;
                     }
@@ -148,7 +148,7 @@ public interface OperationView {
             }
             views.forEach(view -> builder.merge(view));
 
-            setView(builder.build());
+            setView((View) builder.build());
         }
     }
 

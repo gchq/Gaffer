@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,23 +22,22 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static java.util.Arrays.asList;
 
 /**
  * <p>
@@ -70,7 +69,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @Since("1.0.0")
 @Summary("Adds a new Graph to the federated store")
 @JsonInclude(Include.NON_DEFAULT)
-public class AddGraph implements FederatedOperation {
+public class AddGraph implements IFederationOperation {
     @Required
     private String graphId;
     private StoreProperties storeProperties;
@@ -80,13 +79,9 @@ public class AddGraph implements FederatedOperation {
     private Set<String> graphAuths;
     private Map<String, String> options;
     private boolean isPublic = false;
-    private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
     private AccessPredicate readAccessPredicate;
     private AccessPredicate writeAccessPredicate;
-
-    public AddGraph() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
+    private boolean userRequestingAdminUsage;
 
     public String getGraphId() {
         return graphId;
@@ -107,16 +102,16 @@ public class AddGraph implements FederatedOperation {
     @Override
     public AddGraph shallowClone() throws CloneFailedException {
         final Builder builder = new Builder()
-                .graphId(graphId)
-                .schema(schema)
-                .storeProperties(storeProperties)
-                .parentSchemaIds(parentSchemaIds)
-                .parentPropertiesId(parentPropertiesId)
-                .disabledByDefault(disabledByDefault)
+                .graphId(this.graphId)
+                .schema(this.schema)
+                .storeProperties(this.storeProperties)
+                .parentSchemaIds(this.parentSchemaIds)
+                .parentPropertiesId(this.parentPropertiesId)
                 .options(this.options)
                 .isPublic(this.isPublic)
                 .readAccessPredicate(this.readAccessPredicate)
-                .writeAccessPredicate(this.writeAccessPredicate);
+                .writeAccessPredicate(this.writeAccessPredicate)
+                .setUserRequestingAdminUsage(this.userRequestingAdminUsage);
 
         if (null != graphAuths) {
             builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));
@@ -149,14 +144,6 @@ public class AddGraph implements FederatedOperation {
 
     public void setParentPropertiesId(final String parentPropertiesId) {
         this.parentPropertiesId = parentPropertiesId;
-    }
-
-    public boolean isDisabledByDefault() {
-        return disabledByDefault;
-    }
-
-    public void setDisabledByDefault(final boolean disabledByDefault) {
-        this.disabledByDefault = disabledByDefault;
     }
 
     @Override
@@ -215,9 +202,20 @@ public class AddGraph implements FederatedOperation {
         this.readAccessPredicate = readAccessPredicate;
     }
 
-    public abstract static class GraphBuilder<OP extends AddGraph, B extends GraphBuilder<OP, ?>> extends BaseBuilder<OP, B> {
+    @Override
+    public boolean isUserRequestingAdminUsage() {
+        return userRequestingAdminUsage;
+    }
 
-        protected GraphBuilder(final OP addGraph) {
+    @Override
+    public AddGraph setUserRequestingAdminUsage(final boolean adminRequest) {
+        userRequestingAdminUsage = adminRequest;
+        return this;
+    }
+
+    public abstract static class AddGraphBuilder<OP extends AddGraph, B extends AddGraphBuilder<OP, ?>> extends IFederationOperation.BaseBuilder<OP, B> {
+
+        protected AddGraphBuilder(final OP addGraph) {
             super(addGraph);
         }
 
@@ -255,13 +253,8 @@ public class AddGraph implements FederatedOperation {
             if (null == graphAuths) {
                 _getOp().setGraphAuths(null);
             } else {
-                _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
+                _getOp().setGraphAuths(new HashSet<>(asList(graphAuths)));
             }
-            return _self();
-        }
-
-        public B disabledByDefault(final boolean disabledByDefault) {
-            _getOp().setDisabledByDefault(disabledByDefault);
             return _self();
         }
 
@@ -276,7 +269,7 @@ public class AddGraph implements FederatedOperation {
         }
     }
 
-    public static class Builder extends GraphBuilder<AddGraph, Builder> {
+    public static class Builder extends AddGraphBuilder<AddGraph, Builder> {
         public Builder() {
             super(new AddGraph());
         }

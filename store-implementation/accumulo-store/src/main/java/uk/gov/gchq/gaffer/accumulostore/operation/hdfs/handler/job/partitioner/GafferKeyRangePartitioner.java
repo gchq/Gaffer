@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner;
 
 import org.apache.accumulo.core.data.Key;
@@ -30,7 +31,7 @@ import org.apache.hadoop.mapreduce.Partitioner;
  * points file.
  */
 public class GafferKeyRangePartitioner extends Partitioner<Key, Writable> implements Configurable {
-    private GafferRangePartitioner rp = new GafferRangePartitioner();
+    private final GafferRangePartitioner rp = new GafferRangePartitioner();
 
     @Override
     public int getPartition(final Key key, final Writable value, final int numPartitions) {

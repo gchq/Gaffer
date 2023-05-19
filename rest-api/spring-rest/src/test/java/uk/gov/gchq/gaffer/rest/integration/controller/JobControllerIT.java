@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.rest.integration.controller;
 
 import com.google.common.collect.Lists;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -66,7 +66,7 @@ public class JobControllerIT extends AbstractRestApiIT {
     @Autowired
     private GraphFactory graphFactory; // This will be a Mock (see application-test.properties)
 
-    @Before
+    @BeforeEach
     public void setupGraph() {
         StoreProperties properties = new MapStoreProperties();
         properties.setStoreClass(SingleUseMapStore.class);

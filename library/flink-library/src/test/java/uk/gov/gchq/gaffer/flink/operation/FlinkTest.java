@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.flink.operation;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
@@ -45,7 +45,7 @@ import static java.util.stream.Collectors.toList;
 
 public abstract class FlinkTest {
     @TempDir
-    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
+    public File testFolder = CommonTestConstants.TMP_DIRECTORY;
 
     public static final Schema SCHEMA = new Schema.Builder()
             .type(TestTypes.ID_STRING, new TypeDefinition.Builder()

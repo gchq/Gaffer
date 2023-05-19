@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,11 @@ package uk.gov.gchq.gaffer.store.schema;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition.Builder;
 import uk.gov.gchq.koryphe.ValidationResult;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<SchemaEdgeDefinition> {
@@ -49,10 +48,10 @@ public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<Schema
         setupSchema(elementDef);
 
         // Then
-        assertEquals(3, elementDef.getIdentifiers().size());
-        assertEquals("id.integer", elementDef.getSource());
-        assertEquals("id.date", elementDef.getDestination());
-        assertEquals("directed.true", elementDef.getDirected());
+        assertThat(elementDef.getIdentifiers()).hasSize(3);
+        assertThat(elementDef.getSource()).isEqualTo("id.integer");
+        assertThat(elementDef.getDestination()).isEqualTo("id.date");
+        assertThat(elementDef.getDirected()).isEqualTo("directed.true");
     }
 
     @Test
@@ -73,7 +72,7 @@ public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<Schema
                 .build();
 
         // Then
-        assertEquals("source.string", mergedDef.getSource());
+        assertThat(mergedDef.getSource()).isEqualTo("source.string");
     }
 
     @Test
@@ -94,7 +93,7 @@ public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<Schema
                 .build();
 
         // Then
-        assertEquals("destination.string", mergedDef.getDestination());
+        assertThat(mergedDef.getDestination()).isEqualTo("destination.string");
     }
 
     @Test
@@ -119,7 +118,7 @@ public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<Schema
         final ValidationResult result = validator.validate(elementDef);
 
         // Then
-        assertTrue(result.isValid());
+        assertThat(result.isValid()).isTrue();
     }
 
     @Test
@@ -143,7 +142,20 @@ public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<Schema
         final ValidationResult result = validator.validate(elementDef);
 
         // Then
-        assertFalse(result.isValid());
+        assertThat(result.isValid()).isFalse();
+    }
+
+    @Test
+    public void shouldReturnIdentifiersOrdered() {
+        // Given
+        final SchemaEdgeDefinition elementDef = createBuilder()
+                .identifier(IdentifierType.MATCHED_VERTEX, PROPERTY_STRING_TYPE)
+                .identifier(IdentifierType.GROUP, PROPERTY_STRING_TYPE)
+                .build();
+
+        // When / Then
+        assertThat(elementDef.getIdentifiers()).containsExactly(
+                IdentifierType.SOURCE, IdentifierType.DESTINATION, IdentifierType.DIRECTED, IdentifierType.MATCHED_VERTEX, IdentifierType.GROUP);
     }
 
 }

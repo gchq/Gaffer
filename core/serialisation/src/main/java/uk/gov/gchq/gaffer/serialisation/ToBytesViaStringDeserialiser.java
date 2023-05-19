@@ -47,6 +47,19 @@ public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialis
         this.charset = charset;
     }
 
+    /**
+     * Deserialise an array of bytes into the original object.
+     *
+     * @param bytes the bytes to deserialise
+     * @return T the deserialised object
+     * @throws SerialisationException if the object fails to deserialise
+     * <p>
+     * Note that this implementation is less efficient than using deserialise
+     * with an offset and a length, but may still be used if necessary.
+     * It has been marked deprecated but will not be removed as it is needed
+     * in the Serialiser interface.
+     * @see #deserialise(byte[], int, int)
+     */
     @Deprecated
     @Override
     public final T deserialise(final byte[] bytes) throws SerialisationException {

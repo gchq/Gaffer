@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Crown Copyright
+ * Copyright 2021-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static uk.gov.gchq.gaffer.proxystore.SingleUseProxyStore.CONTEXT_ROOT_SINGLE_USE_PROXY;
 
 /**
  * The DoubleProxyTest Test works as follows:
@@ -48,7 +49,7 @@ public class DoubleProxyTest {
 
     @BeforeEach
     public void setUpStores() throws OperationException {
-        SingleUseProxyMapStore.cleanUp();
+        FederatedStoreTestUtil.resetForFederatedTests();
 
         ProxyProperties proxyProperties = new ProxyProperties();
         proxyProperties.setStoreClass(SingleUseProxyMapStore.class);
@@ -71,20 +72,22 @@ public class DoubleProxyTest {
     }
 
     private void connectGraphs(final String graphId) throws OperationException {
+        final ProxyProperties storeProperties = new ProxyProperties();
+        storeProperties.setGafferContextRoot(CONTEXT_ROOT_SINGLE_USE_PROXY);
         federatedStoreGraph.execute(new AddGraph.Builder()
-                .storeProperties(new ProxyProperties())
+                .storeProperties(storeProperties)
                 .graphId(graphId)
                 .schema(new Schema())
                 .build(), new User());
     }
 
-    @Test
-    public void shouldNotErrorDueToRestProxy1FlagsPersistingIntoRestProxy2() throws Exception {
-        assertThatNoException().isThrownBy(() -> federatedStoreGraph.execute(new GetAllElements(), new Context()));
-    }
-
     @AfterAll
     public static void afterClass() {
         SingleUseProxyMapStore.cleanUp();
+    }
+
+    @Test
+    public void shouldNotErrorDueToRestProxy1FlagsPersistingIntoRestProxy2() throws Exception {
+        assertThatNoException().isThrownBy(() -> federatedStoreGraph.execute(new GetAllElements(), new Context()));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.time.serialisation;
 
 import com.google.common.collect.Lists;
@@ -29,12 +30,13 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSerialiser;
 import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.gaffer.types.CustomMap;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -174,7 +176,7 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
                 .timestamps(Lists.newArrayList(Instant.ofEpochSecond(222222)))
                 .build();
 
-        final CustomMap<Float, RBMBackedTimestampSet> expectedMap = new CustomMap<>(new RawFloatSerialiser(), new RBMBackedTimestampSetSerialiser());
+        final CustomMap<Float, RBMBackedTimestampSet> expectedMap = new CustomMap<>(new OrderedFloatSerialiser(), new RBMBackedTimestampSetSerialiser());
         expectedMap.put(123.3f, timestampSet1);
         expectedMap.put(345.6f, timestampSet2);
 
@@ -191,7 +193,7 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
     }
 
     protected String jsonFromFile(final String path) throws IOException {
-        return String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), path)));
+        return String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), path), StandardCharsets.UTF_8));
     }
 
     @Override

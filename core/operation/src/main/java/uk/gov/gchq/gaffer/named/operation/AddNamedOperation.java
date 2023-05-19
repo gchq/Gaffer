@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         try {
             return JSONSerialiser.getJsonNodeFromString(operations);
         } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
+            throw new IllegalArgumentException(se.getMessage(), se);
         }
     }
 
@@ -111,7 +111,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
                 this.operations = new String(JSONSerialiser.serialise(dao), StandardCharsets.UTF_8);
             }
         } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
+            throw new IllegalArgumentException(se.getMessage(), se);
         }
     }
 
@@ -240,7 +240,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
                     opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
                             new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue()), StandardCharsets.UTF_8));
                 } catch (final SerialisationException e) {
-                    throw new IllegalArgumentException(e.getMessage());
+                    throw new IllegalArgumentException(e.getMessage(), e);
                 }
             }
         }

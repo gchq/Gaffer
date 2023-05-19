@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.store.SerialisationFactory;
  * is design to provide compatible serialisers for given object classes.
  */
 public class AccumuloSerialisationFactory extends SerialisationFactory {
-    private static final Serialiser[] ACCUMULO_SERIALISERS = new Serialiser[]{
+    private static final Serialiser[] ACCUMULO_SERIALISERS = {
             new HyperLogLogPlusSerialiser(),
             new LongsSketchSerialiser(),
             new StringsSketchSerialiser(),

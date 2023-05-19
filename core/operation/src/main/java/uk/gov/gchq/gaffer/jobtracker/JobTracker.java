@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 
 package uk.gov.gchq.gaffer.jobtracker;
 
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.List;
@@ -32,9 +30,17 @@ import java.util.stream.Collectors;
  * A {@code JobTracker} is an entry in a Gaffer cache service which is used to store
  * details of jobs submitted to the graph.
  */
-public class JobTracker {
+public class JobTracker extends Cache<String, JobDetail> {
 
-    private static final String CACHE_NAME = "JobTracker";
+    private static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
+
+    public JobTracker(final String suffixCacheName) {
+        super(getCacheNameFrom(suffixCacheName));
+    }
+
+    public static String getCacheNameFrom(final String suffixCacheName) {
+        return Cache.getCacheNameFrom(CACHE_SERVICE_NAME_PREFIX, suffixCacheName);
+    }
 
     /**
      * Add or update the job details relating to a job in the job tracker cache.
@@ -43,9 +49,9 @@ public class JobTracker {
      * @param user      the user making the request
      */
     public void addOrUpdateJob(final JobDetail jobDetail, final User user) {
-        validateJobDetail(jobDetail);
         try {
-            CacheServiceLoader.getService().putInCache(CACHE_NAME, jobDetail.getJobId(), jobDetail);
+            validateJobDetail(jobDetail);
+            super.addToCache(jobDetail.getJobId(), jobDetail, true);
         } catch (final CacheOperationException e) {
             throw new RuntimeException("Failed to add jobDetail " + jobDetail.toString() + " to the cache", e);
         }
@@ -59,16 +65,20 @@ public class JobTracker {
      * @return the {@link JobDetail} object for the requested job
      */
     public JobDetail getJob(final String jobId, final User user) {
-        return CacheServiceLoader.getService().getFromCache(CACHE_NAME, jobId);
+        try {
+            return super.getFromCache(jobId);
+        } catch (final CacheOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * Get all jobs from the job tracker cache.
      *
      * @param user the user making the request to the job tracker
-     * @return a {@link CloseableIterable} containing all of the job details
+     * @return a {@link Iterable} containing all of the job details
      */
-    public CloseableIterable<JobDetail> getAllJobs(final User user) {
+    public Iterable<JobDetail> getAllJobs(final User user) {
 
         return getAllJobsMatching(user, jd -> true);
     }
@@ -76,16 +86,16 @@ public class JobTracker {
     /**
      * Get all scheduled jobs from the job tracker cache.
      *
-     * @return a {@link CloseableIterable} containing all of the scheduled job details
+     * @return a {@link Iterable} containing all of the scheduled job details
      */
-    public CloseableIterable<JobDetail> getAllScheduledJobs() {
+    public Iterable<JobDetail> getAllScheduledJobs() {
 
         return getAllJobsMatching(new User(), jd -> jd.getStatus().equals(JobStatus.SCHEDULED_PARENT));
     }
 
-    private CloseableIterable<JobDetail> getAllJobsMatching(final User user, final Predicate<JobDetail> jobDetailPredicate) {
+    private Iterable<JobDetail> getAllJobsMatching(final User user, final Predicate<JobDetail> jobDetailPredicate) {
 
-        final Set<String> jobIds = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
+        final Set<String> jobIds = getAllKeys();
         final List<JobDetail> jobs = jobIds.stream()
                 .filter(Objects::nonNull)
                 .map(jobId -> getJob(jobId, user))
@@ -93,19 +103,9 @@ public class JobTracker {
                 .filter(jobDetailPredicate)
                 .collect(Collectors.toList());
 
-        return new WrappedCloseableIterable<>(jobs);
+        return jobs;
     }
 
-    /**
-     * Clear the job tracker cache.
-     */
-    public void clear() {
-        try {
-            CacheServiceLoader.getService().clearCache(CACHE_NAME);
-        } catch (final CacheOperationException e) {
-            throw new RuntimeException("Failed to clear job tracker cache", e);
-        }
-    }
 
     private void validateJobDetail(final JobDetail jobDetail) {
         if (null == jobDetail) {
@@ -116,5 +116,4 @@ public class JobTracker {
             throw new IllegalArgumentException("jobId is required");
         }
     }
-
 }

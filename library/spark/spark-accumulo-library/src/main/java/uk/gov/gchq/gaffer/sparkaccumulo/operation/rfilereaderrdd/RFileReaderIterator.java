@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd;
 
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.sample.SamplerConfiguration;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
-import org.apache.accumulo.core.conf.SiteConfiguration;
 import org.apache.accumulo.core.data.ArrayByteSequence;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.file.blockfile.impl.CachableBlockFile;
 import org.apache.accumulo.core.file.rfile.RFile;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.IteratorUtil;
@@ -41,8 +39,11 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.Partition;
 import org.apache.spark.TaskContext;
+import org.apache.spark.util.TaskCompletionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport;
 
 import java.io.IOException;
 import java.util.AbstractMap;
@@ -64,8 +65,8 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     private final List<SortedKeyValueIterator<Key, Value>> iterators = new ArrayList<>();
     private SortedKeyValueIterator<Key, Value> mergedIterator = null;
     private SortedKeyValueIterator<Key, Value> iteratorAfterIterators = null;
-    private Configuration configuration;
-    private Set<String> auths;
+    private final Configuration configuration;
+    private final Set<String> auths;
 
     public RFileReaderIterator(final Partition partition,
                                final TaskContext taskContext,
@@ -102,10 +103,9 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     private void init() throws IOException {
         final AccumuloTablet accumuloTablet = (AccumuloTablet) partition;
         LOGGER.info("Initialising RFileReaderIterator for files {}", StringUtils.join(accumuloTablet.getFiles(), ','));
-        final AccumuloConfiguration accumuloConfiguration = SiteConfiguration.getInstance();
 
         // Required column families according to the configuration
-        final Set<ByteSequence> requiredColumnFamilies = InputConfigurator
+        final Set<ByteSequence> requiredColumnFamilies = LegacySupport.InputConfigurator
                 .getFetchedColumns(AccumuloInputFormat.class, configuration)
                 .stream()
                 .map(Pair::getFirst)
@@ -119,8 +119,8 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
             final Path path = new Path(filename);
             final FileSystem fs = path.getFileSystem(configuration);
 
-            final RFile.Reader rFileReader = new RFile.Reader(
-                    new CachableBlockFile.Reader(fs, path, configuration, null, null, accumuloConfiguration));
+            final RFile.Reader rFileReader = LegacySupport.BackwardsCompatibleCachableBlockFileReader.create(fs, path, configuration);
+
             iterators.add(rFileReader);
         }
         mergedIterator = new MultiIterator(iterators, true);
@@ -129,8 +129,6 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         if (null != auths) {
             final Authorizations authorizations = new Authorizations(auths.toArray(new String[auths.size()]));
             final SortedKeyValueIterator<Key, Value> visibilityFilter = VisibilityFilter.wrap(mergedIterator, authorizations, new byte[]{});
-            final IteratorSetting visibilityIteratorSetting = new IteratorSetting(1, "auth", VisibilityFilter.class);
-            visibilityFilter.init(mergedIterator, visibilityIteratorSetting.getOptions(), null);
             iteratorAfterIterators = visibilityFilter;
             LOGGER.info("Set authorizations to {}", authorizations);
         } else {
@@ -144,7 +142,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
             iteratorAfterIterators = applyIterator(iteratorAfterIterators, is);
         }
 
-        taskContext.addTaskCompletionListener(context -> close());
+        taskContext.addTaskCompletionListener((TaskCompletionListener) context -> close());
 
         final Range range = new Range(accumuloTablet.getStartRow(), true, accumuloTablet.getEndRow(), false);
         iteratorAfterIterators.seek(range, requiredColumnFamilies, true);
@@ -204,23 +202,23 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
             });
             return result;
         } catch (final IOException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new RuntimeException("Exception creating iterator of class " + is.getIteratorClass());
+            throw new RuntimeException("Exception creating iterator of class " + is.getIteratorClass(), e);
         }
     }
 
     private List<IteratorSetting> getIteratorSettings() {
-        return InputConfigurator.getIterators(AccumuloInputFormat.class, configuration);
+        return LegacySupport.InputConfigurator.getIterators(AccumuloInputFormat.class, configuration);
     }
 
     private void close() {
         for (final SortedKeyValueIterator<Key, Value> iterator : iterators) {
-            RFile.Reader reader = null;
+            RFile.Reader reader;
             try {
                 reader = (RFile.Reader) iterator;
                 LOGGER.debug("Closing RFile.Reader {}", reader);
                 reader.close();
             } catch (final IOException e) {
-                LOGGER.error("IOException closing reader {}", reader);
+                LOGGER.error("IOException closing reader", e);
             }
         }
     }

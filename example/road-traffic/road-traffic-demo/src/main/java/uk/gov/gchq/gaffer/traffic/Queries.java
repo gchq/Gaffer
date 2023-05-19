@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.traffic;
 
 import org.apache.commons.io.IOUtils;
@@ -47,10 +48,12 @@ import uk.gov.gchq.koryphe.impl.predicate.range.InDateRangeDual;
 import uk.gov.gchq.koryphe.predicate.PredicateMap;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This class runs simple java queries against the road traffic graph.
  */
+@SuppressWarnings("PMD.SystemPrintln") //Ok for main function and method called only from it
 public class Queries {
     public static void main(final String[] args) throws OperationException, IOException {
         new Queries().run();
@@ -147,12 +150,12 @@ public class Queries {
                         .graphId("roadTraffic")
                         .build())
                 .addSchemas(StreamUtil.openStreams(ElementGroup.class, "schema"))
-                .storeProperties(StreamUtil.openStream(getClass(), "accumulo/store.properties"))
+                .storeProperties(StreamUtil.openStream(getClass(), "map/store.properties"))
                 .build();
 
         final OperationChain<Void> populateChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
-                        .input(IOUtils.readLines(StreamUtil.openStream(getClass(), "roadTrafficSampleData.csv")))
+                        .input(IOUtils.readLines(StreamUtil.openStream(getClass(), "roadTrafficSampleData.csv"), StandardCharsets.UTF_8))
                         .generator(new RoadTrafficStringElementGenerator())
                         .build())
                 .then(new AddElements.Builder()

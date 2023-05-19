@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.resolver.named;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
@@ -35,8 +38,21 @@ import java.util.List;
 public class NamedOperationScoreResolver implements ScoreResolver<NamedOperation> {
     private final NamedOperationCache cache;
 
-    public NamedOperationScoreResolver() {
-        this(new NamedOperationCache());
+    /**
+     * @param namedOperationCacheNameSuffix the suffix of NamedOperationCache to score against.
+     */
+    public NamedOperationScoreResolver(@JsonProperty("namedOperationCacheNameSuffix") final String namedOperationCacheNameSuffix) {
+        this(new NamedOperationCache(namedOperationCacheNameSuffix));
+        if (Strings.isNullOrEmpty(namedOperationCacheNameSuffix)) {
+            LOGGER.error(NamedOperationCache.NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX);
+        }
+    }
+
+    public String getNamedOperationCacheNameSuffix() {
+        final String cacheName = cache.getCacheName();
+        return (NamedOperationCache.CACHE_SERVICE_NAME_PREFIX.equals(cacheName))
+                ? cacheName
+                : cacheName.substring(NamedOperationCache.CACHE_SERVICE_NAME_PREFIX.length() + 1);
     }
 
     public NamedOperationScoreResolver(final NamedOperationCache cache) {
@@ -60,7 +76,7 @@ public class NamedOperationScoreResolver implements ScoreResolver<NamedOperation
 
         try {
             namedOpDetail = cache.getFromCache(operation.getOperationName());
-        } catch (final CacheOperationFailedException e) {
+        } catch (final CacheOperationException e) {
             LOGGER.warn("Error accessing cache for Operation '{}': {}", operation.getClass().getName(), e.getMessage());
         }
 

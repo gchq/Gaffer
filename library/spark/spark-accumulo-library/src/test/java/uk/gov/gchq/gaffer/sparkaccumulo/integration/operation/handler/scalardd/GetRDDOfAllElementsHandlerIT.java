@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sparkaccumulo.integration.operation.handler.scalardd;
 
 import com.google.common.collect.Sets;
@@ -20,15 +21,10 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.admin.CompactionConfig;
-import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.file.blockfile.impl.CachableBlockFile;
 import org.apache.accumulo.core.file.rfile.RFile;
-import org.apache.accumulo.core.file.rfile.bcfile.Compression;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.spark.rdd.RDD;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -44,6 +40,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccum
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -132,8 +129,8 @@ public final class GetRDDOfAllElementsHandlerIT {
     @EnumSource
     public void testGetAllElementsInRDD(KeyPackage keyPackage) throws OperationException, IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException, StoreException, TableNotFoundException {
-        testGetAllElementsInRDD(getGraphForMockAccumulo(keyPackage), getOperation());
-        testGetAllElementsInRDD(getGraphForMockAccumulo(keyPackage), getOperationWithBatchScannerEnabled());
+        testGetAllElementsInRDD(getGraphForAccumulo(keyPackage), getOperation());
+        testGetAllElementsInRDD(getGraphForAccumulo(keyPackage), getOperationWithBatchScannerEnabled());
         testGetAllElementsInRDD(
                 getGraphForDirectRDD(keyPackage, "testGetAllElementsInRDD_" + keyPackage.name()),
                 getOperationWithDirectRDDOption());
@@ -143,8 +140,8 @@ public final class GetRDDOfAllElementsHandlerIT {
     @EnumSource
     public void testGetAllElementsInRDDWithView(KeyPackage keyPackage) throws OperationException, IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException, StoreException, TableNotFoundException {
-        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(keyPackage), getOperation());
-        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(keyPackage), getOperationWithBatchScannerEnabled());
+        testGetAllElementsInRDDWithView(getGraphForAccumulo(keyPackage), getOperation());
+        testGetAllElementsInRDDWithView(getGraphForAccumulo(keyPackage), getOperationWithBatchScannerEnabled());
         testGetAllElementsInRDDWithView(
                 getGraphForDirectRDD(keyPackage, "testGetAllElementsInRDDWithView_" + keyPackage.name()),
                 getOperationWithDirectRDDOption());
@@ -155,10 +152,10 @@ public final class GetRDDOfAllElementsHandlerIT {
     public void testGetAllElementsInRDDWithVisibilityFilteringApplied(KeyPackage keyPackage) throws OperationException, IOException,
             InterruptedException, AccumuloSecurityException, StoreException, AccumuloException, TableNotFoundException {
         testGetAllElementsInRDDWithVisibilityFilteringApplied(
-                getGraphForMockAccumuloWithVisibility(keyPackage),
+                getGraphForAccumuloWithVisibility(keyPackage),
                 getOperation());
         testGetAllElementsInRDDWithVisibilityFilteringApplied(
-                getGraphForMockAccumuloWithVisibility(keyPackage),
+                getGraphForAccumuloWithVisibility(keyPackage),
                 getOperationWithBatchScannerEnabled());
         testGetAllElementsInRDDWithVisibilityFilteringApplied(
                 getGraphForDirectRDDWithVisibility(keyPackage, "testGetAllElementsInRDDWithVisibilityFilteringApplied_" + keyPackage.name()),
@@ -185,10 +182,10 @@ public final class GetRDDOfAllElementsHandlerIT {
     public void testGetAllElementsInRDDWithIngestAggregationApplied(KeyPackage keyPackage) throws OperationException, IOException,
             InterruptedException, AccumuloSecurityException, StoreException, TableNotFoundException, AccumuloException {
         testGetAllElementsInRDDWithIngestAggregationApplied(
-                getGraphForMockAccumuloForIngestAggregation(keyPackage),
+                getGraphForAccumuloForIngestAggregation(keyPackage),
                 getOperation());
         testGetAllElementsInRDDWithIngestAggregationApplied(
-                getGraphForMockAccumuloForIngestAggregation(keyPackage),
+                getGraphForAccumuloForIngestAggregation(keyPackage),
                 getOperationWithBatchScannerEnabled());
         testGetAllElementsInRDDWithIngestAggregationApplied(
                 getGraphForDirectRDDForIngestAggregation(keyPackage, "testGetAllElementsInRDDWithIngestAggregationApplied_" + keyPackage.name()),
@@ -352,11 +349,11 @@ public final class GetRDDOfAllElementsHandlerIT {
         return graph;
     }
 
-    private Graph getGraphForMockAccumulo(KeyPackage keyPackage) throws OperationException {
+    private Graph getGraphForAccumulo(KeyPackage keyPackage) throws OperationException {
         return _getGraphForAccumulo(getSchema(), getElements(), keyPackage);
     }
 
-    private Graph getGraphForMockAccumuloWithVisibility(KeyPackage keyPackage) throws OperationException {
+    private Graph getGraphForAccumuloWithVisibility(KeyPackage keyPackage) throws OperationException {
         return _getGraphForAccumulo(getSchemaForVisibility(), getElementsWithVisibilities(), keyPackage);
     }
 
@@ -365,7 +362,7 @@ public final class GetRDDOfAllElementsHandlerIT {
                 getElementsForValidationChecking(), keyPackage);
     }
 
-    private Graph getGraphForMockAccumuloForIngestAggregation(KeyPackage keyPackage) throws OperationException {
+    private Graph getGraphForAccumuloForIngestAggregation(KeyPackage keyPackage) throws OperationException {
         final Graph graph = _getGraphForAccumulo(
                 getSchemaForIngestAggregationChecking(),
                 getElementsForIngestAggregationChecking(), keyPackage);
@@ -487,13 +484,6 @@ public final class GetRDDOfAllElementsHandlerIT {
     private void writeFile(final KeyPackage keyPackage, final Schema schema, final String file)
             throws IllegalArgumentException, IOException {
         final Configuration conf = new Configuration();
-        final CachableBlockFile.Writer blockFileWriter = new CachableBlockFile.Writer(
-                FileSystem.get(conf),
-                new Path(file),
-                Compression.COMPRESSION_NONE,
-                null,
-                conf,
-                AccumuloConfiguration.getDefaultConfiguration());
         final AccumuloElementConverter converter;
         switch (keyPackage) {
             case BYTE_ENTITY:
@@ -508,7 +498,7 @@ public final class GetRDDOfAllElementsHandlerIT {
         final Entity entity = (Entity) getElementsForIngestAggregationChecking().get(0);
         final Key key = converter.getKeyFromEntity((Entity) getElementsForIngestAggregationChecking().get(0));
         final Value value = converter.getValueFromProperties(entity.getGroup(), entity.getProperties());
-        final RFile.Writer writer = new RFile.Writer(blockFileWriter, 1000);
+        final RFile.Writer writer = LegacySupport.BackwardsCompatibleRFileWriter.create(file, conf, 1000);
         writer.startDefaultLocalityGroup();
         writer.append(key, value);
         writer.close();

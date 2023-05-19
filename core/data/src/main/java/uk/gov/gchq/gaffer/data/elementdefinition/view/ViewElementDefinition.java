@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -194,18 +194,6 @@ public class ViewElementDefinition implements ElementDefinition {
         return aggregator;
     }
 
-    /**
-     * Sets the aggregator
-     *
-     * @param aggregator the aggregator to set.
-     * @deprecated a {@link ViewElementDefinition} should be constructed using the
-     * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition.Builder}.
-     */
-    @Deprecated
-    public void setAggregator(final ElementAggregator aggregator) {
-        this.aggregator = aggregator;
-    }
-
     @JsonIgnore
     public ElementFilter getPostAggregationFilter() {
         return postAggregationFilter;
@@ -230,6 +218,10 @@ public class ViewElementDefinition implements ElementDefinition {
 
     public boolean hasPostTransformFilters() {
         return null != postTransformFilter && !postTransformFilter.getComponents().isEmpty();
+    }
+
+    public boolean hasTransform() {
+        return null != transformer && !transformer.getComponents().isEmpty();
     }
 
     @JsonIgnore

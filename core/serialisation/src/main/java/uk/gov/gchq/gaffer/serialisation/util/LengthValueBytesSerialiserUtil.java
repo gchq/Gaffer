@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,13 @@ import static java.util.Objects.requireNonNull;
 /**
  * Utility methods for serialising objects to length-value byte arrays.
  */
-public abstract class LengthValueBytesSerialiserUtil {
+@SuppressWarnings("PMD.UseVarargs")
+public final class LengthValueBytesSerialiserUtil {
     private static final byte[] EMPTY_BYTES = new byte[0];
+
+    private LengthValueBytesSerialiserUtil() {
+        //Cannot be instantiated
+    }
 
     public static ByteArrayOutputStream createByteArray() {
         return new ByteArrayOutputStream();
@@ -251,4 +256,3 @@ public abstract class LengthValueBytesSerialiserUtil {
 
     }
 }
-

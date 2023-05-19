@@ -27,8 +27,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloItemRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -36,16 +35,17 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Iterator;
 import java.util.Set;
 
 /**
  * This allows queries for all elements.
  */
 public class AccumuloAllElementsRetriever extends AccumuloItemRetriever<GetAllElements, ElementId> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAllElementsRetriever.class);
 
-    public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements operation,
-                                        final User user)
+    public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements operation, final User user)
             throws IteratorSettingException, StoreException {
         super(store, operation, user, false,
                 store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation),
@@ -61,16 +61,16 @@ public class AccumuloAllElementsRetriever extends AccumuloItemRetriever<GetAllEl
      * @return a closeable iterator of items.
      */
     @Override
-    public CloseableIterator<Element> iterator() {
+    public Iterator<Element> iterator() {
         CloseableUtil.close(iterator);
 
         try {
-            //A seed must be entered so the below add to ranges is reached.
-            Set<EntitySeed> all = Sets.newHashSet(new EntitySeed());
+            // A seed must be entered so the below add to ranges is reached.
+            final Set<EntitySeed> all = Sets.newHashSet(new EntitySeed());
             iterator = new ElementIterator(all.iterator());
         } catch (final RetrieverException e) {
             LOGGER.error("{} returning empty iterator", e.getMessage(), e);
-            return new EmptyCloseableIterator<>();
+            return new EmptyIterator<>();
         }
 
         return iterator;

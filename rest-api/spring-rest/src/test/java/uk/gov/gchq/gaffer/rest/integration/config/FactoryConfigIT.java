@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.rest.integration.config;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -39,12 +39,12 @@ public class FactoryConfigIT extends AbstractRestApiIT {
     @Autowired
     UserFactory userFactory;
 
-    @BeforeClass()
+    @BeforeAll()
     public static void setSystemProperty() {
         System.setProperty(SystemProperty.USER_FACTORY_CLASS, MockUserFactory.class.getName());
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearSystemProperty() {
         System.clearProperty(SystemProperty.USER_FACTORY_CLASS);
     }

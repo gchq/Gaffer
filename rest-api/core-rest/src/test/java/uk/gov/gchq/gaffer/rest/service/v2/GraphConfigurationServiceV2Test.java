@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.google.common.collect.Sets;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -39,6 +41,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
@@ -58,7 +61,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
@@ -84,18 +90,22 @@ public class GraphConfigurationServiceV2Test {
     private Store store;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws OperationException {
+        // TODO: Mockito stubbing should be personalised on a per test basis. This wasn't done, instead lenient() has been used to bypass warnings about this.
         final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
-        lenient().when(store.getSchema()).thenReturn(new Schema());
-        lenient().when(store.getProperties()).thenReturn(new StoreProperties());
-        lenient().when(store.getGraphId()).thenReturn(GRAPH_ID);
-        final Graph graph = new Graph.Builder()
+        when(store.getSchema()).thenReturn(new Schema());
+        when(store.getProperties()).thenReturn(new StoreProperties());
+        when(store.getGraphId()).thenReturn(GRAPH_ID);
+        // Spy on the Graph, so we can stub only GetTraits Operation execution
+        final Graph graph = spy(new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID) // This graphId is not used as store is mocked
                         .build())
                 .description("test graph")
                 .store(store)
-                .build();
+                .build());
+        lenient().doReturn(traits).when(graph).execute(any(GetTraits.class), any(Context.class));
+
         final StoreProperties props = new StoreProperties();
         lenient().when(store.getProperties()).thenReturn(props);
 
@@ -106,8 +116,6 @@ public class GraphConfigurationServiceV2Test {
         lenient().when(graph.isSupported(AddElements.class)).thenReturn(true);
 
         lenient().when(userFactory.createContext()).thenReturn(new Context());
-
-        lenient().when(graph.getStoreTraits()).thenReturn(traits);
     }
 
     @Test
@@ -178,7 +186,6 @@ public class GraphConfigurationServiceV2Test {
         expectedFields.add("input");
         expectedFields.add("view");
         expectedFields.add("includeIncomingOutGoing");
-        expectedFields.add("seedMatching");
         expectedFields.add("options");
         expectedFields.add("directedType");
         expectedFields.add("views");

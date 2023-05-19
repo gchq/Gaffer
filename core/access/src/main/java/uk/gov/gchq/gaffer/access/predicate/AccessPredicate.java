@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -36,10 +38,10 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
  * A {@link BiPredicate} which will first check if the user is an admin according to the provided
  * admin role. If not it uses a predicate to determine if the user can access a resource.
  */
+@SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "Gets serialised by the JSC cache")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 public class AccessPredicate implements BiPredicate<User, String>, Serializable {
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private final Predicate<User> userPredicate;
 
     public AccessPredicate(
@@ -70,6 +72,7 @@ public class AccessPredicate implements BiPredicate<User, String>, Serializable 
                 && user.getOpAuths().contains(adminAuth));
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     public Predicate<User> getUserPredicate() {
         return userPredicate;
     }

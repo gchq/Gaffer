@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@
 package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,8 @@ import uk.gov.gchq.gaffer.graph.hook.UpdateViewHook;
 import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -48,7 +50,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -58,6 +59,7 @@ import uk.gov.gchq.koryphe.util.ReflectionUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -67,7 +69,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
  * <p>
@@ -102,7 +104,7 @@ public final class Graph {
      */
     private final Store store;
 
-    private GraphConfig config;
+    private final GraphConfig config;
 
     /**
      * Constructs a {@code Graph} with the given {@link uk.gov.gchq.gaffer.store.Store}
@@ -314,7 +316,6 @@ public final class Graph {
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, clonedContext);
             }
-            // TODO - remove in V2
             // This updates the view, used for empty or null views, for
             // example if there is a NamedOperation that has been resolved
             // that contains an empty view
@@ -431,7 +432,13 @@ public final class Graph {
     }
 
     /**
-     * @return the original schema.
+     * Get the Store's original {@link Schema}.
+     *
+     * This is not the same as the {@link Schema} used internally by
+     * the {@link Store}. See {@link Store#getOriginalSchema()} and
+     * {@link Store#getSchema()} for more details.
+     *
+     * @return the original {@link Schema} used to create this graph
      */
     public Schema getSchema() {
         return store.getOriginalSchema();
@@ -442,25 +449,6 @@ public final class Graph {
      */
     public String getDescription() {
         return config.getDescription();
-    }
-
-    /**
-     * @param storeTrait the store trait to check
-     * @return true if the store has the given trait.
-     */
-    public boolean hasTrait(final StoreTrait storeTrait) {
-        return store.hasTrait(storeTrait);
-    }
-
-    /**
-     * Returns all the {@link StoreTrait}s for the contained {@link Store}
-     * implementation
-     *
-     * @return a {@link Set} of all of the {@link StoreTrait}s that the store
-     *         has.
-     */
-    public Set<StoreTrait> getStoreTraits() {
-        return store.getTraits();
     }
 
     /**
@@ -526,17 +514,6 @@ public final class Graph {
         private String parentStorePropertiesId;
         private boolean addToLibrary = true;
 
-        /**
-         * @param graphId the graph id to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder graphId(final String graphId) {
-            configBuilder.graphId(graphId);
-            return this;
-        }
-
         public Builder config(final Path path) {
             configBuilder.json(path);
             return this;
@@ -564,72 +541,6 @@ public final class Graph {
 
         public Builder addToLibrary(final boolean addToLibrary) {
             this.addToLibrary = addToLibrary;
-            return this;
-        }
-
-        /**
-         * @param library the graph library to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder library(final GraphLibrary library) {
-            configBuilder.library(library);
-            return this;
-        }
-
-        /**
-         * @param view the graph view to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder view(final View view) {
-            configBuilder.view(view);
-            return this;
-        }
-
-        /**
-         * @param view the graph view path to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder view(final Path view) {
-            configBuilder.view(view);
-            return this;
-        }
-
-        /**
-         * @param view the graph view input stream to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder view(final InputStream view) {
-            configBuilder.view(view);
-            return this;
-        }
-
-        /**
-         * @param view the graph view URI to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder view(final URI view) {
-            configBuilder.view(view);
-            return this;
-        }
-
-        /**
-         * @param jsonBytes the graph view json bytes to set
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder view(final byte[] jsonBytes) {
-            configBuilder.view(jsonBytes);
             return this;
         }
 
@@ -774,6 +685,7 @@ public final class Graph {
             return this;
         }
 
+        @SuppressWarnings("PMD.UseTryWithResources")
         public Builder addSchemas(final InputStream... schemaStreams) {
             if (null != schemaStreams) {
                 try {
@@ -821,6 +733,7 @@ public final class Graph {
             return this;
         }
 
+        @SuppressWarnings("PMD.UseTryWithResources")
         public Builder addSchema(final InputStream schemaStream) {
             if (null != schemaStream) {
                 try {
@@ -857,12 +770,10 @@ public final class Graph {
         }
 
         public Builder addSchema(final Path schemaPath) {
-            if (null != schemaPath) {
-                try {
-                    if (Files.isDirectory(schemaPath)) {
-                        for (final Path path : Files.newDirectoryStream(schemaPath)) {
-                            addSchema(path);
-                        }
+            if (schemaPath != null) {
+                try (DirectoryStream<Path> stream = Files.isDirectory(schemaPath) ? Files.newDirectoryStream(schemaPath) : null) {
+                    if (stream != null) {
+                        stream.forEach(this::addSchema);
                     } else {
                         addSchema(Files.readAllBytes(schemaPath));
                     }
@@ -882,67 +793,6 @@ public final class Graph {
 
         public Builder store(final Store store) {
             this.store = store;
-            return this;
-        }
-
-        /**
-         * @param hooksPath the graph hooks path
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder addHooks(final Path hooksPath) {
-            if (null == hooksPath || !hooksPath.toFile().exists()) {
-                throw new IllegalArgumentException("Unable to find graph hooks file: " + hooksPath);
-            }
-            final GraphHook[] hooks;
-            try {
-                hooks = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
-            } catch (final IOException e) {
-                throw new IllegalArgumentException("Unable to load graph hooks file: " + hooksPath, e);
-            }
-            return addHooks(hooks);
-        }
-
-        /**
-         * @param hookPath the graph hook path
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder addHook(final Path hookPath) {
-            if (null == hookPath || !hookPath.toFile().exists()) {
-                throw new IllegalArgumentException("Unable to find graph hook file: " + hookPath);
-            }
-
-            final GraphHook hook;
-            try {
-                hook = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hookPath.toFile()), GraphHook.class);
-            } catch (final IOException e) {
-                throw new IllegalArgumentException("Unable to load graph hook file: " + hookPath, e);
-            }
-            return addHook(hook);
-        }
-
-        /**
-         * @param graphHook the graph hook to add
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder addHook(final GraphHook graphHook) {
-            configBuilder.addHook(graphHook);
-            return this;
-        }
-
-        /**
-         * @param graphHooks the graph hooks to add
-         * @return this Builder
-         * @deprecated use Builder.config instead.
-         */
-        @Deprecated
-        public Builder addHooks(final GraphHook... graphHooks) {
-            configBuilder.addHooks(graphHooks);
             return this;
         }
 
@@ -989,6 +839,9 @@ public final class Graph {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
             }
 
+            // Set the original schema used to create the graph.
+            // This is stored inside the Store but is primarily
+            // used by this class.
             store.setOriginalSchema(schema);
 
             return new Graph(config, store);
@@ -996,11 +849,11 @@ public final class Graph {
 
         private void updateGraphHooks(final GraphConfig config) {
             List<GraphHook> hooks = config.getHooks();
-            if (!hasHook(hooks, NamedViewResolver.class)) {
-                hooks.add(0, new NamedViewResolver());
+            if (store.isSupported(AddNamedView.class) && !hasHook(hooks, NamedViewResolver.class)) {
+                hooks.add(0, new NamedViewResolver(config.getGraphId()));
             }
-            if (store.isSupported(NamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
-                config.getHooks().add(0, new NamedOperationResolver());
+            if (store.isSupported(AddNamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
+                config.getHooks().add(0, new NamedOperationResolver(config.getGraphId()));
             }
             if (!hasHook(hooks, FunctionAuthoriser.class)) {
                 config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
@@ -1120,5 +973,30 @@ public final class Graph {
         private Schema cloneSchema(final Schema schema) {
             return null != schema ? schema.clone() : null;
         }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Graph graph = (Graph) o;
+
+        return new EqualsBuilder()
+                .append(new GraphSerialisable.Builder(this).build(), new GraphSerialisable.Builder(graph).build())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(store)
+                .append(config)
+                .toHashCode();
     }
 }

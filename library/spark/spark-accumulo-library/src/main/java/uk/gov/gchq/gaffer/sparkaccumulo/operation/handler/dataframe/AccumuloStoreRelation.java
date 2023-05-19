@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import org.apache.commons.lang3.StringUtils;
@@ -84,9 +85,9 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     private final LinkedHashSet<String> usedProperties;
     private final Map<String, Boolean> propertyNeedsConversion;
     private final Map<String, Converter> converterByProperty;
-    private StructType structType;
-    private SchemaToStructTypeConverter schemaConverter;
-    private Map<String, String> options;
+    private final StructType structType;
+    private final SchemaToStructTypeConverter schemaConverter;
+    private final Map<String, String> options;
 
     public AccumuloStoreRelation(final Context context,
                                  final List<Converter> converters,

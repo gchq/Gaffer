@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,9 +63,7 @@ public class SchemaElementDefinitionValidator {
         result.add(validateFunctionArgumentTypes(aggregator, elementDef));
         result.add(validateRequiredParameters(elementDef));
         result.add(validatePropertyNames(elementDef));
-        // Currently removed as it will cause breaking changes
-        // TODO - re-add this on a major version release
-        //result.add(validateDirection(elementDef));
+        result.add(validateDirection(elementDef));
 
         return result;
     }
@@ -168,12 +166,10 @@ public class SchemaElementDefinitionValidator {
         return result;
     }
 
-    private ValidationResult validateDirection(final SchemaElementDefinition elementDef) {
+    protected ValidationResult validateDirection(final SchemaElementDefinition elementDef) {
         final ValidationResult result = new ValidationResult();
-        if (elementDef instanceof SchemaEdgeDefinition) {
-            if (null == elementDef.getIdentifierTypeName(IdentifierType.DIRECTED)) {
-                result.addError("\"directed\" must be set");
-            }
+        if (elementDef instanceof SchemaEdgeDefinition && elementDef.getIdentifierTypeName(IdentifierType.DIRECTED) == null) {
+            LOGGER.warn("Edge definition does not have directed set.");
         }
         return result;
     }
@@ -303,6 +299,7 @@ public class SchemaElementDefinitionValidator {
     }
 
     @Override
+    @SuppressWarnings("PMD.UselessOverridingMethod")
     public int hashCode() {
         return super.hashCode();
     }

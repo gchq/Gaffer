@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ public class AddNamedView implements Operation {
         try {
             return null == view ? null : JSONSerialiser.getJsonNodeFromString(view);
         } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
+            throw new IllegalArgumentException(se.getMessage(), se);
         }
     }
 
@@ -98,7 +98,7 @@ public class AddNamedView implements Operation {
         try {
             this.view = null == view ? null : new String(JSONSerialiser.serialise(view), StandardCharsets.UTF_8);
         } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
+            throw new IllegalArgumentException(se.getMessage(), se);
         }
     }
 
@@ -107,7 +107,7 @@ public class AddNamedView implements Operation {
         try {
             return null == view ? null : JSONSerialiser.deserialise(view.getBytes(StandardCharsets.UTF_8), View.class);
         } catch (final SerialisationException e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 

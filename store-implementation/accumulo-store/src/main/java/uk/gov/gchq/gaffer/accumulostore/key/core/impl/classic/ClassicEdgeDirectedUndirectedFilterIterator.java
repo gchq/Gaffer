@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic;
 
 import org.apache.accumulo.core.data.Key;
@@ -36,7 +37,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassicEdgeDirectedUndirectedFilterIterator.class);
 
     // This converter does not have the schema so not all converter methods can be used.
-    private ClassicAccumuloElementConverter converter = new ClassicAccumuloElementConverter(null);
+    private final ClassicAccumuloElementConverter converter = new ClassicAccumuloElementConverter(null);
 
     private boolean unDirectedEdges = false;
     private boolean directedEdges = false;
@@ -108,14 +109,10 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
     }
 
     private boolean checkDirection(final byte flag) {
-        if (incomingEdges) {
-            if (flag == ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) {
-                return false;
-            }
-        } else if (outgoingEdges) {
-            if (flag == ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE) {
-                return false;
-            }
+        if (incomingEdges && flag == ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) {
+            return false;
+        } else if (outgoingEdges && flag == ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE) {
+            return false;
         }
         return true;
     }

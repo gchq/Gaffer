@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,9 +50,9 @@ public class KeyFunctionMatchTest {
     @Test
     public void shouldJsonSerialiseWithNoKeyFunctions() throws SerialisationException {
         // given
-        String json = "{\n" +
-                "   \"class\": \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\"\n" +
-                "}";
+        String json = String.format("{%n" +
+                "   \"class\": \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\"%n" +
+                "}");
 
         // when
         KeyFunctionMatch match = new KeyFunctionMatch();
@@ -67,15 +67,15 @@ public class KeyFunctionMatchTest {
         KeyFunctionMatch match = new KeyFunctionMatch();
 
         // when / then
-        String expected = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
-                "  \"firstKeyFunction\" : {\n" +
-                "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"\n" +
-                "  },\n" +
-                "  \"secondKeyFunction\" : {\n" +
-                "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"\n" +
-                "  }\n" +
-                "}";
+        String expected = String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",%n" +
+                "  \"firstKeyFunction\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"%n" +
+                "  },%n" +
+                "  \"secondKeyFunction\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"%n" +
+                "  }%n" +
+                "}");
         assertEquals(expected, new String(JSONSerialiser.serialise(match, true)));
     }
 
@@ -88,22 +88,22 @@ public class KeyFunctionMatchTest {
                 .build();
 
         // when / then
-        String expected = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
-                "  \"firstKeyFunction\" : {\n" +
-                "    \"class\" : \"uk.gov.gchq.koryphe.function.FunctionComposite\",\n" +
-                "    \"functions\" : [ {\n" +
-                "      \"class\" : \"uk.gov.gchq.koryphe.impl.function.DivideBy\",\n" +
-                "      \"by\" : 20\n" +
-                "    }, {\n" +
-                "      \"class\" : \"uk.gov.gchq.koryphe.impl.function.FirstItem\"\n" +
-                "    } ]\n" +
-                "  },\n" +
-                "  \"secondKeyFunction\" : {\n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\n" +
-                "    \"name\" : \"count\"\n" +
-                "  }\n" +
-                "}";
+        String expected = String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",%n" +
+                "  \"firstKeyFunction\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.koryphe.function.FunctionComposite\",%n" +
+                "    \"functions\" : [ {%n" +
+                "      \"class\" : \"uk.gov.gchq.koryphe.impl.function.DivideBy\",%n" +
+                "      \"by\" : 20%n" +
+                "    }, {%n" +
+                "      \"class\" : \"uk.gov.gchq.koryphe.impl.function.FirstItem\"%n" +
+                "    } ]%n" +
+                "  },%n" +
+                "  \"secondKeyFunction\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",%n" +
+                "    \"name\" : \"count\"%n" +
+                "  }%n" +
+                "}");
 
         assertEquals(expected, new String(JSONSerialiser.serialise(match, true)));
         assertEquals(match, JSONSerialiser.deserialise(expected, KeyFunctionMatch.class));
@@ -115,28 +115,28 @@ public class KeyFunctionMatchTest {
         KeyFunctionMatch match = new KeyFunctionMatch.Builder().firstKeyFunction(new ExtractProperty("count")).build();
 
         // when / then
-        String json = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
-                "  \"firstKeyFunction\" : {\n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\n" +
-                "    \"name\" : \"count\"\n" +
-                "  }\n" +
-                "}";
+        String json = String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",%n" +
+                "  \"firstKeyFunction\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",%n" +
+                "    \"name\" : \"count\"%n" +
+                "  }%n" +
+                "}");
 
         assertEquals(match, JSONSerialiser.deserialise(json, KeyFunctionMatch.class));
 
         // when / then
 
-        String jsonWithIdentity = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
-                "  \"firstKeyFunction\" : {\n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\n" +
-                "    \"name\" : \"count\"\n" +
-                "  },\n" +
-                "  \"secondKeyFunction\" : {\n" +
-                "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"\n" +
-                "  }\n" +
-                "}";
+        String jsonWithIdentity = String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",%n" +
+                "  \"firstKeyFunction\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",%n" +
+                "    \"name\" : \"count\"%n" +
+                "  },%n" +
+                "  \"secondKeyFunction\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"%n" +
+                "  }%n" +
+                "}");
 
         assertEquals(jsonWithIdentity, new String(JSONSerialiser.serialise(match, true)));
 
@@ -148,28 +148,28 @@ public class KeyFunctionMatchTest {
         KeyFunctionMatch match = new KeyFunctionMatch.Builder().secondKeyFunction(new ExtractProperty("count")).build();
 
         // when / then
-        String json = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
-                "  \"secondKeyFunction\" : {\n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\n" +
-                "    \"name\" : \"count\"\n" +
-                "  }\n" +
-                "}";
+        String json = String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",%n" +
+                "  \"secondKeyFunction\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",%n" +
+                "    \"name\" : \"count\"%n" +
+                "  }%n" +
+                "}");
 
         assertEquals(match, JSONSerialiser.deserialise(json, KeyFunctionMatch.class));
 
         // when / then
 
-        String jsonWithIdentity = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
-                "  \"firstKeyFunction\" : {\n" +
-                "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"\n" +
-                "  },\n" +
-                "  \"secondKeyFunction\" : {\n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\n" +
-                "    \"name\" : \"count\"\n" +
-                "  }\n" +
-                "}";
+        String jsonWithIdentity = String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",%n" +
+                "  \"firstKeyFunction\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"%n" +
+                "  },%n" +
+                "  \"secondKeyFunction\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",%n" +
+                "    \"name\" : \"count\"%n" +
+                "  }%n" +
+                "}");
 
         assertEquals(jsonWithIdentity, new String(JSONSerialiser.serialise(match, true)));
     }

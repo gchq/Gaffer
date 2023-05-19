@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.serialisation;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -100,12 +101,10 @@ public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
             }
         }
 
-        if (null != key) {
+        if (key != null && (bytes.length > lastDelimiter)) {
             // Deserialise value
-            if (bytes.length > lastDelimiter) {
-                final Long value = longSerialiser.deserialise(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, bytes.length));
-                freqMap.put(key, value);
-            }
+            final Long value = longSerialiser.deserialise(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, bytes.length));
+            freqMap.put(key, value);
         }
 
         return freqMap;

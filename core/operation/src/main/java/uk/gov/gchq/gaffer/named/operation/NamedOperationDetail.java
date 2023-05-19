@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -46,6 +47,7 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonDeserialize(builder = NamedOperationDetail.Builder.class)
+@SuppressWarnings("PMD.ImmutableField") //False positives
 public class NamedOperationDetail implements AccessControlledResource, Serializable {
 
     private static final long serialVersionUID = -8831783492657131469L;
@@ -62,9 +64,8 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
     private String readAccessPredicateJson;
     private String writeAccessPredicateJson;
 
-    public NamedOperationDetail() {
+    protected NamedOperationDetail() {
     }
-
 
     public NamedOperationDetail(final String operationName, final String description, final String userId,
                                 final String operations, final List<String> readers,
@@ -87,6 +88,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         this(operationName, labels, inputType, description, userId, operations, readers, writers, parameters, score, null, null);
     }
 
+    @JsonCreator
     public NamedOperationDetail(final String operationName, final List<String> labels, final String inputType, final String description,
                                 final String userId, final String operations, final List<String> readers,
                                 final List<String> writers, final Map<String, ParameterDetail> parameters,
@@ -117,8 +119,8 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         this.score = score;
 
         try {
-            this.readAccessPredicateJson = readAccessPredicate != null ? new String(JSONSerialiser.serialise(readAccessPredicate)) : null;
-            this.writeAccessPredicateJson = writeAccessPredicate != null ? new String(JSONSerialiser.serialise(writeAccessPredicate)) : null;
+            this.readAccessPredicateJson = readAccessPredicate != null ? new String(JSONSerialiser.serialise(readAccessPredicate), StandardCharsets.UTF_8) : null;
+            this.writeAccessPredicateJson = writeAccessPredicate != null ? new String(JSONSerialiser.serialise(writeAccessPredicate), StandardCharsets.UTF_8) : null;
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Read and Write Access predicates must be json serialisable", e);
         }
@@ -191,7 +193,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
                     opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
                             new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue()), StandardCharsets.UTF_8));
                 } catch (final SerialisationException e) {
-                    throw new IllegalArgumentException(e.getMessage());
+                    throw new IllegalArgumentException(e.getMessage(), e);
                 }
             }
         }
@@ -200,7 +202,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         try {
             opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(StandardCharsets.UTF_8), OperationChainDAO.class);
         } catch (final Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
 
         return opChain;
@@ -242,7 +244,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
                         throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
                     }
                 } catch (final SerialisationException e) {
-                    throw new IllegalArgumentException(e.getMessage());
+                    throw new IllegalArgumentException(e.getMessage(), e);
                 }
             }
         }
@@ -252,7 +254,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         try {
             opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(StandardCharsets.UTF_8), OperationChainDAO.class);
         } catch (final Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
 
         return opChain;
@@ -459,7 +461,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
             try {
                 return new String(JSONSerialiser.serialise(pojo), StandardCharsets.UTF_8);
             } catch (final SerialisationException se) {
-                throw new IllegalArgumentException(se.getMessage());
+                throw new IllegalArgumentException(se.getMessage(), se);
             }
         }
     }

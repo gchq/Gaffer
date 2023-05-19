@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.named.view.DeleteNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -46,7 +46,8 @@ import static org.mockito.Mockito.mock;
 
 public class DeleteNamedViewHandlerTest {
     private static final String WRITE_ACCESS_ROLE = "writeRole";
-    private final NamedViewCache namedViewCache = new NamedViewCache();
+    public static final String SUFFIX = "suffix";
+    private final NamedViewCache namedViewCache = new NamedViewCache(SUFFIX);
     private final AddNamedViewHandler addNamedViewHandler = new AddNamedViewHandler(namedViewCache);
     private final DeleteNamedViewHandler deleteNamedViewHandler = new DeleteNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
@@ -64,6 +65,8 @@ public class DeleteNamedViewHandlerTest {
 
     @BeforeEach
     public void before() throws OperationException {
+        CacheServiceLoader.shutdown();
+
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
 
@@ -86,7 +89,7 @@ public class DeleteNamedViewHandlerTest {
     }
 
     @AfterEach
-    public void clearCache() throws CacheOperationFailedException {
+    public void clearCache() throws CacheOperationException {
         namedViewCache.clearCache();
     }
 
@@ -96,7 +99,7 @@ public class DeleteNamedViewHandlerTest {
     }
 
     @Test
-    public void shouldDeleteNamedViewCorrectly() throws OperationException, CacheOperationFailedException {
+    public void shouldDeleteNamedViewCorrectly() throws OperationException, CacheOperationException {
         assertTrue(cacheContains(testNamedViewName));
         // Given
 
@@ -110,7 +113,7 @@ public class DeleteNamedViewHandlerTest {
     }
 
     @Test
-    public void shouldNotThrowExceptionWhenNoNamedViewToDelete() throws CacheOperationFailedException, OperationException {
+    public void shouldNotThrowExceptionWhenNoNamedViewToDelete() throws CacheOperationException, OperationException {
         assertTrue(cacheContains(testNamedViewName));
 
         // Given
@@ -123,8 +126,8 @@ public class DeleteNamedViewHandlerTest {
         assertTrue(cacheContains(testNamedViewName));
     }
 
-    private boolean cacheContains(final String namedViewName) throws CacheOperationFailedException {
-        Iterable<NamedViewDetail> namedViews = namedViewCache.getAllNamedViews();
+    private boolean cacheContains(final String namedViewName) throws CacheOperationException {
+        Iterable<NamedViewDetail> namedViews = namedViewCache.getAllNamedViews(context.getUser());
         for (final NamedViewDetail namedView : namedViews) {
             if (namedView.getName().equals(namedViewName)) {
                 return true;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 public final class DebugUtil {
     public static final String DEBUG = "gaffer.error-mode.debug";
     public static final String DEBUG_DEFAULT = String.valueOf(false);
-    public static Boolean isDebug;
+    private static Boolean isDebug;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugUtil.class);
 
     private DebugUtil() {

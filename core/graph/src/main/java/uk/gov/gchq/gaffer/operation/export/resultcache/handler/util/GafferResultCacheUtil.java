@@ -20,9 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
@@ -52,7 +56,17 @@ public final class GafferResultCacheUtil {
                 .addSchema(createSchema(timeToLive));
 
         final Graph graph = graphBuilder.build();
-        if (!graph.hasTrait(StoreTrait.STORE_VALIDATION)) {
+
+        Boolean hasStoreValidation;
+        try {
+            hasStoreValidation = graph.execute(new HasTrait.Builder()
+                    .trait(StoreTrait.STORE_VALIDATION)
+                    .currentTraits(false)
+                    .build(), new Context());
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException("Error performing HasTrait Operation while creating Graph.", e);
+        }
+        if (null == hasStoreValidation || !hasStoreValidation) {
             LOGGER.warn("Gaffer JSON export graph does not have {} trait so results may not be aged off.", StoreTrait.STORE_VALIDATION.name());
         }
 

@@ -40,7 +40,6 @@ public class AddSchemaToLibraryTest extends OperationTest<AddSchemaToLibrary> {
     @BeforeAll
     public static void setUp() throws Exception {
         schema = new Schema.Builder()
-                .id("schemaID")
                 .build();
         parentSchemaIds = Lists.newArrayList("value1");
         op = new Builder()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -59,6 +61,7 @@ public class Context {
      *
      * @param context the context to shallow clone.
      */
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH", justification = "Investigate")
     public Context(final Context context) {
         this(null != context ? context.user : null, null != context ? context.config : null);
         exporters.putAll(context.exporters);
@@ -91,32 +94,6 @@ public class Context {
         }
         this.jobId = createJobId();
         this.variables = new HashMap<>();
-    }
-
-    /**
-     * Constructs a context with a provided job ID
-     *
-     * @param user   the user
-     * @param config the config
-     * @param jobId  the job ID
-     * @deprecated this should not be used. You should let the Context automatically set the job ID.
-     */
-    @Deprecated
-    private Context(final User user, final Map<String, Object> config, final String jobId) {
-        if (null == user) {
-            throw new IllegalArgumentException("User is required");
-        }
-        this.user = user;
-        if (null == config) {
-            this.config = new HashMap<>();
-        } else {
-            this.config = config;
-        }
-        if (null == jobId) {
-            this.jobId = createJobId();
-        } else {
-            this.jobId = jobId;
-        }
     }
 
     public User getUser() {
@@ -263,23 +240,9 @@ public class Context {
         private User user = new User();
         private final Map<String, Object> config = new HashMap<>();
         private final Map<String, Object> variables = new HashMap<>();
-        private String jobId;
 
         public Builder user(final User user) {
             this.user = user;
-            return this;
-        }
-
-        /**
-         * Sets the job ID.
-         *
-         * @param jobId the job ID to set on the context
-         * @return the Builder
-         * @deprecated this should not be used. You should let the Context automatically set the job ID.
-         */
-        @Deprecated
-        public Builder jobId(final String jobId) {
-            this.jobId = jobId;
             return this;
         }
 
@@ -299,7 +262,7 @@ public class Context {
         }
 
         public Context build() {
-            Context context = new Context(user, config, jobId);
+            Context context = new Context(user, config);
             if (!variables.isEmpty()) {
                 context.setVariables(variables);
             }

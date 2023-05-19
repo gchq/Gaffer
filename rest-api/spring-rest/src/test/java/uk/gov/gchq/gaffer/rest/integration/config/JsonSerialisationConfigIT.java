@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.rest.integration.config;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;

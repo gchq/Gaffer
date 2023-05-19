@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.rest.model.OperationDetail;
 import uk.gov.gchq.gaffer.rest.service.v2.AbstractOperationService;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
@@ -77,7 +78,7 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public OperationDetail getOperationDetails(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+    public OperationDetail getOperationDetails(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
         try {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
@@ -96,7 +97,7 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public Set<Class<? extends Operation>> getNextOperations(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+    public Set<Class<? extends Operation>> getNextOperations(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
         Class<? extends Operation> opClass;
         try {
             opClass = getOperationClass(className);
@@ -110,7 +111,7 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public Operation getOperationExample(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+    public Operation getOperationExample(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
         Class<? extends Operation> operationClass;
         try {
             operationClass = getOperationClass(className);
@@ -128,7 +129,7 @@ public class OperationController extends AbstractOperationService implements IOp
 
     @Override
     public ResponseEntity<Object> execute(@RequestBody final Operation operation) {
-        Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
+        final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
         return ResponseEntity.ok()
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .header(JOB_ID_HEADER, resultAndJobId.getSecond())
@@ -136,17 +137,18 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
+    @SuppressWarnings("PMD.UseTryWithResources")
     public ResponseEntity<StreamingResponseBody> executeChunked(@RequestBody final Operation operation) {
-        StreamingResponseBody responseBody = response -> {
+        final StreamingResponseBody responseBody = response -> {
             try {
-                Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
-                Object result = resultAndJobId.getFirst();
+                final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
+                final Object result = resultAndJobId.getFirst();
                 if (result instanceof Iterable) {
                     final Iterable itr = (Iterable) result;
                     try {
                         for (final Object item : itr) {
-                            String itemString = mapper.writeValueAsString(item) + "\r\n";
-                            response.write(itemString.getBytes());
+                            final String itemString = mapper.writeValueAsString(item) + "\r\n";
+                            response.write(itemString.getBytes(StandardCharsets.UTF_8));
                             response.flush();
                         }
                     } catch (final IOException ioe) {
@@ -156,7 +158,7 @@ public class OperationController extends AbstractOperationService implements IOp
                     }
                 } else {
                     try {
-                        response.write(mapper.writeValueAsString(result).getBytes());
+                        response.write(mapper.writeValueAsString(result).getBytes(StandardCharsets.UTF_8));
                         response.flush();
                     } catch (final IOException ioe) {
                         throw new GafferRuntimeException("Unable to serialise chunk: ", ioe, Status.INTERNAL_SERVER_ERROR);

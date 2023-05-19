@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 /**
  * Applies the migrations required for a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
@@ -48,7 +48,7 @@ public class ViewMigration {
     private final Map<String, ElementFilter> edgesPostTransformFilter = new HashMap<>();
     private final boolean aggregateAfter;
 
-    private ViewElementDefinition.Builder elementDefBuilder = new ViewElementDefinition.Builder();
+    private final ViewElementDefinition.Builder elementDefBuilder = new ViewElementDefinition.Builder();
 
     public ViewMigration(final boolean aggregateAfter) {
         this.aggregateAfter = aggregateAfter;

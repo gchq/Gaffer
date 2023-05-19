@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.handler.compare;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors;
@@ -39,6 +42,8 @@ import java.util.stream.Stream;
 public class SortHandler implements OutputOperationHandler<Sort, Iterable<? extends Element>> {
     private static final MaxHandler MAX_HANDLER = new MaxHandler();
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "Appears to be a false positive")
+    @SuppressWarnings("PMD.UseTryWithResources")
     @Override
     public Iterable<? extends Element> doOperation(final Sort operation, final Context context, final Store store) throws OperationException {
         // If there is no input or there are no comparators, we return null

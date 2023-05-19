@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,107 +16,91 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_EDGES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_ENTITIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_ENTITY_BASIC_JSON;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreGraphVisibilityTest {
 
-    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
-    private static final String TEST_STORE_PROPS_ID = "testStorePropsId";
-    private static final String TEST_SCHEMA_ID = "testSchemaId";
-    private static final String TEST_GRAPH_ID = "testGraphId";
-    private static final String TEST_FED_GRAPH_ID = "testFedGraphId";
-    private static User addingUser;
-    private static User nonAddingUser;
-    private static User authNonAddingUser;
-    private Graph fedGraph;
-    private FederatedStoreProperties fedProperties;
-    private HashMapGraphLibrary library;
-
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        HashMapGraphLibrary.clear();
-        CacheServiceLoader.shutdown();
-
-        fedProperties = new FederatedStoreProperties();
-        fedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
-
-        addingUser = testUser();
-        nonAddingUser = blankUser();
-        authNonAddingUser = authUser();
-        library = new HashMapGraphLibrary();
-    }
+    public static final Schema SCHEMA_BASIC_ENTITY = loadSchemaFromJson(SCHEMA_ENTITY_BASIC_JSON);
+    public static final GraphLibrary LIBRARY = new HashMapGraphLibrary();
+    private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
+    private static final User ADDING_USER = testUser();
+    private static final User NON_ADDING_USER = blankUser();
+    private static final User AUTH_NON_ADDING_USER = authUser();
+    public static final String PROP_ID_FOR_LIB_ENTRY = "propIdForLibraryEntry";
+    public static final String SCHEMA_ID_FOR_LIB_ENTRY = "schemaIDForLibraryEntry";
+    public static final String GRAPH_ENTRY_IN_LIBRARY = "graphEntryInLibrary";
+    public static final String UNUSED_ID = "unusedId";
+    private Graph federatedGraph;
 
     @AfterAll
     public static void tearDownCache() {
-        CacheServiceLoader.shutdown();
+        resetForFederatedTests();
+    }
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        resetForFederatedTests();
+        FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
+        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+
+        federatedGraph = new Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                        .library(LIBRARY)
+                        .build())
+                .addStoreProperties(federatedStoreProperties)
+                .build();
     }
 
     @Test
-    public void shouldNotShowHiddenGraphIdWithIDs() throws Exception {
+    public void shouldNotShowHiddenGraphIdWithParentIDs() throws Exception {
+        LIBRARY.add(UNUSED_ID, SCHEMA_ID_FOR_LIB_ENTRY, SCHEMA_BASIC_ENTITY.clone(), PROP_ID_FOR_LIB_ENTRY, ACCUMULO_PROPERTIES.clone());
 
-        final Schema aSchema = new Schema.Builder()
-                .entity("e1", new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .build())
-                .type("string", String.class)
-                .build();
-
-        library.add(TEST_GRAPH_ID, TEST_SCHEMA_ID, aSchema, TEST_STORE_PROPS_ID, PROPERTIES);
-
-        fedGraph = new Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(TEST_FED_GRAPH_ID)
-                        .library(library)
-                        .build())
-                .addStoreProperties(fedProperties)
-                .build();
-
-        fedGraph.execute(
+        federatedGraph.execute(
                 new AddGraph.Builder()
-                        .graphId("g1")
-                        .parentPropertiesId(TEST_STORE_PROPS_ID) // <- with ID
-                        .parentSchemaIds(Arrays.asList(TEST_SCHEMA_ID)) // <- with ID
+                        .graphId(GRAPH_ID_ACCUMULO_WITH_ENTITIES)
+                        .parentPropertiesId(PROP_ID_FOR_LIB_ENTRY) //<-- with properties Id from Library
+                        .parentSchemaIds(singletonList(SCHEMA_ID_FOR_LIB_ENTRY)) //<-- with schema Id from Library
                         .build(),
-                addingUser);
+                ADDING_USER);
 
-        fedGraph.execute(
+        federatedGraph.execute(
                 new AddGraph.Builder()
-                        .graphId("g2")
-                        .parentPropertiesId(TEST_STORE_PROPS_ID) // <- with ID
-                        .parentSchemaIds(Arrays.asList(TEST_SCHEMA_ID)) // <- with ID
-                        .graphAuths("auth1")
+                        .graphId(GRAPH_ID_ACCUMULO_WITH_EDGES)
+                        .parentPropertiesId(PROP_ID_FOR_LIB_ENTRY) //<-- with properties Id from Library
+                        .parentSchemaIds(singletonList(SCHEMA_ID_FOR_LIB_ENTRY)) //<-- with schema Id from Library
+                        .graphAuths(AUTH_1)
                         .build(),
-                addingUser);
+                ADDING_USER);
 
 
         commonAssertions();
@@ -124,94 +108,79 @@ public class FederatedStoreGraphVisibilityTest {
 
     /*
      * Adhoc test to make sure that the naming of props and schemas without ID's
-     * is still retrievable via the name of the graph that is was added to the LIBRARY.
+     * is still retrievable via the name of the graph that was added to the LIBRARY.
      */
     @Test
-    public void shouldNotShowHiddenGraphIdWithoutIDs() throws Exception {
-        final Schema aSchema = new Schema.Builder() // <- without ID
-                .entity("e1", new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .build())
-                .type("string", String.class)
-                .build();
+    public void shouldNotShowHiddenGraphIdWithParentIdsOfAGraph() throws Exception {
 
-        library.add(TEST_GRAPH_ID, aSchema, PROPERTIES);
+        LIBRARY.add(GRAPH_ENTRY_IN_LIBRARY, SCHEMA_BASIC_ENTITY.clone(), ACCUMULO_PROPERTIES.clone());
 
-        fedGraph = new Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(TEST_FED_GRAPH_ID)
-                        .library(library)
-                        .build())
-                .addStoreProperties(fedProperties)
-                .build();
-
-        fedGraph.execute(
+        federatedGraph.execute(
                 new AddGraph.Builder()
-                        .graphId("g1")
-                        .parentPropertiesId(TEST_GRAPH_ID) // <- without ID
-                        .parentSchemaIds(Arrays.asList(TEST_GRAPH_ID)) // <- without ID
+                        .graphId(GRAPH_ID_ACCUMULO_WITH_ENTITIES)
+                        .parentPropertiesId(GRAPH_ENTRY_IN_LIBRARY) //<-- get same properties used by this graph in the library
+                        .parentSchemaIds(singletonList(GRAPH_ENTRY_IN_LIBRARY)) //<-- get same schema used by this graph in the library
                         .build(),
-                addingUser);
+                ADDING_USER);
 
-        fedGraph.execute(
+        federatedGraph.execute(
                 new AddGraph.Builder()
-                        .graphId("g2")
-                        .parentPropertiesId(TEST_GRAPH_ID) // <- without ID
-                        .parentSchemaIds(Arrays.asList(TEST_GRAPH_ID)) // <- without ID
-                        .graphAuths("auth1")
+                        .graphId(GRAPH_ID_ACCUMULO_WITH_EDGES)
+                        .parentPropertiesId(GRAPH_ENTRY_IN_LIBRARY) //<-- get same properties used by this graph in the library
+                        .parentSchemaIds(singletonList(GRAPH_ENTRY_IN_LIBRARY)) //<-- get same schema used by this graph in the library
+                        .graphAuths(AUTH_1)
                         .build(),
-                addingUser);
+                ADDING_USER);
+
+
+        commonAssertions();
+    }
+ @Test
+    public void shouldNotShowHiddenGraphIdWithParentIdsOfAGraphWithUnusedId() throws Exception {
+
+     LIBRARY.add(GRAPH_ENTRY_IN_LIBRARY, UNUSED_ID, SCHEMA_BASIC_ENTITY.clone(), UNUSED_ID, ACCUMULO_PROPERTIES.clone());
+
+        federatedGraph.execute(
+                new AddGraph.Builder()
+                        .graphId(GRAPH_ID_ACCUMULO_WITH_ENTITIES)
+                        .parentPropertiesId(GRAPH_ENTRY_IN_LIBRARY) //<-- get same properties used by this graph in the library, without using the property id
+                        .parentSchemaIds(singletonList(GRAPH_ENTRY_IN_LIBRARY)) //<-- get same schema used by this graph in the library, without using the schema id
+                        .build(),
+                ADDING_USER);
+
+        federatedGraph.execute(
+                new AddGraph.Builder()
+                        .graphId(GRAPH_ID_ACCUMULO_WITH_EDGES)
+                        .parentPropertiesId(GRAPH_ENTRY_IN_LIBRARY) //<-- get same properties used by this graph in the library, without using the property id
+                        .parentSchemaIds(singletonList(GRAPH_ENTRY_IN_LIBRARY)) //<-- get same schema used by this graph in the library, without using the schema id
+                        .graphAuths(AUTH_1)
+                        .build(),
+                ADDING_USER);
 
 
         commonAssertions();
     }
 
     private void commonAssertions() throws uk.gov.gchq.gaffer.operation.OperationException {
-        Iterable<? extends String> graphIds = fedGraph.execute(
-                new GetAllGraphIds(),
-                nonAddingUser);
+        assertThat(federatedGraph.execute(new GetAllGraphIds(), NON_ADDING_USER))
+                .withFailMessage("Returned iterable should not be null, it should be empty.")
+                .isNotNull()
+                .withFailMessage("Showing hidden graphId")
+                .isEmpty();
 
+        assertThat(federatedGraph.execute(new GetAllGraphIds(), AUTH_NON_ADDING_USER))
+                .withFailMessage("Returned iterable should not be null, it should be empty.")
+                .isNotNull()
+                .withFailMessage("Not Showing graphId with correct auth")
+                .isNotEmpty()
+                .containsExactlyInAnyOrder(GRAPH_ID_ACCUMULO_WITH_EDGES);
 
-        final HashSet<Object> sets = Sets.newHashSet();
-        Iterator<? extends String> iterator = graphIds.iterator();
-        while (iterator.hasNext()) {
-            sets.add(iterator.next());
-        }
+        assertThat(federatedGraph.execute(new GetAllGraphIds(), ADDING_USER))
+                .withFailMessage("Returned iterable should not be null, it should be empty.")
+                .isNotNull()
+                .withFailMessage("Not Showing all graphId for adding user")
+                .isNotEmpty()
+                .containsExactlyInAnyOrder(GRAPH_ID_ACCUMULO_WITH_ENTITIES, GRAPH_ID_ACCUMULO_WITH_EDGES);
 
-        assertNotNull(graphIds, "Returned iterator should not be null, it should be empty.");
-        assertEquals(0, sets.size(), "Showing hidden graphId");
-
-
-        graphIds = fedGraph.execute(
-                new GetAllGraphIds(),
-                authNonAddingUser);
-        iterator = graphIds.iterator();
-
-        sets.clear();
-        while (iterator.hasNext()) {
-            sets.add(iterator.next());
-        }
-
-        assertNotNull(graphIds, "Returned iterator should not be null, it should be empty.");
-        assertEquals(1, sets.size(), "Not Showing graphId with correct auth");
-        assertThat(sets).contains("g2");
-
-
-        graphIds = fedGraph.execute(
-                new GetAllGraphIds(),
-                addingUser);
-        iterator = graphIds.iterator();
-
-
-        sets.clear();
-        while (iterator.hasNext()) {
-            sets.add(iterator.next());
-        }
-
-        assertNotNull(graphIds, "Returned iterator should not be null, it should be empty.");
-        assertEquals(2, sets.size(), "Not Showing all graphId for adding user");
-        assertThat(sets).contains("g1", "g2");
     }
-
-
 }

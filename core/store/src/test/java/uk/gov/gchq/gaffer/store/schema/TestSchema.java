@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -281,11 +281,6 @@ public enum TestSchema {
 
         public Builder withVisibilityProperty() {
             schemaBuilder.visibilityProperty(TestPropertyNames.VISIBILITY);
-            return this;
-        }
-
-        public Builder withTimestampProperty() {
-            schemaBuilder.timestampProperty(TestPropertyNames.TIMESTAMP);
             return this;
         }
 

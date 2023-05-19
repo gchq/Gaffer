@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,14 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Sets;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 import java.util.HashSet;
 
+import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
@@ -37,93 +35,85 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
  */
 public class FederatedAccessCreatingUserTest {
 
-    public static final String A = "A";
-
-    User testUser;
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        testUser = testUser();
-    }
 
     @Test
     public void shouldValidateWithWrongAuth() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
-                .graphAuths(A)
+                .owningUserId(TEST_USER_ID)
+                .graphAuths(AUTH_1)
                 .build();
 
-        assertTrue(access.hasReadAccess(testUser));
+        assertTrue(access.hasReadAccess(testUser()));
     }
 
     @Test
     public void shouldValidateWithNoAuth() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
-                .graphAuths(A)
+                .owningUserId(TEST_USER_ID)
+                .graphAuths(AUTH_1)
                 .build();
 
-        assertTrue(access.hasReadAccess(testUser));
+        assertTrue(access.hasReadAccess(testUser()));
     }
 
     @Test
     public void shouldValidateWithNullHookAuthCollection() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
+                .owningUserId(TEST_USER_ID)
                 .graphAuths((Collection) null)
                 .build();
 
-        assertTrue(access.hasReadAccess(testUser));
+        assertTrue(access.hasReadAccess(testUser()));
     }
 
     @Test
     public void shouldValidateWithNullHookAuthStringArray() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
+                .owningUserId(TEST_USER_ID)
                 .graphAuths((String[]) null)
                 .build();
 
-        assertTrue(access.hasReadAccess(testUser));
+        assertTrue(access.hasReadAccess(testUser()));
     }
 
     @Test
     public void shouldValidateWithEmptyHookAuthCollection() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
+                .owningUserId(TEST_USER_ID)
                 .graphAuths(new HashSet<>())
                 .build();
 
-        assertTrue(access.hasReadAccess(testUser));
+        assertTrue(access.hasReadAccess(testUser()));
     }
 
     @Test
     public void shouldValidateWithEmptyHookAuthStringArray() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
+                .owningUserId(TEST_USER_ID)
                 .graphAuths(new String[0])
                 .build();
 
-        assertTrue(access.hasReadAccess(testUser));
+        assertTrue(access.hasReadAccess(testUser()));
     }
 
     @Test
     public void shouldValidateWithEmptyHookAuthCollectionII() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
-                .graphAuths(Sets.newHashSet(""))
+                .owningUserId(TEST_USER_ID)
+                .graphAuths(singleton(""))
                 .build();
 
-        assertTrue(access.hasReadAccess(testUser));
+        assertTrue(access.hasReadAccess(testUser()));
     }
 
     @Test
     public void shouldValidateWithEmptyHookAuthStringArrayII() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER_ID)
+                .owningUserId(TEST_USER_ID)
                 .graphAuths("")
                 .build();
 
-        assertTrue(access.hasReadAccess(testUser));
+        assertTrue(access.hasReadAccess(testUser()));
     }
 
 }

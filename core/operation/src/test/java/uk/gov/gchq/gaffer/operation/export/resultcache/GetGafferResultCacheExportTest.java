@@ -18,14 +18,12 @@ package uk.gov.gchq.gaffer.operation.export.resultcache;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResultCacheExport> {
     @Test
@@ -37,11 +35,11 @@ public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResul
                 .build();
 
         // When
-        byte[] json = JSONSerialiser.serialise(op, true);
+        final byte[] json = JSONSerialiser.serialise(op, true);
         final GetGafferResultCacheExport deserialisedOp = JSONSerialiser.deserialise(json, GetGafferResultCacheExport.class);
 
         // Then
-        assertEquals(key, deserialisedOp.getKey());
+        assertThat(deserialisedOp.getKey()).isEqualTo(key);
     }
 
     @Test
@@ -54,7 +52,7 @@ public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResul
                 .build();
 
         // Then
-        assertEquals(key, op.getKey());
+        assertThat(op.getKey()).isEqualTo(key);
     }
 
     @Test
@@ -69,12 +67,12 @@ public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResul
                 .build();
 
         // When
-        GetGafferResultCacheExport clone = getGafferResultCacheExport.shallowClone();
+        final GetGafferResultCacheExport clone = getGafferResultCacheExport.shallowClone();
 
         // Then
-        assertNotSame(getGafferResultCacheExport, clone);
-        assertEquals(key, clone.getKey());
-        assertEquals(jobId, clone.getJobId());
+        assertThat(clone).isNotSameAs(getGafferResultCacheExport);
+        assertThat(clone.getKey()).isEqualTo(key);
+        assertThat(clone.getJobId()).isEqualTo(jobId);
     }
 
     @Test
@@ -83,7 +81,7 @@ public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResul
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertEquals(CloseableIterable.class, outputClass);
+        assertThat(outputClass).isEqualTo(Iterable.class);
     }
 
     @Override

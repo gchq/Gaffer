@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ package uk.gov.gchq.gaffer.data.generator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -41,14 +43,32 @@ import java.util.regex.Pattern;
 @Since("1.0.0")
 @Summary("Generates a CSV string for each element")
 public class CsvGenerator implements OneToOneObjectGenerator<String> {
-    public static final String GROUP = "GROUP";
-    public static final String COMMA = ",";
+    // Custom identifiers used in case you want seperate Edge and Entity group columns
+    protected static final String ENTITY_GROUP = "ENTITY_GROUP";
+    protected static final String EDGE_GROUP = "EDGE_GROUP";
+
+    private static final String COMMA = ",";
     private static final Pattern COMMA_PATTERN = Pattern.compile(COMMA);
     private static final String COMMA_REPLACEMENT_DEFAULT = " ";
 
-    private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+    /**
+     * When set to true, fields will be set to {@link #getDefaultFields()}.
+     */
+    private boolean includeDefaultFields = false;
+
+    /**
+     * Map of fields that define what is included in the csv.
+     * Key is the IdentifierType or property and value is the associated header.
+     */
+    private LinkedHashMap<String, String> fields = getIncludeDefaultFields() ? getDefaultFields() : new LinkedHashMap<>();
 
     private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
+
+    /**
+     * When set to true, schema properties can get added to fields.
+     * This is used by the ToCsvHandler to add all of the properties in the Schema to fields.
+     */
+    private boolean includeSchemaProperties = false;
 
     /**
      * When set to true, each value in the csv will be wrapped in quotes.
@@ -59,6 +79,21 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
      * Replaces commas with this string. If null then no replacement is done.
      */
     private String commaReplacement = COMMA_REPLACEMENT_DEFAULT;
+
+    /**
+     * Used to determine the default fields for different CsvGenerators.
+     * Default implementation returns basic Indentifiers.
+     *
+     * @return the default fields for the class
+     */
+    protected LinkedHashMap<String, String> getDefaultFields() {
+        final LinkedHashMap<String, String> defaultFields = new LinkedHashMap<>();
+        defaultFields.put(IdentifierType.VERTEX.name(), IdentifierType.VERTEX.name());
+        defaultFields.put(IdentifierType.GROUP.name(), IdentifierType.GROUP.name());
+        defaultFields.put(IdentifierType.SOURCE.name(), IdentifierType.SOURCE.name());
+        defaultFields.put(IdentifierType.DESTINATION.name(), IdentifierType.DESTINATION.name());
+        return defaultFields;
+    }
 
     /**
      * Attempts to find the value of a field from a given {@link Element},
@@ -72,11 +107,14 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         final IdentifierType idType = IdentifierType.fromName(key);
         final Object value;
         if (null == idType) {
-            if (GROUP.equals(key)) {
+            if (key.equals(ENTITY_GROUP) && element.getClass().equals(Entity.class)) {
+                value = element.getGroup();
+            } else if (key.equals(EDGE_GROUP) && element.getClass().equals(Edge.class)) {
                 value = element.getGroup();
             } else {
                 value = element.getProperty(key);
             }
+
         } else {
             value = element.getIdentifier(idType);
         }
@@ -89,7 +127,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
 
     public void setFields(final LinkedHashMap<String, String> fields) {
         if (null == fields) {
-            this.fields = new LinkedHashMap<>();
+            this.fields = getIncludeDefaultFields() ? getDefaultFields() : new LinkedHashMap<>();
         }
         this.fields = fields;
     }
@@ -105,11 +143,40 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         this.constants = constants;
     }
 
+    public boolean getIncludeDefaultFields() {
+        return includeDefaultFields;
+    }
+
+    public void setIncludeDefaultFields(final boolean includeDefaultFields) {
+        this.includeDefaultFields = includeDefaultFields;
+    }
+
+    public boolean getIncludeSchemaProperties() {
+        return includeSchemaProperties;
+    }
+
+    public void setIncludeSchemaProperties(final boolean includeSchemaProperties) {
+        this.includeSchemaProperties = includeSchemaProperties;
+    }
+
+    /**
+     * Adds all properties from a schema to the fields if
+     * includeSchemaProperties is true.
+     *
+     * @param schemaProperties a Map of property names to types.
+     */
+    public void addAdditionalFieldsFromSchemaProperties(final LinkedHashMap<String, Class<?>> schemaProperties) {
+        if (getIncludeSchemaProperties()) {
+            for (final String propertyName : schemaProperties.keySet()) {
+                getFields().put(propertyName, propertyName);
+            }
+        }
+    }
 
     @Override
     public String _apply(final Element element) {
         final StringBuilder strBuilder = new StringBuilder();
-        for (final String field : fields.keySet()) {
+        for (final String field : getFields().keySet()) {
             final Object value = getFieldValue(element, field);
             if (null != value) {
                 strBuilder.append(quoteString(value));
@@ -138,7 +205,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
      */
     @JsonIgnore
     public String getHeader() {
-        if (fields.isEmpty()) {
+        if (getFields().isEmpty()) {
             if (constants.isEmpty()) {
                 return "";
             }
@@ -146,10 +213,10 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         }
 
         if (constants.isEmpty()) {
-            return getHeaderFields(fields.values());
+            return getHeaderFields(getFields().values());
         }
 
-        return getHeaderFields(fields.values()) + COMMA + getHeaderFields(constants.values());
+        return getHeaderFields(getFields().values()) + COMMA + getHeaderFields(constants.values());
     }
 
     private String getHeaderFields(final Collection<String> fields) {
@@ -175,7 +242,6 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         return value;
     }
 
-
     public boolean isQuoted() {
         return quoted;
     }
@@ -193,8 +259,10 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
     }
 
     public static class Builder {
-        private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
-        private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
+        private final LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+        private final LinkedHashMap<String, String> constants = new LinkedHashMap<>();
+        private final LinkedHashMap<String, Class<?>> schemaProperties = new LinkedHashMap<>();
+
         private String commaReplacement = COMMA_REPLACEMENT_DEFAULT;
         private Boolean quoted;
 
@@ -205,8 +273,27 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
          * @return a new {@link Builder}
          */
         public Builder group(final String columnHeader) {
-            fields.put(GROUP, columnHeader);
-            return this;
+            return identifier(IdentifierType.GROUP, columnHeader);
+        }
+
+        /**
+         * Stores the group of an {@link Entity} on a seperate column.
+         *
+         * @param columnHeader the group of the {@code Entity}
+         * @return a new {@link Builder}
+         */
+        public Builder entityGroup(final String columnHeader) {
+            return property(ENTITY_GROUP, columnHeader);
+        }
+
+        /**
+         * Stores the group of an {@link Edge} on a seperate column.
+         *
+         * @param columnHeader the group of the {@code Edge}
+         * @return a new {@link Builder}
+         */
+        public Builder edgeGroup(final String columnHeader) {
+            return property(EDGE_GROUP, columnHeader);
         }
 
         /**
@@ -290,6 +377,17 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         }
 
         /**
+         * Saves all properties from the schema which be added to fields.
+         *
+         * @param schemaProperties   the Map of property names to type
+         * @return a new {@link Builder}
+         */
+        public Builder setAdditionalFieldsFromSchemaProperties(final LinkedHashMap<String, Class<?>> schemaProperties) {
+            this.schemaProperties.putAll(schemaProperties);
+            return this;
+        }
+
+        /**
          * Stores the String with which any encountered commas will be replaced.
          *
          * @param commaReplacement the replacement String
@@ -312,7 +410,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         }
 
         /**
-         * Passes all of the configured fields and constants about an {@link Element} to a new {@link CsvGenerator},
+         * Passes all the configured fields and constants about an {@link Element} to a new {@link CsvGenerator},
          * including the comma replacement String, and the flag for whether values should be quoted.
          *
          * @return a new {@code CsvGenerator}, containing all configured information
@@ -321,11 +419,11 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
             final CsvGenerator generator = new CsvGenerator();
             generator.setFields(fields);
             generator.setConstants(constants);
+            generator.addAdditionalFieldsFromSchemaProperties(schemaProperties);
             generator.setCommaReplacement(commaReplacement);
             if (null != quoted) {
                 generator.setQuoted(quoted);
             }
-
             return generator;
         }
     }

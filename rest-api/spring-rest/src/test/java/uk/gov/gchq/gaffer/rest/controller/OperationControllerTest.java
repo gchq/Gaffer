@@ -57,8 +57,6 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -86,7 +84,7 @@ public class OperationControllerTest {
         when(store.getSchema()).thenReturn(new Schema());
         when(store.getProperties()).thenReturn(new StoreProperties());
 
-        Graph graph = new Graph.Builder()
+        final Graph graph = new Graph.Builder()
                 .config(new GraphConfig("id"))
                 .store(store)
                 .addSchema(new Schema())
@@ -95,21 +93,19 @@ public class OperationControllerTest {
         when(graphFactory.getGraph()).thenReturn(graph);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldReturnAllSupportedOperationsAsOperationDetails() {
         // Given
-        when(store.getSupportedOperations()).thenReturn(
-                Sets.newHashSet(AddElements.class, GetElements.class)
-        );
+        when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(AddElements.class, GetElements.class));
 
         // When
-        Set<OperationDetail> allOperationDetails = operationController.getAllOperationDetails();
-        Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toSet());
+        final Set<OperationDetail> allOperationDetails = operationController.getAllOperationDetails();
+        final Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toSet());
 
         // Then
         assertThat(allOperationDetails).hasSize(2);
-        assertThat(allOperationDetailClasses)
-                .contains(AddElements.class.getName(), GetElements.class.getName());
+        assertThat(allOperationDetailClasses).contains(AddElements.class.getName(), GetElements.class.getName());
     }
 
     @Test
@@ -199,19 +195,21 @@ public class OperationControllerTest {
                 .isEqualTo(INTERNAL_SERVER_ERROR);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldReturnOperationDetailSummaryOfClass() {
         // Given
         when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(GetElements.class));
 
         // When
-        OperationDetail operationDetail = operationController.getOperationDetails(GetElements.class.getName());
+        final OperationDetail operationDetail = operationController.getOperationDetails(GetElements.class.getName());
 
         // Then
         final String expectedSummary = "Gets elements related to provided seeds";
-        assertEquals(expectedSummary, operationDetail.getSummary());
+        assertThat(operationDetail.getSummary()).isEqualTo(expectedSummary);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldReturnOutputClassForOperationWithOutput() throws Exception {
         // Given
@@ -219,13 +217,14 @@ public class OperationControllerTest {
         when(examplesFactory.generateExample(GetElements.class)).thenReturn(new GetElements());
 
         // When
-        OperationDetail operationDetails = operationController.getOperationDetails(GetElements.class.getName());
+        final OperationDetail operationDetails = operationController.getOperationDetails(GetElements.class.getName());
 
         // Then
-        final String expectedOutputString = "uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable<uk.gov.gchq.gaffer.data.element.Element>";
-        assertEquals(expectedOutputString, operationDetails.getOutputClassName());
+        final String expectedOutputString = "java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>";
+        assertThat(operationDetails.getOutputClassName()).isEqualTo(expectedOutputString);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldNotIncludeAnyOutputClassForOperationWithoutOutput() throws Exception {
         // Given
@@ -233,13 +232,14 @@ public class OperationControllerTest {
         when(examplesFactory.generateExample(GetElements.class)).thenReturn(new DiscardOutput());
 
         // When
-        OperationDetail operationDetail = operationController.getOperationDetails(DiscardOutput.class.getName());
-        byte[] serialised = JSONSerialiser.serialise(operationDetail);
+        final OperationDetail operationDetail = operationController.getOperationDetails(DiscardOutput.class.getName());
+        final byte[] serialised = JSONSerialiser.serialise(operationDetail);
 
         // Then
-        assertFalse(new String(serialised).contains("outputClassName"));
+        assertThat(new String(serialised)).doesNotContain("outputClassName");
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldReturnOptionsAndSummariesForEnumFields() throws Exception {
         // Given
@@ -247,23 +247,22 @@ public class OperationControllerTest {
         when(examplesFactory.generateExample(GetElements.class)).thenReturn(new GetElements());
 
         // When
-        OperationDetail operationDetails = operationController.getOperationDetails(GetElements.class.getName());
-        List<OperationField> operationFields = operationDetails.getFields();
-
+        final OperationDetail operationDetails = operationController.getOperationDetails(GetElements.class.getName());
+        final List<OperationField> operationFields = operationDetails.getFields();
 
         // Then
         final List<OperationField> fields = Arrays.asList(
                 new OperationField("input", null, "java.lang.Object[]", null, false),
                 new OperationField("view", null, "uk.gov.gchq.gaffer.data.elementdefinition.view.View", null, false),
                 new OperationField("includeIncomingOutGoing", "Should the edges point towards, or away from your seeds", "java.lang.String", Sets.newHashSet("INCOMING", "EITHER", "OUTGOING"), false),
-                new OperationField("seedMatching", "How should the seeds be matched?", "java.lang.String", Sets.newHashSet("RELATED", "EQUAL"), false),
                 new OperationField("options", null, "java.util.Map<java.lang.String,java.lang.String>", null, false),
                 new OperationField("directedType", "Is the Edge directed?", "java.lang.String", Sets.newHashSet("DIRECTED", "UNDIRECTED", "EITHER"), false),
-                new OperationField("views", null, "java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>", null, false)
-        );
+                new OperationField("views", null, "java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>", null, false));
 
-        assertEquals(fields, operationFields);
+        assertThat(operationFields).isEqualTo(fields);
     }
+
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldCorrectlyChunkIterables() throws IOException, OperationException {
         // Given
@@ -271,19 +270,17 @@ public class OperationControllerTest {
         when(store.execute(any(Output.class), any(Context.class))).thenReturn(Arrays.asList(1, 2, 3));
 
         // When
-        ResponseEntity<StreamingResponseBody> response = operationController.executeChunked(new GetAllElements());
-        OutputStream output = new ByteArrayOutputStream();
-        response.getBody().writeTo(output);
+        final ResponseEntity<StreamingResponseBody> response = operationController.executeChunked(new GetAllElements());
+        try (final OutputStream output = new ByteArrayOutputStream()) {
+            response.getBody().writeTo(output);
+            // Then
+            assertThat(output.toString()).isEqualTo("1\r\n2\r\n3\r\n");
 
-        // Then
-        assertEquals("1\r\n2\r\n3\r\n", output.toString());
+        }
+
     }
 
     private static class UninstantiatableOperation implements Operation {
-
-        UninstantiatableOperation(final String str) {
-            // No default constructor
-        }
 
         @Override
         public Operation shallowClone() throws CloneFailedException {

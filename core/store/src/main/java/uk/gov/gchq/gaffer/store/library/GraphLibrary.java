@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,19 +180,6 @@ public abstract class GraphLibrary {
     /**
      * Adds a new relationship between a Schema and a schemaId.
      *
-     * @param schema the Schema.
-     * @throws OverwritingException If there is already a relationship.
-     * @deprecated use {@link GraphLibrary#addSchema(String, Schema)}
-     */
-    @Deprecated
-    public void addSchema(final Schema schema) throws OverwritingException {
-        String id = (null == schema) ? null : schema.getId();
-        addSchema(id, schema);
-    }
-
-    /**
-     * Adds a new relationship between a Schema and a schemaId.
-     *
      * @param id     the schema ID
      * @param schema the Schema.
      * @throws OverwritingException If there is already a relationship.
@@ -201,12 +188,11 @@ public abstract class GraphLibrary {
         if (schema == null) {
             throw new IllegalArgumentException("Schema cannot be null");
         }
-        if (null != schema) {
-            validateId(id);
-            final byte[] schemaJson = schema.toJson(false);
-            if (!checkSchemaExists(id, schemaJson)) {
-                _addSchema(id, schemaJson);
-            }
+
+        validateId(id);
+        final byte[] schemaJson = schema.toJson(false);
+        if (!checkSchemaExists(id, schemaJson)) {
+            _addSchema(id, schemaJson);
         }
     }
 
@@ -229,20 +215,6 @@ public abstract class GraphLibrary {
     /**
      * Adds a new relationship between a StoreProperties and a storePropertiesId.
      *
-     * @param properties the StoreProperties.
-     * @throws OverwritingException If there is already a relationship.
-     * @deprecated use {@link GraphLibrary#addProperties(String, StoreProperties)}
-     */
-    @Deprecated
-    public void addProperties(final StoreProperties properties) throws OverwritingException {
-        if (null != properties) {
-            addProperties(properties.getId(), properties);
-        }
-    }
-
-    /**
-     * Adds a new relationship between a StoreProperties and a storePropertiesId.
-     *
      * @param id         the properties ID.
      * @param properties the StoreProperties.
      * @throws OverwritingException If there is already a relationship.
@@ -251,11 +223,10 @@ public abstract class GraphLibrary {
         if (properties == null) {
             throw new IllegalArgumentException("Store properties cannot be null");
         }
-        if (null != properties) {
-            validateId(id);
-            if (!checkPropertiesExist(id, properties)) {
-                _addProperties(id, properties);
-            }
+
+        validateId(id);
+        if (!checkPropertiesExist(id, properties)) {
+            _addProperties(id, properties);
         }
     }
 
@@ -296,19 +267,15 @@ public abstract class GraphLibrary {
     private void checkExisting(final String graphId, final byte[] schema, final StoreProperties properties) {
         final Pair<Schema, StoreProperties> existingPair = get(graphId);
         if (null != existingPair) {
-            if (null != existingPair.getFirst()) {
-                if (!JsonUtil.equals(existingPair.getFirst().toJson(false), schema)) {
-                    throw new OverwritingException("GraphId " + graphId + " already exists with a different schema:\n"
-                            + "existing schema:\n" + StringUtil.toString(existingPair.getFirst().toJson(false))
-                            + "\nnew schema:\n" + StringUtil.toString(schema));
-                }
+            if (existingPair.getFirst() != null && !JsonUtil.equals(existingPair.getFirst().toJson(false), schema)) {
+                throw new OverwritingException("GraphId " + graphId + " already exists with a different schema:\n"
+                        + "existing schema:\n" + StringUtil.toString(existingPair.getFirst().toJson(false))
+                        + "\nnew schema:\n" + StringUtil.toString(schema));
             }
-            if (null != existingPair.getSecond()) {
-                if (!existingPair.getSecond().getProperties().equals(properties.getProperties())) {
-                    throw new OverwritingException("GraphId " + graphId + " already exists with a different store properties:\n"
-                            + "existing storeProperties:\n" + existingPair.getSecond().toString()
-                            + "\nnew storeProperties:\n" + properties.toString());
-                }
+            if (existingPair.getSecond() != null && !existingPair.getSecond().getProperties().equals(properties.getProperties())) {
+                throw new OverwritingException("GraphId " + graphId + " already exists with a different store properties:\n"
+                        + "existing storeProperties:\n" + existingPair.getSecond().toString()
+                        + "\nnew storeProperties:\n" + properties);
             }
         }
     }
@@ -316,12 +283,10 @@ public abstract class GraphLibrary {
     private boolean checkSchemaExists(final String id, final byte[] schemaJson) {
         final byte[] existingSchemaJson = _getSchema(id);
         final boolean exists = null != existingSchemaJson;
-        if (exists) {
-            if (!JsonUtil.equals(existingSchemaJson, schemaJson)) {
-                throw new OverwritingException("schemaId " + id + " already exists with a different schema:\n"
-                        + "existing schema:\n" + StringUtil.toString(existingSchemaJson)
-                        + "\nnew schema:\n" + StringUtil.toString(schemaJson));
-            }
+        if (exists && !JsonUtil.equals(existingSchemaJson, schemaJson)) {
+            throw new OverwritingException("schemaId " + id + " already exists with a different schema:\n"
+                    + "existing schema:\n" + StringUtil.toString(existingSchemaJson)
+                    + "\nnew schema:\n" + StringUtil.toString(schemaJson));
         }
 
         return exists;
@@ -329,13 +294,11 @@ public abstract class GraphLibrary {
 
     private boolean checkPropertiesExist(final String id, final StoreProperties properties) {
         final StoreProperties existingProperties = _getProperties(id);
-        final boolean exists = null != existingProperties;
-        if (exists) {
-            if (!existingProperties.getProperties().equals(properties.getProperties())) {
-                throw new OverwritingException("propertiesId " + id + " already exists with a different store properties:\n"
-                        + "existing storeProperties:\n" + existingProperties.getProperties().toString()
-                        + "\nnew storeProperties:\n" + properties.getProperties().toString());
-            }
+        final boolean exists = existingProperties != null;
+        if (exists && !existingProperties.getProperties().equals(properties.getProperties())) {
+            throw new OverwritingException("propertiesId " + id + " already exists with a different store properties:\n"
+                    + "existing storeProperties:\n" + existingProperties.getProperties().toString()
+                    + "\nnew storeProperties:\n" + properties.getProperties().toString());
         }
         return exists;
     }
@@ -354,44 +317,47 @@ public abstract class GraphLibrary {
 
 
     public Schema resolveSchema(final Schema schema, final List<String> parentSchemaIds) {
-        Schema resultSchema = null;
+        Schema.Builder mergedSchemas = new Schema.Builder();
+
         if (null != parentSchemaIds) {
-            if (1 == parentSchemaIds.size()) {
-                resultSchema = this.getSchema(parentSchemaIds.get(0));
-            } else {
-                final Schema.Builder schemaBuilder = new Schema.Builder();
-                for (final String id : parentSchemaIds) {
-                    schemaBuilder.merge(this.getSchema(id));
-                }
-                resultSchema = schemaBuilder.build();
+            for (final String id : parentSchemaIds) {
+                mergedSchemas.merge(this.getSchemaElseCopyFromGraph(id));
             }
         }
-        if (null != schema) {
-            if (null == resultSchema) {
-                resultSchema = schema;
-            } else {
-                resultSchema = new Schema.Builder()
-                        .merge(resultSchema)
-                        .merge(schema)
-                        .build();
-            }
+
+        mergedSchemas.merge(schema);
+
+        return mergedSchemas.build();
+    }
+
+    private Schema getSchemaElseCopyFromGraph(final String id) {
+        Schema resultSchema;
+        resultSchema = this.getSchema(id);
+        if (null == resultSchema && this.exists(id)) {
+            resultSchema = this.get(id).getFirst();
         }
         return resultSchema;
     }
 
+    private StoreProperties getPropertiesElseCopyFromGraph(final String id) {
+        StoreProperties resultProperties;
+        resultProperties = this.getProperties(id);
+        if (null == resultProperties && this.exists(id)) {
+            resultProperties = this.get(id).getSecond();
+        }
+        return resultProperties;
+    }
+
     public StoreProperties resolveStoreProperties(final StoreProperties properties, final String parentStorePropertiesId) {
-        StoreProperties resultProps = null;
+        final StoreProperties rtn = new StoreProperties();
+
         if (null != parentStorePropertiesId) {
-            resultProps = this.getProperties(parentStorePropertiesId);
+            rtn.merge(this.getPropertiesElseCopyFromGraph(parentStorePropertiesId));
         }
-        if (null != properties) {
-            if (null == resultProps) {
-                resultProps = properties;
-            } else {
-                resultProps.merge(properties);
-            }
-        }
-        return resultProps;
+
+        rtn.merge(properties);
+
+        return rtn;
     }
 
 }

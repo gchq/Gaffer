@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,11 @@ import uk.gov.gchq.gaffer.operation.util.OperationUtil;
  * {@code MultiEntityIdInputB} operations are Gaffer operations which consume multiple
  * {@link EntityId}s.
  */
+@Deprecated
 public interface MultiEntityIdInputB extends MultiInputB<EntityId> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonSetter("inputB")
-    default void setInputBFromVerticesAndIds(final Object[] inputB) {
+    default void setInputBFromVerticesAndIds(final Object... inputB) {
         setInputB(OperationUtil.toEntityIds(inputB));
     }
 
@@ -40,7 +41,7 @@ public interface MultiEntityIdInputB extends MultiInputB<EntityId> {
         return MultiInputB.super.createInputBArray();
     }
 
-    default void setInputB(final EntityId[] inputB) {
+    default void setInputB(final EntityId... inputB) {
         if (null == inputB) {
             setInputB(((Iterable) null));
         }

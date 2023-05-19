@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.store.Context;
@@ -31,41 +33,39 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
 public class ToStreamHandlerTest {
 
     @Test
-    public void shouldConvertIterableToStream() throws OperationException {
+    public void shouldConvertIterableToStream(@Mock final ToStream operation) throws OperationException {
         // Given
         final List<Integer> originalList = Arrays.asList(1, 2, 3);
 
-        final Iterable<Integer> originalResults = new WrappedCloseableIterable<>(originalList);
+        final Iterable<Integer> originalResults = originalList;
         final ToStreamHandler<Integer> handler = new ToStreamHandler();
-        final ToStream operation = mock(ToStream.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
-        //When
+        // When
         final Stream<Integer> stream = handler.doOperation(operation, new Context(), null);
         final List<Integer> results = stream.collect(Collectors.toList());
 
-        //Then
+        // Then
         assertEquals(originalList, results);
     }
 
     @Test
-    public void shouldHandleNullInput() throws OperationException {
+    public void shouldHandleNullInput(@Mock final ToStream operation) throws OperationException {
         // Given
         final ToStreamHandler<Integer> handler = new ToStreamHandler();
-        final ToStream operation = mock(ToStream.class);
 
         given(operation.getInput()).willReturn(null);
 
-        //When
+        // When
         final Stream<Integer> results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertThat(results).isNull();
     }
 }

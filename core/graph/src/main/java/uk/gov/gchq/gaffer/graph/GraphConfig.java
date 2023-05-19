@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public final class GraphConfig {
     private byte[] view;
     private GraphLibrary library;
     private String description;
-    private List<GraphHook> hooks = new ArrayList<>();
+    private final List<GraphHook> hooks = new ArrayList<>();
 
     public GraphConfig() {
     }
@@ -146,7 +146,7 @@ public final class GraphConfig {
     }
 
     public static class Builder {
-        private GraphConfig config = new GraphConfig();
+        private final GraphConfig config = new GraphConfig();
 
         public Builder json(final Path path) {
             try {
@@ -195,7 +195,7 @@ public final class GraphConfig {
                 if (null != config.getView()) {
                     this.config.setView(config.getView());
                 }
-                if (null != config.getLibrary()) {
+                if (null != config.getLibrary() && !(config.getLibrary() instanceof NoGraphLibrary)) {
                     this.config.setLibrary(config.getLibrary());
                 }
                 if (null != config.getDescription()) {

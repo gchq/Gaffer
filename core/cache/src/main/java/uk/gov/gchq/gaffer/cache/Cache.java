@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,20 @@
 package uk.gov.gchq.gaffer.cache;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Set;
+
+import static java.util.Objects.nonNull;
 
 /**
  * Type safe cache, adding and getting is guaranteed to be same type.
+ *
  * @param <V> The type of values to add and get.
  */
-public class Cache<V> {
+public class Cache<K, V> {
     public static final String ERROR_ADDING_KEY_TO_CACHE_KEY_S = "Error adding key to cache. key: %s";
     protected String cacheName;
 
@@ -33,7 +38,7 @@ public class Cache<V> {
         this.cacheName = cacheName;
     }
 
-    public V getFromCache(final String key) {
+    public V getFromCache(final String key) throws CacheOperationException {
         return CacheServiceLoader.getService().getFromCache(cacheName, key);
     }
 
@@ -41,9 +46,9 @@ public class Cache<V> {
         return cacheName;
     }
 
-    protected void addToCache(final String key, final V value, final boolean overwrite) throws CacheOperationException {
-        final ICacheService service = CacheServiceLoader.getService();
+    protected void addToCache(final K key, final V value, final boolean overwrite) throws CacheOperationException {
         try {
+            final ICacheService service = CacheServiceLoader.getService();
             if (overwrite) {
                 service.putInCache(getCacheName(), key, value);
             } else {
@@ -54,9 +59,18 @@ public class Cache<V> {
         }
     }
 
-    public Set<String> getAllKeys() {
-        final Set<String> allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
-        return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
+    public Set<K> getAllKeys() {
+        try {
+            final Set<K> allKeysFromCache;
+            if (CacheServiceLoader.isEnabled()) {
+                allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
+            } else {
+                throw new GafferRuntimeException("Cache is not enabled, check it was Initialised");
+            }
+            return (null == allKeysFromCache) ? Collections.emptySet() : Collections.unmodifiableSet(allKeysFromCache);
+        } catch (final Exception e) {
+            throw new GafferRuntimeException("Error getting all keys", e);
+        }
     }
 
     /**
@@ -92,5 +106,17 @@ public class Cache<V> {
         } else {
             return null;
         }
+    }
+
+    public String getSuffixCacheNameWithPrefix(final String prefixCacheServiceName) {
+        return getCacheName().equals(prefixCacheServiceName) ? null :
+                getCacheName().replace(prefixCacheServiceName + "_", "");
+    }
+
+    public static String getCacheNameFrom(final String prefixCacheServiceName, final String suffixCacheName) {
+        return String.format("%s%s", prefixCacheServiceName,
+                nonNull(suffixCacheName)
+                        ? "_" + suffixCacheName.toLowerCase(Locale.getDefault())
+                        : "");
     }
 }

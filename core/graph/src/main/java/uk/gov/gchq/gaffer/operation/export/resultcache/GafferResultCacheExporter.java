@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.AlwaysValid;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -46,11 +45,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static java.util.Objects.isNull;
+
 /**
  * Implementation of the {@link Exporter} interface for exporting the results of
  * a Gaffer query to a {@link Graph}-backed results cache.
  */
 public class GafferResultCacheExporter implements Exporter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferResultCacheExporter.class);
     private final String jobId;
     private final Context context;
@@ -80,18 +82,18 @@ public class GafferResultCacheExporter implements Exporter {
 
     @Override
     public void add(final String key, final Iterable<?> values) throws OperationException {
-        if (null == values) {
+        if (isNull(values)) {
             return;
         }
 
         final long timestamp = System.currentTimeMillis();
-        final Iterable<Element> elements = new TransformIterable<Object, Element>((Iterable) values) {
+        final Iterable<Element> elements = new TransformIterable<Object, Element>(values) {
             @Override
             protected Element transform(final Object value) {
                 try {
                     final Class<?> valueClass;
                     final byte[] valueJson;
-                    if (null == value) {
+                    if (isNull(value)) {
                         valueClass = Object.class;
                         valueJson = null;
                     } else {
@@ -122,7 +124,7 @@ public class GafferResultCacheExporter implements Exporter {
     }
 
     @Override
-    public CloseableIterable<?> get(final String key) throws OperationException {
+    public Iterable<?> get(final String key) throws OperationException {
         final GetElements getEdges = new GetElements.Builder()
                 .input(new EdgeSeed(jobId, key, true))
                 .view(new View.Builder()
@@ -135,9 +137,9 @@ public class GafferResultCacheExporter implements Exporter {
                         .build())
                 .build();
 
-        final CloseableIterable<? extends Element> edges = resultCache.execute(getEdges, context);
-        if (null == edges) {
-            return new WrappedCloseableIterable<>();
+        final Iterable<? extends Element> edges = resultCache.execute(getEdges, context);
+        if (isNull(edges)) {
+            return new EmptyIterable<>();
         }
         return new TransformJsonResult(edges);
     }
@@ -151,7 +153,7 @@ public class GafferResultCacheExporter implements Exporter {
         protected Object transform(final Element edge) {
             final String resultClassName = (String) edge.getProperty("resultClass");
             final byte[] resultBytes = (byte[]) edge.getProperty("result");
-            if (null == resultClassName || null == resultBytes) {
+            if (isNull(resultClassName) || isNull(resultBytes)) {
                 return null;
             }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.proxystore.operation.handler;
 
 import com.google.common.collect.Lists;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -36,6 +38,7 @@ import java.util.Map;
 
 import static java.util.Objects.isNull;
 
+@SuppressFBWarnings(value = "NM_SAME_SIMPLE_NAME_AS_SUPERCLASS", justification = "Investigate")
 public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler<OUT> {
 
     public static final String PROXY_STORE_OPERATION_CHAIN_HANDLER = "proxyStore.operationChainHandler";
@@ -132,7 +135,7 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
                 //noinspection unchecked
                 OperationChain chain = (OperationChain) operation;
                 OperationHandlerUtil.updateOperationInput(chain, out);
-                if (TO_PROXY.equals(chain.getOptions().get(PROXY_STORE_OPERATION_CHAIN_HANDLER))) {
+                if (TO_PROXY.equals(chain.getOption(PROXY_STORE_OPERATION_CHAIN_HANDLER))) {
                     out = proxyLogic(chain, context, (ProxyStore) store);
                 } else {
                     //Generic is of type Object

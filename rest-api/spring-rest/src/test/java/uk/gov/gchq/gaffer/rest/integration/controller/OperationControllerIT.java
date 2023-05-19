@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
@@ -42,10 +43,15 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -238,4 +244,32 @@ public class OperationControllerIT extends AbstractRestApiIT {
         String expected = mapper.writeValueAsString(ent1) + "\r\n" + mapper.writeValueAsString(ent2) + "\r\n";
         assertEquals(expected, response.getBody());
     }
+
+    @Test
+    public void shouldCorrectlySerialiseAllOperationDetails() throws IOException {
+        // Given
+        final Graph graph = new Graph.Builder()
+                .config(StreamUtil.graphConfig(this.getClass()))
+                .storeProperties(new MapStoreProperties())
+                .addSchema(new Schema())
+                .build();
+
+        when(getGraphFactory().getGraph()).thenReturn(graph);
+
+        // When
+        final ResponseEntity<Set> response = get("/graph/operations/details/all", Set.class);
+        final Set<String> allOperationDetailClasses = (Set<String>) response.getBody()
+                .stream()
+                .map(m -> ((Map) m).get("name"))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // Then
+        checkResponse(response, 200);
+        assertThat(response.getBody()).isNotEmpty();
+
+        final Set<String> expectedOperationClasses = ReflectionUtil.getSubTypes(Operation.class).stream().map(Class::getName).collect(Collectors.toSet());
+        assertThat(allOperationDetailClasses).containsExactlyInAnyOrderElementsOf(expectedOperationClasses);
+    }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore.util;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -26,12 +25,13 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.TestTypes;
@@ -44,82 +44,38 @@ import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class FederatedStoreUtilTest {
-    @Test
-    public void shouldGetGraphIds() {
-        // Given
-        final Map<String, String> config = new HashMap<>();
-        config.put(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graph1,graph2,graph3");
-
-        // When
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-
-        // Then
-        assertEquals(Arrays.asList("graph1", "graph2", "graph3"), graphIds);
-    }
-
-    @Test
-    public void shouldGetGraphIdsAndSkipEmptiesAndWhitespace() {
-        // Given
-        final Map<String, String> config = new HashMap<>();
-        config.put(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, " graph1 , graph2,,graph3 ");
-
-        // When
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-
-        // Then
-        assertEquals(Arrays.asList("graph1", "graph2", "graph3"), graphIds);
-    }
-
-    @Test
-    public void shouldGetEmptyGraphIdsWhenEmptyCsvValue() {
-        // Given
-        final Map<String, String> config = new HashMap<>();
-        config.put(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-
-        // When
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-
-        // Then
-        assertEquals(Collections.emptyList(), graphIds);
-    }
-
-    @Test
-    public void shouldGetNullGraphIdsWhenNullCsvValue() {
-        // Given
-        final Map<String, String> config = new HashMap<>();
-        config.put(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, null);
-
-        // When
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-
-        // Then
-        assertNull(graphIds);
-    }
-
-    @Test
-    public void shouldGetNullGraphIdsWhenNoCsvEntry() {
-        // Given
-        final Map<String, String> config = new HashMap<>();
-        config.put("some other key", "some value");
-
-        // When
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-
-        // Then
-        assertNull(graphIds);
-    }
+    private final Schema schema = new Schema.Builder()
+            .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                    .vertex(TestTypes.ID_STRING)
+                    .aggregate(false)
+                    .build())
+            .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                    .source(TestTypes.ID_STRING)
+                    .destination(TestTypes.ID_STRING)
+                    .directed(TestTypes.DIRECTED_TRUE)
+                    .aggregate(false)
+                    .build())
+            .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                    .clazz(String.class)
+                    .build())
+            .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
+                    .clazz(Boolean.class)
+                    .validateFunctions(new IsTrue())
+                    .build())
+            .build();
 
     @Test
     public void shouldGetNullStringsWhenNullCsv() {
@@ -180,7 +136,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertEquals(operation, updatedOp);
@@ -201,13 +157,13 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNotSame(operation, updatedOp);
         assertNotSame(operation.getView(), updatedOp.getView());
-        assertEquals(Sets.newHashSet(TestGroups.ENTITY), updatedOp.getView().getEntityGroups());
-        assertEquals(Sets.newHashSet(TestGroups.EDGE), updatedOp.getView().getEdgeGroups());
+        assertEquals(Collections.singleton(TestGroups.ENTITY), updatedOp.getView().getEntityGroups());
+        assertEquals(Collections.singleton(TestGroups.EDGE), updatedOp.getView().getEdgeGroups());
         assertSame(operation.getView().getEntity(TestGroups.ENTITY), updatedOp.getView().getEntity(TestGroups.ENTITY));
         assertSame(operation.getView().getEdge(TestGroups.EDGE), updatedOp.getView().getEdge(TestGroups.EDGE));
     }
@@ -224,7 +180,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNull(updatedOp);
@@ -244,7 +200,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final OperationChain<?> updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final OperationChain<?> updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNull(updatedOp);
@@ -273,7 +229,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final OperationChain<?> updatedOpChain = FederatedStoreUtil.updateOperationForGraph(opChain, graph);
+        final OperationChain<?> updatedOpChain = FederatedStoreUtil.updateOperationForGraph(opChain, graph, new Context());
 
         // Then
         assertNotSame(opChain, updatedOpChain);
@@ -284,8 +240,8 @@ public class FederatedStoreUtilTest {
         assertNotSame(operation, updatedOperation);
         assertEquals(options2, updatedOperation.getOptions());
         assertNotSame(operation.getView(), updatedOperation.getView());
-        assertEquals(Sets.newHashSet(TestGroups.ENTITY), updatedOperation.getView().getEntityGroups());
-        assertEquals(Sets.newHashSet(TestGroups.EDGE), updatedOperation.getView().getEdgeGroups());
+        assertEquals(Collections.singleton(TestGroups.ENTITY), updatedOperation.getView().getEntityGroups());
+        assertEquals(Collections.singleton(TestGroups.EDGE), updatedOperation.getView().getEdgeGroups());
         assertSame(operation.getView().getEntity(TestGroups.ENTITY), updatedOperation.getView().getEntity(TestGroups.ENTITY));
         assertSame(operation.getView().getEdge(TestGroups.EDGE), updatedOperation.getView().getEdge(TestGroups.EDGE));
     }
@@ -300,7 +256,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertEquals(operation, updatedOp);
@@ -317,7 +273,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNotSame(operation, updatedOp);
@@ -336,7 +292,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNotSame(operation, updatedOp);
@@ -346,9 +302,11 @@ public class FederatedStoreUtilTest {
     }
 
     @Test
-    public void shouldUpdateAddElementsInput() {
+    public void shouldUpdateAddElementsInput() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Store store = mock(Store.class);
+        given(store.execute(any(OperationChain.class), any(Context.class))).willReturn(schema);
+        final Graph graph = createGraphWithStore(store);
         final AddElements operation = new AddElements.Builder()
                 .input(new Entity.Builder()
                                 .group(TestGroups.ENTITY)
@@ -365,7 +323,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNotSame(operation, updatedOp);
@@ -383,26 +341,16 @@ public class FederatedStoreUtilTest {
 
     protected Graph createGraph() {
         final Store store = mock(Store.class);
-        final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex(TestTypes.ID_STRING)
-                        .aggregate(false)
-                        .build())
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source(TestTypes.ID_STRING)
-                        .destination(TestTypes.ID_STRING)
-                        .directed(TestTypes.DIRECTED_TRUE)
-                        .aggregate(false)
-                        .build())
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
-                .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
-                        .clazz(Boolean.class)
-                        .validateFunctions(new IsTrue())
-                        .build())
-                .build();
+        try {
+            // Mock GetTraits operation that returns empty traits
+            given(store.execute(any(OperationChain.class), any(Context.class))).willReturn(new HashSet<>());
+        } catch (final OperationException e) {
+            throw new RuntimeException(e);
+        }
+        return createGraphWithStore(store);
+    }
 
+    protected Graph createGraphWithStore(final Store store) {
         given(store.getSchema()).willReturn(schema);
         given(store.getOriginalSchema()).willReturn(schema);
 

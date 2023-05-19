@@ -22,13 +22,11 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiElementIdInput;
@@ -42,7 +40,6 @@ import java.util.Map;
  * Gets elements from Gaffer based on {@link ElementId}s as
  * seeds and returns {@link uk.gov.gchq.gaffer.data.element.Element}s
  * There are various flags to filter out the elements returned:
- * seedMatching - can either be {@code SeedMatchingType.RELATED} or {@code SeedMatchingType.EQUAL}.
  * Equal will only return Elements with identifiers that match the seed exactly.
  * Related will return:
  * <ul>
@@ -69,55 +66,15 @@ import java.util.Map;
 @Since("1.0.0")
 @Summary("Gets elements related to provided seeds")
 public class GetElements implements
-        InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Element>>,
+        InputOutput<Iterable<? extends ElementId>, Iterable<? extends Element>>,
         MultiElementIdInput,
-        SeededGraphFilters,
-        SeedMatching {
-
-    /**
-     * @deprecated use a {@link View} instead to specify whether
-     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
-     * See filtering documentation.
-     */
-    private SeedMatchingType seedMatching;
+        SeededGraphFilters {
 
     private View view;
     private IncludeIncomingOutgoingType includeIncomingOutGoing;
     private DirectedType directedType;
     private Iterable<? extends ElementId> input;
     private Map<String, String> options;
-
-    /**
-     * Sets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
-     *
-     * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
-     *                     matched to the identifiers in the graph.
-     * @see SeedMatchingType
-     * @deprecated use a {@link View} instead to specify whether
-     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
-     * See filtering documentation
-     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
-     */
-    @Deprecated
-    @Override
-    public void setSeedMatching(final SeedMatchingType seedMatching) {
-        this.seedMatching = seedMatching;
-    }
-
-    /**
-     * @return seedMatching a {@link SeedMatchingType} describing how the seeds should be
-     * matched to the identifiers in the graph.
-     * @see SeedMatchingType
-     * @deprecated use a {@link View} instead to specify whether
-     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
-     * See filtering documentation
-     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
-     */
-    @Deprecated
-    @Override
-    public SeedMatchingType getSeedMatching() {
-        return seedMatching;
-    }
 
     /**
      * Gets the incomingOutGoingType for this operation which is used for filtering Edges.
@@ -216,13 +173,13 @@ public class GetElements implements
     }
 
     /**
-     * Get the output type which in this case is {@link CloseableIterable} of {@link Element}s
+     * Get the output type which in this case is {@link Iterable} of {@link Element}s
      *
      * @return the ClosableIterable of Elements type reference
      */
     @Override
-    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElement();
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableElement();
     }
 
     @Override
@@ -244,7 +201,6 @@ public class GetElements implements
     @Override
     public GetElements shallowClone() {
         return new GetElements.Builder()
-                .seedMatching(seedMatching)
                 .view(view)
                 .inOutType(includeIncomingOutGoing)
                 .directedType(directedType)
@@ -267,7 +223,6 @@ public class GetElements implements
         final GetElements getElements = (GetElements) obj;
 
         return new EqualsBuilder()
-                .append(seedMatching, getElements.seedMatching)
                 .append(view, getElements.view)
                 .append(includeIncomingOutGoing, getElements.includeIncomingOutGoing)
                 .append(directedType, getElements.directedType)
@@ -284,7 +239,6 @@ public class GetElements implements
                 .append(directedType)
                 .append(includeIncomingOutGoing)
                 .append(view)
-                .append(seedMatching)
                 .toHashCode();
     }
 
@@ -295,16 +249,14 @@ public class GetElements implements
                 .append("input", input)
                 .append("includeIncomingOutGoing", includeIncomingOutGoing)
                 .append("view", view)
-                .append("seedMatching", seedMatching)
                 .append("directedType", directedType)
                 .toString();
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
-            implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, CloseableIterable<? extends Element>, Builder>,
+            implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, Iterable<? extends Element>, Builder>,
             MultiElementIdInput.Builder<GetElements, Builder>,
-            SeededGraphFilters.Builder<GetElements, Builder>,
-            SeedMatching.Builder<GetElements, Builder> {
+            SeededGraphFilters.Builder<GetElements, Builder> {
         public Builder() {
             super(new GetElements());
         }

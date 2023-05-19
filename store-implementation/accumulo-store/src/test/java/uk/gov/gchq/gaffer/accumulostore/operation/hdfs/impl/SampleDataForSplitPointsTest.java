@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -71,8 +70,6 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         assertTrue(deserialisedOp.isValidate());
         assertEquals(0.1f, deserialisedOp.getProportionToSample(), 1);
         assertEquals(new Integer(5), deserialisedOp.getNumMapTasks());
-        assertEquals(new Integer(1), deserialisedOp.getNumReduceTasks());
-
     }
 
     @Test
@@ -92,12 +89,6 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         assertTrue(sampleDataForSplitPoints.isValidate());
         assertEquals(0.1f, sampleDataForSplitPoints.getProportionToSample(), 1);
         assertEquals(new Integer(5), sampleDataForSplitPoints.getNumMapTasks());
-    }
-
-    @Test
-    public void expectIllegalArgumentExceptionWhenTryingToSetReducers() {
-        final SampleDataForSplitPoints op = getTestObject();
-        assertThatIllegalArgumentException().isThrownBy(() -> op.setNumReduceTasks(10)).extracting("message").isNotNull();
     }
 
     @Test

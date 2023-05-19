@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.util;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
@@ -37,8 +38,8 @@ import static java.util.Objects.nonNull;
  * {@link Iterable}, and producing an {@link Iterable}. Only supports {@link Edge} and {@link Entity}
  */
 public class TransformStreamSupplier implements StreamSupplier<Element> {
-    private Iterable<? extends Element> input;
-    private Transform transform;
+    private final Iterable<? extends Element> input;
+    private final Transform transform;
 
     /**
      * Default constructor.

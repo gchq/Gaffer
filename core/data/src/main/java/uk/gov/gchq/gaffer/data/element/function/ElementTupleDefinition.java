@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,10 +48,8 @@ public class ElementTupleDefinition extends HashMap<String, Object> {
     @Override
     public Object get(final Object key) {
         Object value = super.get(key);
-        if (null == value) {
-            if (DIRECTED.equals(key)) {
-                value = true;
-            }
+        if (value == null && DIRECTED.equals(key)) {
+            value = true;
         }
         return value;
     }

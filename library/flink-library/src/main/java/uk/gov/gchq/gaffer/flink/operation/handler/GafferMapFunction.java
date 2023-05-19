@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -33,6 +34,7 @@ import java.util.function.Function;
  * Implementation of {@link FlatMapFunction} to allow CSV strings representing {@link Element}s
  * to be mapped to Element objects.
  */
+@SuppressFBWarnings(value = "REFLC_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_CLASS", justification = "Investigate")
 public class GafferMapFunction<T> implements FlatMapFunction<T, Element> {
     private static final long serialVersionUID = -2338397824952911347L;
 

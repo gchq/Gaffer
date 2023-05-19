@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class FederatedAccessNullUserTest {
     @Test
     public void shouldNeverValidateNullUserIV() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(null)
+                .owningUserId(null)
                 .build();
         assertFalse(access.hasReadAccess(null));
     }
@@ -62,7 +62,7 @@ public class FederatedAccessNullUserTest {
     public void shouldNeverValidateNullUserV() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths((String[]) null)
-                .addingUserId(null)
+                .owningUserId(null)
                 .build();
         assertFalse(access.hasReadAccess(null));
     }

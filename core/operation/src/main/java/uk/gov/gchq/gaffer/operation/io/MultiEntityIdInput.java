@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.util.OperationUtil;
 public interface MultiEntityIdInput extends MultiInput<EntityId> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonSetter("input")
-    default void setInputFromVerticesAndIds(final Object[] input) {
+    default void setInputFromVerticesAndIds(final Object... input) {
         setInput(OperationUtil.toEntityIds(input));
     }
 

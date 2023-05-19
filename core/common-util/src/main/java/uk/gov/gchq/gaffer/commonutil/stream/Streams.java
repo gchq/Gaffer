@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.commonutil.stream;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
@@ -53,7 +54,7 @@ public final class Streams {
      * @param <T>   the type of object stored in the array
      * @return a stream containing the contents of the array
      */
-    public static <T> Stream<T> toStream(final T[] array) {
+    public static <T> Stream<T> toStream(final T... array) {
         return StreamSupport.stream(Spliterators.spliterator(array, 0), false);
     }
 
@@ -117,7 +118,7 @@ public final class Streams {
      * @param <T>   the type of object stored in the array
      * @return a stream containing the contents of the array
      */
-    public static <T> Stream<T> toParallelStream(final T[] array) {
+    public static <T> Stream<T> toParallelStream(final T... array) {
         return StreamSupport.stream(Spliterators.spliterator(array, 0), true);
     }
 

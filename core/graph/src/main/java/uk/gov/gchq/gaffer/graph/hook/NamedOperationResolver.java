@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
@@ -41,12 +43,17 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
 public class NamedOperationResolver implements GraphHook {
     private final NamedOperationCache cache;
 
-    public NamedOperationResolver() {
-        this(new NamedOperationCache());
+    @JsonCreator
+    public NamedOperationResolver(@JsonProperty("cacheNameSuffix") final String suffixCacheName) {
+        this(new NamedOperationCache(suffixCacheName));
     }
 
     public NamedOperationResolver(final NamedOperationCache cache) {
         this.cache = cache;
+    }
+
+    public String getCacheNameSuffix() {
+        return cache.getCacheName().substring(NamedOperationCache.CACHE_SERVICE_NAME_PREFIX.length() + 1);
     }
 
     @Override
@@ -83,7 +90,7 @@ public class NamedOperationResolver implements GraphHook {
         final NamedOperationDetail namedOpDetail;
         try {
             namedOpDetail = cache.getNamedOperation(namedOp.getOperationName(), user);
-        } catch (final CacheOperationFailedException e) {
+        } catch (final CacheOperationException e) {
             // Unable to find named operation - just return the original named operation
             return Collections.singletonList(namedOp);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -97,11 +97,9 @@ public class NamedView extends View {
     @Override
     public boolean canMerge(final View addingView, final View srcView) {
         if (addingView instanceof NamedView && !(srcView instanceof NamedView)) {
-            if (((NamedView) addingView).getName() != null) {
-                if (!((NamedView) addingView).getName().isEmpty()) {
-                    return false;
-                }
-            }
+            final String addingViewName = ((NamedView) addingView).getName();
+            // False if there is a name which is not empty, True otherwise
+            return !(addingViewName != null && !addingViewName.isEmpty());
         }
         return true;
     }

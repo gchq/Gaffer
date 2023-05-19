@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,9 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 
 import java.util.Comparator;
+import java.util.Map;
+
+import static java.util.Objects.isNull;
 
 /**
  * An {@code Edge} in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a source, destination and a directed flag.
@@ -282,10 +285,8 @@ public class Edge extends Element implements EdgeId {
     }
 
     private void orderVertices() {
-        if (!directed) {
-            if (VERTEX_COMPARATOR.compare(source, destination) > 0) {
-                swapVertices();
-            }
+        if (!directed && (VERTEX_COMPARATOR.compare(source, destination) > 0)) {
+            swapVertices();
         }
     }
 
@@ -392,7 +393,7 @@ public class Edge extends Element implements EdgeId {
         private Object dest;
         private boolean directed;
         private MatchedVertex matchedVertex;
-        private Properties properties = new Properties();
+        private final Properties properties = new Properties();
 
         public Builder group(final String group) {
             this.group = group;
@@ -421,6 +422,16 @@ public class Edge extends Element implements EdgeId {
 
         public Builder property(final String name, final Object value) {
             properties.put(name, value);
+            return this;
+        }
+
+        public Builder properties(final Map<String, String> properties) {
+            if (isNull(properties)) {
+                properties.clear();
+            } else {
+                this.properties.putAll(properties);
+                this.properties.remove(null);
+            }
             return this;
         }
 

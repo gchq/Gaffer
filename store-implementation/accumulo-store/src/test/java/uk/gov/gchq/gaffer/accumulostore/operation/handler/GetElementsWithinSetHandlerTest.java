@@ -170,7 +170,8 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(defaultView).input(seeds).build();
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(defaultView).input(seeds)
+                .build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
 
         final Iterable<? extends Element> elements = handler.doOperation(operation, user, store);
@@ -338,7 +339,6 @@ public class GetElementsWithinSetHandlerTest {
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
 
         final Iterable<? extends Element> elements = handler.doOperation(operation, user, store);
-
         // After query compaction the result size should be 1
         assertThat(elements)
                 .hasSize(expectedElements.length)

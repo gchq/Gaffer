@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ package uk.gov.gchq.gaffer.store.schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -128,15 +128,13 @@ public class SchemaOptimiser {
         }
         for (final String typeName : otherTypes) {
             final TypeDefinition typeDef = types.get(typeName);
-            if (null != typeDef) {
-                if (null == typeDef.getSerialiser()) {
-                    typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), false, false));
-                }
+            if (typeDef != null && typeDef.getSerialiser() == null) {
+                typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), false, false));
             }
         }
     }
 
-    private Serialiser getDefaultVertexSerialiser(final Schema schema, final boolean isStoreOrdered) {
+    protected Serialiser getDefaultVertexSerialiser(final Schema schema, final boolean isStoreOrdered) {
         if (null != schema.getVertexSerialiser()) {
             return schema.getVertexSerialiser();
         }
