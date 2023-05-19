@@ -65,8 +65,8 @@ jobs:
 
     - name: Set up Github credentials
       run: |
-        git config user.name Gaffer
-        git config user.email github-actions@github.com
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
     - name: Update versions
       run: |
