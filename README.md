@@ -75,7 +75,6 @@ The [gaffer-tools](https://github.com/gchq/gaffer-tools) repository contains use
 - `performance-testing` - Methods of testing the performance of ingest and query operations against a graph
 - `python-shell` - Allows operations against a graph to be executed from a Python shell
 - `random-element-generation` - Code to generate large volumes of random graph data
-- `ui` - A basic graph visualisation tool
 
 ## License
 
