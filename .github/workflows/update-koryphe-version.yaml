@@ -19,9 +19,6 @@ jobs:
       with:
         token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
 
-    - name: Get branch name
-      run: echo "SOURCE_BRANCH=$(git branch --show-current)" >> $GITHUB_ENV
-
     - name: Set up Github credentials
       run: |
         git config user.name github-actions[bot]
@@ -43,3 +40,5 @@ jobs:
         source_branch: ${{ env.VERSION_UPDATE_BRANCH }}
         destination_branch: ${{ env.SOURCE_BRANCH }}
         github_token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
+        pr_title: "Update Koryphe version to ${{ github.event.inputs.version }}"
+        pr_body: "Automated GitHub Actions PR to upgrade to version ${{ github.event.inputs.version }} of Koryphe"
