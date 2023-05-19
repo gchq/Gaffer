@@ -17,7 +17,7 @@ jobs:
 
     steps:
     - name: Checkout master
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: master
         token: ${{ secrets.ADMIN_GITHUB_TOKEN }}

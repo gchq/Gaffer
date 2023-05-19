@@ -17,7 +17,7 @@ jobs:
 
     steps:
     - name: Checkout develop
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: develop
         token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
