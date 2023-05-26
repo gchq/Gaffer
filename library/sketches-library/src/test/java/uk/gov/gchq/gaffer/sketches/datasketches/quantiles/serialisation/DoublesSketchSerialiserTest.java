@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
-import com.yahoo.sketches.quantiles.DoublesSketch;
-import com.yahoo.sketches.quantiles.UpdateDoublesSketch;
+import org.apache.datasketches.quantiles.DoublesSketch;
+import org.apache.datasketches.quantiles.UpdateDoublesSketch;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -39,7 +40,7 @@ public class DoublesSketchSerialiserTest {
         testSerialiser(sketch);
 
         final DoublesSketch emptySketch = DoublesSketch.builder().build();
-        testSerialiser(emptySketch);
+        testEmptySerialiser(emptySketch);
     }
 
     private void testSerialiser(final DoublesSketch sketch) {
@@ -60,6 +61,22 @@ public class DoublesSketchSerialiserTest {
             return;
         }
         assertEquals(quantile1, sketchDeserialised.getQuantile(0.5D), DELTA);
+    }
+
+    private void testEmptySerialiser(final DoublesSketch sketch) {
+        final byte[] sketchSerialised;
+        try {
+            sketchSerialised = SERIALISER.serialise(sketch);
+        } catch (final SerialisationException exception) {
+            fail("A SerialisationException occurred");
+            return;
+        }
+        try {
+            SERIALISER.deserialise(sketchSerialised);
+        } catch (final SerialisationException exception) {
+            fail("A SerialisationException occurred");
+            return;
+        }
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
-import com.google.common.collect.Ordering;
-import com.yahoo.sketches.quantiles.ItemsSketch;
+import org.apache.datasketches.quantiles.ItemsSketch;
+import org.apache.datasketches.quantilescommon.QuantileSearchCriteria;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
+import java.util.Comparator;
 import java.util.function.BinaryOperator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,15 +37,15 @@ public class StringsSketchAggregatorTest extends BinaryOperatorTest {
     public void testAggregate() {
         final StringsSketchAggregator unionAggregator = new StringsSketchAggregator();
 
-        ItemsSketch<String> currentSketch = ItemsSketch.getInstance(Ordering.<String>natural());
+        ItemsSketch<String> currentSketch = ItemsSketch.getInstance(String.class, Comparator.naturalOrder());
         currentSketch.update("1");
         currentSketch.update("2");
         currentSketch.update("3");
 
         assertEquals(3L, currentSketch.getN());
-        assertEquals("2", currentSketch.getQuantile(0.5D));
+        assertEquals("2", currentSketch.getQuantile(0.5D, QuantileSearchCriteria.EXCLUSIVE));
 
-        ItemsSketch<String> newSketch = ItemsSketch.getInstance(Ordering.<String>natural());
+        ItemsSketch<String> newSketch = ItemsSketch.getInstance(String.class, Comparator.naturalOrder());
         newSketch.update("4");
         newSketch.update("5");
         newSketch.update("6");
@@ -51,7 +53,7 @@ public class StringsSketchAggregatorTest extends BinaryOperatorTest {
 
         currentSketch = unionAggregator.apply(currentSketch, newSketch);
         assertEquals(7L, currentSketch.getN());
-        assertEquals("4", currentSketch.getQuantile(0.5D));
+        assertEquals("4", currentSketch.getQuantile(0.5D, QuantileSearchCriteria.EXCLUSIVE));
     }
 
     @Test

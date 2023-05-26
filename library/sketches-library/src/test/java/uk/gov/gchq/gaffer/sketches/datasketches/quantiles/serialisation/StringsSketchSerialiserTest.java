@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
-import com.yahoo.sketches.quantiles.ItemsSketch;
+import org.apache.datasketches.quantiles.ItemsSketch;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -33,14 +34,14 @@ public class StringsSketchSerialiserTest {
 
     @Test
     public void testSerialiseAndDeserialise() {
-        final ItemsSketch<String> sketch = ItemsSketch.getInstance(Comparator.naturalOrder());
+        final ItemsSketch<String> sketch = ItemsSketch.getInstance(String.class, Comparator.naturalOrder());
         sketch.update("A");
         sketch.update("B");
         sketch.update("C");
         testSerialiser(sketch);
 
-        final ItemsSketch<String> emptySketch = ItemsSketch.getInstance(Comparator.naturalOrder());
-        testSerialiser(emptySketch);
+        final ItemsSketch<String> emptySketch = ItemsSketch.getInstance(String.class, Comparator.naturalOrder());
+        testEmptySerialiser(emptySketch);
     }
 
     private void testSerialiser(final ItemsSketch<String> sketch) {
@@ -61,6 +62,23 @@ public class StringsSketchSerialiserTest {
             return;
         }
         assertEquals(quantile1, sketchDeserialised.getQuantile(0.5D));
+    }
+
+    private void testEmptySerialiser(final ItemsSketch<String> sketch) {
+        final byte[] sketchSerialised;
+        try {
+            sketchSerialised = SERIALISER.serialise(sketch);
+        } catch (final SerialisationException exception) {
+            fail("A SerialisationException occurred");
+            return;
+        }
+
+        try {
+            SERIALISER.deserialise(sketchSerialised);
+        } catch (final SerialisationException exception) {
+            fail("A SerialisationException occurred");
+            return;
+        }
     }
 
     @Test

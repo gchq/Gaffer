@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 
-import com.yahoo.memory.WritableMemory;
-import com.yahoo.sketches.ArrayOfNumbersSerDe;
-import com.yahoo.sketches.sampling.ReservoirItemsUnion;
+import org.apache.datasketches.common.ArrayOfNumbersSerDe;
+import org.apache.datasketches.memory.WritableMemory;
+import org.apache.datasketches.sampling.ReservoirItemsUnion;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -42,7 +43,7 @@ public class ReservoirNumbersUnionSerialiser implements ToBytesSerialiser<Reserv
 
     @Override
     public ReservoirItemsUnion<Number> deserialise(final byte[] bytes) throws SerialisationException {
-        return ReservoirItemsUnion.heapify(WritableMemory.wrap(bytes), SERIALISER);
+        return ReservoirItemsUnion.heapify(WritableMemory.writableWrap(bytes), SERIALISER);
     }
 
     @Override

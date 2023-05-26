@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator;
 
-import com.yahoo.sketches.theta.Union;
+import org.apache.datasketches.theta.Union;
 
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -23,8 +24,8 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
  * A {@code UnionAggregator} is a {@link java.util.function.BinaryOperator} that aggregates {@link Union}s.
- * It does this by extracting a {@link com.yahoo.sketches.theta.CompactSketch} from each {@link Union}
- * and merges that using {@link Union#update(com.yahoo.sketches.theta.Sketch)}.
+ * It does this by extracting a {@link org.apache.datasketches.theta.CompactSketch} from each {@link Union}
+ * and merges that using {@link Union#update(org.apache.datasketches.theta.Sketch)}.
  */
 @Since("1.0.0")
 @Summary("Aggregates Unions")
@@ -32,7 +33,7 @@ public class UnionAggregator extends KorypheBinaryOperator<Union> {
 
     @Override
     protected Union _apply(final Union a, final Union b) {
-        a.update(b.getResult());
+        a.union(b.getResult());
         return a;
     }
 }

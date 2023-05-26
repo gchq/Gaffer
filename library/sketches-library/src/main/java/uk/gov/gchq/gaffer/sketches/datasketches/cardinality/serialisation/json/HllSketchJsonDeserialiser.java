@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.yahoo.sketches.hll.HllSketch;
+import org.apache.datasketches.hll.HllSketch;
 
 import java.io.IOException;
 

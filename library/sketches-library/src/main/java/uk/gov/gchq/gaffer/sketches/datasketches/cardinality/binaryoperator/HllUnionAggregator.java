@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator;
 
-import com.yahoo.sketches.hll.Union;
+import org.apache.datasketches.hll.Union;
 
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -23,8 +24,8 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
  * A {@code HllUnionAggregator} is a {@link java.util.function.BinaryOperator} that takes in
- * {@link com.yahoo.sketches.hll.Union}s and merges them together using
- * {@link Union#update(com.yahoo.sketches.hll.HllSketch)}.
+ * {@link org.apache.datasketches.hll.Union}s and merges them together using
+ * {@link Union#update(org.apache.datasketches.hll.HllSketch)}.
  */
 @Since("1.0.0")
 @Summary("Aggregates HllUnions objects")

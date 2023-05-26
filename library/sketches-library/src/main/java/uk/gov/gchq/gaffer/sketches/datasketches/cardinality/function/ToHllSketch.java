@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.yahoo.sketches.hll.HllSketch;
+import org.apache.datasketches.hll.HllSketch;
 
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
-import com.google.common.collect.Ordering;
-import com.yahoo.sketches.quantiles.ItemsSketch;
-import com.yahoo.sketches.quantiles.ItemsUnion;
+import org.apache.datasketches.quantiles.ItemsSketch;
+import org.apache.datasketches.quantiles.ItemsUnion;
 
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
+
+import java.util.Comparator;
 
 /**
  * A {@code StringsSketchAggregator} is a {@link java.util.function.BinaryOperator} that aggregates
@@ -33,9 +35,9 @@ public class StringsSketchAggregator extends KorypheBinaryOperator<ItemsSketch<S
 
     @Override
     protected ItemsSketch<String> _apply(final ItemsSketch<String> a, final ItemsSketch<String> b) {
-        final ItemsUnion<String> union = ItemsUnion.getInstance(Ordering.<String>natural());
-        union.update(a);
-        union.update(b);
+        final ItemsUnion<String> union = ItemsUnion.getInstance(String.class, Comparator.naturalOrder());
+        union.union(a);
+        union.union(b);
         return union.getResult();
     }
 }

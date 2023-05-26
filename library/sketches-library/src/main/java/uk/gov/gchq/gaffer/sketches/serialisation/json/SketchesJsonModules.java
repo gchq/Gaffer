@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.serialisation.json;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.yahoo.sketches.hll.HllSketch;
+import org.apache.datasketches.hll.HllSketch;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json.HyperLogLogPlusJsonConstants;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.spark.serialisation.kryo;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.esotericsoftware.kryo.Kryo;
-import com.yahoo.sketches.frequencies.ItemsSketch;
-import com.yahoo.sketches.frequencies.LongsSketch;
-import com.yahoo.sketches.hll.HllSketch;
-import com.yahoo.sketches.hll.Union;
-import com.yahoo.sketches.quantiles.ItemsUnion;
-import com.yahoo.sketches.sampling.ReservoirLongsSketch;
-import com.yahoo.sketches.sampling.ReservoirLongsUnion;
+import org.apache.datasketches.frequencies.ItemsSketch;
+import org.apache.datasketches.frequencies.LongsSketch;
+import org.apache.datasketches.hll.HllSketch;
+import org.apache.datasketches.hll.Union;
+import org.apache.datasketches.quantiles.ItemsUnion;
+import org.apache.datasketches.sampling.ReservoirLongsSketch;
+import org.apache.datasketches.sampling.ReservoirLongsUnion;
 import org.apache.spark.serializer.KryoRegistrator;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -64,7 +65,7 @@ public class Registrator implements KryoRegistrator {
         kryo.register(Union.class, new HllUnionKryoSerializer());
         kryo.register(LongsSketch.class, new LongsSketchKryoSerializer());
         kryo.register(ItemsSketch.class, new StringsSketchKryoSerializer());
-        kryo.register(com.yahoo.sketches.quantiles.ItemsSketch.class, new uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles.StringsSketchKryoSerializer());
+        kryo.register(org.apache.datasketches.quantiles.ItemsSketch.class, new uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles.StringsSketchKryoSerializer());
         kryo.register(ItemsUnion.class, new StringsUnionKryoSerializer());
         kryo.register(ReservoirLongsSketch.class, new ReservoirLongsSketchKryoSerializer());
         kryo.register(ReservoirLongsUnion.class, new ReservoirLongsUnionKryoSerializer());

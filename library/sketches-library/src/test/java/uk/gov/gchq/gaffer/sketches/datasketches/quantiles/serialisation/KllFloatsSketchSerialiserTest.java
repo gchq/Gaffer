@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
-import com.yahoo.sketches.kll.KllFloatsSketch;
+import org.apache.datasketches.kll.KllFloatsSketch;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -31,14 +32,14 @@ public class KllFloatsSketchSerialiserTest {
 
     @Test
     public void testSerialiseAndDeserialise() {
-        final KllFloatsSketch sketch = new KllFloatsSketch();
+        final KllFloatsSketch sketch = KllFloatsSketch.newHeapInstance();
         sketch.update(1.0F);
         sketch.update(2.0F);
         sketch.update(3.0F);
         testSerialiser(sketch);
 
-        final KllFloatsSketch emptySketch = new KllFloatsSketch();
-        testSerialiser(emptySketch);
+        final KllFloatsSketch emptySketch = KllFloatsSketch.newHeapInstance();
+        testEmptySerialiser(emptySketch);
     }
 
     private void testSerialiser(final KllFloatsSketch sketch) {
@@ -59,6 +60,23 @@ public class KllFloatsSketchSerialiserTest {
             return;
         }
         assertEquals(quantile1, sketchDeserialised.getQuantile(0.5D), DELTA);
+    }
+
+    private void testEmptySerialiser(final KllFloatsSketch sketch) {
+        final byte[] sketchSerialised;
+        try {
+            sketchSerialised = SERIALISER.serialise(sketch);
+        } catch (final SerialisationException exception) {
+            fail("A SerialisationException occurred");
+            return;
+        }
+
+        try {
+            SERIALISER.deserialise(sketchSerialised);
+        } catch (final SerialisationException exception) {
+            fail("A SerialisationException occurred");
+            return;
+        }
     }
 
     @Test

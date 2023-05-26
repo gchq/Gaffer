@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.predicate;
 
-import com.yahoo.sketches.hll.HllSketch;
+import org.apache.datasketches.hll.HllSketch;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
