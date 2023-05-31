@@ -25,7 +25,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 /**
  * A {@code StringsUnionAggregator} is a {@link java.util.function.BinaryOperator} that aggregates {@link ItemsUnion}s
  * of {@link String}s. It does this by extracting a {@link org.apache.datasketches.quantiles.ItemsSketch} from each
- * {@link ItemsUnion} and merges that using {@link ItemsUnion#update(org.apache.datasketches.quantiles.ItemsSketch)}.
+ * {@link ItemsUnion} and merges that using {@link ItemsUnion#union(org.apache.datasketches.quantiles.ItemsSketch)}.
  */
 @Since("1.0.0")
 @Summary("Aggregates ItemUnions of Strings")

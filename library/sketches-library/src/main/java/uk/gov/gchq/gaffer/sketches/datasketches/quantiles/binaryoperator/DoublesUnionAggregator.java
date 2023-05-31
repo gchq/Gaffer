@@ -25,7 +25,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 /**
  * A {@code DoublesUnionAggregator} is a {@link java.util.function.BinaryOperator} that aggregates {@link DoublesUnion}s.
  * It does this by extracting a {@link org.apache.datasketches.quantiles.DoublesSketch} from each {@link DoublesUnion}
- * and merges that using {@link DoublesUnion#update(org.apache.datasketches.quantiles.DoublesSketch)}.
+ * and merges that using {@link DoublesUnion#union(org.apache.datasketches.quantiles.DoublesSketch)}.
  */
 @Since("1.0.0")
 @Summary("Aggregates DoublesUnions")

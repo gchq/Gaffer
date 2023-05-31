@@ -25,7 +25,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 /**
  * A {@code UnionAggregator} is a {@link java.util.function.BinaryOperator} that aggregates {@link Union}s.
  * It does this by extracting a {@link org.apache.datasketches.theta.CompactSketch} from each {@link Union}
- * and merges that using {@link Union#update(org.apache.datasketches.theta.Sketch)}.
+ * and merges that using {@link Union#union(org.apache.datasketches.theta.Sketch)}.
  */
 @Since("1.0.0")
 @Summary("Aggregates Unions")
