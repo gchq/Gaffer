@@ -19,52 +19,67 @@ package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation;
 import org.apache.datasketches.hll.HllSketch;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedValueSerialiserTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
-public class HllSketchSerialiserTest {
-    private static final HllSketchSerialiser SERIALISER = new HllSketchSerialiser();
-    private static final double DELTA = 0.0000001D;
-
+public class HllSketchSerialiserTest extends ViaCalculatedValueSerialiserTest<HllSketch, Double> {
     @Test
-    public void testSerialiseAndDeserialise() {
-        final HllSketch sketch = new HllSketch(15);
-        sketch.update("A");
-        sketch.update("B");
-        sketch.update("C");
-        testSerialiser(sketch);
+    public void testSerialiseNullReturnsEmptyBytes() {
+        // Given
+        final byte[] hllSketchSerialised = serialiser.serialiseNull();
 
-        final HllSketch emptySketch = new HllSketch(15);
-        testSerialiser(emptySketch);
+        // Then
+        assertArrayEquals(new byte[0], hllSketchSerialised);
     }
 
-    private void testSerialiser(final HllSketch sketch) {
-        final double cardinality = sketch.getEstimate();
-        final byte[] sketchSerialised;
-        try {
-            sketchSerialised = SERIALISER.serialise(sketch);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
+    @Test
+    public void testDeserialiseEmptyBytesReturnsNull() throws SerialisationException {
+        // Given
+        final HllSketch hllSketch = serialiser.deserialiseEmpty();
 
-        final HllSketch sketchDeserialised;
-        try {
-            sketchDeserialised = SERIALISER.deserialise(sketchSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        assertEquals(cardinality, sketchDeserialised.getEstimate(), DELTA);
+        // Then
+        assertNull(hllSketch);
     }
 
     @Test
     public void testCanHandleHllSketch() {
-        assertTrue(SERIALISER.canHandle(HllSketch.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(HllSketch.class));
+        assertFalse(serialiser.canHandle(String.class));
+    }
+
+    @Override
+    protected HllSketch getExampleOutput() {
+        final HllSketch hllSketch = new HllSketch(15);
+        hllSketch.update("A");
+        hllSketch.update("B");
+        hllSketch.update("C");
+        return hllSketch;
+    }
+
+    @Override
+    protected Double getTestValue(HllSketch object) {
+        return object.getEstimate();
+    }
+
+    @Override
+    protected HllSketch getEmptyExampleOutput() {
+        return new HllSketch(15);
+    }
+
+    @Override
+    public Serialiser<HllSketch, byte[]> getSerialisation() {
+        return new HllSketchSerialiser();
+    }
+
+    @Override
+    public Pair<HllSketch, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{new Pair(getExampleOutput(), new byte[]{2, 1, 7, 15, 3, 8, 3, 0, 83, -25, -121, 5, 94, -114, -40, 5, 10, 68, 7, 11})};
     }
 }

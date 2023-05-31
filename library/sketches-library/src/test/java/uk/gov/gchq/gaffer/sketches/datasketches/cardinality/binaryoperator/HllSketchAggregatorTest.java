@@ -27,7 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class HllSketchAggregatorTest extends BinaryOperatorTest {
+public class HllSketchAggregatorTest extends BinaryOperatorTest<HllSketchAggregator> {
 
     private static final double DELTA = 0.0000001D;
 

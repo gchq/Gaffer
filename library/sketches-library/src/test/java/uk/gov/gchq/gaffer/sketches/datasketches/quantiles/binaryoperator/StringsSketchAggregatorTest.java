@@ -31,7 +31,7 @@ import java.util.function.BinaryOperator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class StringsSketchAggregatorTest extends BinaryOperatorTest {
+public class StringsSketchAggregatorTest extends BinaryOperatorTest<StringsSketchAggregator> {
 
     @Test
     public void testAggregate() {

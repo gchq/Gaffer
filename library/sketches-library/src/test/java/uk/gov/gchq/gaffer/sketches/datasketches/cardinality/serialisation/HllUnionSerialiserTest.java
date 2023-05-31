@@ -19,52 +19,67 @@ package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation;
 import org.apache.datasketches.hll.Union;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedValueSerialiserTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
-public class HllUnionSerialiserTest {
-    private static final HllUnionSerialiser SERIALISER = new HllUnionSerialiser();
-    private static final double DELTA = 0.0000001D;
-
+public class HllUnionSerialiserTest extends ViaCalculatedValueSerialiserTest<Union, Double> {
     @Test
-    public void testSerialiseAndDeserialise() {
-        final Union sketch = new Union(15);
-        sketch.update("A");
-        sketch.update("B");
-        sketch.update("C");
-        testSerialiser(sketch);
+    public void testSerialiseNullReturnsEmptyBytes() {
+        // Given
+        final byte[] sketchSerialised = serialiser.serialiseNull();
 
-        final Union emptySketch = new Union(15);
-        testSerialiser(emptySketch);
+        // Then
+        assertArrayEquals(new byte[0], sketchSerialised);
     }
 
-    private void testSerialiser(final Union sketch) {
-        final double cardinality = sketch.getEstimate();
-        final byte[] sketchSerialised;
-        try {
-            sketchSerialised = SERIALISER.serialise(sketch);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
+    @Test
+    public void testDeserialiseEmptyBytesReturnsNull() throws SerialisationException {
+        // Given
+        final Union sketch = serialiser.deserialiseEmpty();
 
-        final Union sketchDeserialised;
-        try {
-            sketchDeserialised = SERIALISER.deserialise(sketchSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        assertEquals(cardinality, sketchDeserialised.getEstimate(), DELTA);
+        // Then
+        assertNull(sketch);
     }
 
     @Test
     public void testCanHandleUnion() {
-        assertTrue(SERIALISER.canHandle(Union.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(Union.class));
+        assertFalse(serialiser.canHandle(String.class));
+    }
+
+    @Override
+    protected Union getExampleOutput() {
+        final Union sketch = new Union(15);
+        sketch.update("A");
+        sketch.update("B");
+        sketch.update("C");
+        return sketch;
+    }
+
+    @Override
+    protected Double getTestValue(Union object) {
+        return object.getEstimate();
+    }
+
+    @Override
+    protected Union getEmptyExampleOutput() {
+        return new Union(15);
+    }
+
+    @Override
+    public Serialiser<Union, byte[]> getSerialisation() {
+        return new HllUnionSerialiser();
+    }
+
+    @Override
+    public Pair<Union, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{new Pair(getExampleOutput(), new byte[]{2, 1, 7, 15, 3, 8, 3, 0, 83, -25, -121, 5, 94, -114, -40, 5, 10, 68, 7, 11})};
     }
 }

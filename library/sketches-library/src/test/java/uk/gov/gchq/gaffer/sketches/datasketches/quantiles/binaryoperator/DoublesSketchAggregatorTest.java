@@ -30,7 +30,7 @@ import java.util.function.BinaryOperator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class DoublesSketchAggregatorTest extends BinaryOperatorTest {
+public class DoublesSketchAggregatorTest extends BinaryOperatorTest<DoublesSketchAggregator> {
 
     private static final double DELTA = 0.01D;
 

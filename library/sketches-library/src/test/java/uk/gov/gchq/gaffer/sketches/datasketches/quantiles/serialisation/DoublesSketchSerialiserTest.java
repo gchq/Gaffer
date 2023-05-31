@@ -20,68 +20,71 @@ import org.apache.datasketches.quantiles.DoublesSketch;
 import org.apache.datasketches.quantiles.UpdateDoublesSketch;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedValueSerialiserTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
-public class DoublesSketchSerialiserTest {
-    private static final double DELTA = 0.01D;
-    private static final DoublesSketchSerialiser SERIALISER = new DoublesSketchSerialiser();
+public class DoublesSketchSerialiserTest extends ViaCalculatedValueSerialiserTest<DoublesSketch, Double> {
+    @Test
+    public void testSerialiseNullReturnsEmptyBytes() {
+        // Given
+        final byte[] sketchSerialised = serialiser.serialiseNull();
+
+        // Then
+        assertArrayEquals(new byte[0], sketchSerialised);
+    }
 
     @Test
-    public void testSerialiseAndDeserialise() {
-        final UpdateDoublesSketch sketch = DoublesSketch.builder().build();
-        sketch.update(1.0D);
-        sketch.update(2.0D);
-        sketch.update(3.0D);
-        testSerialiser(sketch);
+    public void testDeserialiseEmptyBytesReturnsNull() throws SerialisationException {
+        // Given
+        final DoublesSketch sketch = serialiser.deserialiseEmpty();
 
-        final DoublesSketch emptySketch = DoublesSketch.builder().build();
-        testEmptySerialiser(emptySketch);
-    }
-
-    private void testSerialiser(final DoublesSketch sketch) {
-        final double quantile1 = sketch.getQuantile(0.5D);
-        final byte[] sketchSerialised;
-        try {
-            sketchSerialised = SERIALISER.serialise(sketch);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-
-        final DoublesSketch sketchDeserialised;
-        try {
-            sketchDeserialised = SERIALISER.deserialise(sketchSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        assertEquals(quantile1, sketchDeserialised.getQuantile(0.5D), DELTA);
-    }
-
-    private void testEmptySerialiser(final DoublesSketch sketch) {
-        final byte[] sketchSerialised;
-        try {
-            sketchSerialised = SERIALISER.serialise(sketch);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        try {
-            SERIALISER.deserialise(sketchSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
+        // Then
+        assertNull(sketch);
     }
 
     @Test
     public void testCanHandleDoublesUnion() {
-        assertTrue(SERIALISER.canHandle(DoublesSketch.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(DoublesSketch.class));
+        assertFalse(serialiser.canHandle(String.class));
+    }
+
+    @Override
+    protected UpdateDoublesSketch getExampleOutput() {
+        final UpdateDoublesSketch sketch = DoublesSketch.builder().build();
+        sketch.update(1.0D);
+        sketch.update(2.0D);
+        sketch.update(3.0D);
+        return sketch;
+    }
+
+    @Override
+    protected Double getTestValue(DoublesSketch object) {
+        // Cannot get quantile for empty DoublesSketch
+        if (object.isEmpty()) {
+            return 0.0D;
+        }
+        return object.getQuantile(0.5);
+    }
+
+    @Override
+    protected UpdateDoublesSketch getEmptyExampleOutput() {
+        return DoublesSketch.builder().build();
+    }
+
+    @Override
+    public Serialiser<DoublesSketch, byte[]> getSerialisation() {
+        return new DoublesSketchSerialiser();
+    }
+
+    @Override
+    public Pair<DoublesSketch, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{new Pair(getExampleOutput(), new byte[]{2, 3, 8, 0, -128, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -16, 63, 0, 0, 0, 0, 0, 0, 8, 64, 0, 0, 0, 0, 0, 0, -16, 63, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 8, 64, 0, 0, 0, 0, 0, 0, 0, 0})};
     }
 }

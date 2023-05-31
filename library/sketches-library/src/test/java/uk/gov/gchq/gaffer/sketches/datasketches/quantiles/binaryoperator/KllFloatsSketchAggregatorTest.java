@@ -29,7 +29,7 @@ import java.util.function.BinaryOperator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class KllFloatsSketchAggregatorTest extends BinaryOperatorTest {
+public class KllFloatsSketchAggregatorTest extends BinaryOperatorTest<KllFloatsSketchAggregator> {
 
     private static final double DELTA = 0.01D;
 

@@ -19,69 +19,71 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 import org.apache.datasketches.kll.KllFloatsSketch;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedValueSerialiserTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
-public class KllFloatsSketchSerialiserTest {
-    private static final double DELTA = 0.01D;
-    private static final KllFloatsSketchSerialiser SERIALISER = new KllFloatsSketchSerialiser();
+public class KllFloatsSketchSerialiserTest extends ViaCalculatedValueSerialiserTest<KllFloatsSketch, Float> {
+    @Test
+    public void testSerialiseNullReturnsEmptyBytes() {
+        // Given
+        final byte[] sketchSerialised = serialiser.serialiseNull();
+
+        // Then
+        assertArrayEquals(new byte[0], sketchSerialised);
+    }
 
     @Test
-    public void testSerialiseAndDeserialise() {
-        final KllFloatsSketch sketch = KllFloatsSketch.newHeapInstance();
-        sketch.update(1.0F);
-        sketch.update(2.0F);
-        sketch.update(3.0F);
-        testSerialiser(sketch);
+    public void testDeserialiseEmptyBytesReturnsNull() throws SerialisationException {
+        // Given
+        final KllFloatsSketch sketch = serialiser.deserialiseEmpty();
 
-        final KllFloatsSketch emptySketch = KllFloatsSketch.newHeapInstance();
-        testEmptySerialiser(emptySketch);
-    }
-
-    private void testSerialiser(final KllFloatsSketch sketch) {
-        final double quantile1 = sketch.getQuantile(0.5D);
-        final byte[] sketchSerialised;
-        try {
-            sketchSerialised = SERIALISER.serialise(sketch);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-
-        final KllFloatsSketch sketchDeserialised;
-        try {
-            sketchDeserialised = SERIALISER.deserialise(sketchSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        assertEquals(quantile1, sketchDeserialised.getQuantile(0.5D), DELTA);
-    }
-
-    private void testEmptySerialiser(final KllFloatsSketch sketch) {
-        final byte[] sketchSerialised;
-        try {
-            sketchSerialised = SERIALISER.serialise(sketch);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-
-        try {
-            SERIALISER.deserialise(sketchSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
+        // Then
+        assertNull(sketch);
     }
 
     @Test
     public void testCanHandleKllFloatsSketch() {
-        assertTrue(SERIALISER.canHandle(KllFloatsSketch.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(KllFloatsSketch.class));
+        assertFalse(serialiser.canHandle(String.class));
+    }
+
+    @Override
+    protected KllFloatsSketch getExampleOutput() {
+        final KllFloatsSketch sketch = KllFloatsSketch.newHeapInstance();
+        sketch.update(1.0F);
+        sketch.update(2.0F);
+        sketch.update(3.0F);
+        return sketch;
+    }
+
+    @Override
+    protected Float getTestValue(KllFloatsSketch object) {
+        // Cannot get quantile for empty KllFloatsSketch
+        if (object.isEmpty()) {
+            return 0.0F;
+        }
+        return object.getQuantile(0.5D);
+    }
+
+    @Override
+    protected KllFloatsSketch getEmptyExampleOutput() {
+        return KllFloatsSketch.newHeapInstance();
+    }
+
+    @Override
+    public Serialiser<KllFloatsSketch, byte[]> getSerialisation() {
+        return new KllFloatsSketchSerialiser();
+    }
+
+    @Override
+    public Pair<KllFloatsSketch, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{new Pair(getExampleOutput(), new byte[]{5, 1, 15, 0, -56, 0, 8, 0, 3, 0, 0, 0, 0, 0, 0, 0, -56, 0, 1, 0, -59, 0, 0, 0, 0, 0, -128, 63, 0, 0, 64, 64, 0, 0, 64, 64, 0, 0, 0, 64, 0, 0, -128, 63})};
     }
 }

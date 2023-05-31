@@ -27,7 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class LongsSketchAggregatorTest extends BinaryOperatorTest {
+public class LongsSketchAggregatorTest extends BinaryOperatorTest<LongsSketchAggregator> {
 
     @Test
     public void testAggregate() {
