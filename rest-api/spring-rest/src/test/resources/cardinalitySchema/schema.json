@@ -1,12 +1,19 @@
 {
   "entities": {
-    "Cardinality": {
+    "CardinalityHllp": {
       "description": "An entity that is added to every vertex representing the connectivity of the vertex.",
       "vertex": "anyVertex",
       "properties": {
         "hllp": "hllp"
       }
-    }
+    },
+    "CardinalityHllSketch": {
+        "description": "An entity that is added to every vertex representing the connectivity of the vertex.",
+        "vertex": "anyVertex",
+        "properties": {
+          "hllSketch": "hllSketch"
+        }
+      }
   },
   "types": {
     "anyVertex": {
@@ -26,6 +33,15 @@
       "serialiser": {
         "class": "uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser"
       }
-    }
+    },
+    "hllSketch": {
+        "class": "org.apache.datasketches.hll.HllSketch",
+        "aggregateFunction": {
+          "class": "uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator.HllSketchAggregator"
+        },
+        "serialiser": {
+          "class": "uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.HllSketchSerialiser"
+        }
+      }
   }
 }

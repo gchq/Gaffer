@@ -22,10 +22,13 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.HllSketchSerialiser;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.apache.datasketches.hll.HllSketch;
 
 public class AccumuloSerialisationFactoryTest {
 
@@ -41,5 +44,19 @@ public class AccumuloSerialisationFactoryTest {
         // Then
         assertTrue(serialiser.canHandle(clazz));
         assertEquals(HyperLogLogPlusSerialiser.class, serialiser.getClass());
+    }
+
+    @Test
+    public void shouldReturnCustomSerialiserForHllSketch() throws SerialisationException {
+        // Given
+        final SerialisationFactory factory = new AccumuloSerialisationFactory();
+        final Class<?> clazz = HllSketch.class;
+
+        // When
+        final Serialiser serialiser = factory.getSerialiser(clazz);
+
+        // Then
+        assertTrue(serialiser.canHandle(clazz));
+        assertEquals(HllSketchSerialiser.class, serialiser.getClass());
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.rest.integration.config;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.google.common.collect.Sets;
+
+import org.apache.datasketches.hll.HllSketch;
+import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +28,13 @@ import org.springframework.test.context.TestPropertySource;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.integration.controller.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
@@ -40,8 +44,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @TestPropertySource(
     properties = "gaffer.graph.factory.class=uk.gov.gchq.gaffer.rest.integration.config.JsonSerialisationConfigIT$SerialisationGraphFactory"
@@ -53,21 +56,66 @@ public class JsonSerialisationConfigIT extends AbstractRestApiIT {
     @Test
     public void shouldSerialiseHyperLogLogPlussesWhenSerialiserModulesConfigured() throws OperationException {
         // Given
+        final HyperLogLogPlus hllp = new HyperLogLogPlus(5, 5);
+        hllp.offer(1);
+        hllp.offer(2);
+
         graphFactory.getGraph().execute(new AddElements.Builder()
             .input(new Entity.Builder()
                 .vertex("vertex1")
-                .group("Cardinality")
-                .property("hllp", new HyperLogLogPlus(5, 5))
+                .group("CardinalityHllp")
+                .property("hllp", hllp)
                 .build())
             .build(), new User());
 
         // When
-        ResponseEntity<List> elements = post("/graph/operations/execute", new GetAllElements(), List.class);
-        Map<String, Object> result = ((List<Map<String, Object>>) elements.getBody()).get(0);
-        Map<String, Object> hllp = ((Map<String, Map<String, Map<String, Map<String, Object>>>>) result.get("properties")).get("hllp").get(HyperLogLogPlus.class.getName()).get("hyperLogLogPlus");
+        final GetElements getElements = new GetElements.Builder()
+                .input("vertex1")
+                .view(new View.Builder()
+                        .entity("CardinalityHllp")
+                        .build())
+                .build();
+        final ResponseEntity<List> elements = post("/graph/operations/execute", getElements, List.class);
+        final Map<String, Object> result = ((List<Map<String, Object>>) elements.getBody()).get(0);
+        final Map<String, Object> hllpJson = ((Map<String, Map<String, Map<String, Map<String, Object>>>>) result.get("properties")).get("hllp").get(HyperLogLogPlus.class.getName()).get("hyperLogLogPlus");
 
-        assertNotNull(hllp);
-        assertTrue(hllp.containsKey("cardinality"));
+        assertThat(hllpJson)
+                .isNotNull()
+                .containsKey("cardinality")
+                .containsEntry("cardinality", 2);
+    }
+
+    @Test
+    public void shouldSerialiseHllSketchWhenSerialiserModulesConfigured() throws OperationException {
+        // Given
+        final HllSketch hllSketch = new HllSketch(10);
+        hllSketch.update(1);
+        hllSketch.update(2);
+
+        graphFactory.getGraph().execute(new AddElements.Builder()
+            .input(new Entity.Builder()
+                .vertex("vertex1")
+                .group("CardinalityHllSketch")
+                .property("hllSketch", hllSketch)
+                .build())
+            .build(), new User());
+
+        // When
+        final GetElements getElements = new GetElements.Builder()
+                .input("vertex1")
+                .view(new View.Builder()
+                        .entity("CardinalityHllSketch")
+                        .build())
+                .build();
+        final ResponseEntity<List> elements = post("/graph/operations/execute", getElements, List.class);
+        final Map<String, Object> result = ((List<Map<String, Object>>) elements.getBody()).get(0);
+        final Map<String, Object> hllSketchJson = ((Map<String, Map<String, Map<String, Object>>>) result.get("properties")).get("hllSketch").get(HllSketch.class.getName());
+
+        assertThat(hllSketchJson)
+                .isNotNull()
+                .containsKey("cardinality");
+
+        assertThat((double) hllSketchJson.get("cardinality")).isCloseTo(2, Percentage.withPercentage(0.001));
     }
 
 
