@@ -28,9 +28,9 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HyperLogLogPlusWithOffers {
 
-    private int p = 10;
+    private int p = 5;
 
-    private int sp = 10;
+    private int sp = 5;
 
     private byte[] hyperLogLogPlusSketchBytes = null;
 

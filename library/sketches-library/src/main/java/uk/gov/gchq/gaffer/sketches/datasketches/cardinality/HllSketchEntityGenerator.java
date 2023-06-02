@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function.ToHllSketch
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.function.Function;
+
 /**
  * Generates {@link HllSketch} Entities for each end of an Edge.
  */
@@ -33,12 +35,6 @@ import uk.gov.gchq.koryphe.Summary;
 @Summary("Generates HllSketch sketch Entities for each end of an Edge")
 @JsonPropertyOrder(value = {"group", "cardinalityPropertyName", "edgeGroupPropertyName", "propertiesToCopy"}, alphabetic = true)
 public class HllSketchEntityGenerator extends CardinalityEntityGenerator<HllSketch> {
-    private static final ToHllSketch TO_HLL_SKETCH = new ToHllSketch();
-
-    public HllSketchEntityGenerator() {
-        super(TO_HLL_SKETCH);
-    }
-
     @Override
     public HllSketchEntityGenerator propertyToCopy(final String propertyToCopy) {
         return (HllSketchEntityGenerator) super.propertyToCopy(propertyToCopy);
@@ -67,5 +63,10 @@ public class HllSketchEntityGenerator extends CardinalityEntityGenerator<HllSket
     @Override
     public HllSketchEntityGenerator edgeGroupProperty(final String edgeGroupProperty) {
         return (HllSketchEntityGenerator) super.edgeGroupProperty(edgeGroupProperty);
+    }
+
+    @Override
+    public Function<Object, HllSketch> getToSketchFunction() {
+        return new ToHllSketch();
     }
 }

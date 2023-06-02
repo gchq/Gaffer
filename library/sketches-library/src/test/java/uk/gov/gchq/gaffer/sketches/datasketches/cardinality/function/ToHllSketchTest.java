@@ -17,10 +17,11 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function;
 
 import org.apache.datasketches.hll.HllSketch;
-
+import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
@@ -32,26 +33,77 @@ class ToHllSketchTest extends FunctionTest<ToHllSketch> {
 
     @Test
     public void shouldCreateEmptyWhenNull() {
-        //Given
+        // Given
         ToHllSketch toHllSketch = new ToHllSketch();
 
-        //When
+        // When
         HllSketch result = toHllSketch.apply(null);
 
-        //Then
+        // Then
         assertThat(result.getEstimate()).isEqualTo(0);
     }
 
     @Test
     public void shouldCreateHllSketch() {
-        //Given
+        // Given
         ToHllSketch toHllSketch = new ToHllSketch();
 
-        //When
+        // When
         HllSketch result = toHllSketch.apply("input");
 
-        //Then
+        // Then
         assertThat(result.getEstimate()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldCreateHllSketchCardinality() {
+        // Given
+        final ToHllSketch toHllSketch = new ToHllSketch();
+
+        // When
+        final HllSketch result = toHllSketch.apply("input");
+        result.update("second");
+        result.update("third");
+
+        // Then
+        assertThat(result.getEstimate()).isCloseTo(3, Percentage.withPercentage(0.001));
+    }
+
+    @Test
+    public void shouldSetDefaultLogK() {
+        // Given
+        final ToHllSketch toHllSketch = new ToHllSketch();
+
+        // When
+        final HllSketch result = toHllSketch.apply("input");
+
+        // Then
+        assertThat(result.getLgConfigK()).isEqualTo(HllSketchJsonConstants.DEFAULT_LOG_K);
+    }
+
+    @Test
+    public void shouldCorrectlySetLogK() {
+        // Given
+        final ToHllSketch toHllSketch = new ToHllSketch(5);
+
+        // When
+        final HllSketch result = toHllSketch.apply("input");
+
+        // Then
+        assertThat(result.getLgConfigK()).isEqualTo(5);
+    }
+
+    @Test
+    public void shouldCorrectlyCreateFromAnotherHllSketch() {
+        // Given
+        final HllSketch anotherSketch = new HllSketch(5);
+        ToHllSketch toHllSketch = new ToHllSketch(anotherSketch);
+
+        // When
+        final HllSketch result = toHllSketch.apply("input");
+
+        // Then
+        assertThat(result.getLgConfigK()).isEqualTo(5);
     }
 
     @Override

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.datasketches.hll.HllSketch;
 
+import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
@@ -33,7 +34,8 @@ import static java.util.Objects.nonNull;
 @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
 @Summary("Creates a new HllSketch instance and initialises it from the given iterable")
 public class IterableToHllSketch extends KorypheFunction<Iterable<Object>, HllSketch> {
-    private int logK = 5;
+    private int logK = HllSketchJsonConstants.DEFAULT_LOG_K;
+    private HllSketch hllSketch;
 
     public IterableToHllSketch() {
     }
@@ -42,33 +44,41 @@ public class IterableToHllSketch extends KorypheFunction<Iterable<Object>, HllSk
         this.logK = logK;
     }
 
+    public IterableToHllSketch(final HllSketch hllSketch) {
+        this.hllSketch = hllSketch;
+    }
+
     @Override
     public HllSketch apply(final Iterable<Object> iterable) {
-        final HllSketch hllp = new HllSketch(logK);
+        if (hllSketch == null) {
+            hllSketch = new HllSketch(logK);
+        }
         if (nonNull(iterable)) {
             for (final Object o : iterable) {
                 if (nonNull(o)) {
                     if (o instanceof String) {
-                        hllp.update((String) o);
+                        hllSketch.update((String) o);
                     } else if (o instanceof Long) {
-                        hllp.update(((long) o));
+                        hllSketch.update(((long) o));
+                    } else if (o instanceof Integer) {
+                        hllSketch.update(((int) o));
                     } else if (o instanceof byte[]) {
-                        hllp.update(((byte[]) o));
+                        hllSketch.update(((byte[]) o));
                     } else if (o instanceof Double) {
-                        hllp.update(((double) o));
+                        hllSketch.update(((double) o));
                     } else if (o instanceof char[]) {
-                        hllp.update(((char[]) o));
+                        hllSketch.update(((char[]) o));
                     } else if (o instanceof long[]) {
-                        hllp.update(((long[]) o));
+                        hllSketch.update(((long[]) o));
                     } else if (o instanceof int[]) {
-                        hllp.update(((int[]) o));
+                        hllSketch.update(((int[]) o));
                     } else {
-                        hllp.update(o.toString());
+                        hllSketch.update(o.toString());
                     }
                 }
             }
         }
-        return hllp;
+        return hllSketch;
     }
 
     public int getLogK() {
@@ -77,5 +87,13 @@ public class IterableToHllSketch extends KorypheFunction<Iterable<Object>, HllSk
 
     public void setLogK(final int logK) {
         this.logK = logK;
+    }
+
+    public HllSketch getHllSketch() {
+        return hllSketch;
+    }
+
+    public void setHllSketch(final HllSketch hllSketch) {
+        this.hllSketch = hllSketch;
     }
 }

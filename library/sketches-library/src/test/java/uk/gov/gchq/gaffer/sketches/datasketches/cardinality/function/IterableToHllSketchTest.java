@@ -22,6 +22,7 @@ import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
@@ -35,42 +36,81 @@ class IterableToHllSketchTest extends FunctionTest<IterableToHllSketch> {
 
     @Test
     public void shouldCreateEmptyWhenNull() {
-        //Given
-        IterableToHllSketch iterableToHllSketch = new IterableToHllSketch();
+        // Given
+        final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch();
 
-        //When
-        HllSketch result = iterableToHllSketch.apply(null);
+        // When
+        final HllSketch result = iterableToHllSketch.apply(null);
 
-        //Then
+        // Then
         assertThat(result.getEstimate()).isEqualTo(0);
     }
 
     @Test
     public void shouldCreateHllSketch() {
-        //Given
-        IterableToHllSketch iterableToHllSketch = new IterableToHllSketch();
-        List<Object> input = Arrays.asList("one", "two", "three", "four", "five");
+        // Given
+        final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch();
+        final List<Object> input = Arrays.asList("one", "two", "three", "four", "five");
 
-        //When
-        HllSketch result = iterableToHllSketch.apply(input);
+        // When
+        final HllSketch result = iterableToHllSketch.apply(input);
 
-        //Then
+        // Then
         assertThat(result.getEstimate()).isCloseTo(5, Percentage.withPercentage(0.001));
     }
 
     @Test
     public void shouldCreateHllSketchCardinality() {
-        //Given
-        IterableToHllSketch iterableToHllSketch = new IterableToHllSketch();
-        List<Object> input = Arrays.asList("one", "one", "two", "two", "three");
+        // Given
+        final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch();
+        final List<Object> input = Arrays.asList("one", "one", "two", "two", "three");
 
-        //When
-        HllSketch result = iterableToHllSketch.apply(input);
+        // When
+        final HllSketch result = iterableToHllSketch.apply(input);
 
-        //Then
+        // Then
         assertThat(result.getEstimate()).isCloseTo(3, Percentage.withPercentage(0.001));
     }
 
+    @Test
+    public void shouldSetDefaultLogK() {
+        // Given
+        final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch();
+        final List<Object> input = Arrays.asList("one", "one", "two", "two", "three");
+
+        // When
+        final HllSketch result = iterableToHllSketch.apply(input);
+
+        // Then
+        assertThat(result.getLgConfigK()).isEqualTo(HllSketchJsonConstants.DEFAULT_LOG_K);
+    }
+
+    @Test
+    public void shouldCorrectlySetLogK() {
+        // Given
+        final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch(5);
+        final List<Object> input = Arrays.asList("one", "one", "two", "two", "three");
+
+        // When
+        final HllSketch result = iterableToHllSketch.apply(input);
+
+        // Then
+        assertThat(result.getLgConfigK()).isEqualTo(5);
+    }
+
+    @Test
+    public void shouldCorrectlyCreateFromAnotherHllSketch() {
+        // Given
+        final HllSketch anotherSketch = new HllSketch(5);
+        IterableToHllSketch iterableToHllSketch = new IterableToHllSketch(anotherSketch);
+        final List<Object> input = Arrays.asList("one", "one", "two", "two", "three");
+
+        // When
+        final HllSketch result = iterableToHllSketch.apply(input);
+
+        // Then
+        assertThat(result.getLgConfigK()).isEqualTo(5);
+    }
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
@@ -89,7 +129,7 @@ class IterableToHllSketchTest extends FunctionTest<IterableToHllSketch> {
         final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch();
         // When
         final String json = new String(JSONSerialiser.serialise(iterableToHllSketch));
-        IterableToHllSketch deserialisedIterableToHllSketch = JSONSerialiser.deserialise(json, IterableToHllSketch.class);
+        final IterableToHllSketch deserialisedIterableToHllSketch = JSONSerialiser.deserialise(json, IterableToHllSketch.class);
         // Then
         assertEquals(iterableToHllSketch, deserialisedIterableToHllSketch);
         assertEquals("{\"class\":\"uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function.IterableToHllSketch\"}", json);
