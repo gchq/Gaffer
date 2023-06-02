@@ -19,12 +19,12 @@ package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.datasketches.hll.HllSketch;
 
-import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants.DEFAULT_LOG_K;
 
 /**
  * Creates a new {@link HllSketch} instance and initialises it with
@@ -34,7 +34,7 @@ import static java.util.Objects.nonNull;
 @Summary("Creates a new HllSketch instance and initialises it with the given object")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ToHllSketch extends KorypheFunction<Object, HllSketch> {
-    private int logK = HllSketchJsonConstants.DEFAULT_LOG_K;
+    private int logK = DEFAULT_LOG_K;
     private HllSketch hllSketch;
 
     public ToHllSketch() {

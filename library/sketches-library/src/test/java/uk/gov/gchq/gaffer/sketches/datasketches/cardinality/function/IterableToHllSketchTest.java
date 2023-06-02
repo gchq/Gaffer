@@ -22,7 +22,6 @@ import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
@@ -31,6 +30,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants.DEFAULT_LOG_K;
 
 class IterableToHllSketchTest extends FunctionTest<IterableToHllSketch> {
 
@@ -82,7 +82,7 @@ class IterableToHllSketchTest extends FunctionTest<IterableToHllSketch> {
         final HllSketch result = iterableToHllSketch.apply(input);
 
         // Then
-        assertThat(result.getLgConfigK()).isEqualTo(HllSketchJsonConstants.DEFAULT_LOG_K);
+        assertThat(result.getLgConfigK()).isEqualTo(DEFAULT_LOG_K);
     }
 
     @Test
