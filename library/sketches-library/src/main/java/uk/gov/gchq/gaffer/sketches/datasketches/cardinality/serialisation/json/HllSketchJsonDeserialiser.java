@@ -44,7 +44,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
  *
  * <p>
  * <b>
- * NOTE: the {@code toString} method is called by the {@link IterableToHllSketch}
+ * NOTE: the {@code toString} method is called by the {@link HllSketchWithValues}
  * class when deserialising the {@code values} so you need to ensure that the
  * {@code toString} method is overridden by your object.
  * </b>
