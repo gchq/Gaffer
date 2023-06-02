@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+import org.apache.datasketches.hll.HllSketch;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -27,8 +28,6 @@ import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.apache.datasketches.hll.HllSketch;
 
 public class AccumuloSerialisationFactoryTest {
 
