@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter
  * A {@link Converter} that converts a {@link HyperLogLogPlus} into a {@code long} so that it can be
  * included in a Dataframe.
  */
+@Deprecated
 public class HyperLogLogPlusConverter implements Converter {
     private static final long serialVersionUID = -1867038905136086956L;
 

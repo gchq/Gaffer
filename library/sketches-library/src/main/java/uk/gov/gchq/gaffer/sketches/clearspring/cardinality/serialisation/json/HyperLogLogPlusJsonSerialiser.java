@@ -28,6 +28,7 @@ import java.io.IOException;
 /**
  * A {@code HyperLogLogPlusJsonSerialiser} serialises {@link HyperLogLogPlus} objects.
  */
+@Deprecated
 public class HyperLogLogPlusJsonSerialiser extends JsonSerializer<HyperLogLogPlus> {
 
     @Override

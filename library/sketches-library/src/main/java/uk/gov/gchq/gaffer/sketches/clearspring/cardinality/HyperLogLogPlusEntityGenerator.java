@@ -35,6 +35,7 @@ import java.util.function.Function;
 @Since("1.21.0")
 @Summary("Generates HyperLogLogPlus sketch Entities for each end of an Edge")
 @JsonPropertyOrder(value = {"group", "cardinalityPropertyName", "edgeGroupPropertyName", "propertiesToCopy"}, alphabetic = true)
+@Deprecated
 public class HyperLogLogPlusEntityGenerator extends CardinalityEntityGenerator<HyperLogLogPlus> {
     @Override
     public HyperLogLogPlusEntityGenerator propertyToCopy(final String propertyToCopy) {

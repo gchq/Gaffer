@@ -31,6 +31,7 @@ import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
  */
 @Since("1.0.0")
 @Summary("Tests a HyperLogLogPlus cardinality is less than a provided value")
+@Deprecated
 public class HyperLogLogPlusIsLessThan extends KoryphePredicate<HyperLogLogPlus> {
     private long controlValue;
     private boolean orEqualTo;

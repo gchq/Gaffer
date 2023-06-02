@@ -26,6 +26,7 @@ import java.io.IOException;
  * A {@code HyperLogLogPlusSerialiser} is used to serialise and deserialise
  * {@link HyperLogLogPlus} objects.
  */
+@Deprecated
 public class HyperLogLogPlusSerialiser implements ToBytesSerialiser<HyperLogLogPlus> {
     private static final long serialVersionUID = 2782098698280905174L;
 

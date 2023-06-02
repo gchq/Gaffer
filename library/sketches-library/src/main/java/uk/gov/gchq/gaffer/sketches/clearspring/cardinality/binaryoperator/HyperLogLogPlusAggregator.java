@@ -28,6 +28,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  */
 @Since("1.0.0")
 @Summary("Aggregates HyperLogLogPlus objects")
+@Deprecated
 public class HyperLogLogPlusAggregator extends KorypheBinaryOperator<HyperLogLogPlus> {
     @Override
     protected HyperLogLogPlus _apply(final HyperLogLogPlus a, final HyperLogLogPlus b) {

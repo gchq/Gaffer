@@ -29,6 +29,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 @Since("1.21.0")
 @Summary("Creates a new HyperLogLogPlus instance and initialises it with the given object")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@Deprecated
 public class ToHyperLogLogPlus extends KorypheFunction<Object, HyperLogLogPlus> {
     private int p = 5;
     private int sp = 5;

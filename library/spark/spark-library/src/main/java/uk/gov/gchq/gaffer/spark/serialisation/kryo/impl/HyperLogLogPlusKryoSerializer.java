@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
  * A {@code HyperLogLogPlusKryoSerializer} is a {@link com.esotericsoftware.kryo.Kryo} {@link com.esotericsoftware.kryo.Serializer} for
  * a {@link HyperLogLogPlus}
  */
+@Deprecated
 public class HyperLogLogPlusKryoSerializer extends WrappedKryoSerializer<HyperLogLogPlusSerialiser, HyperLogLogPlus> {
 
     public HyperLogLogPlusKryoSerializer() {

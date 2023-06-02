@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Deprecated
 public class HyperLogLogPlusWithOffers {
 
     private int p = 5;

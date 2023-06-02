@@ -52,6 +52,7 @@ import static java.util.Objects.nonNull;
  * </b>
  * </p>
  */
+@Deprecated
 public class HyperLogLogPlusJsonDeserialiser extends JsonDeserializer<HyperLogLogPlus> {
 
     public static final String CLASS = "class";
