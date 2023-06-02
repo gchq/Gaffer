@@ -27,6 +27,28 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 /**
  * A {@code HllSketchJsonDeserialiser} deserialises {@link HllSketch} objects.
+ *
+ * Custom objects are now supported in the values list.
+ * This includes the custom Gaffer types, such as
+ * {@link uk.gov.gchq.gaffer.types.TypeSubTypeValue},
+ * {@link uk.gov.gchq.gaffer.types.TypeValue},
+ * {@link uk.gov.gchq.gaffer.types.CustomMap} and
+ * {@link uk.gov.gchq.gaffer.types.FreqMap}.
+ *
+ * The only stipulation is that the {@code class} must be included in the fields of the
+ * {@code JSON} object. This means your custom type will need the following
+ * {@code Jackson} {@code annotation} or it will be ignored during deserialisation:
+ * <pre>
+ * <code>&#064;JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")</code>
+ * </pre>
+ *
+ * <p>
+ * <b>
+ * NOTE: the {@code toString} method is called by the {@link IterableToHllSketch}
+ * class when deserialising the {@code values} so you need to ensure that the
+ * {@code toString} method is overridden by your object.
+ * </b>
+ * </p>
  */
 public class HllSketchJsonDeserialiser extends JsonDeserializer<HllSketch> {
 

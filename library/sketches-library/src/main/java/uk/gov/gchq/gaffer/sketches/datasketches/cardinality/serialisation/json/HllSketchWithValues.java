@@ -29,6 +29,14 @@ import java.util.List;
 
 import static uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants.DEFAULT_LOG_K;
 
+/**
+ * A {@code HllSketchWithValues} is a wrapper around the {@link HllSketch} object
+ * which helps Gaffer deserialise them.
+ *
+ * The {@code values} list is taken and fed into an {@link IterableToHllSketch}
+ * function so that they are applied over JSON. This effectively allows you to create
+ * a populated {@link HllSketch} over JSON.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HllSketchWithValues {
 
