@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.traffic.generator;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.datasketches.hll.HllSketch;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -48,8 +48,8 @@ public abstract class RoadTrafficElementGenerator<T> implements OneToManyElement
     protected Entity createCardinality(final Object source,
                                        final Object destination,
                                        final Edge edge) {
-        final HyperLogLogPlus hllp = new HyperLogLogPlus(5, 5);
-        hllp.offer(destination);
+        final HllSketch hllp = new HllSketch(10);
+        hllp.update((String) destination);
 
         return new Entity.Builder()
                 .vertex(source)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.function.ToHyperLogLo
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.function.Function;
+
 /**
  * Generates {@link HyperLogLogPlus} sketch Entities for
  * each end of an Edge.
@@ -33,13 +35,8 @@ import uk.gov.gchq.koryphe.Summary;
 @Since("1.21.0")
 @Summary("Generates HyperLogLogPlus sketch Entities for each end of an Edge")
 @JsonPropertyOrder(value = {"group", "cardinalityPropertyName", "edgeGroupPropertyName", "propertiesToCopy"}, alphabetic = true)
+@Deprecated
 public class HyperLogLogPlusEntityGenerator extends CardinalityEntityGenerator<HyperLogLogPlus> {
-    private static final ToHyperLogLogPlus TO_HHLP = new ToHyperLogLogPlus();
-
-    public HyperLogLogPlusEntityGenerator() {
-        super(TO_HHLP);
-    }
-
     @Override
     public HyperLogLogPlusEntityGenerator propertyToCopy(final String propertyToCopy) {
         return (HyperLogLogPlusEntityGenerator) super.propertyToCopy(propertyToCopy);
@@ -68,5 +65,10 @@ public class HyperLogLogPlusEntityGenerator extends CardinalityEntityGenerator<H
     @Override
     public HyperLogLogPlusEntityGenerator edgeGroupProperty(final String edgeGroupProperty) {
         return (HyperLogLogPlusEntityGenerator) super.edgeGroupProperty(edgeGroupProperty);
+    }
+
+    @Override
+    public Function<Object, HyperLogLogPlus> getToSketchFunction() {
+        return new ToHyperLogLogPlus();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.datasketches.theta;
 
-import com.yahoo.sketches.theta.SetOperation;
-import com.yahoo.sketches.theta.Union;
+import org.apache.datasketches.theta.SetOperation;
+import org.apache.datasketches.theta.Union;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;

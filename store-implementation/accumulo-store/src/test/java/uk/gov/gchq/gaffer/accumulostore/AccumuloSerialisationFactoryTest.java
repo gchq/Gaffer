@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,13 @@
 package uk.gov.gchq.gaffer.accumulostore;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+import org.apache.datasketches.hll.HllSketch;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.HllSketchSerialiser;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,5 +43,19 @@ public class AccumuloSerialisationFactoryTest {
         // Then
         assertTrue(serialiser.canHandle(clazz));
         assertEquals(HyperLogLogPlusSerialiser.class, serialiser.getClass());
+    }
+
+    @Test
+    public void shouldReturnCustomSerialiserForHllSketch() throws SerialisationException {
+        // Given
+        final SerialisationFactory factory = new AccumuloSerialisationFactory();
+        final Class<?> clazz = HllSketch.class;
+
+        // When
+        final Serialiser serialiser = factory.getSerialiser(clazz);
+
+        // Then
+        assertTrue(serialiser.canHandle(clazz));
+        assertEquals(HllSketchSerialiser.class, serialiser.getClass());
     }
 }

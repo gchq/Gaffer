@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,64 +13,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 
-import com.yahoo.sketches.sampling.ReservoirItemsSketch;
+import org.apache.datasketches.common.ArrayOfStringsSerDe;
+import org.apache.datasketches.sampling.ReservoirItemsSketch;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedArrayValueSerialiserTest;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
-public class ReservoirStringsSketchSerialiserTest {
-    private static final ReservoirStringsSketchSerialiser SERIALISER = new ReservoirStringsSketchSerialiser();
+public class ReservoirStringsSketchSerialiserTest extends ViaCalculatedArrayValueSerialiserTest<ReservoirItemsSketch<String>, String> {
+    @Test
+    public void testCanHandleReservoirItemsSketch() {
+        assertTrue(serialiser.canHandle(ReservoirItemsSketch.class));
+        assertFalse(serialiser.canHandle(String.class));
+    }
 
     @Test
-    public void testSerialiseAndDeserialise() {
+    public void shouldHaveValidEqualsMethodForGenericSerialiser() {
+        final Serialiser<ReservoirItemsSketch<String>, byte[]> serialiser2 = new ReservoirItemsSketchSerialiser<String>(new ArrayOfStringsSerDe());
+        assertNotSame(this.serialiser, serialiser2,
+                "The getSerialisation() shouldn't return the same instance each time it's called, required for this test.");
+        assertEquals(this.serialiser, serialiser2, "different instances that are the same should be equal");
+    }
+
+    @Override
+    protected ReservoirItemsSketch<String> getExampleOutput() {
         final ReservoirItemsSketch<String> sketch = ReservoirItemsSketch.newInstance(20);
         sketch.update("1");
         sketch.update("2");
         sketch.update("3");
-        testSerialiser(sketch);
-
-        final ReservoirItemsSketch<String> emptySketch = ReservoirItemsSketch.newInstance(20);
-        testSerialiser(emptySketch);
+        return sketch;
     }
 
-    private void testSerialiser(final ReservoirItemsSketch<String> sketch) {
-        final boolean resultIsNull = sketch == null;
-        String[] sample = new String[]{};
-        if (!resultIsNull) {
-            sample = sketch.getSamples();
-        }
-        final byte[] unionSerialised;
-        try {
-            unionSerialised = SERIALISER.serialise(sketch);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-
-        final ReservoirItemsSketch<String> sketchDeserialised;
-        try {
-            sketchDeserialised = SERIALISER.deserialise(unionSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        if (sketchDeserialised == null) {
-            assertTrue(resultIsNull);
-        } else {
-            assertArrayEquals(sample, sketchDeserialised.getSamples());
-        }
+    @Override
+    protected String[] getTestValue(ReservoirItemsSketch<String> object) {
+        return object.getSamples();
     }
 
-    @Test
-    public void testCanHandleReservoirItemsSketch() {
-        assertTrue(SERIALISER.canHandle(ReservoirItemsSketch.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+    @Override
+    protected ReservoirItemsSketch<String> getEmptyExampleOutput() {
+        return ReservoirItemsSketch.newInstance(20);
+    }
+
+    @Override
+    public Serialiser<ReservoirItemsSketch<String>, byte[]> getSerialisation() {
+        return new ReservoirStringsSketchSerialiser();
+    }
+
+    @Override
+    public Pair<ReservoirItemsSketch<String>, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{new Pair(getExampleOutput(), new byte[]{-62, 2, 11, 0, 20, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 49, 1, 0, 0, 0, 50, 1, 0, 0, 0, 51})};
     }
 }

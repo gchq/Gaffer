@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator;
 
-import com.yahoo.sketches.theta.Sketch;
-import com.yahoo.sketches.theta.Sketches;
-import com.yahoo.sketches.theta.Union;
+import org.apache.datasketches.theta.Sketch;
+import org.apache.datasketches.theta.Sketches;
+import org.apache.datasketches.theta.Union;
 
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -34,8 +35,8 @@ public class SketchAggregator extends KorypheBinaryOperator<Sketch> {
     @Override
     protected Sketch _apply(final Sketch a, final Sketch b) {
         final Union union = Sketches.setOperationBuilder().buildUnion();
-        union.update(a);
-        union.update(b);
+        union.union(a);
+        union.union(b);
         return union.getResult();
     }
 }

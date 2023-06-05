@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Deprecated
 public class HyperLogLogPlusWithOffers {
 
-    private int p = 10;
+    private int p = 5;
 
-    private int sp = 10;
+    private int sp = 5;
 
     private byte[] hyperLogLogPlusSketchBytes = null;
 

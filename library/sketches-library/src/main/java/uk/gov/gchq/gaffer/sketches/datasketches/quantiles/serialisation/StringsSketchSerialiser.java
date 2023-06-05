@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
-import com.yahoo.memory.WritableMemory;
-import com.yahoo.sketches.ArrayOfStringsSerDe;
-import com.yahoo.sketches.quantiles.ItemsSketch;
+import org.apache.datasketches.common.ArrayOfStringsSerDe;
+import org.apache.datasketches.memory.WritableMemory;
+import org.apache.datasketches.quantiles.ItemsSketch;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -25,7 +26,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import java.util.Comparator;
 
 /**
- * A {@code StringsSketchSerialiser} serialises an {@link com.yahoo.sketches.quantiles.ItemsSketch} of
+ * A {@code StringsSketchSerialiser} serialises an {@link org.apache.datasketches.quantiles.ItemsSketch} of
  * {@link String}s using its {@code toByteArray()} method.
  */
 public class StringsSketchSerialiser implements ToBytesSerialiser<ItemsSketch<String>> {
@@ -44,7 +45,7 @@ public class StringsSketchSerialiser implements ToBytesSerialiser<ItemsSketch<St
 
     @Override
     public ItemsSketch<String> deserialise(final byte[] bytes) throws SerialisationException {
-       return ItemsSketch.getInstance(WritableMemory.wrap(bytes), Comparator.naturalOrder(), SERIALISER);
+       return ItemsSketch.getInstance(String.class, WritableMemory.writableWrap(bytes), Comparator.naturalOrder(), SERIALISER);
     }
 
     @Override

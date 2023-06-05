@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition;
 import uk.gov.gchq.gaffer.data.element.function.TuplesToElements;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.HyperLogLogPlusEntityGenerator;
+import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.HllSketchEntityGenerator;
 import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.function.DateToTimeBucketEnd;
 import uk.gov.gchq.gaffer.types.FreqMap;
@@ -148,7 +148,7 @@ public class RoadTrafficCsvElementGenerator2Test {
                         .property("countByVehicleType")
                         .property("count", "total-count"));
 
-        HyperLogLogPlusEntityGenerator addCardinalities = new HyperLogLogPlusEntityGenerator().countProperty("count").edgeGroupProperty("edgeGroup").cardinalityPropertyName("hllp");
+        HllSketchEntityGenerator addCardinalities = new HllSketchEntityGenerator().countProperty("count").edgeGroupProperty("edgeGroup").cardinalityPropertyName("hllp");
 
         // Apply functions
         final FunctionChain<List<String>, Iterable<Element>> generator2 = new FunctionChain.Builder<List<String>, Iterable<Element>>()

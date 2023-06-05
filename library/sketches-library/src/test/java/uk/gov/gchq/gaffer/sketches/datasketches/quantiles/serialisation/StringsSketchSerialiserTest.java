@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,59 +13,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
-import com.yahoo.sketches.quantiles.ItemsSketch;
+import org.apache.datasketches.quantiles.ItemsSketch;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedValueSerialiserTest;
 
 import java.util.Comparator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
-public class StringsSketchSerialiserTest {
-    private static final double DELTA = 0.01D;
-    private static final StringsSketchSerialiser SERIALISER = new StringsSketchSerialiser();
-
+public class StringsSketchSerialiserTest extends ViaCalculatedValueSerialiserTest<ItemsSketch<String>, String> {
     @Test
-    public void testSerialiseAndDeserialise() {
-        final ItemsSketch<String> sketch = ItemsSketch.getInstance(Comparator.naturalOrder());
-        sketch.update("A");
-        sketch.update("B");
-        sketch.update("C");
-        testSerialiser(sketch);
+    public void testSerialiseNullReturnsEmptyBytes() {
+        // Given
+        final byte[] sketchSerialised = serialiser.serialiseNull();
 
-        final ItemsSketch<String> emptySketch = ItemsSketch.getInstance(Comparator.naturalOrder());
-        testSerialiser(emptySketch);
+        // Then
+        assertArrayEquals(new byte[0], sketchSerialised);
     }
 
-    private void testSerialiser(final ItemsSketch<String> sketch) {
-        final String quantile1 = sketch.getQuantile(0.5D);
-        final byte[] sketchSerialised;
-        try {
-            sketchSerialised = SERIALISER.serialise(sketch);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
+    @Test
+    public void testDeserialiseEmptyBytesReturnsNull() throws SerialisationException {
+        // Given
+        final ItemsSketch<String> sketch = serialiser.deserialiseEmpty();
 
-        final ItemsSketch<String> sketchDeserialised;
-        try {
-            sketchDeserialised = SERIALISER.deserialise(sketchSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        assertEquals(quantile1, sketchDeserialised.getQuantile(0.5D));
+        // Then
+        assertNull(sketch);
     }
 
     @Test
     public void testCanHandleDoublesUnion() {
-        assertTrue(SERIALISER.canHandle(ItemsSketch.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(ItemsSketch.class));
+        assertFalse(serialiser.canHandle(String.class));
+    }
+
+    @Override
+    protected ItemsSketch<String> getExampleOutput() {
+        final ItemsSketch<String> sketch = ItemsSketch.getInstance(String.class, Comparator.naturalOrder());
+        sketch.update("A");
+        sketch.update("B");
+        sketch.update("C");
+        return sketch;
+    }
+
+    @Override
+    protected String getTestValue(ItemsSketch<String> object) {
+        // Cannot get quantile for empty ItemsSketch
+        if (object.isEmpty()) {
+            return "";
+        }
+        return object.getQuantile(0.5D);
+    }
+
+    @Override
+    protected ItemsSketch<String> getEmptyExampleOutput() {
+        return ItemsSketch.getInstance(String.class, Comparator.naturalOrder());
+    }
+
+    @Override
+    public Serialiser<ItemsSketch<String>, byte[]> getSerialisation() {
+        return new StringsSketchSerialiser();
+    }
+
+    @Override
+    public Pair<ItemsSketch<String>, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{new Pair(getExampleOutput(), new byte[]{2, 3, 8, 8, -128, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 65, 1, 0, 0, 0, 67, 1, 0, 0, 0, 65, 1, 0, 0, 0, 66, 1, 0, 0, 0, 67})};
     }
 }

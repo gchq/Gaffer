@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 
-import com.yahoo.memory.WritableMemory;
-import com.yahoo.sketches.ArrayOfItemsSerDe;
-import com.yahoo.sketches.sampling.ReservoirItemsSketch;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.datasketches.common.ArrayOfItemsSerDe;
+import org.apache.datasketches.memory.WritableMemory;
+import org.apache.datasketches.sampling.ReservoirItemsSketch;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -47,7 +47,7 @@ public class ReservoirItemsSketchSerialiser<T> implements ToBytesSerialiser<Rese
 
     @Override
     public ReservoirItemsSketch<T> deserialise(final byte[] bytes) throws SerialisationException {
-        return ReservoirItemsSketch.heapify(WritableMemory.wrap(bytes), arrayOfItemsSerDe);
+        return ReservoirItemsSketch.heapify(WritableMemory.writableWrap(bytes), arrayOfItemsSerDe);
     }
 
     @Override
@@ -71,15 +71,13 @@ public class ReservoirItemsSketchSerialiser<T> implements ToBytesSerialiser<Rese
             return true;
         }
 
-        if (null == obj || getClass() != obj.getClass()) {
+        if (null == obj || !ReservoirItemsSketchSerialiser.class.isAssignableFrom(obj.getClass())) {
             return false;
         }
 
         final ReservoirItemsSketchSerialiser serialiser = (ReservoirItemsSketchSerialiser) obj;
 
-        return new EqualsBuilder()
-                .append(arrayOfItemsSerDe, serialiser.arrayOfItemsSerDe)
-                .isEquals();
+        return arrayOfItemsSerDe.getClass() == serialiser.arrayOfItemsSerDe.getClass();
     }
 
     @Override

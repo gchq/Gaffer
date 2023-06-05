@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles;
 
-import com.google.common.collect.Ordering;
-import com.yahoo.sketches.quantiles.ItemsUnion;
+import org.apache.datasketches.quantiles.ItemsUnion;
 
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.Comparator;
 
 public class StringsUnionKryoSerializerTest extends KryoSerializerTest<ItemsUnion> {
 
@@ -37,7 +39,7 @@ public class StringsUnionKryoSerializerTest extends KryoSerializerTest<ItemsUnio
 
     @Override
     public ItemsUnion<String> getTestObject() {
-        final ItemsUnion<String> union = ItemsUnion.getInstance(32, Ordering.<String>natural());
+        final ItemsUnion<String> union = ItemsUnion.getInstance(String.class, 32, Comparator.naturalOrder());
         union.update("1");
         union.update("2");
         union.update("3");

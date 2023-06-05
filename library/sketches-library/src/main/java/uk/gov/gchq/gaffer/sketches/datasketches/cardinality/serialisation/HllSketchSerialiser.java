@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation;
 
-import com.yahoo.sketches.hll.HllSketch;
+import org.apache.datasketches.hll.HllSketch;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
- * A {@code HllSketchSerialiser} serialises a {@link com.yahoo.sketches.hll.HllSketch} using its
+ * A {@code HllSketchSerialiser} serialises a {@link org.apache.datasketches.hll.HllSketch} using its
  * {@code toCompactByteArray()} method.
  */
 public class HllSketchSerialiser implements ToBytesSerialiser<HllSketch> {
