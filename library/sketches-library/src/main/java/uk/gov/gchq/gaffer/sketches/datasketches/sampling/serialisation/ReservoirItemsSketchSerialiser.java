@@ -67,7 +67,17 @@ public class ReservoirItemsSketchSerialiser<T> implements ToBytesSerialiser<Rese
 
     @Override
     public boolean equals(final Object obj) {
-        return this == obj || obj != null && this.getClass() == obj.getClass();
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || !ReservoirItemsSketchSerialiser.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+
+        final ReservoirItemsSketchSerialiser serialiser = (ReservoirItemsSketchSerialiser) obj;
+
+        return arrayOfItemsSerDe.getClass() == serialiser.arrayOfItemsSerDe.getClass();
     }
 
     @Override

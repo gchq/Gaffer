@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 
+import org.apache.datasketches.common.ArrayOfNumbersSerDe;
 import org.apache.datasketches.sampling.ReservoirItemsSketch;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +24,9 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedArrayValueSerialiserTest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReservoirNumbersSketchSerialiserTest extends ViaCalculatedArrayValueSerialiserTest<ReservoirItemsSketch<Number>, Number> {
@@ -31,6 +34,14 @@ public class ReservoirNumbersSketchSerialiserTest extends ViaCalculatedArrayValu
     public void testCanHandleReservoirItemsUnion() {
         assertTrue(serialiser.canHandle(ReservoirItemsSketch.class));
         assertFalse(serialiser.canHandle(String.class));
+    }
+
+    @Test
+    public void shouldHaveValidEqualsMethodForGenericSerialiser() {
+        final Serialiser<ReservoirItemsSketch<Number>, byte[]> serialiser2 = new ReservoirItemsSketchSerialiser<Number>(new ArrayOfNumbersSerDe());
+        assertNotSame(this.serialiser, serialiser2,
+                "The getSerialisation() shouldn't return the same instance each time it's called, required for this test.");
+        assertEquals(this.serialiser, serialiser2, "different instances that are the same should be equal");
     }
 
     @Override
