@@ -126,7 +126,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         with:
           name: combined-jacoco-coverage
-          path: */**/jacoco.xml
+          path: "*/**/jacoco.xml"
           retention-days: 5
 
   upload-test-coverage:
