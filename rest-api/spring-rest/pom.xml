@@ -118,6 +118,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <!-- Removed because it introduces duplicate org.json.JSONObject on the class path -->
+                <exclusion>
+                    <groupId>com.vaadin.external.google</groupId>
+                    <artifactId>android-json</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Already defined in parent POM but required for surefire to discover tests -->
         <dependency>
@@ -164,6 +171,9 @@
     <profiles>
         <profile>
             <id>demo</id>
+            <properties>
+               <maven.test.skip>true</maven.test.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -177,6 +187,14 @@
                                 -Dgaffer.schemas=${project.build.outputDirectory}/schemas
                             </jvmArguments>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <id>run</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
