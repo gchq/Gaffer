@@ -171,6 +171,9 @@
     <profiles>
         <profile>
             <id>demo</id>
+            <properties>
+               <maven.test.skip>true</maven.test.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -184,6 +187,14 @@
                                 -Dgaffer.schemas=${project.build.outputDirectory}/schemas
                             </jvmArguments>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <id>run</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
