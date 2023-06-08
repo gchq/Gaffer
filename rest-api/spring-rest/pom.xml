@@ -119,7 +119,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
             <exclusions>
-                <!-- Introduces duplicate org.json.JSONObject on the class path -->
+                <!-- Removed because it introduces duplicate org.json.JSONObject on the class path -->
                 <exclusion>
                     <groupId>com.vaadin.external.google</groupId>
                     <artifactId>android-json</artifactId>
