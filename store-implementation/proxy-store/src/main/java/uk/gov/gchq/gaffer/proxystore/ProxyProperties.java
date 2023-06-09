@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.proxystore;
 
-import org.apache.commons.lang3.StringUtils;
-
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.io.InputStream;
@@ -25,6 +23,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Properties;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.prependIfMissing;
 
 /**
  * Additional store properties for the {@link ProxyStore}.
@@ -119,12 +120,7 @@ public class ProxyProperties extends StoreProperties {
     }
 
     public void setGafferContextRoot(final String gafferContextRoot) {
-        final String checkedGafferContextRoot;
-        if (!gafferContextRoot.startsWith("/")) {
-            checkedGafferContextRoot = "/" + gafferContextRoot;
-        } else {
-            checkedGafferContextRoot = gafferContextRoot;
-        }
+        final String checkedGafferContextRoot = prependIfMissing(gafferContextRoot, "/");
         set(GAFFER_CONTEXT_ROOT, checkedGafferContextRoot);
     }
 
@@ -137,15 +133,10 @@ public class ProxyProperties extends StoreProperties {
     }
 
     public URL getGafferUrl(final String protocol, final String suffix) {
-        final String urlSuffix;
-        if (StringUtils.isNotEmpty(suffix)) {
-            urlSuffix = prepend("/", suffix);
-        } else {
-            urlSuffix = "";
-        }
+        final String urlSuffix = isEmpty(suffix) ? "" : prependIfMissing(suffix, "/");
+        final String contextRoot = getGafferContextRoot().equals("/") ? "" : prependIfMissing(getGafferContextRoot(), "/");
 
         try {
-            String contextRoot = prepend("/", getGafferContextRoot());
             return new URL(protocol, getGafferHost(), getGafferPort(),
                     contextRoot + urlSuffix);
         } catch (final MalformedURLException e) {
@@ -153,21 +144,5 @@ public class ProxyProperties extends StoreProperties {
                     + "), port (" + getGafferPort()
                     + ") and context root (" + getGafferContextRoot() + ")", e);
         }
-    }
-
-    protected String addSuffix(final String suffix, final String string) {
-        if (!string.endsWith(suffix)) {
-            return string + suffix;
-        }
-
-        return string;
-    }
-
-    protected String prepend(final String prefix, final String string) {
-        if (!string.startsWith(prefix)) {
-            return prefix + string;
-        }
-
-        return string;
     }
 }
