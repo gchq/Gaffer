@@ -26,8 +26,8 @@
     <artifactId>spring-rest</artifactId>
 
     <properties>
-        <spring.boot.version>2.5.12</spring.boot.version>
-        <springdoc.version>1.6.9</springdoc.version>
+        <spring.boot.version>2.7.12</spring.boot.version>
+        <springdoc.version>1.6.15</springdoc.version>
         <store.type>map</store.type>
     </properties>
 
