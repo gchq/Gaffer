@@ -135,13 +135,12 @@ jobs:
     needs:
       - build-and-run-tests
     steps:
+      - uses: actions/checkout@v3 # Codecov need to see the src code to pair with coverage
+
       - name: Fetch JaCoCo reports artifact
         uses: actions/download-artifact@v3
         with:
           name: combined-jacoco-coverage
-
-      - name: Display structure of downloaded files
-        run: ls -R
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@v3
