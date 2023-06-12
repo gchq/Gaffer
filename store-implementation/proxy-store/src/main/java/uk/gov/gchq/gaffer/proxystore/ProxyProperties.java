@@ -133,8 +133,8 @@ public class ProxyProperties extends StoreProperties {
     }
 
     public URL getGafferUrl(final String protocol, final String suffix) {
+        final String contextRoot = getGafferContextRoot().equals("/") && !isEmpty(suffix) ? "" : prependIfMissing(getGafferContextRoot(), "/");
         final String urlSuffix = isEmpty(suffix) ? "" : prependIfMissing(suffix, "/");
-        final String contextRoot = getGafferContextRoot().equals("/") ? "" : prependIfMissing(getGafferContextRoot(), "/");
 
         try {
             return new URL(protocol, getGafferHost(), getGafferPort(),
