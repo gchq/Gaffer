@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,7 +36,7 @@ public class ProxyPropertiesTest {
     @Test
     public void shouldLoadProxyPropertiesFromFileWithConstructor() {
         // Given
-        Path propFilePath = Path.of(ProxyStore.class.getResource("/proxy-store.properties").getFile());
+        Path propFilePath = Paths.get(ProxyStore.class.getResource("/proxy-store.properties").getFile());
 
         // When
         ProxyProperties proxy = new ProxyProperties(propFilePath);
@@ -59,7 +60,7 @@ public class ProxyPropertiesTest {
     @Test
     public void shouldLoadProxyPropertiesFromFileWithMethodPath() {
         // Given
-        Path propFilePath = Path.of(ProxyStore.class.getResource("/proxy-store.properties").getFile());
+        Path propFilePath = Paths.get(ProxyStore.class.getResource("/proxy-store.properties").getFile());
 
         // When
         ProxyProperties proxy = ProxyProperties.loadStoreProperties(propFilePath);
