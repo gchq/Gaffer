@@ -200,7 +200,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${failsafe.version}</version>
                         <executions>
                             <execution>
                                 <id>system-test</id>
