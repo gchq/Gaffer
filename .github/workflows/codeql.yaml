@@ -14,12 +14,8 @@ on:
 jobs:
   analyse:
     runs-on: ubuntu-latest
-    env:
-      MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Setup JDK
         uses: actions/setup-java@v3
@@ -28,7 +24,7 @@ jobs:
           java-version: '8'
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.m2/repository
@@ -42,7 +38,7 @@ jobs:
           languages: java
 
       - name: Build Code
-        run: mvn -B -ntp clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
+        run: mvn -B -ntp clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true -T2
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
