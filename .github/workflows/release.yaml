@@ -43,7 +43,7 @@ jobs:
 
     - name: Output branch name
       id: branch
-      run: echo "::set-output name=branch_name::$BRANCH_NAME"
+      run: echo "{branch_name}={$BRANCH_NAME}" >> $GITHUB_OUTPUT
 
     - name: Fail if no branch found
       if: ${{ !env.BRANCH_NAME }}
