@@ -98,6 +98,7 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>integration-test</artifactId>
+            <type>test-jar</type>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
