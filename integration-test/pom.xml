@@ -26,6 +26,11 @@
 
     <artifactId>integration-test</artifactId>
 
+    <properties>
+        <!-- ITs are designed to be extended by other classes, cannot be run standalone -->
+        <skip.failsafe.tests>true</skip.failsafe.tests>
+    </properties>
+
     <dependencies>
         <!-- Gaffer dependencies -->
         <dependency>
