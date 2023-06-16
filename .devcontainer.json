@@ -1,0 +1,32 @@
+// Dev container configuration for GitHub Codespaces
+// See https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers#devcontainerjson
+// Can also be used with VSCode, see https://code.visualstudio.com/docs/devcontainers/containers
+// For format details, see https://aka.ms/devcontainer.json
+{
+	"name": "Gaffer dev (Java 8)",
+	// Java 8 development image. More info: https://mcr.microsoft.com/en-us/product/devcontainers/java/about
+	"image": "mcr.microsoft.com/devcontainers/java:8",
+	// See options: https://github.com/devcontainers/templates/tree/main/src/java
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "none",
+			"installMaven": "true",
+			"installGradle": "false"
+		}
+	},
+
+	// Add upstream GitHub repo (ignore error if already added)
+	"onCreateCommand": "git remote add upstream https://github.com/gchq/Gaffer.git || true",
+	// Fetch Dependencies and Build
+	"updateContentCommand": "mvn install -B -Pquick -Daether.dependencyCollector.impl=bf -T.5C",
+
+	// VSCode specific configuration. See: https://containers.dev/supporting#visual-studio-code
+	"customizations": {
+		"vscode": {
+		  "settings": {
+			"java.server.launchMode": "Standard"
+		},
+		  "extensions": ["vscjava.vscode-java-pack"]
+		}
+	}
+}
