@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2022 Crown Copyright
+  ~ Copyright 2016-2023 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -25,6 +25,11 @@
     </parent>
 
     <artifactId>integration-test</artifactId>
+
+    <properties>
+        <!-- ITs are designed to be extended by other classes, cannot be run standalone -->
+        <skip.failsafe.tests>true</skip.failsafe.tests>
+    </properties>
 
     <dependencies>
         <!-- Gaffer dependencies -->

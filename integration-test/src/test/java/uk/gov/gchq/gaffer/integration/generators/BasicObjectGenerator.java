@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,10 @@
 
 package uk.gov.gchq.gaffer.integration.generators;
 
-import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
-import uk.gov.gchq.gaffer.integration.domain.EntityDomainObject;
+import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
+import uk.gov.gchq.gaffer.integration.domain.DomainObject;
 
 /**
  * Implementation of {@link uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator} to translate between integration test 'edge'
@@ -32,12 +29,16 @@ import uk.gov.gchq.gaffer.integration.domain.EntityDomainObject;
  * of {@link uk.gov.gchq.gaffer.integration.domain.EntityDomainObject}.  The generator can go both ways (i.e. domain object to graph element and
  * graph element to domain object).
  */
-public class BasicEntityGenerator implements OneToOneElementGenerator<EntityDomainObject> {
+public class BasicObjectGenerator implements OneToOneObjectGenerator<DomainObject> {
+    private final EntityToObjectGenerator entityGenerator = new EntityToObjectGenerator();
+    private final EdgeToObjectGenerator edgeGenerator = new EdgeToObjectGenerator();
+
     @Override
-    public Element _apply(final EntityDomainObject domainObject) {
-        final Entity entity = new Entity(TestGroups.ENTITY, domainObject.getName());
-        entity.putProperty(TestPropertyNames.INT, domainObject.getIntProperty());
-        entity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet(domainObject.getStringproperty()));
-        return entity;
+    public DomainObject _apply(final Element element) {
+        if (element instanceof Entity) {
+            return entityGenerator._apply(element);
+        }
+
+        return edgeGenerator._apply(element);
     }
 }
