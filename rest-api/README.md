@@ -12,8 +12,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-This page has been copied from the REST API module README. To make any changes please update that README and this page will be automatically updated when the next release is done.
-
 
 REST API
 ==========
