@@ -157,7 +157,6 @@ jobs:
         git remote set-branches --add origin gh-pages
         git pull
         mvn -q clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
-        rm -rf integration-test/src/main/*
         mvn -q javadoc:aggregate
         git checkout gh-pages
         rm -rf uk

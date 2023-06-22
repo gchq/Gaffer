@@ -50,11 +50,10 @@
         <java.version>1.8</java.version>
 
         <!-- Dependency version properties -->
-        <junit.version>5.9.0</junit.version>
-        <junit-suite.version>1.9.0</junit-suite.version>
-        <assertj.version>3.23.1</assertj.version>
-        <mockito.version>4.6.1</mockito.version>
-        <failsafe.version>3.0.0-M7</failsafe.version>
+        <junit.version>5.9.3</junit.version>
+        <junit-suite.version>1.9.3</junit-suite.version>
+        <assertj.version>3.24.2</assertj.version>
+        <mockito.version>4.11.0</mockito.version>
         <slf4j.api.version>1.7.36</slf4j.api.version>
 
         <scala.minor.version>2.11</scala.minor.version>
@@ -109,7 +108,7 @@
         <install.plugin.version>3.0.0-M1</install.plugin.version>
         <resources.plugin.version>3.2.0</resources.plugin.version>
         <clean.plugin.version>3.2.0</clean.plugin.version>
-        <jacoco.plugin.version>0.8.7</jacoco.plugin.version>
+        <jacoco.plugin.version>0.8.10</jacoco.plugin.version>
         <jar.plugin.version>3.2.2</jar.plugin.version>
         <javadoc.plugin.version>3.5.0</javadoc.plugin.version>
         <nexus.plugin.version>1.6.8</nexus.plugin.version>
@@ -117,7 +116,8 @@
         <scm.plugin.version>3.1.0</scm.plugin.version>
         <shade.plugin.version>3.2.4</shade.plugin.version>
         <source.plugin.version>3.2.1</source.plugin.version>
-        <surefire.plugin.version>3.0.0-M5</surefire.plugin.version>
+        <surefire.plugin.version>3.1.2</surefire.plugin.version>
+        <failsafe.plugin.version>3.1.2</failsafe.plugin.version>
         <cargo.plugin.version>1.9.10</cargo.plugin.version>
         <enforcer.plugin.version>3.1.0</enforcer.plugin.version>
         <site.plugin.version>3.12.1</site.plugin.version>
@@ -919,7 +919,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${failsafe.version}</version>
+                <version>${failsafe.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>integration-test</id>
@@ -1347,7 +1347,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire.plugin.version}</version>
                         <configuration>
                             <forkCount>0</forkCount>
                         </configuration>
@@ -1500,7 +1499,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire.plugin.version}</version>
                         <configuration>
                             <argLine>${surefireArgLine}</argLine>
                         </configuration>
@@ -1508,7 +1506,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${failsafe.version}</version>
                         <configuration>
                             <argLine>${failsafeArgLine}</argLine>
                         </configuration>
