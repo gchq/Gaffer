@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.gafferpop.generator;
+package uk.gov.gchq.gaffer.tinkerpop.generator;
 
 import org.apache.tinkerpop.gremlin.structure.Graph.Features;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features.VertexFeatures;
@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.gafferpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.gafferpop.GafferPopVertex;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;

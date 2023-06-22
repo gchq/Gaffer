@@ -23,7 +23,7 @@ It is still in development. The implementation is basic and its performance is u
 ## Setup
 You must provide a GafferPop configuration file containing a path to a Gaffer store.properties file and comma separated list of of paths for Gaffer schema files, e.g:
 ```
-gremlin.graph=uk.gov.gchq.gaffer.gaffer.gafferpop.GafferPopGraph
+gremlin.graph=uk.gov.gchq.gaffer.gaffer.tinkerpop.GafferPopGraph
 gaffer.storeproperties=conf/gaffer/map-store.properties
 gaffer.schemas=conf/gaffer/schema/
 ```

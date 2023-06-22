@@ -23,6 +23,11 @@
             <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
         </layout>
     </appender>
+    <!-- Fix to filter out warnings from this class about
+    Accumulo Client was garbage collected without being closed  -->
+    <logger name="org.apache.accumulo.core.singletons.SingletonReservation">
+        <level value="error"/>
+    </logger>
     <root>
         <priority value="warn"></priority>
         <appender-ref ref="console"></appender-ref>

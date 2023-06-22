@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.gafferpop.service;
+package uk.gov.gchq.gaffer.tinkerpop.service;
 
 import org.apache.tinkerpop.gremlin.structure.service.Service;
 import org.apache.tinkerpop.gremlin.structure.util.CloseableIterator;
 
-import uk.gov.gchq.gaffer.gafferpop.GafferPopElement;
-import uk.gov.gchq.gaffer.gafferpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.gafferpop.generator.GafferPopElementGenerator;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopElement;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
+import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 
 import java.util.Arrays;
 import java.util.Map;

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.gafferpop.generator;
+package uk.gov.gchq.gaffer.tinkerpop.generator;
 
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
-import uk.gov.gchq.gaffer.gafferpop.GafferPopVertex;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 
 import java.util.Iterator;
 

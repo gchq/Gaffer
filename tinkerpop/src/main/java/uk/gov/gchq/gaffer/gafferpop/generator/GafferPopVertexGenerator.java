@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.gafferpop.generator;
+package uk.gov.gchq.gaffer.tinkerpop.generator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
-import uk.gov.gchq.gaffer.gafferpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.gafferpop.GafferPopVertex;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 
 import java.util.Map.Entry;
 

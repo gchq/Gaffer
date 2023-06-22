@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.gafferpop.generator;
+package uk.gov.gchq.gaffer.tinkerpop.generator;
 
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.gafferpop.GafferPopEdge;
-import uk.gov.gchq.gaffer.gafferpop.GafferPopGraph;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopEdge;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

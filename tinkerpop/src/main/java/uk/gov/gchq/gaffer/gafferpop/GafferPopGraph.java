@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.gafferpop;
+package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
@@ -31,11 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.gafferpop.generator.GafferEdgeGenerator;
-import uk.gov.gchq.gaffer.gafferpop.generator.GafferEntityGenerator;
-import uk.gov.gchq.gaffer.gafferpop.generator.GafferPopEdgeGenerator;
-import uk.gov.gchq.gaffer.gafferpop.generator.GafferPopVertexGenerator;
-import uk.gov.gchq.gaffer.gafferpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -55,6 +50,11 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEdgeGenerator;
+import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
+import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopEdgeGenerator;
+import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopVertexGenerator;
+import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 import uk.gov.gchq.koryphe.iterable.MappedIterable;

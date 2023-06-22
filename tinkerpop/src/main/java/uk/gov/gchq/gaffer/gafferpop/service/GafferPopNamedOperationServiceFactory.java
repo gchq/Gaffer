@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.gafferpop.service;
+package uk.gov.gchq.gaffer.tinkerpop.service;
 
 import org.apache.tinkerpop.gremlin.structure.service.Service;
 import org.apache.tinkerpop.gremlin.structure.service.Service.Type;
 
-import uk.gov.gchq.gaffer.gafferpop.GafferPopGraph;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 
 import java.util.Collections;
 import java.util.Map;

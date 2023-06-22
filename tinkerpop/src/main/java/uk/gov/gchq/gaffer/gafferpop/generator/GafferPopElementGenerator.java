@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.gafferpop.generator;
+package uk.gov.gchq.gaffer.tinkerpop.generator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -22,8 +22,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
-import uk.gov.gchq.gaffer.gafferpop.GafferPopElement;
-import uk.gov.gchq.gaffer.gafferpop.GafferPopGraph;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopElement;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 
 public class GafferPopElementGenerator implements OneToOneObjectGenerator<GafferPopElement> {
     private final GafferPopGraph graph;

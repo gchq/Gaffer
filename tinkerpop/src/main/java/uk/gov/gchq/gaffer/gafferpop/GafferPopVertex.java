@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.gafferpop;
+package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {link Vertex}.
+ * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {@link Vertex}.
  */
 public class GafferPopVertex extends GafferPopElement implements Vertex {
     private Map<String, List<VertexProperty>> properties;

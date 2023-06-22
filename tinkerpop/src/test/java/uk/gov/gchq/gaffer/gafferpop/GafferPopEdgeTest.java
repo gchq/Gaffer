@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.gafferpop;
+package uk.gov.gchq.gaffer.tinkerpop;
 
 import com.google.common.collect.Lists;
 import org.apache.tinkerpop.gremlin.structure.Property;

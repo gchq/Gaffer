@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.gafferpop;
+package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {link Edge}.
+ * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {@link Edge}.
  * <p>
  * inVertex() and outVertex() methods are not supported as it is possible for a
  * edge to have multiple in vertices and multiple out vertices (due to the mapping
