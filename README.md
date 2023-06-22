@@ -26,7 +26,7 @@ Gaffer offers:
 
 To get going with Gaffer, visit our [getting started pages](https://gchq.github.io/gaffer-doc/v1docs/summaries/getting-started.html).
 
-Gaffer is under active development. Version 1.0 of Gaffer was released in October 2017.
+Gaffer is under active development. Version 1.0 of Gaffer was released in October 2017, version 2.0 was released in May 2023.
 
 ## Getting Started
 
@@ -35,6 +35,8 @@ Gaffer is under active development. Version 1.0 of Gaffer was released in Octobe
 We have a demo available to try that is based around a small uk road use dataset. See the example/road-traffic [README](https://github.com/gchq/Gaffer/blob/master/example/road-traffic/README.md) to try it out.
 
 ### Building and Deploying
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/gchq/Gaffer?quickstart=1)
 
 To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This will build all of Gaffer's core libraries and some examples of how to load and query data.
 
