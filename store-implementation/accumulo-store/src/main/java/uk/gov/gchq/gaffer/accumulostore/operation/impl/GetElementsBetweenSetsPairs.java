@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -122,6 +123,7 @@ public class GetElementsBetweenSetsPairs implements
                 .build();
     }
 
+    @JsonIgnore
     public GetElementsBetweenSets getBackwardsCompatibleOperation() {
         return new GetElementsBetweenSets.Builder()
                 .input(getInput() != null ? getInput().getFirst() : null)
