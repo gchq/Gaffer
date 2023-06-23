@@ -25,6 +25,7 @@ import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -55,6 +56,9 @@ public class GafferPopGraphTest {
     public static final String USER_ID = "user01";
     public static final String AUTH_1 = "auth1";
     public static final String AUTH_2 = "auth2";
+
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphTest.class, "/gaffer/store.properties"));
+
 
     private static final Configuration TEST_CONFIGURATION = new BaseConfiguration() {
         {
@@ -305,7 +309,7 @@ public class GafferPopGraphTest {
                 .config(new GraphConfig.Builder()
                         .graphId("graph1")
                         .build())
-                .storeProperties(StreamUtil.openStream(this.getClass(), "/gaffer/store.properties"))
+                .storeProperties(PROPERTIES)
                 .addSchemas(StreamUtil.openStreams(this.getClass(), "/gaffer/schema"))
                 .build();
     }
