@@ -506,9 +506,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 Object input = ((Input) operation).getInput();
                 if (input != null) {
                     if (input instanceof MappedIterable) {
-                        ((MappedIterable) input).forEach(item -> { LOGGER.info(item.toString()); });
+                        ((MappedIterable) input).forEach(item -> { LOGGER.info("GafferPop operation input: " + item.toString()); });
                     } else {
-                        LOGGER.info(input.toString());
+                        LOGGER.info("GafferPop operation input: " + input.toString());
                     }
                 }
             }
@@ -516,7 +516,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
 
         try {
-            LOGGER.info(opChain.toString());
+            LOGGER.info("GafferPop operation chain called: " + opChain.toString());
             return graph.execute(opChain, user);
         } catch (final OperationException e) {
             throw new RuntimeException(e);

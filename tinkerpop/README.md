@@ -87,9 +87,10 @@ g.V(start).repeat(bothE().otherV().simplePath()).until(hasId(end).or().loops().i
 
 ## Limitations
 
-There are several restrictions with this implementation. The following TinkerPop features are not yet implemented in GafferPop:
+There are several restrictions with this implementation. The following TinkerPop features are not implemented in GafferPop:
  - property index for unseeded queries (not yet implemented)
  - use of TraversalStrategy to speed up queries (not yet implemented)
+ - suppling Gaffer user for auth (not yet implemented)
  - Removal of entities (Gaffer cannot do this)
  - Updating properties (Gaffer cannot do this)
  - Undirected edges (needs to be verified)
