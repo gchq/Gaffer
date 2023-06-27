@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "person": {
+      "vertex": "person",
+      "properties": {
+        "name": "name.string",
+        "age": "age.integer"
+      },
+      "aggregate": false
+    },
+    "software": {
+      "vertex": "software",
+      "properties": {
+        "name": "name.string",
+        "lang": "name.string"
+      },
+      "aggregate": false
+    }
+  },
+  "edges": {
+    "knows": {
+      "source": "person",
+      "destination": "person",
+      "directed": "true",
+      "properties": {
+        "weight": "weight.double"
+      },
+      "aggregate": false
+    },
+    "created": {
+      "source": "person",
+      "destination": "software",
+      "directed": "true",
+      "properties": {
+        "weight": "weight.double"
+      },
+      "aggregate": false
+    },
+    "dependsOn": {
+      "source": "software",
+      "destination": "software",
+      "directed": "true",
+      "aggregate": false
+    },
+    "encapsulates": {
+      "source": "software",
+      "destination": "software",
+      "directed": "true",
+      "aggregate": false
+    }
+  }
+}
