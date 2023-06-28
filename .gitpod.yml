@@ -1,0 +1,23 @@
+# GitPod (https://www.gitpod.io/) workspace configuration
+# See https://www.gitpod.io/docs/configure/workspaces
+image: maven:3-eclipse-temurin-8
+
+tasks:
+  - name: Fetch Dependencies and Build
+    init: mvn install -Pquick -Daether.dependencyCollector.impl=bf -T.5C
+  - name: Add upstream GitHub repo
+    init: git remote add upstream https://github.com/gchq/Gaffer.git || true
+    # Ensure only noreply email is set (this is not the default - see gitpod issue #387)
+    command: |
+      if ! [[ $(git config --global --get user.email) =~ .*@users.noreply.github.com ]]
+      then git config --global --remove-section user; echo;
+      echo "Git user details weren't using noreply email and have been removed"; echo; fi
+
+vscode:
+  extensions:
+    - vscjava.vscode-java-pack
+    - redhat.java
+    - vscjava.vscode-java-dependency
+    - vscjava.vscode-java-debug
+    - vscjava.vscode-java-test
+    - vscjava.vscode-maven

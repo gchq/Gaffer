@@ -1,0 +1,22 @@
+{
+  "types": {
+    "person": {
+      "class": "java.lang.String"
+    },
+    "software": {
+      "class": "java.lang.String"
+    },
+    "true": {
+      "class": "java.lang.Boolean"
+    },
+    "name.string": {
+      "class": "java.lang.String"
+    },
+    "age.integer": {
+      "class": "java.lang.Integer"
+    },
+    "weight.double": {
+      "class": "java.lang.Double"
+    }
+  }
+}
