@@ -148,15 +148,12 @@ public class MiniAccumuloStore extends AccumuloStore {
 
         MiniAccumuloConfig config = new MiniAccumuloConfig(getAccumuloDirectory(), rootUserPassword);
 
-        if (getProperties().getZookeepers() == null) {
-            config.setZooKeeperPort(DEFAULT_ZOOKEEPER_PORT);
+        String zookeepers = getProperties().getZookeepers();
+        String[] zooKeepersArray = zookeepers != null ? zookeepers.split(":") : null;
+        if (zooKeepersArray != null && zooKeepersArray.length == 2) {
+            config.setZooKeeperPort(Integer.parseInt(zooKeepersArray[1]));
         } else {
-            String[] zookeepers = getProperties().getZookeepers().split(":");
-            if (zookeepers.length == 2) {
-                config.setZooKeeperPort(Integer.parseInt(zookeepers[1]));
-            } else {
-                config.setZooKeeperPort(DEFAULT_ZOOKEEPER_PORT);
-            }
+            config.setZooKeeperPort(DEFAULT_ZOOKEEPER_PORT);
         }
 
         config.setInstanceName(getProperties().getInstance());
