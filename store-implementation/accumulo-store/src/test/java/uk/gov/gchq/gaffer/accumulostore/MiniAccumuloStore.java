@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,9 +148,10 @@ public class MiniAccumuloStore extends AccumuloStore {
 
         MiniAccumuloConfig config = new MiniAccumuloConfig(getAccumuloDirectory(), rootUserPassword);
 
-        String[] zookeepers = getProperties().getZookeepers().split(":");
-        if (zookeepers.length == 2) {
-            config.setZooKeeperPort(Integer.parseInt(zookeepers[1]));
+        String zookeepers = getProperties().getZookeepers();
+        String[] zooKeepersArray = zookeepers != null ? zookeepers.split(":") : null;
+        if (zooKeepersArray != null && zooKeepersArray.length == 2) {
+            config.setZooKeeperPort(Integer.parseInt(zooKeepersArray[1]));
         } else {
             config.setZooKeeperPort(DEFAULT_ZOOKEEPER_PORT);
         }
