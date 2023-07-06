@@ -31,6 +31,14 @@
     </modules>
 
     <repositories>
+        <!-- Manually specify central repo to ensure it is the highest priority.
+         Otherwise, Maven trys to fetch everything from the spark repo which can
+         cause a wait for a timeout before trying central. This is because repos
+         in a POM are prioritised before the super POM where central is declared. -->
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
         <repository>
             <id>Spark Packages</id>
             <url>https://repos.spark-packages.org/</url>
