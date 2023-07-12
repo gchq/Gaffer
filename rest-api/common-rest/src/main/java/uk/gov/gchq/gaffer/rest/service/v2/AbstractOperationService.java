@@ -33,8 +33,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * An abstract OperationsService which allows for implementations to inject dependencies
@@ -65,7 +67,7 @@ public abstract class AbstractOperationService {
         } else {
             operationClasses = getSupportedOperations();
         }
-        Set<OperationDetail> operationDetails = new HashSet<>();
+        Set<OperationDetail> operationDetails = new TreeSet<>(Comparator.comparing(detail -> SimpleClassNameIdResolver.getClassName(detail.getName())));
 
         for (final Class<? extends Operation> clazz : operationClasses) {
             try {

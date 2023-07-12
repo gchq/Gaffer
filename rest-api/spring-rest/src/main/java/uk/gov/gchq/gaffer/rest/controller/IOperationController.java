@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public interface IOperationController {
             produces = APPLICATION_JSON_VALUE
     )
     @io.swagger.v3.oas.annotations.Operation(
-            summary = "Returns the details of every operation supported by the store"
+            summary = "Returns the sorted details of every operation supported by the store"
     )
     Set<OperationDetail> getAllOperationDetails();
 
@@ -60,7 +60,7 @@ public interface IOperationController {
             produces = APPLICATION_JSON_VALUE
     )
     @io.swagger.v3.oas.annotations.Operation(
-            summary = "Returns the details of every operation"
+            summary = "Returns the sorted details of every operation"
     )
     Set<OperationDetail> getAllOperationDetailsIncludingUnsupported();
 

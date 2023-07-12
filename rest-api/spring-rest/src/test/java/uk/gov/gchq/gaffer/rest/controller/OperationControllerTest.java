@@ -49,10 +49,7 @@ import uk.gov.gchq.koryphe.util.ReflectionUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,9 +57,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static uk.gov.gchq.gaffer.core.exception.Status.BAD_REQUEST;
-import static uk.gov.gchq.gaffer.core.exception.Status.INTERNAL_SERVER_ERROR;
-import static uk.gov.gchq.gaffer.core.exception.Status.NOT_FOUND;
+import static uk.gov.gchq.gaffer.core.exception.Status.*;
 
 public class OperationControllerTest {
 
@@ -93,31 +88,30 @@ public class OperationControllerTest {
         when(graphFactory.getGraph()).thenReturn(graph);
     }
 
+    @Test
+    public void shouldReturnAllOperationsAsOperationDetailsInASortedManner() {
+        // Given / When
+        final Set<OperationDetail> allOperationDetails = operationController.getAllOperationDetailsIncludingUnsupported();
+        final Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toCollection(TreeSet::new));
+
+        // Then
+        final Set<String> expectedOperationClasses = ReflectionUtil.getSubTypes(Operation.class).stream().map(Class::getName).collect(Collectors.toCollection(TreeSet::new));
+        assertThat(allOperationDetailClasses).containsExactlyElementsOf(expectedOperationClasses);
+        assertThat(allOperationDetails).isNotEmpty();
+    }
+
     @SuppressWarnings({"unchecked"})
     @Test
-    public void shouldReturnAllSupportedOperationsAsOperationDetails() {
+    public void shouldReturnAllSupportedOperationsAsOperationDetailsInASortedManner() {
         // Given
-        when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(AddElements.class, GetElements.class));
+        when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(GetElements.class, AddElements.class));
 
         // When
         final Set<OperationDetail> allOperationDetails = operationController.getAllOperationDetails();
-        final Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toSet());
-
+        final Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toCollection(TreeSet::new));
         // Then
         assertThat(allOperationDetails).hasSize(2);
-        assertThat(allOperationDetailClasses).contains(AddElements.class.getName(), GetElements.class.getName());
-    }
-
-    @Test
-    public void shouldReturnAllOperationsAsOperationDetails() {
-        // Given / When
-        final Set<OperationDetail> allOperationDetails = operationController.getAllOperationDetailsIncludingUnsupported();
-        final Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toSet());
-
-        // Then
-        final Set<String> expectedOperationClasses = ReflectionUtil.getSubTypes(Operation.class).stream().map(Class::getName).collect(Collectors.toSet());
-        assertThat(allOperationDetailClasses).containsExactlyInAnyOrderElementsOf(expectedOperationClasses);
-        assertThat(allOperationDetails).isNotEmpty();
+        assertThat(allOperationDetailClasses).containsExactlyElementsOf(Sets.newHashSet(AddElements.class.getName(), GetElements.class.getName()));
     }
 
     @Test
