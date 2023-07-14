@@ -57,7 +57,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static uk.gov.gchq.gaffer.core.exception.Status.*;
+import static uk.gov.gchq.gaffer.core.exception.Status.BAD_REQUEST;
+import static uk.gov.gchq.gaffer.core.exception.Status.INTERNAL_SERVER_ERROR;
+import static uk.gov.gchq.gaffer.core.exception.Status.NOT_FOUND;
 
 public class OperationControllerTest {
 
@@ -89,7 +91,7 @@ public class OperationControllerTest {
     }
 
     @Test
-    public void shouldReturnAllOperationsAsOperationDetailsInASortedManner() {
+    public void shouldReturnAllOperationsAsOperationDetailsInSortedOrder() {
         // Given / When
         final Set<OperationDetail> allOperationDetails = operationController.getAllOperationDetailsIncludingUnsupported();
         final Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toCollection(TreeSet::new));
@@ -102,7 +104,7 @@ public class OperationControllerTest {
 
     @SuppressWarnings({"unchecked"})
     @Test
-    public void shouldReturnAllSupportedOperationsAsOperationDetailsInASortedManner() {
+    public void shouldReturnAllSupportedOperationsAsOperationDetailsInSortedOrder() {
         // Given
         when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(GetElements.class, AddElements.class));
 
