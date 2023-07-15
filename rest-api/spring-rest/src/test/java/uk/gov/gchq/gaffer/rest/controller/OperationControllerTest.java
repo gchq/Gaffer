@@ -94,10 +94,10 @@ public class OperationControllerTest {
     public void shouldReturnAllOperationsAsOperationDetailsInSortedOrder() {
         // Given / When
         final Set<OperationDetail> allOperationDetails = operationController.getAllOperationDetailsIncludingUnsupported();
-        final Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toCollection(TreeSet::new));
+        final Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toCollection(LinkedHashSet::new));
 
         // Then
-        final Set<String> expectedOperationClasses = ReflectionUtil.getSubTypes(Operation.class).stream().map(Class::getName).collect(Collectors.toCollection(TreeSet::new));
+        final Set<String> expectedOperationClasses = ReflectionUtil.getSubTypes(Operation.class).stream().sorted(Comparator.comparing(Class::getSimpleName)).map(Class::getName).collect(Collectors.toCollection(LinkedHashSet::new));
         assertThat(allOperationDetailClasses).containsExactlyElementsOf(expectedOperationClasses);
         assertThat(allOperationDetails).isNotEmpty();
     }
@@ -110,7 +110,7 @@ public class OperationControllerTest {
 
         // When
         final Set<OperationDetail> allOperationDetails = operationController.getAllOperationDetails();
-        final Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toCollection(TreeSet::new));
+        final Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toCollection(LinkedHashSet::new));
         // Then
         assertThat(allOperationDetails).hasSize(2);
         assertThat(allOperationDetailClasses).containsExactlyElementsOf(Sets.newHashSet(AddElements.class.getName(), GetElements.class.getName()));
