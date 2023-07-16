@@ -49,10 +49,7 @@ import uk.gov.gchq.koryphe.util.ReflectionUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,6 +88,19 @@ public class OperationControllerTest {
                 .build();
 
         when(graphFactory.getGraph()).thenReturn(graph);
+    }
+
+    @Test
+    public void shouldReturnAllOperationNamesInSortedOrder() {
+        // Given / When
+        final Set<String> allOperationNames = operationController.getAllOperationsNames();
+
+        // Then
+        Set<Class<? extends Operation>> operationClasses = new HashSet(ReflectionUtil.getSubTypes(Operation.class));
+        Set<String> expectedOperationNames = operationClasses.stream().sorted(Comparator.comparing(Class::getSimpleName)).map(Class::getName).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        assertThat(allOperationNames).containsExactlyElementsOf(expectedOperationNames);
+        assertThat(allOperationNames).isNotEmpty();
     }
 
     @SuppressWarnings({"unchecked"})

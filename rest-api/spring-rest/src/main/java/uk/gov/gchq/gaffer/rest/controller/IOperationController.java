@@ -46,6 +46,16 @@ public interface IOperationController {
 
     @RequestMapping(
             method = GET,
+            path = "/all",
+            produces = APPLICATION_JSON_VALUE
+    )
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Retrieves a sorted list of all operations names"
+    )
+    Set<String> getOperationsName();
+
+    @RequestMapping(
+            method = GET,
             path = "/details",
             produces = APPLICATION_JSON_VALUE
     )
