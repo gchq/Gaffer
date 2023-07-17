@@ -71,7 +71,7 @@ public abstract class AbstractOperationService {
                 String simpleName1 = Class.forName(operationDetail1.getName()).asSubclass(Operation.class).getSimpleName();
                 String simpleName2 = Class.forName(operationDetail2.getName()).asSubclass(Operation.class).getSimpleName();
                 return simpleName1.compareTo(simpleName2);
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 throw new GafferRuntimeException(e.getMessage());
             }
         });
