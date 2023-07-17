@@ -68,9 +68,9 @@ public abstract class AbstractOperationService {
         }
         Set<OperationDetail> operationDetails = new TreeSet<>((operationDetail1, operationDetail2) -> {
             try {
-                String simpleName = Class.forName(operationDetail1.getName()).asSubclass(Operation.class).getSimpleName();
-                String simpleName1 = Class.forName(operationDetail2.getName()).asSubclass(Operation.class).getSimpleName();
-                return simpleName.compareTo(simpleName1);
+                String simpleName1 = Class.forName(operationDetail1.getName()).asSubclass(Operation.class).getSimpleName();
+                String simpleName2 = Class.forName(operationDetail2.getName()).asSubclass(Operation.class).getSimpleName();
+                return simpleName1.compareTo(simpleName2);
             } catch (ClassNotFoundException e) {
                 throw new GafferRuntimeException(e.getMessage());
             }
