@@ -64,12 +64,12 @@ public class OperationController extends AbstractOperationService implements IOp
 
     @Override
     public Set<Class<? extends Operation>> getOperations() {
-        return getSupportedOperations();
+        return getSupportedOperations(false);
     }
 
     @Override
-    public Set<String> getOperationsName() {
-        return getAllOperationsNames();
+    public Set<Class<? extends Operation>> getAllOperations() {
+        return getSupportedOperations(true);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class OperationController extends AbstractOperationService implements IOp
             throw new GafferRuntimeException("Class: " + className + " was not found on the classpath.", e, Status.NOT_FOUND);
         } catch (final ClassCastException e) {
             throw new GafferRuntimeException(className + " does not extend Operation", e, Status.BAD_REQUEST);
-        } catch (final  IllegalAccessException | InstantiationException e) {
+        } catch (final IllegalAccessException | InstantiationException e) {
             throw new GafferRuntimeException("Unable to instantiate " + className, e);
         }
     }

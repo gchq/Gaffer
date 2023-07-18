@@ -91,16 +91,30 @@ public class OperationControllerTest {
     }
 
     @Test
-    public void shouldReturnAllOperationNamesInSortedOrder() {
+    public void shouldReturnAllSupportedOperationsInSortedOrder() {
         // Given / When
-        final Set<String> allOperationNames = operationController.getAllOperationsNames();
+        when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(GetElements.class, AddElements.class));
+        final Set<Class<? extends Operation>> supportedOperations = operationController.getSupportedOperations(false);
+
+        // Then
+        Set<Class<? extends Operation>> operationClasses = graphFactory.getGraph().getSupportedOperations();
+        Set<Class<? extends Operation>> expectedOperations = operationClasses.stream().sorted(Comparator.comparing(Class::getSimpleName)).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        assertThat(supportedOperations).containsExactlyElementsOf(expectedOperations);
+        assertThat(supportedOperations).isNotEmpty();
+    }
+
+    @Test
+    public void shouldReturnAllOperationsInSortedOrder() {
+        // Given / When
+        final Set<Class<? extends Operation>> allOperations = operationController.getSupportedOperations(true);
 
         // Then
         Set<Class<? extends Operation>> operationClasses = new HashSet(ReflectionUtil.getSubTypes(Operation.class));
-        Set<String> expectedOperationNames = operationClasses.stream().sorted(Comparator.comparing(Class::getSimpleName)).map(Class::getName).collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<Class<? extends Operation>> expectedOperations = operationClasses.stream().sorted(Comparator.comparing(Class::getSimpleName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
-        assertThat(allOperationNames).containsExactlyElementsOf(expectedOperationNames);
-        assertThat(allOperationNames).isNotEmpty();
+        assertThat(allOperations).containsExactlyElementsOf(expectedOperations);
+        assertThat(allOperations).isNotEmpty();
     }
 
     @SuppressWarnings({"unchecked"})

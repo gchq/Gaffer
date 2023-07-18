@@ -53,17 +53,22 @@ public abstract class AbstractOperationService {
 
     protected abstract GraphFactory getGraphFactory();
 
-    public Set<Class <? extends Operation>> getSupportedOperations() {
-        return getGraphFactory().getGraph().getSupportedOperations();
-    }
-
-    public Set<String> getAllOperationsNames() {
-        Set<Class<? extends Operation>> operationClasses = new HashSet(ReflectionUtil.getSubTypes(Operation.class));
-        return operationClasses.stream().sorted(Comparator.comparing(Class::getSimpleName)).map(Class::getName).collect(Collectors.toCollection(LinkedHashSet::new));
+    public Set<Class<? extends Operation>> getSupportedOperations(final boolean includeUnsupported) {
+        Set<Class<? extends Operation>> operationsClasses;
+        if (includeUnsupported) {
+            operationsClasses = sortOperations(new HashSet(ReflectionUtil.getSubTypes(Operation.class)));
+        } else {
+            operationsClasses = sortOperations(getGraphFactory().getGraph().getSupportedOperations());
+        }
+        return operationsClasses;
     }
 
     public Set<OperationDetail> getSupportedOperationDetails() {
         return getSupportedOperationDetails(false);
+    }
+
+    private Set<Class<? extends Operation>> sortOperations(final Set<Class<? extends Operation>> operationClassesSet) {
+        return operationClassesSet.stream().sorted(Comparator.comparing(Class::getSimpleName)).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Set<OperationDetail> getSupportedOperationDetails(final boolean includeUnsupported) {
@@ -71,7 +76,7 @@ public abstract class AbstractOperationService {
         if (includeUnsupported) {
             operationClasses = new HashSet(ReflectionUtil.getSubTypes(Operation.class));
         } else {
-            operationClasses = getSupportedOperations();
+            operationClasses = getSupportedOperations(false);
         }
         Set<OperationDetail> operationDetails = new HashSet<>();
 
