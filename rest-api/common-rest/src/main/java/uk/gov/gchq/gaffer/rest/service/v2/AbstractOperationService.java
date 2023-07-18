@@ -72,7 +72,7 @@ public abstract class AbstractOperationService {
                 String simpleName2 = Class.forName(operationDetail2.getName()).asSubclass(Operation.class).getSimpleName();
                 return simpleName1.compareTo(simpleName2);
             } catch (final ClassNotFoundException e) {
-                throw new GafferRuntimeException(e.getMessage());
+                throw new GafferRuntimeException("Class could not be found: ", e, Status.INTERNAL_SERVER_ERROR);
             }
         });
         for (final Class<? extends Operation> clazz : operationClasses) {
