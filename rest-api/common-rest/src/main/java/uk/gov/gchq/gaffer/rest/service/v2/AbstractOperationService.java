@@ -37,6 +37,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -63,12 +64,12 @@ public abstract class AbstractOperationService {
         return operationsClasses;
     }
 
-    public Set<OperationDetail> getSupportedOperationDetails() {
-        return getSupportedOperationDetails(false);
-    }
-
     private Set<Class<? extends Operation>> sortOperations(final Set<Class<? extends Operation>> operationClassesSet) {
         return operationClassesSet.stream().sorted(Comparator.comparing(Class::getSimpleName)).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public Set<OperationDetail> getSupportedOperationDetails() {
+        return getSupportedOperationDetails(false);
     }
 
     public Set<OperationDetail> getSupportedOperationDetails(final boolean includeUnsupported) {
