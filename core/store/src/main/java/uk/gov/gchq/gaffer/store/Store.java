@@ -1009,6 +1009,7 @@ public abstract class Store {
             addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
             addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
             addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
+            addOperationHandler(CancelScheduledJob.class, new CancelScheduledJobHandler());
         }
 
         // Output
@@ -1065,7 +1066,6 @@ public abstract class Store {
         addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
         addOperationHandler(Reduce.class, new ReduceHandler());
         addOperationHandler(Join.class, new JoinHandler());
-        addOperationHandler(CancelScheduledJob.class, new CancelScheduledJobHandler());
 
         // Context variables
         addOperationHandler(SetVariable.class, new SetVariableHandler());
