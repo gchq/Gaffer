@@ -651,7 +651,6 @@ public class StoreTest {
                         ToSingletonList.class,
                         ForEach.class,
                         Reduce.class,
-                        CancelScheduledJob.class,
 
                         // Function
                         Filter.class,
