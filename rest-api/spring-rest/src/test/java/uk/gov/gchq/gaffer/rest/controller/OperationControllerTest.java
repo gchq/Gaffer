@@ -102,7 +102,7 @@ public class OperationControllerTest {
         final Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toCollection(LinkedHashSet::new));
 
         // Then
-        final Set<String> expectedOperationClasses = ReflectionUtil.getSubTypes(Operation.class).stream().sorted(Comparator.comparing(Class::getSimpleName)).map(Class::getName).collect(Collectors.toCollection(LinkedHashSet::new));
+        final Set<String> expectedOperationClasses = ReflectionUtil.getSubTypes(Operation.class).stream().map(Class::getName).sorted().collect(Collectors.toCollection(LinkedHashSet::new));
         assertThat(allOperationDetailClasses).containsExactlyElementsOf(expectedOperationClasses);
         assertThat(allOperationDetails).isNotEmpty();
     }

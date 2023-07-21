@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -51,7 +52,7 @@ public abstract class AbstractOperationService {
 
     protected abstract GraphFactory getGraphFactory();
 
-    public Set<Class <? extends Operation>> getSupportedOperations() {
+    public Set<Class<? extends Operation>> getSupportedOperations() {
         return getGraphFactory().getGraph().getSupportedOperations();
     }
 
@@ -66,15 +67,8 @@ public abstract class AbstractOperationService {
         } else {
             operationClasses = getSupportedOperations();
         }
-        Set<OperationDetail> operationDetails = new TreeSet<>((operationDetail1, operationDetail2) -> {
-            try {
-                String simpleName1 = Class.forName(operationDetail1.getName()).asSubclass(Operation.class).getSimpleName();
-                String simpleName2 = Class.forName(operationDetail2.getName()).asSubclass(Operation.class).getSimpleName();
-                return simpleName1.compareTo(simpleName2);
-            } catch (final ClassNotFoundException e) {
-                throw new GafferRuntimeException("Class could not be found: ", e, Status.INTERNAL_SERVER_ERROR);
-            }
-        });
+        Set<OperationDetail> operationDetails = new TreeSet<>(Comparator.comparing(OperationDetail::getName));
+
         for (final Class<? extends Operation> clazz : operationClasses) {
             try {
                 operationDetails.add(new OperationDetail(clazz, getNextOperations(clazz), generateExampleJson(clazz)));
