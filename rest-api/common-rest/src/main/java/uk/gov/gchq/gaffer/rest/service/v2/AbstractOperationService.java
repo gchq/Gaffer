@@ -65,7 +65,7 @@ public abstract class AbstractOperationService {
     }
 
     private Set<Class<? extends Operation>> sortOperations(final Set<Class<? extends Operation>> operationClassesSet) {
-        return operationClassesSet.stream().sorted(Comparator.comparing(Class::getSimpleName)).collect(Collectors.toCollection(LinkedHashSet::new));
+        return operationClassesSet.stream().sorted(Comparator.comparing(Class::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Set<OperationDetail> getSupportedOperationDetails() {

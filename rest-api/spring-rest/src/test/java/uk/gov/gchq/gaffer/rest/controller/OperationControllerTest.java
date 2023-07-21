@@ -104,7 +104,7 @@ public class OperationControllerTest {
 
         // Then
         Set<Class<? extends Operation>> operationClasses = graphFactory.getGraph().getSupportedOperations();
-        Set<Class<? extends Operation>> expectedOperations = operationClasses.stream().sorted(Comparator.comparing(Class::getSimpleName)).collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<Class<? extends Operation>> expectedOperations = operationClasses.stream().sorted(Comparator.comparing(Class::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
         assertThat(supportedOperations).containsExactlyElementsOf(expectedOperations);
         assertThat(supportedOperations).isNotEmpty();
@@ -117,7 +117,7 @@ public class OperationControllerTest {
 
         // Then
         Set<Class<? extends Operation>> operationClasses = new HashSet(ReflectionUtil.getSubTypes(Operation.class));
-        Set<Class<? extends Operation>> expectedOperations = operationClasses.stream().sorted(Comparator.comparing(Class::getSimpleName)).collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<Class<? extends Operation>> expectedOperations = operationClasses.stream().sorted(Comparator.comparing(Class::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
         assertThat(allOperations).containsExactlyElementsOf(expectedOperations);
         assertThat(allOperations).isNotEmpty();
