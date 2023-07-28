@@ -33,8 +33,11 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * An abstract OperationsService which allows for implementations to inject dependencies
@@ -50,8 +53,18 @@ public abstract class AbstractOperationService {
 
     protected abstract GraphFactory getGraphFactory();
 
-    public Set<Class <? extends Operation>> getSupportedOperations() {
-        return getGraphFactory().getGraph().getSupportedOperations();
+    public Set<Class<? extends Operation>> getSupportedOperations(final boolean includeUnsupported) {
+        Set<Class<? extends Operation>> operationsClasses;
+        if (includeUnsupported) {
+            operationsClasses = sortOperations(new HashSet(ReflectionUtil.getSubTypes(Operation.class)));
+        } else {
+            operationsClasses = sortOperations(getGraphFactory().getGraph().getSupportedOperations());
+        }
+        return operationsClasses;
+    }
+
+    private Set<Class<? extends Operation>> sortOperations(final Set<Class<? extends Operation>> operationClassesSet) {
+        return operationClassesSet.stream().sorted(Comparator.comparing(Class::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Set<OperationDetail> getSupportedOperationDetails() {
@@ -63,7 +76,7 @@ public abstract class AbstractOperationService {
         if (includeUnsupported) {
             operationClasses = new HashSet(ReflectionUtil.getSubTypes(Operation.class));
         } else {
-            operationClasses = getSupportedOperations();
+            operationClasses = getSupportedOperations(false);
         }
         Set<OperationDetail> operationDetails = new HashSet<>();
 

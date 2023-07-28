@@ -50,6 +50,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -92,6 +95,34 @@ public class OperationControllerTest {
 
         when(graphFactory.getGraph()).thenReturn(graph);
     }
+
+    @Test
+    public void shouldReturnAllSupportedOperationsInSortedOrder() {
+        // Given / When
+        when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(GetElements.class, AddElements.class));
+        final Set<Class<? extends Operation>> supportedOperations = operationController.getSupportedOperations(false);
+
+        // Then
+        Set<Class<? extends Operation>> operationClasses = graphFactory.getGraph().getSupportedOperations();
+        Set<Class<? extends Operation>> expectedOperations = operationClasses.stream().sorted(Comparator.comparing(Class::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        assertThat(supportedOperations).containsExactlyElementsOf(expectedOperations);
+        assertThat(supportedOperations).isNotEmpty();
+    }
+
+    @Test
+    public void shouldReturnAllOperationsInSortedOrder() {
+        // Given / When
+        final Set<Class<? extends Operation>> allOperations = operationController.getSupportedOperations(true);
+
+        // Then
+        Set<Class<? extends Operation>> operationClasses = new HashSet(ReflectionUtil.getSubTypes(Operation.class));
+        Set<Class<? extends Operation>> expectedOperations = operationClasses.stream().sorted(Comparator.comparing(Class::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        assertThat(allOperations).containsExactlyElementsOf(expectedOperations);
+        assertThat(allOperations).isNotEmpty();
+    }
+
 
     @SuppressWarnings({"unchecked"})
     @Test

@@ -62,9 +62,15 @@ public class OperationController extends AbstractOperationService implements IOp
         this.examplesFactory = examplesFactory;
     }
 
+
     @Override
     public Set<Class<? extends Operation>> getOperations() {
-        return getSupportedOperations();
+        return getSupportedOperations(false);
+    }
+
+    @Override
+    public Set<Class<? extends Operation>> getAllOperations() {
+        return getSupportedOperations(true);
     }
 
     @Override

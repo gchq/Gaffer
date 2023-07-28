@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,9 +40,19 @@ public interface IOperationController {
             produces = APPLICATION_JSON_VALUE
     )
     @io.swagger.v3.oas.annotations.Operation(
-            summary = "Retrieves a list of supported operations"
+            summary = "Retrieves a sorted list of supported operations"
     )
     Set<Class<? extends Operation>> getOperations();
+
+    @RequestMapping(
+            method = GET,
+            path = "/all",
+            produces = APPLICATION_JSON_VALUE
+    )
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Retrieves a sorted list of all operations"
+    )
+    Set<Class<? extends Operation>> getAllOperations();
 
     @RequestMapping(
             method = GET,
