@@ -365,6 +365,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+        // Create an anonymous class (implementing OutputOperationHandler) which calls fetchTraits with the operation
         return (operation, context, store) -> ((ProxyStore) store).fetchTraits(operation);
     }
 
