@@ -53,18 +53,18 @@ public abstract class AbstractOperationService {
 
     protected abstract GraphFactory getGraphFactory();
 
+    public Set<Class<? extends Operation>> getSupportedOperations() {
+        return getSupportedOperations(false);
+    }
+
     public Set<Class<? extends Operation>> getSupportedOperations(final boolean includeUnsupported) {
         Set<Class<? extends Operation>> operationsClasses;
         if (includeUnsupported) {
-            operationsClasses = sortOperations(new HashSet(ReflectionUtil.getSubTypes(Operation.class)));
+            operationsClasses = new HashSet(ReflectionUtil.getSubTypes(Operation.class));
         } else {
-            operationsClasses = sortOperations(getGraphFactory().getGraph().getSupportedOperations());
+            operationsClasses = getGraphFactory().getGraph().getSupportedOperations();
         }
         return operationsClasses;
-    }
-
-    private Set<Class<? extends Operation>> sortOperations(final Set<Class<? extends Operation>> operationClassesSet) {
-        return operationClassesSet.stream().sorted(Comparator.comparing(Class::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Set<OperationDetail> getSupportedOperationDetails() {

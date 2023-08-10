@@ -40,7 +40,7 @@ public interface IOperationController {
             produces = APPLICATION_JSON_VALUE
     )
     @io.swagger.v3.oas.annotations.Operation(
-            summary = "Retrieves a sorted list of supported operations"
+            summary = "Retrieves a list of supported operations"
     )
     Set<Class<? extends Operation>> getOperations();
 
@@ -50,9 +50,9 @@ public interface IOperationController {
             produces = APPLICATION_JSON_VALUE
     )
     @io.swagger.v3.oas.annotations.Operation(
-            summary = "Retrieves a sorted list of all operations"
+            summary = "Retrieves a list of all operations"
     )
-    Set<Class<? extends Operation>> getAllOperations();
+    Set<Class<? extends Operation>> getOperationsIncludingUnsupported();
 
     @RequestMapping(
             method = GET,

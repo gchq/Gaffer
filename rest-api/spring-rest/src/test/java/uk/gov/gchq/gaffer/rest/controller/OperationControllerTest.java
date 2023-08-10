@@ -50,9 +50,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,33 +93,31 @@ public class OperationControllerTest {
         when(graphFactory.getGraph()).thenReturn(graph);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
-    public void shouldReturnAllSupportedOperationsInSortedOrder() {
-        // Given / When
-        when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(GetElements.class, AddElements.class));
-        final Set<Class<? extends Operation>> supportedOperations = operationController.getSupportedOperations(false);
+    public void shouldReturnAllSupportedOperations() {
+        // Given
+        when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(AddElements.class, GetElements.class));
+
+        // When
+        final Set<Class<? extends Operation>> allOperations = operationController.getOperations();
 
         // Then
-        Set<Class<? extends Operation>> operationClasses = graphFactory.getGraph().getSupportedOperations();
-        Set<Class<? extends Operation>> expectedOperations = operationClasses.stream().sorted(Comparator.comparing(Class::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
-
-        assertThat(supportedOperations).containsExactlyElementsOf(expectedOperations);
-        assertThat(supportedOperations).isNotEmpty();
+        assertThat(allOperations).hasSize(2);
+        assertThat(allOperations).contains(AddElements.class, GetElements.class);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
-    public void shouldReturnAllOperationsInSortedOrder() {
+    public void shouldReturnAllOperations() {
         // Given / When
-        final Set<Class<? extends Operation>> allOperations = operationController.getSupportedOperations(true);
+        final Set<Class> allOperations = (Set) operationController.getOperationsIncludingUnsupported();
 
         // Then
-        Set<Class<? extends Operation>> operationClasses = new HashSet(ReflectionUtil.getSubTypes(Operation.class));
-        Set<Class<? extends Operation>> expectedOperations = operationClasses.stream().sorted(Comparator.comparing(Class::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
-
-        assertThat(allOperations).containsExactlyElementsOf(expectedOperations);
+        final Set<Class> allExpectedOperations = ReflectionUtil.getSubTypes(Operation.class);
+        assertThat(allOperations).containsExactlyInAnyOrderElementsOf(allExpectedOperations);
         assertThat(allOperations).isNotEmpty();
     }
-
 
     @SuppressWarnings({"unchecked"})
     @Test
