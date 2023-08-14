@@ -51,7 +51,17 @@ public abstract class AbstractOperationService {
     protected abstract GraphFactory getGraphFactory();
 
     public Set<Class <? extends Operation>> getSupportedOperations() {
-        return getGraphFactory().getGraph().getSupportedOperations();
+        return getSupportedOperations(false);
+    }
+
+    public Set<Class<? extends Operation>> getSupportedOperations(final boolean includeUnsupported) {
+        Set<Class<? extends Operation>> operationsClasses;
+        if (includeUnsupported) {
+            operationsClasses = new HashSet(ReflectionUtil.getSubTypes(Operation.class));
+        } else {
+            operationsClasses = getGraphFactory().getGraph().getSupportedOperations();
+        }
+        return operationsClasses;
     }
 
     public Set<OperationDetail> getSupportedOperationDetails() {
