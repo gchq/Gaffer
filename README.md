@@ -24,7 +24,7 @@ Gaffer offers:
  - Retrieval of graph data into Apache Spark for fast and flexible analysis
  - A fully-featured REST API
 
-To get going with Gaffer, visit our [getting started pages](https://gchq.github.io/gaffer-doc/v1docs/summaries/getting-started.html).
+To get going with Gaffer, visit our getting started pages ([1.x](https://gchq.github.io/gaffer-doc/v1docs/summaries/getting-started.html), [2.x](https://gchq.github.io/gaffer-doc/latest/getting-started/quickstart/)).
 
 Gaffer is under active development. Version 1.0 of Gaffer was released in October 2017, version 2.0 was released in May 2023.
 
@@ -40,7 +40,7 @@ We have a demo available to try that is based around a small uk road use dataset
 
 To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This will build all of Gaffer's core libraries and some examples of how to load and query data.
 
-See our [Store](https://gchq.github.io/gaffer-doc/v1docs/summaries/stores.html) documentation page for a list of available Gaffer Stores to chose from and the relevant documentation for each.
+See our [Store](https://gchq.github.io/gaffer-doc/latest/reference/stores-guide/stores/) documentation page for a list of available Gaffer Stores to chose from and the relevant documentation for each.
 
 ### Inclusion in other projects
 
@@ -48,7 +48,7 @@ Gaffer is hosted on [Maven Central](https://mvnrepository.com/search?q=uk.gov.gc
 
 To use Gaffer from the Java API the only required dependencies are the Gaffer graph module and a store module for the specific database technology used to store the data, e.g. for the Accumulo store:
 
-```
+```xml
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>graph</artifactId>
@@ -65,9 +65,9 @@ This will include all other mandatory dependencies. Other (optional) components 
 
 ### Documentation
 
-Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).
+Our Javadoc can be found [here](http://gchq.github.io/Gaffer/). Gaffer's documentation is kept in the [gaffer-doc](https://github.com/gchq/gaffer-doc) repository and [published on GitHub pages (gchq.github.io)](https://gchq.github.io/gaffer-doc/latest/). 
 
-We have some user guides in our [docs](https://gchq.github.io/gaffer-doc/v1docs/getting-started/user-guide/contents.html).
+We have some user guides in our documentation ([1.x](https://gchq.github.io/gaffer-doc/v1docs/getting-started/user-guide/contents.html), [2.x](https://gchq.github.io/gaffer-doc/latest/getting-started/guide/guide/)).
 
 ## Related repositories
 
@@ -77,6 +77,11 @@ The [gaffer-tools](https://github.com/gchq/gaffer-tools) repository contains use
 - `performance-testing` - Methods of testing the performance of ingest and query operations against a graph
 - `python-shell` - Allows operations against a graph to be executed from a Python shell
 - `random-element-generation` - Code to generate large volumes of random graph data
+
+The [gaffer-docker](https://github.com/gchq/gaffer-docker) repository contains the code needed to run Gaffer using Docker or Kubernetes.
+
+The [koryphe](https://github.com/gchq/koryphe) repository contains an extensible functions library for filtering, aggregating and transforming data
+based on the Java Function API. It is a dependency of Gaffer.
 
 ## License
 
@@ -100,7 +105,7 @@ limitations under the License.
 
 ## Contributing
 
-We welcome contributions to the project. Detailed information on our ways of working can be found [here](https://gchq.github.io/gaffer-doc/v1docs/other/ways-of-working.html). In brief:
+We welcome contributions to the project. Detailed information on our ways of working can be found [in our developer docs](https://gchq.github.io/gaffer-doc/latest/dev/ways-of-working/). In brief:
 
 - Sign the [GCHQ Contributor Licence Agreement](https://cla-assistant.io/gchq/Gaffer)
 - Push your changes to a fork
