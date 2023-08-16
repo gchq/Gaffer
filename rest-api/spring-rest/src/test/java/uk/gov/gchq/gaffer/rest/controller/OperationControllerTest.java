@@ -95,6 +95,32 @@ public class OperationControllerTest {
 
     @SuppressWarnings({"unchecked"})
     @Test
+    public void shouldReturnAllSupportedOperations() {
+        // Given
+        when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(AddElements.class, GetElements.class));
+
+        // When
+        final Set<Class<? extends Operation>> allOperations = operationController.getOperations();
+
+        // Then
+        assertThat(allOperations).hasSize(2);
+        assertThat(allOperations).contains(AddElements.class, GetElements.class);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    @Test
+    public void shouldReturnAllOperations() {
+        // Given / When
+        final Set<Class> allOperations = (Set) operationController.getOperationsIncludingUnsupported();
+
+        // Then
+        final Set<Class> allExpectedOperations = ReflectionUtil.getSubTypes(Operation.class);
+        assertThat(allOperations).containsExactlyInAnyOrderElementsOf(allExpectedOperations);
+        assertThat(allOperations).isNotEmpty();
+    }
+
+    @SuppressWarnings({"unchecked"})
+    @Test
     public void shouldReturnAllSupportedOperationsAsOperationDetails() {
         // Given
         when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(AddElements.class, GetElements.class));

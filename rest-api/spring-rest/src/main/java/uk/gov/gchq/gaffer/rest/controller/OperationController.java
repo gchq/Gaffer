@@ -68,6 +68,11 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
+    public Set<Class<? extends Operation>> getOperationsIncludingUnsupported() {
+        return getSupportedOperations(true);
+    }
+
+    @Override
     public Set<OperationDetail> getAllOperationDetails() {
         return getSupportedOperationDetails();
     }
