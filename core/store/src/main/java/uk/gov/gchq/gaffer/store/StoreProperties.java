@@ -85,7 +85,11 @@ public class StoreProperties implements Cloneable {
      * CASE INSENSITIVE
      * e.g. gaffer.cache.service.name.suffix="v2"
      */
-    public static final String CACHE_SERVICE_NAME_SUFFIX = "gaffer.cache.service.name.suffix";
+    public static final String CACHE_SERVICE_DEFAULT_SUFFIX = "gaffer.cache.service.default.suffix";
+    public static final String CACHE_SERVICE_NAMED_OPERATION_SUFFIX = "gaffer.cache.service.named.operation.suffix";
+    public static final String CACHE_SERVICE_JOB_TRACKER_SUFFIX = "gaffer.cache.service.job.tracker.suffix";
+    public static final String CACHE_SERVICE_NAMED_VIEW_SUFFIX = "gaffer.cache.service.named.view.suffix";
+    public static final String CACHE_SERVICE_FEDERATED_STORE_SUFFIX = "gaffer.cache.service.federated.store.suffix";
 
     /**
      * CSV of extra packages to be included in the reflection scanning.
@@ -453,15 +457,27 @@ public class StoreProperties implements Cloneable {
     }
 
     public void setCacheServiceNameSuffix(final String suffix) {
-        set(CACHE_SERVICE_NAME_SUFFIX, suffix);
+        set(CACHE_SERVICE_DEFAULT_SUFFIX, suffix);
     }
 
-    public String getCacheServiceNameSuffix() {
-        return getCacheServiceNameSuffix(null);
+    public String getCacheServiceDefaultSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_DEFAULT_SUFFIX, defaultValue);
     }
 
-    public String getCacheServiceNameSuffix(final String defaultValue) {
-        return get(CACHE_SERVICE_NAME_SUFFIX, defaultValue);
+    public String getCacheServiceNamedOperationSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_NAMED_OPERATION_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
+    }
+
+    public String getCacheServiceJobTrackerSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_JOB_TRACKER_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
+    }
+
+    public String getCacheServiceNamedViewSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_NAMED_VIEW_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
+    }
+
+    public String getCacheServiceFederatedStoreSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_FEDERATED_STORE_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
     }
 
     public Properties getProperties() {

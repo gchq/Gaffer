@@ -82,7 +82,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
             final ScoreResolver scoreResolver = defaultScoreResolvers.get(NamedOperation.class);
             if (scoreResolver instanceof NamedOperationScoreResolver) {
                 NamedOperationScoreResolver resolver = (NamedOperationScoreResolver) scoreResolver;
-                return resolver.getNamedOperationCacheNameSuffix();
+                return resolver.getSuffixCacheName();
             }
         }
         return null;

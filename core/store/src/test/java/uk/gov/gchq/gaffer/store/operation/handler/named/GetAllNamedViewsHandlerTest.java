@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -24,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -84,6 +86,13 @@ public class GetAllNamedViewsHandlerTest {
             .overwrite(false)
             .readAccessPredicate(new NoAccessPredicate())
             .build();
+
+    @BeforeEach
+    public void beforeEach() throws CacheOperationException {
+        if (namedViewCache != null && CacheServiceLoader.isEnabled()) {
+            namedViewCache.clearCache();
+        }
+    }
 
     @AfterAll
     public static void tearDown() {

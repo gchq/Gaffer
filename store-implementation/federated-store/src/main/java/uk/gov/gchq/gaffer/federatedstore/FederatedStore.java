@@ -178,7 +178,7 @@ public class FederatedStore extends Store {
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
-        graphStorage = new FederatedGraphStorage(properties.getCacheServiceNameSuffix(graphId));
+        graphStorage = new FederatedGraphStorage(properties.getCacheServiceFederatedStoreSuffix(graphId));
         super.initialise(graphId, new Schema(), properties);
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
@@ -279,8 +279,8 @@ public class FederatedStore extends Store {
      * graphs via the {@link RemoveGraph} operation.
      * </p>
      *
-     * @param graphId to be removed from scope
-     * @param user    to match visibility against
+     * @param graphId     to be removed from scope
+     * @param user        to match visibility against
      * @param removeCache to remove associated caches with this graph.
      * @return success of removal
      */
@@ -359,7 +359,7 @@ public class FederatedStore extends Store {
      * or the optimised compact schemas of the stores inside
      * this FederatedStore.
      *
-     * @param context context with valid User
+     * @param context          context with valid User
      * @param getCompactSchema if true, gets the optimised compact schemas
      * @return schema
      */

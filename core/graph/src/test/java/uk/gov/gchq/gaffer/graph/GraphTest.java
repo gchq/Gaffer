@@ -2646,7 +2646,7 @@ public class GraphTest {
     public static class TestStoreImpl extends Store {
         @Override
         protected void addAdditionalOperationHandlers() {
-            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(getProperties().getCacheServiceNamedViewSuffix(getGraphId())));
         }
 
         @Override

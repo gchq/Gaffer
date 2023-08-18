@@ -41,15 +41,15 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
     private final NamedViewCache cache;
 
     @JsonCreator
-    public AddNamedViewHandler(@JsonProperty("suffixCacheName") final String suffixCacheName) {
-        this(new NamedViewCache(suffixCacheName));
+    public AddNamedViewHandler(@JsonProperty("suffixNamedViewCacheName") final String suffixNamedViewCacheName) {
+        this(new NamedViewCache(suffixNamedViewCacheName));
     }
 
     public AddNamedViewHandler(final NamedViewCache cache) {
         this.cache = cache;
     }
 
-    @JsonGetter("suffixCacheName")
+    @JsonGetter("suffixNamedViewCacheName")
     public String getSuffixCacheName() {
         return cache.getSuffixCacheName();
     }

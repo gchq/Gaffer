@@ -37,9 +37,9 @@ import static java.util.Objects.isNull;
 public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, FederatedAccess>> {
     private final FederatedStoreCacheTransient cacheTransient;
 
-    public FederatedStoreCache(final String cacheNameSuffix) {
+    public FederatedStoreCache(final String suffixFederatedStoreCacheName) {
         super(null);
-        cacheTransient = new FederatedStoreCacheTransient(cacheNameSuffix);
+        cacheTransient = new FederatedStoreCacheTransient(suffixFederatedStoreCacheName);
     }
 
     /**

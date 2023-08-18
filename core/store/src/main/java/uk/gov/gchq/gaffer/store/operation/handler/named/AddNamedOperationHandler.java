@@ -45,16 +45,16 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
     private final NamedOperationCache cache;
 
     @JsonCreator
-    public AddNamedOperationHandler(@JsonProperty("suffixCacheName") final String suffixCacheName) {
-        this(new NamedOperationCache(suffixCacheName));
+    public AddNamedOperationHandler(@JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName) {
+        this(new NamedOperationCache(suffixNamedOperationCacheName));
     }
 
     public AddNamedOperationHandler(final NamedOperationCache cache) {
         this.cache = cache;
     }
 
-    @JsonGetter("suffixCacheName")
-    public String getSuffixCacheName() {
+    @JsonGetter("suffixNamedOperationCacheName")
+    public String getCacheNameSuffix() {
         return cache.getSuffixCacheName();
     }
 

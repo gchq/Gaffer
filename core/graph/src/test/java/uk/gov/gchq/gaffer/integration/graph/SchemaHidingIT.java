@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.integration.graph;
 
 import com.google.common.collect.Sets;
@@ -101,6 +102,7 @@ public abstract class SchemaHidingIT {
         final Store fullStore = createStore(createFullSchema());
         final Graph fullGraph = new Builder()
                 .store(fullStore)
+                .storeProperties(fullStore.getProperties())
                 .build();
 
         final Edge edge1a = new Edge.Builder()
@@ -143,6 +145,7 @@ public abstract class SchemaHidingIT {
         final Store filteredStore = createStore(createFilteredSchema());
         final Graph filteredGraph = new Builder()
                 .store(filteredStore)
+                .storeProperties(filteredStore.getProperties())
                 .build();
 
         final List<Edge> fullExpectedResults = Arrays.asList(edge1a, edge1b, edge2);

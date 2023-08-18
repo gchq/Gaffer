@@ -369,7 +369,7 @@ public final class Graph {
                     if (!isEmpty(opView.getGlobalElements()) || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {
                         opView = new View.Builder().merge(config.getView()).merge(opView).build();
                     } else { // We have either global edges or entities in
-                             // opView, but not both
+                        // opView, but not both
                         final View originalView = opView;
                         final View partialConfigView = new View.Builder()
                                 .merge(config.getView())
@@ -416,7 +416,7 @@ public final class Graph {
     /**
      * @param operation the class of the operation to check
      * @return a collection of all the compatible {@link Operation}s that could
-     *         be added to an operation chain after the provided operation.
+     * be added to an operation chain after the provided operation.
      */
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
         return store.getNextOperations(operation);
@@ -433,7 +433,7 @@ public final class Graph {
 
     /**
      * Get the Store's original {@link Schema}.
-     *
+     * <p>
      * This is not the same as the {@link Schema} used internally by
      * the {@link Store}. See {@link Store#getOriginalSchema()} and
      * {@link Store#getSchema()} for more details.
@@ -850,10 +850,10 @@ public final class Graph {
         private void updateGraphHooks(final GraphConfig config) {
             List<GraphHook> hooks = config.getHooks();
             if (store.isSupported(AddNamedView.class) && !hasHook(hooks, NamedViewResolver.class)) {
-                hooks.add(0, new NamedViewResolver(config.getGraphId()));
+                hooks.add(0, new NamedViewResolver(properties.getCacheServiceNamedViewSuffix(config.getGraphId())));
             }
             if (store.isSupported(AddNamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
-                config.getHooks().add(0, new NamedOperationResolver(config.getGraphId()));
+                config.getHooks().add(0, new NamedOperationResolver(properties.getCacheServiceNamedOperationSuffix(config.getGraphId())));
             }
             if (!hasHook(hooks, FunctionAuthoriser.class)) {
                 config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));

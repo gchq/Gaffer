@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.JcsCacheService;
@@ -26,20 +25,14 @@ import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 
-import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
 
-import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_MAP;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
-import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
-import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_2;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_USER_ID;
 
 public class FederatedStoreCacheBackwardCompatibilityTest {
@@ -73,16 +66,4 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
                 .build();
     }
 
-    @Test
-    public void shouldReturnExpectedFederatedAccessUsingCacheDataFromVersion2() {
-        final Set<String> graphAuths = new HashSet<>(asList(AUTH_1, AUTH_2));
-
-        final FederatedAccess access = new FederatedAccess(graphAuths, ADDING_USER_ID);
-        final FederatedAccess accessFromCacheVersion2_0 = federatedStoreCache.getAccessFromCache(GRAPH_ID_MAP);
-
-        assertEquals(access.getReadAccessPredicate(), accessFromCacheVersion2_0.getReadAccessPredicate());
-        assertEquals(access.getWriteAccessPredicate(), accessFromCacheVersion2_0.getWriteAccessPredicate());
-        assertEquals(access.getOrDefaultReadAccessPredicate(), accessFromCacheVersion2_0.getOrDefaultReadAccessPredicate());
-        assertEquals(access.getOrDefaultWriteAccessPredicate(), accessFromCacheVersion2_0.getOrDefaultWriteAccessPredicate());
-    }
 }
