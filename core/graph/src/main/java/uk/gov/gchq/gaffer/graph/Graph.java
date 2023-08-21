@@ -508,6 +508,8 @@ public final class Graph {
      */
     public static class Builder {
         public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
+        public static final String HOOK_SUFFIX_ERROR_FORMAT_MESSAGE = "%s hook is configured with suffix:%s and %s handler is configured with suffix:%s this causes a cache reading and writing misalignment.";
+        public static final String HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX = "{} handler was supplied, but without a {}, adding {} with suffix:{}";
         private final GraphConfig.Builder configBuilder = new GraphConfig.Builder();
         private final List<byte[]> schemaBytesList = new ArrayList<>();
         private Store store;
@@ -847,7 +849,7 @@ public final class Graph {
 
             updateNamedViewResolverHook(config, hooks);
 
-            updateNamedOpertionResolverHook(config, hooks);
+            updateNamedOperationResolverHook(config, hooks);
 
             updateFunctionAuthoriserHook(config, hooks);
         }
@@ -864,31 +866,31 @@ public final class Graph {
                 final OperationHandler addNamedViewHandler = store.getOperationHandler(AddNamedView.class);
                 String suffix = addNamedViewHandler.getClass().isAssignableFrom(AddNamedViewHandler.class) ? ((AddNamedViewHandler) addNamedViewHandler).getSuffixCacheName() : config.getGraphId();
                 if (!hasHook(hooks, NamedViewResolver.class)) {
-                    LOGGER.warn("AddNamedView hook was supplied, but without a NamedViewResolver, adding NamedViewResolver with suffix:" + suffix);
+                    LOGGER.warn(HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX, AddNamedViewHandler.class.getSimpleName(), NamedViewResolver.class.getSimpleName(), NamedViewResolver.class.getSimpleName(), suffix);
                     hooks.add(0, new NamedViewResolver(suffix));
                 } else {
                     final NamedViewResolver nvrHook = (NamedViewResolver) hooks.stream().filter(gh -> NamedViewResolver.class.isAssignableFrom(gh.getClass())).findAny().get();
                     final String nvrSuffix = nvrHook.getSuffixCacheName();
                     if (!suffix.equals(nvrSuffix)) {
-                        throw new GafferRuntimeException("NamedViewResolver hook is configured with suffix:" + nvrSuffix + " and AddNamedView handler is configured with suffix:" + suffix + " these reading and writing is misaligned.");
+                        throw new GafferRuntimeException(String.format(HOOK_SUFFIX_ERROR_FORMAT_MESSAGE, NamedViewResolver.class.getSimpleName(), nvrSuffix, AddNamedView.class.getSimpleName(), suffix));
                     }
                 }
             }
         }
 
-        private void updateNamedOpertionResolverHook(final GraphConfig config, final List<GraphHook> hooks) {
+        private void updateNamedOperationResolverHook(final GraphConfig config, final List<GraphHook> hooks) {
             if (store.isSupported(AddNamedOperation.class)) {
                 final OperationHandler addNamedOperationHandler = store.getOperationHandler(AddNamedOperation.class);
                 String suffix = addNamedOperationHandler.getClass().isAssignableFrom(AddNamedOperationHandler.class) ? ((AddNamedOperationHandler) addNamedOperationHandler).getSuffixCacheName() : config.getGraphId();
 
                 if (!hasHook(hooks, NamedOperationResolver.class)) {
-                    LOGGER.warn("AddNamedOperation hook was supplied, but without a NamedOperationResolver, adding NamedOperationResolver with suffix:" + config.getGraphId());
+                    LOGGER.warn(HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX, AddNamedOperationHandler.class.getSimpleName(), NamedOperationResolver.class.getSimpleName(), NamedOperationResolver.class.getSimpleName(), suffix);
                     config.getHooks().add(0, new NamedOperationResolver(config.getGraphId()));
                 } else {
                     final NamedOperationResolver nvrHook = (NamedOperationResolver) hooks.stream().filter(gh -> NamedOperationResolver.class.isAssignableFrom(gh.getClass())).findAny().get();
                     final String nvrSuffix = nvrHook.getSuffixCacheName();
                     if (!suffix.equals(nvrSuffix)) {
-                        throw new GafferRuntimeException("NamedOperationResolver hook is configured with suffix:" + nvrSuffix + " and addNamedOperationHandler handler is configured with suffix:" + suffix + " these reading and writing is misaligned.");
+                        throw new GafferRuntimeException(String.format(HOOK_SUFFIX_ERROR_FORMAT_MESSAGE, NamedOperationResolver.class.getSimpleName(), nvrSuffix, AddNamedOperationHandler.class.getSimpleName(), suffix));
                     }
                 }
             }
