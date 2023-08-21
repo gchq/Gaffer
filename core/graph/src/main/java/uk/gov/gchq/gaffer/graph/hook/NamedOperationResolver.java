@@ -52,8 +52,8 @@ public class NamedOperationResolver implements GraphHook {
         this.cache = cache;
     }
 
-    public String getCacheNameSuffix() {
-        return cache.getCacheName().substring(NamedOperationCache.CACHE_SERVICE_NAME_PREFIX.length() + 1);
+    public String getSuffixCacheName() {
+       return cache.getSuffixCacheName();
     }
 
     @Override

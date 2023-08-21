@@ -868,7 +868,7 @@ public final class Graph {
                     hooks.add(0, new NamedViewResolver(suffix));
                 } else {
                     final NamedViewResolver nvrHook = (NamedViewResolver) hooks.stream().filter(gh -> NamedViewResolver.class.isAssignableFrom(gh.getClass())).findAny().get();
-                    final String nvrSuffix = nvrHook.getCacheNameSuffix();
+                    final String nvrSuffix = nvrHook.getSuffixCacheName();
                     if (!suffix.equals(nvrSuffix)) {
                         throw new GafferRuntimeException("NamedViewResolver hook is configured with suffix:" + nvrSuffix + " and AddNamedView handler is configured with suffix:" + suffix + " these reading and writing is misaligned.");
                     }
@@ -886,7 +886,7 @@ public final class Graph {
                     config.getHooks().add(0, new NamedOperationResolver(config.getGraphId()));
                 } else {
                     final NamedOperationResolver nvrHook = (NamedOperationResolver) hooks.stream().filter(gh -> NamedOperationResolver.class.isAssignableFrom(gh.getClass())).findAny().get();
-                    final String nvrSuffix = nvrHook.getCacheNameSuffix();
+                    final String nvrSuffix = nvrHook.getSuffixCacheName();
                     if (!suffix.equals(nvrSuffix)) {
                         throw new GafferRuntimeException("NamedOperationResolver hook is configured with suffix:" + nvrSuffix + " and addNamedOperationHandler handler is configured with suffix:" + suffix + " these reading and writing is misaligned.");
                     }

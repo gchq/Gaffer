@@ -50,8 +50,8 @@ public class NamedViewResolver implements GraphHook {
         this.cache = cache;
     }
 
-    public String getCacheNameSuffix() {
-        return cache.getCacheName().substring(NamedViewCache.CACHE_SERVICE_NAME_PREFIX.length() + 1);
+    public String getSuffixCacheName() {
+        return cache.getSuffixCacheName();
     }
 
     @Override

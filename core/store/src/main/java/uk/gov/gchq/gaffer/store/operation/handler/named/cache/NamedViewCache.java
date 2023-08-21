@@ -44,7 +44,7 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
     }
 
     public String getSuffixCacheName() {
-        return getSuffixCacheNameWithPrefix(CACHE_SERVICE_NAME_PREFIX);
+        return getSuffixCacheNameWithoutPrefix(CACHE_SERVICE_NAME_PREFIX);
     }
 
     /**

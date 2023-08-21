@@ -52,7 +52,7 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
     }
 
     public String getSuffixCacheName() {
-        return getSuffixCacheNameWithPrefix(CACHE_SERVICE_NAME_PREFIX);
+        return getSuffixCacheNameWithoutPrefix(CACHE_SERVICE_NAME_PREFIX);
     }
 
     /**
