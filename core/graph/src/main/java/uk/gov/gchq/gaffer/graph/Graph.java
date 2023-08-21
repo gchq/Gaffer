@@ -53,6 +53,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -857,12 +858,23 @@ public final class Graph {
                     }
                 }
             }
-            if (store.isSupported(AddNamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
-                LOGGER.warn("AddNamedOperation hook was supplied, but without a NamedOperationResolver, adding NamedOperationResolver with suffix:" + config.getGraphId());
-                config.getHooks().add(0, new NamedOperationResolver(config.getGraphId()));
+            if (store.isSupported(AddNamedOperation.class)) {
+                final OperationHandler addNamedOperationHandler = store.getOperationHandler(AddNamedOperation.class);
+                String suffix = addNamedOperationHandler.getClass().isAssignableFrom(AddNamedOperationHandler.class) ? ((AddNamedOperationHandler) addNamedOperationHandler).getSuffixCacheName() : config.getGraphId();
+
+                if (!hasHook(hooks, NamedOperationResolver.class)) {
+                    LOGGER.warn("AddNamedOperation hook was supplied, but without a NamedOperationResolver, adding NamedOperationResolver with suffix:" + config.getGraphId());
+                    config.getHooks().add(0, new NamedOperationResolver(config.getGraphId()));
+                } else {
+                    final NamedOperationResolver nvrHook = (NamedOperationResolver) hooks.stream().filter(gh -> NamedOperationResolver.class.isAssignableFrom(gh.getClass())).findAny().get();
+                    final String nvrSuffix = nvrHook.getCacheNameSuffix();
+                    if (!suffix.equals(nvrSuffix)) {
+                        throw new GafferRuntimeException("NamedOperationResolver hook is configured with suffix:" + nvrSuffix + " and addNamedOperationHandler handler is configured with suffix:" + suffix + " these reading and writing is misaligned.");
+                    }
+                }
             }
             if (!hasHook(hooks, FunctionAuthoriser.class)) {
-                LOGGER.warn("No FuncitonAuthoriser hook was supplied, adding default hook.");
+                LOGGER.warn("No FunctionAuthoriser hook was supplied, adding default hook.");
                 config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
             }
         }
