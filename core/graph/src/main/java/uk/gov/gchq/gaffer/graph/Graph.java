@@ -797,10 +797,8 @@ public final class Graph {
         }
 
         public Graph build() {
+            //This is where the hook will have suffix different from
             final GraphConfig config = configBuilder.build();
-            if (null == config.getLibrary()) {
-                config.setLibrary(new NoGraphLibrary());
-            }
 
             if (null == config.getGraphId() && null != store) {
                 config.setGraphId(store.getGraphId());
