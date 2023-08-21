@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -51,7 +52,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
@@ -841,9 +843,19 @@ public final class Graph {
 
         private void updateGraphHooks(final GraphConfig config) {
             List<GraphHook> hooks = config.getHooks();
-            if (store.isSupported(AddNamedView.class) && !hasHook(hooks, NamedViewResolver.class)) {
-                LOGGER.warn("AddNamedView hook was supplied, but without a NamedViewResolver, adding NamedViewResolver with suffix:" + config.getGraphId());
-                hooks.add(0, new NamedViewResolver(config.getGraphId()));
+            if (store.isSupported(AddNamedView.class)) {
+                final OperationHandler addNamedViewHandler = store.getOperationHandler(AddNamedView.class);
+                String suffix = addNamedViewHandler.getClass().isAssignableFrom(AddNamedViewHandler.class) ? ((AddNamedViewHandler) addNamedViewHandler).getSuffixCacheName() : config.getGraphId();
+                if (!hasHook(hooks, NamedViewResolver.class)) {
+                    LOGGER.warn("AddNamedView hook was supplied, but without a NamedViewResolver, adding NamedViewResolver with suffix:" + suffix);
+                    hooks.add(0, new NamedViewResolver(suffix));
+                } else {
+                    final NamedViewResolver nvrHook = (NamedViewResolver) hooks.stream().filter(gh -> NamedViewResolver.class.isAssignableFrom(gh.getClass())).findAny().get();
+                    final String nvrSuffix = nvrHook.getCacheNameSuffix();
+                    if (!suffix.equals(nvrSuffix)) {
+                        throw new GafferRuntimeException("NamedViewResolver hook is configured with suffix:" + nvrSuffix + " and AddNamedView handler is configured with suffix:" + suffix + " these reading and writing is misaligned.");
+                    }
+                }
             }
             if (store.isSupported(AddNamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
                 LOGGER.warn("AddNamedOperation hook was supplied, but without a NamedOperationResolver, adding NamedOperationResolver with suffix:" + config.getGraphId());
