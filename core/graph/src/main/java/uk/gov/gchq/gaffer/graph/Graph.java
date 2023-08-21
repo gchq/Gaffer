@@ -369,7 +369,7 @@ public final class Graph {
                     if (!isEmpty(opView.getGlobalElements()) || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {
                         opView = new View.Builder().merge(config.getView()).merge(opView).build();
                     } else { // We have either global edges or entities in
-                             // opView, but not both
+                        // opView, but not both
                         final View originalView = opView;
                         final View partialConfigView = new View.Builder()
                                 .merge(config.getView())
@@ -416,7 +416,7 @@ public final class Graph {
     /**
      * @param operation the class of the operation to check
      * @return a collection of all the compatible {@link Operation}s that could
-     *         be added to an operation chain after the provided operation.
+     * be added to an operation chain after the provided operation.
      */
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
         return store.getNextOperations(operation);
@@ -433,7 +433,7 @@ public final class Graph {
 
     /**
      * Get the Store's original {@link Schema}.
-     *
+     * <p>
      * This is not the same as the {@link Schema} used internally by
      * the {@link Store}. See {@link Store#getOriginalSchema()} and
      * {@link Store#getSchema()} for more details.
@@ -800,6 +800,7 @@ public final class Graph {
             //This is where the hook will have suffix different from
             final GraphConfig config = configBuilder.build();
 
+            //If Builder has no GraphId try and take it from supplied Store.
             if (null == config.getGraphId() && null != store) {
                 config.setGraphId(store.getGraphId());
             }
@@ -841,12 +842,15 @@ public final class Graph {
         private void updateGraphHooks(final GraphConfig config) {
             List<GraphHook> hooks = config.getHooks();
             if (store.isSupported(AddNamedView.class) && !hasHook(hooks, NamedViewResolver.class)) {
+                LOGGER.warn("AddNamedView hook was supplied, but without a NamedViewResolver, adding NamedViewResolver with suffix:" + config.getGraphId());
                 hooks.add(0, new NamedViewResolver(config.getGraphId()));
             }
             if (store.isSupported(AddNamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
+                LOGGER.warn("AddNamedOperation hook was supplied, but without a NamedOperationResolver, adding NamedOperationResolver with suffix:" + config.getGraphId());
                 config.getHooks().add(0, new NamedOperationResolver(config.getGraphId()));
             }
             if (!hasHook(hooks, FunctionAuthoriser.class)) {
+                LOGGER.warn("No FuncitonAuthoriser hook was supplied, adding default hook.");
                 config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
             }
         }
