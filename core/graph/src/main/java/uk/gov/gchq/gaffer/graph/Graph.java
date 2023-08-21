@@ -872,7 +872,7 @@ public final class Graph {
                     final NamedViewResolver nvrHook = (NamedViewResolver) hooks.stream().filter(gh -> NamedViewResolver.class.isAssignableFrom(gh.getClass())).findAny().get();
                     final String nvrSuffix = nvrHook.getSuffixCacheName();
                     if (!suffix.equals(nvrSuffix)) {
-                        throw new GafferRuntimeException(String.format(HOOK_SUFFIX_ERROR_FORMAT_MESSAGE, NamedViewResolver.class.getSimpleName(), nvrSuffix, AddNamedView.class.getSimpleName(), suffix));
+                        throw new GafferRuntimeException(String.format(HOOK_SUFFIX_ERROR_FORMAT_MESSAGE, NamedViewResolver.class.getSimpleName(), nvrSuffix, AddNamedViewHandler.class.getSimpleName(), suffix));
                     }
                 }
             }
