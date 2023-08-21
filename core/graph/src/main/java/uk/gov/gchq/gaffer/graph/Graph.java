@@ -810,13 +810,6 @@ public final class Graph {
 
             updateSchema(config);
 
-            if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
-                // Set Props & Schema if null.
-                final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
-                properties = (null == properties) ? pair.getSecond() : properties;
-                schema = (null == schema) ? pair.getFirst() : schema;
-            }
-
             updateStore(config);
 
             if (null != config.getGraphId()) {
@@ -912,6 +905,12 @@ public final class Graph {
                         .build();
                 addSchema(newSchema);
             }
+
+            if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
+                // Set Schema if null.
+                final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
+                schema = (null == schema) ? pair.getFirst() : schema;
+            }
         }
 
         private void updateStoreProperties(final GraphConfig config) {
@@ -928,6 +927,11 @@ public final class Graph {
                 }
             }
             properties = mergedStoreProperties;
+
+            if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
+                // Set Props if null.
+                properties = (null == properties) ? config.getLibrary().get(config.getGraphId()).getSecond() : properties;
+            }
         }
 
         private void updateStore(final GraphConfig config) {
