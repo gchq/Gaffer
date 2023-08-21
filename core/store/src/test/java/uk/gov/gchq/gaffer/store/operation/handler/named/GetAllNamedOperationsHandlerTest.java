@@ -41,8 +41,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 public class GetAllNamedOperationsHandlerTest {
 
-    public static final String SUFFIXNAMEDOPERATIONCACHENAME = "Suffix";
-    private final NamedOperationCache cache = new NamedOperationCache(SUFFIXNAMEDOPERATIONCACHENAME);
+    private final NamedOperationCache cache = new NamedOperationCache("Suffix");
     private final AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler(cache);
     private final GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler(cache);
     private final Context context = new Context(new User.Builder()

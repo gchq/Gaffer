@@ -810,7 +810,7 @@ public final class Graph {
                 config.setGraphId(store.getGraphId());
             }
 
-            updateStoreProperties(config);
+            updateStoreProperties(config, store);
 
             updateSchema(config);
 
@@ -955,24 +955,34 @@ public final class Graph {
             }
         }
 
-        private void updateStoreProperties(final GraphConfig config) {
-            StoreProperties mergedStoreProperties = null;
+        private void updateStoreProperties(final GraphConfig config, final Store store) {
+            final StoreProperties mergedStoreProperties = new StoreProperties();
+
+            //Add Properties from ParentProperties
             if (null != parentStorePropertiesId) {
-                mergedStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
+                mergedStoreProperties.merge(config.getLibrary().getProperties(parentStorePropertiesId));
             }
 
+            //Add Properties from Builder
             if (null != properties) {
-                if (null == mergedStoreProperties) {
-                    mergedStoreProperties = properties;
-                } else {
-                    mergedStoreProperties.merge(properties);
+                mergedStoreProperties.merge(properties);
+            }
+
+            //Add Properties from Store
+            if (null != store) {
+                final StoreProperties storeProperties = store.getProperties();
+                if (null != storeProperties && mergedStoreProperties.getProperties().isEmpty()) {
+                    mergedStoreProperties.merge(storeProperties);
                 }
             }
-            properties = mergedStoreProperties;
 
-            if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
-                // Set Props if null.
-                properties = (null == properties) ? config.getLibrary().get(config.getGraphId()).getSecond() : properties;
+            // Add Properties from Library
+            final boolean isLibraryPresent = null != config.getLibrary();
+            if (mergedStoreProperties.getProperties().isEmpty() && isLibraryPresent) {
+                final boolean hasLibraryPropertiesForGraphId = config.getLibrary().exists(config.getGraphId());
+                if (hasLibraryPropertiesForGraphId) {
+                    mergedStoreProperties.merge(config.getLibrary().get(config.getGraphId()).getSecond());
+                }
             }
         }
 

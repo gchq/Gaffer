@@ -102,7 +102,6 @@ public abstract class SchemaHidingIT {
         final Store fullStore = createStore(createFullSchema());
         final Graph fullGraph = new Builder()
                 .store(fullStore)
-                .storeProperties(fullStore.getProperties())
                 .build();
 
         final Edge edge1a = new Edge.Builder()
