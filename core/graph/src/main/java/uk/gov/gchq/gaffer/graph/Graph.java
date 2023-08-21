@@ -844,6 +844,22 @@ public final class Graph {
 
         private void updateGraphHooks(final GraphConfig config) {
             List<GraphHook> hooks = config.getHooks();
+
+            updateNamedViewResolverHook(config, hooks);
+
+            updateNamedOpertionResolverHook(config, hooks);
+
+            updateFunctionAuthoriserHook(config, hooks);
+        }
+
+        private void updateFunctionAuthoriserHook(final GraphConfig config, final List<GraphHook> hooks) {
+            if (!hasHook(hooks, FunctionAuthoriser.class)) {
+                LOGGER.warn("No FunctionAuthoriser hook was supplied, adding default hook.");
+                config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
+            }
+        }
+
+        private void updateNamedViewResolverHook(final GraphConfig config, final List<GraphHook> hooks) {
             if (store.isSupported(AddNamedView.class)) {
                 final OperationHandler addNamedViewHandler = store.getOperationHandler(AddNamedView.class);
                 String suffix = addNamedViewHandler.getClass().isAssignableFrom(AddNamedViewHandler.class) ? ((AddNamedViewHandler) addNamedViewHandler).getSuffixCacheName() : config.getGraphId();
@@ -858,6 +874,9 @@ public final class Graph {
                     }
                 }
             }
+        }
+
+        private void updateNamedOpertionResolverHook(final GraphConfig config, final List<GraphHook> hooks) {
             if (store.isSupported(AddNamedOperation.class)) {
                 final OperationHandler addNamedOperationHandler = store.getOperationHandler(AddNamedOperation.class);
                 String suffix = addNamedOperationHandler.getClass().isAssignableFrom(AddNamedOperationHandler.class) ? ((AddNamedOperationHandler) addNamedOperationHandler).getSuffixCacheName() : config.getGraphId();
@@ -872,10 +891,6 @@ public final class Graph {
                         throw new GafferRuntimeException("NamedOperationResolver hook is configured with suffix:" + nvrSuffix + " and addNamedOperationHandler handler is configured with suffix:" + suffix + " these reading and writing is misaligned.");
                     }
                 }
-            }
-            if (!hasHook(hooks, FunctionAuthoriser.class)) {
-                LOGGER.warn("No FunctionAuthoriser hook was supplied, adding default hook.");
-                config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
             }
         }
 
