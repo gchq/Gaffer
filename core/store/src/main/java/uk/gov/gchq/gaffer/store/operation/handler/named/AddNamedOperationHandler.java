@@ -54,7 +54,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
     }
 
     @JsonGetter("suffixNamedOperationCacheName")
-    public String getCacheNameSuffix() {
+    public String getSuffixCacheName() {
         return cache.getSuffixCacheName();
     }
 

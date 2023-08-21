@@ -54,7 +54,7 @@ public class NamedOperationResolver implements GraphHook {
     }
 
     @JsonGetter("suffixNamedOperationCacheName")
-    public String getCacheNameSuffix() {
+    public String getSuffixCacheName() {
        return cache.getSuffixCacheName();
     }
 
