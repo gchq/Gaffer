@@ -37,6 +37,7 @@ public class FederatedStoreCacheSuffixTest {
 
     public static final String ALT_SUFFIX = "AltSuffix";
     public static final String DEFAULT_SUFFIX = "DefaultSuffix";
+    public static final String PRIORITY_SUFFIX = "PrioritySuffix";
     public static final String IGNORE_SUFFIX = "IgnoreSuffix";
 
     @Test
@@ -191,7 +192,7 @@ public class FederatedStoreCacheSuffixTest {
     void shouldNotAllowResolverWithNullSuffixToBeMismatchedWithNamedOperationHandlersServiceNamedOperationSuffix() {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
         properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
-        properties.set(StoreProperties.CACHE_SERVICE_NAMED_OPERATION_SUFFIX, DEFAULT_SUFFIX);
+        properties.set(StoreProperties.CACHE_SERVICE_NAMED_OPERATION_SUFFIX, PRIORITY_SUFFIX);
 
         assertThatExceptionOfType(GafferRuntimeException.class)
                 .isThrownBy(() -> new Graph.Builder()
@@ -205,14 +206,14 @@ public class FederatedStoreCacheSuffixTest {
                         NamedOperationResolver.class.getSimpleName(),
                         null,
                         AddNamedOperationHandler.class.getSimpleName(),
-                        DEFAULT_SUFFIX.toLowerCase(Locale.UK)));
+                        PRIORITY_SUFFIX.toLowerCase(Locale.UK)));
     }
 
     @Test
     void shouldNotAllowResolverWithNullSuffixToBeMismatchedWithNamedViewHandlersServiceNamedViewSuffix() {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
         properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
-        properties.set(StoreProperties.CACHE_SERVICE_NAMED_VIEW_SUFFIX, DEFAULT_SUFFIX);
+        properties.set(StoreProperties.CACHE_SERVICE_NAMED_VIEW_SUFFIX, PRIORITY_SUFFIX);
 
         assertThatExceptionOfType(GafferRuntimeException.class)
                 .isThrownBy(() -> new Graph.Builder()
@@ -226,14 +227,14 @@ public class FederatedStoreCacheSuffixTest {
                         NamedViewResolver.class.getSimpleName(),
                         null,
                         AddNamedViewHandler.class.getSimpleName(),
-                        DEFAULT_SUFFIX.toLowerCase(Locale.UK)));
+                        PRIORITY_SUFFIX.toLowerCase(Locale.UK)));
     }
 
     @Test
     void shouldNotAllowResolverWithDifferentSuffixToBeMismatchedWithNamedOperationHandlersServiceNamedOperationSuffix() {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
         properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
-        properties.set(StoreProperties.CACHE_SERVICE_NAMED_OPERATION_SUFFIX, DEFAULT_SUFFIX);
+        properties.set(StoreProperties.CACHE_SERVICE_NAMED_OPERATION_SUFFIX, PRIORITY_SUFFIX);
 
         assertThatExceptionOfType(GafferRuntimeException.class)
                 .isThrownBy(() -> new Graph.Builder()
@@ -247,14 +248,14 @@ public class FederatedStoreCacheSuffixTest {
                         NamedOperationResolver.class.getSimpleName(),
                         ALT_SUFFIX.toLowerCase(Locale.UK),
                         AddNamedOperationHandler.class.getSimpleName(),
-                        DEFAULT_SUFFIX.toLowerCase(Locale.UK)));
+                        PRIORITY_SUFFIX.toLowerCase(Locale.UK)));
     }
 
     @Test
     void shouldNotAllowResolverWithDifferentSuffixToBeMismatchedWithNamedViewHandlersServiceNamedOperationSuffix() {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
         properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
-        properties.set(StoreProperties.CACHE_SERVICE_NAMED_VIEW_SUFFIX, DEFAULT_SUFFIX);
+        properties.set(StoreProperties.CACHE_SERVICE_NAMED_VIEW_SUFFIX, PRIORITY_SUFFIX);
 
         assertThatExceptionOfType(GafferRuntimeException.class)
                 .isThrownBy(() -> new Graph.Builder()
@@ -268,6 +269,6 @@ public class FederatedStoreCacheSuffixTest {
                         NamedViewResolver.class.getSimpleName(),
                         ALT_SUFFIX.toLowerCase(Locale.UK),
                         AddNamedViewHandler.class.getSimpleName(),
-                        DEFAULT_SUFFIX.toLowerCase(Locale.UK)));
+                        PRIORITY_SUFFIX.toLowerCase(Locale.UK)));
     }
 }
