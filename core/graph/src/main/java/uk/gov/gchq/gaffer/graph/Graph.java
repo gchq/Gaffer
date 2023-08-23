@@ -964,9 +964,7 @@ public final class Graph {
             }
 
             //Add Properties from Builder
-            if (null != properties) {
-                mergedStoreProperties.merge(properties);
-            }
+            mergedStoreProperties.merge(properties);
 
             //Add Properties from Store
             if (null != store) {
