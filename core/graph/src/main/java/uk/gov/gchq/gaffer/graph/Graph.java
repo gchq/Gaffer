@@ -810,7 +810,7 @@ public final class Graph {
                 config.setGraphId(store.getGraphId());
             }
 
-            updateStoreProperties(config, store);
+            updateStoreProperties(config);
 
             updateSchema(config);
 
@@ -885,9 +885,8 @@ public final class Graph {
          * @param operationClass   the Operation requiring cache write
          * @param hookClass        the Hook requiring cache reading
          * @param propertiesSuffix the suffix from property
-         * @param <OP>             the operation
          */
-        private <OP extends Operation> void updateGetFromCacheHookWhenMissingOrHasWrongSuffix(final GraphConfig config, final Class<OP> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String propertiesSuffix) {
+        private void updateGetFromCacheHookWhenMissingOrHasWrongSuffix(final GraphConfig config, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String propertiesSuffix) {
             if (store.isSupported(operationClass)) {
                 //Get Handler
                 final OperationHandler addToCacheHandler = store.getOperationHandler(operationClass);
@@ -984,7 +983,7 @@ public final class Graph {
             }
         }
 
-        private void updateStoreProperties(final GraphConfig config, final Store store) {
+        private void updateStoreProperties(final GraphConfig config) {
             final StoreProperties mergedStoreProperties = new StoreProperties();
 
             //Add Properties from ParentProperties
@@ -994,14 +993,6 @@ public final class Graph {
 
             //Add Properties from Builder
             mergedStoreProperties.merge(properties);
-
-            //Add Properties from Store
-            if (null != store) {
-                final StoreProperties storeProperties = store.getProperties();
-                if (null != storeProperties && mergedStoreProperties.equals(new StoreProperties())) {
-                    mergedStoreProperties.merge(storeProperties);
-                }
-            }
 
             // Add Properties from Library
             final boolean isLibraryPresent = null != config.getLibrary();
