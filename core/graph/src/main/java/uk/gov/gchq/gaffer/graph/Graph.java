@@ -894,24 +894,24 @@ public final class Graph {
          * @param config           the graphConfig containing the Hooks
          * @param operationClass   the Operation requiring cache write
          * @param hookClass        the Hook requiring cache reading
-         * @param propertiesSuffix the suffix from property
+         * @param suffixFromProperties the suffix from property
          */
-        private void updateGetFromCacheHookWhenMissingOrHasWrongSuffix(final GraphConfig config, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String propertiesSuffix) {
+        private void updateGetFromCacheHookWhenMissingOrHasWrongSuffix(final GraphConfig config, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
             if (store.isSupported(operationClass)) {
                 //Get Handler
-                final OperationHandler addToCacheHandler = store.getOperationHandler(operationClass);
+                final OperationHandler<Operation> addToCacheHandler = store.getOperationHandler(operationClass);
                 //If Handler is a AddToCacheHandler
                 final String suffix;
                 if (AddToCacheHandler.class.isAssignableFrom(addToCacheHandler.getClass())) {
                     // get Suffix
-                    suffix = ((AddToCacheHandler) addToCacheHandler).getSuffixCacheName();
+                    suffix = ((AddToCacheHandler<?>) addToCacheHandler).getSuffixCacheName();
                 } else {
                     // otherwise get from properties
-                    LOGGER.warn(String.format(HANDLER_WAS_NOT_EXPECTED_TYPE_ADD_TO_CACHE_HANDLER, operationClass, AddToCacheHandler.class.getSimpleName(), propertiesSuffix));
-                    suffix = propertiesSuffix;
+                    LOGGER.warn(String.format(HANDLER_WAS_NOT_EXPECTED_TYPE_ADD_TO_CACHE_HANDLER, operationClass, AddToCacheHandler.class.getSimpleName(), suffixFromProperties));
+                    suffix = suffixFromProperties;
                 }
-                //Is GetFromCacheHook missing
                 final List<GraphHook> hooks = config.getHooks();
+                //Is GetFromCacheHook missing
                 if (!hasHook(hooks, hookClass)) {
                     //Warn about the mistake and add a resolver
                     LOGGER.warn(HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX, operationClass, hookClass.getSimpleName(), hookClass.getSimpleName(), suffix);
