@@ -53,6 +53,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddToCacheHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -372,7 +373,7 @@ public final class Graph {
                     if (!isEmpty(opView.getGlobalElements()) || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {
                         opView = new View.Builder().merge(config.getView()).merge(opView).build();
                     } else { // We have either global edges or entities in
-                        // opView, but not both
+                             // opView, but not both
                         final View originalView = opView;
                         final View partialConfigView = new View.Builder()
                                 .merge(config.getView())
@@ -419,7 +420,7 @@ public final class Graph {
     /**
      * @param operation the class of the operation to check
      * @return a collection of all the compatible {@link Operation}s that could
-     * be added to an operation chain after the provided operation.
+     *         be added to an operation chain after the provided operation.
      */
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
         return store.getNextOperations(operation);
@@ -436,7 +437,7 @@ public final class Graph {
 
     /**
      * Get the Store's original {@link Schema}.
-     * <p>
+     *
      * This is not the same as the {@link Schema} used internally by
      * the {@link Store}. See {@link Store#getOriginalSchema()} and
      * {@link Store#getSchema()} for more details.
@@ -804,8 +805,10 @@ public final class Graph {
 
         public Graph build() {
             final GraphConfig config = configBuilder.build();
+            if (null == config.getLibrary()) {
+                config.setLibrary(new NoGraphLibrary());
+            }
 
-            //If Builder has no GraphId try and take it from supplied Store.
             if (null == config.getGraphId() && null != store) {
                 config.setGraphId(store.getGraphId());
             }
@@ -813,6 +816,13 @@ public final class Graph {
             updateStoreProperties(config);
 
             updateSchema(config);
+
+            if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
+                // Set Props & Schema if null.
+                final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
+                properties = (null == properties) ? pair.getSecond() : properties;
+                schema = (null == schema) ? pair.getFirst() : schema;
+            }
 
             updateStore(config);
 
@@ -865,7 +875,7 @@ public final class Graph {
                     config,
                     AddNamedView.class,
                     NamedViewResolver.class,
-                    properties.getCacheServiceNamedViewSuffix(config.getGraphId()));
+                    null != properties ? properties.getCacheServiceNamedViewSuffix(config.getGraphId()) : null);
         }
 
         private void updateNamedOperationResolverHook(final GraphConfig config) {
@@ -873,7 +883,7 @@ public final class Graph {
                     config,
                     AddNamedOperation.class,
                     NamedOperationResolver.class,
-                    properties.getCacheServiceNamedOperationSuffix(config.getGraphId()));
+                    null != properties ? properties.getCacheServiceNamedOperationSuffix(config.getGraphId()) : null);
         }
 
         /**
@@ -975,34 +985,21 @@ public final class Graph {
                         .build();
                 addSchema(newSchema);
             }
-
-            if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
-                // Set Schema if null.
-                final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
-                schema = (null == schema) ? pair.getFirst() : schema;
-            }
         }
 
         private void updateStoreProperties(final GraphConfig config) {
-            final StoreProperties mergedStoreProperties = new StoreProperties();
-
-            //Add Properties from ParentProperties
+            StoreProperties mergedStoreProperties = null;
             if (null != parentStorePropertiesId) {
-                mergedStoreProperties.merge(config.getLibrary().getProperties(parentStorePropertiesId));
+                mergedStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
             }
 
-            //Add Properties from Builder
-            mergedStoreProperties.merge(properties);
-
-            // Add Properties from Library
-            final boolean isLibraryPresent = null != config.getLibrary();
-            if (mergedStoreProperties.getProperties().isEmpty() && isLibraryPresent) {
-                final boolean hasLibraryPropertiesForGraphId = config.getLibrary().exists(config.getGraphId());
-                if (hasLibraryPropertiesForGraphId) {
-                    mergedStoreProperties.merge(config.getLibrary().get(config.getGraphId()).getSecond());
+            if (null != properties) {
+                if (null == mergedStoreProperties) {
+                    mergedStoreProperties = properties;
+                } else {
+                    mergedStoreProperties.merge(properties);
                 }
             }
-
             properties = mergedStoreProperties;
         }
 
