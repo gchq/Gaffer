@@ -41,7 +41,7 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
  * A {@link GraphHook} to resolve named operations.
  */
 @JsonPropertyOrder(alphabetic = true)
-public class NamedOperationResolver implements GraphHook {
+public class NamedOperationResolver implements GraphHook, GetFromCacheHook {
     private final NamedOperationCache cache;
 
     @JsonCreator

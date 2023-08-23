@@ -40,7 +40,7 @@ import static java.util.Objects.nonNull;
 /**
  * Operation handler for AddNamedOperation which adds a Named Operation to the cache.
  */
-public class AddNamedOperationHandler implements OperationHandler<AddNamedOperation> {
+public class AddNamedOperationHandler implements OperationHandler<AddNamedOperation>, AddToCacheHandler<AddNamedOperation> {
 
     private final NamedOperationCache cache;
 
