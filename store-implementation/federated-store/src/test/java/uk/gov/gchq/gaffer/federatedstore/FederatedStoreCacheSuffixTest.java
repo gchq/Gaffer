@@ -23,14 +23,18 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
 
 import java.util.Locale;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
 
 public class FederatedStoreCacheSuffixTest {
 
@@ -270,5 +274,39 @@ public class FederatedStoreCacheSuffixTest {
                         ALT_SUFFIX.toLowerCase(Locale.UK),
                         AddNamedViewHandler.class.getSimpleName(),
                         PRIORITY_SUFFIX.toLowerCase(Locale.UK)));
+    }
+
+    @Test
+    void ShouldAddMissingResolvers() throws Exception {
+        final FederatedStoreProperties properties = new FederatedStoreProperties();
+        properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                        .build())
+                .storeProperties(properties)
+                .build();
+
+        assertThat(graph.getGraphHooks().stream()
+                .anyMatch(NamedOperationResolver.class::isAssignableFrom))
+                .withFailMessage(NamedOperationResolver.class.getSimpleName() + " Hook is missing." +
+                        "This should have been detected and added by the Graph Builder")
+                .isTrue();
+
+        assertThat(graph.getGraphHooks().stream()
+                .anyMatch(NamedViewResolver.class::isAssignableFrom))
+                .withFailMessage(NamedViewResolver.class.getSimpleName() + " Hook is missing." +
+                        "This should have been detected and added by the Graph Builder")
+                .isTrue();
+
+        final String missingNamedOp = "missingNamedOp";
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> graph.execute(
+                        new NamedOperation.Builder()
+                                .name(missingNamedOp)
+                                .build(), contextTestUser()))
+                .withFailMessage("missingNamedOp should not have been resolved, exception expected from NamedOperationHandler")
+                .withMessageContaining(String.format(NamedOperationHandler.THE_NAMED_OPERATION_S_WAS_NOT_FOUND, missingNamedOp));
     }
 }

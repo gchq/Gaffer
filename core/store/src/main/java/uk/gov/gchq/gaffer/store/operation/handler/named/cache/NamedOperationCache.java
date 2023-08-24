@@ -125,7 +125,11 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
         }
         final NamedOperationDetail op = super.getFromCache(name);
 
-        return op;
+        if (null == op) {
+            throw new CacheOperationException("No named operation with the name " + name + " exists in the cache:" + cacheName);
+        } else {
+            return op;
+        }
     }
 
     /**

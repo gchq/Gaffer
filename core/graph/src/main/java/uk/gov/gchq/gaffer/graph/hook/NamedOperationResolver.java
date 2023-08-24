@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -42,6 +44,7 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
  */
 @JsonPropertyOrder(alphabetic = true)
 public class NamedOperationResolver implements GraphHook, GetFromCacheHook {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationResolver.class);
     private final NamedOperationCache cache;
 
     @JsonCreator
@@ -55,7 +58,7 @@ public class NamedOperationResolver implements GraphHook, GetFromCacheHook {
 
     @JsonGetter("suffixNamedOperationCacheName")
     public String getSuffixCacheName() {
-       return cache.getSuffixCacheName();
+        return cache.getSuffixCacheName();
     }
 
     @Override
@@ -94,6 +97,8 @@ public class NamedOperationResolver implements GraphHook, GetFromCacheHook {
             namedOpDetail = cache.getNamedOperation(namedOp.getOperationName(), user);
         } catch (final CacheOperationException e) {
             // Unable to find named operation - just return the original named operation
+            // Exception messages are lost so Log them
+            LOGGER.error(e.getMessage());
             return Collections.singletonList(namedOp);
         }
 
