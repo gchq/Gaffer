@@ -89,7 +89,6 @@ public class StoreProperties implements Cloneable {
     public static final String CACHE_SERVICE_NAMED_OPERATION_SUFFIX = "gaffer.cache.service.named.operation.suffix";
     public static final String CACHE_SERVICE_JOB_TRACKER_SUFFIX = "gaffer.cache.service.job.tracker.suffix";
     public static final String CACHE_SERVICE_NAMED_VIEW_SUFFIX = "gaffer.cache.service.named.view.suffix";
-    public static final String CACHE_SERVICE_FEDERATED_STORE_SUFFIX = "gaffer.cache.service.federated.store.suffix";
 
     /**
      * CSV of extra packages to be included in the reflection scanning.
@@ -474,10 +473,6 @@ public class StoreProperties implements Cloneable {
 
     public String getCacheServiceNamedViewSuffix(final String defaultValue) {
         return get(CACHE_SERVICE_NAMED_VIEW_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
-    }
-
-    public String getCacheServiceFederatedStoreSuffix(final String defaultValue) {
-        return get(CACHE_SERVICE_FEDERATED_STORE_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
     }
 
     public Properties getProperties() {

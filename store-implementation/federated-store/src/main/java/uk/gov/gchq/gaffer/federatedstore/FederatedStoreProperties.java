@@ -42,6 +42,7 @@ public class FederatedStoreProperties extends StoreProperties {
     public static final String CACHE_SERVICE_CLASS_DEFAULT = HashMapCacheService.class.getCanonicalName();
     public static final String STORE_CONFIGURED_MERGE_FUNCTIONS = "gaffer.federatedstore.storeConfiguredMergeFunctions";
     public static final String STORE_CONFIGURED_GRAPHIDS = "gaffer.federatedstore.storeConfiguredGraphIds";
+    public static final String CACHE_SERVICE_FEDERATED_STORE_SUFFIX = "gaffer.cache.service.federated.store.suffix";
 
     public FederatedStoreProperties() {
         super(FederatedStore.class);
@@ -99,4 +100,11 @@ public class FederatedStoreProperties extends StoreProperties {
         set(STORE_CONFIGURED_GRAPHIDS, mergeFunctionFile);
     }
 
+    public String getCacheServiceFederatedStoreSuffix(final String defaultValue) {
+        return getCacheServiceFederatedStoreSuffix(this, defaultValue);
+    }
+
+    public static String getCacheServiceFederatedStoreSuffix(final StoreProperties properties, final String defaultValue) {
+        return properties.get(CACHE_SERVICE_FEDERATED_STORE_SUFFIX, properties.getCacheServiceDefaultSuffix(defaultValue));
+    }
 }
