@@ -35,4 +35,14 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <resources>
+      <!-- Filter resources to expand variables -->
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+  </build>
+
 </project>
