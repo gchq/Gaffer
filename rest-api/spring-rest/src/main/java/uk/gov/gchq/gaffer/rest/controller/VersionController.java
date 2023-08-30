@@ -23,9 +23,15 @@ import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import org.springframework.web.bind.annotation.GetMapping;
 
+
 @RestController
 public class VersionController {
 
+    /**
+     * Rest endpoint for getting the Gaffer version of the graph.
+     *
+     * @return Version of the graph
+     */
     @GetMapping(path = "/graph/version")
     @Operation(summary = "Retrieves the version of the Gaffer Graph")
     public String getGafferVersion() {

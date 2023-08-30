@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -36,15 +37,13 @@ class VersionControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    void retrieveAndCheckForValidVersion() throws Exception {
-        // Create mock request to the endpoint
+    void sendRequestAndCheckForValidVersion() throws Exception {
+        // Perform mock request to the endpoint
         RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/graph/version");
-
-        // Run the request
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-        String resultString = result.getResponse().getContentAsString();
 
         // Validate the returned string matches a valid version regex
+        String resultString = result.getResponse().getContentAsString();
         assertTrue(
             resultString.matches("(?!\\.)(\\d+(\\.\\d+)+)(?:[-.][A-Z]+)?(?![\\d.])$"),
             "The response from the endpoint is not a valid version string, output: " + resultString);
