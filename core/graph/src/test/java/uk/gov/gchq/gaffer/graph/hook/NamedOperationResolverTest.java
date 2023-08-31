@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -252,13 +252,14 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
                         .first(new NamedOperation.Builder<>()
                                 .name(opName)
                                 .parameters(paramMap)
                                 .build())
-                        .build(), new Context(user)));
+                        .build(), new Context(user)))
+                .withMessageContaining("Cannot deserialize value of type");
     }
 
     @Test
@@ -292,12 +293,14 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        assertThatIllegalArgumentException().isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
                 .first(new NamedOperation.Builder<>()
                         .name(opName)
                         .parameters(paramMap)
                         .build())
-                .build(), new Context(user)));
+                .build(), new Context(user)))
+                .withMessageContaining("Unexpected parameter name in NamedOperation");
     }
 
     @Test
@@ -330,13 +333,14 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        assertThatIllegalArgumentException()
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
                         .first(new NamedOperation.Builder<>()
                                 .name(opName)
                                 .parameters(paramMap)
                                 .build())
-                        .build(), new Context(user)));
+                        .build(), new Context(user)))
+                .withMessageContaining("Missing parameter param1 with no default");
     }
 
     @SuppressWarnings({"unchecked", "resource", "rawtypes"})
