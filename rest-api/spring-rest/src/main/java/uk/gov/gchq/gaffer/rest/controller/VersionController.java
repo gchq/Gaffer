@@ -17,13 +17,17 @@
 package uk.gov.gchq.gaffer.rest.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.web.bind.annotation.RestController;
 
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import org.springframework.web.bind.annotation.GetMapping;
 
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
+@Tag(name = "version")
 @RestController
 public class VersionController {
 
@@ -32,7 +36,7 @@ public class VersionController {
      *
      * @return Version of the graph
      */
-    @GetMapping(path = "/graph/version")
+    @GetMapping(path = "/graph/version", produces = TEXT_PLAIN_VALUE)
     @Operation(summary = "Retrieves the version of the Gaffer Graph")
     public String getGafferVersion() {
         // Return the preloaded version string from the common-rest library
