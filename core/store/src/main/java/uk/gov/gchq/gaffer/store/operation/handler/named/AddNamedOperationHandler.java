@@ -110,19 +110,10 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
         }
     }
 
-    private static void extracted(final OperationChain<?> operationChain, final String operationName) {
+    private static void extracted(final OperationChain<?> operationChain, final String operationName) throws OperationException {
         for (final Operation op : operationChain.getOperations()) {
-            if (op instanceof NamedOperation) {
-                NamedOperation innerNamedOp = (NamedOperation) op;
-                innerNamedOp.getOperationName();
-                if (operationName.equals(innerNamedOp)) {
-                    new OperationException("Self referencing namedOperations would cause infinitive loop. operationName:" + operationName);
-                } else {
-                    // does NamedOp resolver to another Named Op.
-                }
-
-            } else {
-
+            if (op instanceof NamedOperation && operationName.equals(((NamedOperation) op).getOperationName())) {
+                throw new OperationException("Self referencing namedOperations would cause infinitive loop. operationName:" + operationName);
             }
         }
     }

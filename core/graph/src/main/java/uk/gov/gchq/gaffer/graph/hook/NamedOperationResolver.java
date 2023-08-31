@@ -52,25 +52,34 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
 @JsonPropertyOrder(alphabetic = true)
 public class NamedOperationResolver implements GraphHook, GetFromCacheHook {
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationResolver.class);
+    public static final int TIMEOUT_DEFAULT = 1;
+    public static final TimeUnit TIME_UNIT_DEFAULT = TimeUnit.MINUTES;
     private final NamedOperationCache cache;
-    private int timeout = 1;
-    private TimeUnit timeUnit = TimeUnit.MINUTES;
+    private final int timeout;
+    private final TimeUnit timeUnit;
 
     public NamedOperationResolver(final String suffixNamedOperationCacheName) {
-        this(suffixNamedOperationCacheName, 1, TimeUnit.MINUTES);
+        this(suffixNamedOperationCacheName, TIMEOUT_DEFAULT, TIME_UNIT_DEFAULT);
     }
 
     @JsonCreator
     public NamedOperationResolver(@JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName,
                                   @JsonProperty("timeout") final int timeout,
                                   @JsonProperty("timeUnit") final TimeUnit timeUnit) {
-        this(new NamedOperationCache(suffixNamedOperationCacheName));
-        this.timeout = timeout;
-        this.timeUnit = timeUnit;
+        this(new NamedOperationCache(suffixNamedOperationCacheName), timeout, timeUnit);
+
     }
 
     public NamedOperationResolver(final NamedOperationCache cache) {
+        this(cache, TIMEOUT_DEFAULT, TIME_UNIT_DEFAULT);
+    }
+
+    public NamedOperationResolver(final NamedOperationCache cache,
+                                  final int timeout,
+                                  final TimeUnit timeUnit) {
         this.cache = cache;
+        this.timeout = timeout;
+        this.timeUnit = timeUnit;
     }
 
     @JsonGetter("suffixNamedOperationCacheName")
@@ -78,10 +87,12 @@ public class NamedOperationResolver implements GraphHook, GetFromCacheHook {
         return cache.getSuffixCacheName();
     }
 
+    @JsonGetter("timeout")
     public int getTimeout() {
         return timeout;
     }
 
+    @JsonGetter("timeUnit")
     public TimeUnit getTimeUnit() {
         return timeUnit;
     }
@@ -92,16 +103,16 @@ public class NamedOperationResolver implements GraphHook, GetFromCacheHook {
         final ExecutorService executor = Executors.newSingleThreadExecutor();
         final Future<?> future = executor.submit(new NamedOperationResolverTask(opChain, context.getUser(), cache));
 
-        final String s = timeout + timeUnit.name();
+        final String time = timeout + timeUnit.name();
         try {
-            LOGGER.info("Starting ResolverTask with timeout: " + s);
+            LOGGER.info("Starting ResolverTask with timeout: " + time);
             future.get(timeout, timeUnit);
             LOGGER.info("finished ResolverTask");
-        } catch (TimeoutException e) {
-            throw new GafferRuntimeException("ResolverTask timed out after: " + s);
-        } catch (InterruptedException e) {
-            throw new GafferRuntimeException("Future interrupted out");
-        } catch (ExecutionException e) {
+        } catch (final TimeoutException e) {
+            throw new GafferRuntimeException("ResolverTask timed out after: " + time, e);
+        } catch (final InterruptedException e) {
+            throw new GafferRuntimeException("Future interrupted out", e);
+        } catch (final ExecutionException e) {
             throw new GafferRuntimeException("ResolverTask failed due to: " + e.getMessage(), e);
         } finally {
             executor.shutdownNow();

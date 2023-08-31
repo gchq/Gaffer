@@ -10,9 +10,9 @@ import uk.gov.gchq.gaffer.user.User;
 public class NamedOperationResolverTask implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationResolverTask.class);
 
-    private Operations<?> operations;
-    private User user;
-    private NamedOperationCache cache;
+    private final Operations<?> operations;
+    private final User user;
+    private final NamedOperationCache cache;
 
     public NamedOperationResolverTask(final Operations<?> operations, final User user, final NamedOperationCache cache) {
         this.operations = operations;
@@ -23,7 +23,7 @@ public class NamedOperationResolverTask implements Runnable {
     @Override
     public void run() {
         NamedOperationResolver.resolveNamedOperations(operations, user, cache);
-        if (Thread.interrupted()){
+        if (Thread.interrupted()) {
             LOGGER.error("resolving named operations is interrupted, exiting");
         }
     }
