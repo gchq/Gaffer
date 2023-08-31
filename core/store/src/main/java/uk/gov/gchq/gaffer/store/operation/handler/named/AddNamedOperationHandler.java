@@ -97,11 +97,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
     }
 
     private void validate(final OperationChain<?> operationChain, final NamedOperationDetail namedOperationDetail) throws OperationException {
-        for (final Operation op : operationChain.getOperations()) {
-            if (op instanceof NamedOperation) {
-                throw new OperationException("NamedOperations can not be nested within NamedOperations");
-            }
-        }
+        extracted(operationChain, namedOperationDetail.getOperationName());
 
         if (nonNull(namedOperationDetail.getParameters())) {
             final String operationString = namedOperationDetail.getOperations();
@@ -110,6 +106,23 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
                 if (!operationString.contains(varName)) {
                     throw new OperationException(String.format("Parameter specified in NamedOperation doesn't occur in OperationChain string for %s", varName));
                 }
+            }
+        }
+    }
+
+    private static void extracted(final OperationChain<?> operationChain, final String operationName) {
+        for (final Operation op : operationChain.getOperations()) {
+            if (op instanceof NamedOperation) {
+                NamedOperation innerNamedOp = (NamedOperation) op;
+                innerNamedOp.getOperationName();
+                if (operationName.equals(innerNamedOp)) {
+                    new OperationException("Self referencing namedOperations would cause infinitive loop. operationName:" + operationName);
+                } else {
+                    // does NamedOp resolver to another Named Op.
+                }
+
+            } else {
+
             }
         }
     }

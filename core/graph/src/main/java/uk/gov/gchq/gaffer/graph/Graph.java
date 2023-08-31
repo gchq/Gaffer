@@ -895,6 +895,8 @@ public final class Graph {
          * @param operationClass   the Operation requiring cache write
          * @param hookClass        the Hook requiring cache reading
          * @param suffixFromProperties the suffix from property
+         * @see NamedOperationResolver#NamedOperationResolver(String)
+         * @see NamedViewResolver#NamedViewResolver(String)
          */
         private void updateGetFromCacheHookWhenMissingOrHasWrongSuffix(final GraphConfig config, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
             if (store.isSupported(operationClass)) {

@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
@@ -44,7 +45,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -252,7 +255,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        assertThatExceptionOfType(IllegalArgumentException.class)
+        assertThatExceptionOfType(GafferRuntimeException.class)
                 .isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
                         .first(new NamedOperation.Builder<>()
                                 .name(opName)
@@ -293,7 +296,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        assertThatExceptionOfType(IllegalArgumentException.class)
+        assertThatExceptionOfType(GafferRuntimeException.class)
                 .isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
                 .first(new NamedOperation.Builder<>()
                         .name(opName)
@@ -333,7 +336,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        assertThatExceptionOfType(IllegalArgumentException.class)
+        assertThatExceptionOfType(GafferRuntimeException.class)
                 .isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
                         .first(new NamedOperation.Builder<>()
                                 .name(opName)

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import com.google.common.collect.Maps;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,7 @@ import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCollection;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -122,10 +124,16 @@ public class AddNamedOperationHandlerTest {
 
     @SuppressWarnings({"rawtypes"})
     @Test
-    public void shouldNotAllowForNonRecursiveNamedOperationsToBeNested() throws OperationException {
+    public void shouldAllowForRecursiveNamedOperationsToBeNested() throws OperationException {
         final OperationChain<?> child = new OperationChain.Builder().first(new AddElements()).build();
         addNamedOperation.setOperationChain(child);
         addNamedOperation.setOperationName("child");
+
+        final NamedOperationCache recursive = new NamedOperationCache("Recursive");
+
+        assertThatCollection(recursive.getAllKeys()).isEmpty();
+
+        handler = new AddNamedOperationHandler(recursive);
         handler.doOperation(addNamedOperation, context, store);
 
         final OperationChain<?> parent = new OperationChain.Builder()
@@ -136,7 +144,7 @@ public class AddNamedOperationHandlerTest {
         addNamedOperation.setOperationChain(parent);
         addNamedOperation.setOperationName("parent");
 
-        assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(addNamedOperation, context, store));
+        handler.doOperation(addNamedOperation, context, store);
     }
 
     @Test
