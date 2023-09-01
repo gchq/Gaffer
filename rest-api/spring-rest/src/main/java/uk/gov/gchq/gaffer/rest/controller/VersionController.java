@@ -19,11 +19,10 @@ package uk.gov.gchq.gaffer.rest.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import uk.gov.gchq.gaffer.rest.SystemProperty;
-
-import org.springframework.web.bind.annotation.GetMapping;
 
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
