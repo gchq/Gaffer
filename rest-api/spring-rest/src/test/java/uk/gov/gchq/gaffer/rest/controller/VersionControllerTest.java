@@ -46,7 +46,6 @@ class VersionControllerTest {
 
         // Validate the returned string matches a valid version regex
         String resultString = result.getResponse().getContentAsString();
-        //System.out.println(result.getResponse().toString());
         assertTrue(
             resultString.matches("(?!\\.)(\\d+(\\.\\d+)+)(?:[-.][A-Z]+)?(?![\\d.])$"),
             "The response from the endpoint is not a valid version string, output: " + resultString);
