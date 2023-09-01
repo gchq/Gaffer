@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = VersionController.class)
@@ -38,11 +39,14 @@ class VersionControllerTest {
     @Test
     void sendRequestAndCheckForValidVersion() throws Exception {
         // Perform mock request to the endpoint
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/graph/version");
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+            .get("/graph/version")
+            .accept(TEXT_PLAIN_VALUE);
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
         // Validate the returned string matches a valid version regex
         String resultString = result.getResponse().getContentAsString();
+        //System.out.println(result.getResponse().toString());
         assertTrue(
             resultString.matches("(?!\\.)(\\d+(\\.\\d+)+)(?:[-.][A-Z]+)?(?![\\d.])$"),
             "The response from the endpoint is not a valid version string, output: " + resultString);
