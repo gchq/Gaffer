@@ -153,6 +153,20 @@ public interface IGraphConfigurationServiceV2 {
     Response getObjectGenerators();
 
     @GET
+    @Path("/storeType")
+    @Produces(TEXT_PLAIN)
+    @ApiOperation(value = "Gets the store type",
+            notes = "Returns the store type",
+            response = String.class,
+            produces = TEXT_PLAIN,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
+    Response getStoreType();
+
+    @GET
     @Path("/storeTraits")
     @ApiOperation(value = "Gets all supported store traits",
             notes = "Returns a list of traits that the current store can support, " +

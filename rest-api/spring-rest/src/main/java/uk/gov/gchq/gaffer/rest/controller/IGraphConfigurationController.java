@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.rest.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import org.apache.hadoop.yarn.webapp.hamlet.Hamlet.TEXTAREA;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -123,6 +125,16 @@ public interface IGraphConfigurationController {
             summary = "Gets the serialised fields and their classes for a given class"
     )
     Map<String, String> getSerialisedFieldClasses(final String className);
+
+       @RequestMapping(
+            path = "/storeType",
+            method = GET,
+            produces = TEXT_PLAIN_VALUE
+    )
+    @Operation(
+            summary = "Gets the store type"
+    )
+    String getStoreType(); 
 
     @RequestMapping(
             path = "/storeTraits",
