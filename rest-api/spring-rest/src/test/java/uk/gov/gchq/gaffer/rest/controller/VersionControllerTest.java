@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 @ExtendWith(SpringExtension.class)
@@ -46,9 +46,6 @@ class VersionControllerTest {
 
         // Validate the returned string matches a valid version regex
         String resultString = result.getResponse().getContentAsString();
-        assertTrue(
-            resultString.matches("(?!\\.)(\\d+(\\.\\d+)+)(?:[-.][A-Z]+)?(?![\\d.])$"),
-            "The response from the endpoint is not a valid version string, output: " + resultString);
-
+        assertThat(resultString).matches("(?!\\.)(\\d+(\\.\\d+)+)(?:[-.][A-Z]+)?(?![\\d.])$");
     }
 }

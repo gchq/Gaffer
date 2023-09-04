@@ -24,9 +24,7 @@ import org.junit.jupiter.api.Test;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class VersionServiceV2Test extends JerseyTest {
 
@@ -41,14 +39,12 @@ class VersionServiceV2Test extends JerseyTest {
         Response response = target("/graph/version").request().get();
 
         // Validate the response
-        assertEquals(200, response.getStatus(), "Should return OK status 200");
-        assertNotNull(response.getEntity().toString(), "Should return a version string");
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getEntity().toString()).isNotNull();
 
         // Test the version is correct
         String responseString = response.readEntity(String.class);
-        assertTrue(
-            responseString.matches("(?!\\.)(\\d+(\\.\\d+)+)(?:[-.][A-Z]+)?(?![\\d.])$"),
-            "The response from the endpoint is not a valid version string, output: " + responseString);
+        assertThat(responseString).matches("(?!\\.)(\\d+(\\.\\d+)+)(?:[-.][A-Z]+)?(?![\\d.])$");
     }
 
 
