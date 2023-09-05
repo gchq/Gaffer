@@ -29,6 +29,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
+import java.io.InputStream;
+import java.util.Properties;
+
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = VersionController.class)
 class VersionControllerTest {
@@ -38,6 +41,11 @@ class VersionControllerTest {
 
     @Test
     void sendRequestAndCheckForValidVersion() throws Exception {
+        // Read the version properties file test resource to compare the endpoint returned one to
+        InputStream fileStream = VersionControllerTest.class.getClassLoader().getResourceAsStream("version.properties");
+        Properties versionProps = new Properties();
+        versionProps.load(fileStream);
+
         // Perform mock request to the endpoint
         RequestBuilder requestBuilder = MockMvcRequestBuilders
             .get("/graph/version")
@@ -47,8 +55,10 @@ class VersionControllerTest {
         // Ensure OK response
         assertThat(result.getResponse().getStatus()).isEqualTo(200);
 
-        // Validate the returned string matches a valid version regex
+        // Validate the returned string matches a valid version regex and test resource
         String resultString = result.getResponse().getContentAsString();
-        assertThat(resultString).matches("(?!\\.)(\\d+(\\.\\d+)+)(?:[-.][A-Z]+)?(?![\\d.])$");
+        assertThat(resultString)
+            .matches("(?!\\.)(\\d+(\\.\\d+)+)(?:[-.][A-Z]+)?(?![\\d.])$")
+            .isEqualTo(versionProps.getProperty("gaffer.version"));
     }
 }

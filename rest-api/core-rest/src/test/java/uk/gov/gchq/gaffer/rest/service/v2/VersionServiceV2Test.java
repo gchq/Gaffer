@@ -26,6 +26,10 @@ import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 class VersionServiceV2Test extends JerseyTest {
 
     @Override
@@ -34,7 +38,12 @@ class VersionServiceV2Test extends JerseyTest {
     }
 
     @Test
-    void sendRequestAndCheckForValidVersion() {
+    void sendRequestAndCheckForValidVersion() throws IOException {
+        // Read the version properties file test resource to compare the endpoint returned one to
+        InputStream fileStream = VersionServiceV2Test.class.getClassLoader().getResourceAsStream("version.properties");
+        Properties versionProps = new Properties();
+        versionProps.load(fileStream);
+
         // Send response to the endpoint
         Response response = target("/graph/version").request().get();
 
@@ -42,9 +51,11 @@ class VersionServiceV2Test extends JerseyTest {
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getEntity().toString()).isNotNull();
 
-        // Test the version is correct
+        // Test the version is correct format and matches the test resource
         String responseString = response.readEntity(String.class);
-        assertThat(responseString).matches("(?!\\.)(\\d+(\\.\\d+)+)(?:[-.][A-Z]+)?(?![\\d.])$");
+        assertThat(responseString)
+            .matches("(?!\\.)(\\d+(\\.\\d+)+)(?:[-.][A-Z]+)?(?![\\d.])$")
+            .isEqualTo(versionProps.getProperty("gaffer.version"));
     }
 
 
