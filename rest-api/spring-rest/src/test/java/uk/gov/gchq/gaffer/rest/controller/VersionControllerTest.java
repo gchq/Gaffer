@@ -44,6 +44,9 @@ class VersionControllerTest {
             .accept(TEXT_PLAIN_VALUE);
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
+        // Ensure OK response
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+
         // Validate the returned string matches a valid version regex
         String resultString = result.getResponse().getContentAsString();
         assertThat(resultString).matches("(?!\\.)(\\d+(\\.\\d+)+)(?:[-.][A-Z]+)?(?![\\d.])$");
