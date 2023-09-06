@@ -242,7 +242,7 @@ public class GraphConfigurationServiceV2Test {
             assertTrue(e.getMessage().contains("Class name was not recognised:"));
         }
     }
-    
+
     @Test
     public void shouldReturnStoreType() {
         // When
