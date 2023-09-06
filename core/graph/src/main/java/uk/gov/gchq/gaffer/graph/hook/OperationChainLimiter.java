@@ -53,12 +53,13 @@ public class OperationChainLimiter implements GraphHook {
     private final ScoreOperationChainHandler scorer;
 
     @JsonCreator
-    public OperationChainLimiter(@JsonProperty("namedOperationCacheNameSuffix") final String cacheServiceNameSuffix) {
+    public OperationChainLimiter(@JsonProperty("suffixNamedOperationCacheName") final String cacheServiceNameSuffix) {
         scorer = new ScoreOperationChainHandler(cacheServiceNameSuffix);
     }
 
-    public String getNamedOperationCacheNameSuffix() {
-        return scorer.getNamedOperationCacheNameSuffix();
+    @JsonGetter("suffixNamedOperationCacheName")
+    public String getSuffixNamedOperationCacheName() {
+        return scorer.getSuffixNamedOperationCacheName();
     }
 
     /**
