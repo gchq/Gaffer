@@ -133,7 +133,7 @@ public interface IGraphConfigurationController {
     @Operation(
             summary = "Gets the store type"
     )
-    String getStoreType(); 
+    String getStoreType();
 
     @RequestMapping(
             path = "/storeTraits",
