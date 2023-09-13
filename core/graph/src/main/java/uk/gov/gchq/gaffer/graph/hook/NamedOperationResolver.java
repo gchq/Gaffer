@@ -50,7 +50,7 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
  * A {@link GraphHook} to resolve named operations.
  */
 @JsonPropertyOrder(alphabetic = true)
-public class NamedOperationResolver implements GraphHook, GetFromCacheHook {
+public class NamedOperationResolver implements GetFromCacheHook {
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationResolver.class);
     public static final int TIMEOUT_DEFAULT = 1;
     public static final TimeUnit TIME_UNIT_DEFAULT = TimeUnit.MINUTES;

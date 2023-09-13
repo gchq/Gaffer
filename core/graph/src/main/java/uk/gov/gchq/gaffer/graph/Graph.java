@@ -373,7 +373,7 @@ public final class Graph {
                     if (!isEmpty(opView.getGlobalElements()) || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {
                         opView = new View.Builder().merge(config.getView()).merge(opView).build();
                     } else { // We have either global edges or entities in
-                             // opView, but not both
+                        // opView, but not both
                         final View originalView = opView;
                         final View partialConfigView = new View.Builder()
                                 .merge(config.getView())
@@ -420,7 +420,7 @@ public final class Graph {
     /**
      * @param operation the class of the operation to check
      * @return a collection of all the compatible {@link Operation}s that could
-     *         be added to an operation chain after the provided operation.
+     * be added to an operation chain after the provided operation.
      */
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
         return store.getNextOperations(operation);
@@ -437,7 +437,7 @@ public final class Graph {
 
     /**
      * Get the Store's original {@link Schema}.
-     *
+     * <p>
      * This is not the same as the {@link Schema} used internally by
      * the {@link Store}. See {@link Store#getOriginalSchema()} and
      * {@link Store#getSchema()} for more details.
@@ -510,7 +510,7 @@ public final class Graph {
     public static class Builder {
         public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
         public static final String HOOK_SUFFIX_ERROR_FORMAT_MESSAGE = "%s hook is configured with suffix:%s and %s handler is configured with suffix:%s this causes a cache reading and writing misalignment.";
-        public static final String HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX = "handler was supplied for Operation {}, but without a {}, adding {} with suffix:{}";
+        public static final String HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX = "For GraphID:{} a handler was supplied for Operation {}, but without a {}, adding {} with suffix:{}";
         public static final String HANDLER_WAS_NOT_EXPECTED_TYPE_ADD_TO_CACHE_HANDLER = "Handler for:%s was not expected type:%s cant get suffixCache using value from property:%s";
         private final GraphConfig.Builder configBuilder = new GraphConfig.Builder();
         private final List<byte[]> schemaBytesList = new ArrayList<>();
@@ -865,7 +865,7 @@ public final class Graph {
         private void updateFunctionAuthoriserHook(final GraphConfig config) {
             final List<GraphHook> hooks = config.getHooks();
             if (!hasHook(hooks, FunctionAuthoriser.class)) {
-                LOGGER.warn("No FunctionAuthoriser hook was supplied, adding default hook.");
+                LOGGER.info("No FunctionAuthoriser hook was supplied, adding default hook.");
                 hooks.add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
             }
         }
@@ -891,9 +891,9 @@ public final class Graph {
          * a Handler which Adds to the cache and ResolverHook which Gets from the cache.
          * If the suffix is mismatched then writing and reading to cache will not behave correctly.
          *
-         * @param config           the graphConfig containing the Hooks
-         * @param operationClass   the Operation requiring cache write
-         * @param hookClass        the Hook requiring cache reading
+         * @param config               the graphConfig containing the Hooks
+         * @param operationClass       the Operation requiring cache write
+         * @param hookClass            the Hook requiring cache reading
          * @param suffixFromProperties the suffix from property
          * @see NamedOperationResolver#NamedOperationResolver(String)
          * @see NamedViewResolver#NamedViewResolver(String)
@@ -915,8 +915,8 @@ public final class Graph {
                 final List<GraphHook> hooks = config.getHooks();
                 //Is GetFromCacheHook missing
                 if (!hasHook(hooks, hookClass)) {
-                    //Warn about the mistake and add a resolver
-                    LOGGER.warn(HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX, operationClass, hookClass.getSimpleName(), hookClass.getSimpleName(), suffix);
+                    //provide info about the not having required.
+                    LOGGER.info(HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX, config.getGraphId(), operationClass, hookClass.getSimpleName(), hookClass.getSimpleName(), suffix);
                     try {
                         hooks.add(0, hookClass.getDeclaredConstructor(String.class).newInstance(suffix));
                     } catch (final Exception e) {

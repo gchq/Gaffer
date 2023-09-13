@@ -39,7 +39,7 @@ import java.util.Map;
  * A {@link GraphHook} to resolve {@link NamedView}s.
  */
 @JsonPropertyOrder(alphabetic = true)
-public class NamedViewResolver implements GraphHook, GetFromCacheHook {
+public class NamedViewResolver implements GetFromCacheHook {
     private final NamedViewCache cache;
 
     @JsonCreator
