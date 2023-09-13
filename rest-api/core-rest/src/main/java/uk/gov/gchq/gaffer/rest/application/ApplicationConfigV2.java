@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.rest.service.v2.JobServiceV2;
 import uk.gov.gchq.gaffer.rest.service.v2.OperationServiceV2;
 import uk.gov.gchq.gaffer.rest.service.v2.PropertiesServiceV2;
 import uk.gov.gchq.gaffer.rest.service.v2.StatusServiceV2;
+import uk.gov.gchq.gaffer.rest.service.v2.VersionServiceV2;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExampleBinder;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesServiceV2;
 
@@ -72,6 +73,7 @@ public class ApplicationConfigV2 extends ApplicationConfig {
         resources.add(JobServiceV2.class);
         resources.add(ExamplesServiceV2.class);
         resources.add(PropertiesServiceV2.class);
+        resources.add(VersionServiceV2.class);
     }
 
 }
