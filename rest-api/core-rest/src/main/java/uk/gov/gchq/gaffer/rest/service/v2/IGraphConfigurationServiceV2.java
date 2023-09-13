@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,6 +151,20 @@ public interface IGraphConfigurationServiceV2 {
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getObjectGenerators();
+
+    @GET
+    @Path("/storeType")
+    @Produces(TEXT_PLAIN)
+    @ApiOperation(value = "Gets the store type",
+            notes = "Returns the store type",
+            response = String.class,
+            produces = TEXT_PLAIN,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
+    Response getStoreType();
 
     @GET
     @Path("/storeTraits")

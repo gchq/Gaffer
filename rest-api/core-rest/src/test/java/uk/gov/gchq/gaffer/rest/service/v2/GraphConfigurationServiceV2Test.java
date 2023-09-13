@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
@@ -106,7 +107,7 @@ public class GraphConfigurationServiceV2Test {
                 .build());
         lenient().doReturn(traits).when(graph).execute(any(GetTraits.class), any(Context.class));
 
-        final StoreProperties props = new StoreProperties();
+        final StoreProperties props = new MapStoreProperties();
         lenient().when(store.getProperties()).thenReturn(props);
 
         final Set<Class<? extends Operation>> operations = new HashSet<>();
@@ -240,6 +241,17 @@ public class GraphConfigurationServiceV2Test {
             assertNotNull(e.getMessage());
             assertTrue(e.getMessage().contains("Class name was not recognised:"));
         }
+    }
+
+    @Test
+    public void shouldReturnStoreType() {
+        // When
+        final int status = service.getStoreType().getStatus();
+        final String storeType = service.getStoreType().getEntity().toString();
+
+        // Then
+        assertEquals(200, status);
+        assertEquals("uk.gov.gchq.gaffer.mapstore.MapStore", storeType);
     }
 
     @Test
