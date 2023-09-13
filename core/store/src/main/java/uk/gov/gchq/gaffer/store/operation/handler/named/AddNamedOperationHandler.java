@@ -41,15 +41,23 @@ import static java.util.Objects.nonNull;
  */
 public class AddNamedOperationHandler implements AddToCacheHandler<AddNamedOperation> {
 
+    public static final Boolean DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED = false;
     private final NamedOperationCache cache;
+    private final boolean isNestedNamedOperationsAllowed;
 
     @JsonCreator
-    public AddNamedOperationHandler(@JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName) {
-        this(new NamedOperationCache(suffixNamedOperationCacheName));
+    public AddNamedOperationHandler(@JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName, @JsonProperty("isNestedNamedOperationsAllowed") final Boolean isNestedNamedOperationsAllowed) {
+        this(new NamedOperationCache(suffixNamedOperationCacheName), isNestedNamedOperationsAllowed);
     }
 
-    public AddNamedOperationHandler(final NamedOperationCache cache) {
+    public AddNamedOperationHandler(final NamedOperationCache cache, final Boolean isNestedNamedOperationsAllowed) {
         this.cache = cache;
+        this.isNestedNamedOperationsAllowed = nonNull(isNestedNamedOperationsAllowed) && isNestedNamedOperationsAllowed;
+    }
+
+    @JsonGetter("isNestedNamedOperationsAllowed")
+    public boolean isNestedNamedOperationsAllowed() {
+        return isNestedNamedOperationsAllowed;
     }
 
     @JsonGetter("suffixNamedOperationCacheName")
@@ -111,8 +119,12 @@ public class AddNamedOperationHandler implements AddToCacheHandler<AddNamedOpera
 
     private static void examineSelfReferencingNamedOperation(final OperationChain<?> operationChain, final String operationName) throws OperationException {
         for (final Operation op : operationChain.getOperations()) {
-            if (op instanceof NamedOperation && operationName.equals(((NamedOperation) op).getOperationName())) {
-                throw new OperationException("Self referencing namedOperations would cause infinitive loop. operationName:" + operationName);
+            if (op instanceof NamedOperation) {
+                if (DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED) {
+                    throw new OperationException("NamedOperations can not be nested within NamedOperations");
+                } else if (operationName.equals(((NamedOperation) op).getOperationName())) {
+                    throw new OperationException("Self referencing namedOperations would cause infinitive loop. operationName:" + operationName);
+                }
             }
         }
     }

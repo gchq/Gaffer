@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
@@ -46,6 +47,9 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+
+import static java.lang.Boolean.parseBoolean;
+import static java.util.Objects.nonNull;
 
 /**
  * A {@code StoreProperties} contains specific configuration information for the store, such as database
@@ -96,6 +100,7 @@ public class StoreProperties implements Cloneable {
     public static final String REFLECTION_PACKAGES = "gaffer.store.reflection.packages";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
+    public static final String GAFFER_NAMED_OPERATION_NESTED = "gaffer.named.operation.nested";
 
     private Properties props = new Properties();
 
@@ -428,7 +433,7 @@ public class StoreProperties implements Cloneable {
 
     public Boolean getStrictJson() {
         final String strictJson = get(STRICT_JSON);
-        return null == strictJson ? null : Boolean.parseBoolean(strictJson);
+        return null == strictJson ? null : parseBoolean(strictJson);
     }
 
     public void setStrictJson(final Boolean strictJson) {
@@ -465,6 +470,16 @@ public class StoreProperties implements Cloneable {
 
     public String getCacheServiceNamedOperationSuffix(final String defaultValue) {
         return get(CACHE_SERVICE_NAMED_OPERATION_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
+    }
+
+    public boolean isNestedNamedOperationAllow() {
+        return isNestedNamedOperationAllow(AddNamedOperationHandler.DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED);
+    }
+
+    public boolean isNestedNamedOperationAllow(final boolean defaultValue) {
+        final String propertyValue = get(GAFFER_NAMED_OPERATION_NESTED);
+
+        return nonNull(propertyValue) ? Boolean.parseBoolean(propertyValue) : defaultValue;
     }
 
     public String getCacheServiceJobTrackerSuffix(final String defaultValue) {
