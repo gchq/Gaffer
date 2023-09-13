@@ -70,14 +70,15 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
     private final Map<Class<? extends Operation>, ScoreResolver> defaultScoreResolvers;
 
     @JsonCreator
-    public ScoreOperationChainHandler(@JsonProperty("namedOperationCacheNameSuffix") final String namedOperationCacheNameSuffix) {
+    public ScoreOperationChainHandler(@JsonProperty("suffixNamedOperationCacheName") final String namedOperationCacheNameSuffix) {
         defaultScoreResolvers = addDefaultScoreResolvers(namedOperationCacheNameSuffix);
         if (Strings.isNullOrEmpty(namedOperationCacheNameSuffix)) {
             LOGGER.error(NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX);
         }
     }
 
-    public String getNamedOperationCacheNameSuffix() {
+    @JsonGetter("suffixNamedOperationCacheName")
+    public String getSuffixNamedOperationCacheName() {
         if (defaultScoreResolvers.containsKey(NamedOperation.class)) {
             final ScoreResolver scoreResolver = defaultScoreResolvers.get(NamedOperation.class);
             if (scoreResolver instanceof NamedOperationScoreResolver) {

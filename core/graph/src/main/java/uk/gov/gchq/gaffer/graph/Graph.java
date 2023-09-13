@@ -926,7 +926,7 @@ public final class Graph {
                     //get the resolver and suffix
                     final GetFromCacheHook nvrHook = (GetFromCacheHook) hooks.stream().filter(gh -> hookClass.isAssignableFrom(gh.getClass())).findAny().get();
                     final String nvrSuffix = nvrHook.getSuffixCacheName();
-                    //Is the suffix's not matching
+                    //Is there a suffix mismatch
                     if (!suffix.equals(nvrSuffix)) {
                         //Error
                         throw new GafferRuntimeException(String.format(HOOK_SUFFIX_ERROR_FORMAT_MESSAGE, hookClass.getSimpleName(), nvrSuffix, addToCacheHandler.getClass().getSimpleName(), suffix));
