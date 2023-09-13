@@ -37,7 +37,7 @@ import java.util.Map;
 /**
  * Operation handler for {@link AddNamedView} which adds a NamedViewDetail to the cache.
  */
-public class AddNamedViewHandler implements OperationHandler<AddNamedView>, AddToCacheHandler<AddNamedView> {
+public class AddNamedViewHandler implements AddToCacheHandler<AddNamedView> {
     private final NamedViewCache cache;
 
     @JsonCreator
