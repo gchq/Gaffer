@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 
 import java.util.Map;
@@ -97,7 +96,7 @@ public class AddNamedOperationHandler implements AddToCacheHandler<AddNamedOpera
     }
 
     private void validate(final OperationChain<?> operationChain, final NamedOperationDetail namedOperationDetail) throws OperationException {
-        extracted(operationChain, namedOperationDetail.getOperationName());
+        examineSelfReferencingNamedOperation(operationChain, namedOperationDetail.getOperationName());
 
         if (nonNull(namedOperationDetail.getParameters())) {
             final String operationString = namedOperationDetail.getOperations();
@@ -110,7 +109,7 @@ public class AddNamedOperationHandler implements AddToCacheHandler<AddNamedOpera
         }
     }
 
-    private static void extracted(final OperationChain<?> operationChain, final String operationName) throws OperationException {
+    private static void examineSelfReferencingNamedOperation(final OperationChain<?> operationChain, final String operationName) throws OperationException {
         for (final Operation op : operationChain.getOperations()) {
             if (op instanceof NamedOperation && operationName.equals(((NamedOperation) op).getOperationName())) {
                 throw new OperationException("Self referencing namedOperations would cause infinitive loop. operationName:" + operationName);
