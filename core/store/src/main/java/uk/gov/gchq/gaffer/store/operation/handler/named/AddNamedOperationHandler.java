@@ -117,10 +117,10 @@ public class AddNamedOperationHandler implements AddToCacheHandler<AddNamedOpera
         }
     }
 
-    private static void examineSelfReferencingNamedOperation(final OperationChain<?> operationChain, final String operationName) throws OperationException {
+    private void examineSelfReferencingNamedOperation(final OperationChain<?> operationChain, final String operationName) throws OperationException {
         for (final Operation op : operationChain.getOperations()) {
             if (op instanceof NamedOperation) {
-                if (DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED) {
+                if (!isNestedNamedOperationsAllowed) {
                     throw new OperationException("NamedOperations can not be nested within NamedOperations");
                 } else if (operationName.equals(((NamedOperation) op).getOperationName())) {
                     throw new OperationException("Self referencing namedOperations would cause infinitive loop. operationName:" + operationName);
