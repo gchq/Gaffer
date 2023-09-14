@@ -68,7 +68,11 @@ public class FederatedStoreProperties extends StoreProperties {
     }
 
     public String getIsPublicAccessAllowed() {
-        return get(IS_PUBLIC_ACCESS_ALLOWED, IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
+        return getIsPublicAccessAllowed(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
+    }
+
+    public String getIsPublicAccessAllowed(final String defaultValue) {
+        return get(IS_PUBLIC_ACCESS_ALLOWED, defaultValue);
     }
 
     public void setFalseGraphsCanHavePublicAccess() {
