@@ -479,7 +479,7 @@ public class StoreProperties implements Cloneable {
     public boolean isNestedNamedOperationAllow(final boolean defaultValue) {
         final String propertyValue = get(GAFFER_NAMED_OPERATION_NESTED);
 
-        return nonNull(propertyValue) ? Boolean.parseBoolean(propertyValue) : defaultValue;
+        return nonNull(propertyValue) ? parseBoolean(propertyValue) : defaultValue;
     }
 
     public String getCacheServiceJobTrackerSuffix(final String defaultValue) {
