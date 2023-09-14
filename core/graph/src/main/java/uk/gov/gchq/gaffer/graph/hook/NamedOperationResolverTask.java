@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package uk.gov.gchq.gaffer.graph.hook;
 
 import org.slf4j.Logger;
