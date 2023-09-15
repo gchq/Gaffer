@@ -915,7 +915,7 @@ public final class Graph {
                 final List<GraphHook> hooks = config.getHooks();
                 //Is GetFromCacheHook missing
                 if (!hasHook(hooks, hookClass)) {
-                    //provide info about the not having required.
+                    //provide info about the graph not having the required hook
                     LOGGER.info(HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX, config.getGraphId(), operationClass, hookClass.getSimpleName(), hookClass.getSimpleName(), suffix);
                     try {
                         hooks.add(0, hookClass.getDeclaredConstructor(String.class).newInstance(suffix));
