@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
-import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
@@ -50,6 +49,7 @@ import java.util.Set;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler.DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED;
 
 /**
  * A {@code StoreProperties} contains specific configuration information for the store, such as database
@@ -473,7 +473,7 @@ public class StoreProperties implements Cloneable {
     }
 
     public boolean isNestedNamedOperationAllow() {
-        return isNestedNamedOperationAllow(AddNamedOperationHandler.DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED);
+        return isNestedNamedOperationAllow(DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED);
     }
 
     public boolean isNestedNamedOperationAllow(final boolean defaultValue) {
