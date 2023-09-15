@@ -871,7 +871,7 @@ public final class Graph {
         }
 
         private void updateNamedViewResolverHook(final GraphConfig config) {
-            updateGetFromCacheHookWhenMissingOrHasWrongSuffix(
+            validateGetFromCacheHook(
                     config,
                     AddNamedView.class,
                     NamedViewResolver.class,
@@ -879,7 +879,7 @@ public final class Graph {
         }
 
         private void updateNamedOperationResolverHook(final GraphConfig config) {
-            updateGetFromCacheHookWhenMissingOrHasWrongSuffix(
+            validateGetFromCacheHook(
                     config,
                     AddNamedOperation.class,
                     NamedOperationResolver.class,
@@ -895,8 +895,10 @@ public final class Graph {
          * @param operationClass       the Operation requiring cache write
          * @param hookClass            the Hook requiring cache reading
          * @param suffixFromProperties the suffix from property
+         * @see NamedOperationResolver#NamedOperationResolver(String)
+         * @see NamedViewResolver#NamedViewResolver(String)
          */
-        private void updateGetFromCacheHookWhenMissingOrHasWrongSuffix(final GraphConfig config, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
+        private void validateGetFromCacheHook(final GraphConfig config, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
             if (store.isSupported(operationClass)) {
                 //Get Handler
                 final OperationHandler<Operation> addToCacheHandler = store.getOperationHandler(operationClass);
