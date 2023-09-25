@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.commonutil;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -77,7 +77,7 @@ public class OneOrMoreTest {
         final boolean deduplicate = false;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate);
 
-        final Set<Integer> expectedItems = new HashSet<>();
+        final Set<Integer> expectedItems = new LinkedHashSet<>();
         IntStream.rangeClosed(1, 200).forEach(expectedItems::add);
 
         // When
@@ -97,7 +97,7 @@ public class OneOrMoreTest {
         // Given
         final boolean deduplicate = true;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate);
-        final Set<Integer> expectedItems = new HashSet<>();
+        final Set<Integer> expectedItems = new LinkedHashSet<>();
         IntStream.rangeClosed(1, 200).forEach(expectedItems::add);
 
         // When
@@ -116,7 +116,7 @@ public class OneOrMoreTest {
         final boolean deduplicate = false;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate);
 
-        final Set<Integer> expectedItems = new HashSet<>();
+        final Set<Integer> expectedItems = new LinkedHashSet<>();
         IntStream.rangeClosed(1, 200).forEach(expectedItems::add);
 
         // When
@@ -135,7 +135,7 @@ public class OneOrMoreTest {
         final boolean deduplicate = true;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate);
 
-        final Set<Integer> expectedItems = new HashSet<>();
+        final Set<Integer> expectedItems = new LinkedHashSet<>();
         IntStream.rangeClosed(1, 200).forEach(expectedItems::add);
 
         // When

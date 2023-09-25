@@ -24,14 +24,14 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
 /**
  * A {@code OneOrMore} in an {@link Iterable} that allows items
- * to be added. It wraps an {@link ArrayList} or {@link HashSet} depending
+ * to be added. It wraps an {@link ArrayList} or {@link LinkedHashSet} depending
  * on whether deduplication is enabled.
  * This class is designed to be used in the case when the iterable quite often
  * just contains a single item. In the case only a single item is required, the class
@@ -61,7 +61,7 @@ public class OneOrMore<T> implements Iterable<T> {
         this.singleItem = item;
         if (deduplicate) {
             newCollection = k -> {
-                final Collection<T> collection = new HashSet<>();
+                final Collection<T> collection = new LinkedHashSet<>();
                 collection.add(k);
                 return collection;
             };
