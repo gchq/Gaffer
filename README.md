@@ -71,12 +71,7 @@ We have some user guides in our documentation ([1.x](https://gchq.github.io/gaff
 
 ## Related repositories
 
-The [gaffer-tools](https://github.com/gchq/gaffer-tools) repository contains useful tools to help work with Gaffer. These include:
-
-- `mini-accumulo-cluster` - Allows a mini Accumulo cluster to be spun up for testing purposes
-- `performance-testing` - Methods of testing the performance of ingest and query operations against a graph
-- `python-shell` - Allows operations against a graph to be executed from a Python shell
-- `random-element-generation` - Code to generate large volumes of random graph data
+The [gafferpy](https://github.com/gchq/gafferpy) repository contains a python shell that can execute operations.
 
 The [gaffer-docker](https://github.com/gchq/gaffer-docker) repository contains the code needed to run Gaffer using Docker or Kubernetes.
 
