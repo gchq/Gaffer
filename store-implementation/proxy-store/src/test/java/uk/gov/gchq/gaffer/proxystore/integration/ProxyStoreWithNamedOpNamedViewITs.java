@@ -61,17 +61,19 @@ public class ProxyStoreWithNamedOpNamedViewITs extends AbstractStoreITs {
             // When cache related operation handlers are added, like below,
             // then you must ensure the cache prefix is the same as the graphId:
             final String proxyGraphId = "integrationTestGraph";
+            final String cacheServiceNamedViewSuffix = STORE_PROPERTIES.getCacheServiceNamedViewSuffix(proxyGraphId);
+            final String cacheServiceNamedOperationSuffix = STORE_PROPERTIES.getCacheServiceNamedOperationSuffix(proxyGraphId);
             STORE_PROPERTIES.set(OPERATION_DECLARATIONS_JSON, new String(JSONSerialiser.serialise(new OperationDeclarations.Builder()
                     // Named operation
                     .declaration(new OperationDeclaration.Builder().operation(NamedOperation.class).handler(new NamedOperationHandler()).build())
-                    .declaration(new OperationDeclaration.Builder().operation(AddNamedOperation.class).handler(new AddNamedOperationHandler(STORE_PROPERTIES.getCacheServiceNameSuffix(proxyGraphId))).build())
-                    .declaration(new OperationDeclaration.Builder().operation(GetAllNamedOperations.class).handler(new GetAllNamedOperationsHandler(STORE_PROPERTIES.getCacheServiceNameSuffix(proxyGraphId))).build())
-                    .declaration(new OperationDeclaration.Builder().operation(DeleteNamedOperation.class).handler(new DeleteNamedOperationHandler(STORE_PROPERTIES.getCacheServiceNameSuffix(proxyGraphId))).build())
+                    .declaration(new OperationDeclaration.Builder().operation(AddNamedOperation.class).handler(new AddNamedOperationHandler(cacheServiceNamedOperationSuffix)).build())
+                    .declaration(new OperationDeclaration.Builder().operation(GetAllNamedOperations.class).handler(new GetAllNamedOperationsHandler(cacheServiceNamedOperationSuffix)).build())
+                    .declaration(new OperationDeclaration.Builder().operation(DeleteNamedOperation.class).handler(new DeleteNamedOperationHandler(cacheServiceNamedOperationSuffix)).build())
 
                     // Named view
-                    .declaration(new OperationDeclaration.Builder().operation(AddNamedView.class).handler(new AddNamedViewHandler(STORE_PROPERTIES.getCacheServiceNameSuffix(proxyGraphId))).build())
-                    .declaration(new OperationDeclaration.Builder().operation(GetAllNamedViews.class).handler(new GetAllNamedViewsHandler(STORE_PROPERTIES.getCacheServiceNameSuffix(proxyGraphId))).build())
-                    .declaration(new OperationDeclaration.Builder().operation(DeleteNamedView.class).handler(new DeleteNamedViewHandler(STORE_PROPERTIES.getCacheServiceNameSuffix(proxyGraphId))).build())
+                    .declaration(new OperationDeclaration.Builder().operation(AddNamedView.class).handler(new AddNamedViewHandler(cacheServiceNamedViewSuffix)).build())
+                    .declaration(new OperationDeclaration.Builder().operation(GetAllNamedViews.class).handler(new GetAllNamedViewsHandler(cacheServiceNamedViewSuffix)).build())
+                    .declaration(new OperationDeclaration.Builder().operation(DeleteNamedView.class).handler(new DeleteNamedViewHandler(cacheServiceNamedViewSuffix)).build())
                     .build())));
         } catch (SerialisationException e) {
             throw new RuntimeException(e);

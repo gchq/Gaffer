@@ -17,8 +17,11 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -40,20 +43,22 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
  * A {@link GraphHook} to resolve named operations.
  */
 @JsonPropertyOrder(alphabetic = true)
-public class NamedOperationResolver implements GraphHook {
+public class NamedOperationResolver implements GetFromCacheHook {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationResolver.class);
     private final NamedOperationCache cache;
 
     @JsonCreator
-    public NamedOperationResolver(@JsonProperty("cacheNameSuffix") final String suffixCacheName) {
-        this(new NamedOperationCache(suffixCacheName));
+    public NamedOperationResolver(@JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName) {
+        this(new NamedOperationCache(suffixNamedOperationCacheName));
     }
 
     public NamedOperationResolver(final NamedOperationCache cache) {
         this.cache = cache;
     }
 
-    public String getCacheNameSuffix() {
-        return cache.getCacheName().substring(NamedOperationCache.CACHE_SERVICE_NAME_PREFIX.length() + 1);
+    @JsonGetter("suffixNamedOperationCacheName")
+    public String getSuffixCacheName() {
+        return cache.getSuffixCacheName();
     }
 
     @Override
@@ -91,7 +96,11 @@ public class NamedOperationResolver implements GraphHook {
         try {
             namedOpDetail = cache.getNamedOperation(namedOp.getOperationName(), user);
         } catch (final CacheOperationException e) {
-            // Unable to find named operation - just return the original named operation
+            // An Exception with the cache has occurred e.g. it was unable to find named operation
+            // and then simply returned the original operation chain with the unresolved NamedOperation.
+
+            // The exception from cache would otherwise be lost, so capture it here and print to LOGS.
+            LOGGER.error("Exception resolving NamedOperation within the cache:{}", e.getMessage());
             return Collections.singletonList(namedOp);
         }
 
