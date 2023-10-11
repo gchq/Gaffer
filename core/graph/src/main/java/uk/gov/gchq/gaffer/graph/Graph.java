@@ -871,7 +871,7 @@ public final class Graph {
         }
 
         private void updateNamedViewResolverHook(final GraphConfig config) {
-            updateGetFromCacheHookWhenMissingOrHasWrongSuffix(
+            validateAndUpdateGetFromCacheHook(
                     config,
                     AddNamedView.class,
                     NamedViewResolver.class,
@@ -879,7 +879,7 @@ public final class Graph {
         }
 
         private void updateNamedOperationResolverHook(final GraphConfig config) {
-            updateGetFromCacheHookWhenMissingOrHasWrongSuffix(
+            validateAndUpdateGetFromCacheHook(
                     config,
                     AddNamedOperation.class,
                     NamedOperationResolver.class,
@@ -898,7 +898,7 @@ public final class Graph {
          * @see NamedOperationResolver#NamedOperationResolver(String)
          * @see NamedViewResolver#NamedViewResolver(String)
          */
-        private void updateGetFromCacheHookWhenMissingOrHasWrongSuffix(final GraphConfig config, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
+        private void validateAndUpdateGetFromCacheHook(final GraphConfig config, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
             if (store.isSupported(operationClass)) {
                 //Get Handler
                 final OperationHandler<Operation> addToCacheHandler = store.getOperationHandler(operationClass);
@@ -915,7 +915,7 @@ public final class Graph {
                 final List<GraphHook> hooks = config.getHooks();
                 //Is GetFromCacheHook missing
                 if (!hasHook(hooks, hookClass)) {
-                    //provide info about the not having required.
+                    //provide info about the graph not having the required hook
                     LOGGER.info(HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX, config.getGraphId(), operationClass, hookClass.getSimpleName(), hookClass.getSimpleName(), suffix);
                     try {
                         hooks.add(0, hookClass.getDeclaredConstructor(String.class).newInstance(suffix));

@@ -152,9 +152,11 @@ public class NamedOperationResolver implements GetFromCacheHook {
         try {
             namedOpDetail = cache.getNamedOperation(namedOp.getOperationName(), user);
         } catch (final CacheOperationException e) {
-            // Unable to find named operation - just return the original named operation
-            // Exception messages are lost so Log them
-            LOGGER.error(e.getMessage());
+            // An Exception with the cache has occurred e.g. it was unable to find named operation
+            // and then simply returned the original operation chain with the unresolved NamedOperation.
+
+            // The exception from cache would otherwise be lost, so capture it here and print to LOGS.
+            LOGGER.error("Exception resolving NamedOperation within the cache:{}", e.getMessage());
             return Collections.singletonList(namedOp);
         }
 
