@@ -257,6 +257,24 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
+    public void shouldReturnStoreType() {
+        // Given
+        when(graphFactory.getGraph()).thenReturn(new Graph.Builder()
+            .config(new GraphConfig("id"))
+            .addSchema(new Schema())
+            .storeProperties(new MapStoreProperties())
+            .build());
+
+        // When
+        GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
+
+        final String storeType = controller.getStoreType();
+
+        // Then
+        assertThat(storeType).isEqualTo("uk.gov.gchq.gaffer.mapstore.MapStore");
+    }
+
+    @Test
     public void shouldGetStoreTraits() throws OperationException {
         // Given
         Store store = mock(Store.class);
