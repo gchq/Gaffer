@@ -871,7 +871,7 @@ public final class Graph {
         }
 
         private void updateNamedViewResolverHook(final GraphConfig config) {
-            validateGetFromCacheHook(
+            validateAndUpdateGetFromCacheHook(
                     config,
                     AddNamedView.class,
                     NamedViewResolver.class,
@@ -879,7 +879,7 @@ public final class Graph {
         }
 
         private void updateNamedOperationResolverHook(final GraphConfig config) {
-            validateGetFromCacheHook(
+            validateAndUpdateGetFromCacheHook(
                     config,
                     AddNamedOperation.class,
                     NamedOperationResolver.class,
@@ -898,7 +898,7 @@ public final class Graph {
          * @see NamedOperationResolver#NamedOperationResolver(String)
          * @see NamedViewResolver#NamedViewResolver(String)
          */
-        private void validateGetFromCacheHook(final GraphConfig config, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
+        private void validateAndUpdateGetFromCacheHook(final GraphConfig config, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
             if (store.isSupported(operationClass)) {
                 //Get Handler
                 final OperationHandler<Operation> addToCacheHandler = store.getOperationHandler(operationClass);
