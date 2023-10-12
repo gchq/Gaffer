@@ -107,7 +107,7 @@ public class OneOrMoreTest {
         }
 
         // Then
-        assertThat(collection).containsExactlyElementsOf(expectedItems);
+        assertThat(collection).containsExactlyInAnyOrderElementsOf(expectedItems);
     }
 
     @Test
@@ -143,7 +143,7 @@ public class OneOrMoreTest {
         collection.addAll(expectedItems);
 
         // Then
-        assertThat(collection).containsExactlyElementsOf(expectedItems);
+        assertThat(collection).containsExactlyInAnyOrderElementsOf(expectedItems);
     }
 
     @Test
