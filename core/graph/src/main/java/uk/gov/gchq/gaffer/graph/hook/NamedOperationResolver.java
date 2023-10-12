@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -36,6 +37,12 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
 
@@ -45,15 +52,34 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
 @JsonPropertyOrder(alphabetic = true)
 public class NamedOperationResolver implements GetFromCacheHook {
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationResolver.class);
+    public static final int TIMEOUT_DEFAULT = 1;
+    public static final TimeUnit TIME_UNIT_DEFAULT = TimeUnit.MINUTES;
     private final NamedOperationCache cache;
+    private final int timeout;
+    private final TimeUnit timeUnit;
+
+    public NamedOperationResolver(final String suffixNamedOperationCacheName) {
+        this(suffixNamedOperationCacheName, TIMEOUT_DEFAULT, TIME_UNIT_DEFAULT);
+    }
 
     @JsonCreator
-    public NamedOperationResolver(@JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName) {
-        this(new NamedOperationCache(suffixNamedOperationCacheName));
+    public NamedOperationResolver(@JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName,
+                                  @JsonProperty("timeout") final int timeout,
+                                  @JsonProperty("timeUnit") final TimeUnit timeUnit) {
+        this(new NamedOperationCache(suffixNamedOperationCacheName), timeout, timeUnit);
+
     }
 
     public NamedOperationResolver(final NamedOperationCache cache) {
+        this(cache, TIMEOUT_DEFAULT, TIME_UNIT_DEFAULT);
+    }
+
+    public NamedOperationResolver(final NamedOperationCache cache,
+                                  final int timeout,
+                                  final TimeUnit timeUnit) {
         this.cache = cache;
+        this.timeout = timeout;
+        this.timeUnit = timeUnit;
     }
 
     @JsonGetter("suffixNamedOperationCacheName")
@@ -61,9 +87,36 @@ public class NamedOperationResolver implements GetFromCacheHook {
         return cache.getSuffixCacheName();
     }
 
+    @JsonGetter("timeout")
+    public int getTimeout() {
+        return timeout;
+    }
+
+    @JsonGetter("timeUnit")
+    public TimeUnit getTimeUnit() {
+        return timeUnit;
+    }
+
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        resolveNamedOperations(opChain, context.getUser());
+
+        final ExecutorService executor = Executors.newSingleThreadExecutor();
+        final Future<?> future = executor.submit(new NamedOperationResolverTask(opChain, context.getUser(), cache));
+
+        final String time = timeout + timeUnit.name();
+        try {
+            LOGGER.info("Starting ResolverTask with timeout: " + time);
+            future.get(timeout, timeUnit);
+            LOGGER.info("finished ResolverTask");
+        } catch (final TimeoutException e) {
+            throw new GafferRuntimeException("ResolverTask timed out after: " + time, e);
+        } catch (final InterruptedException e) {
+            throw new GafferRuntimeException("Future interrupted out", e);
+        } catch (final ExecutionException e) {
+            throw new GafferRuntimeException("ResolverTask failed due to: " + e.getMessage(), e);
+        } finally {
+            executor.shutdownNow();
+        }
     }
 
     @Override
@@ -76,14 +129,17 @@ public class NamedOperationResolver implements GetFromCacheHook {
         return result;
     }
 
-    private void resolveNamedOperations(final Operations<?> operations, final User user) {
+    public static void resolveNamedOperations(final Operations<?> operations, final User user, final NamedOperationCache cache) {
         final List<Operation> updatedOperations = new ArrayList<>(operations.getOperations().size());
         for (final Operation operation : operations.getOperations()) {
+            if (Thread.interrupted()) {
+                return;
+            }
             if (operation instanceof NamedOperation) {
-                updatedOperations.addAll(resolveNamedOperation((NamedOperation) operation, user));
+                updatedOperations.addAll(resolveNamedOperation((NamedOperation) operation, user, cache));
             } else {
                 if (operation instanceof Operations) {
-                    resolveNamedOperations(((Operations<?>) operation), user);
+                    resolveNamedOperations(((Operations<?>) operation), user, cache);
                 }
                 updatedOperations.add(operation);
             }
@@ -91,7 +147,7 @@ public class NamedOperationResolver implements GetFromCacheHook {
         operations.updateOperations((List) updatedOperations);
     }
 
-    private List<Operation> resolveNamedOperation(final NamedOperation namedOp, final User user) {
+    private static List<Operation> resolveNamedOperation(final NamedOperation namedOp, final User user, final NamedOperationCache cache) {
         final NamedOperationDetail namedOpDetail;
         try {
             namedOpDetail = cache.getNamedOperation(namedOp.getOperationName(), user);
@@ -108,7 +164,7 @@ public class NamedOperationResolver implements GetFromCacheHook {
         updateOperationInput(namedOperationChain, namedOp.getInput());
 
         // Call resolveNamedOperations again to check there are no nested named operations
-        resolveNamedOperations(namedOperationChain, user);
+        resolveNamedOperations(namedOperationChain, user, cache);
         return namedOperationChain.getOperations();
     }
 }

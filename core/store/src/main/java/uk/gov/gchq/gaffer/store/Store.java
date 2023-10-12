@@ -1026,7 +1026,7 @@ public abstract class Store {
             // Named operation
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
             final String suffixNamedOperationCacheName = properties.getCacheServiceNamedOperationSuffix(graphId);
-            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(suffixNamedOperationCacheName));
+            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(suffixNamedOperationCacheName, properties.isNestedNamedOperationAllow()));
             addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler(suffixNamedOperationCacheName));
             addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(suffixNamedOperationCacheName));
 

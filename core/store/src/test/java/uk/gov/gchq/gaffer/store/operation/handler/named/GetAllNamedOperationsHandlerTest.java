@@ -42,7 +42,7 @@ import static org.mockito.BDDMockito.given;
 public class GetAllNamedOperationsHandlerTest {
 
     private final NamedOperationCache cache = new NamedOperationCache("Suffix");
-    private final AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler(cache);
+    private final AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler(cache, true);
     private final GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler(cache);
     private final Context context = new Context(new User.Builder()
             .userId(User.UNKNOWN_USER_ID)

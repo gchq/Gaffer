@@ -66,7 +66,7 @@ public class ProxyStoreWithNamedOpNamedViewITs extends AbstractStoreITs {
             STORE_PROPERTIES.set(OPERATION_DECLARATIONS_JSON, new String(JSONSerialiser.serialise(new OperationDeclarations.Builder()
                     // Named operation
                     .declaration(new OperationDeclaration.Builder().operation(NamedOperation.class).handler(new NamedOperationHandler()).build())
-                    .declaration(new OperationDeclaration.Builder().operation(AddNamedOperation.class).handler(new AddNamedOperationHandler(cacheServiceNamedOperationSuffix)).build())
+                    .declaration(new OperationDeclaration.Builder().operation(AddNamedOperation.class).handler(new AddNamedOperationHandler(cacheServiceNamedOperationSuffix, true)).build())
                     .declaration(new OperationDeclaration.Builder().operation(GetAllNamedOperations.class).handler(new GetAllNamedOperationsHandler(cacheServiceNamedOperationSuffix)).build())
                     .declaration(new OperationDeclaration.Builder().operation(DeleteNamedOperation.class).handler(new DeleteNamedOperationHandler(cacheServiceNamedOperationSuffix)).build())
 

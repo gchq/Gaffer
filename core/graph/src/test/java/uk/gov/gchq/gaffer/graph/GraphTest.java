@@ -1382,7 +1382,7 @@ public class GraphTest {
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         given(TestStore.mockStore.getOperationHandler(AddNamedView.class)).willReturn((OperationHandler) new AddNamedViewHandler(SUFFIX_CACHE_NAME));
-        given(TestStore.mockStore.getOperationHandler(AddNamedOperation.class)).willReturn((OperationHandler) new AddNamedOperationHandler(SUFFIX_CACHE_NAME));
+        given(TestStore.mockStore.getOperationHandler(AddNamedOperation.class)).willReturn((OperationHandler) new AddNamedOperationHandler(SUFFIX_CACHE_NAME, true));
         final NamedOperationResolver graphHook2 = new NamedOperationResolver(SUFFIX_CACHE_NAME);
 
         // When
@@ -1412,7 +1412,7 @@ public class GraphTest {
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         given(TestStore.mockStore.getOperationHandler(AddNamedView.class)).willReturn((OperationHandler) new AddNamedViewHandler(SUFFIX_CACHE_NAME));
-        given(TestStore.mockStore.getOperationHandler(AddNamedOperation.class)).willReturn((OperationHandler) new AddNamedOperationHandler(SUFFIX_CACHE_NAME));
+        given(TestStore.mockStore.getOperationHandler(AddNamedOperation.class)).willReturn((OperationHandler) new AddNamedOperationHandler(SUFFIX_CACHE_NAME, true));
 
         // When
         final Graph graph = new Graph.Builder()
@@ -2341,7 +2341,7 @@ public class GraphTest {
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         given(TestStore.mockStore.getOperationHandler(AddNamedView.class)).willReturn((OperationHandler) new AddNamedViewHandler(SUFFIX_CACHE_NAME));
-        given(TestStore.mockStore.getOperationHandler(AddNamedOperation.class)).willReturn((OperationHandler) new AddNamedOperationHandler(SUFFIX_CACHE_NAME));
+        given(TestStore.mockStore.getOperationHandler(AddNamedOperation.class)).willReturn((OperationHandler) new AddNamedOperationHandler(SUFFIX_CACHE_NAME, true));
 
         // When
         final GraphConfig config = new GraphConfig.Builder()
@@ -2369,7 +2369,7 @@ public class GraphTest {
         given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
         given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
         given(TestStore.mockStore.getOperationHandler(AddNamedView.class)).willReturn((OperationHandler) new AddNamedViewHandler(SUFFIX_CACHE_NAME));
-        given(TestStore.mockStore.getOperationHandler(AddNamedOperation.class)).willReturn((OperationHandler) new AddNamedOperationHandler(SUFFIX_CACHE_NAME));
+        given(TestStore.mockStore.getOperationHandler(AddNamedOperation.class)).willReturn((OperationHandler) new AddNamedOperationHandler(SUFFIX_CACHE_NAME, true));
 
         // When
         final GraphConfig config = new GraphConfig.Builder()
