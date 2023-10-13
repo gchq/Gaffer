@@ -45,15 +45,15 @@ public class GetAllNamedOperationsHandler
     private final NamedOperationCache cache;
 
     @JsonCreator
-    public GetAllNamedOperationsHandler(@JsonProperty("suffixCacheName") final String suffixCacheName) {
-        this(new NamedOperationCache(suffixCacheName));
+    public GetAllNamedOperationsHandler(@JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName) {
+        this(new NamedOperationCache(suffixNamedOperationCacheName));
     }
 
     public GetAllNamedOperationsHandler(final NamedOperationCache cache) {
         this.cache = cache;
     }
 
-    @JsonGetter("suffixCacheName")
+    @JsonGetter("suffixNamedOperationCacheName")
     public String getSuffixCacheName() {
         return cache.getSuffixCacheName();
     }

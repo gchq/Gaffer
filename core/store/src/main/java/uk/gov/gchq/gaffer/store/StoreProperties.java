@@ -47,6 +47,10 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import static java.lang.Boolean.parseBoolean;
+import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler.DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED;
+
 /**
  * A {@code StoreProperties} contains specific configuration information for the store, such as database
  * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
@@ -85,7 +89,10 @@ public class StoreProperties implements Cloneable {
      * CASE INSENSITIVE
      * e.g. gaffer.cache.service.name.suffix="v2"
      */
-    public static final String CACHE_SERVICE_NAME_SUFFIX = "gaffer.cache.service.name.suffix";
+    public static final String CACHE_SERVICE_DEFAULT_SUFFIX = "gaffer.cache.service.default.suffix";
+    public static final String CACHE_SERVICE_NAMED_OPERATION_SUFFIX = "gaffer.cache.service.named.operation.suffix";
+    public static final String CACHE_SERVICE_JOB_TRACKER_SUFFIX = "gaffer.cache.service.job.tracker.suffix";
+    public static final String CACHE_SERVICE_NAMED_VIEW_SUFFIX = "gaffer.cache.service.named.view.suffix";
 
     /**
      * CSV of extra packages to be included in the reflection scanning.
@@ -93,6 +100,7 @@ public class StoreProperties implements Cloneable {
     public static final String REFLECTION_PACKAGES = "gaffer.store.reflection.packages";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
+    public static final String GAFFER_NAMED_OPERATION_NESTED = "gaffer.named.operation.nested";
 
     private Properties props = new Properties();
 
@@ -425,7 +433,7 @@ public class StoreProperties implements Cloneable {
 
     public Boolean getStrictJson() {
         final String strictJson = get(STRICT_JSON);
-        return null == strictJson ? null : Boolean.parseBoolean(strictJson);
+        return null == strictJson ? null : parseBoolean(strictJson);
     }
 
     public void setStrictJson(final Boolean strictJson) {
@@ -453,15 +461,37 @@ public class StoreProperties implements Cloneable {
     }
 
     public void setCacheServiceNameSuffix(final String suffix) {
-        set(CACHE_SERVICE_NAME_SUFFIX, suffix);
+        set(CACHE_SERVICE_DEFAULT_SUFFIX, suffix);
     }
 
-    public String getCacheServiceNameSuffix() {
-        return getCacheServiceNameSuffix(null);
+    public String getCacheServiceDefaultSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_DEFAULT_SUFFIX, defaultValue);
     }
 
-    public String getCacheServiceNameSuffix(final String defaultValue) {
-        return get(CACHE_SERVICE_NAME_SUFFIX, defaultValue);
+    public String getCacheServiceNamedOperationSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_NAMED_OPERATION_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
+    }
+
+    public boolean isNestedNamedOperationAllow() {
+        return isNestedNamedOperationAllow(DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED);
+    }
+
+    public boolean isNestedNamedOperationAllow(final boolean defaultValue) {
+        final String propertyValue = get(GAFFER_NAMED_OPERATION_NESTED);
+
+        return nonNull(propertyValue) ? parseBoolean(propertyValue) : defaultValue;
+    }
+
+    public void setNestedNamedOperationAllow(final boolean isAllowed) {
+        this.props.setProperty(GAFFER_NAMED_OPERATION_NESTED, String.valueOf(isAllowed));
+    }
+
+    public String getCacheServiceJobTrackerSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_JOB_TRACKER_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
+    }
+
+    public String getCacheServiceNamedViewSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_NAMED_VIEW_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
     }
 
     public Properties getProperties() {

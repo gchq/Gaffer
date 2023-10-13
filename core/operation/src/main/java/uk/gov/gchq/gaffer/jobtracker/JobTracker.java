@@ -34,12 +34,16 @@ public class JobTracker extends Cache<String, JobDetail> {
 
     private static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
 
-    public JobTracker(final String suffixCacheName) {
-        super(getCacheNameFrom(suffixCacheName));
+    public JobTracker(final String suffixJobTrackerCacheName) {
+        super(getCacheNameFrom(suffixJobTrackerCacheName));
     }
 
-    public static String getCacheNameFrom(final String suffixCacheName) {
-        return Cache.getCacheNameFrom(CACHE_SERVICE_NAME_PREFIX, suffixCacheName);
+    public static String getCacheNameFrom(final String suffixJobTrackerCacheName) {
+        return Cache.getCacheNameFrom(CACHE_SERVICE_NAME_PREFIX, suffixJobTrackerCacheName);
+    }
+
+    public String getSuffixCacheName() {
+        return getSuffixCacheNameWithoutPrefix(CACHE_SERVICE_NAME_PREFIX);
     }
 
     /**

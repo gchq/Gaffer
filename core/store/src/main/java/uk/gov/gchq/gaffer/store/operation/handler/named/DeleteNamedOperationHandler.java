@@ -35,15 +35,15 @@ public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamed
     private final NamedOperationCache cache;
 
     @JsonCreator
-    public DeleteNamedOperationHandler(@JsonProperty("suffixCacheName") final String suffixCacheName) {
-        this(new NamedOperationCache(suffixCacheName));
+    public DeleteNamedOperationHandler(@JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName) {
+        this(new NamedOperationCache(suffixNamedOperationCacheName));
     }
 
     public DeleteNamedOperationHandler(final NamedOperationCache cache) {
         this.cache = cache;
     }
 
-    @JsonGetter("suffixCacheName")
+    @JsonGetter("suffixNamedOperationCacheName")
     public String getSuffixCacheName() {
         return cache.getSuffixCacheName();
     }
