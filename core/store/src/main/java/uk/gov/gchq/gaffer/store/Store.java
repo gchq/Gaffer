@@ -809,7 +809,7 @@ public abstract class Store {
 
     protected JobTracker createJobTracker() {
         if (properties.getJobTrackerEnabled()) {
-            return new JobTracker(getProperties().getCacheServiceNameSuffix());
+            return new JobTracker(getProperties().getCacheServiceJobTrackerSuffix(graphId));
         }
         return null;
     }
@@ -1025,14 +1025,16 @@ public abstract class Store {
         if (nonNull(CacheServiceLoader.getService())) {
             // Named operation
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
-            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(properties.getCacheServiceNameSuffix(graphId)));
-            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler(properties.getCacheServiceNameSuffix(graphId)));
-            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(properties.getCacheServiceNameSuffix(graphId)));
+            final String suffixNamedOperationCacheName = properties.getCacheServiceNamedOperationSuffix(graphId);
+            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(suffixNamedOperationCacheName, properties.isNestedNamedOperationAllow()));
+            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler(suffixNamedOperationCacheName));
+            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(suffixNamedOperationCacheName));
 
             // Named view
-            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(properties.getCacheServiceNameSuffix(graphId)));
-            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler(properties.getCacheServiceNameSuffix(graphId)));
-            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler(properties.getCacheServiceNameSuffix(graphId)));
+            final String suffixNamedViewCacheName = properties.getCacheServiceNamedViewSuffix(graphId);
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(suffixNamedViewCacheName));
+            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler(suffixNamedViewCacheName));
+            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler(suffixNamedViewCacheName));
         }
 
         // ElementComparison

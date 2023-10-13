@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.resolver.named;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,20 +39,15 @@ public class NamedOperationScoreResolver implements ScoreResolver<NamedOperation
     private final NamedOperationCache cache;
 
     /**
-     * @param namedOperationCacheNameSuffix the suffix of NamedOperationCache to score against.
+     * @param suffixNamedOperationCacheName the suffix of NamedOperationCache to score against.
      */
-    public NamedOperationScoreResolver(@JsonProperty("namedOperationCacheNameSuffix") final String namedOperationCacheNameSuffix) {
-        this(new NamedOperationCache(namedOperationCacheNameSuffix));
-        if (Strings.isNullOrEmpty(namedOperationCacheNameSuffix)) {
-            LOGGER.error(NamedOperationCache.NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX);
-        }
+    public NamedOperationScoreResolver(@JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName) {
+        this(new NamedOperationCache(suffixNamedOperationCacheName));
     }
 
-    public String getNamedOperationCacheNameSuffix() {
-        final String cacheName = cache.getCacheName();
-        return (NamedOperationCache.CACHE_SERVICE_NAME_PREFIX.equals(cacheName))
-                ? cacheName
-                : cacheName.substring(NamedOperationCache.CACHE_SERVICE_NAME_PREFIX.length() + 1);
+    @JsonGetter("suffixNamedOperationCacheName")
+    public String getSuffixCacheName() {
+        return cache.getSuffixCacheName();
     }
 
     public NamedOperationScoreResolver(final NamedOperationCache cache) {

@@ -92,4 +92,9 @@ public class TestStore extends Store {
     public boolean isSupported(final Class<? extends Operation> operationClass) {
         return mockStore.isSupported(operationClass);
     }
+
+    @Override
+    public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+        return mockStore.getOperationHandler(opClass);
+    }
 }

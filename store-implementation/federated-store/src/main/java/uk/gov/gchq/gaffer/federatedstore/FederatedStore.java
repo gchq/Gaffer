@@ -106,8 +106,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.FEDERATED_STORE_SYSTEM_USER;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.STORE_CONFIGURED_GRAPHIDS;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.STORE_CONFIGURED_MERGE_FUNCTIONS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.getCacheServiceFederatedStoreSuffix;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.loadStoreConfiguredGraphIdsListFrom;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.loadStoreConfiguredMergeFunctionMapFrom;
@@ -178,19 +177,23 @@ public class FederatedStore extends Store {
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
-        graphStorage = new FederatedGraphStorage(properties.getCacheServiceNameSuffix(graphId));
+        graphStorage = new FederatedGraphStorage(getCacheServiceFederatedStoreSuffix(properties, graphId));
         super.initialise(graphId, new Schema(), properties);
-        customPropertiesAuths = getCustomPropertiesAuths();
-        isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
+        final FederatedStoreProperties federatedProperties = getProperties();
 
-        loadStoreConfiguredMergeFunctions(properties);
-
-        loadStoreConfiguredGraphIds(properties);
+        loadCustomPropertiesAuthFromProperties(federatedProperties);
+        loadIsPublicAccessAllowedFromProperties(federatedProperties);
+        loadStoreConfiguredMergeFunctionsFromProperties(federatedProperties);
+        loadStoreConfiguredGraphIdsFromProperties(federatedProperties);
     }
 
-    private void loadStoreConfiguredGraphIds(final StoreProperties properties) throws StoreException {
+    private void loadIsPublicAccessAllowedFromProperties(final FederatedStoreProperties federatedProperties) {
+        isPublicAccessAllowed = Boolean.valueOf(federatedProperties.getIsPublicAccessAllowed(String.valueOf(isPublicAccessAllowed)));
+    }
+
+    private void loadStoreConfiguredGraphIdsFromProperties(final FederatedStoreProperties properties) throws StoreException {
         try {
-            final List<String> configuredGraphIds = loadStoreConfiguredGraphIdsListFrom(properties.get(STORE_CONFIGURED_GRAPHIDS));
+            final List<String> configuredGraphIds = loadStoreConfiguredGraphIdsListFrom(properties.getStoreConfiguredGraphIds());
             if (nonNull(configuredGraphIds)) {
                 //Overwrite with configured values
                 this.storeConfiguredGraphIds = new ArrayList<>(configuredGraphIds);
@@ -200,9 +203,9 @@ public class FederatedStore extends Store {
         }
     }
 
-    private void loadStoreConfiguredMergeFunctions(final StoreProperties properties) throws StoreException {
+    private void loadStoreConfiguredMergeFunctionsFromProperties(final FederatedStoreProperties properties) throws StoreException {
         try {
-            final Map<String, BiFunction> configuredMergeFunctions = loadStoreConfiguredMergeFunctionMapFrom(properties.get(STORE_CONFIGURED_MERGE_FUNCTIONS));
+            final Map<String, BiFunction> configuredMergeFunctions = loadStoreConfiguredMergeFunctionMapFrom(properties.getStoreConfiguredMergeFunctions());
             //Overwrite with configured values
             this.storeConfiguredMergeFunctions.putAll(configuredMergeFunctions);
         } catch (final IOException e) {
@@ -279,8 +282,8 @@ public class FederatedStore extends Store {
      * graphs via the {@link RemoveGraph} operation.
      * </p>
      *
-     * @param graphId to be removed from scope
-     * @param user    to match visibility against
+     * @param graphId     to be removed from scope
+     * @param user        to match visibility against
      * @param removeCache to remove associated caches with this graph.
      * @return success of removal
      */
@@ -359,7 +362,7 @@ public class FederatedStore extends Store {
      * or the optimised compact schemas of the stores inside
      * this FederatedStore.
      *
-     * @param context context with valid User
+     * @param context          context with valid User
      * @param getCompactSchema if true, gets the optimised compact schemas
      * @return schema
      */
@@ -560,9 +563,15 @@ public class FederatedStore extends Store {
         }
     }
 
-    private Set<String> getCustomPropertiesAuths() {
-        final String value = getProperties().getCustomPropsValue();
-        return (isNullOrEmpty(value)) ? null : new HashSet<>(getCleanStrings(value));
+    private void loadCustomPropertiesAuthFromProperties(final FederatedStoreProperties properties) {
+        final String value = properties.getCustomPropsValue();
+        final HashSet<String> customPropertiesAuthsFromProperties = (isNullOrEmpty(value)) ? null : new HashSet<>(getCleanStrings(value));
+
+        if (isNull(customPropertiesAuths)) {
+            customPropertiesAuths = customPropertiesAuthsFromProperties;
+        } else {
+            customPropertiesAuths.addAll(customPropertiesAuthsFromProperties);
+        }
     }
 
     private void _add(final GraphSerialisable newGraph, final FederatedAccess access) throws StorageException {

@@ -73,7 +73,7 @@ public class AddNamedViewHandlerTest {
     AddNamedView addNamedView;
 
     @BeforeEach
-    public void before() {
+    public void before() throws CacheOperationException {
         testParameters.put("testParam", TEST_PARAM_VALUE);
 
         view = new View.Builder()
@@ -91,6 +91,10 @@ public class AddNamedViewHandlerTest {
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
         given(store.getProperties()).willReturn(new StoreProperties());
+
+        if (namedViewCache != null && CacheServiceLoader.isEnabled()) {
+            namedViewCache.clearCache();
+        }
     }
 
     @AfterEach

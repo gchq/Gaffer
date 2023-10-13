@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -85,6 +86,11 @@ public class NamedViewCacheTest {
     @BeforeEach
     public void beforeEach() throws CacheOperationException {
         cache.clearCache();
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        CacheServiceLoader.shutdown();
     }
 
     @Test
