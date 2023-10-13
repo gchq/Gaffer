@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.collections4.CollectionUtils;
@@ -38,20 +39,21 @@ import java.util.Map;
  * A {@link GraphHook} to resolve {@link NamedView}s.
  */
 @JsonPropertyOrder(alphabetic = true)
-public class NamedViewResolver implements GraphHook {
+public class NamedViewResolver implements GetFromCacheHook {
     private final NamedViewCache cache;
 
     @JsonCreator
-    public NamedViewResolver(@JsonProperty("suffixCacheName") final String suffixCacheName) {
-        cache = new NamedViewCache(suffixCacheName);
+    public NamedViewResolver(@JsonProperty("suffixNamedViewCacheName") final String suffixNamedViewCacheName) {
+        cache = new NamedViewCache(suffixNamedViewCacheName);
     }
 
     public NamedViewResolver(final NamedViewCache cache) {
         this.cache = cache;
     }
 
-    public String getCacheNameSuffix() {
-        return cache.getCacheName().substring(NamedViewCache.CACHE_SERVICE_NAME_PREFIX.length() + 1);
+    @JsonGetter("suffixNamedViewCacheName")
+    public String getSuffixCacheName() {
+        return cache.getSuffixCacheName();
     }
 
     @Override

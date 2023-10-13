@@ -26,11 +26,13 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriserUtil;
+import uk.gov.gchq.gaffer.graph.hook.GetFromCacheHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
@@ -52,6 +54,8 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddToCacheHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
@@ -369,7 +373,7 @@ public final class Graph {
                     if (!isEmpty(opView.getGlobalElements()) || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {
                         opView = new View.Builder().merge(config.getView()).merge(opView).build();
                     } else { // We have either global edges or entities in
-                             // opView, but not both
+                        // opView, but not both
                         final View originalView = opView;
                         final View partialConfigView = new View.Builder()
                                 .merge(config.getView())
@@ -416,7 +420,7 @@ public final class Graph {
     /**
      * @param operation the class of the operation to check
      * @return a collection of all the compatible {@link Operation}s that could
-     *         be added to an operation chain after the provided operation.
+     * be added to an operation chain after the provided operation.
      */
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
         return store.getNextOperations(operation);
@@ -433,7 +437,7 @@ public final class Graph {
 
     /**
      * Get the Store's original {@link Schema}.
-     *
+     * <p>
      * This is not the same as the {@link Schema} used internally by
      * the {@link Store}. See {@link Store#getOriginalSchema()} and
      * {@link Store#getSchema()} for more details.
@@ -505,6 +509,9 @@ public final class Graph {
      */
     public static class Builder {
         public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
+        public static final String HOOK_SUFFIX_ERROR_FORMAT_MESSAGE = "%s hook is configured with suffix:%s and %s handler is configured with suffix:%s this causes a cache reading and writing misalignment.";
+        public static final String HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX = "For GraphID:{} a handler was supplied for Operation {}, but without a {}, adding {} with suffix:{}";
+        public static final String HANDLER_WAS_NOT_EXPECTED_TYPE_ADD_TO_CACHE_HANDLER = "Handler for:%s was not expected type:%s cant get suffixCache using value from property:%s";
         private final GraphConfig.Builder configBuilder = new GraphConfig.Builder();
         private final List<byte[]> schemaBytesList = new ArrayList<>();
         private Store store;
@@ -848,15 +855,83 @@ public final class Graph {
         }
 
         private void updateGraphHooks(final GraphConfig config) {
-            List<GraphHook> hooks = config.getHooks();
-            if (store.isSupported(AddNamedView.class) && !hasHook(hooks, NamedViewResolver.class)) {
-                hooks.add(0, new NamedViewResolver(config.getGraphId()));
-            }
-            if (store.isSupported(AddNamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
-                config.getHooks().add(0, new NamedOperationResolver(config.getGraphId()));
-            }
+            updateNamedViewResolverHook(config);
+
+            updateNamedOperationResolverHook(config);
+
+            updateFunctionAuthoriserHook(config);
+        }
+
+        private void updateFunctionAuthoriserHook(final GraphConfig config) {
+            final List<GraphHook> hooks = config.getHooks();
             if (!hasHook(hooks, FunctionAuthoriser.class)) {
-                config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
+                LOGGER.info("No FunctionAuthoriser hook was supplied, adding default hook.");
+                hooks.add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
+            }
+        }
+
+        private void updateNamedViewResolverHook(final GraphConfig config) {
+            validateAndUpdateGetFromCacheHook(
+                    config,
+                    AddNamedView.class,
+                    NamedViewResolver.class,
+                    null != properties ? properties.getCacheServiceNamedViewSuffix(config.getGraphId()) : null);
+        }
+
+        private void updateNamedOperationResolverHook(final GraphConfig config) {
+            validateAndUpdateGetFromCacheHook(
+                    config,
+                    AddNamedOperation.class,
+                    NamedOperationResolver.class,
+                    null != properties ? properties.getCacheServiceNamedOperationSuffix(config.getGraphId()) : null);
+        }
+
+        /**
+         * This method is designed to keep suffix used for cache names aligned between
+         * a Handler which Adds to the cache and ResolverHook which Gets from the cache.
+         * If the suffix is mismatched then writing and reading to cache will not behave correctly.
+         *
+         * @param config               the graphConfig containing the Hooks
+         * @param operationClass       the Operation requiring cache write
+         * @param hookClass            the Hook requiring cache reading
+         * @param suffixFromProperties the suffix from property
+         * @see NamedOperationResolver#NamedOperationResolver(String)
+         * @see NamedViewResolver#NamedViewResolver(String)
+         */
+        private void validateAndUpdateGetFromCacheHook(final GraphConfig config, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
+            if (store.isSupported(operationClass)) {
+                //Get Handler
+                final OperationHandler<Operation> addToCacheHandler = store.getOperationHandler(operationClass);
+                //If Handler is a AddToCacheHandler
+                final String suffix;
+                if (AddToCacheHandler.class.isAssignableFrom(addToCacheHandler.getClass())) {
+                    // get Suffix
+                    suffix = ((AddToCacheHandler<?>) addToCacheHandler).getSuffixCacheName();
+                } else {
+                    // otherwise get from properties
+                    LOGGER.warn(String.format(HANDLER_WAS_NOT_EXPECTED_TYPE_ADD_TO_CACHE_HANDLER, operationClass, AddToCacheHandler.class.getSimpleName(), suffixFromProperties));
+                    suffix = suffixFromProperties;
+                }
+                final List<GraphHook> hooks = config.getHooks();
+                //Is GetFromCacheHook missing
+                if (!hasHook(hooks, hookClass)) {
+                    //provide info about the graph not having the required hook
+                    LOGGER.info(HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX, config.getGraphId(), operationClass, hookClass.getSimpleName(), hookClass.getSimpleName(), suffix);
+                    try {
+                        hooks.add(0, hookClass.getDeclaredConstructor(String.class).newInstance(suffix));
+                    } catch (final Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    //get the resolver and suffix
+                    final GetFromCacheHook nvrHook = (GetFromCacheHook) hooks.stream().filter(gh -> hookClass.isAssignableFrom(gh.getClass())).findAny().get();
+                    final String nvrSuffix = nvrHook.getSuffixCacheName();
+                    //Is there a suffix mismatch
+                    if (!suffix.equals(nvrSuffix)) {
+                        //Error
+                        throw new GafferRuntimeException(String.format(HOOK_SUFFIX_ERROR_FORMAT_MESSAGE, hookClass.getSimpleName(), nvrSuffix, addToCacheHandler.getClass().getSimpleName(), suffix));
+                    }
+                }
             }
         }
 

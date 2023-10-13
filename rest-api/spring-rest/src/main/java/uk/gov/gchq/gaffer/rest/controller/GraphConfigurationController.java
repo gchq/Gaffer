@@ -137,6 +137,11 @@ public class GraphConfigurationController implements IGraphConfigurationControll
     }
 
     @Override
+    public String getStoreType() {
+        return graphFactory.getGraph().getStoreProperties().getStoreClass();
+    }
+
+    @Override
     public Set<StoreTrait> getStoreTraits() {
         try {
             return graphFactory.getGraph().execute(new GetTraits.Builder().currentTraits(false).build(), new Context());
