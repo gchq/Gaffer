@@ -204,7 +204,7 @@ jobs:
         OSS_NEXUS_PASSWORD: ${{ secrets.OSS_NEXUS_PASSWORD }}
       run: mvn deploy -P quick,ossrh-release --settings cd/mvnsettings.xml -B
 
-  trigger-update-gaffer-tools-version:
+  trigger-update-gafferpy-version:
     runs-on: ubuntu-latest
     needs:
     - create-release-tag
@@ -213,11 +213,11 @@ jobs:
     - name: Set version
       run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }} | cut -c 2-)" >> $GITHUB_ENV
 
-    - name: Update gaffer-tools' Gaffer version
+    - name: Update gafferpy's Gaffer version
       uses: benc-uk/workflow-dispatch@v1
       with:
         workflow: Update Gaffer Version
-        repo: gchq/gaffer-tools
+        repo: gchq/gafferpy
         token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
         inputs: '{ "version": "${{ env.RELEASE_VERSION }}" }'
-        ref: develop
+        ref: main
