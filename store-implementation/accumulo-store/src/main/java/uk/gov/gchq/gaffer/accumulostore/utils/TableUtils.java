@@ -60,8 +60,8 @@ import java.util.concurrent.TimeUnit;
  */
 public final class TableUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
-    private static Boolean initialKerberosLoginComplete = false;
     public static final String COLUMN_FAMILIES_OPTION = "columns";
+    private static Boolean initialKerberosLoginComplete = false;
 
     private TableUtils() {
     }
@@ -246,7 +246,7 @@ public final class TableUtils {
                 UserGroupInformation.setConfiguration(conf);
             }
             // If initial login is complete and logged in using Keytab, then check if ticket needs renewal, else do initial login
-            if (UserGroupInformation.isLoginKeytabBased() && initialKerberosLoginComplete) {
+            if (initialKerberosLoginComplete && UserGroupInformation.isLoginKeytabBased()) {
                 UserGroupInformation.getCurrentUser().checkTGTAndReloginFromKeytab();
                 LOGGER.debug("Already logged into Kerberos, TGT rechecked for principal '{}'", UserGroupInformation.getCurrentUser().getUserName());
             } else {
