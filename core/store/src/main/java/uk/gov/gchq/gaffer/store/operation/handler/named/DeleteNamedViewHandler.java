@@ -35,15 +35,15 @@ public class DeleteNamedViewHandler implements OperationHandler<DeleteNamedView>
     private final NamedViewCache cache;
 
     @JsonCreator
-    public DeleteNamedViewHandler(@JsonProperty("suffixCacheName") final String suffixCacheName) {
-        this(new NamedViewCache(suffixCacheName));
+    public DeleteNamedViewHandler(@JsonProperty("suffixNamedViewCacheName") final String suffixNamedViewCacheName) {
+        this(new NamedViewCache(suffixNamedViewCacheName));
     }
 
     public DeleteNamedViewHandler(final NamedViewCache cache) {
         this.cache = cache;
     }
 
-    @JsonGetter("suffixCacheName")
+    @JsonGetter("suffixNamedViewCacheName")
     public String getSuffixCacheName() {
         return cache.getSuffixCacheName();
     }

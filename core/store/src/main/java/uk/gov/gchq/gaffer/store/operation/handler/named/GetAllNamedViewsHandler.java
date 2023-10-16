@@ -36,15 +36,15 @@ public class GetAllNamedViewsHandler implements OutputOperationHandler<GetAllNam
     private final NamedViewCache cache;
 
     @JsonCreator
-    public GetAllNamedViewsHandler(@JsonProperty("suffixCacheName") final String suffixCacheName) {
-        this(new NamedViewCache(suffixCacheName));
+    public GetAllNamedViewsHandler(@JsonProperty("suffixNamedViewCacheName") final String suffixNamedViewCacheName) {
+        this(new NamedViewCache(suffixNamedViewCacheName));
     }
 
     public GetAllNamedViewsHandler(final NamedViewCache cache) {
         this.cache = cache;
     }
 
-    @JsonGetter("suffixCacheName")
+    @JsonGetter("suffixNamedViewCacheName")
     public String getSuffixCacheName() {
         return cache.getSuffixCacheName();
     }

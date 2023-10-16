@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 
 import java.util.Map;
@@ -40,20 +39,28 @@ import static java.util.Objects.nonNull;
 /**
  * Operation handler for AddNamedOperation which adds a Named Operation to the cache.
  */
-public class AddNamedOperationHandler implements OperationHandler<AddNamedOperation> {
+public class AddNamedOperationHandler implements AddToCacheHandler<AddNamedOperation> {
 
+    public static final Boolean DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED = false;
     private final NamedOperationCache cache;
+    private final boolean isNestedNamedOperationsAllowed;
 
     @JsonCreator
-    public AddNamedOperationHandler(@JsonProperty("suffixCacheName") final String suffixCacheName) {
-        this(new NamedOperationCache(suffixCacheName));
+    public AddNamedOperationHandler(@JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName, @JsonProperty("isNestedNamedOperationsAllowed") final Boolean isNestedNamedOperationsAllowed) {
+        this(new NamedOperationCache(suffixNamedOperationCacheName), isNestedNamedOperationsAllowed);
     }
 
-    public AddNamedOperationHandler(final NamedOperationCache cache) {
+    public AddNamedOperationHandler(final NamedOperationCache cache, final Boolean isNestedNamedOperationsAllowed) {
         this.cache = cache;
+        this.isNestedNamedOperationsAllowed = nonNull(isNestedNamedOperationsAllowed) && isNestedNamedOperationsAllowed;
     }
 
-    @JsonGetter("suffixCacheName")
+    @JsonGetter("isNestedNamedOperationsAllowed")
+    public boolean isNestedNamedOperationsAllowed() {
+        return isNestedNamedOperationsAllowed;
+    }
+
+    @JsonGetter("suffixNamedOperationCacheName")
     public String getSuffixCacheName() {
         return cache.getSuffixCacheName();
     }
@@ -97,11 +104,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
     }
 
     private void validate(final OperationChain<?> operationChain, final NamedOperationDetail namedOperationDetail) throws OperationException {
-        for (final Operation op : operationChain.getOperations()) {
-            if (op instanceof NamedOperation) {
-                throw new OperationException("NamedOperations can not be nested within NamedOperations");
-            }
-        }
+        examineSelfReferencingNamedOperation(operationChain, namedOperationDetail.getOperationName());
 
         if (nonNull(namedOperationDetail.getParameters())) {
             final String operationString = namedOperationDetail.getOperations();
@@ -109,6 +112,18 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
                 final String varName = String.format("${%s}", parameterDetail.getKey());
                 if (!operationString.contains(varName)) {
                     throw new OperationException(String.format("Parameter specified in NamedOperation doesn't occur in OperationChain string for %s", varName));
+                }
+            }
+        }
+    }
+
+    private void examineSelfReferencingNamedOperation(final OperationChain<?> operationChain, final String operationName) throws OperationException {
+        for (final Operation op : operationChain.getOperations()) {
+            if (op instanceof NamedOperation) {
+                if (!isNestedNamedOperationsAllowed) {
+                    throw new OperationException("NamedOperations can not be nested within NamedOperations");
+                } else if (operationName.equals(((NamedOperation) op).getOperationName())) {
+                    throw new OperationException("Self referencing namedOperations would cause infinitive loop. operationName:" + operationName);
                 }
             }
         }

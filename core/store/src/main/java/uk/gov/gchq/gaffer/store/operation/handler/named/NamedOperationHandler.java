@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  * If this handler is invoked then it means the named operation could not be resolved.
  */
 public class NamedOperationHandler implements OutputOperationHandler<NamedOperation<?, Object>, Object> {
+
+    public static final String THE_NAMED_OPERATION_S_WAS_NOT_FOUND = "The named operation: %s was not found.";
+
     @Override
     public Object doOperation(final NamedOperation<?, Object> operation, final Context context, final Store store) throws OperationException {
-        throw new UnsupportedOperationException("The named operation: " + operation.getOperationName() + " was not found.");
+        throw new UnsupportedOperationException(String.format(THE_NAMED_OPERATION_S_WAS_NOT_FOUND, operation.getOperationName()));
     }
 }
