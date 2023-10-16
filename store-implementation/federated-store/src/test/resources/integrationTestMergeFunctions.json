@@ -1,5 +1,5 @@
 {
-  "storeConfiguredMergeFunctions": {
+  "configuredMergeFunctions": {
     "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements": {
       "class": "uk.gov.gchq.gaffer.federatedstore.util.ConcatenateMergeFunction"
     },

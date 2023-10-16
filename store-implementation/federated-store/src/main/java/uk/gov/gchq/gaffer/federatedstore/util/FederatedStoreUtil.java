@@ -397,19 +397,19 @@ public final class FederatedStoreUtil {
     }
 
     public static class SerialisableConfiguredMergeFunctionsMap {
-        @JsonProperty("storeConfiguredMergeFunctions")
+        @JsonProperty("configuredMergeFunctions")
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
         HashMap<String, BiFunction> map = new HashMap<>();
 
         public SerialisableConfiguredMergeFunctionsMap() {
         }
 
-        @JsonGetter("storeConfiguredMergeFunctions")
+        @JsonGetter("configuredMergeFunctions")
         public HashMap<String, BiFunction> getMap() {
             return map;
         }
 
-        @JsonSetter("storeConfiguredMergeFunctions")
+        @JsonSetter("configuredMergeFunctions")
         public void setMap(final HashMap<String, BiFunction> map) {
             this.map = map;
         }
