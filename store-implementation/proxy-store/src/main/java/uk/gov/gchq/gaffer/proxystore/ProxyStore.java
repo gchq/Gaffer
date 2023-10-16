@@ -22,7 +22,6 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -33,12 +32,10 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
-import uk.gov.gchq.gaffer.named.view.DeleteNamedView;
-import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
@@ -63,13 +60,6 @@ import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedViewHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedViewsHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import javax.ws.rs.client.Client;
@@ -139,6 +129,16 @@ public class ProxyStore extends Store {
 
     protected <O> ResponseDeserialiser<O> getResponseDeserialiserFor(final TypeReference<O> typeReference) {
         return new DefaultResponseDeserialiser<>(typeReference);
+    }
+
+    protected ResponseDeserialiser getResponseDeserialiserForNamedOperation(final NamedOperation operation, final Context context) throws OperationException {
+        Iterable<NamedOperationDetail> namedOpDetails = executeOpChainViaUrl(OperationChain.wrap(new GetAllNamedOperations()), context);
+        for (final NamedOperationDetail detail : namedOpDetails) {
+            if (detail.getOperationName().equals(operation.getOperationName())) {
+                return getResponseDeserialiserFor(detail.getOperationChainWithDefaultParams().getOutputTypeReference());
+            }
+        }
+        return getResponseDeserialiserFor(operation.getOutputTypeReference());
     }
 
     @Override
@@ -234,7 +234,13 @@ public class ProxyStore extends Store {
 
         final URL url = getProperties().getGafferUrl("graph/operations/execute");
         try {
-            final ResponseDeserialiser<O> responseDeserialiser = getResponseDeserialiserFor(opChain.getOutputTypeReference());
+            final ResponseDeserialiser<O> responseDeserialiser;
+            final Operation lastOp = opChain.getOperations().get(opChain.getOperations().size() - 1);
+            if (lastOp instanceof NamedOperation) {
+                responseDeserialiser = getResponseDeserialiserForNamedOperation((NamedOperation) lastOp, context);
+            } else {
+                responseDeserialiser = getResponseDeserialiserFor(opChain.getOutputTypeReference());
+            }
             return doPost(url, opChainJson, responseDeserialiser, context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
@@ -335,19 +341,6 @@ public class ProxyStore extends Store {
         addOperationHandler(OperationChain.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
         addOperationHandler(OperationChainDAO.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
         addOperationHandler(GetTraits.class, getGetTraitsHandler());
-
-        if (nonNull(CacheServiceLoader.getService())) {
-            // Named operation
-            addOperationHandler(NamedOperation.class, new NamedOperationHandler());
-            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
-            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
-            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
-
-            // Named view
-            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
-            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
-            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler(getProperties().getCacheServiceNameSuffix(getGraphId())));
-        }
     }
 
     @Override
@@ -372,6 +365,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+        // Create an anonymous class (implementing OutputOperationHandler) which calls fetchTraits with the operation
         return (operation, context, store) -> ((ProxyStore) store).fetchTraits(operation);
     }
 

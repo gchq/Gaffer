@@ -35,12 +35,16 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
 
     public static final String CACHE_SERVICE_NAME_PREFIX = "NamedView";
 
-    public NamedViewCache(final String suffixCacheName) {
-        super(getCacheNameFrom(suffixCacheName));
+    public NamedViewCache(final String suffixNamedViewCacheName) {
+        super(getCacheNameFrom(suffixNamedViewCacheName));
     }
 
-    public static String getCacheNameFrom(final String suffixCacheName) {
-        return Cache.getCacheNameFrom(CACHE_SERVICE_NAME_PREFIX, suffixCacheName);
+    public static String getCacheNameFrom(final String suffixNamedViewCacheName) {
+        return Cache.getCacheNameFrom(CACHE_SERVICE_NAME_PREFIX, suffixNamedViewCacheName);
+    }
+
+    public String getSuffixCacheName() {
+        return getSuffixCacheNameWithoutPrefix(CACHE_SERVICE_NAME_PREFIX);
     }
 
     /**

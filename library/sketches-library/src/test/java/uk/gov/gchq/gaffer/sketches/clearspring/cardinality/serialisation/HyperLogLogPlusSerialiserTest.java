@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
@@ -23,10 +24,8 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class HyperLogLogPlusSerialiserTest extends ViaCalculatedValueSerialiserTest<HyperLogLogPlus, Long> {
 
@@ -46,27 +45,6 @@ public class HyperLogLogPlusSerialiserTest extends ViaCalculatedValueSerialiserT
     @Override
     protected Long getTestValue(final HyperLogLogPlus object) {
         return object.cardinality();
-    }
-
-    @Test
-    public void testSerialiseAndDeserialiseWhenEmpty() {
-        HyperLogLogPlus hyperLogLogPlus = new HyperLogLogPlus(5, 5);
-        long preSerialisationCardinality = hyperLogLogPlus.cardinality();
-        byte[] hyperLogLogPlusSerialised;
-        try {
-            hyperLogLogPlusSerialised = serialiser.serialise(hyperLogLogPlus);
-        } catch (final SerialisationException exception) {
-            fail("A Serialisation Exception Occurred");
-            return;
-        }
-        HyperLogLogPlus hyperLogLogPlusDeserialised;
-        try {
-            hyperLogLogPlusDeserialised = serialiser.deserialise(hyperLogLogPlusSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A Serialisation Exception Occurred");
-            return;
-        }
-        assertEquals(preSerialisationCardinality, hyperLogLogPlusDeserialised.cardinality());
     }
 
     @Test

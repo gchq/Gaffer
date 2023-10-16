@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -38,28 +37,25 @@ import java.util.Map;
  *
  * @see ToCsv.Builder
  */
-@JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "input", "csvGenerator"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Converts elements to CSV Strings")
 public class ToCsv implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends String>>,
         MultiInput<Element> {
 
-    private CsvGenerator elementGenerator;
+    private CsvGenerator csvGenerator;
     private Iterable<? extends Element> input;
     private boolean includeHeader = true;
     private Map<String, String> options;
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
-    private CsvFormat csvFormat;
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public CsvGenerator getElementGenerator() {
-        return elementGenerator;
+    public CsvGenerator getCsvGenerator() {
+        return csvGenerator;
     }
 
-    public void setElementGenerator(final CsvGenerator elementGenerator) {
-        this.elementGenerator = elementGenerator;
+    public void setCsvGenerator(final CsvGenerator csvGenerator) {
+        this.csvGenerator = csvGenerator;
     }
 
     @Override
@@ -80,14 +76,6 @@ public class ToCsv implements
         this.includeHeader = includeHeader;
     }
 
-    public CsvFormat getCsvFormat() {
-        return csvFormat;
-    }
-
-    public void setCsvFormat(final CsvFormat csvFormat) {
-        this.csvFormat = csvFormat;
-    }
-
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableString();
@@ -96,8 +84,7 @@ public class ToCsv implements
     @Override
     public ToCsv shallowClone() {
         return new ToCsv.Builder()
-                .generator(elementGenerator)
-                .csvFormat(csvFormat)
+                .generator(csvGenerator)
                 .input(input)
                 .includeHeader(includeHeader)
                 .options(options)
@@ -122,21 +109,16 @@ public class ToCsv implements
         }
 
         /**
-         * @param generator the {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to set on the operation
+         * @param generator the {@link uk.gov.gchq.gaffer.data.generator.CsvGenerator} to set on the operation
          * @return this Builder
          */
         public ToCsv.Builder generator(final CsvGenerator generator) {
-            _getOp().setElementGenerator(generator);
+            _getOp().setCsvGenerator(generator);
             return _self();
         }
 
         public ToCsv.Builder includeHeader(final boolean includeHeader) {
             _getOp().setIncludeHeader(includeHeader);
-            return _self();
-        }
-
-        public ToCsv.Builder csvFormat(final CsvFormat csvFormat) {
-            _getOp().setCsvFormat(csvFormat);
             return _self();
         }
     }

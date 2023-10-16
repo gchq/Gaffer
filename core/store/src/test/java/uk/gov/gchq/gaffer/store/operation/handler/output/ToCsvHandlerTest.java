@@ -27,10 +27,9 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
-import uk.gov.gchq.gaffer.data.generator.Neo4jFormat;
-import uk.gov.gchq.gaffer.data.generator.NeptuneFormat;
+import uk.gov.gchq.gaffer.data.generator.Neo4jCsvGenerator;
+import uk.gov.gchq.gaffer.data.generator.NeptuneCsvGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
@@ -43,7 +42,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -83,10 +81,11 @@ public class ToCsvHandlerTest {
 
         final ToCsvHandler handler = new ToCsvHandler();
 
-        //When
-        final Iterable<? extends String> results = handler.doOperation(operation, new Context(), null);
+        // When
+        when(storeMock.execute(any(GetSchema.class), any())).thenReturn(makeSchema());
+        final Iterable<? extends String> results = handler.doOperation(operation, new Context(), storeMock);
 
-        //Then
+        // Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
                 "BasicEntity,vertex1,,1,A Constant", "BasicEntity,vertex2,,,A Constant",
@@ -120,10 +119,11 @@ public class ToCsvHandlerTest {
 
         final ToCsvHandler handler = new ToCsvHandler();
 
-        //When
-        final Iterable<? extends String> results = handler.doOperation(operation, new Context(), null);
+        // When
+        when(storeMock.execute(any(GetSchema.class), any())).thenReturn(makeSchema());
+        final Iterable<? extends String> results = handler.doOperation(operation, new Context(), storeMock);
 
-        //Then
+        // Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
                 "\"BasicEntity\",\"vertex1\",,\"1\",\"A Constant\"", "\"BasicEntity\",\"vertex2\",,,\"A Constant\"",
@@ -158,10 +158,11 @@ public class ToCsvHandlerTest {
 
         final ToCsvHandler handler = new ToCsvHandler();
 
-        //When
-        final Iterable<? extends String> results = handler.doOperation(operation, new Context(), null);
+        // When
+        when(storeMock.execute(any(GetSchema.class), any())).thenReturn(makeSchema());
+        final Iterable<? extends String> results = handler.doOperation(operation, new Context(), storeMock);
 
-        //Then
+        // Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
                 "BasicEntity,vertex1-with comma,,1,A Constant", "BasicEntity,vertex2,,,A Constant",
@@ -195,10 +196,11 @@ public class ToCsvHandlerTest {
 
         final ToCsvHandler handler = new ToCsvHandler();
 
-        //When
-        final Iterable<? extends String> results = handler.doOperation(operation, new Context(), null);
+        // When
+        when(storeMock.execute(any(GetSchema.class), any())).thenReturn(makeSchema());
+        final Iterable<? extends String> results = handler.doOperation(operation, new Context(), storeMock);
 
-        //Then
+        // Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
                 "Group Label,Vertex Label,Source Label,Count Label,Some constant value",
@@ -213,7 +215,6 @@ public class ToCsvHandlerTest {
     @Test
     public void shouldConvertToNeptuneFormattedCsv() throws OperationException {
         // Given
-        NeptuneFormat neptuneFormat = new NeptuneFormat();
         final List<Element> elements = Lists.newArrayList(
                 makeEntity("vertex1", "count", 1),
                 makeEntity("vertex2"),
@@ -223,16 +224,16 @@ public class ToCsvHandlerTest {
 
         final ToCsv operation = new ToCsv.Builder()
                 .input(elements)
-                .csvFormat(neptuneFormat)
+                .generator(new NeptuneCsvGenerator())
                 .build();
 
         final ToCsvHandler handler = new ToCsvHandler();
 
-        //When
+        // When
         when(storeMock.execute(any(GetSchema.class), any())).thenReturn(makeSchema());
         final Iterable<? extends String> results = handler.doOperation(operation, new Context(), storeMock);
 
-        //Then
+        // Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
                 ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:Int,DIRECTED:Boolean",
@@ -247,7 +248,6 @@ public class ToCsvHandlerTest {
     @Test
     public void shouldConvertToNeo4jFormattedCsv() throws OperationException {
         // Given
-        Neo4jFormat neo4jFormat = new Neo4jFormat();
         final List<Element> elements = Lists.newArrayList(
                 makeEntity("vertex1", "count", 1),
                 makeEntity("vertex2"),
@@ -257,16 +257,16 @@ public class ToCsvHandlerTest {
 
         final ToCsv operation = new ToCsv.Builder()
                 .input(elements)
-                .csvFormat(neo4jFormat)
+                .generator(new Neo4jCsvGenerator())
                 .build();
 
         final ToCsvHandler handler = new ToCsvHandler();
 
-        //When
+        // When
         when(storeMock.execute(any(GetSchema.class), any())).thenReturn(makeSchema());
         final Iterable<? extends String> results = handler.doOperation(operation, new Context(), storeMock);
 
-        //Then
+        // Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
                 "_id,_labels,_type,_start,_end,count:Int,DIRECTED:Boolean",
@@ -279,39 +279,7 @@ public class ToCsvHandlerTest {
     }
 
     @Test
-    public void shouldErrorIfBothGeneratorAndCsvFormatAreSupplied() throws IllegalArgumentException {
-        // Given
-        final List<Element> elements = Lists.newArrayList(
-                makeEntity("vertex1", "count", 1),
-                makeEntity("vertex2"),
-                makeEdge("source1", "count", 1),
-                makeEdge("source2")
-        );
-        final CsvFormat csvFormat = new Neo4jFormat();
-        final CsvGenerator generator = new CsvGenerator.Builder()
-                .vertex("vertex")
-                .group("group")
-                .source("source")
-                .destination("destination")
-                .build();
-        final ToCsv operation = new ToCsv.Builder()
-                .generator(generator)
-                .csvFormat(csvFormat)
-                .input(elements)
-                .includeHeader(false)
-                .build();
-        final ToCsvHandler handler = new ToCsvHandler();
-
-        // When Then
-        assertThatThrownBy(() -> {
-            handler.doOperation(operation, new Context(), storeMock);
-        }).isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("ToCsv operation requires either a generator or a CsvFormat not both");
-
-    }
-
-    @Test
-    public void shouldErrorIfNeitherGeneratorNorCsvFormatAreSupplied() throws IllegalArgumentException {
+    public void shouldErrorIfGeneratorNotSupplied() throws IllegalArgumentException {
         // Given
         final List<Element> elements = Lists.newArrayList(
                 makeEntity("vertex1", "count", 1),
@@ -330,7 +298,7 @@ public class ToCsvHandlerTest {
         assertThatThrownBy(() -> {
             handler.doOperation(operation, new Context(), storeMock);
         }).isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("ToCsv operation requires a generator, supply one or provide a CsvFormat");
+                .hasMessageContaining("ToCsv operation requires a generator");
 
     }
 
@@ -399,15 +367,5 @@ public class ToCsvHandlerTest {
                 .type("true", Boolean.class)
                 .build();
         return schema;
-    }
-    private Iterable<String> getPropertiesFromSchema(Schema schema) {
-        List<String> propertyNames = new ArrayList<String>();
-        for (SchemaEntityDefinition schemaEntityDefinition : schema.getEntities().values()) {
-            propertyNames.addAll(schemaEntityDefinition.getProperties());
-        }
-        for (SchemaEdgeDefinition schemaEdgeDefinition : schema.getEdges().values()) {
-            propertyNames.addAll(schemaEdgeDefinition.getProperties());
-        }
-        return propertyNames;
     }
 }

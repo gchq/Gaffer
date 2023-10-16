@@ -16,6 +16,10 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
@@ -25,7 +29,6 @@ import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
 import java.util.Map;
@@ -33,15 +36,21 @@ import java.util.Map;
 /**
  * Operation handler for {@link AddNamedView} which adds a NamedViewDetail to the cache.
  */
-public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
+public class AddNamedViewHandler implements AddToCacheHandler<AddNamedView> {
     private final NamedViewCache cache;
 
-    public AddNamedViewHandler(final String suffixCacheName) {
-        this(new NamedViewCache(suffixCacheName));
+    @JsonCreator
+    public AddNamedViewHandler(@JsonProperty("suffixNamedViewCacheName") final String suffixNamedViewCacheName) {
+        this(new NamedViewCache(suffixNamedViewCacheName));
     }
 
     public AddNamedViewHandler(final NamedViewCache cache) {
         this.cache = cache;
+    }
+
+    @JsonGetter("suffixNamedViewCacheName")
+    public String getSuffixCacheName() {
+        return cache.getSuffixCacheName();
     }
 
     /**

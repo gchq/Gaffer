@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator;
 
-import com.yahoo.sketches.frequencies.ItemsSketch;
+import org.apache.datasketches.frequencies.ItemsSketch;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -28,7 +29,7 @@ import java.util.function.BinaryOperator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class StringsSketchAggregatorTest extends BinaryOperatorTest {
+public class StringsSketchAggregatorTest extends BinaryOperatorTest<StringsSketchAggregator> {
 
     @Test
     public void testAggregate() {

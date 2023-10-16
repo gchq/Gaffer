@@ -83,7 +83,7 @@ public class AddNamedOperationHandlerTest {
     @BeforeEach
     public void before() throws CacheOperationException {
         storedOperations.clear();
-        handler = new AddNamedOperationHandler(mockCache);
+        handler = new AddNamedOperationHandler(mockCache, true);
 
         addNamedOperation.setOperationName(OPERATION_NAME);
 
@@ -126,6 +126,9 @@ public class AddNamedOperationHandlerTest {
         final OperationChain<?> child = new OperationChain.Builder().first(new AddElements()).build();
         addNamedOperation.setOperationChain(child);
         addNamedOperation.setOperationName("child");
+
+        //isNestedNamedOperationsAllowed = FALSE
+        handler = new AddNamedOperationHandler(mockCache, false);
         handler.doOperation(addNamedOperation, context, store);
 
         final OperationChain<?> parent = new OperationChain.Builder()
@@ -138,6 +141,28 @@ public class AddNamedOperationHandlerTest {
 
         assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(addNamedOperation, context, store));
     }
+
+    @Test
+    public void shouldAllowForRecursiveNamedOperationsToBeNested() throws OperationException {
+        final OperationChain<?> child = new OperationChain.Builder().first(new AddElements()).build();
+        addNamedOperation.setOperationChain(child);
+        addNamedOperation.setOperationName("child");
+
+        //isNestedNamedOperationsAllowed = TRUE
+        handler = new AddNamedOperationHandler(mockCache, true);
+        handler.doOperation(addNamedOperation, context, store);
+
+        final OperationChain<?> parent = new OperationChain.Builder()
+                .first(new NamedOperation.Builder().name("child").build())
+                .then(new GetElements())
+                .build();
+
+        addNamedOperation.setOperationChain(parent);
+        addNamedOperation.setOperationName("parent");
+
+        handler.doOperation(addNamedOperation, context, store);
+    }
+
 
     @Test
     public void shouldAllowForOperationChainJSONWithParameter() throws OperationException {

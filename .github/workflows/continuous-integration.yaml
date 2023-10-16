@@ -8,7 +8,8 @@ on:
     branches:
       - 'release/**'
       - 'hotfix/**'
-      - 'alpha-release/**'
+      - develop
+      - master
 
 jobs:
   check-all-modules-are-tested:
@@ -72,6 +73,8 @@ jobs:
             values: :library,:time-library
           - name: Caches
             values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
+          - name: Tinkerpop
+            values: :tinkerpop
         exclude:
           - os: windows-latest
             modules:
@@ -88,7 +91,6 @@ jobs:
           - os: windows-latest
             modules:
               name: Rest
-
     env:
       MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
     steps:
@@ -121,6 +123,29 @@ jobs:
         if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest'
         run: mvn -B -ntp spotless:check -pl ${{matrix.modules.values}}
 
-      - name: Upload Coverage
+      - name: Add JaCoCo reports to artifact
+        uses: actions/upload-artifact@v3
         if: matrix.os == 'ubuntu-latest'
-        uses: codecov/codecov-action@v2
+        with:
+          name: combined-jacoco-coverage
+          path: "*/**/jacoco.xml"
+          retention-days: 5
+
+  upload-test-coverage:
+    name: Upload coverage to Codecov
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-run-tests
+    steps:
+      - uses: actions/checkout@v3 # Codecov need to see the src code to pair with coverage
+
+      - name: Fetch JaCoCo reports artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: combined-jacoco-coverage
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          name: gaffer-coverage
+          fail_ci_if_error: true # Ensures upload doesn't fail silently

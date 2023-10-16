@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,6 @@ import static java.util.Objects.requireNonNull;
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public abstract class CardinalityEntityGenerator<T> implements OneToManyElementGenerator<Element> {
-    private final Function<Object, T> toSketch;
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     private Function<Object, Object> vertexValueConverter;
 
@@ -59,9 +57,7 @@ public abstract class CardinalityEntityGenerator<T> implements OneToManyElementG
      */
     private final Set<String> propertiesToCopy = new HashSet<>();
 
-    public CardinalityEntityGenerator(final Function<Object, T> toSketch) {
-        this.toSketch = toSketch;
-    }
+    public abstract Function<Object, T> getToSketchFunction();
 
     @Override
     public Iterable<Element> _apply(final Element element) {
@@ -195,11 +191,11 @@ public abstract class CardinalityEntityGenerator<T> implements OneToManyElementG
             return null;
         }
 
-        Object adjVertexFormatted = nonNull(vertexValueConverter) ? vertexValueConverter.apply(adjVertex) : adjVertex;
+        final Object adjVertexFormatted = nonNull(vertexValueConverter) ? vertexValueConverter.apply(adjVertex) : adjVertex;
         final Entity entity = new Entity.Builder()
                 .group(group)
                 .vertex(vertex)
-                .property(cardinalityPropertyName, toSketch.apply(adjVertexFormatted))
+                .property(cardinalityPropertyName, getToSketchFunction().apply(adjVertexFormatted))
                 .build();
         for (final String key : propertiesToCopy) {
             final Object value = edge.getProperty(key);

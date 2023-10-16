@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
@@ -63,8 +64,8 @@ public class FederatedGraphStorage {
     private final FederatedStoreCache federatedStoreCache;
     private GraphLibrary graphLibrary;
 
-    public FederatedGraphStorage(final String cacheNameSuffix) {
-        federatedStoreCache = new FederatedStoreCache(cacheNameSuffix);
+    public FederatedGraphStorage(final String suffixFederatedStoreCacheName) {
+        federatedStoreCache = new FederatedStoreCache(suffixFederatedStoreCacheName);
     }
 
     protected void startCacheServiceLoader() throws StorageException {
@@ -202,11 +203,11 @@ public class FederatedGraphStorage {
         if (CacheServiceLoader.isEnabled()) {
             try {
                 final GraphSerialisable graphFromCache = federatedStoreCache.getGraphFromCache(graphId);
-                final String cacheServiceNameSuffix = graphFromCache.getStoreProperties().getCacheServiceNameSuffix(graphId);
+                final StoreProperties storeProperties = graphFromCache.getStoreProperties();
                 final ArrayList<String> cacheNames = Lists.newArrayList(
-                        NamedViewCache.getCacheNameFrom(cacheServiceNameSuffix),
-                        NamedOperationCache.getCacheNameFrom(cacheServiceNameSuffix),
-                        JobTracker.getCacheNameFrom(cacheServiceNameSuffix));
+                        NamedViewCache.getCacheNameFrom(storeProperties.getCacheServiceNamedViewSuffix(graphId)),
+                        NamedOperationCache.getCacheNameFrom(storeProperties.getCacheServiceNamedOperationSuffix(graphId)),
+                        JobTracker.getCacheNameFrom(storeProperties.getCacheServiceJobTrackerSuffix(graphId)));
                 for (final String cacheName : cacheNames) {
                     final ICache<Object, Object> cache = CacheServiceLoader.getService().getCache(cacheName);
                     if (nonNull(cache)) {

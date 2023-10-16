@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@ package uk.gov.gchq.gaffer.sketches.datasketches.cardinality;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.yahoo.sketches.hll.HllSketch;
+import org.apache.datasketches.hll.HllSketch;
 
 import uk.gov.gchq.gaffer.sketches.CardinalityEntityGenerator;
 import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function.ToHllSketch;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
+
+import java.util.function.Function;
 
 /**
  * Generates {@link HllSketch} Entities for each end of an Edge.
@@ -33,12 +35,6 @@ import uk.gov.gchq.koryphe.Summary;
 @Summary("Generates HllSketch sketch Entities for each end of an Edge")
 @JsonPropertyOrder(value = {"group", "cardinalityPropertyName", "edgeGroupPropertyName", "propertiesToCopy"}, alphabetic = true)
 public class HllSketchEntityGenerator extends CardinalityEntityGenerator<HllSketch> {
-    private static final ToHllSketch TO_HLL_SKETCH = new ToHllSketch();
-
-    public HllSketchEntityGenerator() {
-        super(TO_HLL_SKETCH);
-    }
-
     @Override
     public HllSketchEntityGenerator propertyToCopy(final String propertyToCopy) {
         return (HllSketchEntityGenerator) super.propertyToCopy(propertyToCopy);
@@ -67,5 +63,10 @@ public class HllSketchEntityGenerator extends CardinalityEntityGenerator<HllSket
     @Override
     public HllSketchEntityGenerator edgeGroupProperty(final String edgeGroupProperty) {
         return (HllSketchEntityGenerator) super.edgeGroupProperty(edgeGroupProperty);
+    }
+
+    @Override
+    public Function<Object, HllSketch> getToSketchFunction() {
+        return new ToHllSketch();
     }
 }

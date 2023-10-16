@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator;
 
 import com.clearspring.analytics.stream.cardinality.CardinalityMergeException;
@@ -28,6 +29,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  */
 @Since("1.0.0")
 @Summary("Aggregates HyperLogLogPlus objects")
+@Deprecated
 public class HyperLogLogPlusAggregator extends KorypheBinaryOperator<HyperLogLogPlus> {
     @Override
     protected HyperLogLogPlus _apply(final HyperLogLogPlus a, final HyperLogLogPlus b) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.core.exception.Status.BAD_REQUEST;
@@ -91,6 +91,32 @@ public class OperationControllerTest {
                 .build();
 
         when(graphFactory.getGraph()).thenReturn(graph);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    @Test
+    public void shouldReturnAllSupportedOperations() {
+        // Given
+        when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(AddElements.class, GetElements.class));
+
+        // When
+        final Set<Class<? extends Operation>> allOperations = operationController.getOperations();
+
+        // Then
+        assertThat(allOperations).hasSize(2);
+        assertThat(allOperations).contains(AddElements.class, GetElements.class);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    @Test
+    public void shouldReturnAllOperations() {
+        // Given / When
+        final Set<Class> allOperations = (Set) operationController.getOperationsIncludingUnsupported();
+
+        // Then
+        final Set<Class> allExpectedOperations = ReflectionUtil.getSubTypes(Operation.class);
+        assertThat(allOperations).containsExactlyInAnyOrderElementsOf(allExpectedOperations);
+        assertThat(allOperations).isNotEmpty();
     }
 
     @SuppressWarnings({"unchecked"})

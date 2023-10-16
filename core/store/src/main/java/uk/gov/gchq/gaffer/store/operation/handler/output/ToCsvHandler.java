@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
@@ -34,32 +32,24 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 
 import static uk.gov.gchq.gaffer.data.element.IdentifierType.DIRECTED;
-import static uk.gov.gchq.gaffer.data.generator.OpenCypherFormat.TYPE_MAPPINGS;
-
 
 /**
  * A {@code ToCsvHandler} handles {@link ToCsv} operations by applying the provided
- * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to each item in the
+ * {@link uk.gov.gchq.gaffer.data.generator.CsvGenerator} to each item in the
  * input {@link Iterable}.
  */
 public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? extends String>> {
     @Override
     public Iterable<? extends String> doOperation(final ToCsv operation, final Context context, final Store store) throws OperationException {
-        CsvGenerator csvGenerator;
         if (null == operation.getInput()) {
             return null;
         }
 
-        if (null == operation.getElementGenerator() && null == operation.getCsvFormat()) {
-            throw new IllegalArgumentException("ToCsv operation requires a generator, supply one or provide a CsvFormat");
-        } else if (null != operation.getElementGenerator() && null != operation.getCsvFormat()) {
-            throw new IllegalArgumentException("ToCsv operation requires either a generator or a CsvFormat not both");
-        } else if (null == operation.getElementGenerator() && null != operation.getCsvFormat()) {
-            final Schema schema = store.execute(new GetSchema(), context);
-            csvGenerator = createGenerator(operation.getCsvFormat(), getPropertyHeadersFromSchema(schema));
-        } else {
-            csvGenerator = operation.getElementGenerator();
+        if (null == operation.getCsvGenerator()) {
+            throw new IllegalArgumentException("ToCsv operation requires a generator");
         }
+        final CsvGenerator csvGenerator = operation.getCsvGenerator();
+        csvGenerator.addAdditionalFieldsFromSchemaProperties(getPropertiesFromSchema(store.execute(new GetSchema(), context)));
 
         final Iterable<? extends String> csv = csvGenerator.apply(operation.getInput());
         if (operation.isIncludeHeader()) {
@@ -69,38 +59,26 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
         return csv;
     }
 
-    private LinkedHashMap<String, String> getPropertyHeadersFromSchema(final Schema schema) {
-        LinkedHashMap<String, String> propertyHeadersFromSchema = new LinkedHashMap<>();
+    private LinkedHashMap<String, Class<?>> getPropertiesFromSchema(final Schema schema) {
+        final LinkedHashMap<String, Class<?>>  propertiesFromSchema = new LinkedHashMap<>();
+
         for (final SchemaEntityDefinition schemaEntityDefinition : schema.getEntities().values()) {
-            for (final String propertyName:schemaEntityDefinition.getProperties()) {
-                String typeName = schemaEntityDefinition.getPropertyTypeName(propertyName);
-                propertyHeadersFromSchema.put(propertyName, schema.getType(typeName).getClazz().getSimpleName());
+            for (final String propertyName : schemaEntityDefinition.getProperties()) {
+                final String typeName = schemaEntityDefinition.getPropertyTypeName(propertyName);
+                propertiesFromSchema.put(propertyName, schema.getType(typeName).getClazz());
             }
         }
+
         for (final SchemaEdgeDefinition schemaEdgeDefinition : schema.getEdges().values()) {
-            for (final IdentifierType identifierType : schemaEdgeDefinition.getIdentifiers()) {
-                if (identifierType.equals(DIRECTED)) {
-                    final String typeName = schemaEdgeDefinition.getIdentifierTypeName(identifierType);
-                    propertyHeadersFromSchema.put(identifierType.toString(), schema.getType(typeName).getClazz().getSimpleName());
-                }
-            }
             for (final String propertyName : schemaEdgeDefinition.getProperties()) {
                 final String typeName = schemaEdgeDefinition.getPropertyTypeName(propertyName);
-                final String javaType = schema.getType(typeName).getClazz().getSimpleName();
-                final String openCypherType = TYPE_MAPPINGS.getOrDefault(javaType, javaType);
-
-                propertyHeadersFromSchema.put(propertyName, openCypherType);
+                propertiesFromSchema.put(propertyName, schema.getType(typeName).getClazz());
             }
+
+            final String directedTypeName = schemaEdgeDefinition.getIdentifierTypeName(DIRECTED);
+            propertiesFromSchema.put(DIRECTED.toString(), schema.getType(directedTypeName).getClazz());
         }
-        return propertyHeadersFromSchema;
-    }
-
-
-    private CsvGenerator createGenerator(final CsvFormat csvFormat, final LinkedHashMap<String, String> propertyHeadersFromSchema) {
-        return new CsvGenerator.Builder()
-                .identifiersFromFormat(CsvFormat.getIdentifiers(csvFormat))
-                .propertyHeadersFromSchema(propertyHeadersFromSchema)
-                .build();
+        return propertiesFromSchema;
     }
 
 }

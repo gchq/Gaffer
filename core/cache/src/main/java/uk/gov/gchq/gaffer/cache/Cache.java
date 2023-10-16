@@ -108,6 +108,12 @@ public class Cache<K, V> {
         }
     }
 
+    public String getSuffixCacheNameWithoutPrefix(final String prefixCacheServiceName) {
+        return getCacheName().equals(prefixCacheServiceName)
+                ? null
+                : getCacheName().substring(prefixCacheServiceName.length() + 1);
+    }
+
     public static String getCacheNameFrom(final String prefixCacheServiceName, final String suffixCacheName) {
         return String.format("%s%s", prefixCacheServiceName,
                 nonNull(suffixCacheName)

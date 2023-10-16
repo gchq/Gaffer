@@ -40,15 +40,19 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
     public static final String CACHE_SERVICE_NAME_PREFIX = "NamedOperation";
     public static final String NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX = "NamedOperation Cache was made with Null or Empty suffix, This is very likely a mistake. GraphId or a supplied suffix is normal";
 
-    public NamedOperationCache(final String suffixCacheName) {
-        super(getCacheNameFrom(suffixCacheName));
-        if (Strings.isNullOrEmpty(suffixCacheName)) {
+    public NamedOperationCache(final String suffixNamedOperationCacheName) {
+        super(getCacheNameFrom(suffixNamedOperationCacheName));
+        if (Strings.isNullOrEmpty(suffixNamedOperationCacheName)) {
             LOGGER.error(NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX);
         }
     }
 
-    public static String getCacheNameFrom(final String suffixCacheName) {
-        return Cache.getCacheNameFrom(CACHE_SERVICE_NAME_PREFIX, suffixCacheName);
+    public static String getCacheNameFrom(final String suffixNamedOperationCacheName) {
+        return Cache.getCacheNameFrom(CACHE_SERVICE_NAME_PREFIX, suffixNamedOperationCacheName);
+    }
+
+    public String getSuffixCacheName() {
+        return getSuffixCacheNameWithoutPrefix(CACHE_SERVICE_NAME_PREFIX);
     }
 
     /**
@@ -121,7 +125,11 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
         }
         final NamedOperationDetail op = super.getFromCache(name);
 
-        return op;
+        if (null == op) {
+            throw new CacheOperationException("No named operation with the name " + name + " exists in the cache:" + cacheName);
+        } else {
+            return op;
+        }
     }
 
     /**

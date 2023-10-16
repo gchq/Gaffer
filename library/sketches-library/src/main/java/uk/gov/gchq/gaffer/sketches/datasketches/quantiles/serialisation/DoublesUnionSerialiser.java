@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
-import com.yahoo.memory.WritableMemory;
-import com.yahoo.sketches.quantiles.DoublesUnion;
+import org.apache.datasketches.memory.WritableMemory;
+import org.apache.datasketches.quantiles.DoublesUnion;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -41,7 +42,7 @@ public class DoublesUnionSerialiser implements ToBytesSerialiser<DoublesUnion> {
     @Override
     public DoublesUnion deserialise(final byte[] bytes) throws SerialisationException {
         final DoublesUnion union = DoublesUnion.builder().build();
-        union.update(WritableMemory.wrap(bytes));
+        union.union(WritableMemory.writableWrap(bytes));
         return union;
     }
 

@@ -61,7 +61,6 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.add.CsvToElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -127,7 +126,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.SetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateOperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.WhileHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.add.CsvToElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MaxHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MinHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.SortHandler;
@@ -811,7 +809,7 @@ public abstract class Store {
 
     protected JobTracker createJobTracker() {
         if (properties.getJobTrackerEnabled()) {
-            return new JobTracker(getProperties().getCacheServiceNameSuffix());
+            return new JobTracker(getProperties().getCacheServiceJobTrackerSuffix(graphId));
         }
         return null;
     }
@@ -1006,14 +1004,12 @@ public abstract class Store {
         addOperationHandler(GetSetExport.class, new GetSetExportHandler());
         addOperationHandler(GetExports.class, new GetExportsHandler());
 
-        //Import
-        addOperationHandler(CsvToElements.class, new CsvToElementsHandler());
-
         // Jobs
         if (nonNull(getJobTracker())) {
             addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
             addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
             addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
+            addOperationHandler(CancelScheduledJob.class, new CancelScheduledJobHandler());
         }
 
         // Output
@@ -1029,14 +1025,16 @@ public abstract class Store {
         if (nonNull(CacheServiceLoader.getService())) {
             // Named operation
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
-            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(properties.getCacheServiceNameSuffix(graphId)));
-            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler(properties.getCacheServiceNameSuffix(graphId)));
-            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(properties.getCacheServiceNameSuffix(graphId)));
+            final String suffixNamedOperationCacheName = properties.getCacheServiceNamedOperationSuffix(graphId);
+            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(suffixNamedOperationCacheName, properties.isNestedNamedOperationAllow()));
+            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler(suffixNamedOperationCacheName));
+            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(suffixNamedOperationCacheName));
 
             // Named view
-            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(properties.getCacheServiceNameSuffix(graphId)));
-            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler(properties.getCacheServiceNameSuffix(graphId)));
-            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler(properties.getCacheServiceNameSuffix(graphId)));
+            final String suffixNamedViewCacheName = properties.getCacheServiceNamedViewSuffix(graphId);
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(suffixNamedViewCacheName));
+            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler(suffixNamedViewCacheName));
+            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler(suffixNamedViewCacheName));
         }
 
         // ElementComparison
@@ -1070,7 +1068,6 @@ public abstract class Store {
         addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
         addOperationHandler(Reduce.class, new ReduceHandler());
         addOperationHandler(Join.class, new JoinHandler());
-        addOperationHandler(CancelScheduledJob.class, new CancelScheduledJobHandler());
 
         // Context variables
         addOperationHandler(SetVariable.class, new SetVariableHandler());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
-import com.yahoo.sketches.quantiles.DoublesSketch;
-import com.yahoo.sketches.quantiles.DoublesUnion;
+import org.apache.datasketches.quantiles.DoublesSketch;
+import org.apache.datasketches.quantiles.DoublesUnion;
 
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -33,8 +34,8 @@ public class DoublesSketchAggregator extends KorypheBinaryOperator<DoublesSketch
     @Override
     protected DoublesSketch _apply(final DoublesSketch a, final DoublesSketch b) {
         final DoublesUnion union = DoublesUnion.builder().setMaxK(a.getK()).build();
-        union.update(a);
-        union.update(b);
+        union.union(a);
+        union.union(b);
         return union.getResult();
     }
 }

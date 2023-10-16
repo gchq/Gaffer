@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2022 Crown Copyright
+  ~ Copyright 2016-2023 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>2.0.0-alpha-1.5-SNAPSHOT</version>
+        <version>2.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>sketches-library</artifactId>
@@ -47,8 +47,8 @@
             <version>${clearspring.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.yahoo.datasketches</groupId>
-            <artifactId>sketches-core</artifactId>
+            <groupId>org.apache.datasketches</groupId>
+            <artifactId>datasketches-java</artifactId>
             <version>${datasketches.version}</version>
         </dependency>
 

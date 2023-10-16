@@ -1,2 +1,0 @@
-:ID,:LABEL,string_prop:String,int_prop:Int,double_prop:Double,dateTime_prop:DateTime,long_prop:Long,float_prop:Float,boolean_prop:Boolean,char_prop:Char,date_prop:Date,localDate_prop:LocalDate,localDateTime_prop:LocalDateTime,duration_prop:Duration,point_prop:Point,short-prop:Short,byte-prop:Byte
-v1,person,marko,29,0.4,2000-01-02 03:04:05,10,0.3,false,K,2000-01-01,2000-01-01,2015-07-04T19:32:24,P14DT16H12M,latitude:'13.10' longitude:'56.41',1,1

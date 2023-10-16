@@ -17,7 +17,7 @@ jobs:
 
     steps:
     - name: Checkout develop
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: develop
         token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
@@ -36,37 +36,20 @@ jobs:
       if: ${{ !github.event.inputs.version }}
       run: echo "CURRENT_VERSION=$(echo ${{ steps.get-latest-tag.outputs.tag }} | sed 's/^gaffer2-//')" >> $GITHUB_ENV
 
-    - name: Bump latest tag variable
+    - name: Bump latest tag variable version
       if: ${{ !github.event.inputs.version }}
-      uses: actions-ecosystem/action-bump-semver@v1
-      id: bump-semver
-      with:
-        current_version: ${{ env.CURRENT_VERSION }}
-        level: minor
-
-    - name: Set version automatically
-      if: ${{ !github.event.inputs.version }}
-      run: echo "RELEASE_VERSION=$(echo ${{ steps.bump-semver.outputs.new_version }} )" >> $GITHUB_ENV
+      run: echo "RELEASE_VERSION=$(echo ${{ env.CURRENT_VERSION }} | sed -r 's/([0-9]+)\.([0-9]+)\.([0-9]+)/echo \1.$((\2+1)).\3/' | sh)" >> $GITHUB_ENV
 
     - name: Verify version regex
-      uses: actions-ecosystem/action-regex-match@v2
-      id: regex-match
-      with:
-        text: ${{ env.RELEASE_VERSION }}
-        # Ensure valid semver version
-        regex: '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
-
-    - name: Fail if incorrect version
-      if: ${{ !steps.regex-match.outputs.match }}
-      run: exit 1
+      run: echo ${{ env.RELEASE_VERSION }} | grep -E '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
 
     - name: Set release branch
       run: echo "BRANCH_NAME=$(echo release/${{ env.RELEASE_VERSION }} )" >> $GITHUB_ENV
 
     - name: Set up Github credentials
       run: |
-        git config user.name Gaffer
-        git config user.email github-actions@github.com
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
     - name: Update versions
       run: |

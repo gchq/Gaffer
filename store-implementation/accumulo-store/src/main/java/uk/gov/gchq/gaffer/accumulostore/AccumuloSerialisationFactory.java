@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore;
 
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.HllSketchSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.LongsSketchSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.StringsSketchSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation.DoublesUnionSerialiser;
@@ -35,6 +36,7 @@ import uk.gov.gchq.gaffer.store.SerialisationFactory;
 public class AccumuloSerialisationFactory extends SerialisationFactory {
     private static final Serialiser[] ACCUMULO_SERIALISERS = {
             new HyperLogLogPlusSerialiser(),
+            new HllSketchSerialiser(),
             new LongsSketchSerialiser(),
             new StringsSketchSerialiser(),
             new DoublesUnionSerialiser(),

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Crown Copyright
+ * Copyright 2021-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality;
 
-import com.yahoo.sketches.hll.HllSketch;
+import org.apache.datasketches.hll.HllSketch;
 
 import org.junit.jupiter.api.Test;
 
@@ -41,72 +41,72 @@ class HllSketchEntityGeneratorTest {
 
     @Test
     public void shouldCreateSimpleEntities() {
-        //Given
-        HllSketchEntityGenerator hllSketchEntityGenerator = new HllSketchEntityGenerator();
-        Edge edge = new Edge.Builder()
+        // Given
+        final HllSketchEntityGenerator hllSketchEntityGenerator = new HllSketchEntityGenerator();
+        final Edge edge = new Edge.Builder()
                 .group(TestGroups.ENTITY)
                 .source(A)
                 .dest(B)
                 .build();
-        List<? extends Element> edges = Arrays.asList(edge);
+        final List<? extends Element> edges = Arrays.asList(edge);
 
-        //When
-        Iterable<? extends Element> elements = hllSketchEntityGenerator.apply(edges);
+        // When
+        final Iterable<? extends Element> elements = hllSketchEntityGenerator.apply(edges);
 
-        //Then
-        Iterator<? extends Element> elementIterator = elements.iterator();
-        Edge edgeResult = (Edge) elementIterator.next();
-        Entity entityResultA = (Entity) elementIterator.next();
-        Entity entityResultB = (Entity) elementIterator.next();
+        // Then
+        final Iterator<? extends Element> elementIterator = elements.iterator();
+        final Edge edgeResult = (Edge) elementIterator.next();
+        final Entity entityResultA = (Entity) elementIterator.next();
+        final Entity entityResultB = (Entity) elementIterator.next();
 
         assertThat(elementIterator.hasNext()).isFalse();
         assertThat(edgeResult).isEqualTo(edge);
 
         assertThat(entityResultA.getGroup()).isEqualTo(DEFAULT_ENTITY_GROUP);
         assertThat(entityResultA.getVertex()).isEqualTo(A);
-        HllSketch entityCardinalityA = (HllSketch) entityResultA.getProperty(DEFAULT_PROPERTY_NAME);
+        final HllSketch entityCardinalityA = (HllSketch) entityResultA.getProperty(DEFAULT_PROPERTY_NAME);
         assertThat(entityCardinalityA.getEstimate()).isEqualTo(1);
 
         assertThat(entityResultB.getGroup()).isEqualTo(DEFAULT_ENTITY_GROUP);
         assertThat(entityResultB.getVertex()).isEqualTo(B);
-        HllSketch entityCardinalityB = (HllSketch) entityResultB.getProperty(DEFAULT_PROPERTY_NAME);
+        final HllSketch entityCardinalityB = (HllSketch) entityResultB.getProperty(DEFAULT_PROPERTY_NAME);
         assertThat(entityCardinalityB.getEstimate()).isEqualTo(1);
     }
 
     @Test
     public void shouldCreateSimpleEntitiesWithProperties() {
-        //Given
-        HllSketchEntityGenerator hllSketchEntityGenerator = new HllSketchEntityGenerator();
+        // Given
+        final HllSketchEntityGenerator hllSketchEntityGenerator = new HllSketchEntityGenerator();
         hllSketchEntityGenerator.propertyToCopy(PROP1);
-        Edge edge = new Edge.Builder()
+        final Edge edge = new Edge.Builder()
                 .group(TestGroups.ENTITY)
                 .source(A)
                 .dest(B)
                 .property(PROP1, VALUE1)
                 .build();
-        List<? extends Element> edges = Arrays.asList(edge);
+        final List<? extends Element> edges = Arrays.asList(edge);
 
-        //When
-        Iterable<? extends Element> elements = hllSketchEntityGenerator.apply(edges);
+        // When
+        final Iterable<? extends Element> elements = hllSketchEntityGenerator.apply(edges);
 
-        //Then
-        Iterator<? extends Element> elementIterator = elements.iterator();
-        Edge edgeResult = (Edge) elementIterator.next();
-        Entity entityResultA = (Entity) elementIterator.next();
-        Entity entityResultB = (Entity) elementIterator.next();
+        // Then
+        final Iterator<? extends Element> elementIterator = elements.iterator();
+        final Edge edgeResult = (Edge) elementIterator.next();
+        final Entity entityResultA = (Entity) elementIterator.next();
+        final Entity entityResultB = (Entity) elementIterator.next();
 
         assertThat(elementIterator.hasNext()).isFalse();
         assertThat(edgeResult).isEqualTo(edge);
 
         assertThat(entityResultA.getGroup()).isEqualTo(DEFAULT_ENTITY_GROUP);
         assertThat(entityResultA.getVertex()).isEqualTo(A);
-        HllSketch entityCardinalityA = (HllSketch) entityResultA.getProperty(DEFAULT_PROPERTY_NAME);
+        final HllSketch entityCardinalityA = (HllSketch) entityResultA.getProperty(DEFAULT_PROPERTY_NAME);
         assertThat(entityCardinalityA.getEstimate()).isEqualTo(1);
         assertThat(entityResultA.getProperty(PROP1)).isEqualTo(VALUE1);
 
         assertThat(entityResultB.getGroup()).isEqualTo(DEFAULT_ENTITY_GROUP);
         assertThat(entityResultB.getVertex()).isEqualTo(B);
-        HllSketch entityCardinalityB = (HllSketch) entityResultB.getProperty(DEFAULT_PROPERTY_NAME);
+        final HllSketch entityCardinalityB = (HllSketch) entityResultB.getProperty(DEFAULT_PROPERTY_NAME);
         assertThat(entityCardinalityB.getEstimate()).isEqualTo(1);
         assertThat(entityResultB.getProperty(PROP1)).isEqualTo(VALUE1);
     }

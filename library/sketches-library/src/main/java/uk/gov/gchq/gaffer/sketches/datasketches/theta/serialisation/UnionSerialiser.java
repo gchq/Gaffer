@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation;
 
-import com.yahoo.memory.WritableMemory;
-import com.yahoo.sketches.theta.Sketches;
-import com.yahoo.sketches.theta.Union;
+import org.apache.datasketches.memory.WritableMemory;
+import org.apache.datasketches.theta.Sketches;
+import org.apache.datasketches.theta.Union;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -42,7 +43,7 @@ public class UnionSerialiser implements ToBytesSerialiser<Union> {
     @Override
     public Union deserialise(final byte[] bytes) throws SerialisationException {
         final Union union = Sketches.setOperationBuilder().buildUnion();
-        union.update(WritableMemory.wrap(bytes));
+        union.union(WritableMemory.writableWrap(bytes));
         return union;
     }
 

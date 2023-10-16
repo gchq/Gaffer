@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles;
 
-import com.yahoo.sketches.quantiles.ItemsSketch;
+import org.apache.datasketches.quantiles.ItemsSketch;
 
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
@@ -38,7 +39,7 @@ public class StringsSketchKryoSerializerTest extends KryoSerializerTest<ItemsSke
 
     @Override
     public ItemsSketch<String> getTestObject() {
-        final ItemsSketch<String> sketch = ItemsSketch.getInstance(Comparator.naturalOrder());
+        final ItemsSketch<String> sketch = ItemsSketch.getInstance(String.class, Comparator.naturalOrder());
         sketch.update("A");
         sketch.update("B");
         sketch.update("C");

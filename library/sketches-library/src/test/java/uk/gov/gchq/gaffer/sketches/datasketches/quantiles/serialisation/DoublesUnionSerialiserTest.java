@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
-import com.yahoo.sketches.quantiles.DoublesUnion;
+import org.apache.datasketches.quantiles.DoublesUnion;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -26,8 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DoublesUnionSerialiserTest extends ViaCalculatedValueSerialiserTest<DoublesUnion, Double> {
-    private static final double DELTA = 0.01D;
-
     @Override
     public Serialiser<DoublesUnion, byte[]> getSerialisation() {
         return new DoublesUnionSerialiser();
@@ -52,8 +51,10 @@ public class DoublesUnionSerialiserTest extends ViaCalculatedValueSerialiserTest
 
     @Override
     protected Double getTestValue(final DoublesUnion object) {
+        if (object.isEmpty()) {
+            return null;
+        }
         return object.getResult().getQuantile(0.5D);
-//        assertEquals(quantile1, unionDeserialised.getResult().getQuantile(0.5D), DELTA);
     }
 
     @Override

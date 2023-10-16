@@ -187,6 +187,13 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     }
 
     @Override
+    public Response getStoreType() {
+        return Response.ok(graphFactory.getGraph().getStoreProperties().getStoreClass())
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
+    }
+
+    @Override
     public Response getStoreTraits() {
         try {
             return Response.ok(graphFactory.getGraph().execute(new GetTraits.Builder().currentTraits(false).build(), userFactory.createContext()))

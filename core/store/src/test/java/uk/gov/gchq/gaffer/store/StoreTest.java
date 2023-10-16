@@ -73,7 +73,6 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.add.CsvToElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -483,9 +482,6 @@ public class StoreTest {
                         ExportToGafferResultCache.class,
                         GetGafferResultCacheExport.class,
 
-                        // Import
-                        CsvToElements.class,
-
                         // Jobs
                         GetJobDetails.class,
                         GetAllJobDetails.class,
@@ -599,9 +595,6 @@ public class StoreTest {
                         ExportToGafferResultCache.class,
                         GetGafferResultCacheExport.class,
 
-                        // Import
-                        CsvToElements.class,
-
                         // Jobs are disabled
 
                         // Output
@@ -658,7 +651,6 @@ public class StoreTest {
                         ToSingletonList.class,
                         ForEach.class,
                         Reduce.class,
-                        CancelScheduledJob.class,
 
                         // Function
                         Filter.class,
