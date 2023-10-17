@@ -16,8 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.factory;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -40,10 +39,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AbstractExamplesFactoryTest {
 
@@ -64,13 +63,13 @@ public class AbstractExamplesFactoryTest {
         for (ElementId e : operation.getInput()) {
             size++;
             if (e instanceof EntityId) {
-                assertEquals(String.class, ((EntityId) e).getVertex().getClass());
+                assertThat(((EntityId) e).getVertex()).isExactlyInstanceOf(String.class);
             } else {
-                assertEquals(String.class, ((EdgeId) e).getDestination().getClass());
-                assertEquals(String.class, ((EdgeId) e).getSource().getClass());
+                assertThat(((EdgeId) e).getDestination()).isExactlyInstanceOf(String.class);
+                assertThat(((EdgeId) e).getSource()).isExactlyInstanceOf(String.class);
             }
         }
-        assertEquals(2, size);
+        assertThat(size).isEqualTo(2);
     }
 
     @Test
@@ -86,12 +85,12 @@ public class AbstractExamplesFactoryTest {
         for (ElementId e : operation.getInput()) {
             size++;
             if (e instanceof EntityId) {
-                assertEquals(String.class, ((EntityId) e).getVertex().getClass());
+                assertThat(((EntityId) e).getVertex()).isExactlyInstanceOf(String.class);
             } else {
                 throw new RuntimeException("Expected operation only to contain entity ids");
             }
         }
-        assertEquals(1, size);
+        assertThat(size).isEqualTo(1);
     }
 
     @Test
@@ -103,7 +102,7 @@ public class AbstractExamplesFactoryTest {
         AddElements operation = (AddElements) examplesFactory.generateExample(AddElements.class);
 
         // Then
-        ArrayList<Element> expectedInput = Lists.newArrayList(
+        List<Element> expectedInput = Arrays.asList(
                 new Entity.Builder()
                         .group("BasicEntity")
                         .vertex("vertex1")
@@ -123,7 +122,7 @@ public class AbstractExamplesFactoryTest {
                         .build()
         );
 
-        assertEquals(expectedInput, Lists.newArrayList(operation.getInput()));
+        assertThat(Lists.newArrayList(operation.getInput())).isEqualTo(expectedInput);
     }
 
     @Test
@@ -136,9 +135,9 @@ public class AbstractExamplesFactoryTest {
 
         // Then
         // Sort has no equals method
-        assertEquals(1, operation.getComparators().size());
-        assertEquals(Sets.newHashSet("BasicEdge"), ((ElementPropertyComparator) operation.getComparators().get(0)).getGroups());
-        assertEquals("count", ((ElementPropertyComparator) operation.getComparators().get(0)).getProperty());
+        assertThat(operation.getComparators().size()).isEqualTo(1);
+        assertThat(((ElementPropertyComparator) operation.getComparators().get(0)).getGroups()).containsOnly("BasicEdge");
+        assertThat(((ElementPropertyComparator) operation.getComparators().get(0)).getProperty()).isEqualTo("count");
     }
 
     @Test
@@ -151,9 +150,9 @@ public class AbstractExamplesFactoryTest {
 
         // Then
         // Max has no equals method
-        assertEquals(1, operation.getComparators().size());
-        assertEquals(Sets.newHashSet("BasicEdge"), ((ElementPropertyComparator) operation.getComparators().get(0)).getGroups());
-        assertEquals("count", ((ElementPropertyComparator) operation.getComparators().get(0)).getProperty());
+        assertThat(operation.getComparators().size()).isEqualTo(1);
+        assertThat(((ElementPropertyComparator) operation.getComparators().get(0)).getGroups()).containsOnly("BasicEdge");
+        assertThat(((ElementPropertyComparator) operation.getComparators().get(0)).getProperty()).isEqualTo("count");
     }
 
     @Test
@@ -166,9 +165,9 @@ public class AbstractExamplesFactoryTest {
 
         // Then
         // Min has no equals method
-        assertEquals(1, operation.getComparators().size());
-        assertEquals(Sets.newHashSet("BasicEdge"), ((ElementPropertyComparator) operation.getComparators().get(0)).getGroups());
-        assertEquals("count", ((ElementPropertyComparator) operation.getComparators().get(0)).getProperty());
+        assertThat(operation.getComparators().size()).isEqualTo(1);
+        assertThat(((ElementPropertyComparator) operation.getComparators().get(0)).getGroups()).containsOnly("BasicEdge");
+        assertThat(((ElementPropertyComparator) operation.getComparators().get(0)).getProperty()).isEqualTo("count");
     }
 
     @Test
@@ -180,8 +179,8 @@ public class AbstractExamplesFactoryTest {
         GetWalks operation = (GetWalks) examplesFactory.generateExample(GetWalks.class);
 
         // Then
-        assertNull(operation.getInput());
-        assertEquals(0, operation.getOperations().size());
+        assertThat(operation.getInput()).isNull();
+        assertThat(operation.getOperations().size()).isEqualTo(0);
     }
 
     @Test
@@ -191,22 +190,23 @@ public class AbstractExamplesFactoryTest {
 
         // When
         GetWalks operation = (GetWalks) examplesFactory.generateExample(GetWalks.class);
+        List<OperationChain<Iterable<? extends Element>>> expectedOperations = Arrays.asList(
+                new OperationChain.Builder()
+                        .first(new GetElements.Builder()
+                            .view(new View.Builder()
+                                .edge("BasicEdge")
+                                .build())
+                            .build())
+                        .build());
 
         // Then
-        assertEquals(Lists.newArrayList(new EntitySeed("vertex1")), Lists.newArrayList(operation.getInput()));
-        assertEquals(Lists.newArrayList(new OperationChain.Builder()
-                .first(
-                        new GetElements.Builder()
-                                .view(new View.Builder()
-                                        .edge("BasicEdge")
-                                        .build())
-                                .build())
-                .build()), operation.getOperations());
+        assertThat(operation.getInput()).singleElement().isEqualTo(new EntitySeed("vertex1"));
+        assertThat(operation.getOperations()).isEqualTo(expectedOperations);
     }
 
     private static class TestExamplesFactory extends AbstractExamplesFactory {
 
-        private Schema schema;
+        private final Schema schema;
 
         TestExamplesFactory(final Schema schema) {
             this.schema = schema;

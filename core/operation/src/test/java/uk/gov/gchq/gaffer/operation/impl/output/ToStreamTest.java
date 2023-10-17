@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -24,8 +23,6 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class ToStreamTest extends OperationTest<ToStream> {
 
@@ -54,8 +51,8 @@ public class ToStreamTest extends OperationTest<ToStream> {
         final ToStream clone = toStream.shallowClone();
 
         // Then
-        assertNotSame(toStream, clone);
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertThat(clone).isNotSameAs(toStream);
+        assertThat(clone.getInput()).containsExactly(input);
     }
 
     @Test
@@ -64,7 +61,7 @@ public class ToStreamTest extends OperationTest<ToStream> {
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertEquals(Stream.class, outputClass);
+        assertThat(outputClass).isEqualTo(Stream.class);
     }
 
     @Override

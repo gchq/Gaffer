@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
@@ -38,12 +37,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ViewTest extends JSONSerialisationTest<View> {
 
@@ -51,8 +44,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
     public void shouldCreateEmptyViewWithBasicConstructor() {
         final View view = new View();
 
-        assertTrue(view.getEdges().isEmpty());
-        assertTrue(view.getEntities().isEmpty());
+        assertThat(view.getEdges().isEmpty()).isTrue();
+        assertThat(view.getEntities().isEmpty()).isTrue();
     }
 
     @Test
@@ -72,10 +65,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 .build();
 
         //Then
-        assertTrue(view.getEntityGroups().containsAll(entityGroups));
-        assertEquals(entityGroups.size(), view.getEntityGroups().size());
-        assertTrue(view.getEdgeGroups().containsAll(edgeGroups));
-        assertEquals(edgeGroups.size(), view.getEdgeGroups().size());
+        assertThat(view.getEntityGroups().containsAll(entityGroups)).isTrue();
+        assertThat(view.getEntityGroups()).hasSize(entityGroups.size());
+        assertThat(view.getEdgeGroups().containsAll(edgeGroups)).isTrue();
+        assertThat(view.getEdgeGroups()).hasSize(edgeGroups.size());
     }
 
     @Test
@@ -95,13 +88,13 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 .build();
 
         // Then
-        assertEquals(2, view.getEdges().size());
-        assertSame(edgeDef1, view.getEdge(TestGroups.EDGE));
-        assertSame(edgeDef2, view.getEdge(TestGroups.EDGE_2));
+        assertThat(view.getEdges()).hasSize(2);
+        assertThat(view.getEdge(TestGroups.EDGE)).isSameAs(edgeDef1);
+        assertThat(view.getEdge(TestGroups.EDGE_2)).isSameAs(edgeDef2);
 
-        assertEquals(2, view.getEntities().size());
-        assertSame(entityDef1, view.getEntity(TestGroups.ENTITY));
-        assertSame(entityDef2, view.getEntity(TestGroups.ENTITY_2));
+        assertThat(view.getEntities()).hasSize(2);
+        assertThat(view.getEntity(TestGroups.ENTITY)).isSameAs(entityDef1);
+        assertThat(view.getEntity(TestGroups.ENTITY_2)).isSameAs(entityDef2);
     }
 
     @Test
@@ -195,41 +188,41 @@ public class ViewTest extends JSONSerialisationTest<View> {
         deserialisedView.expandGlobalDefinitions();
 
         // Then
-        assertEquals(1, deserialisedView.getEntityGroups().size());
+        assertThat(deserialisedView.getEntityGroups()).hasSize(1);
         final ViewElementDefinition entityDef = deserialisedView.getEntity(TestGroups.ENTITY);
-        assertTrue(entityDef.getTransientProperties().isEmpty());
-        assertNull(entityDef.getTransformer());
-        assertEquals(2, entityDef.getPreAggregationFilter().getComponents().size());
-        assertTrue(entityDef.getPreAggregationFilter().getComponents().get(0).getPredicate() instanceof ExampleFilterFunction);
+        assertThat(entityDef.getTransientProperties().isEmpty()).isTrue();
+        assertThat(entityDef.getTransformer()).isNull();
+        assertThat(entityDef.getPreAggregationFilter().getComponents()).hasSize(2);
+        assertThat(entityDef.getPreAggregationFilter().getComponents().get(0).getPredicate()).isInstanceOf(ExampleFilterFunction.class);
         assertThat(entityDef.getPreAggregationFilter().getComponents().get(0).getSelection()).hasSize(1);
-        assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getComponents().get(0).getSelection()[0]);
-        assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getComponents().get(1).getSelection()[0]);
+        assertThat(entityDef.getPreAggregationFilter().getComponents().get(0).getSelection()[0]).isEqualTo(TestPropertyNames.PROP_1);
+        assertThat(entityDef.getPreAggregationFilter().getComponents().get(1).getSelection()[0]).isEqualTo(TestPropertyNames.PROP_1);
         assertThat(entityDef.getPostAggregationFilter().getComponents().get(0).getSelection()).hasSize(1);
-        assertEquals(IdentifierType.VERTEX.name(), entityDef.getPostAggregationFilter().getComponents().get(0).getSelection()[0]);
+        assertThat(entityDef.getPostAggregationFilter().getComponents().get(0).getSelection()[0]).isEqualTo(IdentifierType.VERTEX.name());
 
         final ViewElementDefinition edgeDef = deserialisedView.getEdge(TestGroups.EDGE);
-        assertEquals(1, edgeDef.getTransientProperties().size());
-        assertEquals(String.class, edgeDef.getTransientPropertyMap().get(TestPropertyNames.PROP_3));
-        assertEquals(1, edgeDef.getPreAggregationFilter().getComponents().size());
-        assertTrue(edgeDef.getPreAggregationFilter().getComponents().get(0).getPredicate() instanceof ExampleFilterFunction);
+        assertThat(edgeDef.getTransientProperties()).hasSize(1);
+        assertThat(edgeDef.getTransientPropertyMap().get(TestPropertyNames.PROP_3)).isEqualTo(String.class);
+        assertThat(edgeDef.getPreAggregationFilter().getComponents()).hasSize(1);
+        assertThat(edgeDef.getPreAggregationFilter().getComponents().get(0).getPredicate()).isInstanceOf(ExampleFilterFunction.class);
         assertThat(edgeDef.getPreAggregationFilter().getComponents().get(0).getSelection()).hasSize(1);
-        assertEquals(TestPropertyNames.PROP_1, edgeDef.getPreAggregationFilter().getComponents().get(0).getSelection()[0]);
-        assertEquals(1, edgeDef.getTransformer().getComponents().size());
-        assertTrue(edgeDef.getTransformer().getComponents().get(0).getFunction() instanceof ExampleTransformFunction);
+        assertThat(edgeDef.getPreAggregationFilter().getComponents().get(0).getSelection()[0]).isEqualTo(TestPropertyNames.PROP_1);
+        assertThat(edgeDef.getTransformer().getComponents()).hasSize(1);
+        assertThat(edgeDef.getTransformer().getComponents().get(0).getFunction()).isInstanceOf(ExampleTransformFunction.class);
         assertThat(edgeDef.getTransformer().getComponents().get(0).getSelection()).hasSize(2);
-        assertEquals(TestPropertyNames.PROP_1, edgeDef.getTransformer().getComponents().get(0).getSelection()[0]);
-        assertEquals(TestPropertyNames.PROP_2, edgeDef.getTransformer().getComponents().get(0).getSelection()[1]);
+        assertThat(edgeDef.getTransformer().getComponents().get(0).getSelection()[0]).isEqualTo(TestPropertyNames.PROP_1);
+        assertThat(edgeDef.getTransformer().getComponents().get(0).getSelection()[1]).isEqualTo(TestPropertyNames.PROP_2);
         assertThat(edgeDef.getTransformer().getComponents().get(0).getProjection()).hasSize(1);
-        assertEquals(TestPropertyNames.PROP_3, edgeDef.getTransformer().getComponents().get(0).getProjection()[0]);
-        assertEquals(1, edgeDef.getPostTransformFilter().getComponents().size());
-        assertTrue(edgeDef.getPostTransformFilter().getComponents().get(0).getPredicate() instanceof ExampleFilterFunction);
+        assertThat(edgeDef.getTransformer().getComponents().get(0).getProjection()[0]).isEqualTo(TestPropertyNames.PROP_3);
+        assertThat(edgeDef.getPostTransformFilter().getComponents()).hasSize(1);
+        assertThat(edgeDef.getPostTransformFilter().getComponents().get(0).getPredicate()).isInstanceOf(ExampleFilterFunction.class);
         assertThat(edgeDef.getPostTransformFilter().getComponents().get(0).getSelection()).hasSize(1);
-        assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter().getComponents().get(0).getSelection()[0]);
+        assertThat(edgeDef.getPostTransformFilter().getComponents().get(0).getSelection()[0]).isEqualTo(TestPropertyNames.PROP_3);
         assertThat(edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection()).hasSize(1);
-        assertEquals(IdentifierType.SOURCE.name(), edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection()[0]);
+        assertThat(edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection()[0]).isEqualTo(IdentifierType.SOURCE.name());
 
-        assertEquals(view.getConfig(), deserialisedView.getConfig());
-        assertEquals("value1", deserialisedView.getConfig().get("key1"));
+        assertThat(deserialisedView.getConfig()).isEqualTo(view.getConfig());
+        assertThat(deserialisedView.getConfig().get("key1")).isEqualTo("value1");
     }
 
     @Override
@@ -410,23 +403,23 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final View clone = view.clone();
 
         // Check that the objects are equal
-        assertEquals(view, clone);
+        assertThat(clone).isEqualTo(view);
 
         final byte[] viewJson = view.toCompactJson();
         final byte[] cloneJson = clone.toCompactJson();
 
         // Check that JSON representations of the objects are equal
-        assertArrayEquals(viewJson, cloneJson);
+        assertThat(cloneJson).containsExactly(viewJson);
 
         final View viewFromJson = new View.Builder().json(viewJson).build();
         final View cloneFromJson = new View.Builder().json(cloneJson).build();
 
         // Check that objects created from JSON representations are equal
-        assertEquals(viewFromJson, cloneFromJson);
+        assertThat(cloneFromJson).isEqualTo(viewFromJson);
 
         // Check that objects created from JSON representations are equal
-        assertEquals(viewFromJson, view);
-        assertEquals(cloneFromJson, clone);
+        assertThat(view).isEqualTo(viewFromJson);
+        assertThat(clone).isEqualTo(cloneFromJson);
     }
 
     @Test
@@ -435,7 +428,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
 
         final String compactJson = new String(view.toCompactJson());
 
-        assertFalse(compactJson.contains(String.format("%n")));
+        assertThat(compactJson.contains(String.format("%n"))).isFalse();
     }
 
     @Test
@@ -460,8 +453,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 .build();
 
         // Then
-        assertEquals(2, mergedView.getEntities().size());
-        assertEquals(2, mergedView.getEdges().size());
+        assertThat(mergedView.getEntities()).hasSize(2);
+        assertThat(mergedView.getEdges()).hasSize(2);
     }
 
     @Test
@@ -476,7 +469,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final Set<String> allGroups = new HashSet<>(view.getEntityGroups());
         allGroups.addAll(view.getEdgeGroups());
 
-        assertEquals(allGroups, groups);
+        assertThat(groups).isEqualTo(allGroups);
     }
 
     @Test
@@ -497,7 +490,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final boolean result = view.hasPreAggregationFilters();
 
         // Then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -518,7 +511,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final boolean result = view.hasPreAggregationFilters();
 
         // Then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -534,7 +527,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final boolean result = view.hasPreAggregationFilters();
 
         // Then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
@@ -551,7 +544,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final boolean result = view.hasPreAggregationFilters();
 
         // Then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
@@ -572,7 +565,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final boolean result = view.hasPostAggregationFilters();
 
         // Then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -593,7 +586,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final boolean result = view.hasPostAggregationFilters();
 
         // Then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -609,7 +602,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final boolean result = view.hasPostAggregationFilters();
 
         // Then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
@@ -626,7 +619,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final boolean result = view.hasPostAggregationFilters();
 
         // Then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
@@ -647,7 +640,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final boolean result = view.hasPostTransformFilters();
 
         // Then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -668,7 +661,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final boolean result = view.hasPostTransformFilters();
 
         // Then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -684,7 +677,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final boolean result = view.hasPostTransformFilters();
 
         // Then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
@@ -701,7 +694,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final boolean result = view.hasPostTransformFilters();
 
         // Then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
@@ -719,8 +712,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getProperties())
+                .containsExactlyInAnyOrder(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2);
     }
 
     @Test
@@ -738,8 +731,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getProperties()).isEmpty();
     }
 
     @Test
@@ -759,8 +751,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getProperties())
+                .containsExactly(TestPropertyNames.PROP_1);
     }
 
     @Test
@@ -780,8 +772,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getProperties())
+                .containsExactly(TestPropertyNames.PROP_3);
     }
 
     @Test
@@ -799,8 +791,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getExcludeProperties())
+                .containsExactlyInAnyOrder(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2);
     }
 
     @Test
@@ -820,8 +812,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getExcludeProperties())
+                .containsExactly(TestPropertyNames.PROP_3);
     }
 
     @Test
@@ -847,10 +839,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(elementTransformer.getComponents().get(0).getFunction().getClass().getSimpleName(),
-                view.getEntity(TestGroups.ENTITY).getTransformer().getComponents().get(0).getFunction().getClass().getSimpleName());
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getTransformer().getComponents().get(0).getFunction())
+                .isExactlyInstanceOf(elementTransformer.getComponents().get(0).getFunction().getClass());
+        assertThat(view.getEntity(TestGroups.ENTITY).getExcludeProperties())
+                .containsExactly(TestPropertyNames.PROP_3);
     }
 
     @Test
@@ -870,7 +862,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         try {
             view.expandGlobalDefinitions();
         } catch (IllegalArgumentException e) {
-            assertEquals("You cannot set both properties and excludeProperties", e.getMessage());
+            assertThat(e).hasMessage("You cannot set both properties and excludeProperties");
         }
     }
 
@@ -889,8 +881,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
-                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getProperties()));
+        assertThat(view.getEdge(TestGroups.EDGE).getProperties())
+                .containsExactlyInAnyOrder(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2);
     }
 
     @Test
@@ -908,8 +900,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(),
-                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getProperties()));
+        assertThat(view.getEdge(TestGroups.EDGE).getProperties()).isEmpty();
     }
 
     @Test
@@ -929,8 +920,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1),
-                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getProperties()));
+        assertThat(view.getEdge(TestGroups.EDGE).getProperties())
+                .containsExactly(TestPropertyNames.PROP_1);
     }
 
     @Test
@@ -950,8 +941,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
-                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getProperties()));
+        assertThat(view.getEdge(TestGroups.EDGE).getProperties())
+                .containsExactly(TestPropertyNames.PROP_3);
     }
 
     @Test
@@ -969,8 +960,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
-                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getExcludeProperties()));
+        assertThat(view.getEdge(TestGroups.EDGE).getExcludeProperties())
+                .containsExactlyInAnyOrder(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2);
     }
 
     @Test
@@ -990,8 +981,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
-                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getExcludeProperties()));
+        assertThat(view.getEdge(TestGroups.EDGE).getExcludeProperties())
+                .containsExactly(TestPropertyNames.PROP_3);
     }
 
     @Test
@@ -1017,10 +1008,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(elementTransformer.getComponents().get(0).getFunction().getClass().getSimpleName(),
-                view.getEdge(TestGroups.EDGE).getTransformer().getComponents().get(0).getFunction().getClass().getSimpleName());
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
-                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getExcludeProperties()));
+        assertThat(view.getEdge(TestGroups.EDGE).getTransformer().getComponents().get(0).getFunction())
+                .isExactlyInstanceOf(elementTransformer.getComponents().get(0).getFunction().getClass());
+        assertThat(view.getEdge(TestGroups.EDGE).getExcludeProperties())
+                .containsExactly(TestPropertyNames.PROP_3);
     }
 
     @Test
@@ -1040,7 +1031,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         try {
             view.expandGlobalDefinitions();
         } catch (IllegalArgumentException e) {
-            assertEquals("You cannot set both properties and excludeProperties", e.getMessage());
+            assertThat(e).hasMessage("You cannot set both properties and excludeProperties");
         }
     }
 
@@ -1059,8 +1050,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getProperties())
+                .containsExactlyInAnyOrder(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2);
     }
 
     @Test
@@ -1078,8 +1069,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getProperties()).isEmpty();
     }
 
     @Test
@@ -1099,8 +1089,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getProperties())
+                .containsExactly(TestPropertyNames.PROP_1);
     }
 
     @Test
@@ -1120,8 +1110,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getProperties())
+                .containsExactly(TestPropertyNames.PROP_3);
     }
 
     @Test
@@ -1139,8 +1129,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getExcludeProperties())
+                .containsExactlyInAnyOrder(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2);
     }
 
     @Test
@@ -1160,8 +1150,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getExcludeProperties())
+                .containsExactly(TestPropertyNames.PROP_3);
     }
 
     @Test
@@ -1186,10 +1176,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 .build();
 
         // Then
-        assertEquals(elementTransformer.getComponents().get(0).getFunction().getClass().getSimpleName(),
-                view.getEntity(TestGroups.ENTITY).getTransformer().getComponents().get(0).getFunction().getClass().getSimpleName());
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getTransformer().getComponents().get(0).getFunction())
+                .isExactlyInstanceOf(elementTransformer.getComponents().get(0).getFunction().getClass());
+        assertThat(view.getEntity(TestGroups.ENTITY).getExcludeProperties())
+                .containsExactly(TestPropertyNames.PROP_3);
     }
 
     @Test
@@ -1215,10 +1205,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertEquals(elementTransformer.getComponents().get(0).getFunction().getClass().getSimpleName(),
-                view.getEntity(TestGroups.ENTITY).getTransformer().getComponents().get(0).getFunction().getClass().getSimpleName());
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
-                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+        assertThat(view.getEntity(TestGroups.ENTITY).getTransformer().getComponents().get(0).getFunction())
+                .isExactlyInstanceOf(elementTransformer.getComponents().get(0).getFunction().getClass());
+        assertThat(view.getEntity(TestGroups.ENTITY).getExcludeProperties())
+                .containsExactly(TestPropertyNames.PROP_3);
     }
 
     @Test
@@ -1238,7 +1228,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         try {
             view.expandGlobalDefinitions();
         } catch (IllegalArgumentException e) {
-            assertEquals("You cannot set both properties and excludeProperties", e.getMessage());
+            assertThat(e).hasMessage("You cannot set both properties and excludeProperties");
         }
     }
 
@@ -1262,11 +1252,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertTrue(view.hasPreAggregationFilters());
-        assertEquals(Exists.class.getSimpleName(),
-                view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
-                        .getComponents().get(0).getPredicate()
-                        .getClass().getSimpleName());
+        assertThat(view.hasPreAggregationFilters()).isTrue();
+        assertThat(view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
+                        .getComponents().get(0).getPredicate())
+                .isExactlyInstanceOf(Exists.class);
     }
 
     @Test
@@ -1296,15 +1285,13 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertTrue(view.hasPreAggregationFilters());
-        assertEquals(Exists.class.getSimpleName(),
-                view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
-                        .getComponents().get(0).getPredicate()
-                        .getClass().getSimpleName());
-        assertEquals(ExampleFilterFunction.class.getSimpleName(),
-                view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
-                        .getComponents().get(1).getPredicate()
-                        .getClass().getSimpleName());
+        assertThat(view.hasPreAggregationFilters()).isTrue();
+        assertThat(view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
+                        .getComponents().get(0).getPredicate())
+                .isExactlyInstanceOf(Exists.class);
+        assertThat(view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
+                        .getComponents().get(1).getPredicate())
+                .isExactlyInstanceOf(ExampleFilterFunction.class);
     }
 
     @Test
@@ -1327,11 +1314,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertTrue(view.hasPostAggregationFilters());
-        assertEquals(Exists.class.getSimpleName(),
-                view.getEntity(TestGroups.ENTITY).getPostAggregationFilter()
-                        .getComponents().get(0).getPredicate()
-                        .getClass().getSimpleName());
+        assertThat(view.hasPostAggregationFilters()).isTrue();
+        assertThat(view.getEntity(TestGroups.ENTITY).getPostAggregationFilter()
+                        .getComponents().get(0).getPredicate())
+                .isExactlyInstanceOf(Exists.class);
     }
 
     @Test
@@ -1361,15 +1347,13 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertTrue(view.hasPostAggregationFilters());
-        assertEquals(Exists.class.getSimpleName(),
-                view.getEntity(TestGroups.ENTITY).getPostAggregationFilter()
-                        .getComponents().get(0).getPredicate()
-                        .getClass().getSimpleName());
-        assertEquals(ExampleFilterFunction.class.getSimpleName(),
-                view.getEntity(TestGroups.ENTITY).getPostAggregationFilter()
-                        .getComponents().get(1).getPredicate()
-                        .getClass().getSimpleName());
+        assertThat(view.hasPostAggregationFilters()).isTrue();
+        assertThat(view.getEntity(TestGroups.ENTITY).getPostAggregationFilter()
+                        .getComponents().get(0).getPredicate())
+                .isExactlyInstanceOf(Exists.class);
+        assertThat(view.getEntity(TestGroups.ENTITY).getPostAggregationFilter()
+                        .getComponents().get(1).getPredicate())
+                .isExactlyInstanceOf(ExampleFilterFunction.class);
     }
 
     @Test
@@ -1392,11 +1376,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertTrue(view.hasPostTransformFilters());
-        assertEquals(Exists.class.getSimpleName(),
-                view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
-                        .getComponents().get(0).getPredicate()
-                        .getClass().getSimpleName());
+        assertThat(view.hasPostTransformFilters()).isTrue();
+        assertThat(view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
+                        .getComponents().get(0).getPredicate())
+                .isExactlyInstanceOf(Exists.class);
     }
 
     @Test
@@ -1426,15 +1409,13 @@ public class ViewTest extends JSONSerialisationTest<View> {
         view.expandGlobalDefinitions();
 
         // Then
-        assertTrue(view.hasPostTransformFilters());
-        assertEquals(Exists.class.getSimpleName(),
-                view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
-                        .getComponents().get(0).getPredicate()
-                        .getClass().getSimpleName());
-        assertEquals(ExampleFilterFunction.class.getSimpleName(),
-                view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
-                        .getComponents().get(1).getPredicate()
-                        .getClass().getSimpleName());
+        assertThat(view.hasPostTransformFilters()).isTrue();
+        assertThat(view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
+                        .getComponents().get(0).getPredicate())
+                .isExactlyInstanceOf(Exists.class);
+        assertThat(view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
+                        .getComponents().get(1).getPredicate())
+                .isExactlyInstanceOf(ExampleFilterFunction.class);
     }
 
     @Test
@@ -1447,7 +1428,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 .build();
 
         // Then
-        assertEquals(Sets.newHashSet(TestGroups.ENTITY_2), view.getEntityGroups());
+        assertThat(view.getEntityGroups()).containsExactly(TestGroups.ENTITY_2);
     }
 
     @Test
@@ -1460,7 +1441,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 .build();
 
         // Then
-        assertEquals(Sets.newHashSet(TestGroups.EDGE_2), view.getEdgeGroups());
+        assertThat(view.getEdgeGroups()).containsExactly(TestGroups.EDGE_2);
     }
 
     @Test
@@ -1478,7 +1459,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final View clone = view.clone();
 
         // Check that the objects are equal
-        assertEquals(view.isAllEntities(), clone.isAllEntities());
+        assertThat(clone.isAllEntities()).isEqualTo(view.isAllEntities());
     }
 
     @Test
@@ -1496,7 +1477,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final View clone = view.clone();
 
         // Check that the objects are equal
-        assertEquals(view.isAllEntities(), clone.isAllEntities());
+        assertThat(clone.isAllEntities()).isEqualTo(view.isAllEntities());
     }
 
     @Test
@@ -1515,7 +1496,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final View clone = view.clone();
 
         // Check that the objects are equal
-        assertEquals(view.isAllEntities(), clone.isAllEntities());
+        assertThat(clone.isAllEntities()).isEqualTo(view.isAllEntities());
     }
 
     @Test
@@ -1532,7 +1513,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final View clone = view.clone();
 
         // Check that the objects are equal
-        assertEquals(view.isAllEntities(), clone.isAllEntities());
+        assertThat(clone.isAllEntities()).isEqualTo(view.isAllEntities());
     }
 
     @Test
@@ -1555,7 +1536,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final View clone = view.clone();
 
         // Check that the objects are equal
-        assertEquals(view.isAllEntities(), clone.isAllEntities());
+        assertThat(clone.isAllEntities()).isEqualTo(view.isAllEntities());
     }
 
     @Test
@@ -1575,7 +1556,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final View clone = view.clone();
 
         // Check that the objects are equal
-        assertEquals(view.isAllEntities(), clone.isAllEntities());
+        assertThat(clone.isAllEntities()).isEqualTo(view.isAllEntities());
     }
 
     @Test
@@ -1596,7 +1577,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
 
         // Check that the objects are equal
         View clone = new View.Builder().json(json).build();
-        assertEquals(view, clone);
+        assertThat(clone).isEqualTo(view);
     }
 
     private View createView() {
