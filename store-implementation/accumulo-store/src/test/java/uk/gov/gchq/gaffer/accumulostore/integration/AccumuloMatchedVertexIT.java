@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,9 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.List;
@@ -47,6 +45,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.gchq.gaffer.store.TestTypes.BOOLEAN_TYPE;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
+import static uk.gov.gchq.gaffer.store.TestTypes.ID_STRING;
+import static uk.gov.gchq.gaffer.store.TestTypes.STRING_TYPE;
+
 
 public class AccumuloMatchedVertexIT extends StandaloneIT {
     private static final String VERTEX = "vertex";
@@ -291,18 +294,7 @@ public class AccumuloMatchedVertexIT extends StandaloneIT {
                         .graphId("graph")
                         .build())
                 .storeProperties(PROPERTIES)
-                .addSchema(new Schema.Builder()
-                        .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .build())
-                        .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex(TestTypes.ID_STRING)
-                                .build())
-                        .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                                .source(TestTypes.ID_STRING)
-                                .destination(TestTypes.ID_STRING)
-                                .build())
-                        .build())
+                .addSchema(createSchema())
                 .build();
         graph.execute(new AddElements.Builder()
                 .input(getEntity(), edge)
@@ -313,12 +305,16 @@ public class AccumuloMatchedVertexIT extends StandaloneIT {
     @Override
     protected Schema createSchema() {
         return new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex(TestTypes.ID_STRING)
+                        .vertex(ID_STRING)
                         .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source(ID_STRING)
+                        .destination(ID_STRING)
+                        .directed(DIRECTED_EITHER)
+                        .build())
+                .type(ID_STRING, STRING_TYPE)
+                .type(DIRECTED_EITHER, BOOLEAN_TYPE)
                 .build();
     }
 
