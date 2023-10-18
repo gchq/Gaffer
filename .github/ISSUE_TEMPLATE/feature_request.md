@@ -1,8 +1,8 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: Suggest a new Gaffer feature
 title: ''
-labels: enhancement
+labels: feature
 assignees: ''
 
 ---
