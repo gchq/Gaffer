@@ -332,7 +332,7 @@ public final class Graph {
                     hookInstances.add((UpdateViewHook) graphHook);
                 }
             }
-            if (hookInstances.size() == 0) {
+            if (hookInstances.isEmpty()) {
                 hookInstances.add(new UpdateViewHook());
             }
             for (final UpdateViewHook hook : hookInstances) {
@@ -411,6 +411,16 @@ public final class Graph {
     }
 
     /**
+     * Returns the current {@link GraphConfig} that holds the configuration for
+     * the graph.
+     *
+     * @return The graph config.
+     */
+    public GraphConfig getConfig() {
+        return config;
+    }
+
+    /**
      * @return a collection of all the supported {@link Operation}s.
      */
     public Set<Class<? extends Operation>> getSupportedOperations() {
@@ -427,15 +437,6 @@ public final class Graph {
     }
 
     /**
-     * Returns the graph view.
-     *
-     * @return the graph view.
-     */
-    public View getView() {
-        return config.getView();
-    }
-
-    /**
      * Get the Store's original {@link Schema}.
      * <p>
      * This is not the same as the {@link Schema} used internally by
@@ -446,13 +447,6 @@ public final class Graph {
      */
     public Schema getSchema() {
         return store.getOriginalSchema();
-    }
-
-    /**
-     * @return the description held in the {@link GraphConfig}
-     */
-    public String getDescription() {
-        return config.getDescription();
     }
 
     /**
@@ -469,21 +463,10 @@ public final class Graph {
         return store.getProperties();
     }
 
-    public List<Class<? extends GraphHook>> getGraphHooks() {
-        if (config.getHooks().isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return (List) config.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList());
-    }
-
     public GraphLibrary getGraphLibrary() {
         return store.getGraphLibrary();
     }
 
-    protected GraphConfig getConfig() {
-        return config;
-    }
 
     @FunctionalInterface
     private interface StoreExecuter<O> {
@@ -813,9 +796,9 @@ public final class Graph {
                 config.setGraphId(store.getGraphId());
             }
 
-            updateStoreProperties(config);
-
-            updateSchema(config);
+            config.updateStoreProperties(properties, parentStorePropertiesId);
+            config.updateSchema(schema, parentSchemaIds);
+            loadSchemaFromJson();
 
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
                 // Set Props & Schema if null.
@@ -944,38 +927,7 @@ public final class Graph {
             return false;
         }
 
-        private void updateSchema(final GraphConfig config) {
-            Schema mergedParentSchema = null;
-
-            if (null != parentSchemaIds) {
-                for (final String parentSchemaId : parentSchemaIds) {
-                    if (null != parentSchemaId) {
-                        final Schema parentSchema = config.getLibrary().getSchema(parentSchemaId);
-                        if (null != parentSchema) {
-                            if (null == mergedParentSchema) {
-                                mergedParentSchema = parentSchema;
-                            } else {
-                                mergedParentSchema = new Schema.Builder()
-                                        .merge(mergedParentSchema)
-                                        .merge(parentSchema)
-                                        .build();
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (null != mergedParentSchema) {
-                if (null == schema) {
-                    schema = mergedParentSchema;
-                } else {
-                    schema = new Schema.Builder()
-                            .merge(mergedParentSchema)
-                            .merge(schema)
-                            .build();
-                }
-            }
-
+        private void loadSchemaFromJson() {
             if (!schemaBytesList.isEmpty()) {
                 if (null == properties) {
                     throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
@@ -987,22 +939,6 @@ public final class Graph {
                         .build();
                 addSchema(newSchema);
             }
-        }
-
-        private void updateStoreProperties(final GraphConfig config) {
-            StoreProperties mergedStoreProperties = null;
-            if (null != parentStorePropertiesId) {
-                mergedStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
-            }
-
-            if (null != properties) {
-                if (null == mergedStoreProperties) {
-                    mergedStoreProperties = properties;
-                } else {
-                    mergedStoreProperties.merge(properties);
-                }
-            }
-            properties = mergedStoreProperties;
         }
 
         private void updateStore(final GraphConfig config) {

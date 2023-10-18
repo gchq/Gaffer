@@ -28,8 +28,10 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHookPath;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.File;
 import java.io.IOException;
@@ -104,6 +106,11 @@ public final class GraphConfig {
         this.description = description;
     }
 
+    /**
+     * Returns a list of all the graph hooks.
+     *
+     * @return List of graph hooks.
+     */
     public List<GraphHook> getHooks() {
         return hooks;
     }
@@ -134,6 +141,69 @@ public final class GraphConfig {
             }
         }
     }
+
+
+    /**
+     * Updates the supplied properties with the properties from the parent store
+     * and returns the result. The parent store properties are applied first so
+     * the properties supplied can override them during the merge.
+     *
+     * @param properties The properties.
+     * @param parentStorePropertiesId The ID of the parent store to take the properties from.
+     * @return Merged properties of the parent store and the supplied properties.
+     */
+    public StoreProperties updateStoreProperties(StoreProperties properties, String parentStorePropertiesId) {
+        // Start with the parent store properties (the supplied ID will also be validated).
+        StoreProperties mergedStoreProperties = getLibrary().getProperties(parentStorePropertiesId);
+
+        // Merge in the existing properties
+        if (properties != null) {
+            mergedStoreProperties.merge(properties);
+        }
+
+        return mergedStoreProperties;
+    }
+
+
+    /**
+     * Updates the supplied schema with any parent schemas and returns the merged
+     * result.
+     *
+     * @param currentSchema The current schema.
+     * @param parentSchemaIds The list of parent schema IDs to merge.
+     * @return Merged schema of any parents and the supplied schema.
+     */
+    public Schema updateSchema(Schema currentSchema, List<String> parentSchemaIds) {
+            Schema mergedSchema = null;
+
+            // Use parent schema first
+            for (final String schemaId : parentSchemaIds) {
+                Schema parentSchema = getLibrary().getSchema(schemaId);
+                // Ignore invalid schemas
+                if (parentSchema == null) {
+                    continue;
+                }
+                // If the merged result is still null init with the current schema else merge
+                if (mergedSchema == null) {
+                    mergedSchema = parentSchema;
+                } else {
+                    mergedSchema = new Schema.Builder()
+                        .merge(mergedSchema)
+                        .merge(parentSchema)
+                        .build();
+                }
+            }
+
+            if (mergedSchema != null && currentSchema != null) {
+                mergedSchema = new Schema.Builder()
+                    .merge(mergedSchema)
+                    .merge(currentSchema)
+                    .build();
+            }
+
+            return mergedSchema;
+
+        }
 
     @Override
     public String toString() {
