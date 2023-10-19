@@ -55,12 +55,9 @@ import static uk.gov.gchq.gaffer.store.TestTypes.VISIBILITY_2;
 
 public class FederatedStoreVisibilityTest {
     private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
-
-    public static final String PUBLIC = "public";
-    public static final String PRIVATE = "private";
-
+    private static final String PUBLIC = "public";
+    private static final String PRIVATE = "private";
     private static final User USER = new User.Builder().dataAuth(PUBLIC).build();
-
     private Graph federatedGraph;
 
     @AfterAll
