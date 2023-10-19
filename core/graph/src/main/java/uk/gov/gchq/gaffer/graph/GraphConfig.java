@@ -25,14 +25,22 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.hook.GetFromCacheHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHookPath;
+import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
+import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddToCacheHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.File;
@@ -164,6 +172,88 @@ public final class GraphConfig {
      */
     public boolean hasHook(final Class<? extends GraphHook> hookClass) {
         return hooks.stream().anyMatch(hook -> hookClass.isAssignableFrom(hook.getClass()));
+    }
+
+
+    /**
+     * Extracts and compares the cache suffixes of the supplied {@link Operation}'s handler
+     * and {@link GetFromCacheHook} resolver hook, throws {@link GafferRuntimeException}
+     * if mismatched as writing and reading to cache will not behave correctly.
+     * <p>
+     * Will attempt to add the supplied {@link GetFromCacheHook} to the graph config
+     * if not currently present.
+     *
+     * @param store                the Store
+     * @param operationClass       the Operation requiring cache write
+     * @param hookClass            the Hook requiring cache reading
+     * @param suffixFromProperties the suffix from property
+     * @see NamedOperationResolver#NamedOperationResolver(String)
+     * @see NamedViewResolver#NamedViewResolver(String)
+     */
+    public void validateAndUpdateGetFromCacheHook(final Store store, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
+        if (!store.isSupported(operationClass)) {
+            LOGGER.warn(
+                "The current store type: {} does not support the operation: {} unable to validate cache hook",
+                store.getClass().getSimpleName(),
+                operationClass.getSimpleName());
+            return;
+        }
+
+        // Use the suffix from the properties as a fall back if the operation handler is not correct type
+        String suffix = suffixFromProperties;
+
+        // Get Handler for the operation to try extract the cache suffix if applicable class
+        final OperationHandler<Operation> addToCacheHandler = store.getOperationHandler(operationClass);
+        if (AddToCacheHandler.class.isAssignableFrom(addToCacheHandler.getClass())) {
+            // Extract the Suffix
+            suffix = ((AddToCacheHandler<?>) addToCacheHandler).getSuffixCacheName();
+        } else {
+            // Otherwise log warning and continue with the suffix from the properties
+            LOGGER.warn(
+                "Handler for: {} was not expected type: {} cant get suffixCache using value from property: {}",
+                operationClass,
+                AddToCacheHandler.class.getSimpleName(),
+                suffixFromProperties);
+        }
+
+        // Is the supplied GetFromCacheHook class missing from the config
+        if (!hasHook(hookClass)) {
+            try {
+                // Provide info about the graph not having the required hook
+                LOGGER.info(
+                    "For GraphID:{} a handler was supplied for Operation {}, but without a {}, adding {} with suffix:{}",
+                    getGraphId(),
+                    operationClass,
+                    hookClass.getSimpleName(),
+                    hookClass.getSimpleName(),
+                    suffix);
+                // Try add the hook
+                addHook(hookClass.getDeclaredConstructor(String.class).newInstance(suffix));
+            } catch (final Exception e) {
+                throw new GafferRuntimeException(e.getMessage());
+            }
+        } else {
+            // Find the relevant hook
+            final GetFromCacheHook nvrHook = (GetFromCacheHook) getHooks().stream()
+                .filter(hook -> hookClass.isAssignableFrom(hook.getClass()))
+                .findAny()
+                .orElseThrow(() -> new GafferRuntimeException(
+                        String.format("Unable to find matching hook in graph config for class %s", hookClass.getSimpleName())));
+
+            // Validate the suffix for a mismatch
+            final String nvrSuffix = nvrHook.getSuffixCacheName();
+            if (!suffix.equals(nvrSuffix)) {
+                //Error
+                throw new GafferRuntimeException(
+                    String.format(
+                        "%s hook is configured with suffix:%s and %s handler is configured with suffix:%s this causes a cache reading and writing misalignment.",
+                        hookClass.getSimpleName(),
+                        nvrSuffix,
+                        addToCacheHandler.getClass().getSimpleName(),
+                        suffix));
+            }
+        }
+
     }
 
 
