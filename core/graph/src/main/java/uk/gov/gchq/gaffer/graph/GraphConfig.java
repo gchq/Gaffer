@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
@@ -58,6 +60,8 @@ import java.util.List;
  */
 @JsonPropertyOrder(value = {"description", "graphId"}, alphabetic = true)
 public final class GraphConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphConfig.class);
+
     private String graphId;
     // Keeping the view as json enforces a new instance of View is created
     // every time it is used.
@@ -123,23 +127,43 @@ public final class GraphConfig {
         }
     }
 
+    /**
+     * Adds the supplied {@link GraphHook} to the list of graph hooks.
+     *
+     * @param hook The hook to add.
+     */
     public void addHook(final GraphHook hook) {
-        if (null != hook) {
-            if (hook instanceof GraphHookPath) {
-                final String path = ((GraphHookPath) hook).getPath();
-                final File file = new File(path);
-                if (!file.exists()) {
-                    throw new IllegalArgumentException("Unable to find graph hook file: " + path);
-                }
-                try {
-                    hooks.add(JSONSerialiser.deserialise(FileUtils.readFileToByteArray(file), GraphHook.class));
-                } catch (final IOException e) {
-                    throw new IllegalArgumentException("Unable to deserialise graph hook from file: " + path, e);
-                }
-            } else {
-                hooks.add(hook);
-            }
+        // Validate params
+        if (hook == null) {
+            LOGGER.warn("addHook was called with a null hook, ignoring call");
+            return;
         }
+
+        if (hook instanceof GraphHookPath) {
+            final File file = new File(((GraphHookPath) hook).getPath());
+            if (!file.exists()) {
+                throw new IllegalArgumentException("Unable to find graph hook file: " + file.toString());
+            }
+            try {
+                hooks.add(JSONSerialiser.deserialise(FileUtils.readFileToByteArray(file), GraphHook.class));
+            } catch (final IOException e) {
+                throw new IllegalArgumentException("Unable to deserialise graph hook from file: " + file.toString(), e);
+            }
+        } else {
+            hooks.add(hook);
+        }
+    }
+
+    /**
+     * Checks the current {@link GraphHook} list to see if any of the hooks
+     * match the supplied class. Will return true if list contains one or more
+     * matches.
+     *
+     * @param hookClass Class to check for match.
+     * @return True if hook with matching class found.
+     */
+    public boolean hasHook(final Class<? extends GraphHook> hookClass) {
+        return hooks.stream().anyMatch(hook -> hookClass.isAssignableFrom(hook.getClass()));
     }
 
 
@@ -174,36 +198,53 @@ public final class GraphConfig {
      * @return Merged schema of any parents and the supplied schema.
      */
     public Schema updateSchema(Schema currentSchema, List<String> parentSchemaIds) {
-            Schema mergedSchema = null;
+        Schema mergedSchema = null;
 
-            // Use parent schema first
-            for (final String schemaId : parentSchemaIds) {
-                Schema parentSchema = getLibrary().getSchema(schemaId);
-                // Ignore invalid schemas
-                if (parentSchema == null) {
-                    continue;
-                }
-                // If the merged result is still null init with the current schema else merge
-                if (mergedSchema == null) {
-                    mergedSchema = parentSchema;
-                } else {
-                    mergedSchema = new Schema.Builder()
-                        .merge(mergedSchema)
-                        .merge(parentSchema)
-                        .build();
-                }
+        // Use parent schema first
+        for (final String schemaId : parentSchemaIds) {
+            Schema parentSchema = getLibrary().getSchema(schemaId);
+            // Ignore invalid schemas
+            if (parentSchema == null) {
+                continue;
             }
-
-            if (mergedSchema != null && currentSchema != null) {
+            // If the merged result is still null init with the current schema else merge
+            if (mergedSchema == null) {
+                mergedSchema = parentSchema;
+            } else {
                 mergedSchema = new Schema.Builder()
                     .merge(mergedSchema)
-                    .merge(currentSchema)
+                    .merge(parentSchema)
                     .build();
             }
-
-            return mergedSchema;
-
         }
+
+        if (mergedSchema != null && currentSchema != null) {
+            mergedSchema = new Schema.Builder()
+                .merge(mergedSchema)
+                .merge(currentSchema)
+                .build();
+        }
+
+        return mergedSchema;
+    }
+
+
+    /**
+     * Initialises the {@link View} for the graph config based on supplied schema.
+     *
+     * @param schema The schema to set the View from.
+     */
+    public void initView(final Schema schema) {
+        if (getView() != null) {
+            LOGGER.debug("View already set ignoring initView call");
+            return;
+        }
+
+        setView(new View.Builder()
+            .entities(schema.getEntityGroups())
+            .edges(schema.getEdgeGroups())
+            .build());
+    }
 
     @Override
     public String toString() {

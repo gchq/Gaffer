@@ -69,9 +69,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
@@ -796,8 +796,8 @@ public final class Graph {
                 config.setGraphId(store.getGraphId());
             }
 
-            config.updateStoreProperties(properties, parentStorePropertiesId);
-            config.updateSchema(schema, parentSchemaIds);
+            properties = config.updateStoreProperties(properties, parentStorePropertiesId);
+            schema = config.updateSchema(schema, parentSchemaIds);
             loadSchemaFromJson();
 
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
@@ -813,7 +813,7 @@ public final class Graph {
                 config.getLibrary().checkExisting(config.getGraphId(), schema, properties);
             }
 
-            updateView(config);
+            config.initView(schema);
 
             if (null == config.getGraphId()) {
                 config.setGraphId(store.getGraphId());
@@ -846,10 +846,9 @@ public final class Graph {
         }
 
         private void updateFunctionAuthoriserHook(final GraphConfig config) {
-            final List<GraphHook> hooks = config.getHooks();
-            if (!hasHook(hooks, FunctionAuthoriser.class)) {
+            if (!config.hasHook(FunctionAuthoriser.class)) {
                 LOGGER.info("No FunctionAuthoriser hook was supplied, adding default hook.");
-                hooks.add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
+                config.addHook(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
             }
         }
 
@@ -892,22 +891,25 @@ public final class Graph {
                     suffix = ((AddToCacheHandler<?>) addToCacheHandler).getSuffixCacheName();
                 } else {
                     // otherwise get from properties
-                    LOGGER.warn(String.format(HANDLER_WAS_NOT_EXPECTED_TYPE_ADD_TO_CACHE_HANDLER, operationClass, AddToCacheHandler.class.getSimpleName(), suffixFromProperties));
+                    LOGGER.warn(HANDLER_WAS_NOT_EXPECTED_TYPE_ADD_TO_CACHE_HANDLER, operationClass, AddToCacheHandler.class.getSimpleName(), suffixFromProperties);
                     suffix = suffixFromProperties;
                 }
-                final List<GraphHook> hooks = config.getHooks();
                 //Is GetFromCacheHook missing
-                if (!hasHook(hooks, hookClass)) {
+                if (!config.hasHook(hookClass)) {
                     //provide info about the graph not having the required hook
                     LOGGER.info(HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX, config.getGraphId(), operationClass, hookClass.getSimpleName(), hookClass.getSimpleName(), suffix);
                     try {
-                        hooks.add(0, hookClass.getDeclaredConstructor(String.class).newInstance(suffix));
+                        config.addHook(hookClass.getDeclaredConstructor(String.class).newInstance(suffix));
                     } catch (final Exception e) {
                         throw new RuntimeException(e);
                     }
                 } else {
-                    //get the resolver and suffix
-                    final GetFromCacheHook nvrHook = (GetFromCacheHook) hooks.stream().filter(gh -> hookClass.isAssignableFrom(gh.getClass())).findAny().get();
+                    // Find the relevant hook
+                    Optional<GraphHook> optionalHookMatch = config.getHooks().stream().filter(hook -> hookClass.isAssignableFrom(hook.getClass())).findAny();
+                    final GetFromCacheHook nvrHook = (GetFromCacheHook) optionalHookMatch.orElseThrow(() ->
+                        new GafferRuntimeException(String.format("Unable to find matching GraphHook for class %s", hookClass.getSimpleName())));
+
+                    // Get the resolver and suffix
                     final String nvrSuffix = nvrHook.getSuffixCacheName();
                     //Is there a suffix mismatch
                     if (!suffix.equals(nvrSuffix)) {
@@ -916,15 +918,6 @@ public final class Graph {
                     }
                 }
             }
-        }
-
-        private boolean hasHook(final List<GraphHook> hooks, final Class<? extends GraphHook> hookClass) {
-            for (final GraphHook hook : hooks) {
-                if (hookClass.isAssignableFrom(hook.getClass())) {
-                    return true;
-                }
-            }
-            return false;
         }
 
         private void loadSchemaFromJson() {
@@ -969,15 +962,6 @@ public final class Graph {
 
             if (null == schema || schema.getGroups().isEmpty()) {
                 schema = store.getSchema();
-            }
-        }
-
-        private void updateView(final GraphConfig config) {
-            if (null == config.getView()) {
-                config.setView(new View.Builder()
-                        .entities(store.getSchema().getEntityGroups())
-                        .edges(store.getSchema().getEdgeGroups())
-                        .build());
             }
         }
 
