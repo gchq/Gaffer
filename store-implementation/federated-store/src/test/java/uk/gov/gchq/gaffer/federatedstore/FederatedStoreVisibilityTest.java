@@ -87,18 +87,18 @@ public class FederatedStoreVisibilityTest {
         addElements(GRAPH_ID_B, VISIBILITY, PUBLIC);
 
         // When
-        Iterable<? extends Element> aggregatedResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> aggregatedResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .build(), USER);
-        Iterable<? extends Element> concatenatedResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> concatenatedResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .mergeFunction(new ConcatenateMergeFunction())
                         .build(), USER);
-        Iterable<? extends Element> noAuthResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> noAuthResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .build(), new User());
 
         // Then
@@ -124,18 +124,18 @@ public class FederatedStoreVisibilityTest {
         addElements(GRAPH_ID_B, VISIBILITY_2, PUBLIC);
 
         // When
-        Iterable<? extends Element> aggregatedResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> aggregatedResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .build(), USER);
-        Iterable<? extends Element> concatenatedResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> concatenatedResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .mergeFunction(new ConcatenateMergeFunction())
                         .build(), USER);
-        Iterable<? extends Element> noAuthResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> noAuthResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .build(), new User());
 
         // Then
@@ -161,18 +161,18 @@ public class FederatedStoreVisibilityTest {
         addElements(GRAPH_ID_B, VISIBILITY_2, PRIVATE);
 
         // When
-        Iterable<? extends Element> aggregatedResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> aggregatedResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .build(), USER);
-        Iterable<? extends Element> concatenatedResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> concatenatedResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .mergeFunction(new ConcatenateMergeFunction())
                         .build(), USER);
-        Iterable<? extends Element> noAuthResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> noAuthResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .build(), new User());
 
         // Then
@@ -198,18 +198,18 @@ public class FederatedStoreVisibilityTest {
         addElements(GRAPH_ID_B, VISIBILITY_2, PUBLIC);
 
         // When
-        Iterable<? extends Element> aggregatedResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> aggregatedResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .build(), USER);
-        Iterable<? extends Element> concatenatedResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> concatenatedResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .mergeFunction(new ConcatenateMergeFunction())
                         .build(), USER);
-        Iterable<? extends Element> noAuthResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> noAuthResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .build(), new User());
 
         // Then
@@ -250,18 +250,18 @@ public class FederatedStoreVisibilityTest {
                 .build(), USER);
 
         // When
-        Iterable<? extends Element> aggregatedResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> aggregatedResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .build(), USER);
-        Iterable<? extends Element> concatenatedResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> concatenatedResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .mergeFunction(new ConcatenateMergeFunction())
                         .build(), USER);
-        Iterable<? extends Element> noAuthResults = (Iterable<? extends Element>) federatedGraph.execute(
+        Iterable<? extends Element> noAuthResults = federatedGraph.execute(
                 new FederatedOperation.Builder()
-                        .op(new GetAllElements())
+                        .<Void, Iterable<? extends Element>>op(new GetAllElements())
                         .build(), new User());
 
         // Then
