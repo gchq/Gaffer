@@ -350,7 +350,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                     mergeConfig(thatSchema);
 
                 } catch (final Exception e) {
-                    throw new GafferRuntimeException("Error merging Schema due to: "+ e.getMessage(), e);
+                    throw new SchemaException("Error merging Schema due to: "+ e.getMessage(), e);
                 }
             }
 
