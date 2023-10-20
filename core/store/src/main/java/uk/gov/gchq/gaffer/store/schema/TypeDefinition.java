@@ -40,7 +40,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
 import static uk.gov.gchq.gaffer.store.schema.Schema.FORMAT_EXCEPTION;
-import static uk.gov.gchq.gaffer.store.schema.Schema.UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S;
+import static uk.gov.gchq.gaffer.store.schema.Schema.FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S;
 
 /**
  * A {@code TypeDefinition} contains the an object's java class along with how to validate and aggregate the object.
@@ -54,11 +54,11 @@ import static uk.gov.gchq.gaffer.store.schema.Schema.UNABLE_TO_MERGE_SCHEMAS_CON
 public class TypeDefinition {
 
     public static final String TYPE_CLASS = "type class";
-    public static final String SCHEMAS_CONFLICT_WITH_TYPE_CLASS = String.format(UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, TYPE_CLASS);
+    public static final String SCHEMAS_CONFLICT_WITH_TYPE_CLASS = String.format(FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, TYPE_CLASS);
     public static final String TYPE_SERIALISER = "type serialiser";
-    public static final String SCHEMAS_CONFLICT_WITH_TYPE_SERIALISER = String.format(UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, TYPE_SERIALISER);
+    public static final String SCHEMAS_CONFLICT_WITH_TYPE_SERIALISER = String.format(FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, TYPE_SERIALISER);
     public static final String AGGREGATE_FUNCTION = "aggregate function";
-    public static final String SCHEMAS_CONFLICT_WITH_AGGREGATE_FUNCTION = String.format(UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, AGGREGATE_FUNCTION);
+    public static final String SCHEMAS_CONFLICT_WITH_AGGREGATE_FUNCTION = String.format(FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, AGGREGATE_FUNCTION);
     private Class<?> clazz;
     private Serialiser serialiser;
     private List<Predicate> validateFunctions;

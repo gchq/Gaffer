@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -73,11 +72,12 @@ import static java.util.Objects.nonNull;
 @JsonPropertyOrder(value = {"class", "edges", "entities", "types"}, alphabetic = true)
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
     public static final String FORMAT_EXCEPTION = "%s, options are: %s and %s";
-    public static final String UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S = "Unable to merge schemas because of conflict with the %s";
+    public static final String FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S = "Unable to merge schemas because of conflict with the %s";
     public static final String VERTEX_SERIALISER = "vertex serialiser";
-    public static final String SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER = String.format(UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, VERTEX_SERIALISER);
+    public static final String SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER = String.format(FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, VERTEX_SERIALISER);
     public static final String VISIBILITY_PROPERTY = "visibility property";
-    public static final String SCHEMAS_CONFLICT_WITH_VISIBILITY_PROPERTY = String.format(UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, VISIBILITY_PROPERTY);
+    public static final String SCHEMAS_CONFLICT_WITH_VISIBILITY_PROPERTY = String.format(FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, VISIBILITY_PROPERTY);
+    public static final String ELEMENT_GROUP_MUST_ALL_BE_DEFINED_IN_A_SINGLE_SCHEMA = "Element group properties cannot be defined in different schema parts, they must all be defined in a single schema part. Please fix this group: ";
     private final TypeDefinition unknownType = new TypeDefinition();
 
     /**
@@ -425,7 +425,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                         try {
                             typeDef.merge(newTypeDef);
                         } catch (Exception e) {
-                            throw new GafferRuntimeException(String.format("Error with the type named:%s due to: %s", entry.getKey(), e.getMessage()), e);
+                            throw new GafferRuntimeException(String.format("Error with the schema type named:%s due to: %s", entry.getKey(), e.getMessage()), e);
                         }
                     }
                 }
@@ -519,8 +519,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                         continue;
                     }
 
-                    throw new SchemaException("Element group properties cannot be defined in different schema parts, they must all be defined in a single schema part. "
-                            + "Please fix this group: " + sharedGroup);
+                    throw new SchemaException(ELEMENT_GROUP_MUST_ALL_BE_DEFINED_IN_A_SINGLE_SCHEMA + sharedGroup);
                 }
             }
         }

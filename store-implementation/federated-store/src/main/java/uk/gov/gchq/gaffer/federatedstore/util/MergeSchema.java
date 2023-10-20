@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -45,6 +44,8 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
     public static final String WIPE_VISIBILITY_PROPERTY = "wipe_visibility_property";
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeSchema.class);
     public static final String FORMAT_CAUGHT_SCHEMA_EXCEPTION_ATTEMPTING_TO_RE_MERGE_BUT_WITHOUT_S_ERROR_MESSAGE_S = "Caught SchemaException, attempting to re-merge but without %s. Error message:%s";
+    public static final String FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S = MergeSchema.class.getSimpleName() + " function unable to recover from error, due to: %s";
+    public static final String FORMAT_MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY = "Matching element groups having no shared properties, caused by %s";
     private HashMap<String, Object> context;
 
     public MergeSchema() {
@@ -77,7 +78,7 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
                         .visibilityProperty(visibilityProperty)
                         .build());
 
-            } catch (final SchemaException e) {
+            } catch (final Exception e) {
                 if (e.getMessage().contains(SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER)) {
                     LOGGER.error(String.format(FORMAT_CAUGHT_SCHEMA_EXCEPTION_ATTEMPTING_TO_RE_MERGE_BUT_WITHOUT_S_ERROR_MESSAGE_S, VERTEX_SERIALISER, e.getMessage()));
                     //Clashing Vertex Serialiser is possibly a recoverable state, continue without using Vertex Serialisers, retain this state.
@@ -94,7 +95,18 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
                             .visibilityProperty(null)
                             .build());
                     mergeSchema.visibilityProperty(null);
-                } else throw new GafferRuntimeException(String.format("%s function unable to recover from error.", MergeSchema.class.getSimpleName()), e);
+                } else if (e.getMessage().contains(SCHEMAS_CONFLICT_WITH_TYPE_CLASS)
+                        || e.getMessage().contains(SCHEMAS_CONFLICT_WITH_TYPE_SERIALISER)
+                        || e.getMessage().contains(SCHEMAS_CONFLICT_WITH_AGGREGATE_FUNCTION)) {
+                    // Not possible to resolve from these collisions.
+                    throw new SchemaException(String.format(FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S, e.getMessage()), e);
+                } else if (e.getMessage().contains(ELEMENT_GROUP_MUST_ALL_BE_DEFINED_IN_A_SINGLE_SCHEMA)) {
+                    // Will require significant effort in Federation to resolve this.
+                    throw new SchemaException(String.format(FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S, String.format(FORMAT_MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY, e.getMessage())), e);
+                } else {
+                    // all other errors.
+                    throw new SchemaException(String.format(FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S, e.getMessage()), e);
+                }
             }
             return mergeSchema.build();
         }
