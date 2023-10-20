@@ -309,7 +309,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldChangeSchemaWhenAddingGraphB() throws OperationException {
+    public void shouldChangeReturnedSchemaWhenAddingGraphBWithoutOverLapProperty() throws OperationException {
         // Given
         addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
 
@@ -329,6 +329,31 @@ public class FederatedStoreSchemaTest {
 
         // Then
         assertThat(schemaAB).isNotEqualTo(schemaA);
+        assertThat(schemaAB.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_2);
+    }
+
+    @Test
+    public void shouldChangeReturnSchemaWhenAddingGraphWithOverLapProperty() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
+
+        // When
+        final Schema schemaA = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaA.getTypes().size()).isEqualTo(2);
+        assertThat(schemaA.getType(STRING).getClazz()).isEqualTo(String.class);
+        assertThat(schemaA.getEdge(GROUP_BASIC_EDGE).getProperties().size()).isEqualTo(1);
+
+        // Given
+        addGraphWith(GRAPH_ID_B, STRING_REQUIRED_TYPE, PROPERTY_1, PROPERTY_2);
+
+        // When
+        final Schema schemaAB = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaAB).isNotEqualTo(schemaA);
+        assertThat(schemaAB.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_1);
         assertThat(schemaAB.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_2);
     }
 
