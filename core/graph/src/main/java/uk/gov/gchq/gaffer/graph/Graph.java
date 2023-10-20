@@ -416,6 +416,36 @@ public final class Graph {
     }
 
     /**
+     * Returns the graph view from the {@link GraphConfig}.
+     *
+     * @return the graph view.
+     */
+    public View getView() {
+        return config.getView();
+    }
+
+    /**
+     * Returns the description held in the {@link GraphConfig}.
+     *
+     * @return the description
+     */
+    public String getDescription() {
+        return config.getDescription();
+    }
+
+    /**
+     * Returns the graph hooks from the {@link GraphConfig}
+     *
+     * @return The list of {@GraphHook}s
+     */
+    public List<Class <? extends GraphHook>> getGraphHooks() {
+        if (config.getHooks().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return config.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList());
+    }
+
+    /**
      * @return a collection of all the supported {@link Operation}s.
      */
     public Set<Class<? extends Operation>> getSupportedOperations() {
