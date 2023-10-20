@@ -36,7 +36,6 @@ import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -174,7 +173,6 @@ public final class GraphConfig {
         return hooks.stream().anyMatch(hook -> hookClass.isAssignableFrom(hook.getClass()));
     }
 
-
     /**
      * Extracts and compares the cache suffixes of the supplied {@link Operation}'s handler
      * and {@link GetFromCacheHook} resolver hook, throws {@link GafferRuntimeException}
@@ -183,10 +181,10 @@ public final class GraphConfig {
      * Will attempt to add the supplied {@link GetFromCacheHook} to the graph config
      * if not currently present.
      *
-     * @param store                the Store
-     * @param operationClass       the Operation requiring cache write
-     * @param hookClass            the Hook requiring cache reading
-     * @param suffixFromProperties the suffix from property
+     * @param store The Store the operationClass is for
+     * @param operationClass The Operation requiring cache write
+     * @param hookClass The Hook requiring cache reading
+     * @param suffixFromProperties The suffix from property
      * @see NamedOperationResolver#NamedOperationResolver(String)
      * @see NamedViewResolver#NamedViewResolver(String)
      */
@@ -221,7 +219,7 @@ public final class GraphConfig {
             try {
                 // Provide info about the graph not having the required hook
                 LOGGER.info(
-                    "For GraphID:{} a handler was supplied for Operation {}, but without a {}, adding {} with suffix:{}",
+                    "For GraphID: {} a handler was supplied for Operation {}, but without a {}, adding {} with suffix: {}",
                     getGraphId(),
                     operationClass,
                     hookClass.getSimpleName(),
@@ -246,7 +244,7 @@ public final class GraphConfig {
                 //Error
                 throw new GafferRuntimeException(
                     String.format(
-                        "%s hook is configured with suffix:%s and %s handler is configured with suffix:%s this causes a cache reading and writing misalignment.",
+                        "%s hook is configured with suffix: %s and %s handler is configured with suffix: %s this causes a cache reading and writing misalignment.",
                         hookClass.getSimpleName(),
                         nvrSuffix,
                         addToCacheHandler.getClass().getSimpleName(),
@@ -255,69 +253,6 @@ public final class GraphConfig {
         }
 
     }
-
-
-    /**
-     * Updates the supplied properties with the properties from the parent store
-     * and returns the result. The parent store properties are applied first so
-     * the properties supplied can override them during the merge.
-     *
-     * @param properties The properties.
-     * @param parentStorePropertiesId The ID of the parent store to take the properties from.
-     * @return Merged properties of the parent store and the supplied properties.
-     */
-    public StoreProperties updateStoreProperties(StoreProperties properties, String parentStorePropertiesId) {
-        // Start with the parent store properties (the supplied ID will also be validated).
-        StoreProperties mergedStoreProperties = getLibrary().getProperties(parentStorePropertiesId);
-
-        // Merge in the existing properties
-        if (properties != null) {
-            mergedStoreProperties.merge(properties);
-        }
-
-        return mergedStoreProperties;
-    }
-
-
-    /**
-     * Updates the supplied schema with any parent schemas and returns the merged
-     * result.
-     *
-     * @param currentSchema The current schema.
-     * @param parentSchemaIds The list of parent schema IDs to merge.
-     * @return Merged schema of any parents and the supplied schema.
-     */
-    public Schema updateSchema(Schema currentSchema, List<String> parentSchemaIds) {
-        Schema mergedSchema = null;
-
-        // Use parent schema first
-        for (final String schemaId : parentSchemaIds) {
-            Schema parentSchema = getLibrary().getSchema(schemaId);
-            // Ignore invalid schemas
-            if (parentSchema == null) {
-                continue;
-            }
-            // If the merged result is still null init with the current schema else merge
-            if (mergedSchema == null) {
-                mergedSchema = parentSchema;
-            } else {
-                mergedSchema = new Schema.Builder()
-                    .merge(mergedSchema)
-                    .merge(parentSchema)
-                    .build();
-            }
-        }
-
-        if (mergedSchema != null && currentSchema != null) {
-            mergedSchema = new Schema.Builder()
-                .merge(mergedSchema)
-                .merge(currentSchema)
-                .build();
-        }
-
-        return mergedSchema;
-    }
-
 
     /**
      * Initialises the {@link View} for the graph config based on supplied schema.
@@ -389,21 +324,25 @@ public final class GraphConfig {
         }
 
         public Builder merge(final GraphConfig config) {
-            if (null != config) {
-                if (null != config.getGraphId()) {
-                    this.config.setGraphId(config.getGraphId());
-                }
-                if (null != config.getView()) {
-                    this.config.setView(config.getView());
-                }
-                if (null != config.getLibrary() && !(config.getLibrary() instanceof NoGraphLibrary)) {
-                    this.config.setLibrary(config.getLibrary());
-                }
-                if (null != config.getDescription()) {
-                    this.config.setDescription(config.getDescription());
-                }
-                this.config.getHooks().addAll(config.getHooks());
+            if (config == null) {
+                LOGGER.warn("Unable to merge with a null config ignoring call");
+                return this;
             }
+
+            if (config.getGraphId() != null) {
+                this.config.setGraphId(config.getGraphId());
+            }
+            if (config.getView() != null) {
+                this.config.setView(config.getView());
+            }
+            if (config.getLibrary() != null && !(config.getLibrary() instanceof NoGraphLibrary)) {
+                this.config.setLibrary(config.getLibrary());
+            }
+            if (config.getDescription() != null) {
+                this.config.setDescription(config.getDescription());
+            }
+            this.config.getHooks().addAll(config.getHooks());
+
             return this;
         }
 

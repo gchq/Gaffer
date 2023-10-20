@@ -67,6 +67,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
@@ -486,9 +487,6 @@ public final class Graph {
      */
     public static class Builder {
         public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
-        public static final String HOOK_SUFFIX_ERROR_FORMAT_MESSAGE = "%s hook is configured with suffix:%s and %s handler is configured with suffix:%s this causes a cache reading and writing misalignment.";
-        public static final String HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX = "For GraphID:{} a handler was supplied for Operation {}, but without a {}, adding {} with suffix:{}";
-        public static final String HANDLER_WAS_NOT_EXPECTED_TYPE_ADD_TO_CACHE_HANDLER = "Handler for:%s was not expected type:%s cant get suffixCache using value from property:%s";
         private final GraphConfig.Builder configBuilder = new GraphConfig.Builder();
         private final List<byte[]> schemaBytesList = new ArrayList<>();
         private Store store;
@@ -754,16 +752,18 @@ public final class Graph {
         }
 
         public Builder addSchema(final Path schemaPath) {
-            if (schemaPath != null) {
-                try (DirectoryStream<Path> stream = Files.isDirectory(schemaPath) ? Files.newDirectoryStream(schemaPath) : null) {
-                    if (stream != null) {
-                        stream.forEach(this::addSchema);
-                    } else {
-                        addSchema(Files.readAllBytes(schemaPath));
+            try {
+                // If directory load all schemas from it
+                if (Files.isDirectory(schemaPath)) {
+                    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(schemaPath)) {
+                        directoryStream.forEach(this::addSchema);
                     }
-                } catch (final IOException e) {
-                    throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
+                } else {
+                    // Just load the file
+                    addSchema(Files.readAllBytes(schemaPath));
                 }
+            } catch (final IOException e) {
+                throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
             }
             return this;
         }
@@ -786,12 +786,13 @@ public final class Graph {
                 config.setLibrary(new NoGraphLibrary());
             }
 
-            if (null == config.getGraphId() && null != store) {
-                config.setGraphId(store.getGraphId());
-            }
+            // Make sure parent store properties are applied
+            StoreProperties parentStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
+            properties = applyParentStoreProperties(properties, parentStoreProperties);
 
-            properties = config.updateStoreProperties(properties, parentStorePropertiesId);
-            schema = config.updateSchema(schema, parentSchemaIds);
+            // Apply parent schemas
+            List<Schema> parentSchemas = parentSchemaIds.stream().map(id -> config.getLibrary().getSchema(id)).collect(Collectors.toList());
+            schema = applyParentSchemas(schema, parentSchemas);
             loadSchemaFromJson();
 
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
@@ -801,22 +802,17 @@ public final class Graph {
                 schema = (null == schema) ? pair.getFirst() : schema;
             }
 
-            updateStore(config);
-
-            if (null != config.getGraphId()) {
-                config.getLibrary().checkExisting(config.getGraphId(), schema, properties);
-            }
-
+            // Initialise the store and view
+            initStore(config);
             config.initView(schema);
 
-            if (null == config.getGraphId()) {
-                config.setGraphId(store.getGraphId());
-            }
-
-            if (null == config.getGraphId()) {
+            // Validate the graph Id
+            if (config.getGraphId() == null) {
                 throw new IllegalArgumentException("graphId is required");
             }
+            config.getLibrary().checkExisting(config.getGraphId(), schema, properties);
 
+            // Validate and set up the graph hooks
             validateAndUpdateHooks(config);
 
             if (addToLibrary) {
@@ -850,53 +846,131 @@ public final class Graph {
             }
         }
 
+        /**
+         * Loads the current schema list of byte arrays as json.
+         */
         private void loadSchemaFromJson() {
-            if (!schemaBytesList.isEmpty()) {
-                if (null == properties) {
-                    throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
-                }
-
-                final Class<? extends Schema> schemaClass = properties.getSchemaClass();
-                final Schema newSchema = new Schema.Builder()
-                        .json(schemaClass, schemaBytesList.toArray(new byte[schemaBytesList.size()][]))
-                        .build();
-                addSchema(newSchema);
+            if (schemaBytesList.isEmpty()) {
+                LOGGER.warn("No schema bytes have been supplied unable to load as JSON");
+                return;
             }
+            if (properties == null) {
+                throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
+            }
+
+            // Get the schema class to load with
+            final Class<? extends Schema> schemaClass = properties.getSchemaClass();
+
+            // Add the schemas
+            schemaBytesList.forEach(schemaBytes -> {
+                Schema newSchema = new Schema.Builder()
+                    .json(schemaClass, schemaBytes)
+                    .build();
+                addSchema(newSchema);
+            });
         }
 
-        private void updateStore(final GraphConfig config) {
-            if (null == store) {
+        /**
+         * Merges the supplied properties with the properties from the parent store
+         * and returns the result. The parent store properties are applied first so
+         * the properties supplied can override them during the merge.
+         *
+         * @param properties The current properties.
+         * @param parentStoreProperties The properties the parent store to apply
+         * @return Merged properties of the parent store and the supplied properties.
+         */
+        private StoreProperties applyParentStoreProperties(StoreProperties properties, StoreProperties parentStoreProperties) {
+            // Start with the parent store properties
+            StoreProperties mergedProperties = parentStoreProperties;
+
+            // Apply rest of properties
+            if (properties != null) {
+                mergedProperties.merge(properties);
+            }
+            return mergedProperties;
+        }
+
+        /**
+         * Merges the supplied schema with any parent schemas and returns the
+         * result.
+         *
+         * @param currentSchema The current schema.
+         * @param parentSchemas The list of parent schemas to merge.
+         * @return Merged schema of any parents and the supplied schema.
+         */
+        private Schema applyParentSchemas(Schema currentSchema, List<Schema> parentSchemas) {
+            Schema mergedSchema = null;
+
+            // Apply parent schemas
+            for (final Schema parentSchema : parentSchemas) {
+                // If the merged result is still null init with the current schema else merge
+                if (mergedSchema == null) {
+                    mergedSchema = parentSchema;
+                } else {
+                    mergedSchema = new Schema.Builder()
+                        .merge(mergedSchema)
+                        .merge(parentSchema)
+                        .build();
+                }
+            }
+            // Merge parent schemas with current schema
+            if (mergedSchema != null && currentSchema != null) {
+                mergedSchema = new Schema.Builder()
+                    .merge(mergedSchema)
+                    .merge(currentSchema)
+                    .build();
+            }
+
+            return mergedSchema;
+        }
+
+        /**
+         * Initialises the {@link Store} class instance with a given graph configuration.
+         * <p>
+         * Will also attempt to extract some configuration from the current store if
+         * not currently configured.
+         *
+         * @param config The graph config
+         */
+        private void initStore(final GraphConfig config) {
+            // Init the store if needed
+            if (store == null) {
                 store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
-            } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
-                    || (null != schema)
-                    || (null != properties && !properties.equals(store.getProperties()))) {
-                if (null == config.getGraphId()) {
-                    config.setGraphId(store.getGraphId());
-                }
-                if (null == schema || schema.getGroups().isEmpty()) {
-                    schema = store.getSchema();
-                }
+            }
 
-                if (null == properties) {
-                    properties = store.getProperties();
-                }
+            // Use the store's graph Id if we don't have on configured already
+            if (config.getGraphId() == null) {
+                config.setGraphId(store.getGraphId());
+            }
 
-                try {
-                    store.initialise(config.getGraphId(), cloneSchema(schema), properties);
-                } catch (final StoreException e) {
-                    throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
-                }
+            // Use the store's schema if not already set
+            if (schema == null || schema.getGroups().isEmpty()) {
+                schema = store.getSchema();
+            }
+
+            // Use the store's properties if not already set
+            if (properties == null) {
+                properties = store.getProperties();
+            }
+
+            try {
+                // Initialise the store with current configuration
+                store.initialise(config.getGraphId(), cloneSchema(schema), properties);
+            } catch (final StoreException e) {
+                throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
             }
 
             store.setGraphLibrary(config.getLibrary());
-
-            if (null == schema || schema.getGroups().isEmpty()) {
-                schema = store.getSchema();
-            }
         }
 
+        /**
+         * Null safe clone of the supplied schema.
+         *
+         * @param schema The schema to clone.
+         * @return Clone of the schema.
+         */
         private Schema cloneSchema(final Schema schema) {
-            return null != schema ? schema.clone() : null;
+            return schema != null ? schema.clone() : null;
         }
     }
 
