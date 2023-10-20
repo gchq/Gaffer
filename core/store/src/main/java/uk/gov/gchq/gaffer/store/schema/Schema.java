@@ -72,7 +72,12 @@ import static java.util.Objects.nonNull;
 @JsonDeserialize(builder = Schema.Builder.class)
 @JsonPropertyOrder(value = {"class", "edges", "entities", "types"}, alphabetic = true)
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
-    public static final String UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER_OPTIONS_ARE = "Unable to merge schemas. Conflict with vertex serialiser, options are: ";
+    public static final String FORMAT_EXCEPTION = "%s, options are: %s and %s";
+    public static final String UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S = "Unable to merge schemas because of conflict with the %s";
+    public static final String VERTEX_SERIALISER = "vertex serialiser";
+    public static final String SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER = String.format(UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, VERTEX_SERIALISER);
+    public static final String VISIBILITY_PROPERTY = "visibility property";
+    public static final String SCHEMAS_CONFLICT_WITH_VISIBILITY_PROPERTY = String.format(UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, VISIBILITY_PROPERTY);
     private final TypeDefinition unknownType = new TypeDefinition();
 
     /**
@@ -331,21 +336,22 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 Schema thatSchema;
                 try {
                     thatSchema = JSONSerialiser.deserialise(JSONSerialiser.serialise(schema), Schema.class);
-                } catch (final SerialisationException e) {
-                    throw new GafferRuntimeException("Error merging Schema", e);
-                }
 
                 validateSharedGroupsAreCompatible(thatSchema);
 
-                mergeElements(thatSchema);
+                    mergeElements(thatSchema);
 
-                mergeVertexSerialiser(thatSchema);
+                    mergeVertexSerialiser(thatSchema);
 
-                mergeVisibility(thatSchema);
+                    mergeVisibility(thatSchema);
 
-                mergeTypes(thatSchema);
+                    mergeTypes(thatSchema);
 
-                mergeConfig(thatSchema);
+                    mergeConfig(thatSchema);
+
+                } catch (final Exception e) {
+                    throw new GafferRuntimeException("Error merging Schema due to: "+ e.getMessage(), e);
+                }
             }
 
             return self();
@@ -392,8 +398,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 if (null == getThisSchema().vertexSerialiser) {
                     getThisSchema().vertexSerialiser = thatSchema.getVertexSerialiser();
                 } else if (!getThisSchema().vertexSerialiser.getClass().equals(thatSchema.getVertexSerialiser().getClass())) {
-                    throw new SchemaException(UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER_OPTIONS_ARE
-                            + getThisSchema().vertexSerialiser.getClass().getName() + " and " + thatSchema.getVertexSerialiser().getClass().getName());
+                    throw new SchemaException(String.format(FORMAT_EXCEPTION, SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER, getThisSchema().vertexSerialiser.getClass().getName(), thatSchema.getVertexSerialiser().getClass().getName()));
                 }
             }
         }
@@ -402,8 +407,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             if (null == getThisSchema().visibilityProperty) {
                 getThisSchema().visibilityProperty = thatSchema.getVisibilityProperty();
             } else if (null != thatSchema.getVisibilityProperty() && !getThisSchema().visibilityProperty.equals(thatSchema.getVisibilityProperty())) {
-                throw new SchemaException("Unable to merge schemas. Conflict with visibility property, options are: "
-                        + getThisSchema().visibilityProperty + " and " + thatSchema.getVisibilityProperty());
+                throw new SchemaException(String.format(FORMAT_EXCEPTION, SCHEMAS_CONFLICT_WITH_VISIBILITY_PROPERTY, getThisSchema().visibilityProperty, thatSchema.getVisibilityProperty()));
             }
         }
 
@@ -418,7 +422,11 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                     if (null == typeDef) {
                         getThisSchema().types.put(newType, newTypeDef);
                     } else {
-                        typeDef.merge(newTypeDef);
+                        try {
+                            typeDef.merge(newTypeDef);
+                        } catch (Exception e) {
+                            throw new GafferRuntimeException(String.format("Error with the type named:%s due to: %s", entry.getKey(), e.getMessage()), e);
+                        }
                     }
                 }
             }

@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
+import static uk.gov.gchq.gaffer.store.schema.Schema.FORMAT_EXCEPTION;
 import static uk.gov.gchq.gaffer.store.schema.Schema.UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S;
 
 /**
@@ -58,7 +59,6 @@ public class TypeDefinition {
     public static final String SCHEMAS_CONFLICT_WITH_TYPE_SERIALISER = String.format(UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, TYPE_SERIALISER);
     public static final String AGGREGATE_FUNCTION = "aggregate function";
     public static final String SCHEMAS_CONFLICT_WITH_AGGREGATE_FUNCTION = String.format(UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, AGGREGATE_FUNCTION);
-    public static final String FORMAT_EXCEPTION = "%s, options are: %s and %s";
     private Class<?> clazz;
     private Serialiser serialiser;
     private List<Predicate> validateFunctions;
