@@ -1368,8 +1368,12 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(),
-                FunctionAuthoriser.class), graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                graphHook1.getClass(),
+                graphHook2.getClass(),
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -1398,8 +1402,13 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(),
-                graphHook3.getClass(), FunctionAuthoriser.class), graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                graphHook1.getClass(),
+                graphHook2.getClass(),
+                graphHook3.getClass(),
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -1426,8 +1435,13 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, graphHook1.getClass(),
-                graphHook2.getClass(), FunctionAuthoriser.class), graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedOperationResolver.class,
+                NamedViewResolver.class,
+                graphHook1.getClass(),
+                graphHook2.getClass(),
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -1450,10 +1464,13 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(
-                Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class,
-                        OperationAuthoriser.class, FunctionAuthoriser.class),
-                graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                OperationChainLimiter.class,
+                AddOperationsToChain.class,
+                OperationAuthoriser.class,
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -1481,8 +1498,12 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, OperationAuthoriser.class,
-                FunctionAuthoriser.class), graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                OperationChainLimiter.class,
+                OperationAuthoriser.class,
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -1506,8 +1527,12 @@ public class GraphTest {
                         .build())
                 .build(), graph.getView());
         assertEquals(HashMapGraphLibrary.class, graph.getGraphLibrary().getClass());
-        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class,
-                FunctionAuthoriser.class), graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                OperationChainLimiter.class,
+                AddOperationsToChain.class,
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -1551,10 +1576,13 @@ public class GraphTest {
         assertEquals(graphId2, graph.getGraphId());
         assertEquals(view2, graph.getView());
         assertEquals(library2, graph.getGraphLibrary());
-        assertEquals(
-                Arrays.asList(NamedViewResolver.class, hook1.getClass(), hook2.getClass(), hook3.getClass(),
-                        FunctionAuthoriser.class),
-                graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                hook2.getClass(),
+                hook1.getClass(),
+                hook3.getClass(),
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -1600,10 +1628,13 @@ public class GraphTest {
         assertEquals(graphId1, graph.getGraphId());
         assertEquals(view1, graph.getView());
         assertEquals(library1, graph.getGraphLibrary());
-        assertEquals(
-                Arrays.asList(NamedViewResolver.class, hook2.getClass(), hook1.getClass(), hook3.getClass(),
-                        FunctionAuthoriser.class),
-                graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                hook2.getClass(),
+                hook1.getClass(),
+                hook3.getClass(),
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -2355,8 +2386,8 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class),
-                graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class);
         assertEquals(CreateObject.class,
                 ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
     }
@@ -2384,10 +2415,17 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class),
-                graph.getGraphHooks());
-        assertEquals(Identity.class,
-                ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class);
+
+        // Get authoriser class
+        FunctionAuthoriser functionAuthoriser = (FunctionAuthoriser) graph.getConfig().getHooks().stream()
+                .filter(hook -> FunctionAuthoriser.class.isAssignableFrom(hook.getClass()))
+                .findFirst()
+                .get();
+        // Validate
+        assertThat(functionAuthoriser.getUnauthorisedFunctions().get(0))
+            .isEqualTo(Identity.class);
     }
 
     @Test
