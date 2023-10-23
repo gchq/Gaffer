@@ -436,7 +436,7 @@ public final class Graph {
     /**
      * Returns the graph hooks from the {@link GraphConfig}
      *
-     * @return The list of {@GraphHook}s
+     * @return The list of {@link GraphHook}s
      */
     public List<Class <? extends GraphHook>> getGraphHooks() {
         if (config.getHooks().isEmpty()) {
@@ -914,7 +914,7 @@ public final class Graph {
          * @param parentStoreProperties The properties the parent store to apply
          * @return Merged properties of the parent store and the supplied properties.
          */
-        private StoreProperties applyParentStoreProperties(StoreProperties properties, StoreProperties parentStoreProperties) {
+        private StoreProperties applyParentStoreProperties(final StoreProperties properties, final StoreProperties parentStoreProperties) {
             // Start with the parent store properties
             StoreProperties mergedProperties = parentStoreProperties;
 
@@ -933,7 +933,7 @@ public final class Graph {
          * @param parentSchemas The list of parent schemas to merge.
          * @return Merged schema of any parents and the supplied schema.
          */
-        private Schema applyParentSchemas(Schema currentSchema, List<Schema> parentSchemas) {
+        private Schema applyParentSchemas(final Schema currentSchema, final List<Schema> parentSchemas) {
             Schema mergedSchema = null;
 
             // Apply parent schemas
@@ -970,6 +970,7 @@ public final class Graph {
         private void initStore(final GraphConfig config) {
             // Init the store if needed
             if (store == null) {
+                LOGGER.debug("Store currently null initialising with Id: {} and existing schema/properties", config.getGraphId());
                 store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
             }
 

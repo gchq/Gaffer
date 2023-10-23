@@ -25,14 +25,11 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GetFromCacheHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHookPath;
-import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
-import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.graph.hook.exception.GraphHookException;
 import uk.gov.gchq.gaffer.graph.hook.exception.HookSuffixException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -159,6 +156,7 @@ public final class GraphConfig {
                 throw new IllegalArgumentException("Unable to deserialise graph hook from file: " + file.toString(), e);
             }
         } else {
+            LOGGER.debug("Adding Hook {}", hook.getClass().getSimpleName());
             hooks.add(hook);
         }
     }
@@ -177,7 +175,7 @@ public final class GraphConfig {
 
     /**
      * Extracts and compares the cache suffixes of the supplied {@link Operation}'s handler
-     * and {@link GetFromCacheHook} resolver hook, throws {@link GafferRuntimeException}
+     * and {@link GetFromCacheHook} resolver hook, throws {@link HookSuffixException}
      * if mismatched as writing and reading to cache will not behave correctly.
      * <p>
      * Will attempt to add the supplied {@link GetFromCacheHook} to the graph config
@@ -221,16 +219,16 @@ public final class GraphConfig {
             try {
                 // Provide info about the graph not having the required hook
                 LOGGER.info(
-                    "For GraphID: {} a handler was supplied for Operation {}, but without a {}, adding {} with suffix: {}",
+                    "For GraphID: {} a handler was supplied for Operation: {}, but without a {}, adding {} with suffix: {}",
                     getGraphId(),
                     operationClass,
                     hookClass.getSimpleName(),
                     hookClass.getSimpleName(),
                     suffix);
                 // Try add the hook
-                addHook(hookClass.getDeclaredConstructor(String.class).newInstance(suffix));
+                hooks.add(0, hookClass.getDeclaredConstructor(String.class).newInstance(suffix));
             } catch (final Exception e) {
-                throw new GraphHookException(e.getMessage());
+                throw new GraphHookException(e.getMessage(), e);
             }
         } else {
             // Find the relevant hook
