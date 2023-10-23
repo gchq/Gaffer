@@ -2459,7 +2459,6 @@ public class GraphTest {
         final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
 
-        given(store.getSchema()).willReturn(twoEdgesNoEntities);
         given(store.getProperties()).willReturn(mockStoreProperties);
 
         final Graph graph = new Graph.Builder()
@@ -2533,7 +2532,6 @@ public class GraphTest {
         final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
 
-        given(store.getSchema()).willReturn(twoEdgesNoEntities);
         given(store.getOriginalSchema()).willReturn(twoEdgesNoEntities);
         given(store.getProperties()).willReturn(mockStoreProperties);
 
@@ -2603,7 +2601,6 @@ public class GraphTest {
         final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
 
-        given(store.getSchema()).willReturn(twoEdgesNoEntities);
         given(store.getOriginalSchema()).willReturn(twoEdgesNoEntities);
         given(store.getProperties()).willReturn(mockStoreProperties);
 
