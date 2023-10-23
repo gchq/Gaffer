@@ -817,12 +817,17 @@ public final class Graph {
             }
 
             // Make sure parent store properties are applied
-            StoreProperties parentStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
-            properties = applyParentStoreProperties(properties, parentStoreProperties);
+            if (parentStorePropertiesId != null) {
+                StoreProperties parentStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
+                properties = applyParentStoreProperties(properties, parentStoreProperties);
+            }
 
-            // Apply parent schemas
-            List<Schema> parentSchemas = parentSchemaIds.stream().map(id -> config.getLibrary().getSchema(id)).collect(Collectors.toList());
-            schema = applyParentSchemas(schema, parentSchemas);
+            // Make sure parent schemas are applied
+            if (parentSchemaIds != null) {
+                List<Schema> parentSchemas = parentSchemaIds.stream().map(id -> config.getLibrary().getSchema(id)).collect(Collectors.toList());
+                schema = applyParentSchemas(schema, parentSchemas);
+            }
+
             loadSchemaFromJson();
 
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {

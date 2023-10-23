@@ -33,6 +33,8 @@ import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHookPath;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
+import uk.gov.gchq.gaffer.graph.hook.exception.GraphHookException;
+import uk.gov.gchq.gaffer.graph.hook.exception.HookSuffixException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Store;
@@ -228,21 +230,21 @@ public final class GraphConfig {
                 // Try add the hook
                 addHook(hookClass.getDeclaredConstructor(String.class).newInstance(suffix));
             } catch (final Exception e) {
-                throw new GafferRuntimeException(e.getMessage());
+                throw new GraphHookException(e.getMessage());
             }
         } else {
             // Find the relevant hook
             final GetFromCacheHook nvrHook = (GetFromCacheHook) getHooks().stream()
                 .filter(hook -> hookClass.isAssignableFrom(hook.getClass()))
                 .findAny()
-                .orElseThrow(() -> new GafferRuntimeException(
+                .orElseThrow(() -> new GraphHookException(
                         String.format("Unable to find matching hook in graph config for class %s", hookClass.getSimpleName())));
 
             // Validate the suffix for a mismatch
             final String nvrSuffix = nvrHook.getSuffixCacheName();
             if (!suffix.equals(nvrSuffix)) {
                 //Error
-                throw new GafferRuntimeException(
+                throw new HookSuffixException(
                     String.format(
                         "%s hook is configured with suffix: %s and %s handler is configured with suffix: %s this causes a cache reading and writing misalignment.",
                         hookClass.getSimpleName(),
