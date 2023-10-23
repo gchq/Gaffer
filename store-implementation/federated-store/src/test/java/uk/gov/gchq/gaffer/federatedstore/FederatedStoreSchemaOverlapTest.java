@@ -36,6 +36,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_A;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_B;
@@ -138,12 +139,17 @@ public class FederatedStoreSchemaOverlapTest {
     }
 
     @Test
-    public void shouldOverwriteVisibilityPropertyWhenConflictingSchemasMerge() throws OperationException {
+    public void shouldMergeSchemaWithoutTheClashingVisibilityProperty() throws OperationException {
         // Given
         addGraphWith(GRAPH_ID_A, GRAPH_A_SCHEMA);
+        final String visibility1 = "visibility1";
+        final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder(EDGE_DEFINITION)
+                .property(visibility1, STRING)
+                .build();
         final Schema graphBSchema = new Schema.Builder()
                 .merge(GRAPH_A_SCHEMA)
-                .visibilityProperty(PROPERTY_1)
+                .visibilityProperty(visibility1)
+                .edge(GROUP_BASIC_EDGE, edgeDef)
                 .build();
         addGraphWith(GRAPH_ID_B, graphBSchema);
 
@@ -154,14 +160,19 @@ public class FederatedStoreSchemaOverlapTest {
         assertThat(schema.validate().isValid())
                 .withFailMessage(schema.validate().getErrorString())
                 .isTrue();
-        assertThat(schema.getVisibilityProperty()).isEqualTo(PROPERTY_1);
+        assertThat(schema.getVisibilityProperty())
+                .withFailMessage("After a recovery from a collision with Visibility Property, the property should be set to Null")
+                .isNull();
         assertThat(schema.toString())
-                .isNotEqualTo(GRAPH_A_SCHEMA.toString())
-                .isEqualTo(graphBSchema.toString());
+                .isEqualTo(new Schema.Builder(GRAPH_A_SCHEMA)
+                        .visibilityProperty(null)
+                        .edge(GROUP_BASIC_EDGE, edgeDef)
+                        .build()
+                        .toString());
     }
 
     @Test
-    public void shouldOverwriteTypeDefinitionWhenConflictingSchemasMerge() throws OperationException {
+    public void shouldErrorWhenConflictingSchemasMergeAtTypeDefinitionClassClash() throws OperationException {
         // Given
         addGraphWith(GRAPH_ID_A, GRAPH_A_SCHEMA);
         final Schema graphBSchema = new Schema.Builder()
@@ -170,17 +181,12 @@ public class FederatedStoreSchemaOverlapTest {
                 .build();
         addGraphWith(GRAPH_ID_B, graphBSchema);
 
-        // When
-        final Schema schema = federatedStore.execute(new GetSchema.Builder().build(), testContext);
-
-        // Then
-        assertThat(schema.validate().isValid())
-                .withFailMessage(schema.validate().getErrorString())
-                .isTrue();
-        assertThat(schema.getType(INTEGER)).isEqualTo(STRING_TYPE);
-        assertThat(schema.toString())
-                .isNotEqualTo(GRAPH_A_SCHEMA.toString())
-                .isEqualTo(graphBSchema.toString());
+        // When then
+        assertThatException()
+                .isThrownBy(() -> federatedStore.execute(new GetSchema.Builder().build(), testContext))
+                .withStackTraceContaining("MergeSchema function unable to recover from error")
+                .withStackTraceContaining("Error with the schema type named:integer")
+                .withStackTraceContaining("conflict with the type class, options are: java.lang.String and java.lang.Integer");
     }
 
     @Test
@@ -314,7 +320,7 @@ public class FederatedStoreSchemaOverlapTest {
     }
 
     @Test
-    public void shouldOverwriteTypeDefinitionAggregationFunctionWhenConflictingSchemasMerge() throws OperationException {
+    public void shouldErrorAtTypeDefinitionAggregationFunctionWhenConflictingDuringSchemasMerge() throws OperationException {
         // Given
         addGraphWith(GRAPH_ID_A, GRAPH_A_SCHEMA);
         final Schema graphBSchema = new Schema.Builder()
@@ -329,17 +335,12 @@ public class FederatedStoreSchemaOverlapTest {
         addGraphWith(GRAPH_ID_B, graphBSchema);
 
         // When
-        final Schema schema = federatedStore.execute(new GetSchema.Builder().build(), testContext);
-
-        // Then
-        assertThat(schema.validate().isValid())
-                .withFailMessage(schema.validate().getErrorString())
-                .isTrue();
-        assertThat(schema.getEdge(GROUP_BASIC_EDGE).getPropertyTypeDef(PROPERTY_1).getAggregateFunction())
-                .isEqualTo(new Last());
-        assertThat(schema.toString())
-                .isNotEqualTo(GRAPH_A_SCHEMA.toString())
-                .isEqualTo(graphBSchema.toString());
+        assertThatException()
+                .isThrownBy(() -> federatedStore.execute(new GetSchema.Builder().build(), testContext))
+                .withStackTraceContaining("Error with the schema type named:integer")
+                .withStackTraceContaining("Unable to merge schemas because of conflict with the aggregate function")
+                .withStackTraceContaining("options are: uk.gov.gchq.koryphe.impl.binaryoperator.Last")
+                .withStackTraceContaining("and uk.gov.gchq.koryphe.impl.binaryoperator.Sum");
     }
 
     @Test

@@ -218,17 +218,13 @@ public class FederatedStoreVisibilityTest {
                         .build(), new User());
 
         // Then
-        // In this case, all results are returned but the visibility1 property has been overwritten
-        // This is because 2 schemas were merged which had different visibility property names
-        // on the same group, which should be avoided
         assertThat(aggregatedResults)
                 .isNotEmpty()
                 .hasSize(1)
                 .first()
                 .matches(e -> e.getProperty(PROPERTY_1).equals(2), "property is aggregated")
-                .matches(e -> e.getProperty(VISIBILITY_2).equals(PUBLIC), "visibility2 is present")
-                .matches(e -> e.getProperty(VISIBILITY_1) == null, "visibility1 is overwritten in schema merge");
-        // If this is to be done, the concatenated results are more intuitive
+                .matches(e -> e.getProperty(VISIBILITY_1).equals(PUBLIC), "visibility1 is present")
+                .matches(e -> e.getProperty(VISIBILITY_2).equals(PUBLIC), "visibility2 is present");
         assertThat(concatenatedResults)
                 .isNotEmpty()
                 .hasSize(2)
@@ -239,7 +235,7 @@ public class FederatedStoreVisibilityTest {
     }
 
     @Test
-    public void shouldAddDataWhenVisibilityPropertyNamesAreDifferent() throws Exception {
+    public void shouldAddElementToBothGraphsWhenVisibilityPropertyNamesAreDifferent() throws Exception {
         // Given
         addGraphs(VISIBILITY_1, VISIBILITY_2);
         federatedGraph.execute(new FederatedOperation.Builder()
@@ -275,8 +271,8 @@ public class FederatedStoreVisibilityTest {
                 .hasSize(1)
                 .first()
                 .matches(e -> e.getProperty(PROPERTY_1).equals(2), "property is aggregated")
-                .matches(e -> e.getProperty(VISIBILITY_2).equals(PUBLIC), "has visibility2 property")
-                .matches(e -> e.getProperty(VISIBILITY_1) == null, "visibility1 is overwritten in schema merge");
+                .matches(e -> e.getProperty(VISIBILITY_1).equals(PUBLIC), "has visibility1 property")
+                .matches(e -> e.getProperty(VISIBILITY_2).equals(PUBLIC), "has visibility2 property");
         assertThat(concatenatedResults)
                 .isNotEmpty()
                 .hasSize(2)

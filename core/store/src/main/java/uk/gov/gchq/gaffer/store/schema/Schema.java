@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -78,6 +79,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     public static final String VISIBILITY_PROPERTY = "visibility property";
     public static final String SCHEMAS_CONFLICT_WITH_VISIBILITY_PROPERTY = String.format(FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, VISIBILITY_PROPERTY);
     public static final String ELEMENT_GROUP_MUST_ALL_BE_DEFINED_IN_A_SINGLE_SCHEMA = "Element group properties cannot be defined in different schema parts, they must all be defined in a single schema part. Please fix this group: ";
+    public static final String FORMAT_ERROR_WITH_THE_SCHEMA_TYPE_NAMED_S_DUE_TO_S = "Error with the schema type named:%s due to: %s";
     private final TypeDefinition unknownType = new TypeDefinition();
 
     /**
@@ -337,7 +339,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 try {
                     thatSchema = JSONSerialiser.deserialise(JSONSerialiser.serialise(schema), Schema.class);
 
-                validateSharedGroupsAreCompatible(thatSchema);
+                    validateSharedGroupsAreCompatible(thatSchema);
 
                     mergeElements(thatSchema);
 
@@ -350,7 +352,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                     mergeConfig(thatSchema);
 
                 } catch (final Exception e) {
-                    throw new SchemaException("Error merging Schema due to: "+ e.getMessage(), e);
+                    throw new SchemaException("Error merging Schema due to: " + e.getMessage(), e);
                 }
             }
 
@@ -424,8 +426,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                     } else {
                         try {
                             typeDef.merge(newTypeDef);
-                        } catch (Exception e) {
-                            throw new GafferRuntimeException(String.format("Error with the schema type named:%s due to: %s", entry.getKey(), e.getMessage()), e);
+                        } catch (final Exception e) {
+                            throw new GafferRuntimeException(String.format(FORMAT_ERROR_WITH_THE_SCHEMA_TYPE_NAMED_S_DUE_TO_S, entry.getKey(), e.getMessage()), e);
                         }
                     }
                 }
@@ -445,9 +447,11 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             mergeEdges(thatSchema);
         }
 
-        private void validateSharedGroupsAreCompatible(final Schema schema) {
-            validateSharedGroupsAreCompatible(getThisSchema().getEntities(), schema.getEntities());
-            validateSharedGroupsAreCompatible(getThisSchema().getEdges(), schema.getEdges());
+        private void validateSharedGroupsAreCompatible(final Schema thatSchema) {
+            final String thisVisibilityProperty = getThisSchema().visibilityProperty;
+            final String thatVisibilityProperty = thatSchema.visibilityProperty;
+            validateSharedGroupsAreCompatible(getThisSchema().getEntities(), thatSchema.getEntities(), thisVisibilityProperty, thatVisibilityProperty);
+            validateSharedGroupsAreCompatible(getThisSchema().getEdges(), thatSchema.getEdges(), thisVisibilityProperty, thatVisibilityProperty);
         }
 
         @JsonIgnore
@@ -488,34 +492,39 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             return getElementDefs();
         }
 
-        private void validateSharedGroupsAreCompatible(final Map<String, ? extends SchemaElementDefinition> elements1, final Map<String, ? extends SchemaElementDefinition> elements2) {
-            final Set<String> sharedGroups = new HashSet<>(elements1.keySet());
-            sharedGroups.retainAll(elements2.keySet());
+        private void validateSharedGroupsAreCompatible(final Map<String, ? extends SchemaElementDefinition> thisElements, final Map<String, ? extends SchemaElementDefinition> thatElements, final String thisVisibilityProperty, final String thatVisibilityProperty) {
+            final Set<String> sharedGroups = new HashSet<>(thisElements.keySet());
+            sharedGroups.retainAll(thatElements.keySet());
+
             if (!sharedGroups.isEmpty()) {
                 // Groups are shared. Check they are compatible.
                 for (final String sharedGroup : sharedGroups) {
 
                     // Check if just one group has the properties and groupBy fields set.
-                    final SchemaElementDefinition elementDef1 = elements1.get(sharedGroup);
-                    if ((null == elementDef1.properties || elementDef1.properties.isEmpty())
-                            && elementDef1.groupBy.isEmpty()) {
+                    final SchemaElementDefinition thisElementDef = thisElements.get(sharedGroup);
+
+                    if ((null == thisElementDef.properties || thisElementDef.properties.isEmpty())
+                            && thisElementDef.groupBy.isEmpty()) {
                         continue;
                     }
-                    final SchemaElementDefinition elementDef2 = elements2.get(sharedGroup);
-                    if ((null == elementDef2.properties || elementDef2.properties.isEmpty())
-                            && elementDef2.groupBy.isEmpty()) {
+                    final SchemaElementDefinition thatElementDef = thatElements.get(sharedGroup);
+                    if ((null == thatElementDef.properties || thatElementDef.properties.isEmpty())
+                            && thatElementDef.groupBy.isEmpty()) {
                         continue;
                     }
 
+                    final Map<String, String> thisProperties = getPropertiesWithoutVisibility(thisVisibilityProperty, thisElementDef);
+                    final Map<String, String> thatProperties = getPropertiesWithoutVisibility(thatVisibilityProperty, thatElementDef);
+
                     // Check to see if the properties are the same.
-                    if (Objects.equals(elementDef1.properties, elementDef2.properties)
-                            && Objects.equals(elementDef1.groupBy, elementDef2.groupBy)) {
+                    if (Objects.equals(thisProperties, thatProperties)
+                            && Objects.equals(thisElementDef.groupBy, thatElementDef.groupBy)) {
                         continue;
                     }
 
                     // Check to see if either of the properties are a subset of another properties
-                    if (elementDef2.properties.entrySet().containsAll(elementDef1.properties.entrySet()) ||
-                            elementDef1.properties.entrySet().containsAll(elementDef2.properties.entrySet())) {
+                    if (thatProperties.entrySet().containsAll(thisProperties.entrySet())
+                            || thisProperties.entrySet().containsAll(thatProperties.entrySet())) {
                         continue;
                     }
 
@@ -539,6 +548,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
             getThisSchema().getEntityGroups().forEach(GroupUtil::validateName);
         }
+    }
+
+    private static Map<String, String> getPropertiesWithoutVisibility(final String visibilityProperty, final SchemaElementDefinition elementDef) {
+        return elementDef.properties.entrySet().stream()
+                .filter(s -> !Objects.equals(s.getKey(), visibilityProperty))
+                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
 
     @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

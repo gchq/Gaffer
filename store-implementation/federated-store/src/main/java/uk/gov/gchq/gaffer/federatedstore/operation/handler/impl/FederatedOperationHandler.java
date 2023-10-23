@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static java.util.Objects.nonNull;
@@ -49,6 +50,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.processI
 public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandler<FederatedOperation<INPUT, OUTPUT>> {
 
     public static final String ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS_FORMAT = "Error while running operation on graphs, due to: %s";
+    public static final String MERGE_FUNCTION_GET_GRAPHS = FederatedOperationHandler.class.getCanonicalName() + "merge.function.getGraphs";
 
     @Override
     public Object doOperation(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final Store store) throws OperationException {
@@ -61,6 +63,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         try {
             List<Object> results;
             final Collection<GraphSerialisable> graphs = getGraphs(operation, context, store);
+            context.setVariable(MERGE_FUNCTION_GET_GRAPHS, graphs.stream().map(GraphSerialisable::getGraphId).collect(Collectors.toList()));
             results = new ArrayList<>(graphs.size());
             for (final GraphSerialisable graphSerialisable : graphs) {
                 final Graph graph = graphSerialisable.getGraph();
@@ -105,7 +108,8 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
             return rtn;
         } catch (final Exception e) {
-            throw new OperationException(String.format("Error while merging results. %s", Objects.toString(e.getMessage(), "")), e);
+            final Object graphs = context.getVariable(MERGE_FUNCTION_GET_GRAPHS);
+            throw new OperationException(String.format("Error while merging results from graphs: %s due to: %s", graphs.toString(), Objects.toString(e.getMessage(), "")), e);
         }
     }
 
