@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -109,7 +108,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             return rtn;
         } catch (final Exception e) {
             final Object graphs = context.getVariable(MERGE_FUNCTION_GET_GRAPHS);
-            throw new OperationException(String.format("Error while merging results from graphs: %s due to: %s", graphs.toString(), Objects.toString(e.getMessage(), "")), e);
+            throw new OperationException(String.format("Error while merging results from graphs: %s due to: %s", graphs.toString(), e.getMessage()), e);
         }
     }
 

@@ -105,7 +105,7 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
                     throw new SchemaException(String.format(FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S, String.format(FORMAT_MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY, e.getMessage())), e);
                 } else {
                     // all other errors.
-                    throw new SchemaException(String.format(FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S, e.getMessage()), e);
+                    throw new SchemaException(String.format(MergeSchema.class.getSimpleName() + " function unable to merge schemas, due to: %s", e.getMessage()), e);
                 }
             }
             return mergeSchema.build();
