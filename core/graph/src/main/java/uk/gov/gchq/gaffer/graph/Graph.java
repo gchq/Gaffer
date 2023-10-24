@@ -839,6 +839,7 @@ public final class Graph {
 
             // Initialise the store
             initStore(config);
+
             // Validate the graph Id
             if (config.getGraphId() == null) {
                 throw new IllegalArgumentException("graphId is required");
@@ -962,17 +963,29 @@ public final class Graph {
 
         /**
          * Initialises the {@link Store} class instance with a given graph configuration.
+         * Will only initialise the store if it is currently null or relevant parameters
+         * are not null e.g. schema/graph ID.
          * <p>
-         * Will also attempt to extract some configuration from the current store if
+         * Will also attempt to extract some graph configuration from the current store if
          * not currently configured.
          *
          * @param config The graph config
          */
         private void initStore(final GraphConfig config) {
-            // Init the store if needed
             if (store == null) {
                 LOGGER.debug("Store currently null initialising with Id: {} and existing schema/properties", config.getGraphId());
                 store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
+            }
+
+            // Only init if some configuration has already been set up and is different to what the store already has
+            if ((config.getGraphId() != null && !config.getGraphId().equals(store.getGraphId())) ||
+                (schema != null) ||
+                (properties != null && !properties.equals(store.getProperties()))) {
+                try {
+                    store.initialise(config.getGraphId(), cloneSchema(schema), properties);
+                } catch (final StoreException e) {
+                    throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
+                }
             }
 
             // Use the store's graph Id if we don't have on configured already
@@ -988,13 +1001,6 @@ public final class Graph {
             // Use the store's properties if not already set
             if (properties == null) {
                 properties = store.getProperties();
-            }
-
-            try {
-                // Initialise the store with current configuration
-                store.initialise(config.getGraphId(), cloneSchema(schema), properties);
-            } catch (final StoreException e) {
-                throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
             }
 
             store.setGraphLibrary(config.getLibrary());
