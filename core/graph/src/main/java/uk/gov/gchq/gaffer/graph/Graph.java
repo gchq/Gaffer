@@ -837,15 +837,16 @@ public final class Graph {
                 schema = (null == schema) ? pair.getFirst() : schema;
             }
 
-            // Initialise the store and view
+            // Initialise the store
             initStore(config);
-            config.initView(schema);
-
             // Validate the graph Id
             if (config.getGraphId() == null) {
                 throw new IllegalArgumentException("graphId is required");
             }
             config.getLibrary().checkExisting(config.getGraphId(), schema, properties);
+
+            // Initialise the view
+            config.initView(schema);
 
             // Validate and set up the graph hooks
             validateAndUpdateHooks(config);
@@ -886,7 +887,7 @@ public final class Graph {
          */
         private void loadSchemaFromJson() {
             if (schemaBytesList.isEmpty()) {
-                LOGGER.warn("No schema bytes have been supplied unable to load as JSON");
+                LOGGER.debug("No schema bytes have been supplied unable to load as JSON");
                 return;
             }
             if (properties == null) {

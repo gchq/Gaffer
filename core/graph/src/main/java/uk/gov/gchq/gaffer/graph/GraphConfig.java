@@ -151,6 +151,7 @@ public final class GraphConfig {
                 throw new IllegalArgumentException("Unable to find graph hook file: " + file.toString());
             }
             try {
+                LOGGER.debug("Adding Hook from JSON file path: {}", file);
                 hooks.add(JSONSerialiser.deserialise(FileUtils.readFileToByteArray(file), GraphHook.class));
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to deserialise graph hook from file: " + file.toString(), e);
@@ -185,8 +186,6 @@ public final class GraphConfig {
      * @param operationClass The Operation requiring cache write
      * @param hookClass The Hook requiring cache reading
      * @param suffixFromProperties The suffix from property
-     * @see NamedOperationResolver#NamedOperationResolver(String)
-     * @see NamedViewResolver#NamedViewResolver(String)
      */
     public void validateAndUpdateGetFromCacheHook(final Store store, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
         if (!store.isSupported(operationClass)) {
