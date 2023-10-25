@@ -324,7 +324,7 @@ public final class GraphConfig {
 
         public Builder merge(final GraphConfig config) {
             if (config == null) {
-                LOGGER.warn("Unable to merge with a null config ignoring call");
+                LOGGER.warn("Unable to merge GraphConfig with a null config, ignoring call");
                 return this;
             }
 
