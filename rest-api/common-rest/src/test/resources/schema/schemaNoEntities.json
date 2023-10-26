@@ -1,12 +1,4 @@
 {
-  "entities": {
-    "BasicEntity": {
-      "vertex": "string",
-      "properties": {
-        "count": "int"
-      }
-    }
-  },
   "edges": {
     "BasicEdge": {
       "source": "string",
@@ -31,7 +23,7 @@
       "class": "java.lang.Boolean",
       "validateFunctions": [
         {
-            "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
         }
       ]
     }
