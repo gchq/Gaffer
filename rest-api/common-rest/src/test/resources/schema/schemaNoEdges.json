@@ -7,16 +7,6 @@
       }
     }
   },
-  "edges": {
-    "BasicEdge": {
-      "source": "string",
-      "destination": "string",
-      "directed": "true",
-      "properties": {
-        "count": "int"
-      }
-    }
-  },
   "types": {
     "int": {
       "class": "java.lang.Integer",
@@ -26,14 +16,6 @@
     },
     "string": {
       "class": "java.lang.String"
-    },
-    "true": {
-      "class": "java.lang.Boolean",
-      "validateFunctions": [
-        {
-            "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
-        }
-      ]
     }
   }
 }

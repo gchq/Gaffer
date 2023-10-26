@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class ByteBufferUtilTest {
         final ByteBuffer bb2 = bb1.slice();
 
         // The purpose of this test is to ensure ByteBufferUtil code works when arrayOffset is non-zero. The following asserts are not to test ByteBuffer, but
-        // ensure the behavior of slice() is as expected.
+        // ensure the behaviour of slice() is as expected.
 
         assertEquals(3, bb2.arrayOffset());
         assertEquals(0, bb2.position());
