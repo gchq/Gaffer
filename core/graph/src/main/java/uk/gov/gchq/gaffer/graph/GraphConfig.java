@@ -207,7 +207,7 @@ public final class GraphConfig {
         } else {
             // Otherwise log warning and continue with the suffix from the properties
             LOGGER.warn(
-                "Handler for: {} was not expected type: {} cant get suffixCache using value from property: {}",
+                "Handler for: {} was not expected type: {}. Can't get suffixCache using value from property: {}",
                 operationClass,
                 AddToCacheHandler.class.getSimpleName(),
                 suffixFromProperties);
