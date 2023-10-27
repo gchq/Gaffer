@@ -67,6 +67,7 @@ public class FirstLastIT extends StandaloneIT {
                 Arguments.of(new GetElements.Builder().input(new EntitySeed(VERTEX)).build())
         );
     }
+
     @ParameterizedTest
     @MethodSource("getOperations")
     public void shouldReturnCorrectResultsAfterCompaction(final Output<Iterable<? extends Element>> getOperation) throws OperationException, InterruptedException, StoreException, TableNotFoundException, AccumuloException, AccumuloSecurityException {
@@ -75,50 +76,70 @@ public class FirstLastIT extends StandaloneIT {
         accumuloStore.initialise(GRAPH_ID, createSchema(), createStoreProperties());
 
         graph.execute(new AddElements.Builder().input(getEntity(1)).build(), getUser());
-        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(1, 1));
-
         graph.execute(new AddElements.Builder().input(getEntity(2)).build(), getUser());
-        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(2, 1));
-
-        compact(accumuloStore);
-        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(2, 1));
-
         graph.execute(new AddElements.Builder().input(getEntity(3)).build(), getUser());
         assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(3, 1));
+        compact(accumuloStore);
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(3, 1));
+
+        graph.execute(new AddElements.Builder().input(getEntity(4)).build(), getUser());
+        graph.execute(new AddElements.Builder().input(getEntity(5)).build(), getUser());
+        graph.execute(new AddElements.Builder().input(getEntity(6)).build(), getUser());
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(6, 1));
+        compact(accumuloStore);
+        // This fails with getEntity(3, 4)
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(6, 1));
+
+        graph.execute(new AddElements.Builder().input(getEntity(7)).build(), getUser());
+        graph.execute(new AddElements.Builder().input(getEntity(8)).build(), getUser());
+        graph.execute(new AddElements.Builder().input(getEntity(9)).build(), getUser());
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(9, 1));
+        compact(accumuloStore);
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(9, 1));
     }
 
     @ParameterizedTest
     @MethodSource("getOperations")
-    public void shouldReturnCorrectResultsAfterFlush(final Output<Iterable<? extends Element>> getOperation) throws OperationException, InterruptedException, StoreException, TableNotFoundException, AccumuloException, AccumuloSecurityException {
+    public void shouldReturnCorrectResultsAfterFlush(final Output<Iterable<? extends Element>> getOperation) throws OperationException, InterruptedException, StoreException, AccumuloException, AccumuloSecurityException {
         final Graph graph = createGraph();
         final AccumuloStore accumuloStore = new AccumuloStore();
         accumuloStore.initialise(GRAPH_ID, createSchema(), createStoreProperties());
 
         graph.execute(new AddElements.Builder().input(getEntity(1)).build(), getUser());
-        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(1, 1));
-
         graph.execute(new AddElements.Builder().input(getEntity(2)).build(), getUser());
-        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(2, 1));
-
-        flush(accumuloStore);
-        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(2, 1));
-
         graph.execute(new AddElements.Builder().input(getEntity(3)).build(), getUser());
         assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(3, 1));
+        flush(accumuloStore);
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(3, 1));
+
+        graph.execute(new AddElements.Builder().input(getEntity(4)).build(), getUser());
+        graph.execute(new AddElements.Builder().input(getEntity(5)).build(), getUser());
+        graph.execute(new AddElements.Builder().input(getEntity(6)).build(), getUser());
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(6, 1));
+        flush(accumuloStore);
+        // This fails with getEntity(3, 4)
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(6, 1));
+
+        graph.execute(new AddElements.Builder().input(getEntity(7)).build(), getUser());
+        graph.execute(new AddElements.Builder().input(getEntity(8)).build(), getUser());
+        graph.execute(new AddElements.Builder().input(getEntity(9)).build(), getUser());
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(9, 1));
+        flush(accumuloStore);
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(9, 1));
     }
 
     private void compact(final AccumuloStore accumuloStore) throws StoreException, AccumuloSecurityException, TableNotFoundException, AccumuloException, InterruptedException {
         accumuloStore.getConnection()
                 .tableOperations()
                 .compact(GRAPH_ID, new CompactionConfig());
-        Thread.sleep(5000L);
+        Thread.sleep(10000L);
     }
 
-    private void flush(final AccumuloStore accumuloStore) throws StoreException, AccumuloSecurityException, TableNotFoundException, AccumuloException, InterruptedException {
+    private void flush(final AccumuloStore accumuloStore) throws StoreException, AccumuloSecurityException, AccumuloException, InterruptedException {
         accumuloStore.getConnection()
                 .tableOperations()
                 .flush(GRAPH_ID);
-        Thread.sleep(5000L);
+        Thread.sleep(10000L);
     }
 
     private Entity getEntity(final int propertyValue) {
