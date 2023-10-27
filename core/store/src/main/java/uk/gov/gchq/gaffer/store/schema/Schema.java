@@ -31,6 +31,9 @@ import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.store.schema.exception.SplitElementGroupDefSchemaException;
+import uk.gov.gchq.gaffer.store.schema.exception.VertexSerialiserSchemaException;
+import uk.gov.gchq.gaffer.store.schema.exception.VisibilityPropertySchemaException;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
@@ -74,11 +77,6 @@ import static java.util.Objects.nonNull;
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
     public static final String FORMAT_EXCEPTION = "%s, options are: %s and %s";
     public static final String FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S = "Unable to merge schemas because of conflict with the %s";
-    public static final String VERTEX_SERIALISER = "vertex serialiser";
-    public static final String SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER = String.format(FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, VERTEX_SERIALISER);
-    public static final String VISIBILITY_PROPERTY = "visibility property";
-    public static final String SCHEMAS_CONFLICT_WITH_VISIBILITY_PROPERTY = String.format(FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, VISIBILITY_PROPERTY);
-    public static final String ELEMENT_GROUP_MUST_ALL_BE_DEFINED_IN_A_SINGLE_SCHEMA = "Element group properties cannot be defined in different schema parts, they must all be defined in a single schema part. Please fix this group: ";
     public static final String FORMAT_ERROR_WITH_THE_SCHEMA_TYPE_NAMED_S_DUE_TO_S = "Error with the schema type named:%s due to: %s";
     private final TypeDefinition unknownType = new TypeDefinition();
 
@@ -400,7 +398,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 if (null == getThisSchema().vertexSerialiser) {
                     getThisSchema().vertexSerialiser = thatSchema.getVertexSerialiser();
                 } else if (!getThisSchema().vertexSerialiser.getClass().equals(thatSchema.getVertexSerialiser().getClass())) {
-                    throw new SchemaException(String.format(FORMAT_EXCEPTION, SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER, getThisSchema().vertexSerialiser.getClass().getName(), thatSchema.getVertexSerialiser().getClass().getName()));
+                    throw new VertexSerialiserSchemaException( getThisSchema().vertexSerialiser.getClass().getName(), thatSchema.getVertexSerialiser().getClass().getName());
                 }
             }
         }
@@ -409,7 +407,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             if (null == getThisSchema().visibilityProperty) {
                 getThisSchema().visibilityProperty = thatSchema.getVisibilityProperty();
             } else if (null != thatSchema.getVisibilityProperty() && !getThisSchema().visibilityProperty.equals(thatSchema.getVisibilityProperty())) {
-                throw new SchemaException(String.format(FORMAT_EXCEPTION, SCHEMAS_CONFLICT_WITH_VISIBILITY_PROPERTY, getThisSchema().visibilityProperty, thatSchema.getVisibilityProperty()));
+                throw new VisibilityPropertySchemaException(getThisSchema().visibilityProperty, thatSchema.getVisibilityProperty());
             }
         }
 
@@ -528,7 +526,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                         continue;
                     }
 
-                    throw new SchemaException(ELEMENT_GROUP_MUST_ALL_BE_DEFINED_IN_A_SINGLE_SCHEMA + sharedGroup);
+                    throw new SplitElementGroupDefSchemaException(sharedGroup);
                 }
             }
         }
