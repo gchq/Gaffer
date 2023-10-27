@@ -19,13 +19,13 @@ package uk.gov.gchq.gaffer.graph.hook.exception;
 /**
  * Runtime exception for issues with the graph hook suffix
  */
-public class HookSuffixException extends GraphHookException {
+public class GraphHookSuffixException extends GraphHookException {
     /**
      * Constructor with basic message.
      *
      * @param message The error message.
      */
-    public HookSuffixException(final String message) {
+    public GraphHookSuffixException(final String message) {
         super(message);
     }
 
@@ -35,7 +35,7 @@ public class HookSuffixException extends GraphHookException {
      * @param message The message.
      * @param cause Throwable cause
      */
-    public HookSuffixException(final String message, final Throwable cause) {
+    public GraphHookSuffixException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

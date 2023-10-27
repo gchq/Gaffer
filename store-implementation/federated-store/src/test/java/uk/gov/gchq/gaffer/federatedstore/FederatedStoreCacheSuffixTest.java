@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
-import uk.gov.gchq.gaffer.graph.hook.exception.HookSuffixException;
+import uk.gov.gchq.gaffer.graph.hook.exception.GraphHookSuffixException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
@@ -54,7 +54,7 @@ public class FederatedStoreCacheSuffixTest {
             .storeProperties(new FederatedStoreProperties());
 
         // Ensure exception thrown with relevant info
-        assertThatExceptionOfType(HookSuffixException.class)
+        assertThatExceptionOfType(GraphHookSuffixException.class)
             .isThrownBy(() -> builder.build())
             .withMessageContaining(NamedOperationResolver.class.getSimpleName())
             .withMessageContaining(AddNamedOperationHandler.class.getSimpleName())
@@ -72,7 +72,7 @@ public class FederatedStoreCacheSuffixTest {
             .storeProperties(new FederatedStoreProperties());
 
         // Ensure exception thrown with relevant info
-        assertThatExceptionOfType(HookSuffixException.class)
+        assertThatExceptionOfType(GraphHookSuffixException.class)
             .isThrownBy(() -> builder.build())
             .withMessageContaining(NamedViewResolver.class.getSimpleName())
             .withMessageContaining(AddNamedViewHandler.class.getSimpleName())
@@ -90,7 +90,7 @@ public class FederatedStoreCacheSuffixTest {
             .storeProperties(new FederatedStoreProperties());
 
         // Ensure exception thrown with relevant info
-        assertThatExceptionOfType(HookSuffixException.class)
+        assertThatExceptionOfType(GraphHookSuffixException.class)
             .isThrownBy(() -> builder.build())
             .withMessageContaining(NamedOperationResolver.class.getSimpleName())
             .withMessageContaining(ALT_SUFFIX.toLowerCase(Locale.UK))
@@ -109,7 +109,7 @@ public class FederatedStoreCacheSuffixTest {
             .storeProperties(new FederatedStoreProperties());
 
         // Ensure exception thrown with relevant info
-        assertThatExceptionOfType(HookSuffixException.class)
+        assertThatExceptionOfType(GraphHookSuffixException.class)
             .isThrownBy(() -> builder.build())
             .withMessageContaining(NamedViewResolver.class.getSimpleName())
             .withMessageContaining(ALT_SUFFIX.toLowerCase(Locale.UK))
@@ -131,7 +131,7 @@ public class FederatedStoreCacheSuffixTest {
             .storeProperties(properties);
 
         // Ensure exception thrown with relevant info
-        assertThatExceptionOfType(HookSuffixException.class)
+        assertThatExceptionOfType(GraphHookSuffixException.class)
             .isThrownBy(() -> builder.build())
             .withMessageContaining(NamedOperationResolver.class.getSimpleName())
             .withMessageContaining(AddNamedOperationHandler.class.getSimpleName())
@@ -152,7 +152,7 @@ public class FederatedStoreCacheSuffixTest {
             .storeProperties(properties);
 
         // Ensure exception thrown with relevant info
-        assertThatExceptionOfType(HookSuffixException.class)
+        assertThatExceptionOfType(GraphHookSuffixException.class)
             .isThrownBy(() -> builder.build())
             .withMessageContaining(NamedViewResolver.class.getSimpleName())
             .withMessageContaining(AddNamedViewHandler.class.getSimpleName())
@@ -173,7 +173,7 @@ public class FederatedStoreCacheSuffixTest {
             .storeProperties(properties);
 
         // Ensure exception thrown with relevant info
-        assertThatExceptionOfType(HookSuffixException.class)
+        assertThatExceptionOfType(GraphHookSuffixException.class)
             .isThrownBy(() -> builder.build())
             .withMessageContaining(NamedOperationResolver.class.getSimpleName())
             .withMessageContaining(ALT_SUFFIX.toLowerCase(Locale.UK))
@@ -195,7 +195,7 @@ public class FederatedStoreCacheSuffixTest {
             .storeProperties(properties);
 
         // Ensure exception thrown with relevant info
-        assertThatExceptionOfType(HookSuffixException.class)
+        assertThatExceptionOfType(GraphHookSuffixException.class)
             .isThrownBy(() -> builder.build())
             .withMessageContaining(NamedViewResolver.class.getSimpleName())
             .withMessageContaining(ALT_SUFFIX.toLowerCase(Locale.UK))
@@ -218,7 +218,7 @@ public class FederatedStoreCacheSuffixTest {
             .storeProperties(properties);
 
         // Ensure exception thrown with relevant info
-        assertThatExceptionOfType(HookSuffixException.class)
+        assertThatExceptionOfType(GraphHookSuffixException.class)
             .isThrownBy(() -> builder.build())
             .withMessageContaining(NamedOperationResolver.class.getSimpleName())
             .withMessageContaining(AddNamedOperationHandler.class.getSimpleName())
@@ -240,7 +240,7 @@ public class FederatedStoreCacheSuffixTest {
             .storeProperties(properties);
 
         // Ensure exception thrown with relevant info
-        assertThatExceptionOfType(HookSuffixException.class)
+        assertThatExceptionOfType(GraphHookSuffixException.class)
             .isThrownBy(() -> builder.build())
             .withMessageContaining(NamedViewResolver.class.getSimpleName())
             .withMessageContaining(AddNamedViewHandler.class.getSimpleName())
@@ -262,7 +262,7 @@ public class FederatedStoreCacheSuffixTest {
             .storeProperties(properties);
 
         // Ensure exception thrown with relevant info
-        assertThatExceptionOfType(HookSuffixException.class)
+        assertThatExceptionOfType(GraphHookSuffixException.class)
             .isThrownBy(() -> builder.build())
             .withMessageContaining(NamedOperationResolver.class.getSimpleName())
             .withMessageContaining(ALT_SUFFIX.toLowerCase(Locale.UK))
@@ -285,7 +285,7 @@ public class FederatedStoreCacheSuffixTest {
             .storeProperties(properties);
 
         // Ensure exception thrown with relevant info
-        assertThatExceptionOfType(HookSuffixException.class)
+        assertThatExceptionOfType(GraphHookSuffixException.class)
             .isThrownBy(() -> builder.build())
             .withMessageContaining(NamedViewResolver.class.getSimpleName())
             .withMessageContaining(ALT_SUFFIX.toLowerCase(Locale.UK))

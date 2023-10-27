@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.graph.hook.GetFromCacheHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHookPath;
 import uk.gov.gchq.gaffer.graph.hook.exception.GraphHookException;
-import uk.gov.gchq.gaffer.graph.hook.exception.HookSuffixException;
+import uk.gov.gchq.gaffer.graph.hook.exception.GraphHookSuffixException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Store;
@@ -176,7 +176,7 @@ public final class GraphConfig {
 
     /**
      * Extracts and compares the cache suffixes of the supplied {@link Operation}'s handler
-     * and {@link GetFromCacheHook} resolver hook, throws {@link HookSuffixException}
+     * and {@link GetFromCacheHook} resolver hook, throws {@link GraphHookSuffixException}
      * if mismatched as writing and reading to cache will not behave correctly.
      * <p>
      * Will attempt to add the supplied {@link GetFromCacheHook} to the graph config
@@ -241,7 +241,7 @@ public final class GraphConfig {
             final String nvrSuffix = nvrHook.getSuffixCacheName();
             if (!suffix.equals(nvrSuffix)) {
                 //Error
-                throw new HookSuffixException(
+                throw new GraphHookSuffixException(
                     String.format(
                         "%s hook is configured with suffix: %s and %s handler is configured with suffix: %s this causes a cache reading and writing misalignment.",
                         hookClass.getSimpleName(),
