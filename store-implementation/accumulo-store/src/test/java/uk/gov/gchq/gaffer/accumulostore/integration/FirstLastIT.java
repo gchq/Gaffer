@@ -59,16 +59,17 @@ public class FirstLastIT extends StandaloneIT {
         final AccumuloStore accumuloStore = new AccumuloStore();
         accumuloStore.initialise("graphId", createSchema(), createStoreProperties());
 
-        graph.execute(new AddElements.Builder().input(getEntity(10)).build(), getUser());
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(10, 10));
-
         graph.execute(new AddElements.Builder().input(getEntity(1)).build(), getUser());
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(1, 10));
+        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(1, 1));
+
+        graph.execute(new AddElements.Builder().input(getEntity(2)).build(), getUser());
+        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(2, 1));
 
         compact(accumuloStore);
+        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(2, 1));
 
-        // This fails, returning getEntity(1, 1)
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(1, 10));
+        graph.execute(new AddElements.Builder().input(getEntity(3)).build(), getUser());
+        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(3, 1));
     }
 
     @Test
@@ -77,16 +78,17 @@ public class FirstLastIT extends StandaloneIT {
         final AccumuloStore accumuloStore = new AccumuloStore();
         accumuloStore.initialise("graphId", createSchema(), createStoreProperties());
 
-        graph.execute(new AddElements.Builder().input(getEntity(10)).build(), getUser());
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(10, 10));
-
         graph.execute(new AddElements.Builder().input(getEntity(1)).build(), getUser());
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(1, 10));
+        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(1, 1));
+
+        graph.execute(new AddElements.Builder().input(getEntity(2)).build(), getUser());
+        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(2, 1));
 
         flush(accumuloStore);
+        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(2, 1));
 
-        // This fails, returning getEntity(1, 1)
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(1, 10));
+        graph.execute(new AddElements.Builder().input(getEntity(3)).build(), getUser());
+        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(3, 1));
     }
 
     private void compact(final AccumuloStore accumuloStore) throws StoreException, AccumuloSecurityException, TableNotFoundException, AccumuloException, InterruptedException {
@@ -122,7 +124,7 @@ public class FirstLastIT extends StandaloneIT {
                 .entity(ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(ID_STRING)
                         .property(PROP_1, PROP_INTEGER)
-                        .property(PROP_2, PROP_INTEGER)
+                        .property(PROP_2, PROP_INTEGER_2)
                         .build())
                 .type(ID_STRING, STRING_TYPE)
                 .type(PROP_INTEGER, new TypeDefinition.Builder()
