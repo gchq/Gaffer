@@ -20,17 +20,23 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.admin.CompactionConfig;
-import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.StandaloneIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -38,6 +44,8 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.First;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Last;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.commonutil.TestGroups.ENTITY;
@@ -53,42 +61,50 @@ public class FirstLastIT extends StandaloneIT {
     private static final String VERTEX = "vertex";
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
 
-    @Test
-    public void shouldReturnCorrectResultsAfterCompaction() throws OperationException, InterruptedException, StoreException, TableNotFoundException, AccumuloException, AccumuloSecurityException {
+    private static Stream<Arguments> getOperations() {
+        return Stream.of(
+                Arguments.of(new GetAllElements()),
+                Arguments.of(new GetElements.Builder().input(new EntitySeed(VERTEX)).build())
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("getOperations")
+    public void shouldReturnCorrectResultsAfterCompaction(final Output<Iterable<? extends Element>> getOperation) throws OperationException, InterruptedException, StoreException, TableNotFoundException, AccumuloException, AccumuloSecurityException {
         final Graph graph = createGraph();
         final AccumuloStore accumuloStore = new AccumuloStore();
-        accumuloStore.initialise("graphId", createSchema(), createStoreProperties());
+        accumuloStore.initialise(GRAPH_ID, createSchema(), createStoreProperties());
 
         graph.execute(new AddElements.Builder().input(getEntity(1)).build(), getUser());
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(1, 1));
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(1, 1));
 
         graph.execute(new AddElements.Builder().input(getEntity(2)).build(), getUser());
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(2, 1));
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(2, 1));
 
         compact(accumuloStore);
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(2, 1));
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(2, 1));
 
         graph.execute(new AddElements.Builder().input(getEntity(3)).build(), getUser());
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(3, 1));
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(3, 1));
     }
 
-    @Test
-    public void shouldReturnCorrectResultsAfterFlush() throws OperationException, InterruptedException, StoreException, TableNotFoundException, AccumuloException, AccumuloSecurityException {
+    @ParameterizedTest
+    @MethodSource("getOperations")
+    public void shouldReturnCorrectResultsAfterFlush(final Output<Iterable<? extends Element>> getOperation) throws OperationException, InterruptedException, StoreException, TableNotFoundException, AccumuloException, AccumuloSecurityException {
         final Graph graph = createGraph();
         final AccumuloStore accumuloStore = new AccumuloStore();
-        accumuloStore.initialise("graphId", createSchema(), createStoreProperties());
+        accumuloStore.initialise(GRAPH_ID, createSchema(), createStoreProperties());
 
         graph.execute(new AddElements.Builder().input(getEntity(1)).build(), getUser());
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(1, 1));
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(1, 1));
 
         graph.execute(new AddElements.Builder().input(getEntity(2)).build(), getUser());
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(2, 1));
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(2, 1));
 
         flush(accumuloStore);
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(2, 1));
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(2, 1));
 
         graph.execute(new AddElements.Builder().input(getEntity(3)).build(), getUser());
-        assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(3, 1));
+        assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(3, 1));
     }
 
     private void compact(final AccumuloStore accumuloStore) throws StoreException, AccumuloSecurityException, TableNotFoundException, AccumuloException, InterruptedException {
