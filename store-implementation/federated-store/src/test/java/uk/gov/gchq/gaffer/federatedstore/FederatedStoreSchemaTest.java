@@ -327,10 +327,10 @@ public class FederatedStoreSchemaTest {
 
         // When
         assertThatException()
-                .isThrownBy(()->federatedStore.getSchema(testContext, false))
-                        .withStackTraceContaining("MergeSchema function unable to recover from error")
-                        .withStackTraceContaining("Element group properties cannot be defined in different schema parts, they must all be defined in a single schema part")
-                        .withStackTraceContaining("Please fix this group: BasicEdge");
+                .isThrownBy(() -> federatedStore.getSchema(testContext, false))
+                .withStackTraceContaining("MergeSchema function unable to recover from error")
+                .withStackTraceContaining("Element group properties cannot be defined in different schema parts, they must all be defined in a single schema part")
+                .withStackTraceContaining("Please fix this group: BasicEdge");
     }
 
     @Test
@@ -354,8 +354,9 @@ public class FederatedStoreSchemaTest {
 
         // Then
         assertThat(schemaAB).isNotEqualTo(schemaA);
-        assertThat(schemaAB.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_1);
-        assertThat(schemaAB.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_2);
+        assertThat(schemaAB.getEdge(GROUP_BASIC_EDGE).getProperties())
+                .contains(PROPERTY_1)
+                .contains(PROPERTY_2);
     }
 
     @Test
