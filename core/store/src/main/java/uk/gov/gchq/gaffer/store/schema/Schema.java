@@ -333,9 +333,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         @JsonIgnore
         public CHILD_CLASS merge(final Schema schema) {
             if (nonNull(schema)) {
-                Schema thatSchema;
                 try {
-                    thatSchema = JSONSerialiser.deserialise(JSONSerialiser.serialise(schema), Schema.class);
+                    Schema thatSchema = JSONSerialiser.deserialise(JSONSerialiser.serialise(schema), Schema.class);
 
                     validateSharedGroupsAreCompatible(thatSchema);
 
@@ -546,12 +545,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
             getThisSchema().getEntityGroups().forEach(GroupUtil::validateName);
         }
-    }
 
-    private static Map<String, String> getPropertiesWithoutVisibility(final String visibilityProperty, final SchemaElementDefinition elementDef) {
-        return elementDef.properties.entrySet().stream()
-                .filter(s -> !Objects.equals(s.getKey(), visibilityProperty))
-                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+        private static Map<String, String> getPropertiesWithoutVisibility(final String visibilityProperty, final SchemaElementDefinition elementDef) {
+            return elementDef.properties.entrySet().stream()
+                    .filter(s -> !Objects.equals(s.getKey(), visibilityProperty))
+                    .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+        }
     }
 
     @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")

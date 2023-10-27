@@ -163,8 +163,8 @@ public class FederatedStoreSchemaOverlapTest {
         assertThat(schema.getVisibilityProperty())
                 .withFailMessage("After a recovery from a collision with Visibility Property, the property should be set to Null")
                 .isNull();
-        assertThat(schema.toString())
-                .isEqualTo(new Schema.Builder(GRAPH_A_SCHEMA)
+        assertThat(schema)
+                .hasToString(new Schema.Builder(GRAPH_A_SCHEMA)
                         .visibilityProperty(null)
                         .edge(GROUP_BASIC_EDGE, edgeDef)
                         .build()
