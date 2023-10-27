@@ -448,7 +448,7 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
 
     public GetWalks getWalks() {
         final List<String> edges = new ArrayList<>(getSchema().getEdgeGroups());
-        if (edges.isEmpty()) {
+        if (edges.isEmpty() || getSchema().getEntityGroups().isEmpty()) {
             return new GetWalks();
         }
 
