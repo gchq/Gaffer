@@ -40,8 +40,8 @@ import static uk.gov.gchq.gaffer.store.schema.TypeDefinition.SCHEMAS_CONFLICT_WI
 import static uk.gov.gchq.gaffer.store.schema.TypeDefinition.SCHEMAS_CONFLICT_WITH_TYPE_SERIALISER;
 
 public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextSpecificMergeFunction<Schema, Schema, Schema> {
-    public static final String WIPE_VERTEX_SERIALISERS = "wipe_vertex_serialisers";
-    public static final String WIPE_VISIBILITY_PROPERTY = "wipe_visibility_property";
+    public static final String WIPE_VERTEX_SERIALISERS = "Wipe_Vertex_Serialisers";
+    public static final String WIPE_VISIBILITY_PROPERTY = "Wipe_Visibility_Property";
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeSchema.class);
     public static final String FORMAT_CAUGHT_SCHEMA_EXCEPTION_ATTEMPTING_TO_RE_MERGE_BUT_WITHOUT_S_ERROR_MESSAGE_S = "Caught SchemaException, attempting to re-merge but without %s. Error message:%s";
     public static final String FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S = MergeSchema.class.getSimpleName() + " function unable to recover from error, due to: %s";
