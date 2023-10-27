@@ -66,7 +66,8 @@ public class FirstLastIT extends StandaloneIT {
         assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(1, 10));
 
         compact(accumuloStore);
-    
+
+        // This fails, returning getEntity(1, 1)
         assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(1, 10));
     }
 
@@ -83,7 +84,7 @@ public class FirstLastIT extends StandaloneIT {
         assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(1, 10));
 
         flush(accumuloStore);
-    
+
         // This fails, returning getEntity(1, 1)
         assertThat(graph.execute(new GetAllElements(), getUser())).containsExactly(getEntity(1, 10));
     }
