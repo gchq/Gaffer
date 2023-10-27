@@ -27,7 +27,7 @@ import static uk.gov.gchq.gaffer.core.exception.Status.BAD_REQUEST;
  */
 public class SchemaException extends GafferRuntimeException {
     private static final long serialVersionUID = 3150434301320173603L;
-    private StringBuilder appendToMessage;
+    private StringBuilder prependToMessage;
 
     public SchemaException(final String message) {
         super(message, BAD_REQUEST);
@@ -37,18 +37,18 @@ public class SchemaException extends GafferRuntimeException {
         super(message, e, BAD_REQUEST);
     }
 
-    public SchemaException preAppendToMessage(final String appendToMessage) {
-        if (null == this.appendToMessage) {
-            this.appendToMessage = new StringBuilder();
+    public SchemaException prependToMessage(final String prependToMessage) {
+        if (null == this.prependToMessage) {
+            this.prependToMessage = new StringBuilder();
         }
         //preAppend
-        this.appendToMessage.insert(0, appendToMessage);
+        this.prependToMessage.insert(0, prependToMessage);
 
         return this;
     }
 
     @Override
     public String getMessage() {
-        return (null == appendToMessage) ? super.getMessage() : appendToMessage.append(super.getMessage()).toString();
+        return (null == prependToMessage) ? super.getMessage() : prependToMessage.append(super.getMessage()).toString();
     }
 }
