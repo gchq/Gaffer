@@ -9,4 +9,8 @@ public class SplitElementGroupDefSchemaException extends SchemaException {
     public SplitElementGroupDefSchemaException(final String sharedGroup) {
         super(ELEMENT_GROUP_MUST_ALL_BE_DEFINED_IN_A_SINGLE_SCHEMA + sharedGroup);
     }
+
+    public SplitElementGroupDefSchemaException(final String message, final Throwable e) {
+        super(message, e);
+    }
 }

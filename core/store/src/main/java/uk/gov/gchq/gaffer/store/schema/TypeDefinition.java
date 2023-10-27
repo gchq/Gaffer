@@ -27,11 +27,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.store.schema.exception.AggregationFunctionSchemaException;
-import uk.gov.gchq.gaffer.store.schema.exception.TypeClassSchemaException;
-import uk.gov.gchq.gaffer.store.schema.exception.TypeSerialiserSchemaException;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.util.ArrayList;
@@ -40,6 +38,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
+
+import static uk.gov.gchq.gaffer.store.schema.Schema.FORMAT_EXCEPTION;
+import static uk.gov.gchq.gaffer.store.schema.Schema.FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S;
 
 /**
  * A {@code TypeDefinition} contains the an object's java class along with how to validate and aggregate the object.
@@ -51,6 +52,13 @@ import java.util.function.Predicate;
 }, alphabetic = true)
 @JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
 public class TypeDefinition {
+
+    public static final String TYPE_CLASS = "type class";
+    public static final String SCHEMAS_CONFLICT_WITH_TYPE_CLASS = String.format(FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, TYPE_CLASS);
+    public static final String TYPE_SERIALISER = "type serialiser";
+    public static final String SCHEMAS_CONFLICT_WITH_TYPE_SERIALISER = String.format(FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, TYPE_SERIALISER);
+    public static final String AGGREGATE_FUNCTION = "aggregate function";
+    public static final String SCHEMAS_CONFLICT_WITH_AGGREGATE_FUNCTION = String.format(FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S, AGGREGATE_FUNCTION);
     private Class<?> clazz;
     private Serialiser serialiser;
     private List<Predicate> validateFunctions;
@@ -133,14 +141,14 @@ public class TypeDefinition {
         if (null == clazz) {
             clazz = type.getClazz();
         } else if (null != type.getClazz() && !clazz.equals(type.getClazz())) {
-            throw new TypeClassSchemaException(clazz.getName(), type.getClazz().getName());
+            throw new SchemaException(String.format(FORMAT_EXCEPTION, SCHEMAS_CONFLICT_WITH_TYPE_CLASS, clazz.getName(), type.getClazz().getName()));
         }
 
         if (null != type.getSerialiser()) {
             if (null == getSerialiser()) {
                 setSerialiser(type.getSerialiser());
             } else if (!getSerialiser().getClass().equals(type.getSerialiser().getClass())) {
-                throw new TypeSerialiserSchemaException(getSerialiser().getClass().getName(), type.getSerialiser().getClass().getName());
+                throw new SchemaException(String.format(FORMAT_EXCEPTION, SCHEMAS_CONFLICT_WITH_TYPE_SERIALISER, getSerialiser().getClass().getName(), type.getSerialiser().getClass().getName()));
             }
         }
 
@@ -159,7 +167,7 @@ public class TypeDefinition {
         if (null == aggregateFunction) {
             aggregateFunction = type.getAggregateFunction();
         } else if (null != type.getAggregateFunction() && !aggregateFunction.equals(type.getAggregateFunction())) {
-            throw new AggregationFunctionSchemaException(aggregateFunction, type.getAggregateFunction());
+            throw new SchemaException(String.format(FORMAT_EXCEPTION, SCHEMAS_CONFLICT_WITH_AGGREGATE_FUNCTION, aggregateFunction, type.getAggregateFunction()));
         }
 
         if (null == description) {

@@ -26,7 +26,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.commonutil.GroupUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -78,6 +77,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     public static final String FORMAT_EXCEPTION = "%s, options are: %s and %s";
     public static final String FORMAT_UNABLE_TO_MERGE_SCHEMAS_CONFLICT_WITH_S = "Unable to merge schemas because of conflict with the %s";
     public static final String FORMAT_ERROR_WITH_THE_SCHEMA_TYPE_NAMED_S_DUE_TO_S = "Error with the schema type named:%s due to: %s";
+    public static final String ERROR_MERGING_SCHEMA_DUE_TO = "Error merging Schema due to: ";
     private final TypeDefinition unknownType = new TypeDefinition();
 
     /**
@@ -348,8 +348,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
                     mergeConfig(thatSchema);
 
+                } catch (final SchemaException e) {
+                    throw e.preAppendToMessage(ERROR_MERGING_SCHEMA_DUE_TO);
                 } catch (final Exception e) {
-                    throw new SchemaException("Error merging Schema due to: " + e.getMessage(), e);
+                    throw new SchemaException(ERROR_MERGING_SCHEMA_DUE_TO + e.getMessage(), e);
                 }
             }
 
@@ -397,7 +399,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 if (null == getThisSchema().vertexSerialiser) {
                     getThisSchema().vertexSerialiser = thatSchema.getVertexSerialiser();
                 } else if (!getThisSchema().vertexSerialiser.getClass().equals(thatSchema.getVertexSerialiser().getClass())) {
-                    throw new VertexSerialiserSchemaException( getThisSchema().vertexSerialiser.getClass().getName(), thatSchema.getVertexSerialiser().getClass().getName());
+                    throw new VertexSerialiserSchemaException(getThisSchema().vertexSerialiser.getClass().getName(), thatSchema.getVertexSerialiser().getClass().getName());
                 }
             }
         }
@@ -423,8 +425,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                     } else {
                         try {
                             typeDef.merge(newTypeDef);
+                        } catch (final SchemaException e) {
+                            throw e.preAppendToMessage(String.format(FORMAT_ERROR_WITH_THE_SCHEMA_TYPE_NAMED_S_DUE_TO_S, entry.getKey(), ""));
                         } catch (final Exception e) {
-                            throw new GafferRuntimeException(String.format(FORMAT_ERROR_WITH_THE_SCHEMA_TYPE_NAMED_S_DUE_TO_S, entry.getKey(), e.getMessage()), e);
+                            throw new SchemaException(String.format(FORMAT_ERROR_WITH_THE_SCHEMA_TYPE_NAMED_S_DUE_TO_S, entry.getKey(), e.getMessage()), e);
                         }
                     }
                 }

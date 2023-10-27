@@ -23,10 +23,7 @@ import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.exception.AggregationFunctionSchemaException;
 import uk.gov.gchq.gaffer.store.schema.exception.SplitElementGroupDefSchemaException;
-import uk.gov.gchq.gaffer.store.schema.exception.TypeClassSchemaException;
-import uk.gov.gchq.gaffer.store.schema.exception.TypeSerialiserSchemaException;
 import uk.gov.gchq.gaffer.store.schema.exception.VertexSerialiserSchemaException;
 import uk.gov.gchq.gaffer.store.schema.exception.VisibilityPropertySchemaException;
 
@@ -44,8 +41,8 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
     public static final String WIPE_VISIBILITY_PROPERTY = "Wipe_Visibility_Property";
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeSchema.class);
     public static final String FORMAT_CAUGHT_SCHEMA_EXCEPTION_ATTEMPTING_TO_RE_MERGE_BUT_WITHOUT_S_ERROR_MESSAGE_S = "Caught SchemaException, attempting to re-merge but without %s. Error message:%s";
-    public static final String FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S = MergeSchema.class.getSimpleName() + " function unable to recover from error, due to: %s";
-    public static final String FORMAT_MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY = "Matching element groups having no shared properties, caused by %s";
+    public static final String MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO = MergeSchema.class.getSimpleName() + " function unable to recover from error, due to: ";
+    public static final String MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY = "Matching element groups having no shared properties, caused by:";
     private HashMap<String, Object> context;
 
     public MergeSchema() {
@@ -95,17 +92,16 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
                         .build());
                 mergeSchema.visibilityProperty(null);
 
-            } catch (final AggregationFunctionSchemaException
-                           | TypeSerialiserSchemaException
-                           | TypeClassSchemaException e) {
-                // Not possible to resolve from these collisions.
-                throw new SchemaException(String.format(FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S, e.getMessage()), e);
             } catch (final SplitElementGroupDefSchemaException e) {
                 // Will require significant effort in Federation to resolve this.
-                throw new SchemaException(String.format(FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S, String.format(FORMAT_MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY, e.getMessage())), e);
+                throw e.preAppendToMessage(MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY)
+                        .preAppendToMessage(MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO);
+            } catch (final SchemaException e) {
+                // Not possible to resolve from these collisions.
+                throw e.preAppendToMessage(MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO);
             } catch (final Exception e) {
                 // all other errors.
-                throw new SchemaException(String.format(MergeSchema.class.getSimpleName() + " function unable to merge schemas, due to: %s", e.getMessage()), e);
+                throw new SchemaException(MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO + e.getMessage(), e);
             }
             return mergeSchema.build();
         }
