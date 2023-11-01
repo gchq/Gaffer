@@ -23,6 +23,9 @@ import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.exception.SplitElementGroupDefSchemaException;
+import uk.gov.gchq.gaffer.store.schema.exception.VertexSerialiserSchemaException;
+import uk.gov.gchq.gaffer.store.schema.exception.VisibilityPropertySchemaException;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,22 +33,16 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.store.schema.Schema.ELEMENT_GROUP_MUST_ALL_BE_DEFINED_IN_A_SINGLE_SCHEMA;
-import static uk.gov.gchq.gaffer.store.schema.Schema.SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER;
-import static uk.gov.gchq.gaffer.store.schema.Schema.SCHEMAS_CONFLICT_WITH_VISIBILITY_PROPERTY;
-import static uk.gov.gchq.gaffer.store.schema.Schema.VERTEX_SERIALISER;
-import static uk.gov.gchq.gaffer.store.schema.Schema.VISIBILITY_PROPERTY;
-import static uk.gov.gchq.gaffer.store.schema.TypeDefinition.SCHEMAS_CONFLICT_WITH_AGGREGATE_FUNCTION;
-import static uk.gov.gchq.gaffer.store.schema.TypeDefinition.SCHEMAS_CONFLICT_WITH_TYPE_CLASS;
-import static uk.gov.gchq.gaffer.store.schema.TypeDefinition.SCHEMAS_CONFLICT_WITH_TYPE_SERIALISER;
+import static uk.gov.gchq.gaffer.store.schema.exception.VertexSerialiserSchemaException.VERTEX_SERIALISER;
+import static uk.gov.gchq.gaffer.store.schema.exception.VisibilityPropertySchemaException.VISIBILITY_PROPERTY;
 
 public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextSpecificMergeFunction<Schema, Schema, Schema> {
     public static final String WIPE_VERTEX_SERIALISERS = "Wipe_Vertex_Serialisers";
     public static final String WIPE_VISIBILITY_PROPERTY = "Wipe_Visibility_Property";
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeSchema.class);
     public static final String FORMAT_CAUGHT_SCHEMA_EXCEPTION_ATTEMPTING_TO_RE_MERGE_BUT_WITHOUT_S_ERROR_MESSAGE_S = "Caught SchemaException, attempting to re-merge but without %s. Error message:%s";
-    public static final String FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S = MergeSchema.class.getSimpleName() + " function unable to recover from error, due to: %s";
-    public static final String FORMAT_MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY = "Matching element groups having no shared properties, caused by %s";
+    public static final String MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO = MergeSchema.class.getSimpleName() + " function unable to recover from error, due to: ";
+    public static final String MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY = "Matching element groups having no shared properties, caused by:";
     private HashMap<String, Object> context;
 
     public MergeSchema() {
@@ -78,35 +75,35 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
                         .visibilityProperty(visibilityProperty)
                         .build());
 
+            } catch (final VertexSerialiserSchemaException e) {
+                LOGGER.error(String.format(FORMAT_CAUGHT_SCHEMA_EXCEPTION_ATTEMPTING_TO_RE_MERGE_BUT_WITHOUT_S_ERROR_MESSAGE_S, VERTEX_SERIALISER, e.getMessage()));
+                //Clashing Vertex Serialiser is possibly a recoverable state, continue without using Vertex Serialisers, retain this state.
+                context.put(WIPE_VERTEX_SERIALISERS, true);
+                mergeSchema.merge(new Schema.Builder(update)
+                        .vertexSerialiser(null)
+                        .build());
+                mergeSchema.vertexSerialiser(null);
+            } catch (final VisibilityPropertySchemaException e) {
+                LOGGER.error(String.format(FORMAT_CAUGHT_SCHEMA_EXCEPTION_ATTEMPTING_TO_RE_MERGE_BUT_WITHOUT_S_ERROR_MESSAGE_S, VISIBILITY_PROPERTY, e.getMessage()));
+                //Clashing visibility property is possibly a recoverable state, continue without using visibility property, retain this state.
+                context.put(WIPE_VISIBILITY_PROPERTY, true);
+                mergeSchema.merge(new Schema.Builder(update)
+                        .visibilityProperty(null)
+                        .build());
+                mergeSchema.visibilityProperty(null);
+
+            } catch (final SplitElementGroupDefSchemaException e) {
+                // Will require significant effort in Federation to resolve this.
+                e.prependToMessage(MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY)
+                        .prependToMessage(MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO);
+                throw e;
+            } catch (final SchemaException e) {
+                // Not possible to resolve from these collisions.
+                e.prependToMessage(MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO);
+                throw e;
             } catch (final Exception e) {
-                if (e.getMessage().contains(SCHEMAS_CONFLICT_WITH_VERTEX_SERIALISER)) {
-                    LOGGER.error(String.format(FORMAT_CAUGHT_SCHEMA_EXCEPTION_ATTEMPTING_TO_RE_MERGE_BUT_WITHOUT_S_ERROR_MESSAGE_S, VERTEX_SERIALISER, e.getMessage()));
-                    //Clashing Vertex Serialiser is possibly a recoverable state, continue without using Vertex Serialisers, retain this state.
-                    context.put(WIPE_VERTEX_SERIALISERS, true);
-                    mergeSchema.merge(new Schema.Builder(update)
-                            .vertexSerialiser(null)
-                            .build());
-                    mergeSchema.vertexSerialiser(null);
-                } else if (e.getMessage().contains(SCHEMAS_CONFLICT_WITH_VISIBILITY_PROPERTY)) {
-                    LOGGER.error(String.format(FORMAT_CAUGHT_SCHEMA_EXCEPTION_ATTEMPTING_TO_RE_MERGE_BUT_WITHOUT_S_ERROR_MESSAGE_S, VISIBILITY_PROPERTY, e.getMessage()));
-                    //Clashing visibility property is possibly a recoverable state, continue without using visibility property, retain this state.
-                    context.put(WIPE_VISIBILITY_PROPERTY, true);
-                    mergeSchema.merge(new Schema.Builder(update)
-                            .visibilityProperty(null)
-                            .build());
-                    mergeSchema.visibilityProperty(null);
-                } else if (e.getMessage().contains(SCHEMAS_CONFLICT_WITH_TYPE_CLASS)
-                        || e.getMessage().contains(SCHEMAS_CONFLICT_WITH_TYPE_SERIALISER)
-                        || e.getMessage().contains(SCHEMAS_CONFLICT_WITH_AGGREGATE_FUNCTION)) {
-                    // Not possible to resolve from these collisions.
-                    throw new SchemaException(String.format(FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S, e.getMessage()), e);
-                } else if (e.getMessage().contains(ELEMENT_GROUP_MUST_ALL_BE_DEFINED_IN_A_SINGLE_SCHEMA)) {
-                    // Will require significant effort in Federation to resolve this.
-                    throw new SchemaException(String.format(FORMAT_MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO_S, String.format(FORMAT_MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY, e.getMessage())), e);
-                } else {
-                    // all other errors.
-                    throw new SchemaException(String.format(MergeSchema.class.getSimpleName() + " function unable to merge schemas, due to: %s", e.getMessage()), e);
-                }
+                // all other errors.
+                throw new SchemaException(MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO + e.getMessage(), e);
             }
             return mergeSchema.build();
         }
