@@ -50,6 +50,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
@@ -352,17 +354,28 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public long buildTimestamp(final String group, final Properties properties) {
         Long timestamp = null;
-        if (null != timestampProperty) {
+        if (timestampProperty != null) {
             timestamp = (Long) properties.get(timestampProperty);
+            return timestamp;
         }
 
-        if (null == timestamp) {
-            if (aggregatedGroups.contains(group)) {
-                timestamp = AccumuloStoreConstants.DEFAULT_TIMESTAMP;
+        // Check if aggregating to see what timestamp we should apply
+        if (aggregatedGroups.contains(group)) {
+            Stream<TypeDefinition> typeStream = StreamSupport.stream(
+                schema.getElement(group).getPropertyTypeDefs().spliterator(), true);
+
+            // If any types used by the element aggregate using a time sensitive function, add a timestamp
+            if (typeStream.anyMatch(td -> AccumuloStoreConstants.TIME_SENSITIVE_AGGREGATORS.contains(
+                    td.getAggregateFunction().getClass().getSimpleName()))) {
+                // Add timestamp
+                timestamp = System.currentTimeMillis();
             } else {
-                timestamp = LongUtil.getTimeBasedRandom();
+                timestamp = AccumuloStoreConstants.DEFAULT_TIMESTAMP;
             }
+        } else {
+            timestamp = LongUtil.getTimeBasedRandom();
         }
+        
 
         return timestamp;
     }

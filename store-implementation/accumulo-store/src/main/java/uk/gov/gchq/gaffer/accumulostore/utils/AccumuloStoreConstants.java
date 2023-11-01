@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,12 @@
  */
 
 package uk.gov.gchq.gaffer.accumulostore.utils;
+
+import java.util.Arrays;
+import java.util.List;
+
+import uk.gov.gchq.koryphe.impl.binaryoperator.First;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Last;
 
 public final class AccumuloStoreConstants {
     //Iterator names
@@ -44,6 +50,11 @@ public final class AccumuloStoreConstants {
      * The default timestamp value to use if it has not been populated.
      */
     public static final long DEFAULT_TIMESTAMP = 1L;
+
+    // Time sensitive aggregation functions where an actual timestamp must applied to the key
+    public static final List<String> TIME_SENSITIVE_AGGREGATORS = Arrays.asList(
+        First.class.getSimpleName(),
+        Last.class.getSimpleName());
 
     // Iterator options
     public static final String VIEW = "View";
