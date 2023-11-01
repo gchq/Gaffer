@@ -349,7 +349,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                     mergeConfig(thatSchema);
 
                 } catch (final SchemaException e) {
-                    throw e.prependToMessage(ERROR_MERGING_SCHEMA_DUE_TO);
+                    e.prependToMessage(ERROR_MERGING_SCHEMA_DUE_TO);
+                    throw e;
                 } catch (final Exception e) {
                     throw new SchemaException(ERROR_MERGING_SCHEMA_DUE_TO + e.getMessage(), e);
                 }
@@ -426,7 +427,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                         try {
                             typeDef.merge(newTypeDef);
                         } catch (final SchemaException e) {
-                            throw e.prependToMessage(String.format(FORMAT_ERROR_WITH_THE_SCHEMA_TYPE_NAMED_S_DUE_TO_S, entry.getKey(), ""));
+                            e.prependToMessage(String.format(FORMAT_ERROR_WITH_THE_SCHEMA_TYPE_NAMED_S_DUE_TO_S, entry.getKey(), ""));
+                            throw e;
                         } catch (final Exception e) {
                             throw new SchemaException(String.format(FORMAT_ERROR_WITH_THE_SCHEMA_TYPE_NAMED_S_DUE_TO_S, entry.getKey(), e.getMessage()), e);
                         }

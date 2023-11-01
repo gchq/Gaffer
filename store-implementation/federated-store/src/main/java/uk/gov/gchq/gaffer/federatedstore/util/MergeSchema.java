@@ -94,11 +94,13 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
 
             } catch (final SplitElementGroupDefSchemaException e) {
                 // Will require significant effort in Federation to resolve this.
-                throw e.prependToMessage(MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY)
+                e.prependToMessage(MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY)
                         .prependToMessage(MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO);
+                throw e;
             } catch (final SchemaException e) {
                 // Not possible to resolve from these collisions.
-                throw e.prependToMessage(MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO);
+                e.prependToMessage(MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO);
+                throw e;
             } catch (final Exception e) {
                 // all other errors.
                 throw new SchemaException(MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO + e.getMessage(), e);

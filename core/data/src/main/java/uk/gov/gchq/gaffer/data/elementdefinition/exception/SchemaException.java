@@ -27,6 +27,7 @@ import static uk.gov.gchq.gaffer.core.exception.Status.BAD_REQUEST;
  */
 public class SchemaException extends GafferRuntimeException {
     private static final long serialVersionUID = 3150434301320173603L;
+    @SuppressWarnings("PMD.AvoidStringBufferField")
     private StringBuilder prependToMessage;
 
     public SchemaException(final String message) {
