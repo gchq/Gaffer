@@ -366,7 +366,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 schema.getElement(group).getPropertyTypeDefs().spliterator(), true);
 
             // If any types used by the element aggregate using a time sensitive function, add a timestamp
-            if (typeStream.anyMatch(td -> Arrays.asList(AccumuloStoreConstants.TIME_SENSITIVE_AGGREGATORS)
+            if (typeStream.anyMatch(td -> AccumuloStoreConstants.TIME_SENSITIVE_AGGREGATORS
                     .contains(td.getAggregateFunction().getClass().getSimpleName()))) {
                 // Add timestamp
                 timestamp = System.currentTimeMillis();

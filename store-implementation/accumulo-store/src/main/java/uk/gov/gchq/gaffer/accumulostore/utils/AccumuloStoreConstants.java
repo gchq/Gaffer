@@ -16,6 +16,10 @@
 
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import uk.gov.gchq.koryphe.impl.binaryoperator.First;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Last;
 
@@ -49,10 +53,10 @@ public final class AccumuloStoreConstants {
     public static final long DEFAULT_TIMESTAMP = 1L;
 
     // Time sensitive aggregation functions where an actual timestamp must applied to the key
-    public static final String[] TIME_SENSITIVE_AGGREGATORS = {
-        First.class.getSimpleName(),
-        Last.class.getSimpleName()
-    };
+    public static final List<String> TIME_SENSITIVE_AGGREGATORS = Collections.unmodifiableList(
+        Arrays.asList(
+            First.class.getSimpleName(),
+            Last.class.getSimpleName()));
 
     // Iterator options
     public static final String VIEW = "View";
