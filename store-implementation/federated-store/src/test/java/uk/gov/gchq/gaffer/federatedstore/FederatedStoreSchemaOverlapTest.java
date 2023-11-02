@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -142,13 +143,12 @@ public class FederatedStoreSchemaOverlapTest {
     public void shouldMergeSchemaWithoutTheClashingVisibilityProperty() throws OperationException {
         // Given
         addGraphWith(GRAPH_ID_A, GRAPH_A_SCHEMA);
-        final String visibility1 = "visibility1";
         final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder(EDGE_DEFINITION)
-                .property(visibility1, STRING)
+                .property(TestTypes.VISIBILITY_2, STRING)
                 .build();
         final Schema graphBSchema = new Schema.Builder()
                 .merge(GRAPH_A_SCHEMA)
-                .visibilityProperty(visibility1)
+                .visibilityProperty(TestTypes.VISIBILITY_2)
                 .edge(GROUP_BASIC_EDGE, edgeDef)
                 .build();
         addGraphWith(GRAPH_ID_B, graphBSchema);
@@ -164,11 +164,10 @@ public class FederatedStoreSchemaOverlapTest {
                 .withFailMessage("After a recovery from a collision with Visibility Property, the property should be set to Null")
                 .isNull();
         assertThat(schema)
-                .hasToString(new Schema.Builder(GRAPH_A_SCHEMA)
+                .isEqualTo(new Schema.Builder(GRAPH_A_SCHEMA)
                         .visibilityProperty(null)
                         .edge(GROUP_BASIC_EDGE, edgeDef)
-                        .build()
-                        .toString());
+                        .build());
     }
 
     @Test
