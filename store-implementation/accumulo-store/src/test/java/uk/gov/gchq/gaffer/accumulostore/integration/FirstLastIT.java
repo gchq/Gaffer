@@ -20,10 +20,10 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.admin.CompactionConfig;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -99,7 +99,7 @@ class FirstLastIT extends StandaloneIT {
         for (int i = 7; i <= 100; i++) {
             graph.execute(new AddElements.Builder().input(getEntity(i)).build(), getUser());
         }
-        
+
          // Check before and after compaction
         assertThat(graph.execute(getOperation, getUser())).containsExactly(getEntity(100, 1));
         compact(accumuloStore);

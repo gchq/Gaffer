@@ -16,11 +16,11 @@
 
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
-import java.util.Arrays;
-import java.util.List;
-
 import uk.gov.gchq.koryphe.impl.binaryoperator.First;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Last;
+
+import java.util.Arrays;
+import java.util.List;
 
 public final class AccumuloStoreConstants {
     //Iterator names
