@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,18 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloAllElementsRetriever;
+import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloElementsRetriever;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
@@ -43,14 +44,17 @@ import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.DEST_BASIC;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_EDGE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SOURCE_BASIC;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextBlankUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.edgeBasic;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
+import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
@@ -66,17 +70,16 @@ class ApplyViewToElementsFunctionTest {
         addEdgeBasic(accumuloStore);
 
         //when
-        final AccumuloAllElementsRetriever elements = new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), blankUser());
+        final AccumuloAllElementsRetriever elements = new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge(edgeBasic().getGroup())
+                        .build()).build(), blankUser());
 
         //then
         assertThat(elements)
                 .isExactlyInstanceOf(AccumuloAllElementsRetriever.class)
                 .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
                 .containsExactly(edgeBasic());
-    }
-
-    private static View getViewForEdgeBasic() {
-        return new View.Builder().edge(edgeBasic().getGroup()).build();
     }
 
     private static void addEdgeBasic(final AccumuloStore accumuloStore) throws OperationException {
@@ -88,11 +91,12 @@ class ApplyViewToElementsFunctionTest {
         //given
         final AccumuloStore accumuloStore = getTestStore("shouldAggregateEdgesFromMultipleRetrievers");
         addEdgeBasic(accumuloStore);
-        AccumuloAllElementsRetriever[] retrievers = getRetrievers(accumuloStore);
+        final View view = new View.Builder()
+                .edge(GROUP_BASIC_EDGE)
+                .build();
+        AccumuloAllElementsRetriever[] retrievers = getRetrievers(accumuloStore, new GetAllElements.Builder().view(view).build());
         final ApplyViewToElementsFunction function = new ApplyViewToElementsFunction().createFunctionWithContext(
-                makeContext(
-                        new View.Builder().edge(GROUP_BASIC_EDGE).build(),
-                        SCHEMA.clone()));
+                makeContext(view, SCHEMA.clone()));
 
         //when
         Iterable<Object> iterable = null;
@@ -110,28 +114,24 @@ class ApplyViewToElementsFunctionTest {
                 .containsExactly(edge5);
     }
 
-    private static FederatedStore getFederatedStore() throws StoreException {
-        final FederatedStore federatedStore = new FederatedStore();
-        federatedStore.initialise(FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), new FederatedStoreProperties());
-        return federatedStore;
-    }
-
     @Test
     public void shouldApplyViewToAggregatedEdgesFromMultipleRetrievers() throws Exception {
         //given
         final AccumuloStore accumuloStore = getTestStore("shouldApplyViewToAggregatedEdgesFromMultipleRetrievers");
         addEdgeBasic(accumuloStore);
-        AccumuloAllElementsRetriever[] retrievers = getRetrievers(accumuloStore);
+        final View view = new View.Builder()
+                .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder()
+                        .postAggregationFilter(new ElementFilter.Builder()
+                                .select(PROPERTY_1)
+                                .execute(new IsLessThan(3))
+                                .build())
+                        .build()).build();
+
+        AccumuloAllElementsRetriever[] retrievers = getRetrievers(accumuloStore, new GetAllElements.Builder().view(view).build());
         final ApplyViewToElementsFunction function = new ApplyViewToElementsFunction().createFunctionWithContext(
                 makeContext(
                         //Update View to filter OUT greater than 2.
-                        new View.Builder().edge(GROUP_BASIC_EDGE,
-                                new ViewElementDefinition.Builder()
-                                        .postAggregationFilter(new ElementFilter.Builder()
-                                                .select(PROPERTY_1)
-                                                .execute(new IsLessThan(3))
-                                                .build())
-                                        .build()).build(),
+                        view,
                         SCHEMA.clone()));
 
         //when
@@ -146,13 +146,23 @@ class ApplyViewToElementsFunctionTest {
                 .isEmpty();
     }
 
-    private static AccumuloAllElementsRetriever[] getRetrievers(final AccumuloStore accumuloStore) throws IteratorSettingException, StoreException {
+    private static AccumuloAllElementsRetriever[] getRetrievers(final AccumuloStore accumuloStore, final GetAllElements operation) throws IteratorSettingException, StoreException {
         return new AccumuloAllElementsRetriever[]{
-                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), blankUser()),
-                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), blankUser()),
-                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), blankUser()),
-                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), blankUser()),
-                new AccumuloAllElementsRetriever(accumuloStore, new GetAllElements.Builder().view(getViewForEdgeBasic()).build(), blankUser())
+                new AccumuloAllElementsRetriever(accumuloStore, operation, blankUser()),
+                new AccumuloAllElementsRetriever(accumuloStore, operation, blankUser()),
+                new AccumuloAllElementsRetriever(accumuloStore, operation, blankUser()),
+                new AccumuloAllElementsRetriever(accumuloStore, operation, blankUser()),
+                new AccumuloAllElementsRetriever(accumuloStore, operation, blankUser())
+        };
+    }
+
+    private static AccumuloElementsRetriever[] getRetrievers(final AccumuloStore accumuloStore, final GetElements operation) throws IteratorSettingException, StoreException {
+        return new AccumuloElementsRetriever[]{
+                new AccumuloElementsRetriever(accumuloStore, operation, blankUser()),
+                new AccumuloElementsRetriever(accumuloStore, operation, blankUser()),
+                new AccumuloElementsRetriever(accumuloStore, operation, blankUser()),
+                new AccumuloElementsRetriever(accumuloStore, operation, blankUser()),
+                new AccumuloElementsRetriever(accumuloStore, operation, blankUser())
         };
     }
 
@@ -172,5 +182,52 @@ class ApplyViewToElementsFunctionTest {
         map.put(ApplyViewToElementsFunction.SCHEMA, schema);
         map.put(ApplyViewToElementsFunction.USER, testUser());
         return map;
+    }
+
+    @Test
+    void shouldPreserveMatchedVertex() throws Exception {
+        //given
+        final AccumuloStore accumuloStore = getTestStore("shouldAggregateEdgesFromMultipleRetrievers");
+
+        accumuloStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .source(SOURCE_BASIC)
+                        .dest(DEST_BASIC)
+                        .directed(true)
+                        .group(GROUP_BASIC_EDGE)
+                        .property(PROPERTY_1, FederatedStoreTestUtil.VALUE_PROPERTY1)
+                        .build()).build(), contextBlankUser());
+
+        final View view = new View.Builder().edge(GROUP_BASIC_EDGE).build();
+
+        AccumuloElementsRetriever[] retrievers = getRetrievers(accumuloStore, new GetElements.Builder().input(DEST_BASIC).inOutType(INCOMING).view(view).build());
+        final ApplyViewToElementsFunction function = new ApplyViewToElementsFunction().createFunctionWithContext(
+                makeContext(view, SCHEMA.clone()));
+
+        //when
+        Iterable<Object> iterable = null;
+        for (AccumuloElementsRetriever elements : retrievers) {
+            iterable = function.apply(elements, iterable);
+        }
+
+        //then
+        final Edge edge5 = new Edge.Builder()
+                .source(SOURCE_BASIC)
+                .dest(DEST_BASIC)
+                .group(GROUP_BASIC_EDGE)
+                .directed(true)
+                //With aggregated property value of 5
+                .property(PROPERTY_1, 5)
+                .build();
+
+        assertThat(iterable)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .containsExactly(edge5);
+
+        //then because edge.equals ignores VertexMatched
+        assertThat(iterable.iterator().next())
+                .asInstanceOf(InstanceOfAssertFactories.type(Edge.class))
+                .extracting(Edge::getMatchedVertex)
+                .isEqualTo(EdgeId.MatchedVertex.DESTINATION);
     }
 }
