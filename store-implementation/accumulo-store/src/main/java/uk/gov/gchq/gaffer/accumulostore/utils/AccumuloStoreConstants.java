@@ -19,9 +19,6 @@ package uk.gov.gchq.gaffer.accumulostore.utils;
 import uk.gov.gchq.koryphe.impl.binaryoperator.First;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Last;
 
-import java.util.Arrays;
-import java.util.List;
-
 public final class AccumuloStoreConstants {
     //Iterator names
     public static final String VALIDATOR_ITERATOR_NAME = "Validator";
