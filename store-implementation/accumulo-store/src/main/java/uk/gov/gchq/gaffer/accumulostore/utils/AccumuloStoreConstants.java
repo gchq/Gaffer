@@ -52,9 +52,10 @@ public final class AccumuloStoreConstants {
     public static final long DEFAULT_TIMESTAMP = 1L;
 
     // Time sensitive aggregation functions where an actual timestamp must applied to the key
-    public static final List<String> TIME_SENSITIVE_AGGREGATORS = Arrays.asList(
+    public static final String[] TIME_SENSITIVE_AGGREGATORS = {
         First.class.getSimpleName(),
-        Last.class.getSimpleName());
+        Last.class.getSimpleName()
+    };
 
     // Iterator options
     public static final String VIEW = "View";

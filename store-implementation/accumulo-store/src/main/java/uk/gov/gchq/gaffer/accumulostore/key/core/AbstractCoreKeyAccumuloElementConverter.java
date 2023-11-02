@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -365,8 +366,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 schema.getElement(group).getPropertyTypeDefs().spliterator(), true);
 
             // If any types used by the element aggregate using a time sensitive function, add a timestamp
-            if (typeStream.anyMatch(td -> AccumuloStoreConstants.TIME_SENSITIVE_AGGREGATORS.contains(
-                    td.getAggregateFunction().getClass().getSimpleName()))) {
+            if (typeStream.anyMatch(td -> Arrays.asList(AccumuloStoreConstants.TIME_SENSITIVE_AGGREGATORS)
+                    .contains(td.getAggregateFunction().getClass().getSimpleName()))) {
                 // Add timestamp
                 timestamp = System.currentTimeMillis();
             } else {
