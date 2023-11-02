@@ -132,6 +132,37 @@ public class FederatedStoreViewAggregationTest {
                 .hasSize(1);
     }
 
+    @Test
+    public void shouldOnlyReturn1EntitySmallerThanSchemaValidationLimit() throws Exception {
+
+        //given
+        addGraphToAccumuloStore(federatedStore, GRAPH_ID_A, true, loadSchemaFromJson("/schema/basicEntityValidateLess100Schema.json"));
+        addGraphToAccumuloStore(federatedStore, GRAPH_ID_B, true, loadSchemaFromJson("/schema/basicEntityValidateLess100Schema.json"));
+
+        addEntity(GRAPH_ID_A, entity1);
+        addEntity(GRAPH_ID_B, entity99);
+        addEntity(GRAPH_ID_B, entityOther);
+
+        //when
+        final Iterable elementsWithPropertyLessThan100 = federatedStore.execute(new GetAllElements(), contextTestUser());
+
+        //then
+        assertThat(elementsWithPropertyLessThan100)
+                .isNotNull()
+                .withFailMessage("should return entity \"basicVertexOther\" with property 99, which is less than view filter 100")
+                .contains(entityOther)
+                .withFailMessage("should not return entity \"basicVertex\" with un-aggregated property 1 or 99")
+                .doesNotContain(entity1, entity99)
+                .withFailMessage("should not return entity \"basicVertex\" with an aggregated property 100, which is less than view filter 100")
+                .doesNotContain(new Entity.Builder()
+                        .group(GROUP_BASIC_ENTITY)
+                        .vertex(BASIC_VERTEX)
+                        .property(PROPERTY_1, 100)
+                        .build())
+                .hasSize(1);
+    }
+
+
     private void addEntity(final String graphIdA, final Entity entity) throws OperationException {
         federatedStore.execute(new FederatedOperation.Builder()
                 .op(new AddElements.Builder()
