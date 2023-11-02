@@ -187,7 +187,7 @@ class ApplyViewToElementsFunctionTest {
     @Test
     void shouldPreserveMatchedVertex() throws Exception {
         //given
-        final AccumuloStore accumuloStore = getTestStore("shouldAggregateEdgesFromMultipleRetrievers");
+        final AccumuloStore accumuloStore = getTestStore("shouldPreserveMatchedVertex");
 
         accumuloStore.execute(new AddElements.Builder()
                 .input(new Edge.Builder()
