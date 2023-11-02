@@ -353,7 +353,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @Override
     public long buildTimestamp(final String group, final Properties properties) {
-        Long timestamp = null;
+        Long timestamp;
         if (timestampProperty != null) {
             timestamp = (Long) properties.get(timestampProperty);
             return timestamp;
@@ -375,7 +375,6 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         } else {
             timestamp = LongUtil.getTimeBasedRandom();
         }
-        
 
         return timestamp;
     }
