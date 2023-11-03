@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
@@ -33,10 +34,15 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,11 +83,28 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
             }
             // Validate the supplied context before using
             validate(context);
+
+            updateViewWithValidationFromSchema(context);
+
             this.context = Collections.unmodifiableMap(context);
         } catch (final Exception e) {
             throw new GafferCheckedException("Unable to create TemporaryResultsGraph", e);
         }
 
+    }
+
+    private static void updateViewWithValidationFromSchema(final Map<String, Object> context) {
+        //Update View with
+        {
+            final View view = (View) context.get(VIEW);
+            final Schema schema = (Schema) context.get(SCHEMA);
+            final View.Builder updatedView = new View.Builder(view);
+
+            updateEdgesViewFilterWithSchemaValidation(schema, view, updatedView);
+            updateEntitiesViewFilterWithSchemaValidation(schema, view, updatedView);
+
+            context.put(VIEW, updatedView.build());
+        }
     }
 
     @Override
@@ -118,6 +141,58 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
         if (!context.containsKey(USER)) {
             throw new IllegalArgumentException("Error: context invalid, requires a User");
         }
+    }
+
+    private static void updateEntitiesViewFilterWithSchemaValidation(final Schema schema, final View view, final View.Builder updatedView) {
+        final Map<String, SchemaEntityDefinition> elements = schema.getEntities();
+        for (final Map.Entry<String, ? extends SchemaElementDefinition> schemaElement : elements.entrySet()) {
+
+            final String elementKey = schemaElement.getKey();
+            final SchemaElementDefinition schemaElementDef = schemaElement.getValue();
+            if (schemaElementDef.hasValidation()) {
+                final ViewElementDefinition updatedViewElementDef = getUpdatedViewElementDef(schemaElementDef, view, elementKey);
+
+                updatedView.entity(elementKey, updatedViewElementDef);
+            }
+        }
+    }
+
+    private static void updateEdgesViewFilterWithSchemaValidation(final Schema schema, final View view, final View.Builder updatedView) {
+        final Map<String, SchemaEdgeDefinition> elements = schema.getEdges();
+        for (final Map.Entry<String, ? extends SchemaElementDefinition> schemaElement : elements.entrySet()) {
+
+            final String elementKey = schemaElement.getKey();
+            final SchemaElementDefinition schemaElementDef = schemaElement.getValue();
+            if (schemaElementDef.hasValidation()) {
+                final ViewElementDefinition updatedViewElementDef = getUpdatedViewElementDef(schemaElementDef, view, elementKey);
+
+                updatedView.edge(elementKey, updatedViewElementDef);
+            }
+        }
+    }
+
+    private static ViewElementDefinition getUpdatedViewElementDef(final SchemaElementDefinition schemaElementDef, final View view, final String elementKey) {
+        final ViewElementDefinition.Builder updatePreAggregationFiler;
+        final ArrayList<TupleAdaptedPredicate<String, ?>> updatedFilterFunctions = new ArrayList<>();
+
+        //Add Schema Validation
+        updatedFilterFunctions.addAll(schemaElementDef.getValidator().getComponents());
+
+        if (view != null) {
+            final ViewElementDefinition viewElementDef = view.getElement(elementKey);
+            //Add View Validation
+            updatedFilterFunctions.addAll(viewElementDef.getPreAggregationFilter().getComponents());
+
+            //Init Builder with contents of the view.
+            updatePreAggregationFiler = new ViewElementDefinition.Builder(viewElementDef);
+        } else {
+            updatePreAggregationFiler = new ViewElementDefinition.Builder();
+        }
+
+        //override
+        updatePreAggregationFiler.preAggregationFilterFunctions(updatedFilterFunctions);
+
+        return updatePreAggregationFiler.build();
     }
 
     @Override
