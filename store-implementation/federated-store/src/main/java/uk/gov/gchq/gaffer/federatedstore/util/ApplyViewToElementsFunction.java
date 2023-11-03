@@ -183,8 +183,9 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
         if (view != null) {
             final ViewElementDefinition viewElementDef = view.getElement(elementKey);
             //Add View Validation
-            updatedFilterFunctions.addAll(viewElementDef.getPostAggregationFilter().getComponents());
-
+            if (viewElementDef != null && viewElementDef.hasPostAggregationFilters()) {
+                updatedFilterFunctions.addAll(viewElementDef.getPostAggregationFilter().getComponents());
+            }
             //Init Builder with contents of the view.
             updatePreAggregationFiler = new ViewElementDefinition.Builder(viewElementDef);
         } else {
