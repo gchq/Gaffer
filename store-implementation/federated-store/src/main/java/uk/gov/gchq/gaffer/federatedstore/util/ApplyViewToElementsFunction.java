@@ -150,12 +150,9 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
         for (final Map.Entry<String, ? extends SchemaElementDefinition> schemaElement : elements.entrySet()) {
 
             final String elementKey = schemaElement.getKey();
-            final SchemaElementDefinition schemaElementDef = schemaElement.getValue();
-            if (schemaElementDef.hasValidation()) {
-                final ViewElementDefinition updatedViewElementDef = getUpdatedViewElementDef(schemaElementDef, view, elementKey);
+            final ViewElementDefinition updatedViewElementDef = getUpdatedViewElementDef(elementKey, schemaElement.getValue(), view);
 
-                updatedView.entity(elementKey, updatedViewElementDef);
-            }
+            updatedView.entity(elementKey, updatedViewElementDef);
         }
     }
 
@@ -164,21 +161,20 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
         for (final Map.Entry<String, ? extends SchemaElementDefinition> schemaElement : elements.entrySet()) {
 
             final String elementKey = schemaElement.getKey();
-            final SchemaElementDefinition schemaElementDef = schemaElement.getValue();
-            if (schemaElementDef.hasValidation()) {
-                final ViewElementDefinition updatedViewElementDef = getUpdatedViewElementDef(schemaElementDef, view, elementKey);
+            final ViewElementDefinition updatedViewElementDef = getUpdatedViewElementDef(elementKey, schemaElement.getValue(), view);
 
-                updatedView.edge(elementKey, updatedViewElementDef);
-            }
+            updatedView.edge(elementKey, updatedViewElementDef);
         }
     }
 
-    private static ViewElementDefinition getUpdatedViewElementDef(final SchemaElementDefinition schemaElementDef, final View view, final String elementKey) {
-        final ViewElementDefinition.Builder updatePreAggregationFiler;
+    private static ViewElementDefinition getUpdatedViewElementDef(final String elementKey, final SchemaElementDefinition schemaElementDef, final View view) {
+        final ViewElementDefinition.Builder updatePreAggregationFilter;
         final ArrayList<TupleAdaptedPredicate<String, ?>> updatedFilterFunctions = new ArrayList<>();
 
         //Add Schema Validation
-        updatedFilterFunctions.addAll(schemaElementDef.getValidator().getComponents());
+        if (schemaElementDef.hasValidation()) {
+            updatedFilterFunctions.addAll(schemaElementDef.getValidator().getComponents());
+        }
 
         if (view != null) {
             final ViewElementDefinition viewElementDef = view.getElement(elementKey);
@@ -187,15 +183,15 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
                 updatedFilterFunctions.addAll(viewElementDef.getPostAggregationFilter().getComponents());
             }
             //Init Builder with contents of the view.
-            updatePreAggregationFiler = new ViewElementDefinition.Builder(viewElementDef);
+            updatePreAggregationFilter = new ViewElementDefinition.Builder(viewElementDef);
         } else {
-            updatePreAggregationFiler = new ViewElementDefinition.Builder();
+            updatePreAggregationFilter = new ViewElementDefinition.Builder();
         }
 
         //override
-        updatePreAggregationFiler.postAggregationFilterFunctions(updatedFilterFunctions);
+        updatePreAggregationFilter.postAggregationFilterFunctions(updatedFilterFunctions);
 
-        return updatePreAggregationFiler.build();
+        return updatePreAggregationFilter.build();
     }
 
     @Override

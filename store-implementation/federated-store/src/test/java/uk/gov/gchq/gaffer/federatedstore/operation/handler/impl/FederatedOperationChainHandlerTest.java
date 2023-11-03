@@ -159,6 +159,8 @@ public class FederatedOperationChainHandlerTest {
         final Iterable result = (Iterable) store.execute(opChain, context);
 
         // Then
+        assertThat(result).isNullOrEmpty();
+
         final Iterable<Element> allElements = (Iterable<Element>) store.execute(new GetAllElements(), context);
 
         assertThat(allElements)
