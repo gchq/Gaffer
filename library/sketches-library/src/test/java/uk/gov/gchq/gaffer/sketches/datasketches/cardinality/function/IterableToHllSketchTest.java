@@ -112,6 +112,24 @@ class IterableToHllSketchTest extends FunctionTest<IterableToHllSketch> {
         assertThat(result.getLgConfigK()).isEqualTo(5);
     }
 
+    @Test
+    public void shouldCorrectlyCopyAnotherHllSketch() {
+        // Given
+        final HllSketch anotherSketch = new HllSketch();
+        anotherSketch.update("second");
+        anotherSketch.update("third");
+
+        IterableToHllSketch iterableToHllSketch = new IterableToHllSketch(anotherSketch);
+        final List<Object> input = Arrays.asList("one", "one", "two", "two", "three");
+
+        // When
+        final HllSketch result = iterableToHllSketch.apply(input);
+
+        // Then
+        assertThat(result.getEstimate()).isCloseTo(5, Percentage.withPercentage(0.001));
+        assertThat(anotherSketch.getEstimate()).isCloseTo(2, Percentage.withPercentage(0.001));
+    }
+
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
         return new Class[]{Iterable.class};

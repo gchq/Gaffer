@@ -106,6 +106,23 @@ class ToHllSketchTest extends FunctionTest<ToHllSketch> {
         assertThat(result.getLgConfigK()).isEqualTo(5);
     }
 
+    @Test
+    public void shouldCorrectlyCopyAnotherHllSketch() {
+        // Given
+        final HllSketch anotherSketch = new HllSketch();
+        anotherSketch.update("second");
+        anotherSketch.update("third");
+
+        ToHllSketch toHllSketch = new ToHllSketch(anotherSketch);
+
+        // When
+        final HllSketch result = toHllSketch.apply("input");
+
+        // Then
+        assertThat(result.getEstimate()).isCloseTo(3, Percentage.withPercentage(0.001));
+        assertThat(anotherSketch.getEstimate()).isCloseTo(2, Percentage.withPercentage(0.001));
+    }
+
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
         return new Class[]{Object.class};
