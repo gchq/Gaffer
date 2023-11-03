@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -94,8 +95,9 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
     }
 
     private static void updateViewWithValidationFromSchema(final Map<String, Object> context) {
-        //Update View with
-        {
+        //Only do this for MapStore, not required for other stores.
+        if (MapStore.class.getName().equals(((Graph) context.get(TEMP_RESULTS_GRAPH)).getStoreProperties().getStoreClass())) {
+            //Update View with
             final View view = (View) context.get(VIEW);
             final Schema schema = (Schema) context.get(SCHEMA);
             final View.Builder updatedView = new View.Builder(view);
