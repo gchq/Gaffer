@@ -396,10 +396,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
         // Check if aggregating to see what timestamp we should apply
         if (aggregatedGroups.contains(group)) {
-            timestamp = AccumuloStoreConstants.DEFAULT_TIMESTAMP;
             // If any types used by the element aggregate using a time sensitive function, add a timestamp
             if (timeSensitiveAggregatedGroups.contains(group)) {
                 timestamp = System.currentTimeMillis();
+            } else {
+                timestamp = AccumuloStoreConstants.DEFAULT_TIMESTAMP;
             }
         } else {
             timestamp = LongUtil.getTimeBasedRandom();
