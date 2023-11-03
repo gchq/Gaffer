@@ -387,12 +387,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @Override
     public long buildTimestamp(final String group, final Properties properties) {
-        Long timestamp = LongUtil.getTimeBasedRandom();
+        Long timestamp;
 
         // Allow override via property
         if (timestampProperty != null) {
-            timestamp = (Long) properties.get(timestampProperty);
-            return timestamp;
+            return (Long) properties.get(timestampProperty);
         }
 
         // Check if aggregating to see what timestamp we should apply
@@ -402,7 +401,10 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             if (timeSensitiveAggregatedGroups.contains(group)) {
                 timestamp = System.currentTimeMillis();
             }
+        } else {
+            timestamp = LongUtil.getTimeBasedRandom();
         }
+
         return timestamp;
     }
 
