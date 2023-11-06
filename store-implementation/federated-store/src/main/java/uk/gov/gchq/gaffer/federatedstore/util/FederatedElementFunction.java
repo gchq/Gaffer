@@ -58,6 +58,14 @@ import java.util.stream.Stream;
  * Such as the re-application of View filter or Schema Validation after the local aggregation of results from multiple graphs.
  * By default, a local in memory MapStore is used for local aggregation,
  * but a Graph or {@link GraphSerialisable} of any kind could be supplied via the {@link #context} with the key {@link #TEMP_RESULTS_GRAPH}.
+ * </p>
+ * An issue not covered:
+ * GraphA has elementA with a property value 101.
+ * GraphB has the same elementA with property value 1.
+ * GraphC has the same elementA with property value 2.
+ * Asking for a simple GetAllElements with a view filter of property less than 100. Will incorrectly return elementA with a value 3.
+ * Because outside the functions scope, GraphA filtered out 101.
+
  */
 public class FederatedElementFunction implements ContextSpecificMergeFunction<Object, Iterable<Object>, Iterable<Object>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedElementFunction.class);
@@ -146,8 +154,8 @@ public class FederatedElementFunction implements ContextSpecificMergeFunction<Ob
 
         if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
             throw new IllegalStateException("Error: context invalid, did not contain a Temporary Results Graph.");
-        } else if (!(context.get(TEMP_RESULTS_GRAPH) instanceof Graph)
-                || !(context.get(TEMP_RESULTS_GRAPH) instanceof GraphSerialisable)) {
+        } else if (!(context.get(TEMP_RESULTS_GRAPH) instanceof Graph
+                || context.get(TEMP_RESULTS_GRAPH) instanceof GraphSerialisable)) {
             throw new IllegalArgumentException(String.format("Error: context invalid, value for %s was not a Graph, found: %s", TEMP_RESULTS_GRAPH, context.get(TEMP_RESULTS_GRAPH)));
         }
 

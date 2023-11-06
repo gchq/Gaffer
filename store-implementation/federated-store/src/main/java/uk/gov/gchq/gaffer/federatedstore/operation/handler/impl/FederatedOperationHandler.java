@@ -39,6 +39,7 @@ import java.util.function.BiFunction;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.GIVEN_MERGE_STORE;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getStoreConfiguredMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.processIfFunctionIsContextSpecific;
 
@@ -111,6 +112,12 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
     private static BiFunction getMergeFunction(final FederatedOperation operation, final FederatedStore store, final Context context, final boolean isResultsFromAllGraphsEmpty) throws GafferCheckedException {
         final BiFunction mergeFunction;
+
+        // pass the given information from options to the operation context to be available to the merge function
+        if (operation.containsOption(GIVEN_MERGE_STORE)) {
+            context.setVariable(GIVEN_MERGE_STORE, operation.getOption(GIVEN_MERGE_STORE));
+        }
+
         if (isResultsFromAllGraphsEmpty) {
             //No Merge function required.
             mergeFunction = null;

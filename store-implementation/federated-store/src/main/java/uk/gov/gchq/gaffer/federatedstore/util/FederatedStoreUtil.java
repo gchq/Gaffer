@@ -67,6 +67,7 @@ import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedElementFunction.SCHEMA;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedElementFunction.TEMP_RESULTS_GRAPH;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedElementFunction.USER;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedElementFunction.VIEW;
 
@@ -76,6 +77,7 @@ public final class FederatedStoreUtil {
 
     @Deprecated
     public static final String DEPRECATED_GRAPHIDS_OPTION = "gaffer.federatedstore.operation.graphIds";
+    public static final String GIVEN_MERGE_STORE = "gaffer.federatedstore.merge.function.given.merge.store";
 
     private FederatedStoreUtil() {
     }
@@ -304,6 +306,7 @@ public final class FederatedStoreUtil {
                 final ContextSpecificMergeFunction specificMergeFunction = (ContextSpecificMergeFunction) mergeFunction;
                 HashMap<String, Object> functionContext = new HashMap<>();
 
+                functionContext = processGivenResultStoreForSpecificMergeFunction(specificMergeFunction, functionContext, operationContext, federatedStore);
                 functionContext = processSchemaForSpecificMergeFunction(specificMergeFunction, functionContext, payload, graphIds, operationContext, federatedStore);
                 functionContext = processViewForSpecificMergeFunction(specificMergeFunction, functionContext, payload);
                 functionContext = processUserForSpecificMergeFunction(specificMergeFunction, functionContext, operationContext.getUser());
@@ -315,6 +318,18 @@ public final class FederatedStoreUtil {
             }
         }
         return rtn;
+    }
+
+    public static HashMap<String, Object> processGivenResultStoreForSpecificMergeFunction(final ContextSpecificMergeFunction specificMergeFunction, final HashMap<String, Object> functionContext, final Context operationContext, final FederatedStore federatedStore) {
+        if (specificMergeFunction.isRequired(TEMP_RESULTS_GRAPH)) {
+            final String variable = (String) operationContext.getVariable(GIVEN_MERGE_STORE);
+            if (variable != null) {
+                throw new UnsupportedOperationException("Implementation of adding a different type of temporary merge graph " +
+                        "is not yet supported. Behaviour on how to delete the graph is not yet defined. Behaviour of what info " +
+                        "to take from users or admins, is not yet defined.");
+            }
+        }
+        return functionContext;
     }
 
     private static HashMap<String, Object> processViewForSpecificMergeFunction(final ContextSpecificMergeFunction specificMergeFunction, final HashMap<String, Object> functionContext, final Operation payload) throws GafferCheckedException {

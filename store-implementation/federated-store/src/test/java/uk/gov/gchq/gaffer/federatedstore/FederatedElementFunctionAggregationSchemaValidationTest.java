@@ -17,14 +17,20 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
+import uk.gov.gchq.gaffer.federatedstore.util.FederatedElementFunctionWithGivenStore;
+import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -132,6 +138,34 @@ public class FederatedElementFunctionAggregationSchemaValidationTest {
                 .hasSize(1);
     }
 
+    @Test
+    public void shouldNotCurrentlySupportOtherTempResultsGraph() throws Exception {
+
+        final byte[] givenResultsGraph = new JavaSerialiser().serialise(new GraphSerialisable.Builder()
+                .config(new GraphConfig("TheGivenResultsGraph"))
+                .schema(loadSchemaFromJson("/schema/basicEntityValidateLess100Schema.json"))
+                .properties(FederatedStoreTestUtil.loadAccumuloStoreProperties(FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES))
+                .build());
+
+        //given
+        addGraphToAccumuloStore(federatedStore, GRAPH_ID_A, true, loadSchemaFromJson("/schema/basicEntityValidateLess100Schema.json"));
+        addGraphToAccumuloStore(federatedStore, GRAPH_ID_B, true, loadSchemaFromJson("/schema/basicEntityValidateLess100Schema.json"));
+        addGraphToAccumuloStore(federatedStore, GRAPH_ID_C, true, loadSchemaFromJson("/schema/basicEntityValidateLess100Schema.json"));
+
+        addEntity(GRAPH_ID_A, entity99); // 99 is valid
+        addEntity(GRAPH_ID_B, entity1); // 100 is not valid.
+        addEntity(GRAPH_ID_C, entity1); // correct behavior 100 & 1 is invalid. returning 1 would be incorrect if 100 had been deleted.
+        addEntity(GRAPH_ID_B, entityOther);
+
+        //when
+        Assertions.assertThatException()
+                .isThrownBy(() -> federatedStore.execute(new FederatedOperation.Builder()
+                        .op(new GetAllElements())
+                        .option(FederatedStoreUtil.GIVEN_MERGE_STORE, givenResultsGraph.toString())
+                        .mergeFunction(new FederatedElementFunctionWithGivenStore())
+                        .build(), contextTestUser()))
+                .withMessageContaining("Implementation of adding a different type of temporary merge graph is not yet implemented");
+    }
 
     private void addEntity(final String graphIdA, final Entity entity) throws OperationException {
         federatedStore.execute(new FederatedOperation.Builder()
