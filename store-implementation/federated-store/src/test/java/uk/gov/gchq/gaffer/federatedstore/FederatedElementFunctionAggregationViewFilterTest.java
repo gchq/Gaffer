@@ -44,7 +44,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTe
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 
-public class FederatedStoreViewAggregationTest {
+public class FederatedElementFunctionAggregationViewFilterTest {
 
     private FederatedStore federatedStore;
     private Entity entity1, entity99, entityOther;
@@ -113,17 +113,14 @@ public class FederatedStoreViewAggregationTest {
         //then
         assertThat(elementsWithPropertyLessThan2)
                 .isNotNull()
-                .withFailMessage("should return entity with property 1 which is less than view filter 2")
-                .contains(entity1)
                 .withFailMessage("should not return entity with property 99 which is more than view filter 2")
                 .doesNotContain(entity99)
                 .withFailMessage("should contain only 1")
-                .hasSize(1);
+                .withFailMessage("should return entity with property 1 which is less than view filter 2")
+                .containsExactly(entity1);
 
         assertThat(elementsWithPropertyLessThan100)
                 .isNotNull()
-                .withFailMessage("should return entity \"basicVertexOther\" with property 99, which is less than view filter 100")
-                .contains(entityOther)
                 .withFailMessage("should not return entity \"basicVertex\" with un-aggregated property 1 or 99")
                 .doesNotContain(entity1, entity99)
                 .withFailMessage("should not return entity \"basicVertex\" with an aggregated property 100, which is less than view filter 100")
@@ -132,39 +129,9 @@ public class FederatedStoreViewAggregationTest {
                         .vertex(BASIC_VERTEX)
                         .property(PROPERTY_1, 100)
                         .build())
-                .hasSize(1);
-    }
-
-    @Test
-    public void shouldOnlyReturn1EntitySmallerThanSchemaValidationLimit() throws Exception {
-
-        //given
-        addGraphToAccumuloStore(federatedStore, GRAPH_ID_A, true, loadSchemaFromJson("/schema/basicEntityValidateLess100Schema.json"));
-        addGraphToAccumuloStore(federatedStore, GRAPH_ID_B, true, loadSchemaFromJson("/schema/basicEntityValidateLess100Schema.json"));
-
-        addEntity(GRAPH_ID_A, entity1);
-        addEntity(GRAPH_ID_B, entity99);
-        addEntity(GRAPH_ID_B, entityOther);
-
-        //when
-        final Iterable elementsWithPropertyLessThan100 = federatedStore.execute(new GetAllElements(), contextTestUser());
-
-        //then
-        assertThat(elementsWithPropertyLessThan100)
-                .isNotNull()
                 .withFailMessage("should return entity \"basicVertexOther\" with property 99, which is less than view filter 100")
-                .contains(entityOther)
-                .withFailMessage("should not return entity \"basicVertex\" with un-aggregated property 1 or 99")
-                .doesNotContain(entity1, entity99)
-                .withFailMessage("should not return entity \"basicVertex\" with an aggregated property 100, which is less than view filter 100")
-                .doesNotContain(new Entity.Builder()
-                        .group(GROUP_BASIC_ENTITY)
-                        .vertex(BASIC_VERTEX)
-                        .property(PROPERTY_1, 100)
-                        .build())
-                .hasSize(1);
+                .containsExactly(entityOther);
     }
-
 
     private void addEntity(final String graphIdA, final Entity entity) throws OperationException {
         federatedStore.execute(new FederatedOperation.Builder()
