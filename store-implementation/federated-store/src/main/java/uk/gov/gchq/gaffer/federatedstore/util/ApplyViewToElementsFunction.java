@@ -41,6 +41,7 @@ import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,6 +50,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction<Object, Iterable<Object>, Iterable<Object>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplyViewToElementsFunction.class);
@@ -99,8 +101,12 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
             final View view = (View) context.get(VIEW);
             final Schema schema = (Schema) context.get(SCHEMA);
             final View.Builder updatedView = new View.Builder(view);
-            updatedView.addEdges(getUpdatedViewDefsFromSchemaDefs(view, schema.getEdges()));
-            updatedView.addEntities(getUpdatedViewDefsFromSchemaDefs(view, schema.getEntities()));
+
+            //getUpdatedDefs and add to new view.
+            getUpdatedViewDefsFromSchemaDefs(schema.getEdges(), view)
+                    .forEach(e -> updatedView.edge(e.getKey(), e.getValue()));
+            getUpdatedViewDefsFromSchemaDefs(schema.getEntities(), view)
+                    .forEach(e -> updatedView.entity(e.getKey(), e.getValue()));
 
             context.put(VIEW, updatedView.build());
         }
@@ -142,17 +148,9 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
         }
     }
 
-    private static HashMap<String, ViewElementDefinition> getUpdatedViewDefsFromSchemaDefs(final View view, final Map<String, ? extends SchemaElementDefinition> elements) {
-        final HashMap<String, ViewElementDefinition> rtn = new HashMap<>();
-
-        for (final Map.Entry<String, ? extends SchemaElementDefinition> schemaElement : elements.entrySet()) {
-
-            final String groupName = schemaElement.getKey();
-            final ViewElementDefinition updatedViewElementDef = getUpdatedViewDefFromSchemaDef(groupName, schemaElement.getValue(), view);
-
-            rtn.put(groupName, updatedViewElementDef);
-        }
-        return rtn;
+    private static Stream<Map.Entry<String, ViewElementDefinition>> getUpdatedViewDefsFromSchemaDefs(final Map<String, ? extends SchemaElementDefinition> groupDefs, final View view) {
+        return groupDefs.entrySet().stream()
+                .map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), getUpdatedViewDefFromSchemaDef(e.getKey(), e.getValue(), view)));
     }
 
     private static ViewElementDefinition getUpdatedViewDefFromSchemaDef(final String groupName, final SchemaElementDefinition schemaElementDef, final View view) {
