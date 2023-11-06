@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 class UpdateGraphHookTest {
 
     @Test
-    void cantAddBadGraphHooks(@TempDir Path tmpDir) throws IOException {
+    void shouldNotBeAbleToAddBadGraphHooks(@TempDir Path tmpDir) throws IOException {
         final GraphConfig testConfig = new GraphConfig();
 
         // Given
