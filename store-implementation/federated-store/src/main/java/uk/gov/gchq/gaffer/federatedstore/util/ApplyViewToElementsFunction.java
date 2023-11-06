@@ -35,9 +35,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
@@ -101,9 +99,8 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
             final View view = (View) context.get(VIEW);
             final Schema schema = (Schema) context.get(SCHEMA);
             final View.Builder updatedView = new View.Builder(view);
-
-            updateEdgesViewFilterWithSchemaValidation(schema, view, updatedView);
-            updateEntitiesViewFilterWithSchemaValidation(schema, view, updatedView);
+            updatedView.addEdges(getUpdatedViewDefsFromSchemaDefs(view, schema.getEdges()));
+            updatedView.addEntities(getUpdatedViewDefsFromSchemaDefs(view, schema.getEntities()));
 
             context.put(VIEW, updatedView.build());
         }
@@ -145,29 +142,20 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
         }
     }
 
-    private static void updateEntitiesViewFilterWithSchemaValidation(final Schema schema, final View view, final View.Builder updatedView) {
-        final Map<String, SchemaEntityDefinition> elements = schema.getEntities();
+    private static HashMap<String, ViewElementDefinition> getUpdatedViewDefsFromSchemaDefs(final View view, final Map<String, ? extends SchemaElementDefinition> elements) {
+        final HashMap<String, ViewElementDefinition> rtn = new HashMap<>();
+
         for (final Map.Entry<String, ? extends SchemaElementDefinition> schemaElement : elements.entrySet()) {
 
-            final String elementKey = schemaElement.getKey();
-            final ViewElementDefinition updatedViewElementDef = getUpdatedViewElementDef(elementKey, schemaElement.getValue(), view);
+            final String groupName = schemaElement.getKey();
+            final ViewElementDefinition updatedViewElementDef = getUpdatedViewDefFromSchemaDef(groupName, schemaElement.getValue(), view);
 
-            updatedView.entity(elementKey, updatedViewElementDef);
+            rtn.put(groupName, updatedViewElementDef);
         }
+        return rtn;
     }
 
-    private static void updateEdgesViewFilterWithSchemaValidation(final Schema schema, final View view, final View.Builder updatedView) {
-        final Map<String, SchemaEdgeDefinition> elements = schema.getEdges();
-        for (final Map.Entry<String, ? extends SchemaElementDefinition> schemaElement : elements.entrySet()) {
-
-            final String elementKey = schemaElement.getKey();
-            final ViewElementDefinition updatedViewElementDef = getUpdatedViewElementDef(elementKey, schemaElement.getValue(), view);
-
-            updatedView.edge(elementKey, updatedViewElementDef);
-        }
-    }
-
-    private static ViewElementDefinition getUpdatedViewElementDef(final String elementKey, final SchemaElementDefinition schemaElementDef, final View view) {
+    private static ViewElementDefinition getUpdatedViewDefFromSchemaDef(final String groupName, final SchemaElementDefinition schemaElementDef, final View view) {
         final ViewElementDefinition.Builder updatePreAggregationFilter;
         final ArrayList<TupleAdaptedPredicate<String, ?>> updatedFilterFunctions = new ArrayList<>();
 
@@ -177,7 +165,7 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
         }
 
         if (view != null) {
-            final ViewElementDefinition viewElementDef = view.getElement(elementKey);
+            final ViewElementDefinition viewElementDef = view.getElement(groupName);
             //Add View Validation
             if (viewElementDef != null && viewElementDef.hasPostAggregationFilters()) {
                 updatedFilterFunctions.addAll(viewElementDef.getPostAggregationFilter().getComponents());
