@@ -58,7 +58,7 @@ import java.util.stream.Stream;
  * Such as the re-application of View filter or Schema Validation after the local aggregation of results from multiple graphs.
  * By default, a local in memory MapStore is used for local aggregation,
  * but a Graph or {@link GraphSerialisable} of any kind could be supplied via the {@link #context} with the key {@link #TEMP_RESULTS_GRAPH}.
- * </p>
+ * <p>
  * An issue not covered:
  * GraphA has elementA with a property value 101.
  * GraphB has the same elementA with property value 1.
