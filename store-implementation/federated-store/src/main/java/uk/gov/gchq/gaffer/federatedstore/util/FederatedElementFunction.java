@@ -52,8 +52,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction<Object, Iterable<Object>, Iterable<Object>> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplyViewToElementsFunction.class);
+public class FederatedElementFunction implements ContextSpecificMergeFunction<Object, Iterable<Object>, Iterable<Object>> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedElementFunction.class);
     public static final String VIEW = "view";
     public static final String SCHEMA = "schema";
     public static final String USER = "user";
@@ -63,16 +63,16 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
     @JsonProperty("context")
     private Map<String, Object> context;
 
-    public ApplyViewToElementsFunction() {
+    public FederatedElementFunction() {
     }
 
-    public ApplyViewToElementsFunction(final Map<String, Object> context) throws GafferCheckedException {
+    public FederatedElementFunction(final Map<String, Object> context) throws GafferCheckedException {
         this();
         try {
             // Check if results graph, hasn't already be supplied, otherwise make a default results graph.
             if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
                 final Graph resultsGraph = new Graph.Builder()
-                        .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, ApplyViewToElementsFunction.class.getSimpleName(), RANDOM.nextInt(Integer.MAX_VALUE))))
+                        .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, FederatedElementFunction.class.getSimpleName(), RANDOM.nextInt(Integer.MAX_VALUE))))
                         .addSchema((Schema) context.get(SCHEMA))
                         //MapStore easy in memory Store. Large results size may not be suitable, a graph could be provided via Context.
                         .addStoreProperties(new MapStoreProperties())
@@ -113,8 +113,8 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
     }
 
     @Override
-    public ApplyViewToElementsFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
-        return new ApplyViewToElementsFunction(context);
+    public FederatedElementFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
+        return new FederatedElementFunction(context);
     }
 
     /**

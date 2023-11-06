@@ -36,7 +36,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
-import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
+import uk.gov.gchq.gaffer.federatedstore.util.FederatedElementFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.ConcatenateMergeFunction;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -180,7 +180,7 @@ public class FederatedOperationHandlerTest {
         assertThat(getElementsMerge)
                 .isNotSameAs(traitsMerge)
                 .isNotSameAs(graphsIdsMerge)
-                .isInstanceOf(ApplyViewToElementsFunction.class);
+                .isInstanceOf(FederatedElementFunction.class);
     }
 
     @Test

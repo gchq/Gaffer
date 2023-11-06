@@ -221,7 +221,7 @@ public class FederatedStoreSchemaTest {
         addEdgeBasicWith(DEST_2, 1, 2);
 
         // When
-        // No merge function specified - ApplyViewToElementsFunction is used
+        // No merge function specified - FederatedElementFunction is used
         final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
                 .input(new EntitySeed(SOURCE_BASIC))
                 .view(new View.Builder()
@@ -432,7 +432,7 @@ public class FederatedStoreSchemaTest {
         // When
         addEdgeBasicWith(DEST_2, 1, 2);
 
-        // No merge function specified - ApplyViewToElementsFunction is used
+        // No merge function specified - FederatedElementFunction is used
         // An exception is raised because the aggregated results are missing a validated property
         assertThatExceptionOfType(OperationException.class)
                 .isThrownBy(() -> {
@@ -521,7 +521,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         // When
-        // No merge function specified - ApplyViewToElementsFunction is used
+        // No merge function specified - FederatedElementFunction is used
         final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
                 .input(new EntitySeed(SOURCE_BASIC))
                 .view(new View.Builder()
@@ -607,7 +607,7 @@ public class FederatedStoreSchemaTest {
         addEdgeBasicWith(DEST_BASIC, 1);
 
         // When
-        // No merge function specified - ApplyViewToElementsFunction is used
+        // No merge function specified - FederatedElementFunction is used
         final Iterable<? extends Element> elements = federatedStore.execute(new GetElements.Builder()
                 .input(new EntitySeed(SOURCE_BASIC))
                 .view(new View.Builder()
@@ -711,7 +711,7 @@ public class FederatedStoreSchemaTest {
 
 
         // When
-        // No merge function specified - ApplyViewToElementsFunction is used
+        // No merge function specified - FederatedElementFunction is used
         final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
                 .input(new EntitySeed(SOURCE_BASIC))
                 .view(new View.Builder()
@@ -877,7 +877,7 @@ public class FederatedStoreSchemaTest {
 
 
         // When
-        // No merge function specified - ApplyViewToElementsFunction is used
+        // No merge function specified - FederatedElementFunction is used
         final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
                 .input(new EntitySeed(SOURCE_BASIC))
                 .view(new View.Builder()

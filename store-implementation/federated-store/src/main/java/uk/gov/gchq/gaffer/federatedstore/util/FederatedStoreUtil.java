@@ -66,9 +66,9 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction.SCHEMA;
-import static uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction.USER;
-import static uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction.VIEW;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedElementFunction.SCHEMA;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedElementFunction.USER;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedElementFunction.VIEW;
 
 public final class FederatedStoreUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreUtil.class);
