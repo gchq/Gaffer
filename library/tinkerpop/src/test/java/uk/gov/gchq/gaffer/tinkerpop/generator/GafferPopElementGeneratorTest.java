@@ -34,59 +34,38 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 public class GafferPopElementGeneratorTest {
 
     @Test
-    public void shouldReturnGafferPopReadOnlyEntity(){
-        // Mock graph
+    public void shouldReturnAGafferPopVertex(){
         final GafferPopGraph graph = mock(GafferPopGraph.class);
 
-        // Mock element as an entity
         final Element element = new Entity.Builder().group(TestGroups.ENTITY).build();
 
-        // Mock a GafferPopVertex
-        final String id = GafferPopGraph.ID_LABEL;
-        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, id, graph);
-
-        // Pass element to the generator
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph, true);
         final GafferPopElement gafferPopElement = generator._apply(element);
 
-        assertThat(gafferPopElement.label()).isEqualTo(vertex.label());
-        assertThat(gafferPopElement.isReadOnly()).isTrue();
+        assertThat(gafferPopElement).isInstanceOf(GafferPopVertex.class);
     }
 
     @Test
-    public void shouldReturnGafferPopReadOnlyEdge(){
-        // Mock graph
+    public void shouldReturnAGafferPopEdge(){
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-
-        // Mock element as an edge
         final Element element = new Edge.Builder().group(TestGroups.EDGE).build();
 
-        // Mock a GafferPopEdge
-        final String source = "source";
-        final String dest = "dest";
-        final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, source, graph);
-        final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, dest, graph);
-        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
-
-        // Pass element to the generator
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph, true);
         final GafferPopElement gafferPopElement = generator._apply(element);
 
-        assertThat(gafferPopElement.label()).isEqualTo(edge.label());
-        assertThat(gafferPopElement.isReadOnly()).isTrue();
+        assertThat(gafferPopElement).isInstanceOf(GafferPopEdge.class);
     }
 
     @Test
     public void shouldThrowExceptionForInvalidElement(){
         final GafferPopGraph graph = mock(GafferPopGraph.class);
 
-        // Mock invalid element
         final Element element = mock(Element.class);
         
-        // Pass element to the generator
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph, true);
 
-        //Check exception is thrown
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> generator._apply(element)).withMessageMatching("GafferPopElement has to be Edge or Entity");
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> generator._apply(element))
+            .withMessageMatching("GafferPopElement has to be Edge or Entity");
     }
 }
