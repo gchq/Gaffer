@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -52,6 +53,12 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Stream;
 
+/**
+ * This class is used to address some of the issues with having the elements distributes amongst multiple graphs.
+ * Such as the re-application of View filter or Schema Validation after the local aggregation of results from multiple graphs.
+ * By default, a local in memory MapStore is used for local aggregation,
+ * but a Graph or {@link GraphSerialisable} of any kind could be supplied via the {@link #context} with the key {@link #TEMP_RESULTS_GRAPH}.
+ */
 public class FederatedElementFunction implements ContextSpecificMergeFunction<Object, Iterable<Object>, Iterable<Object>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedElementFunction.class);
     public static final String VIEW = "view";
@@ -96,7 +103,7 @@ public class FederatedElementFunction implements ContextSpecificMergeFunction<Ob
 
     private static void updateViewWithValidationFromSchema(final Map<String, Object> context) {
         //Only do this for MapStore, not required for other stores.
-        if (MapStore.class.getName().equals(((Graph) context.get(TEMP_RESULTS_GRAPH)).getStoreProperties().getStoreClass())) {
+        if (MapStore.class.getName().equals(getGraph(context).getStoreProperties().getStoreClass())) {
             //Update View with
             final View view = (View) context.get(VIEW);
             final Schema schema = (Schema) context.get(SCHEMA);
@@ -139,7 +146,8 @@ public class FederatedElementFunction implements ContextSpecificMergeFunction<Ob
 
         if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
             throw new IllegalStateException("Error: context invalid, did not contain a Temporary Results Graph.");
-        } else if (!(context.get(TEMP_RESULTS_GRAPH) instanceof Graph)) {
+        } else if (!(context.get(TEMP_RESULTS_GRAPH) instanceof Graph)
+                || !(context.get(TEMP_RESULTS_GRAPH) instanceof GraphSerialisable)) {
             throw new IllegalArgumentException(String.format("Error: context invalid, value for %s was not a Graph, found: %s", TEMP_RESULTS_GRAPH, context.get(TEMP_RESULTS_GRAPH)));
         }
 
@@ -197,7 +205,7 @@ public class FederatedElementFunction implements ContextSpecificMergeFunction<Ob
             }
         }
 
-        final Graph resultsGraph = (Graph) context.get(TEMP_RESULTS_GRAPH);
+        final Graph resultsGraph = getGraph(context);
         final Context userContext = new Context((User) context.get(USER));
         try {
             // The update object might be a lazy AccumuloElementRetriever and might be MASSIVE.
@@ -211,5 +219,13 @@ public class FederatedElementFunction implements ContextSpecificMergeFunction<Ob
         } catch (final OperationException e) {
             throw new GafferRuntimeException("Error getting all elements from temporary graph, due to:" + e.getMessage(), e);
         }
+    }
+
+    private static Graph getGraph(final Map<String, Object> context) {
+        final Object g = context.get(TEMP_RESULTS_GRAPH);
+        final Graph resultsGraph = g instanceof GraphSerialisable
+                ? ((GraphSerialisable) g).getGraph()
+                : (Graph) g;
+        return resultsGraph;
     }
 }
