@@ -37,7 +37,7 @@ import static uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation
 public class ToHllSketch extends KorypheFunction<Object, HllSketch> {
     private int logK = DEFAULT_LOG_K;
     @JsonIgnore
-    private HllSketch initHllSketch;
+    private HllSketch hllSketch;
 
     public ToHllSketch() {
     }
@@ -46,18 +46,16 @@ public class ToHllSketch extends KorypheFunction<Object, HllSketch> {
         this.logK = logK;
     }
 
-    public ToHllSketch(final HllSketch initHllSketch) {
-        this.initHllSketch = initHllSketch;
+    public ToHllSketch(final HllSketch hllSketch) {
+        if (hllSketch == null) {
+            this.hllSketch = new HllSketch(logK);
+        } else {
+            this.hllSketch = hllSketch.copy();
+        }
     }
 
     @Override
     public HllSketch apply(final Object o) {
-        HllSketch hllSketch;
-        if (initHllSketch == null) {
-            hllSketch = new HllSketch(logK);
-        } else {
-            hllSketch = initHllSketch.copy();
-        }
         if (nonNull(o)) {
             if (o instanceof String) {
                 hllSketch.update((String) o);
@@ -90,11 +88,14 @@ public class ToHllSketch extends KorypheFunction<Object, HllSketch> {
         this.logK = logK;
     }
 
-    public HllSketch getInitHllSketch() {
-        return initHllSketch;
+    public HllSketch getHllSketch() {
+        return hllSketch;
     }
 
-    public void setInitHllSketch(final HllSketch initHllSketch) {
-        this.initHllSketch = initHllSketch;
-    }
+    public void setHllSketch(final HllSketch hllSketch) {
+        if (hllSketch == null) {
+            this.hllSketch = new HllSketch(logK);
+        } else {
+            this.hllSketch = hllSketch.copy();
+        }    }
 }
