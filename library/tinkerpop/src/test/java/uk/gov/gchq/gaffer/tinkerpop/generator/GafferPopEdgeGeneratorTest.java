@@ -22,10 +22,13 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopEdge;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 
 public class GafferPopEdgeGeneratorTest {
@@ -81,5 +84,18 @@ public class GafferPopEdgeGeneratorTest {
         assertThat(Lists.newArrayList(gafferPopEdge.properties()).size()).isEqualTo(1);
         assertThat(gafferPopEdge.graph()).isSameAs(graph);
         assertThat(gafferPopEdge.isReadOnly()).isFalse();
+    }
+
+    @Test 
+    public void shouldThrowExceptionWhenPassedEntity() {
+        // Given
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final Element element = new Entity.Builder().group(TestGroups.ENTITY).build();
+        
+        final GafferPopEdgeGenerator generator = new GafferPopEdgeGenerator(graph, true);
+
+        // Then
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> generator._apply(element));
     }
 }

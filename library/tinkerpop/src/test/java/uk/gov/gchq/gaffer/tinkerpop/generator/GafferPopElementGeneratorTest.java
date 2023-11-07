@@ -35,13 +35,16 @@ public class GafferPopElementGeneratorTest {
 
     @Test
     public void shouldReturnAGafferPopVertex(){
+        // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-
         final Element element = new Entity.Builder().group(TestGroups.ENTITY).build();
-
+        
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph, true);
+
+        // When
         final GafferPopElement gafferPopElement = generator._apply(element);
 
+        // Then
         assertThat(gafferPopElement).isInstanceOf(GafferPopVertex.class);
         assertThat(gafferPopElement.label()).isEqualTo(TestGroups.ENTITY);
         assertThat(gafferPopElement.graph()).isSameAs(graph);
@@ -49,12 +52,16 @@ public class GafferPopElementGeneratorTest {
 
     @Test
     public void shouldReturnAGafferPopEdge(){
+        // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final Element element = new Edge.Builder().group(TestGroups.EDGE).build();
 
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph, true);
+
+        // When
         final GafferPopElement gafferPopElement = generator._apply(element);
 
+        // Then
         assertThat(gafferPopElement).isInstanceOf(GafferPopEdge.class);
         assertThat(gafferPopElement.label()).isEqualTo(TestGroups.EDGE);
         assertThat(gafferPopElement.graph()).isSameAs(graph);
@@ -62,12 +69,13 @@ public class GafferPopElementGeneratorTest {
 
     @Test
     public void shouldThrowExceptionForInvalidElement(){
+        // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final Element element = mock(Element.class);   
 
-        final Element element = mock(Element.class);
-        
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph, true);
 
+        // Then
         assertThatExceptionOfType(IllegalArgumentException.class)
             .isThrownBy(() -> generator._apply(element))
             .withMessageMatching("GafferPopElement has to be Edge or Entity");
