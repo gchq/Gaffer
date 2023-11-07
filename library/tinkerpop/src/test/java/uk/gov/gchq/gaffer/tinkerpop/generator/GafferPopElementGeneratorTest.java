@@ -44,6 +44,7 @@ public class GafferPopElementGeneratorTest {
 
         assertThat(gafferPopElement).isInstanceOf(GafferPopVertex.class);
         assertThat(gafferPopElement.label()).isEqualTo(TestGroups.ENTITY);
+        assertThat(gafferPopElement.graph()).isSameAs(graph);
     }
 
     @Test
@@ -56,6 +57,7 @@ public class GafferPopElementGeneratorTest {
 
         assertThat(gafferPopElement).isInstanceOf(GafferPopEdge.class);
         assertThat(gafferPopElement.label()).isEqualTo(TestGroups.EDGE);
+        assertThat(gafferPopElement.graph()).isSameAs(graph);
     }
 
     @Test
