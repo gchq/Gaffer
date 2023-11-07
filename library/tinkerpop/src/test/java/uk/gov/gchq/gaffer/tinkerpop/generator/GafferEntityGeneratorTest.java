@@ -59,7 +59,7 @@ public class GafferEntityGeneratorTest {
         // Then
         assertThat(entity.getGroup()).isEqualTo(TestGroups.ENTITY);
         assertThat(entity.getVertex()).isEqualTo(vertex);
-        assertThat(entity.getProperties().size()).isEqualTo(1);
+        assertThat(entity.getProperties()).hasSize(1);
         assertThat(entity.getProperty(TestPropertyNames.STRING)).isEqualTo(propValue);
     }
 

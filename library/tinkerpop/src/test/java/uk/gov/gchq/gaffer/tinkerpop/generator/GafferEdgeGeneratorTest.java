@@ -49,7 +49,7 @@ public class GafferEdgeGeneratorTest {
         assertThat(edge.getSource()).isEqualTo(source);
         assertThat(edge.getDestination()).isEqualTo(dest);
         assertThat(edge.isDirected()).isTrue();
-        assertThat(edge.getProperties().size()).isEqualTo(1);
+        assertThat(edge.getProperties()).hasSize(1);
         assertThat(edge.getProperty(TestPropertyNames.STRING)).isEqualTo(propValue);
     }
 
