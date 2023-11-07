@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.tinkerpop;
 
 import com.google.common.collect.Lists;
+
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.Test;
@@ -26,14 +28,17 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class GafferPopEdgeTest {
+
     @Test
     public void shouldConstructEdge() {
         // Given
@@ -56,6 +61,23 @@ public class GafferPopEdgeTest {
         assertSame(inVertex, vertices.next());
         assertSame(graph, edge.graph());
         assertTrue(edge.keys().isEmpty());
+    }
+
+    @Test
+    public void shouldChangeVertexLabelToGraphLabel() {
+        // Given
+        final String source = "source";
+        final String dest = "dest";
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopVertex outVertex = new GafferPopVertex("label", source, graph);
+        final GafferPopVertex inVertex = new GafferPopVertex("label", dest, graph);
+
+        // When
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
+
+        // Then
+        assertSame("id", edge.outVertex().label());
+        assertSame("id", edge.inVertex().label());
     }
 
     @Test
@@ -100,6 +122,28 @@ public class GafferPopEdgeTest {
         );
     }
 
+
+    @Test
+    public void shouldGetIterableOfSingleEdgeProperty() {
+        // Given
+        final String source = "source";
+        final String dest = "dest";
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
+        final String propValue1 = "propValue1";
+        edge.property(TestPropertyNames.STRING, propValue1);
+
+        // When
+        final Iterator<Property<Object>> props = edge.properties(TestPropertyNames.STRING);
+
+        // Then
+        final ArrayList<Property> propList = Lists.newArrayList(props);
+        assertThat(propList).contains(
+                new GafferPopProperty<>(edge, TestPropertyNames.STRING, propValue1)
+        );
+    }
+
+
     @Test
     public void shouldCreateReadableToString() {
         // Given
@@ -112,4 +156,60 @@ public class GafferPopEdgeTest {
         // Then
         assertEquals("e[source-BasicEdge->dest]", toString);
     }
+
+    @Test
+    public void shouldReturnOutVertex() {
+        // Given
+        final String source = "source";
+        final String dest = "dest";
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, source, graph);
+        final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, dest, graph);
+        final List<Vertex> result = new ArrayList<>();
+
+        // When
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
+
+        // Then
+        edge.vertices(Direction.OUT).forEachRemaining(result::add);
+        assertThat(result).contains(outVertex);
+    }
+
+    @Test
+    public void shouldReturnInVertex() {
+        // Given
+        final String source = "source";
+        final String dest = "dest";
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, source, graph);
+        final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, dest, graph);
+        final List<Vertex> result = new ArrayList<>();
+
+        // When
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
+
+        // Then
+        edge.vertices(Direction.IN).forEachRemaining(result::add);
+        assertThat(result).contains(inVertex);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenReadOnlyIsTrue() {
+        // Given
+        final String source = "source";
+        final String dest = "dest";
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
+        final String propValue1 = "propValue1";
+
+        // When
+        edge.setReadOnly();
+
+        // Then
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> edge.property(TestPropertyNames.STRING, propValue1))
+            .withMessageMatching("Updates are not supported");
+
+    }
+
 }
