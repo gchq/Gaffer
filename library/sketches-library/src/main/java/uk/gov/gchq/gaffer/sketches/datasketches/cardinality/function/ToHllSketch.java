@@ -47,12 +47,13 @@ public class ToHllSketch extends KorypheFunction<Object, HllSketch> {
 
     public ToHllSketch(final int logK) {
         setLogK(logK);
-        this();
+        if (hllSketch == null) {
+            hllSketch = new HllSketch(logK);
+        }
     }
 
     public ToHllSketch(final HllSketch hllSketch) {
         setHllSketch(hllSketch);
-        this();
     }
 
     @Override

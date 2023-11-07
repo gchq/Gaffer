@@ -47,12 +47,13 @@ public class IterableToHllSketch extends KorypheFunction<Iterable<Object>, HllSk
 
     public IterableToHllSketch(final int logK) {
         setLogK(logK);
-        this();
+        if (hllSketch == null) {
+            hllSketch = new HllSketch(logK);
+        }
     }
 
     public IterableToHllSketch(final HllSketch hllSketch) {
         setHllSketch(hllSketch);
-        this();
     }
 
     @Override
