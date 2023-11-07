@@ -54,7 +54,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * This class is used to address some of the issues with having the elements distributes amongst multiple graphs.
+ * This class is used to address some of the issues with having the same element groups distributed amongst multiple graphs.
  * Such as the re-application of View filter or Schema Validation after the local aggregation of results from multiple graphs.
  * By default, a local in memory MapStore is used for local aggregation,
  * but a Graph or {@link GraphSerialisable} of any kind could be supplied via the {@link #context} with the key {@link #TEMP_RESULTS_GRAPH}.
