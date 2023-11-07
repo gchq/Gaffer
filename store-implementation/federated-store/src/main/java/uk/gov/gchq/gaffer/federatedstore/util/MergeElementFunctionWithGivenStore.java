@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class FederatedElementFunctionWithGivenStore extends FederatedElementFunction {
+public class MergeElementFunctionWithGivenStore extends MergeElementFunction {
 
 
     public static final String TEAR_DOWN_TEMP_GRAPH = "tearDownTempGraph";

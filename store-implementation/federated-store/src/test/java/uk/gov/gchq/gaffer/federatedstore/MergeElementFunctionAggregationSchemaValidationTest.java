@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedElementFunctionWithGivenStore;
+import uk.gov.gchq.gaffer.federatedstore.util.MergeElementFunctionWithGivenStore;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -162,7 +162,7 @@ public class MergeElementFunctionAggregationSchemaValidationTest {
                 .isThrownBy(() -> federatedStore.execute(new FederatedOperation.Builder()
                         .op(new GetAllElements())
                         .option(FederatedStoreUtil.GIVEN_MERGE_STORE, givenResultsGraph.toString())
-                        .mergeFunction(new FederatedElementFunctionWithGivenStore())
+                        .mergeFunction(new MergeElementFunctionWithGivenStore())
                         .build(), contextTestUser()))
                 .withMessageContaining("Implementation of adding a different type of temporary merge graph is not yet implemented");
     }
