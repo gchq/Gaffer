@@ -69,7 +69,7 @@ public class GafferPopElementGeneratorTest {
     public void shouldThrowExceptionForInvalidElement() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final Element element = mock(Element.class);   
+        final Element element = mock(Element.class);
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph, true);
 
         // Then
