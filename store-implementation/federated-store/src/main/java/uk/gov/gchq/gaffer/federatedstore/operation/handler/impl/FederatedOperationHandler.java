@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
+import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -28,12 +30,15 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -97,13 +102,24 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
     }
 
-    private Object mergeResults(final Iterable resultsFromAllGraphs, final FederatedOperation operation, final FederatedStore store) throws OperationException {
+    private Object mergeResults(final Iterable resultsFromAllGraphs, final FederatedOperation<INPUT, OUTPUT> operation, final FederatedStore store) throws OperationException {
         try {
             Object rtn = null;
 
             final BiFunction mergeFunction = getMergeFunction(operation, store, context, isEmpty(resultsFromAllGraphs));
+            final List<GraphSerialisable> graphs = getGraphs(operation, context, store);
 
-            //Reduce
+            // If default merging and only have one graph or no common groups then just return the current results
+            if (!graphs.isEmpty() &&
+                mergeFunction instanceof ApplyViewToElementsFunction &&
+                (graphs.size() == 1 || !graphsHaveCommonSchemaGroups(graphs))) {
+
+                HashSet<Element> mergedResults = new HashSet<>();
+                resultsFromAllGraphs.forEach(result -> ((Iterable<Element>) result).iterator().forEachRemaining(mergedResults::add));
+                return mergedResults;
+            }
+
+            // Reduce
             for (final Object resultFromAGraph : resultsFromAllGraphs) {
                 rtn = mergeFunction.apply(resultFromAGraph, rtn);
             }
@@ -139,5 +155,30 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         return nonNull(graphs) ?
                 graphs
                 : Collections.emptyList();
+    }
+
+    /**
+     * Checks if the schemas of the supplied graphs have any of the same groups.
+     *
+     * @param graphs The list of graphs.
+     * @return True if any schema groups are shared.
+     */
+    private boolean graphsHaveCommonSchemaGroups(final List<GraphSerialisable> graphs) {
+        // Check if any of the graphs have common groups in their schemas
+        List<Schema> graphSchemas = graphs.stream()
+            .map(GraphSerialisable::getSchema)
+            .collect(Collectors.toList());
+
+        for (int i = 0; i < graphSchemas.size() - 1; i++) {
+            for (int j = i + 1; j < graphSchemas.size(); j++) {
+                // Compare each schema against the others to see if common groups
+                Set<String> firstGroupSet = graphSchemas.get(i).getGroups();
+                Set<String> secondGroupSet = graphSchemas.get(j).getGroups();
+                if (firstGroupSet.stream().anyMatch(secondGroupSet::contains)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
