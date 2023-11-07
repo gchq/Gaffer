@@ -54,7 +54,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchem
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
-class FederatedElementFunctionTest {
+class MergeElementFunctionTest {
 
     public static final Schema SCHEMA = loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON);
     public static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
@@ -89,7 +89,7 @@ class FederatedElementFunctionTest {
         final AccumuloStore accumuloStore = getTestStore("shouldAggregateEdgesFromMultipleRetrievers");
         addEdgeBasic(accumuloStore);
         AccumuloAllElementsRetriever[] retrievers = getRetrievers(accumuloStore);
-        final FederatedElementFunction function = new FederatedElementFunction().createFunctionWithContext(
+        final MergeElementFunction function = new MergeElementFunction().createFunctionWithContext(
                 makeContext(
                         new View.Builder().edge(GROUP_BASIC_EDGE).build(),
                         SCHEMA.clone()));
@@ -122,7 +122,7 @@ class FederatedElementFunctionTest {
         final AccumuloStore accumuloStore = getTestStore("shouldApplyViewToAggregatedEdgesFromMultipleRetrievers");
         addEdgeBasic(accumuloStore);
         AccumuloAllElementsRetriever[] retrievers = getRetrievers(accumuloStore);
-        final FederatedElementFunction function = new FederatedElementFunction().createFunctionWithContext(
+        final MergeElementFunction function = new MergeElementFunction().createFunctionWithContext(
                 makeContext(
                         //Update View to filter OUT greater than 2.
                         new View.Builder().edge(GROUP_BASIC_EDGE,
@@ -168,9 +168,9 @@ class FederatedElementFunctionTest {
 
     private static HashMap<String, Object> makeContext(final View view, final Schema schema) {
         final HashMap<String, Object> map = new HashMap<>();
-        map.put(FederatedElementFunction.VIEW, view);
-        map.put(FederatedElementFunction.SCHEMA, schema);
-        map.put(FederatedElementFunction.USER, testUser());
+        map.put(MergeElementFunction.VIEW, view);
+        map.put(MergeElementFunction.SCHEMA, schema);
+        map.put(MergeElementFunction.USER, testUser());
         return map;
     }
 }
