@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
-import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.ConcatenateMergeFunction;
+import uk.gov.gchq.gaffer.federatedstore.util.FederatedElementFunction;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -180,7 +180,7 @@ public class FederatedOperationHandlerTest {
         assertThat(getElementsMerge)
                 .isNotSameAs(traitsMerge)
                 .isNotSameAs(graphsIdsMerge)
-                .isInstanceOf(ApplyViewToElementsFunction.class);
+                .isInstanceOf(FederatedElementFunction.class);
     }
 
     @Test

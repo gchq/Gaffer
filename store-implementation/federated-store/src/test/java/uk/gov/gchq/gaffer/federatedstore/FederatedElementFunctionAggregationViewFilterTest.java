@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,14 +42,17 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EN
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.addGraphToAccumuloStore;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 
-public class FederatedStoreViewAggregationTest {
+public class FederatedElementFunctionAggregationViewFilterTest {
 
     private FederatedStore federatedStore;
     private Entity entity1, entity99, entityOther;
 
     @BeforeEach
     public void before() throws Exception {
+        resetForFederatedTests();
+
         federatedStore = new FederatedStore();
         federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), new FederatedStoreProperties());
 
@@ -110,17 +113,14 @@ public class FederatedStoreViewAggregationTest {
         //then
         assertThat(elementsWithPropertyLessThan2)
                 .isNotNull()
-                .withFailMessage("should return entity with property 1 which is less than view filter 2")
-                .contains(entity1)
                 .withFailMessage("should not return entity with property 99 which is more than view filter 2")
                 .doesNotContain(entity99)
                 .withFailMessage("should contain only 1")
-                .hasSize(1);
+                .withFailMessage("should return entity with property 1 which is less than view filter 2")
+                .containsExactly(entity1);
 
         assertThat(elementsWithPropertyLessThan100)
                 .isNotNull()
-                .withFailMessage("should return entity \"basicVertexOther\" with property 99, which is less than view filter 100")
-                .contains(entityOther)
                 .withFailMessage("should not return entity \"basicVertex\" with un-aggregated property 1 or 99")
                 .doesNotContain(entity1, entity99)
                 .withFailMessage("should not return entity \"basicVertex\" with an aggregated property 100, which is less than view filter 100")
@@ -129,7 +129,8 @@ public class FederatedStoreViewAggregationTest {
                         .vertex(BASIC_VERTEX)
                         .property(PROPERTY_1, 100)
                         .build())
-                .hasSize(1);
+                .withFailMessage("should return entity \"basicVertexOther\" with property 99, which is less than view filter 100")
+                .containsExactly(entityOther);
     }
 
     private void addEntity(final String graphIdA, final Entity entity) throws OperationException {

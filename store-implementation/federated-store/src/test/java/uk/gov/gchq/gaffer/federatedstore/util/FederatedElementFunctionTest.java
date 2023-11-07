@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchem
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
-class ApplyViewToElementsFunctionTest {
+class FederatedElementFunctionTest {
 
     public static final Schema SCHEMA = loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON);
     public static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
@@ -89,7 +89,7 @@ class ApplyViewToElementsFunctionTest {
         final AccumuloStore accumuloStore = getTestStore("shouldAggregateEdgesFromMultipleRetrievers");
         addEdgeBasic(accumuloStore);
         AccumuloAllElementsRetriever[] retrievers = getRetrievers(accumuloStore);
-        final ApplyViewToElementsFunction function = new ApplyViewToElementsFunction().createFunctionWithContext(
+        final FederatedElementFunction function = new FederatedElementFunction().createFunctionWithContext(
                 makeContext(
                         new View.Builder().edge(GROUP_BASIC_EDGE).build(),
                         SCHEMA.clone()));
@@ -122,7 +122,7 @@ class ApplyViewToElementsFunctionTest {
         final AccumuloStore accumuloStore = getTestStore("shouldApplyViewToAggregatedEdgesFromMultipleRetrievers");
         addEdgeBasic(accumuloStore);
         AccumuloAllElementsRetriever[] retrievers = getRetrievers(accumuloStore);
-        final ApplyViewToElementsFunction function = new ApplyViewToElementsFunction().createFunctionWithContext(
+        final FederatedElementFunction function = new FederatedElementFunction().createFunctionWithContext(
                 makeContext(
                         //Update View to filter OUT greater than 2.
                         new View.Builder().edge(GROUP_BASIC_EDGE,
@@ -168,9 +168,9 @@ class ApplyViewToElementsFunctionTest {
 
     private static HashMap<String, Object> makeContext(final View view, final Schema schema) {
         final HashMap<String, Object> map = new HashMap<>();
-        map.put(ApplyViewToElementsFunction.VIEW, view);
-        map.put(ApplyViewToElementsFunction.SCHEMA, schema);
-        map.put(ApplyViewToElementsFunction.USER, testUser());
+        map.put(FederatedElementFunction.VIEW, view);
+        map.put(FederatedElementFunction.SCHEMA, schema);
+        map.put(FederatedElementFunction.USER, testUser());
         return map;
     }
 }
