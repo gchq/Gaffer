@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -57,10 +57,10 @@ public class GafferEntityGeneratorTest {
         final Entity entity = generator._apply(gafferPopVertex);
 
         // Then
-        assertEquals(TestGroups.ENTITY, entity.getGroup());
-        assertEquals(vertex, entity.getVertex());
-        assertEquals(1, entity.getProperties().size());
-        assertEquals(propValue, entity.getProperty(TestPropertyNames.STRING));
+        assertThat(entity.getGroup()).isEqualTo(TestGroups.ENTITY);
+        assertThat(entity.getVertex()).isEqualTo(vertex);
+        assertThat(entity.getProperties().size()).isEqualTo(1);
+        assertThat(entity.getProperty(TestPropertyNames.STRING)).isEqualTo(propValue);
     }
 
 }

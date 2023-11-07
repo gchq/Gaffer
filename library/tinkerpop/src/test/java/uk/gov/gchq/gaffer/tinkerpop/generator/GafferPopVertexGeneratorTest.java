@@ -28,10 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -61,12 +58,12 @@ public class GafferPopVertexGeneratorTest {
         final GafferPopVertex gafferPopVertex = generator._apply(entity);
 
         // Then
-        assertEquals(TestGroups.ENTITY, gafferPopVertex.label());
-        assertEquals(vertex, gafferPopVertex.id());
-        assertEquals(propValue, gafferPopVertex.property(TestPropertyNames.STRING).value());
-        assertEquals(1, Lists.newArrayList(gafferPopVertex.properties()).size());
-        assertSame(graph, gafferPopVertex.graph());
-        assertTrue(gafferPopVertex.isReadOnly());
+        assertThat(gafferPopVertex.label()).isEqualTo(TestGroups.ENTITY);
+        assertThat(gafferPopVertex.id()).isEqualTo(vertex);
+        assertThat(gafferPopVertex.property(TestPropertyNames.STRING).value()).isEqualTo(propValue);
+        assertThat(Lists.newArrayList(gafferPopVertex.properties()).size()).isEqualTo(1);
+        assertThat(gafferPopVertex.graph()).isSameAs(graph);
+        assertThat(gafferPopVertex.isReadOnly()).isTrue();
     }
 
     @Test
@@ -94,11 +91,11 @@ public class GafferPopVertexGeneratorTest {
         final GafferPopVertex gafferPopVertex = generator._apply(entity);
 
         // Then
-        assertEquals(TestGroups.ENTITY, gafferPopVertex.label());
-        assertEquals(vertex, gafferPopVertex.id());
-        assertEquals(propValue, gafferPopVertex.property(TestPropertyNames.STRING).value());
-        assertEquals(1, Lists.newArrayList(gafferPopVertex.properties()).size());
-        assertSame(graph, gafferPopVertex.graph());
-        assertFalse(gafferPopVertex.isReadOnly());
+        assertThat(gafferPopVertex.label()).isEqualTo(TestGroups.ENTITY);
+        assertThat(gafferPopVertex.id()).isEqualTo(vertex);
+        assertThat(gafferPopVertex.property(TestPropertyNames.STRING).value()).isEqualTo(propValue);
+        assertThat(Lists.newArrayList(gafferPopVertex.properties()).size()).isEqualTo(1);
+        assertThat(gafferPopVertex.graph()).isSameAs(graph);
+        assertThat(gafferPopVertex.isReadOnly()).isFalse();
     }
 }

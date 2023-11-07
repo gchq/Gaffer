@@ -25,10 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopEdge;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class GafferPopEdgeGeneratorTest {
@@ -50,13 +47,13 @@ public class GafferPopEdgeGeneratorTest {
         final GafferPopEdge gafferPopEdge = generator._apply(edge);
 
         // Then
-        assertEquals(TestGroups.EDGE, gafferPopEdge.label());
-        assertEquals(source, gafferPopEdge.outVertex().id());
-        assertEquals(dest, gafferPopEdge.inVertex().id());
-        assertEquals(propValue, gafferPopEdge.property(TestPropertyNames.STRING).value());
-        assertEquals(1, Lists.newArrayList(gafferPopEdge.properties()).size());
-        assertSame(graph, gafferPopEdge.graph());
-        assertTrue(gafferPopEdge.isReadOnly());
+        assertThat(gafferPopEdge.label()).isEqualTo(TestGroups.EDGE);
+        assertThat(gafferPopEdge.outVertex().id()).isEqualTo(source);
+        assertThat(gafferPopEdge.inVertex().id()).isEqualTo(dest);
+        assertThat(gafferPopEdge.property(TestPropertyNames.STRING).value()).isEqualTo(propValue);
+        assertThat(Lists.newArrayList(gafferPopEdge.properties()).size()).isEqualTo(1);
+        assertThat(gafferPopEdge.graph()).isSameAs(graph);
+        assertThat(gafferPopEdge.isReadOnly()).isTrue();
     }
 
     @Test
@@ -77,12 +74,12 @@ public class GafferPopEdgeGeneratorTest {
         final GafferPopEdge gafferPopEdge = generator._apply(edge);
 
         // Then
-        assertEquals(TestGroups.EDGE, gafferPopEdge.label());
-        assertEquals(source, gafferPopEdge.outVertex().id());
-        assertEquals(dest, gafferPopEdge.inVertex().id());
-        assertEquals(propValue, gafferPopEdge.property(TestPropertyNames.STRING).value());
-        assertEquals(1, Lists.newArrayList(gafferPopEdge.properties()).size());
-        assertSame(graph, gafferPopEdge.graph());
-        assertFalse(gafferPopEdge.isReadOnly());
+        assertThat(gafferPopEdge.label()).isEqualTo(TestGroups.EDGE);
+        assertThat(gafferPopEdge.outVertex().id()).isEqualTo(source);
+        assertThat(gafferPopEdge.inVertex().id()).isEqualTo(dest);
+        assertThat(gafferPopEdge.property(TestPropertyNames.STRING).value()).isEqualTo(propValue);
+        assertThat(Lists.newArrayList(gafferPopEdge.properties()).size()).isEqualTo(1);
+        assertThat(gafferPopEdge.graph()).isSameAs(graph);
+        assertThat(gafferPopEdge.isReadOnly()).isFalse();
     }
 }

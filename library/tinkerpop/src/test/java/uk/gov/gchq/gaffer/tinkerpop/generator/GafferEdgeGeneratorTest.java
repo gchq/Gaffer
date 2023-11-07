@@ -24,8 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopEdge;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class GafferEdgeGeneratorTest {
@@ -46,12 +45,12 @@ public class GafferEdgeGeneratorTest {
         final Edge edge = generator._apply(gafferPopEdge);
 
         // Then
-        assertEquals(TestGroups.EDGE, edge.getGroup());
-        assertEquals(source, edge.getSource());
-        assertEquals(dest, edge.getDestination());
-        assertTrue(edge.isDirected());
-        assertEquals(1, edge.getProperties().size());
-        assertEquals(propValue, edge.getProperty(TestPropertyNames.STRING));
+        assertThat(edge.getGroup()).isEqualTo(TestGroups.EDGE);
+        assertThat(edge.getSource()).isEqualTo(source);
+        assertThat(edge.getDestination()).isEqualTo(dest);
+        assertThat(edge.isDirected()).isTrue();
+        assertThat(edge.getProperties().size()).isEqualTo(1);
+        assertThat(edge.getProperty(TestPropertyNames.STRING)).isEqualTo(propValue);
     }
 
 }
