@@ -54,7 +54,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * This class is used to address some of the issues with having the elements distributes amongst multiple graphs.
+ * This class is used to address some of the issues with having the same element groups distributed amongst multiple graphs.
  * Such as the re-application of View filter or Schema Validation after the local aggregation of results from multiple graphs.
  * By default, a local in memory MapStore is used for local aggregation,
  * but a Graph or {@link GraphSerialisable} of any kind could be supplied via the {@link #context} with the key {@link #TEMP_RESULTS_GRAPH}.
@@ -67,8 +67,8 @@ import java.util.stream.Stream;
  * Because outside the functions scope, GraphA filtered out 101.
 
  */
-public class FederatedElementFunction implements ContextSpecificMergeFunction<Object, Iterable<Object>, Iterable<Object>> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedElementFunction.class);
+public class MergeElementFunction implements ContextSpecificMergeFunction<Object, Iterable<Object>, Iterable<Object>> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MergeElementFunction.class);
     public static final String VIEW = "view";
     public static final String SCHEMA = "schema";
     public static final String USER = "user";
@@ -78,16 +78,16 @@ public class FederatedElementFunction implements ContextSpecificMergeFunction<Ob
     @JsonProperty("context")
     private Map<String, Object> context;
 
-    public FederatedElementFunction() {
+    public MergeElementFunction() {
     }
 
-    public FederatedElementFunction(final Map<String, Object> context) throws GafferCheckedException {
+    public MergeElementFunction(final Map<String, Object> context) throws GafferCheckedException {
         this();
         try {
             // Check if results graph, hasn't already be supplied, otherwise make a default results graph.
             if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
                 final Graph resultsGraph = new Graph.Builder()
-                        .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, FederatedElementFunction.class.getSimpleName(), RANDOM.nextInt(Integer.MAX_VALUE))))
+                        .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, MergeElementFunction.class.getSimpleName(), RANDOM.nextInt(Integer.MAX_VALUE))))
                         .addSchema((Schema) context.get(SCHEMA))
                         //MapStore easy in memory Store. Large results size may not be suitable, a graph could be provided via Context.
                         .addStoreProperties(new MapStoreProperties())
@@ -128,8 +128,8 @@ public class FederatedElementFunction implements ContextSpecificMergeFunction<Ob
     }
 
     @Override
-    public FederatedElementFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
-        return new FederatedElementFunction(context);
+    public MergeElementFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
+        return new MergeElementFunction(context);
     }
 
     /**

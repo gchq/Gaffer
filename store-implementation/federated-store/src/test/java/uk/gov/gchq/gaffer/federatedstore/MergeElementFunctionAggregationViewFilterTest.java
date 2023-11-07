@@ -44,7 +44,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTe
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 
-public class FederatedElementFunctionAggregationViewFilterTest {
+public class MergeElementFunctionAggregationViewFilterTest {
 
     private FederatedStore federatedStore;
     private Entity entity1, entity99, entityOther;
