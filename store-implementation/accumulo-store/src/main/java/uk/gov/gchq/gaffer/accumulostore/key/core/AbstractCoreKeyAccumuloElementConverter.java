@@ -280,15 +280,12 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         for (final String group : aggregatedGroups) {
             // Check all type definitions for the group
             Stream<TypeDefinition> typeStream = StreamSupport.stream(
-                schema.getElement(group).getPropertyTypeDefs().spliterator(), true);
+                schema.getElement(group).getPropertyTypeDefs().spliterator(), false);
+
             // Check if a time sensitive function is used anywhere
-            boolean timeSensitiveGroup = typeStream.anyMatch(td -> {
-                if (td.getAggregateFunction() == null) {
-                    return false;
-                }
-                return AccumuloStoreConstants.TIME_SENSITIVE_AGGREGATORS.contains(
-                    td.getAggregateFunction().getClass().getSimpleName());
-            });
+            boolean timeSensitiveGroup = typeStream.anyMatch(td ->
+                td.getAggregateFunction() != null &&
+                AccumuloStoreConstants.TIME_SENSITIVE_AGGREGATORS.contains(td.getAggregateFunction().getClass().getName()));
 
             if (timeSensitiveGroup) {
                 timeSensitiveAggregatedGroups.add(group);

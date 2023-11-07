@@ -55,8 +55,8 @@ public final class AccumuloStoreConstants {
     // Time sensitive aggregation functions where an actual timestamp must applied to the key
     public static final List<String> TIME_SENSITIVE_AGGREGATORS = Collections.unmodifiableList(
         Arrays.asList(
-            First.class.getSimpleName(),
-            Last.class.getSimpleName()));
+            First.class.getName(),
+            Last.class.getName()));
 
     // Iterator options
     public static final String VIEW = "View";
