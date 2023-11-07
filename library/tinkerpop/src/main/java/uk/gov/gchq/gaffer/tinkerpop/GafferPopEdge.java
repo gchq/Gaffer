@@ -130,11 +130,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
     private static GafferPopVertex checkVertex(final Object vertexId, final GafferPopGraph graph) {
         final GafferPopVertex gafferPopVertex;
         if (vertexId instanceof Vertex) {
-            if (vertexId instanceof GafferPopVertex) {
-                gafferPopVertex = checkVertex(((GafferPopVertex) vertexId), graph);
-            } else {
-                gafferPopVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, ((Vertex) vertexId).id(), graph);
-            }
+            gafferPopVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, ((Vertex) vertexId).id(), graph);
         } else {
             gafferPopVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, vertexId, graph);
         }
