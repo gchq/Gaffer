@@ -164,7 +164,7 @@ public class MergeElementFunctionAggregationSchemaValidationTest {
                         .option(FederatedStoreUtil.GIVEN_MERGE_STORE, givenResultsGraph.toString())
                         .mergeFunction(new MergeElementFunctionWithGivenStore())
                         .build(), contextTestUser()))
-                .withMessageContaining("Implementation of adding a different type of temporary merge graph is not yet implemented");
+                .withMessageContaining("Implementation of adding a different type of temporary merge graph is not yet supported");
     }
 
     private void addEntity(final String graphIdA, final Entity entity) throws OperationException {
