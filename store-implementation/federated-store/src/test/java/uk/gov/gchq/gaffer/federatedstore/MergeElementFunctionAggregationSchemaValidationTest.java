@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
-import uk.gov.gchq.gaffer.federatedstore.util.MergeElementFunctionWithGivenStore;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
+import uk.gov.gchq.gaffer.federatedstore.util.MergeElementFunctionWithGivenStore;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationException;
