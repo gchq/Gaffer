@@ -147,7 +147,7 @@ public class FederatedElementFunction implements ContextSpecificMergeFunction<Ob
         if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
             throw new IllegalStateException("Error: context invalid, did not contain a Temporary Results Graph.");
         } else if (!(context.get(TEMP_RESULTS_GRAPH) instanceof Graph)
-                || !(context.get(TEMP_RESULTS_GRAPH) instanceof GraphSerialisable)) {
+                && !(context.get(TEMP_RESULTS_GRAPH) instanceof GraphSerialisable)) {
             throw new IllegalArgumentException(String.format("Error: context invalid, value for %s was not a Graph, found: %s", TEMP_RESULTS_GRAPH, context.get(TEMP_RESULTS_GRAPH)));
         }
 
