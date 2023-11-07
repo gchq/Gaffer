@@ -413,7 +413,7 @@ public class FederatedStore extends Store {
                 rtn = getDefaultGraphs(user, operation);
             } else {
                 if (graphIds.isEmpty()) {
-                    LOGGER.info("A get graphs request was made with empty graphIds");
+                    LOGGER.debug("A get graphs request was made with empty graphIds");
                 }
                 String adminAuth = operation.isUserRequestingAdminUsage() ? this.getProperties().getAdminAuth() : null;
                 rtn.addAll(new ArrayList<>(graphStorage.get(user, graphIds, adminAuth)));
