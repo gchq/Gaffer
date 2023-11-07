@@ -48,6 +48,8 @@
         <append.shaded.classifier />
 
         <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
 
         <!-- Dependency version properties -->
         <junit.version>5.9.3</junit.version>
