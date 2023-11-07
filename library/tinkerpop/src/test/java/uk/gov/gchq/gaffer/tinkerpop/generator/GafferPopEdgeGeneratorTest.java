@@ -86,12 +86,11 @@ public class GafferPopEdgeGeneratorTest {
         assertThat(gafferPopEdge.isReadOnly()).isFalse();
     }
 
-    @Test 
+    @Test
     public void shouldThrowExceptionWhenPassedEntity() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final Element element = new Entity.Builder().group(TestGroups.ENTITY).build();
-        
         final GafferPopEdgeGenerator generator = new GafferPopEdgeGenerator(graph, true);
 
         // Then

@@ -36,6 +36,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class GafferPopVertexGeneratorTest {
+
     @Test
     public void shouldConvertGafferEntityToGafferPopReadOnlyEntity() {
         // Given
@@ -102,12 +103,11 @@ public class GafferPopVertexGeneratorTest {
         assertThat(gafferPopVertex.isReadOnly()).isFalse();
     }
 
-    @Test 
+    @Test
     public void shouldThrowExceptionWhenPassedEdge() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final Element element = new Edge.Builder().group(TestGroups.EDGE).build();
-        
         final GafferPopVertexGenerator generator = new GafferPopVertexGenerator(graph, true);
 
         // Then

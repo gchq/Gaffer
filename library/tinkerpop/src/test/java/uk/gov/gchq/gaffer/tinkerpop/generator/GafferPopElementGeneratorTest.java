@@ -16,16 +16,15 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.generator;
 
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 
-import org.junit.jupiter.api.Test;
-
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopEdge;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopElement;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
@@ -34,11 +33,10 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 public class GafferPopElementGeneratorTest {
 
     @Test
-    public void shouldReturnAGafferPopVertex(){
+    public void shouldReturnAGafferPopVertex() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final Element element = new Entity.Builder().group(TestGroups.ENTITY).build();
-        
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph, true);
 
         // When
@@ -51,7 +49,7 @@ public class GafferPopElementGeneratorTest {
     }
 
     @Test
-    public void shouldReturnAGafferPopEdge(){
+    public void shouldReturnAGafferPopEdge() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final Element element = new Edge.Builder().group(TestGroups.EDGE).build();
@@ -68,11 +66,10 @@ public class GafferPopElementGeneratorTest {
     }
 
     @Test
-    public void shouldThrowExceptionForInvalidElement(){
+    public void shouldThrowExceptionForInvalidElement() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final Element element = mock(Element.class);   
-
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph, true);
 
         // Then
