@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.tinkerpop.generator;
 
 import com.google.common.collect.Lists;
 
-import org.json.Property;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -32,8 +31,6 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
-
-import java.util.ArrayList;
 
 public class GafferPopEdgeGeneratorTest {
     @Test
