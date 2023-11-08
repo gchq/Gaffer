@@ -38,12 +38,15 @@ import static org.mockito.Mockito.mock;
 
 public class GafferPopEdgeTest {
 
+    public static String source = "source";
+    public static String dest = "dest";
+    public static GafferPopGraph graph = mock(GafferPopGraph.class);
+    public static String propValue1 = "propValue1";
+    public static int propValue2 = 10;
+
     @Test
     public void shouldConstructEdge() {
         // Given
-        final String source = "source";
-        final String dest = "dest";
-        final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, source, graph);
         final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, dest, graph);
 
@@ -65,9 +68,6 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldChangeVertexLabelToGraphLabel() {
         // Given
-        final String source = "source";
-        final String dest = "dest";
-        final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex outVertex = new GafferPopVertex("label", source, graph);
         final GafferPopVertex inVertex = new GafferPopVertex("label", dest, graph);
 
@@ -82,12 +82,7 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldAddAndGetEdgeProperties() {
         // Given
-        final String source = "source";
-        final String dest = "dest";
-        final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
-        final String propValue1 = "propValue1";
-        final int propValue2 = 10;
 
         // When
         edge.property(TestPropertyNames.STRING, propValue1);
@@ -101,12 +96,7 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldGetIterableOfEdgeProperties() {
         // Given
-        final String source = "source";
-        final String dest = "dest";
-        final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
-        final String propValue1 = "propValue1";
-        final int propValue2 = 10;
         edge.property(TestPropertyNames.STRING, propValue1);
         edge.property(TestPropertyNames.INT, propValue2);
 
@@ -125,11 +115,7 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldGetIterableOfSingleEdgeProperty() {
         // Given
-        final String source = "source";
-        final String dest = "dest";
-        final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
-        final String propValue1 = "propValue1";
         edge.property(TestPropertyNames.STRING, propValue1);
 
         // When
@@ -146,8 +132,7 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldCreateReadableToString() {
         // Given
-        final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, "source", "dest", graph);
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
 
         // When
         final String toString = edge.toString();
@@ -159,9 +144,6 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldReturnOutVertex() {
         // Given
-        final String source = "source";
-        final String dest = "dest";
-        final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, source, graph);
         final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, dest, graph);
 
@@ -175,9 +157,6 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldReturnInVertex() {
         // Given
-        final String source = "source";
-        final String dest = "dest";
-        final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, source, graph);
         final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, dest, graph);
 
@@ -191,11 +170,7 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldThrowExceptionWhenReadOnlyIsTrue() {
         // Given
-        final String source = "source";
-        final String dest = "dest";
-        final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
-        final String propValue1 = "propValue1";
 
         // When
         edge.setReadOnly();
@@ -206,5 +181,4 @@ public class GafferPopEdgeTest {
             .withMessageMatching("Updates are not supported");
 
     }
-
 }
