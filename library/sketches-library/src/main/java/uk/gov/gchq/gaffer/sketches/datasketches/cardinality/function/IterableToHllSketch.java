@@ -40,16 +40,12 @@ public class IterableToHllSketch extends KorypheFunction<Iterable<Object>, HllSk
     private HllSketch hllSketch;
 
     public IterableToHllSketch() {
-        if (hllSketch == null) {
-            hllSketch = new HllSketch(logK);
-        }
+        hllSketch = new HllSketch(logK);
     }
 
     public IterableToHllSketch(final int logK) {
-        setLogK(logK);
-        if (hllSketch == null) {
-            hllSketch = new HllSketch(logK);
-        }
+        this.logK = logK;
+        hllSketch = new HllSketch(logK);
     }
 
     public IterableToHllSketch(final HllSketch hllSketch) {
@@ -101,6 +97,8 @@ public class IterableToHllSketch extends KorypheFunction<Iterable<Object>, HllSk
     public void setHllSketch(final HllSketch hllSketch) {
         if (hllSketch != null) {
             this.hllSketch = hllSketch.copy();
+        } else {
+            this.hllSketch = new HllSketch(logK);
         }
     }
 }

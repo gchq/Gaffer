@@ -40,16 +40,12 @@ public class ToHllSketch extends KorypheFunction<Object, HllSketch> {
     private HllSketch hllSketch;
 
     public ToHllSketch() {
-        if (hllSketch == null) {
-            hllSketch = new HllSketch(logK);
-        }
+        hllSketch = new HllSketch(logK);
     }
 
     public ToHllSketch(final int logK) {
-        setLogK(logK);
-        if (hllSketch == null) {
-            hllSketch = new HllSketch(logK);
-        }
+        this.logK = logK;
+        hllSketch = new HllSketch(logK);
     }
 
     public ToHllSketch(final HllSketch hllSketch) {
@@ -97,6 +93,8 @@ public class ToHllSketch extends KorypheFunction<Object, HllSketch> {
     public void setHllSketch(final HllSketch hllSketch) {
         if (hllSketch != null) {
             this.hllSketch = hllSketch.copy();
+        } else {
+            this.hllSketch = new HllSketch(logK);
         }
     }
 }
