@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -53,6 +56,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.updateOp
  */
 @Since("2.0.0")
 public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandler<FederatedOperation<INPUT, OUTPUT>> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedOperationHandler.class);
 
     public static final String ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS_FORMAT = "Error while running operation on graphs, due to: %s";
     public static final String MERGE_FUNCTION_GET_GRAPHS = FederatedOperationHandler.class.getCanonicalName() + "merge.function.getGraphs";
@@ -110,10 +114,11 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             final List<GraphSerialisable> graphs = getGraphs(operation, context, store);
 
             // If default merging and only have one graph or no common groups then just return the current results
-            if (!graphs.isEmpty() &&
-                mergeFunction instanceof ApplyViewToElementsFunction &&
-                (graphs.size() == 1 || !graphsHaveCommonSchemaGroups(graphs))) {
-
+            if (!graphs.isEmpty()
+                    && mergeFunction instanceof ApplyViewToElementsFunction
+                    && (graphs.size() == 1 || !graphsHaveCommonSchemaGroups(graphs))) {
+                LOGGER.info("Skipping merge function as not required when only one graph or no common groups");
+                // Just flatten current results that are essentially a list of lists into one list and return
                 HashSet<Element> mergedResults = new HashSet<>();
                 resultsFromAllGraphs.forEach(result -> ((Iterable<Element>) result).iterator().forEachRemaining(mergedResults::add));
                 return mergedResults;
@@ -169,12 +174,14 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             .map(GraphSerialisable::getSchema)
             .collect(Collectors.toList());
 
+        // Compare all schemas against each other
         for (int i = 0; i < graphSchemas.size() - 1; i++) {
             for (int j = i + 1; j < graphSchemas.size(); j++) {
                 // Compare each schema against the others to see if common groups
                 Set<String> firstGroupSet = graphSchemas.get(i).getGroups();
                 Set<String> secondGroupSet = graphSchemas.get(j).getGroups();
                 if (firstGroupSet.stream().anyMatch(secondGroupSet::contains)) {
+                    LOGGER.debug("Found common schema groups between requested graphs");
                     return true;
                 }
             }
