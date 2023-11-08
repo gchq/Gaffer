@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -165,14 +164,12 @@ public class GafferPopEdgeTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, source, graph);
         final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, dest, graph);
-        final List<Vertex> result = new ArrayList<>();
 
         // When
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
 
         // Then
-        edge.vertices(Direction.OUT).forEachRemaining(result::add);
-        assertThat(result).contains(outVertex);
+        assertThat(edge.vertices(Direction.OUT)).toIterable().containsExactly(outVertex);
     }
 
     @Test
@@ -183,14 +180,12 @@ public class GafferPopEdgeTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, source, graph);
         final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, dest, graph);
-        final List<Vertex> result = new ArrayList<>();
 
         // When
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
 
         // Then
-        edge.vertices(Direction.IN).forEachRemaining(result::add);
-        assertThat(result).contains(inVertex);
+        assertThat(edge.vertices(Direction.IN)).toIterable().containsExactly(inVertex);
     }
 
     @Test
