@@ -65,7 +65,7 @@ public class GafferPopVertexGeneratorTest {
         assertThat(gafferPopVertex.label()).isEqualTo(TestGroups.ENTITY);
         assertThat(gafferPopVertex.id()).isEqualTo(vertex);
         assertThat(gafferPopVertex.property(TestPropertyNames.STRING).value()).isEqualTo(propValue);
-        assertThat(gafferPopVertex.properties()).asList().hasSize(1);
+        assertThat(Lists.newArrayList(gafferPopVertex.properties())).hasSize(1);
         assertThat(gafferPopVertex.graph()).isSameAs(graph);
         assertThat(gafferPopVertex.isReadOnly()).isTrue();
     }
@@ -98,7 +98,7 @@ public class GafferPopVertexGeneratorTest {
         assertThat(gafferPopVertex.label()).isEqualTo(TestGroups.ENTITY);
         assertThat(gafferPopVertex.id()).isEqualTo(vertex);
         assertThat(gafferPopVertex.property(TestPropertyNames.STRING).value()).isEqualTo(propValue);
-        assertThat(gafferPopVertex.properties()).asList().hasSize(1);
+        assertThat(Lists.newArrayList(gafferPopVertex.properties())).hasSize(1);
         assertThat(gafferPopVertex.graph()).isSameAs(graph);
         assertThat(gafferPopVertex.isReadOnly()).isFalse();
     }

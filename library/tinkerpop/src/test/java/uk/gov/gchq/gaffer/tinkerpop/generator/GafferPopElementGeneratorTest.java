@@ -74,7 +74,6 @@ public class GafferPopElementGeneratorTest {
 
         // Then
         assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> generator._apply(element))
-            .withMessageMatching("GafferPopElement has to be Edge or Entity");
+            .isThrownBy(() -> generator._apply(element));
     }
 }

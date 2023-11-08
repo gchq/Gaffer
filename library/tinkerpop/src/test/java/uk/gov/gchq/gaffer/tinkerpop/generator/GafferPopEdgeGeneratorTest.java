@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.tinkerpop.generator;
 
 import com.google.common.collect.Lists;
+
+import org.json.Property;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -30,6 +32,8 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
+
+import java.util.ArrayList;
 
 public class GafferPopEdgeGeneratorTest {
     @Test
@@ -54,7 +58,7 @@ public class GafferPopEdgeGeneratorTest {
         assertThat(gafferPopEdge.outVertex().id()).isEqualTo(source);
         assertThat(gafferPopEdge.inVertex().id()).isEqualTo(dest);
         assertThat(gafferPopEdge.property(TestPropertyNames.STRING).value()).isEqualTo(propValue);
-        assertThat(gafferPopEdge.properties()).asList().hasSize(1);
+        assertThat(Lists.newArrayList(gafferPopEdge.properties())).hasSize(1);
         assertThat(gafferPopEdge.graph()).isSameAs(graph);
         assertThat(gafferPopEdge.isReadOnly()).isTrue();
     }
@@ -81,7 +85,7 @@ public class GafferPopEdgeGeneratorTest {
         assertThat(gafferPopEdge.outVertex().id()).isEqualTo(source);
         assertThat(gafferPopEdge.inVertex().id()).isEqualTo(dest);
         assertThat(gafferPopEdge.property(TestPropertyNames.STRING).value()).isEqualTo(propValue);
-        assertThat(gafferPopEdge.properties()).asList().hasSize(1);
+        assertThat(Lists.newArrayList(gafferPopEdge.properties())).hasSize(1);
         assertThat(gafferPopEdge.graph()).isSameAs(graph);
         assertThat(gafferPopEdge.isReadOnly()).isFalse();
     }
