@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class GafferPopEdgeTest {
 
@@ -180,5 +181,22 @@ public class GafferPopEdgeTest {
             .isThrownBy(() -> edge.property(TestPropertyNames.STRING, propValue1))
             .withMessageMatching("Updates are not supported");
 
+    }
+
+    @Test
+    public void shouldCreateNewGafferPopVertexWithVertexId() {
+        // Given
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final Vertex outVertex = mock(Vertex.class);
+        final Vertex inVertex = mock(Vertex.class);
+        when(inVertex.id()).thenReturn("inVertextId");
+        when(outVertex.id()).thenReturn("outVertextId");
+
+        // When
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
+
+        // Then
+        assertSame(outVertex.id(), edge.outVertex().id());
+        assertSame(inVertex.id(), edge.inVertex().id());
     }
 }
