@@ -17,7 +17,9 @@
 package uk.gov.gchq.gaffer.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -47,10 +49,15 @@ import static java.util.Objects.nonNull;
  * @see GraphSerialisable.Builder
  */
 @JsonDeserialize(builder = GraphSerialisable.Builder.class)
+@JsonPropertyOrder(value = {"schema", "storeProperties", "config"}, alphabetic = true)
 public class GraphSerialisable implements Serializable {
+    @JsonIgnore
     private static final long serialVersionUID = 2684203367656032583L;
+    @JsonIgnore
     private final byte[] serialisedSchema;
+    @JsonIgnore
     private final byte[] serialisedProperties;
+    @JsonIgnore
     private final byte[] serialisedConfig;
     private transient Schema schema;
     private transient StoreProperties storeProperties;
@@ -160,7 +167,7 @@ public class GraphSerialisable implements Serializable {
         return schema;
     }
 
-    @JsonIgnore
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     public Schema getSchema() {
         return getSchema(null);
     }
@@ -182,6 +189,7 @@ public class GraphSerialisable implements Serializable {
                 : null;
     }
 
+    @JsonIgnore
     public byte[] getSerialisedSchema() {
         return serialisedSchema;
     }
@@ -202,7 +210,7 @@ public class GraphSerialisable implements Serializable {
         return storeProperties;
     }
 
-    @JsonIgnore
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     public StoreProperties getStoreProperties() {
         return getStoreProperties(null);
     }
@@ -216,11 +224,12 @@ public class GraphSerialisable implements Serializable {
         return properties;
     }
 
+    @JsonIgnore
     public byte[] getSerialisedProperties() {
         return serialisedProperties;
     }
 
-    @JsonIgnore
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     public GraphConfig getConfig() {
         if (isNull(config)) {
             if (isNull(graph)) {
@@ -232,6 +241,7 @@ public class GraphSerialisable implements Serializable {
         return config;
     }
 
+    @JsonIgnore
     public byte[] getSerialisedConfig() {
         return serialisedConfig;
     }
@@ -254,6 +264,7 @@ public class GraphSerialisable implements Serializable {
             config(graph.getConfig());
         }
 
+        @JsonIgnore
         public Builder(final GraphSerialisable graphSerialisable) {
             this();
             schema(graphSerialisable.getSchema());
@@ -261,21 +272,24 @@ public class GraphSerialisable implements Serializable {
             config(graphSerialisable.getConfig());
         }
 
+        @JsonSetter
         public Builder schema(final Schema schema) {
             this.schema = schema;
             return _self();
         }
 
+        @JsonIgnore
         public Builder schema(final InputStream schema) {
             return schema(Schema.fromJson(schema));
         }
 
-        @JsonSetter("properties")
+        @JsonIgnore
         public Builder properties(final Properties properties) {
             this.properties = properties;
             return _self();
         }
 
+        @JsonSetter(value = "storeProperties")
         public Builder properties(final StoreProperties properties) {
             if (isNull(properties)) {
                 this.properties = null;
@@ -285,15 +299,18 @@ public class GraphSerialisable implements Serializable {
             return _self();
         }
 
+        @JsonIgnore
         public Builder properties(final InputStream properties) {
             return properties(StoreProperties.loadStoreProperties(properties));
         }
 
+        @JsonSetter
         public Builder config(final GraphConfig config) {
             this.config = config;
             return _self();
         }
 
+        @JsonIgnore
         public Builder mergeConfig(final GraphConfig config) {
             this.config = new GraphConfig.Builder()
                     .merge(this.config)

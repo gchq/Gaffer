@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCache;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable.Builder;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriserUtil;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -37,7 +39,7 @@ import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GraphSerialisableTest {
+public class GraphSerialisableTest extends JSONSerialisationTest<GraphSerialisable> {
 
     private GraphConfig config;
     private Schema schema;
@@ -112,15 +114,25 @@ public class GraphSerialisableTest {
     }
 
     @Test
-    public void shouldSerialiseWithJsonSerialiser() {
+    public void shouldSerialiseWithJsonSerialiser() throws Exception {
         // Given
-        final HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(false);
-        final String key = "key";
         final GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
-        cache.put(key, expected);
-        final GraphSerialisable actual = cache.get(key);
 
         // When / Then
-        assertThat(actual).isEqualTo(expected);
+        final byte[] serialised = JSONSerialiser.serialise(expected, true);
+        final GraphSerialisable deserialised = JSONSerialiser.deserialise(serialised, GraphSerialisable.class);
+
+        assertThat(deserialised.getStoreProperties()).isEqualTo(expected.getStoreProperties());
+
+        final Graph expectedGraph = expected.getGraph();
+        final Graph deserialisedGraph = deserialised.getGraph();
+
+        assertThat(deserialisedGraph).isEqualTo(expectedGraph);
+        assertThat(deserialised).isEqualTo(expected);
+    }
+
+    @Override
+    protected GraphSerialisable getTestObject() {
+        return new Builder().config(config).schema(schema).properties(properties).build();
     }
 }
