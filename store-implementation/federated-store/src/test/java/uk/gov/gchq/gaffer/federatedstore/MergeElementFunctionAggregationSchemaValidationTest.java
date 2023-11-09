@@ -27,10 +27,10 @@ import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.federatedstore.util.MergeElementFunctionWithGivenStore;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -141,13 +141,14 @@ public class MergeElementFunctionAggregationSchemaValidationTest {
     @Test
     public void shouldNotCurrentlySupportOtherTempResultsGraph() throws Exception {
 
-        final byte[] givenResultsGraph = new JavaSerialiser().serialise(new GraphSerialisable.Builder()
+        //given
+        //The given results graph to use by the function
+        final byte[] givenResultsGraph = JSONSerialiser.serialise(new GraphSerialisable.Builder()
                 .config(new GraphConfig("TheGivenResultsGraph"))
                 .schema(loadSchemaFromJson("/schema/basicEntityValidateLess100Schema.json"))
                 .properties(FederatedStoreTestUtil.loadAccumuloStoreProperties(FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES))
                 .build());
 
-        //given
         addGraphToAccumuloStore(federatedStore, GRAPH_ID_A, true, loadSchemaFromJson("/schema/basicEntityValidateLess100Schema.json"));
         addGraphToAccumuloStore(federatedStore, GRAPH_ID_B, true, loadSchemaFromJson("/schema/basicEntityValidateLess100Schema.json"));
         addGraphToAccumuloStore(federatedStore, GRAPH_ID_C, true, loadSchemaFromJson("/schema/basicEntityValidateLess100Schema.json"));
@@ -158,13 +159,26 @@ public class MergeElementFunctionAggregationSchemaValidationTest {
         addEntity(GRAPH_ID_B, entityOther);
 
         //when
-        Assertions.assertThatException()
-                .isThrownBy(() -> federatedStore.execute(new FederatedOperation.Builder()
-                        .op(new GetAllElements())
-                        .option(FederatedStoreUtil.GIVEN_MERGE_STORE, givenResultsGraph.toString())
-                        .mergeFunction(new MergeElementFunctionWithGivenStore())
-                        .build(), contextTestUser()))
-                .withMessageContaining("Implementation of adding a different type of temporary merge graph is not yet supported");
+        final Iterable elementsWithPropertyLessThan100 = (Iterable) federatedStore.execute(new FederatedOperation.Builder()
+                .op(new GetAllElements())
+                .option(FederatedStoreUtil.GIVEN_MERGE_STORE, new String(givenResultsGraph))
+                .mergeFunction(new MergeElementFunctionWithGivenStore())
+                .build(), contextTestUser());
+
+        //then
+        assertThat(elementsWithPropertyLessThan100)
+                .isNotNull()
+                .withFailMessage("should not return entity \"basicVertex\" with un-aggregated property 1 or 99")
+                .doesNotContain(entity1, entity99)
+                .withFailMessage("should not return entity \"basicVertex\" with an aggregated property 100, which is less than view filter 100")
+                .doesNotContain(new Entity.Builder()
+                        .group(GROUP_BASIC_ENTITY)
+                        .vertex(BASIC_VERTEX)
+                        .property(PROPERTY_1, 100)
+                        .build())
+                .withFailMessage("should return entity \"basicVertexOther\" with property 99, which is less than view filter 100")
+                .containsExactly(entityOther)
+                .hasSize(1);
     }
 
     private void addEntity(final String graphIdA, final Entity entity) throws OperationException {

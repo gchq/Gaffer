@@ -31,9 +31,11 @@ import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -324,9 +326,13 @@ public final class FederatedStoreUtil {
         if (specificMergeFunction.isRequired(TEMP_RESULTS_GRAPH)) {
             final String variable = (String) operationContext.getVariable(GIVEN_MERGE_STORE);
             if (variable != null) {
-                throw new UnsupportedOperationException("Implementation of adding a different type of temporary merge graph " +
-                        "is not yet supported. Behaviour on how to delete the graph is not yet defined. Behaviour of what info " +
-                        "to take from users or admins, is not yet defined.");
+                try {
+                    final GraphSerialisable deserialise = JSONSerialiser.deserialise(variable, GraphSerialisable.class);
+                    functionContext.put(TEMP_RESULTS_GRAPH, deserialise);
+                } catch (SerialisationException e) {
+                    throw new GafferRuntimeException("Error trying to extract the given GraphSerialisable temporary merge graph. found:" + variable, e);
+                }
+
             }
         }
         return functionContext;

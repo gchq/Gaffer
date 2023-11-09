@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreCache;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -35,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -123,9 +121,6 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
         // pass the given information from options to the operation context to be available to the merge function
         if (operation.containsOption(GIVEN_MERGE_STORE)) {
-            final String suffixFederatedStoreCacheName = "mergeGraphCache" + new Random().nextInt();
-            new FederatedStoreCache(suffixFederatedStoreCacheName);
-            context.setVariable(GIVEN_MERGE_STORE+"cache",suffixFederatedStoreCacheName);
             context.setVariable(GIVEN_MERGE_STORE, operation.getOption(GIVEN_MERGE_STORE));
         }
 

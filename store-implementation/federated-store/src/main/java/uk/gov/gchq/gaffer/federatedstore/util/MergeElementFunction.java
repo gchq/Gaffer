@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.user.User;
@@ -65,7 +66,6 @@ import java.util.stream.Stream;
  * GraphC has the same elementA with property value 2.
  * Asking for a simple GetAllElements with a view filter of property less than 100. Will incorrectly return elementA with a value 3.
  * Because outside the functions scope, GraphA filtered out 101.
-
  */
 public class MergeElementFunction implements ContextSpecificMergeFunction<Object, Iterable<Object>, Iterable<Object>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeElementFunction.class);
@@ -111,7 +111,9 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
 
     private static void updateViewWithValidationFromSchema(final Map<String, Object> context) {
         //Only do this for MapStore, not required for other stores.
-        if (MapStore.class.getName().equals(getGraph(context).getStoreProperties().getStoreClass())) {
+        final StoreProperties storeProperties = getTempResultsGraphStoreProperties(context);
+
+        if (MapStore.class.getName().equals(storeProperties.getStoreClass())) {
             //Update View with
             final View view = (View) context.get(VIEW);
             final Schema schema = (Schema) context.get(SCHEMA);
@@ -125,6 +127,14 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
 
             context.put(VIEW, updatedView.build());
         }
+    }
+
+    private static StoreProperties getTempResultsGraphStoreProperties(final Map<String, Object> context) {
+        final Object trg = context.get(TEMP_RESULTS_GRAPH);
+        final StoreProperties storeProperties = (trg instanceof GraphSerialisable)
+                ? ((GraphSerialisable) trg).getStoreProperties()
+                : ((Graph) trg).getStoreProperties();
+        return storeProperties;
     }
 
     @Override
