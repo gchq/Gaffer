@@ -310,8 +310,8 @@ public final class FederatedStoreUtil {
                 final ContextSpecificMergeFunction specificMergeFunction = (ContextSpecificMergeFunction) mergeFunction;
                 HashMap<String, Object> functionContext = new HashMap<>();
 
-                functionContext = processGivenResultStoreForSpecificMergeFunction(specificMergeFunction, functionContext, operationContext, federatedStore);
                 functionContext = processSchemaForSpecificMergeFunction(specificMergeFunction, functionContext, payload, graphIds, operationContext, federatedStore);
+                functionContext = processGivenResultStoreForSpecificMergeFunction(specificMergeFunction, functionContext, operationContext, federatedStore);
                 functionContext = processViewForSpecificMergeFunction(specificMergeFunction, functionContext, payload);
                 functionContext = processUserForSpecificMergeFunction(specificMergeFunction, functionContext, operationContext.getUser());
 
@@ -332,13 +332,21 @@ public final class FederatedStoreUtil {
                     final GraphSerialisable deserialise = JSONSerialiser.deserialise((String) variable, GraphSerialisable.class);
 
                     //Update the Name to avoid collisions from operations like NamedOperations
-                    //new graphId will make it hard to find the graph to destroy.
+                    //todo new graphId will make it hard to find the graph to destroy.
                     final String graphId = deserialise.getGraphId() + new Random().nextInt(Integer.MAX_VALUE);
+
+                    if (!functionContext.containsKey(SCHEMA)) {
+                        throw new GafferRuntimeException("No Schema was found in the functionContext");
+                    }
+                    final Schema updatedSchema = (Schema) functionContext.get(SCHEMA);
                     final GraphSerialisable updatedName = new GraphSerialisable.Builder(deserialise)
                             .config(new GraphConfig.Builder()
                                     .merge(deserialise.getConfig())
                                     .graphId(graphId)
                                     .build())
+                            //TODO accept schema from user?
+//                            .schema(new Schema.Builder(deserialise.getSchema()).merge(updatedSchema).build())
+                            .schema(updatedSchema)
                             .build();
 
 
