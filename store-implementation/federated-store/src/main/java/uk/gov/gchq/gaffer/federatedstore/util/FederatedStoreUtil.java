@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -61,6 +62,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.regex.Pattern;
@@ -324,11 +326,23 @@ public final class FederatedStoreUtil {
 
     public static HashMap<String, Object> processGivenResultStoreForSpecificMergeFunction(final ContextSpecificMergeFunction specificMergeFunction, final HashMap<String, Object> functionContext, final Context operationContext, final FederatedStore federatedStore) {
         if (specificMergeFunction.isRequired(TEMP_RESULTS_GRAPH)) {
-            final String variable = (String) operationContext.getVariable(GIVEN_MERGE_STORE);
-            if (variable != null) {
+            final Object variable = operationContext.getVariable(GIVEN_MERGE_STORE);
+            if (variable instanceof String) {
                 try {
-                    final GraphSerialisable deserialise = JSONSerialiser.deserialise(variable, GraphSerialisable.class);
-                    functionContext.put(TEMP_RESULTS_GRAPH, deserialise);
+                    final GraphSerialisable deserialise = JSONSerialiser.deserialise((String) variable, GraphSerialisable.class);
+
+                    //Update the Name to avoid collisions from operations like NamedOperations
+                    //new graphId will make it hard to find the graph to destroy.
+                    final String graphId = deserialise.getGraphId() + new Random().nextInt(Integer.MAX_VALUE);
+                    final GraphSerialisable updatedName = new GraphSerialisable.Builder(deserialise)
+                            .config(new GraphConfig.Builder()
+                                    .merge(deserialise.getConfig())
+                                    .graphId(graphId)
+                                    .build())
+                            .build();
+
+
+                    functionContext.put(TEMP_RESULTS_GRAPH, updatedName);
                 } catch (SerialisationException e) {
                     throw new GafferRuntimeException("Error trying to extract the given GraphSerialisable temporary merge graph. found:" + variable, e);
                 }
