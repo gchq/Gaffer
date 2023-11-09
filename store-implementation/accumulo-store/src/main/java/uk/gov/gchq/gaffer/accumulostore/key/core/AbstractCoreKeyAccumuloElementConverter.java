@@ -285,7 +285,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             // Check if a time sensitive function is used anywhere
             boolean timeSensitiveGroup = typeStream.anyMatch(td ->
                 td.getAggregateFunction() != null &&
-                AccumuloStoreConstants.TIME_SENSITIVE_AGGREGATORS.contains(td.getAggregateFunction().getClass().getName()));
+                AccumuloStoreConstants.TIME_SENSITIVE_AGGREGATORS.contains(td.getAggregateFunction().getClass()));
 
             if (timeSensitiveGroup) {
                 timeSensitiveAggregatedGroups.add(group);
