@@ -43,7 +43,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static java.util.Objects.nonNull;
@@ -118,10 +120,10 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
                     && mergeFunction instanceof ApplyViewToElementsFunction
                     && (graphs.size() == 1 || !graphsHaveCommonSchemaGroups(graphs))) {
                 LOGGER.info("Skipping merge function as not required when only one graph or no common groups");
-                // Just flatten current results that are essentially a list of lists into one list and return
-                HashSet<Element> mergedResults = new HashSet<>();
-                resultsFromAllGraphs.forEach(result -> ((Iterable<Element>) result).iterator().forEachRemaining(mergedResults::add));
-                return mergedResults;
+                // Just flatten current results to a single set to return
+                return StreamSupport.stream(resultsFromAllGraphs.spliterator(), false)
+                    .flatMap(result -> StreamSupport.stream(((Iterable<?>) result).spliterator(), false))
+                    .collect(Collectors.toSet());
             }
 
             // Reduce
