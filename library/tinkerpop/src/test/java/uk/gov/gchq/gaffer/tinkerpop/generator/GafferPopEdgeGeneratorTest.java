@@ -55,7 +55,7 @@ public class GafferPopEdgeGeneratorTest {
         assertThat(gafferPopEdge.outVertex().id()).isEqualTo(source);
         assertThat(gafferPopEdge.inVertex().id()).isEqualTo(dest);
         assertThat(gafferPopEdge.property(TestPropertyNames.STRING).value()).isEqualTo(propValue);
-        assertThat(Lists.newArrayList(gafferPopEdge.properties())).hasSize(1);
+        assertThat(gafferPopEdge.properties()).toIterable().hasSize(1);
         assertThat(gafferPopEdge.graph()).isSameAs(graph);
         assertThat(gafferPopEdge.isReadOnly()).isTrue();
     }
@@ -82,7 +82,7 @@ public class GafferPopEdgeGeneratorTest {
         assertThat(gafferPopEdge.outVertex().id()).isEqualTo(source);
         assertThat(gafferPopEdge.inVertex().id()).isEqualTo(dest);
         assertThat(gafferPopEdge.property(TestPropertyNames.STRING).value()).isEqualTo(propValue);
-        assertThat(Lists.newArrayList(gafferPopEdge.properties())).hasSize(1);
+        assertThat(gafferPopEdge.properties()).toIterable().hasSize(1);
         assertThat(gafferPopEdge.graph()).isSameAs(graph);
         assertThat(gafferPopEdge.isReadOnly()).isFalse();
     }
