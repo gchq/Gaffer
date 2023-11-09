@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.generator;
 
-import com.google.common.collect.Lists;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features.VertexFeatures;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features.VertexPropertyFeatures;

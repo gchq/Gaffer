@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.generator;
 
-import com.google.common.collect.Lists;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
