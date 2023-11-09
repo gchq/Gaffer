@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
@@ -39,11 +38,9 @@ import uk.gov.gchq.koryphe.Since;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -183,8 +180,8 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
                 // Compare each schema against the others to see if common groups
                 Set<String> firstGroupSet = graphSchemas.get(i).getGroups();
                 Set<String> secondGroupSet = graphSchemas.get(j).getGroups();
-                if (firstGroupSet.stream().anyMatch(secondGroupSet::contains)) {
-                    LOGGER.debug("Found common schema groups between requested graphs");
+                if (!Collections.disjoint(firstGroupSet, secondGroupSet)) {
+                     LOGGER.debug("Found common schema groups between requested graphs");
                     return true;
                 }
             }
