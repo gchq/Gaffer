@@ -121,9 +121,10 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
                     && (graphs.size() == 1 || !graphsHaveCommonSchemaGroups(graphs))) {
                 LOGGER.info("Skipping merge function as not required when only one graph or no common groups");
                 // Just flatten current results to a single set to return
-                return StreamSupport.stream(resultsFromAllGraphs.spliterator(), false)
+                Iterable<?> iterableStream = () -> StreamSupport.stream(resultsFromAllGraphs.spliterator(), false)
                     .flatMap(result -> StreamSupport.stream(((Iterable<?>) result).spliterator(), false))
-                    .collect(Collectors.toSet());
+                    .iterator();
+                return iterableStream;
             }
 
             // Reduce
