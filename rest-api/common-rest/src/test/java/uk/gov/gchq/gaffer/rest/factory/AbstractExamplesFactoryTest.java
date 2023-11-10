@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -171,7 +171,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldProvideEmptyGetWalksIfSchemaContainsNoEdges() throws InstantiationException, IllegalAccessException {
+    public void shouldProvideEmptyGetWalksIfSchemaEmpty() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(new Schema());
 
@@ -181,6 +181,38 @@ public class AbstractExamplesFactoryTest {
         // Then
         assertThat(operation.getInput()).isNull();
         assertThat(operation.getOperations().size()).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldProvideEmptyGetWalksIfSchemaContainsNoEdges() throws InstantiationException, IllegalAccessException {
+        // Given
+        final Schema schemaNoEdges = new Schema.Builder()
+                .json(StreamUtil.openStream(TestExamplesFactory.class, "schema/schemaNoEdges.json"))
+                .build();
+        final TestExamplesFactory examplesFactory = new TestExamplesFactory(schemaNoEdges);
+
+        // When
+        final GetWalks operation = (GetWalks) examplesFactory.generateExample(GetWalks.class);
+
+        // Then
+        assertNull(operation.getInput());
+        assertEquals(0, operation.getOperations().size());
+    }
+
+    @Test
+    public void shouldProvideEmptyGetWalksIfSchemaContainsNoEntities() throws InstantiationException, IllegalAccessException {
+        // Given
+        final Schema schemaNoEdges = new Schema.Builder()
+                .json(StreamUtil.openStream(TestExamplesFactory.class, "schema/schemaNoEntities.json"))
+                .build();
+        final TestExamplesFactory examplesFactory = new TestExamplesFactory(schemaNoEdges);
+
+        // When
+        final GetWalks operation = (GetWalks) examplesFactory.generateExample(GetWalks.class);
+
+        // Then
+        assertNull(operation.getInput());
+        assertEquals(0, operation.getOperations().size());
     }
 
     @Test

@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.DEST_BASIC;
@@ -309,7 +310,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldChangeSchemaWhenAddingGraphB() throws OperationException {
+    public void shouldErrorWhenGetSchemaASharedGroupHasNoSharedProperties() throws OperationException {
         // Given
         addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
 
@@ -325,11 +326,37 @@ public class FederatedStoreSchemaTest {
         addGraphWith(GRAPH_ID_B, STRING_REQUIRED_TYPE, PROPERTY_2);
 
         // When
+        assertThatException()
+                .isThrownBy(() -> federatedStore.getSchema(testContext, false))
+                .withStackTraceContaining("MergeSchema function unable to recover from error")
+                .withStackTraceContaining("Element group properties cannot be defined in different schema parts, they must all be defined in a single schema part")
+                .withStackTraceContaining("Please fix this group: BasicEdge");
+    }
+
+    @Test
+    public void shouldChangeReturnSchemaWhenAddingGraphWithOverLapProperty() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
+
+        // When
+        final Schema schemaA = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaA.getTypes().size()).isEqualTo(2);
+        assertThat(schemaA.getType(STRING).getClazz()).isEqualTo(String.class);
+        assertThat(schemaA.getEdge(GROUP_BASIC_EDGE).getProperties().size()).isEqualTo(1);
+
+        // Given
+        addGraphWith(GRAPH_ID_B, STRING_REQUIRED_TYPE, PROPERTY_1, PROPERTY_2);
+
+        // When
         final Schema schemaAB = federatedStore.getSchema(testContext, false);
 
         // Then
         assertThat(schemaAB).isNotEqualTo(schemaA);
-        assertThat(schemaAB.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_2);
+        assertThat(schemaAB.getEdge(GROUP_BASIC_EDGE).getProperties())
+                .contains(PROPERTY_1)
+                .contains(PROPERTY_2);
     }
 
     @Test
