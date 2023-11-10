@@ -114,7 +114,7 @@ class IterableToHllSketchTest extends FunctionTest<IterableToHllSketch> {
     public void shouldCorrectlyCreateFromAnotherHllSketch() {
         // Given
         final HllSketch anotherSketch = new HllSketch(5);
-        IterableToHllSketch iterableToHllSketch = new IterableToHllSketch(anotherSketch);
+        final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch(anotherSketch);
         final List<Object> input = Arrays.asList("one", "one", "two", "two", "three");
 
         // When
@@ -131,7 +131,7 @@ class IterableToHllSketchTest extends FunctionTest<IterableToHllSketch> {
         anotherSketch.update("second");
         anotherSketch.update("third");
 
-        IterableToHllSketch iterableToHllSketch = new IterableToHllSketch(anotherSketch);
+        final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch(anotherSketch);
         final List<Object> input = Arrays.asList("one", "one", "two", "two", "three");
 
         // When
