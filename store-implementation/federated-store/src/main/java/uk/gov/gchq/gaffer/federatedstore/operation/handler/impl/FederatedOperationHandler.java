@@ -179,7 +179,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
                 Set<String> firstGroupSet = graphSchemas.get(i).getGroups();
                 Set<String> secondGroupSet = graphSchemas.get(j).getGroups();
                 if (!Collections.disjoint(firstGroupSet, secondGroupSet)) {
-                     LOGGER.debug("Found common schema groups between requested graphs");
+                    LOGGER.debug("Found common schema groups between requested graphs");
                     return true;
                 }
             }
