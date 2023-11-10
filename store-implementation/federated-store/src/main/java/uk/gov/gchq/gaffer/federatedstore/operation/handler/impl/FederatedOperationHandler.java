@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static java.util.Objects.nonNull;
