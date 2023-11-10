@@ -195,8 +195,8 @@ public class AbstractExamplesFactoryTest {
         final GetWalks operation = (GetWalks) examplesFactory.generateExample(GetWalks.class);
 
         // Then
-        assertNull(operation.getInput());
-        assertEquals(0, operation.getOperations().size());
+        assertThat(operation.getInput()).isNull();
+        assertThat(operation.getOperations()).hasSize(0);
     }
 
     @Test
@@ -211,8 +211,8 @@ public class AbstractExamplesFactoryTest {
         final GetWalks operation = (GetWalks) examplesFactory.generateExample(GetWalks.class);
 
         // Then
-        assertNull(operation.getInput());
-        assertEquals(0, operation.getOperations().size());
+        assertThat(operation.getInput()).isNull();
+        assertThat(operation.getOperations()).hasSize(0);
     }
 
     @Test
