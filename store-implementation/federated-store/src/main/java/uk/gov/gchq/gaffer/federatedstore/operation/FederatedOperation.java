@@ -102,6 +102,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     }
 
     @Override
+    @JsonIgnore
     public Collection<Operation> getOperations() {
         return OperationChain.wrap(payloadOperation).getOperations();
     }
