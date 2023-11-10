@@ -1544,7 +1544,7 @@
                                         ${project.build.directory}/coverage-reports/jacoco-ut.exec
                                     </dataFile>
                                     <outputDirectory>
-                                        ${project.build.directory}/coverage-reports/jacoco-ut
+                                        ${project.reporting.outputDirectory}/jacoco-ut
                                     </outputDirectory>
                                 </configuration>
                             </execution>
@@ -1572,7 +1572,7 @@
                                         ${project.build.directory}/coverage-reports/jacoco-it.exec
                                     </dataFile>
                                     <outputDirectory>
-                                        ${project.build.directory}/coverage-reports/jacoco-it
+                                        ${project.reporting.outputDirectory}/jacoco-ut
                                     </outputDirectory>
                                 </configuration>
                             </execution>
