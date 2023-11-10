@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
+import uk.gov.gchq.gaffer.federatedstore.util.ConcatenateMergeFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -109,19 +110,16 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         try {
             Object rtn = null;
 
-            final BiFunction mergeFunction = getMergeFunction(operation, store, context, isEmpty(resultsFromAllGraphs));
+            BiFunction mergeFunction = getMergeFunction(operation, store, context, isEmpty(resultsFromAllGraphs));
             final List<GraphSerialisable> graphs = getGraphs(operation, context, store);
 
             // If default merging and only have one graph or no common groups then just return the current results
             if (!graphs.isEmpty()
                     && mergeFunction instanceof ApplyViewToElementsFunction
                     && (graphs.size() == 1 || !graphsHaveCommonSchemaGroups(graphs))) {
-                LOGGER.info("Skipping merge function as not required when only one graph or no common groups");
-                // Just flatten current results to a single set to return
-                Iterable<?> iterableStream = () -> StreamSupport.stream(resultsFromAllGraphs.spliterator(), false)
-                    .flatMap(result -> StreamSupport.stream(((Iterable<?>) result).spliterator(), false))
-                    .iterator();
-                return iterableStream;
+                LOGGER.info("Returning flat list of results as complex merging not required when only one graph or no common groups");
+                // Just use the concatenate merge to flatten the results
+                mergeFunction = new ConcatenateMergeFunction();
             }
 
             // Reduce
