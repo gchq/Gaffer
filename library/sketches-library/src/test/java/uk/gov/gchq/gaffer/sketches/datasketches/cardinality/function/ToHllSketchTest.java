@@ -44,6 +44,18 @@ class ToHllSketchTest extends FunctionTest<ToHllSketch> {
     }
 
     @Test
+    public void shouldCreateDefaultSketchWhenNullConstructor() {
+        // Given
+        ToHllSketch toHllSketch = new ToHllSketch(null);
+
+        // When
+        final int logK = toHllSketch.getLogK();
+
+        // Then
+        assertThat(logK).isEqualTo(DEFAULT_LOG_K);
+    }
+
+    @Test
     public void shouldCreateHllSketch() {
         // Given
         ToHllSketch toHllSketch = new ToHllSketch();

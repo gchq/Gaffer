@@ -47,6 +47,18 @@ class IterableToHllSketchTest extends FunctionTest<IterableToHllSketch> {
     }
 
     @Test
+    public void shouldCreateDefaultSketchWhenNullConstructor() {
+        // Given
+        final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch(null);
+
+        // When
+        final int logK = iterableToHllSketch.getLogK();
+
+        // Then
+        assertThat(logK).isEqualTo(DEFAULT_LOG_K);
+    }
+
+    @Test
     public void shouldCreateHllSketch() {
         // Given
         final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch();
