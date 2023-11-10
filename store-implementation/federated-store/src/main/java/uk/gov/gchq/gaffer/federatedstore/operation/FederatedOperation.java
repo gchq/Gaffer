@@ -33,6 +33,8 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -42,6 +44,7 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +65,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds", "skipFailedFederatedExecution"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("Federates a payload operation across given graphs and merges the results with a given function.")
-public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, InputOutput<INPUT, OUTPUT> {
+public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, InputOutput<INPUT, OUTPUT>, Operations<Operation> {
     private List<String> graphIds;
     @Required
     private Operation payloadOperation;
@@ -96,6 +99,12 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         optionsPutAll(op.getOptions());
 
         return this;
+    }
+
+    @Override
+    @JsonIgnore
+    public Collection<Operation> getOperations() {
+        return OperationChain.wrap(payloadOperation).getOperations();
     }
 
     public FederatedOperation<INPUT, OUTPUT> mergeFunction(final BiFunction mergeFunction) {
