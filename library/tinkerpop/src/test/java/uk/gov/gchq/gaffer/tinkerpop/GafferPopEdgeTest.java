@@ -39,24 +39,22 @@ import static org.mockito.Mockito.when;
 
 public class GafferPopEdgeTest {
 
-    public static String source = "source";
-    public static String dest = "dest";
-    public static GafferPopGraph graph = mock(GafferPopGraph.class);
-    public static String propValue1 = "propValue1";
-    public static int propValue2 = 10;
+    public static final String SOURCE = "source";
+    public static final String DEST = "dest";
 
     @Test
     public void shouldConstructEdge() {
         // Given
-        final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, source, graph);
-        final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, dest, graph);
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, SOURCE, graph);
+        final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, DEST, graph);
 
         // When
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
 
         // Then
-        assertEquals(source, edge.outVertex().id());
-        assertEquals(dest, edge.inVertex().id());
+        assertEquals(SOURCE, edge.outVertex().id());
+        assertEquals(DEST, edge.inVertex().id());
         assertSame(outVertex, edge.outVertex());
         assertSame(inVertex, edge.inVertex());
         final Iterator<Vertex> vertices = edge.bothVertices();
@@ -69,8 +67,9 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldChangeVertexLabelToGraphLabel() {
         // Given
-        final GafferPopVertex outVertex = new GafferPopVertex("label", source, graph);
-        final GafferPopVertex inVertex = new GafferPopVertex("label", dest, graph);
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopVertex outVertex = new GafferPopVertex("label", SOURCE, graph);
+        final GafferPopVertex inVertex = new GafferPopVertex("label", DEST, graph);
 
         // When
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
@@ -83,7 +82,10 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldAddAndGetEdgeProperties() {
         // Given
-        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, SOURCE, DEST, graph);
+        final String propValue1 = "propValue1";
+        final int propValue2 = 10;
 
         // When
         edge.property(TestPropertyNames.STRING, propValue1);
@@ -97,7 +99,10 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldGetIterableOfEdgeProperties() {
         // Given
-        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, SOURCE, DEST, graph);
+        final String propValue1 = "propValue1";
+        final int propValue2 = 10;
         edge.property(TestPropertyNames.STRING, propValue1);
         edge.property(TestPropertyNames.INT, propValue2);
 
@@ -116,7 +121,9 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldGetIterableOfSingleEdgeProperty() {
         // Given
-        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, SOURCE, DEST, graph);
+        final String propValue1 = "propValue1";
         edge.property(TestPropertyNames.STRING, propValue1);
 
         // When
@@ -133,7 +140,8 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldCreateReadableToString() {
         // Given
-        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, SOURCE, DEST, graph);
 
         // When
         final String toString = edge.toString();
@@ -145,8 +153,9 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldReturnOutVertex() {
         // Given
-        final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, source, graph);
-        final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, dest, graph);
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, SOURCE, graph);
+        final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, DEST, graph);
 
         // When
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
@@ -158,8 +167,9 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldReturnInVertex() {
         // Given
-        final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, source, graph);
-        final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, dest, graph);
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, SOURCE, graph);
+        final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, DEST, graph);
 
         // When
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
@@ -171,7 +181,9 @@ public class GafferPopEdgeTest {
     @Test
     public void shouldThrowExceptionWhenReadOnlyIsTrue() {
         // Given
-        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, SOURCE, DEST, graph);
+        final String propValue1 = "propValue1";
 
         // When
         edge.setReadOnly();
