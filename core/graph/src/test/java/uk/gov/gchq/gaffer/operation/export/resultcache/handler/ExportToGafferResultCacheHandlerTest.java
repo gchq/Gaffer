@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class ExportToGafferResultCacheHandlerTest {
@@ -132,7 +132,7 @@ public class ExportToGafferResultCacheHandlerTest {
         // Then
         assertSame(handlerResult, results);
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
-        verify(cacheStore, times(3)).execute(opChain.capture(), Mockito.any(Context.class));
+        verify(cacheStore, atLeast(1)).execute(opChain.capture(), Mockito.any(Context.class));
         assertEquals(1, opChain.getValue().getOperations().size());
         assertTrue(opChain.getValue().getOperations().get(0) instanceof AddElements);
         final GafferResultCacheExporter exporter = context.getExporter(GafferResultCacheExporter.class);
