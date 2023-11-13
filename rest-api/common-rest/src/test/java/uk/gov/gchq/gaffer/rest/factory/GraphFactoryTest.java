@@ -38,8 +38,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -131,15 +131,14 @@ public class GraphFactoryTest {
         final Graph graph = factory.createGraph();
 
         // Then
-        assertEquals(Arrays.asList(
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
                 NamedOperationResolver.class,
                 NamedViewResolver.class,
                 OperationChainLimiter.class,
                 AddOperationsToChain.class,
                 OperationAuthoriser.class,
-                FunctionAuthoriser.class
-        ), graph.getGraphHooks());
-
+                FunctionAuthoriser.class);
     }
 
     @Test

@@ -18,11 +18,11 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
+import uk.gov.gchq.gaffer.graph.hook.exception.GraphHookSuffixException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
@@ -38,7 +38,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTe
 
 public class FederatedStoreCacheSuffixTest {
 
-
     public static final String ALT_SUFFIX = "AltSuffix";
     public static final String DEFAULT_SUFFIX = "DefaultSuffix";
     public static final String PRIORITY_SUFFIX = "PrioritySuffix";
@@ -46,70 +45,76 @@ public class FederatedStoreCacheSuffixTest {
 
     @Test
     void shouldNotAllowResolverWithNullSuffixToBeMismatchedWithAddNamedOperationHandlersGraphIdSuffix() {
-        assertThatExceptionOfType(GafferRuntimeException.class)
-                .isThrownBy(() -> new Graph.Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                                .addHook(new NamedOperationResolver((String) null))
-                                .build())
-                        .storeProperties(new FederatedStoreProperties())
-                        .build())
-                .withMessageContaining(String.format(Graph.Builder.HOOK_SUFFIX_ERROR_FORMAT_MESSAGE,
-                        NamedOperationResolver.class.getSimpleName(),
-                        null,
-                        AddNamedOperationHandler.class.getSimpleName(),
-                        GRAPH_ID_TEST_FEDERATED_STORE.toLowerCase(Locale.UK)));
+        // Configure builder
+        Graph.Builder builder = new Graph.Builder()
+            .config(new GraphConfig.Builder()
+                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .addHook(new NamedOperationResolver((String) null))
+                    .build())
+            .storeProperties(new FederatedStoreProperties());
+
+        // Ensure exception thrown with relevant info
+        assertThatExceptionOfType(GraphHookSuffixException.class)
+            .isThrownBy(() -> builder.build())
+            .withMessageContaining(NamedOperationResolver.class.getSimpleName())
+            .withMessageContaining(AddNamedOperationHandler.class.getSimpleName())
+            .withMessageContaining(GRAPH_ID_TEST_FEDERATED_STORE.toLowerCase(Locale.UK));
     }
 
     @Test
     void shouldNotAllowResolverWithNullSuffixToBeMismatchedWithAddNamedViewHandlersGraphIdSuffix() {
-        assertThatExceptionOfType(GafferRuntimeException.class)
-                .isThrownBy(() -> new Graph.Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                                .addHook(new NamedViewResolver((String) null))
-                                .build())
-                        .storeProperties(new FederatedStoreProperties())
-                        .build())
-                .withMessageContaining(String.format(Graph.Builder.HOOK_SUFFIX_ERROR_FORMAT_MESSAGE,
-                        NamedViewResolver.class.getSimpleName(),
-                        null,
-                        AddNamedViewHandler.class.getSimpleName(),
-                        GRAPH_ID_TEST_FEDERATED_STORE.toLowerCase(Locale.UK)));
+        // Configure builder
+        Graph.Builder builder = new Graph.Builder()
+            .config(new GraphConfig.Builder()
+                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .addHook(new NamedViewResolver((String) null))
+                    .build())
+            .storeProperties(new FederatedStoreProperties());
+
+        // Ensure exception thrown with relevant info
+        assertThatExceptionOfType(GraphHookSuffixException.class)
+            .isThrownBy(() -> builder.build())
+            .withMessageContaining(NamedViewResolver.class.getSimpleName())
+            .withMessageContaining(AddNamedViewHandler.class.getSimpleName())
+            .withMessageContaining(GRAPH_ID_TEST_FEDERATED_STORE.toLowerCase(Locale.UK));
     }
 
     @Test
     void shouldNotAllowResolverWithDifferentSuffixToBeMismatchedWithAddNamedOperationHandlersGraphIdSuffix() {
-        assertThatExceptionOfType(GafferRuntimeException.class)
-                .isThrownBy(() -> new Graph.Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                                .addHook(new NamedOperationResolver((String) ALT_SUFFIX))
-                                .build())
-                        .storeProperties(new FederatedStoreProperties())
-                        .build())
-                .withMessageContaining(String.format(Graph.Builder.HOOK_SUFFIX_ERROR_FORMAT_MESSAGE,
-                        NamedOperationResolver.class.getSimpleName(),
-                        ALT_SUFFIX.toLowerCase(Locale.UK),
-                        AddNamedOperationHandler.class.getSimpleName(),
-                        GRAPH_ID_TEST_FEDERATED_STORE.toLowerCase(Locale.UK)));
+        // Configure builder
+        Graph.Builder builder = new Graph.Builder()
+            .config(new GraphConfig.Builder()
+                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .addHook(new NamedOperationResolver((String) ALT_SUFFIX))
+                    .build())
+            .storeProperties(new FederatedStoreProperties());
+
+        // Ensure exception thrown with relevant info
+        assertThatExceptionOfType(GraphHookSuffixException.class)
+            .isThrownBy(() -> builder.build())
+            .withMessageContaining(NamedOperationResolver.class.getSimpleName())
+            .withMessageContaining(ALT_SUFFIX.toLowerCase(Locale.UK))
+            .withMessageContaining(AddNamedOperationHandler.class.getSimpleName())
+            .withMessageContaining(GRAPH_ID_TEST_FEDERATED_STORE.toLowerCase(Locale.UK));
     }
 
     @Test
     void shouldNotAllowResolverWithDifferentSuffixToBeMismatchedWithAddNamedViewHandlersGraphIdSuffix() {
-        assertThatExceptionOfType(GafferRuntimeException.class)
-                .isThrownBy(() -> new Graph.Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                                .addHook(new NamedViewResolver((String) ALT_SUFFIX))
-                                .build())
-                        .storeProperties(new FederatedStoreProperties())
-                        .build())
-                .withMessageContaining(String.format(Graph.Builder.HOOK_SUFFIX_ERROR_FORMAT_MESSAGE,
-                        NamedViewResolver.class.getSimpleName(),
-                        ALT_SUFFIX.toLowerCase(Locale.UK),
-                        AddNamedViewHandler.class.getSimpleName(),
-                        GRAPH_ID_TEST_FEDERATED_STORE.toLowerCase(Locale.UK)));
+        // Configure builder
+        Graph.Builder builder = new Graph.Builder()
+            .config(new GraphConfig.Builder()
+                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .addHook(new NamedViewResolver((String) ALT_SUFFIX))
+                    .build())
+            .storeProperties(new FederatedStoreProperties());
+
+        // Ensure exception thrown with relevant info
+        assertThatExceptionOfType(GraphHookSuffixException.class)
+            .isThrownBy(() -> builder.build())
+            .withMessageContaining(NamedViewResolver.class.getSimpleName())
+            .withMessageContaining(ALT_SUFFIX.toLowerCase(Locale.UK))
+            .withMessageContaining(AddNamedViewHandler.class.getSimpleName())
+            .withMessageContaining(GRAPH_ID_TEST_FEDERATED_STORE.toLowerCase(Locale.UK));
     }
 
     @Test
@@ -117,19 +122,20 @@ public class FederatedStoreCacheSuffixTest {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
         properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
 
-        assertThatExceptionOfType(GafferRuntimeException.class)
-                .isThrownBy(() -> new Graph.Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                                .addHook(new NamedOperationResolver((String) null))
-                                .build())
-                        .storeProperties(properties)
-                        .build())
-                .withMessageContaining(String.format(Graph.Builder.HOOK_SUFFIX_ERROR_FORMAT_MESSAGE,
-                        NamedOperationResolver.class.getSimpleName(),
-                        null,
-                        AddNamedOperationHandler.class.getSimpleName(),
-                        DEFAULT_SUFFIX.toLowerCase(Locale.UK)));
+        // Configure builder
+        Graph.Builder builder = new Graph.Builder()
+            .config(new GraphConfig.Builder()
+                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .addHook(new NamedOperationResolver((String) null))
+                    .build())
+            .storeProperties(properties);
+
+        // Ensure exception thrown with relevant info
+        assertThatExceptionOfType(GraphHookSuffixException.class)
+            .isThrownBy(() -> builder.build())
+            .withMessageContaining(NamedOperationResolver.class.getSimpleName())
+            .withMessageContaining(AddNamedOperationHandler.class.getSimpleName())
+            .withMessageContaining(DEFAULT_SUFFIX.toLowerCase(Locale.UK));
     }
 
     @Test
@@ -137,19 +143,20 @@ public class FederatedStoreCacheSuffixTest {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
         properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
 
-        assertThatExceptionOfType(GafferRuntimeException.class)
-                .isThrownBy(() -> new Graph.Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                                .addHook(new NamedViewResolver((String) null))
-                                .build())
-                        .storeProperties(properties)
-                        .build())
-                .withMessageContaining(String.format(Graph.Builder.HOOK_SUFFIX_ERROR_FORMAT_MESSAGE,
-                        NamedViewResolver.class.getSimpleName(),
-                        null,
-                        AddNamedViewHandler.class.getSimpleName(),
-                        DEFAULT_SUFFIX.toLowerCase(Locale.UK)));
+        // Configure builder
+        Graph.Builder builder = new Graph.Builder()
+            .config(new GraphConfig.Builder()
+                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .addHook(new NamedViewResolver((String) null))
+                    .build())
+            .storeProperties(properties);
+
+        // Ensure exception thrown with relevant info
+        assertThatExceptionOfType(GraphHookSuffixException.class)
+            .isThrownBy(() -> builder.build())
+            .withMessageContaining(NamedViewResolver.class.getSimpleName())
+            .withMessageContaining(AddNamedViewHandler.class.getSimpleName())
+            .withMessageContaining(DEFAULT_SUFFIX.toLowerCase(Locale.UK));
     }
 
     @Test
@@ -157,19 +164,21 @@ public class FederatedStoreCacheSuffixTest {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
         properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
 
-        assertThatExceptionOfType(GafferRuntimeException.class)
-                .isThrownBy(() -> new Graph.Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                                .addHook(new NamedOperationResolver((String) ALT_SUFFIX))
-                                .build())
-                        .storeProperties(properties)
-                        .build())
-                .withMessageContaining(String.format(Graph.Builder.HOOK_SUFFIX_ERROR_FORMAT_MESSAGE,
-                        NamedOperationResolver.class.getSimpleName(),
-                        ALT_SUFFIX.toLowerCase(Locale.UK),
-                        AddNamedOperationHandler.class.getSimpleName(),
-                        DEFAULT_SUFFIX.toLowerCase(Locale.UK)));
+        // Configure builder
+        Graph.Builder builder = new Graph.Builder()
+            .config(new GraphConfig.Builder()
+                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .addHook(new NamedOperationResolver((String) ALT_SUFFIX))
+                    .build())
+            .storeProperties(properties);
+
+        // Ensure exception thrown with relevant info
+        assertThatExceptionOfType(GraphHookSuffixException.class)
+            .isThrownBy(() -> builder.build())
+            .withMessageContaining(NamedOperationResolver.class.getSimpleName())
+            .withMessageContaining(ALT_SUFFIX.toLowerCase(Locale.UK))
+            .withMessageContaining(AddNamedOperationHandler.class.getSimpleName())
+            .withMessageContaining(DEFAULT_SUFFIX.toLowerCase(Locale.UK));
     }
 
     @Test
@@ -177,19 +186,21 @@ public class FederatedStoreCacheSuffixTest {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
         properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
 
-        assertThatExceptionOfType(GafferRuntimeException.class)
-                .isThrownBy(() -> new Graph.Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                                .addHook(new NamedViewResolver((String) ALT_SUFFIX))
-                                .build())
-                        .storeProperties(properties)
-                        .build())
-                .withMessageContaining(String.format(Graph.Builder.HOOK_SUFFIX_ERROR_FORMAT_MESSAGE,
-                        NamedViewResolver.class.getSimpleName(),
-                        ALT_SUFFIX.toLowerCase(Locale.UK),
-                        AddNamedViewHandler.class.getSimpleName(),
-                        DEFAULT_SUFFIX.toLowerCase(Locale.UK)));
+        // Configure builder
+        Graph.Builder builder = new Graph.Builder()
+            .config(new GraphConfig.Builder()
+                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .addHook(new NamedViewResolver((String) ALT_SUFFIX))
+                    .build())
+            .storeProperties(properties);
+
+        // Ensure exception thrown with relevant info
+        assertThatExceptionOfType(GraphHookSuffixException.class)
+            .isThrownBy(() -> builder.build())
+            .withMessageContaining(NamedViewResolver.class.getSimpleName())
+            .withMessageContaining(ALT_SUFFIX.toLowerCase(Locale.UK))
+            .withMessageContaining(AddNamedViewHandler.class.getSimpleName())
+            .withMessageContaining(DEFAULT_SUFFIX.toLowerCase(Locale.UK));
     }
 
     @Test
@@ -198,19 +209,20 @@ public class FederatedStoreCacheSuffixTest {
         properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
         properties.set(StoreProperties.CACHE_SERVICE_NAMED_OPERATION_SUFFIX, PRIORITY_SUFFIX);
 
-        assertThatExceptionOfType(GafferRuntimeException.class)
-                .isThrownBy(() -> new Graph.Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                                .addHook(new NamedOperationResolver((String) null))
-                                .build())
-                        .storeProperties(properties)
-                        .build())
-                .withMessageContaining(String.format(Graph.Builder.HOOK_SUFFIX_ERROR_FORMAT_MESSAGE,
-                        NamedOperationResolver.class.getSimpleName(),
-                        null,
-                        AddNamedOperationHandler.class.getSimpleName(),
-                        PRIORITY_SUFFIX.toLowerCase(Locale.UK)));
+        // Configure builder
+        Graph.Builder builder = new Graph.Builder()
+            .config(new GraphConfig.Builder()
+                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .addHook(new NamedOperationResolver((String) null))
+                    .build())
+            .storeProperties(properties);
+
+        // Ensure exception thrown with relevant info
+        assertThatExceptionOfType(GraphHookSuffixException.class)
+            .isThrownBy(() -> builder.build())
+            .withMessageContaining(NamedOperationResolver.class.getSimpleName())
+            .withMessageContaining(AddNamedOperationHandler.class.getSimpleName())
+            .withMessageContaining(PRIORITY_SUFFIX.toLowerCase(Locale.UK));
     }
 
     @Test
@@ -219,19 +231,20 @@ public class FederatedStoreCacheSuffixTest {
         properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
         properties.set(StoreProperties.CACHE_SERVICE_NAMED_VIEW_SUFFIX, PRIORITY_SUFFIX);
 
-        assertThatExceptionOfType(GafferRuntimeException.class)
-                .isThrownBy(() -> new Graph.Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                                .addHook(new NamedViewResolver((String) null))
-                                .build())
-                        .storeProperties(properties)
-                        .build())
-                .withMessageContaining(String.format(Graph.Builder.HOOK_SUFFIX_ERROR_FORMAT_MESSAGE,
-                        NamedViewResolver.class.getSimpleName(),
-                        null,
-                        AddNamedViewHandler.class.getSimpleName(),
-                        PRIORITY_SUFFIX.toLowerCase(Locale.UK)));
+        // Configure builder
+        Graph.Builder builder = new Graph.Builder()
+            .config(new GraphConfig.Builder()
+                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .addHook(new NamedViewResolver((String) null))
+                    .build())
+            .storeProperties(properties);
+
+        // Ensure exception thrown with relevant info
+        assertThatExceptionOfType(GraphHookSuffixException.class)
+            .isThrownBy(() -> builder.build())
+            .withMessageContaining(NamedViewResolver.class.getSimpleName())
+            .withMessageContaining(AddNamedViewHandler.class.getSimpleName())
+            .withMessageContaining(PRIORITY_SUFFIX.toLowerCase(Locale.UK));
     }
 
     @Test
@@ -240,19 +253,21 @@ public class FederatedStoreCacheSuffixTest {
         properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
         properties.set(StoreProperties.CACHE_SERVICE_NAMED_OPERATION_SUFFIX, PRIORITY_SUFFIX);
 
-        assertThatExceptionOfType(GafferRuntimeException.class)
-                .isThrownBy(() -> new Graph.Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                                .addHook(new NamedOperationResolver((String) ALT_SUFFIX))
-                                .build())
-                        .storeProperties(properties)
-                        .build())
-                .withMessageContaining(String.format(Graph.Builder.HOOK_SUFFIX_ERROR_FORMAT_MESSAGE,
-                        NamedOperationResolver.class.getSimpleName(),
-                        ALT_SUFFIX.toLowerCase(Locale.UK),
-                        AddNamedOperationHandler.class.getSimpleName(),
-                        PRIORITY_SUFFIX.toLowerCase(Locale.UK)));
+        // Configure builder
+        Graph.Builder builder = new Graph.Builder()
+            .config(new GraphConfig.Builder()
+                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .addHook(new NamedOperationResolver((String) ALT_SUFFIX))
+                    .build())
+            .storeProperties(properties);
+
+        // Ensure exception thrown with relevant info
+        assertThatExceptionOfType(GraphHookSuffixException.class)
+            .isThrownBy(() -> builder.build())
+            .withMessageContaining(NamedOperationResolver.class.getSimpleName())
+            .withMessageContaining(ALT_SUFFIX.toLowerCase(Locale.UK))
+            .withMessageContaining(AddNamedOperationHandler.class.getSimpleName())
+            .withMessageContaining(PRIORITY_SUFFIX.toLowerCase(Locale.UK));
     }
 
     @Test
@@ -261,19 +276,21 @@ public class FederatedStoreCacheSuffixTest {
         properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
         properties.set(StoreProperties.CACHE_SERVICE_NAMED_VIEW_SUFFIX, PRIORITY_SUFFIX);
 
-        assertThatExceptionOfType(GafferRuntimeException.class)
-                .isThrownBy(() -> new Graph.Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
-                                .addHook(new NamedViewResolver((String) ALT_SUFFIX))
-                                .build())
-                        .storeProperties(properties)
-                        .build())
-                .withMessageContaining(String.format(Graph.Builder.HOOK_SUFFIX_ERROR_FORMAT_MESSAGE,
-                        NamedViewResolver.class.getSimpleName(),
-                        ALT_SUFFIX.toLowerCase(Locale.UK),
-                        AddNamedViewHandler.class.getSimpleName(),
-                        PRIORITY_SUFFIX.toLowerCase(Locale.UK)));
+        // Configure builder
+        Graph.Builder builder = new Graph.Builder()
+            .config(new GraphConfig.Builder()
+                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .addHook(new NamedViewResolver((String) ALT_SUFFIX))
+                    .build())
+            .storeProperties(properties);
+
+        // Ensure exception thrown with relevant info
+        assertThatExceptionOfType(GraphHookSuffixException.class)
+            .isThrownBy(() -> builder.build())
+            .withMessageContaining(NamedViewResolver.class.getSimpleName())
+            .withMessageContaining(ALT_SUFFIX.toLowerCase(Locale.UK))
+            .withMessageContaining(AddNamedViewHandler.class.getSimpleName())
+            .withMessageContaining(PRIORITY_SUFFIX.toLowerCase(Locale.UK));
     }
 
     @Test
