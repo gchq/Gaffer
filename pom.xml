@@ -55,6 +55,7 @@
         <assertj.version>3.24.2</assertj.version>
         <mockito.version>4.11.0</mockito.version>
         <slf4j.api.version>1.7.36</slf4j.api.version>
+        <pitest-junit5.version>1.2.1</pitest-junit5.version>
 
         <scala.minor.version>2.11</scala.minor.version>
         <scala.version>${scala.minor.version}.12</scala.version>
@@ -123,6 +124,7 @@
         <enforcer.plugin.version>3.1.0</enforcer.plugin.version>
         <site.plugin.version>3.12.1</site.plugin.version>
         <info.plugin.version>3.4.1</info.plugin.version>
+        <pitest.plugin.version>1.15.3</pitest.plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>
@@ -1575,6 +1577,35 @@
                                         ${project.reporting.outputDirectory}/jacoco-it
                                     </outputDirectory>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- Activates mutation testing on for the unit tests -->
+        <profile>
+            <id>mutation</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-maven</artifactId>
+                        <version>${pitest.plugin.version}</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.pitest</groupId>
+                                <artifactId>pitest-junit5-plugin</artifactId>
+                                <version>${pitest-junit5.version}</version>
+                            </dependency>
+                        </dependencies>
+                        <executions>
+                            <execution>
+                                <id>mutation-coverage</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>mutationCoverage</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
