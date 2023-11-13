@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.datasketches.hll.HllSketch;
 
@@ -35,24 +36,24 @@ import static uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ToHllSketch extends KorypheFunction<Object, HllSketch> {
     private int logK = DEFAULT_LOG_K;
+    @JsonIgnore
     private HllSketch hllSketch;
 
     public ToHllSketch() {
+        hllSketch = new HllSketch(logK);
     }
 
     public ToHllSketch(final int logK) {
         this.logK = logK;
+        hllSketch = new HllSketch(logK);
     }
 
     public ToHllSketch(final HllSketch hllSketch) {
-        this.hllSketch = hllSketch;
+        setHllSketch(hllSketch);
     }
 
     @Override
     public HllSketch apply(final Object o) {
-        if (hllSketch == null) {
-            hllSketch = new HllSketch(logK);
-        }
         if (nonNull(o)) {
             if (o instanceof String) {
                 hllSketch.update((String) o);
@@ -90,6 +91,10 @@ public class ToHllSketch extends KorypheFunction<Object, HllSketch> {
     }
 
     public void setHllSketch(final HllSketch hllSketch) {
-        this.hllSketch = hllSketch;
+        if (hllSketch != null) {
+            this.hllSketch = hllSketch.copy();
+        } else {
+            this.hllSketch = new HllSketch(logK);
+        }
     }
 }

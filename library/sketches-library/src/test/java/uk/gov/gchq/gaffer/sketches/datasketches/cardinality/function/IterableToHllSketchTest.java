@@ -47,6 +47,18 @@ class IterableToHllSketchTest extends FunctionTest<IterableToHllSketch> {
     }
 
     @Test
+    public void shouldCreateDefaultSketchWhenNullConstructor() {
+        // Given
+        final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch(null);
+
+        // When
+        final int logK = iterableToHllSketch.getLogK();
+
+        // Then
+        assertThat(logK).isEqualTo(DEFAULT_LOG_K);
+    }
+
+    @Test
     public void shouldCreateHllSketch() {
         // Given
         final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch();
@@ -102,7 +114,7 @@ class IterableToHllSketchTest extends FunctionTest<IterableToHllSketch> {
     public void shouldCorrectlyCreateFromAnotherHllSketch() {
         // Given
         final HllSketch anotherSketch = new HllSketch(5);
-        IterableToHllSketch iterableToHllSketch = new IterableToHllSketch(anotherSketch);
+        final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch(anotherSketch);
         final List<Object> input = Arrays.asList("one", "one", "two", "two", "three");
 
         // When
@@ -110,6 +122,24 @@ class IterableToHllSketchTest extends FunctionTest<IterableToHllSketch> {
 
         // Then
         assertThat(result.getLgConfigK()).isEqualTo(5);
+    }
+
+    @Test
+    public void shouldCorrectlyCopyAnotherHllSketch() {
+        // Given
+        final HllSketch anotherSketch = new HllSketch();
+        anotherSketch.update("second");
+        anotherSketch.update("third");
+
+        final IterableToHllSketch iterableToHllSketch = new IterableToHllSketch(anotherSketch);
+        final List<Object> input = Arrays.asList("one", "one", "two", "two", "three");
+
+        // When
+        final HllSketch result = iterableToHllSketch.apply(input);
+
+        // Then
+        assertThat(result.getEstimate()).isCloseTo(5, Percentage.withPercentage(0.001));
+        assertThat(anotherSketch.getEstimate()).isCloseTo(2, Percentage.withPercentage(0.001));
     }
 
     @Override
