@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.generator;
 
-import com.google.common.collect.Lists;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features.VertexFeatures;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features.VertexPropertyFeatures;
@@ -24,18 +23,19 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class GafferPopVertexGeneratorTest {
+
     @Test
     public void shouldConvertGafferEntityToGafferPopReadOnlyEntity() {
         // Given
@@ -61,12 +61,12 @@ public class GafferPopVertexGeneratorTest {
         final GafferPopVertex gafferPopVertex = generator._apply(entity);
 
         // Then
-        assertEquals(TestGroups.ENTITY, gafferPopVertex.label());
-        assertEquals(vertex, gafferPopVertex.id());
-        assertEquals(propValue, gafferPopVertex.property(TestPropertyNames.STRING).value());
-        assertEquals(1, Lists.newArrayList(gafferPopVertex.properties()).size());
-        assertSame(graph, gafferPopVertex.graph());
-        assertTrue(gafferPopVertex.isReadOnly());
+        assertThat(gafferPopVertex.label()).isEqualTo(TestGroups.ENTITY);
+        assertThat(gafferPopVertex.id()).isEqualTo(vertex);
+        assertThat(gafferPopVertex.property(TestPropertyNames.STRING).value()).isEqualTo(propValue);
+        assertThat(gafferPopVertex.properties()).toIterable().hasSize(1);
+        assertThat(gafferPopVertex.graph()).isSameAs(graph);
+        assertThat(gafferPopVertex.isReadOnly()).isTrue();
     }
 
     @Test
@@ -94,11 +94,24 @@ public class GafferPopVertexGeneratorTest {
         final GafferPopVertex gafferPopVertex = generator._apply(entity);
 
         // Then
-        assertEquals(TestGroups.ENTITY, gafferPopVertex.label());
-        assertEquals(vertex, gafferPopVertex.id());
-        assertEquals(propValue, gafferPopVertex.property(TestPropertyNames.STRING).value());
-        assertEquals(1, Lists.newArrayList(gafferPopVertex.properties()).size());
-        assertSame(graph, gafferPopVertex.graph());
-        assertFalse(gafferPopVertex.isReadOnly());
+        assertThat(gafferPopVertex.label()).isEqualTo(TestGroups.ENTITY);
+        assertThat(gafferPopVertex.id()).isEqualTo(vertex);
+        assertThat(gafferPopVertex.property(TestPropertyNames.STRING).value()).isEqualTo(propValue);
+        assertThat(gafferPopVertex.properties()).toIterable().hasSize(1);
+        assertThat(gafferPopVertex.graph()).isSameAs(graph);
+        assertThat(gafferPopVertex.isReadOnly()).isFalse();
     }
+
+    @Test
+    public void shouldThrowExceptionWhenPassedEdge() {
+        // Given
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final Element element = new Edge.Builder().group(TestGroups.EDGE).build();
+        final GafferPopVertexGenerator generator = new GafferPopVertexGenerator(graph, true);
+
+        // Then
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> generator._apply(element));
+    }
+
 }

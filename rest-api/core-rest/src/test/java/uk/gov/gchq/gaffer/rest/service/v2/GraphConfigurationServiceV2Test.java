@@ -96,7 +96,7 @@ public class GraphConfigurationServiceV2Test {
         final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
         when(store.getSchema()).thenReturn(new Schema());
         when(store.getProperties()).thenReturn(new StoreProperties());
-        when(store.getGraphId()).thenReturn(GRAPH_ID);
+        lenient().when(store.getGraphId()).thenReturn(GRAPH_ID);
         // Spy on the Graph, so we can stub only GetTraits Operation execution
         final Graph graph = spy(new Graph.Builder()
                 .config(new GraphConfig.Builder()
