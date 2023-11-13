@@ -149,3 +149,4 @@ jobs:
         with:
           name: gaffer-coverage
           fail_ci_if_error: true # Ensures upload doesn't fail silently
+          token: ${{ secrets.CODECOV_TOKEN }}
