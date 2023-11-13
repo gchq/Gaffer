@@ -37,7 +37,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -58,23 +57,23 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedOperationHandler.class);
 
     public static final String ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS_FORMAT = "Error while running operation on graphs, due to: %s";
-    public static final String MERGE_FUNCTION_GET_GRAPHS = FederatedOperationHandler.class.getCanonicalName() + "merge.function.getGraphs";
+    private List<GraphSerialisable> graphs;
     private Context context;
 
     @Override
     public Object doOperation(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final Store store) throws OperationException {
         this.context = context;
-        final Iterable<?> allGraphResults = getAllGraphResults(operation, (FederatedStore) store);
+        this.graphs = getGraphs(operation, context, (FederatedStore) store);
+        final Iterable<?> allGraphResults = getAllGraphResults(operation);
 
         return mergeResults(allGraphResults, operation, (FederatedStore) store);
     }
 
-    private Iterable getAllGraphResults(final FederatedOperation<INPUT, OUTPUT> operation, final FederatedStore store) throws OperationException {
+    private Iterable getAllGraphResults(final FederatedOperation<INPUT, OUTPUT> operation) throws OperationException {
         try {
             List<Object> results;
-            final Collection<GraphSerialisable> graphs = getGraphs(operation, context, store);
-            context.setVariable(MERGE_FUNCTION_GET_GRAPHS, graphs.stream().map(GraphSerialisable::getGraphId).collect(Collectors.toList()));
             results = new ArrayList<>(graphs.size());
+            LOGGER.debug("Getting results from {} graphs", graphs.size());
             for (final GraphSerialisable graphSerialisable : graphs) {
                 final Graph graph = graphSerialisable.getGraph();
 
@@ -110,7 +109,6 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             Object rtn = null;
 
             BiFunction mergeFunction = getMergeFunction(operation, store, context, isEmpty(resultsFromAllGraphs));
-            final List<GraphSerialisable> graphs = getGraphs(operation, context, store);
 
             // If default merging and only have one graph or no common groups then just return the current results
             if (!graphs.isEmpty()
@@ -128,8 +126,8 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
             return rtn;
         } catch (final Exception e) {
-            final Object graphs = context.getVariable(MERGE_FUNCTION_GET_GRAPHS);
-            throw new OperationException(String.format("Error while merging results from graphs: %s due to: %s", graphs.toString(), e.getMessage()), e);
+            final List<String> graphIds = graphs.stream().map(GraphSerialisable::getGraphId).collect(Collectors.toList());
+            throw new OperationException(String.format("Error while merging results from graphs: %s due to: %s", graphIds, e.getMessage()), e);
         }
     }
 
@@ -151,12 +149,15 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         return mergeFunction;
     }
 
-    private List<GraphSerialisable> getGraphs(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) {
-        List<GraphSerialisable> graphs = store.getGraphs(context.getUser(), operation.getGraphIds(), operation);
+    private List<GraphSerialisable> getGraphs(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) throws OperationException {
+        List<GraphSerialisable> getGraphs;
+        try {
+            getGraphs = store.getGraphs(context.getUser(), operation.getGraphIds(), operation);
+        } catch (final IllegalArgumentException e) {
+            throw new OperationException("Error obtaining graph information for operation", e);
+        }
 
-        return nonNull(graphs) ?
-                graphs
-                : Collections.emptyList();
+        return getGraphs != null ? getGraphs : Collections.emptyList();
     }
 
     /**
