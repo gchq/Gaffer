@@ -31,10 +31,13 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -58,7 +61,7 @@ public class GafferPopVertexTest {
     }
 
     @Test
-    public void shouldAddAndGetVertexProperties() {
+    void shouldAddAndGetVertexProperties() {
         // Given
         final String id = GafferPopGraph.ID_LABEL;
 
@@ -80,10 +83,36 @@ public class GafferPopVertexTest {
         // When
         vertex.property(Cardinality.list, TestPropertyNames.STRING, propValue1);
         vertex.property(Cardinality.list, TestPropertyNames.INT, propValue2);
+        vertex.property(Cardinality.list, TestPropertyNames.NULL, null);
 
         // Then
-        assertEquals(propValue1, vertex.property(TestPropertyNames.STRING).value());
-        assertEquals(propValue2, vertex.property(TestPropertyNames.INT).value());
+        assertThat(vertex.property(TestPropertyNames.STRING).value()).isEqualTo(propValue1);
+        assertThat(vertex.property(TestPropertyNames.INT).value()).isEqualTo(propValue2);
+        assertThat(vertex.property(TestPropertyNames.NULL).value()).isNull();
+    }
+
+    @Test
+    void shouldFailToGetDuplicateProperties() {
+        // Given
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final Features features = mock(Features.class);
+        final VertexFeatures vertexFeatures = mock(VertexFeatures.class);
+        final VertexPropertyFeatures vertexPropertyFeatures = mock(VertexPropertyFeatures.class);
+        given(graph.features()).willReturn(features);
+        given(features.vertex()).willReturn(vertexFeatures);
+        given(vertexFeatures.properties()).willReturn(vertexPropertyFeatures);
+        // Make new vertex with the mocked bits
+        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
+        String duplicatePropertyValue = "duplicate";
+
+        // When
+        // Add two of the same property
+        vertex.property(Cardinality.list, TestPropertyNames.STRING, duplicatePropertyValue);
+        vertex.property(Cardinality.list, TestPropertyNames.STRING, duplicatePropertyValue);
+
+        // Then
+        assertThatExceptionOfType(IllegalStateException.class)
+            .isThrownBy(() -> vertex.property(TestPropertyNames.STRING));
     }
 
     @Test
