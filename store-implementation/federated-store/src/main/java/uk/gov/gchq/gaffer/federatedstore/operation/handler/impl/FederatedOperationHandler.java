@@ -22,9 +22,9 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
-import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.ConcatenateMergeFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
+import uk.gov.gchq.gaffer.federatedstore.util.MergeElementFunction;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -112,7 +112,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
             // If default merging and only have one graph or no common groups then just return the current results
             if (!graphs.isEmpty()
-                    && mergeFunction instanceof ApplyViewToElementsFunction
+                    && mergeFunction instanceof MergeElementFunction
                     && (graphs.size() == 1 || !graphsHaveCommonSchemaGroups(graphs))) {
                 LOGGER.info("Returning flat list of results as complex merging not required when only one graph or no common groups");
                 // Just use the concatenate merge to flatten the results
