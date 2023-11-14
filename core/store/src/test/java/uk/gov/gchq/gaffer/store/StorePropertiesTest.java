@@ -27,12 +27,13 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StorePropertiesTest {
 
@@ -180,21 +181,27 @@ public class StorePropertiesTest {
     public void shouldSetJsonSerialiserModules() {
         // Given
         final StoreProperties props = createStoreProperties();
-        final Set<Class<? extends JSONSerialiserModules>> modules = new LinkedHashSet<>(
-            Arrays.asList(
-                TestCustomJsonModules1.class,
-                TestCustomJsonModules2.class
-            )
+        final Set<Class<? extends JSONSerialiserModules>> modules = Sets.newHashSet(
+            TestCustomJsonModules1.class,
+            TestCustomJsonModules2.class
         );
-
+        
         // When
         props.setJsonSerialiserModules(modules);
 
         // Then
-        final String expected = TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName();
-        assertEquals(expected, props.getJsonSerialiserModules());
-    }
+        final Set<String> expected = Sets.newHashSet(
+                TestCustomJsonModules1.class.getName(),
+                TestCustomJsonModules2.class.getName()
+        );
 
+        final Set<String> actual = new HashSet<>(
+                Arrays.asList(props.getJsonSerialiserModules().split(","))
+        );
+
+        assertEquals(expected, actual);
+        }
+        
     @Test
     public void shouldGetAndSetAdminAuth() {
         // Given
