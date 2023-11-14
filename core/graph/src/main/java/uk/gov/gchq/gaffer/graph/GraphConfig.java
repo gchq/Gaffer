@@ -20,16 +20,26 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.hook.GetFromCacheHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHookPath;
+import uk.gov.gchq.gaffer.graph.hook.exception.GraphHookException;
+import uk.gov.gchq.gaffer.graph.hook.exception.GraphHookSuffixException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddToCacheHandler;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,6 +66,8 @@ import java.util.List;
  */
 @JsonPropertyOrder(value = {"description", "graphId"}, alphabetic = true)
 public final class GraphConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphConfig.class);
+
     private String graphId;
     // Keeping the view as json enforces a new instance of View is created
     // every time it is used.
@@ -104,6 +116,11 @@ public final class GraphConfig {
         this.description = description;
     }
 
+    /**
+     * Returns a list of all the graph hooks.
+     *
+     * @return List of graph hooks.
+     */
     public List<GraphHook> getHooks() {
         return hooks;
     }
@@ -116,23 +133,141 @@ public final class GraphConfig {
         }
     }
 
+    /**
+     * Adds the supplied {@link GraphHook} to the list of graph hooks.
+     *
+     * @param hook The hook to add.
+     */
     public void addHook(final GraphHook hook) {
-        if (null != hook) {
-            if (hook instanceof GraphHookPath) {
-                final String path = ((GraphHookPath) hook).getPath();
-                final File file = new File(path);
-                if (!file.exists()) {
-                    throw new IllegalArgumentException("Unable to find graph hook file: " + path);
-                }
-                try {
-                    hooks.add(JSONSerialiser.deserialise(FileUtils.readFileToByteArray(file), GraphHook.class));
-                } catch (final IOException e) {
-                    throw new IllegalArgumentException("Unable to deserialise graph hook from file: " + path, e);
-                }
-            } else {
-                hooks.add(hook);
+        // Validate params
+        if (hook == null) {
+            LOGGER.warn("addHook was called with a null hook, ignoring call");
+            return;
+        }
+
+        if (hook instanceof GraphHookPath) {
+            final File file = new File(((GraphHookPath) hook).getPath());
+            if (!file.exists()) {
+                throw new IllegalArgumentException("Unable to find graph hook file: " + file.toString());
+            }
+            try {
+                LOGGER.debug("Adding Hook from JSON file path: {}", file);
+                hooks.add(JSONSerialiser.deserialise(FileUtils.readFileToByteArray(file), GraphHook.class));
+            } catch (final IOException e) {
+                throw new IllegalArgumentException("Unable to deserialise graph hook from file: " + file.toString(), e);
+            }
+        } else {
+            LOGGER.debug("Adding Hook {}", hook.getClass().getSimpleName());
+            hooks.add(hook);
+        }
+    }
+
+    /**
+     * Checks the current {@link GraphHook} list to see if any of the hooks
+     * match the supplied class. Will return true if list contains one or more
+     * matches.
+     *
+     * @param hookClass Class to check for match.
+     * @return True if hook with matching class found.
+     */
+    public boolean hasHook(final Class<? extends GraphHook> hookClass) {
+        return hooks.stream().anyMatch(hook -> hookClass.isAssignableFrom(hook.getClass()));
+    }
+
+    /**
+     * Extracts and compares the cache suffixes of the supplied {@link Operation}'s handler
+     * and {@link GetFromCacheHook} resolver hook, throws {@link GraphHookSuffixException}
+     * if mismatched as writing and reading to cache will not behave correctly.
+     * <p>
+     * Will attempt to add the supplied {@link GetFromCacheHook} to the graph config
+     * if not currently present.
+     *
+     * @param store The Store the operationClass is for
+     * @param operationClass The Operation requiring cache write
+     * @param hookClass The Hook requiring cache reading
+     * @param suffixFromProperties The suffix from property
+     */
+    public void validateAndUpdateGetFromCacheHook(final Store store, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
+        if (!store.isSupported(operationClass)) {
+            LOGGER.warn(
+                "The current store type: {} does not support the operation: {} unable to validate cache hook",
+                store.getClass().getSimpleName(),
+                operationClass.getSimpleName());
+            return;
+        }
+
+        // Use the suffix from the properties as a fall back if the operation handler is not correct type
+        String suffix = suffixFromProperties;
+
+        // Get Handler for the operation to try extract the cache suffix if applicable class
+        final OperationHandler<Operation> addToCacheHandler = store.getOperationHandler(operationClass);
+        if (AddToCacheHandler.class.isAssignableFrom(addToCacheHandler.getClass())) {
+            // Extract the Suffix
+            suffix = ((AddToCacheHandler<?>) addToCacheHandler).getSuffixCacheName();
+        } else {
+            // Otherwise log warning and continue with the suffix from the properties
+            LOGGER.warn(
+                "Handler for: {} was not expected type: {}. Can't get suffixCache using value from property: {}",
+                operationClass,
+                AddToCacheHandler.class.getSimpleName(),
+                suffixFromProperties);
+        }
+
+        // Is the supplied GetFromCacheHook class missing from the config
+        if (!hasHook(hookClass)) {
+            try {
+                // Provide info about the graph not having the required hook
+                LOGGER.info(
+                    "For GraphID: {} a handler was supplied for Operation: {}, but without a {}, adding {} with suffix: {}",
+                    getGraphId(),
+                    operationClass,
+                    hookClass.getSimpleName(),
+                    hookClass.getSimpleName(),
+                    suffix);
+                // Try add the hook
+                hooks.add(0, hookClass.getDeclaredConstructor(String.class).newInstance(suffix));
+            } catch (final Exception e) {
+                throw new GraphHookException(e.getMessage(), e);
+            }
+        } else {
+            // Find the relevant hook
+            final GetFromCacheHook nvrHook = (GetFromCacheHook) getHooks().stream()
+                .filter(hook -> hookClass.isAssignableFrom(hook.getClass()))
+                .findAny()
+                .orElseThrow(() -> new GraphHookException(
+                        String.format("Unable to find matching hook in graph config for class %s", hookClass.getSimpleName())));
+
+            // Validate the suffix for a mismatch
+            final String nvrSuffix = nvrHook.getSuffixCacheName();
+            if (!suffix.equals(nvrSuffix)) {
+                //Error
+                throw new GraphHookSuffixException(
+                    String.format(
+                        "%s hook is configured with suffix: %s and %s handler is configured with suffix: %s this causes a cache reading and writing misalignment.",
+                        hookClass.getSimpleName(),
+                        nvrSuffix,
+                        addToCacheHandler.getClass().getSimpleName(),
+                        suffix));
             }
         }
+
+    }
+
+    /**
+     * Initialises the {@link View} for the graph config based on supplied schema.
+     *
+     * @param schema The schema to set the View from.
+     */
+    public void initView(final Schema schema) {
+        if (getView() != null) {
+            LOGGER.debug("View already set ignoring initView call");
+            return;
+        }
+
+        setView(new View.Builder()
+            .entities(schema.getEntityGroups())
+            .edges(schema.getEdgeGroups())
+            .build());
     }
 
     @Override
@@ -188,21 +323,25 @@ public final class GraphConfig {
         }
 
         public Builder merge(final GraphConfig config) {
-            if (null != config) {
-                if (null != config.getGraphId()) {
-                    this.config.setGraphId(config.getGraphId());
-                }
-                if (null != config.getView()) {
-                    this.config.setView(config.getView());
-                }
-                if (null != config.getLibrary() && !(config.getLibrary() instanceof NoGraphLibrary)) {
-                    this.config.setLibrary(config.getLibrary());
-                }
-                if (null != config.getDescription()) {
-                    this.config.setDescription(config.getDescription());
-                }
-                this.config.getHooks().addAll(config.getHooks());
+            if (config == null) {
+                LOGGER.warn("Unable to merge GraphConfig with a null config, ignoring call");
+                return this;
             }
+
+            if (config.getGraphId() != null) {
+                this.config.setGraphId(config.getGraphId());
+            }
+            if (config.getView() != null) {
+                this.config.setView(config.getView());
+            }
+            if (config.getLibrary() != null && !(config.getLibrary() instanceof NoGraphLibrary)) {
+                this.config.setLibrary(config.getLibrary());
+            }
+            if (config.getDescription() != null) {
+                this.config.setDescription(config.getDescription());
+            }
+            this.config.getHooks().addAll(config.getHooks());
+
             return this;
         }
 

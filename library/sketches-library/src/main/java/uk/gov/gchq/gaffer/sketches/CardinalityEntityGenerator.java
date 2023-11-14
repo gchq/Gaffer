@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.sketches;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -57,6 +58,7 @@ public abstract class CardinalityEntityGenerator<T> implements OneToManyElementG
      */
     private final Set<String> propertiesToCopy = new HashSet<>();
 
+    @JsonIgnore
     public abstract Function<Object, T> getToSketchFunction();
 
     @Override

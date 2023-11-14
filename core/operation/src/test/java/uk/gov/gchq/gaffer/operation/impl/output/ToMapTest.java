@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -25,17 +23,17 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class ToMapTest extends OperationTest<ToMap> {
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("elementGenerator");
+        return Collections.singleton("elementGenerator");
     }
 
     @Test
@@ -68,8 +66,8 @@ public class ToMapTest extends OperationTest<ToMap> {
         ToMap clone = toMap.shallowClone();
 
         // Then
-        assertNotSame(toMap, clone);
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertThat(clone).isNotSameAs(toMap);
+        assertThat(clone.getInput()).isEqualTo(Arrays.asList(input));
     }
 
     @Test
@@ -78,7 +76,7 @@ public class ToMapTest extends OperationTest<ToMap> {
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertEquals(Iterable.class, outputClass);
+        assertThat(outputClass).isEqualTo(Iterable.class);
     }
 
     @Override
