@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.jobtracker;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -52,6 +53,6 @@ public class JobTest {
         final String serialised = new String(JSONSerialiser.serialise(deserialised));
 
         // Then
-        assertEquals(json, serialised);
+        JsonAssert.assertEquals(json, serialised);
     }
 }

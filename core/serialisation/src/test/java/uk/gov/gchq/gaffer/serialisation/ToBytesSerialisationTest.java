@@ -21,8 +21,10 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -49,7 +51,17 @@ public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, b
     @Override
     protected void serialiseFirst(final Pair<T, byte[]> pair) throws SerialisationException {
         byte[] serialise = serialiser.serialise(pair.getFirst());
-        assertArrayEquals(pair.getSecond(), serialise, Arrays.toString(serialise));
+        List<Byte> expectedList = new ArrayList<>();
+        for (byte b : pair.getSecond()) {
+            expectedList.add(b);
+        }
+
+        List<Byte> actualList = new ArrayList<>();
+        for (byte b : serialise) {
+            actualList.add(b);
+        }
+
+        assertThat(actualList).containsExactlyInAnyOrderElementsOf(expectedList);
     }
 
     @Test

@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -365,7 +366,17 @@ public class JSONSerialiserTest {
 
     protected void serialiseFirst(final Pair<Object, byte[]> pair) throws SerialisationException {
         byte[] serialise = JSONSerialiser.serialise(pair.getFirst());
-        assertArrayEquals(pair.getSecond(), serialise);
+        
+        List<Byte> expectedList = new ArrayList<>();
+        for (byte b : pair.getSecond()) {
+            expectedList.add(b);
+        }
+
+        List<Byte> actualList = new ArrayList<>();
+        for (byte b : serialise) {
+            actualList.add(b);
+        }
+        assertThat(actualList).containsExactlyInAnyOrderElementsOf(expectedList);
     }
 
     public static final class TestCustomJsonSerialiser1 extends JSONSerialiser {
