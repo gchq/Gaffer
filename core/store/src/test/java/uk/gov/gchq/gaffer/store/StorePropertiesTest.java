@@ -200,8 +200,8 @@ public class StorePropertiesTest {
         );
 
         assertEquals(expected, actual);
-        }
-        
+    }
+
     @Test
     public void shouldGetAndSetAdminAuth() {
         // Given
