@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -178,9 +180,11 @@ public class StorePropertiesTest {
     public void shouldSetJsonSerialiserModules() {
         // Given
         final StoreProperties props = createStoreProperties();
-        final Set<Class<? extends JSONSerialiserModules>> modules = Sets.newHashSet(
+        final Set<Class<? extends JSONSerialiserModules>> modules = new LinkedHashSet<>(
+            Arrays.asList(
                 TestCustomJsonModules1.class,
                 TestCustomJsonModules2.class
+            )
         );
 
         // When
