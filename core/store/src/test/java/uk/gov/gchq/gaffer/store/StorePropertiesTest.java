@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -187,8 +189,16 @@ public class StorePropertiesTest {
         props.setJsonSerialiserModules(modules);
 
         // Then
-        final String expected = TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName();
-        assertEquals(expected, props.getJsonSerialiserModules());
+        final Set<String> expected = Sets.newHashSet(
+                TestCustomJsonModules1.class.getName(),
+                TestCustomJsonModules2.class.getName()
+        );
+
+        final Set<String> actual = new HashSet<>(
+                Arrays.asList(props.getJsonSerialiserModules().split(","))
+        );
+
+        assertEquals(expected, actual);
     }
 
     @Test
