@@ -44,10 +44,10 @@ jobs:
 
     - name: Output branch name
       id: branch
-      run: echo "{branch_name}={$BRANCH_NAME}" >> $GITHUB_OUTPUT
+      run: echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
-    - name: Fail if no branch found
-      if: ${{ !env.BRANCH_NAME }}
+    - name: Fail if branch output missing (no branch found)
+      if: ${{ !steps.branch.outputs.branch_name }}
       run: exit 1
 
     - name: Merge release into master

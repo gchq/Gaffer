@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import com.google.common.collect.Lists;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
@@ -117,9 +116,8 @@ public class GetElementsTest extends OperationTest<GetElements> {
         final GetElements deserialisedOp = JSONSerialiser.deserialise(json, GetElements.class);
 
         // Then
-        assertThat(Lists.newArrayList(deserialisedOp.getInput()))
-                .isEqualTo(Lists.newArrayList(new EntitySeed(1), new EntitySeed(new TypeSubTypeValue("t", "s", "v")), new EntitySeed(2L)));
-
+        assertThat((Iterable<ElementId>) deserialisedOp.getInput())
+                .containsExactly(new EntitySeed(1), new EntitySeed(new TypeSubTypeValue("t", "s", "v")), new EntitySeed(2L));
     }
 
     @Test
@@ -136,8 +134,8 @@ public class GetElementsTest extends OperationTest<GetElements> {
         final GetElements deserialisedOp = JSONSerialiser.deserialise(json, GetElements.class);
 
         // Then
-        assertThat(deserialisedOp.getInput())
-                .isEqualTo(Lists.newArrayList(new EntitySeed(1), new EntitySeed(new TypeSubTypeValue("t", "s", "v")), new EntitySeed(2L)));
+        assertThat((Iterable<ElementId>) deserialisedOp.getInput())
+                .containsExactly(new EntitySeed(1), new EntitySeed(new TypeSubTypeValue("t", "s", "v")), new EntitySeed(2L));
     }
 
     private void builderShouldCreatePopulatedOperationAll() {
@@ -151,8 +149,8 @@ public class GetElementsTest extends OperationTest<GetElements> {
 
         assertThat(op.getIncludeIncomingOutGoing()).isEqualTo(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER);
         assertThat(op.getView()).isNotNull();
-        assertThat(Lists.newArrayList(op.getInput()))
-                .isEqualTo(Lists.newArrayList(new EntitySeed("A"), new EntitySeed(1), new EdgeSeed(2L, 3L)));
+        assertThat((Iterable<ElementId>) op.getInput())
+                .containsExactly(new EntitySeed("A"), new EntitySeed(1), new EdgeSeed(2L, 3L));
     }
 
     private void builderShouldCreatePopulatedOperationIncoming() {
@@ -238,9 +236,9 @@ public class GetElementsTest extends OperationTest<GetElements> {
                 .build();
 
         // Then
-        assertThat(Lists.newArrayList(op.getInput()))
-                .isEqualTo(Lists.newArrayList(new EntitySeed("1"), new EntitySeed("2"), new Entity("group1", "3"), new EdgeSeed("4", "5"),
-                        new Edge("group", "6", "7", true)));
+        assertThat((Iterable<ElementId>) op.getInput())
+                .containsExactly(new EntitySeed("1"), new EntitySeed("2"), new Entity("group1", "3"), new EdgeSeed("4", "5"),
+                        new Edge("group", "6", "7", true));
     }
 
     @Override

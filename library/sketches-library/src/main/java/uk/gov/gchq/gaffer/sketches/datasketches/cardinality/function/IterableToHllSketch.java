@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.datasketches.hll.HllSketch;
 
@@ -35,24 +36,24 @@ import static uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation
 @Summary("Creates a new HllSketch instance and initialises it from the given iterable")
 public class IterableToHllSketch extends KorypheFunction<Iterable<Object>, HllSketch> {
     private int logK = DEFAULT_LOG_K;
+    @JsonIgnore
     private HllSketch hllSketch;
 
     public IterableToHllSketch() {
+        hllSketch = new HllSketch(logK);
     }
 
     public IterableToHllSketch(final int logK) {
         this.logK = logK;
+        hllSketch = new HllSketch(logK);
     }
 
     public IterableToHllSketch(final HllSketch hllSketch) {
-        this.hllSketch = hllSketch;
+        setHllSketch(hllSketch);
     }
 
     @Override
     public HllSketch apply(final Iterable<Object> iterable) {
-        if (hllSketch == null) {
-            hllSketch = new HllSketch(logK);
-        }
         if (nonNull(iterable)) {
             for (final Object o : iterable) {
                 if (nonNull(o)) {
@@ -94,6 +95,10 @@ public class IterableToHllSketch extends KorypheFunction<Iterable<Object>, HllSk
     }
 
     public void setHllSketch(final HllSketch hllSketch) {
-        this.hllSketch = hllSketch;
+        if (hllSketch != null) {
+            this.hllSketch = hllSketch.copy();
+        } else {
+            this.hllSketch = new HllSketch(logK);
+        }
     }
 }
