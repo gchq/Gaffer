@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.add;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -35,10 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddElementsTest extends OperationTest<AddElements> {
 
@@ -84,11 +79,11 @@ public class AddElementsTest extends OperationTest<AddElements> {
         final AddElements clone = addElements.shallowClone();
 
         // Then
-        assertNotSame(addElements, clone);
-        assertEquals(validatable, clone.isValidate());
-        assertEquals(skipInvalidElements, clone.isSkipInvalidElements());
-        assertEquals("true", clone.getOption("testOption"));
-        assertEquals(Lists.newArrayList(testInput), clone.getInput());
+        assertThat(clone).isNotSameAs(addElements);
+        assertThat(clone.isValidate()).isEqualTo(validatable);
+        assertThat(clone.isSkipInvalidElements()).isEqualTo(skipInvalidElements);
+        assertThat(clone.getOption("testOption")).isEqualTo("true");
+        assertThat(clone.getInput()).singleElement().isEqualTo(testInput);
     }
 
     @Test
@@ -150,16 +145,16 @@ public class AddElementsTest extends OperationTest<AddElements> {
         final Iterator<? extends Element> itr = addElements.getInput().iterator();
 
         final Entity elm1 = (Entity) itr.next();
-        assertEquals("vertex 1", elm1.getVertex());
-        assertEquals(1, elm1.getProperties().size());
-        assertEquals("property 1 value", elm1.getProperty("property 1"));
+        assertThat(elm1.getVertex()).isEqualTo("vertex 1");
+        assertThat(elm1.getProperties().size()).isEqualTo(1);
+        assertThat(elm1.getProperty("property 1")).isEqualTo("property 1 value");
 
         final Edge elm2 = (Edge) itr.next();
-        assertEquals("source vertex 1", elm2.getSource());
-        assertEquals("dest vertex 1", elm2.getDestination());
-        assertTrue(elm2.isDirected());
-        assertEquals(1, elm2.getProperties().size());
-        assertEquals("property 2 value", elm2.getProperty("property 2"));
+        assertThat(elm2.getSource()).isEqualTo("source vertex 1");
+        assertThat(elm2.getDestination()).isEqualTo("dest vertex 1");
+        assertThat(elm2.isDirected()).isTrue();
+        assertThat(elm2.getProperties().size()).isEqualTo(1);
+        assertThat(elm2.getProperty("property 2")).isEqualTo("property 2 value");
 
         assertThat(itr).isExhausted();
     }
@@ -179,10 +174,10 @@ public class AddElementsTest extends OperationTest<AddElements> {
                 .build();
 
         // Then
-        assertEquals("true", addElements.getOption("testOption"));
-        assertTrue(addElements.isSkipInvalidElements());
-        assertFalse(addElements.isValidate());
-        assertThat(addElements.getInput().iterator().next()).isEqualTo(element);
+        assertThat(addElements.getOption("testOption")).isEqualTo("true");
+        assertThat(addElements.isSkipInvalidElements()).isTrue();
+        assertThat(addElements.isValidate()).isFalse();
+        assertThat(addElements.getInput()).singleElement().isEqualTo(element);
     }
 
     @Override
