@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
