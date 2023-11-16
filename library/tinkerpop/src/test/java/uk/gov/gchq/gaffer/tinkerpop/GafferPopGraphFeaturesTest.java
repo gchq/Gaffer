@@ -28,7 +28,12 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphFeatures.GafferPopGraphGraphFe
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphFeatures.GafferPopGraphVertexFeatures;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphFeatures.GafferPopGraphVertexPropertyFeatures;
 
+import java.util.UUID;
+
 public class GafferPopGraphFeaturesTest {
+    public static final String STRING_ID = "testId";
+    public static final Integer INT_ID = 1;
+    public static final UUID UUID_ID = UUID.randomUUID();
     final GafferPopGraph graph = mock(GafferPopGraph.class);
     final Features features = new GafferPopGraphFeatures();
 
@@ -45,7 +50,6 @@ public class GafferPopGraphFeaturesTest {
 
     @Test
     public void shouldHaveCertainGafferPopGraphVertexFeatures() {
-        final Object id = "testId";
         given(graph.features()).willReturn(features);
 
         final Features vertexFeatures = graph.features();
@@ -53,12 +57,14 @@ public class GafferPopGraphFeaturesTest {
         assertThat(vertexFeatures.vertex()).isInstanceOf(GafferPopGraphVertexFeatures.class);
         assertThat(vertexFeatures.vertex().supportsRemoveVertices()).isFalse();
         assertThat(vertexFeatures.vertex().supportsRemoveProperty()).isFalse();
-        assertThat(vertexFeatures.vertex().willAllowId(id)).isTrue();
+        assertThat(vertexFeatures.vertex().willAllowId(STRING_ID)).isTrue();
+        assertThat(vertexFeatures.vertex().willAllowId(INT_ID)).isTrue();
+        assertThat(vertexFeatures.vertex().willAllowId(UUID_ID)).isTrue();
+        assertThat(vertexFeatures.vertex().willAllowId(null)).isFalse();
     }
 
     @Test
     public void shouldHaveCertainGafferPopGraphEdgeFeatures() {
-        final Object id = "testId";
         given(graph.features()).willReturn(features);
 
         final Features edgeFeatures = graph.features();
@@ -66,25 +72,31 @@ public class GafferPopGraphFeaturesTest {
         assertThat(edgeFeatures.edge()).isInstanceOf(GafferPopGraphEdgeFeatures.class);
         assertThat(edgeFeatures.edge().supportsRemoveEdges()).isFalse();
         assertThat(edgeFeatures.edge().supportsRemoveProperty()).isFalse();
-        assertThat(edgeFeatures.edge().willAllowId(id)).isTrue();
+        assertThat(edgeFeatures.edge().willAllowId(STRING_ID)).isTrue();
+        assertThat(edgeFeatures.vertex().willAllowId(INT_ID)).isTrue();
+        assertThat(edgeFeatures.vertex().willAllowId(UUID_ID)).isTrue();
+        assertThat(edgeFeatures.vertex().willAllowId(null)).isFalse();
     }
 
     @Test
     public void shouldReturnStringOfFeatures() {
         given(graph.features()).willReturn(features);
 
-        assertThat(graph.features().toString()).contains("FEATURES", "ServiceCall");
+        assertThat(graph.features().toString()).contains("FEATURES", "GraphFeatures", "VariableFeatures",
+            "VertexFeatures", "VertexPropertyFeatures", "EdgeFeatures", "EdgePropertyFeatures");
     }
 
     @Test
     public void shouldHaveCertainGafferPopGraphVertexPropertyFeatures() {
-        final Object id = "testId";
         given(graph.features()).willReturn(features);
 
         final Features.VertexPropertyFeatures vertexPropertyFeatures = graph.features().vertex().properties();
 
         assertThat(vertexPropertyFeatures).isInstanceOf(GafferPopGraphVertexPropertyFeatures.class);
         assertThat(vertexPropertyFeatures.supportsRemoveProperty()).isFalse();
-        assertThat(vertexPropertyFeatures.willAllowId(id)).isTrue();
+        assertThat(vertexPropertyFeatures.willAllowId(STRING_ID)).isTrue();
+        assertThat(vertexPropertyFeatures.willAllowId(INT_ID)).isTrue();
+        assertThat(vertexPropertyFeatures.willAllowId(UUID_ID)).isTrue();
+        assertThat(vertexPropertyFeatures.willAllowId(null)).isFalse();
     }
 }
