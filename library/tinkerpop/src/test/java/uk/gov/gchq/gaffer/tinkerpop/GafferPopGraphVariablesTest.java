@@ -18,15 +18,15 @@ package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class GafferPopGraphVariablesTest {
     GafferPopGraph graph = mock(GafferPopGraph.class);
