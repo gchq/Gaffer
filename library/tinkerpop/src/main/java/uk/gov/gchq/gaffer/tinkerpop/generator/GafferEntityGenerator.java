@@ -28,17 +28,13 @@ public class GafferEntityGenerator implements OneToOneElementGenerator<GafferPop
         }
 
         final Entity entity = new Entity(vertex.label(), vertex.id());
+
         // Tinkerpop allows nested properties under a key for Gaffer we need to flatten these so only one property per key
         vertex.properties().forEachRemaining(vertProp -> {
-            if (vertProp.key() != null) {
-                entity.putProperty(vertProp.key(), vertProp.value());
-            }
-            vertProp.properties().forEachRemaining(prop -> {
-                if (prop.key() != null) {
-                    entity.putProperty(prop.key(), prop.value());
-                }
-            });
+            entity.putProperty(vertProp.key(), vertProp.value());
+            vertProp.properties().forEachRemaining(prop -> entity.putProperty(prop.key(), prop.value()));
         });
+
         return entity;
     }
 }
