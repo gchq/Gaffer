@@ -68,6 +68,7 @@ class GafferEntityGeneratorTest {
         // Then
         assertThat(entityNoProps.getGroup()).isEqualTo(TestGroups.ENTITY);
         assertThat(entityNoProps.getVertex()).isEqualTo(vertexNoPropsId);
+        assertThat(entityNoProps.getProperties()).isEmpty();
         assertThat(entityWithProps.getGroup()).isEqualTo(TestGroups.ENTITY);
         assertThat(entityWithProps.getVertex()).isEqualTo(vertexWithPropsId);
         assertThat(entityWithProps.getProperties()).containsOnly(
