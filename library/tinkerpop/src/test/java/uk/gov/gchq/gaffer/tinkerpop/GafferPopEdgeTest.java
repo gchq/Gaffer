@@ -144,6 +144,7 @@ public class GafferPopEdgeTest {
         final String propValue1 = "propValue1";
         // Make some values to compare against
         final GafferPopProperty<Object> equalProp = new GafferPopProperty<Object>(edge, TestPropertyNames.STRING, propValue1);
+        final GafferPopProperty<Object> nullProp = new GafferPopProperty<Object>(edge, TestPropertyNames.NULL, null);
         final String notAProp = "NotAGafferPopProperty";
 
         // When
@@ -161,6 +162,7 @@ public class GafferPopEdgeTest {
             .isNotEqualTo(notAProp)
             .doesNotHaveSameHashCodeAs(notAProp);
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> prop.remove());
+        assertThat(nullProp.isPresent()).isFalse();
     }
 
 
