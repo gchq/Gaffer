@@ -25,7 +25,7 @@ jobs:
         java-version: '8'
 
     - name: Checkout master
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: master
         token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
@@ -69,7 +69,7 @@ jobs:
 
     steps:
     - name: Checkout develop
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: develop
         token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
@@ -108,7 +108,7 @@ jobs:
 
     steps:
     - name: Checkout Master
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: master
 
@@ -136,7 +136,7 @@ jobs:
 
     steps:
     - name: Checkout Master
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: master
         token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
@@ -183,7 +183,7 @@ jobs:
         java-version: '8'
     
     - name: Checkout release
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: ${{ needs.create-release-tag.outputs.branch_name }}
     
@@ -203,21 +203,3 @@ jobs:
         OSS_NEXUS_USERNAME: ${{ secrets.OSS_NEXUS_USERNAME }}
         OSS_NEXUS_PASSWORD: ${{ secrets.OSS_NEXUS_PASSWORD }}
       run: mvn deploy -P quick,ossrh-release --settings cd/mvnsettings.xml -B
-
-  trigger-update-gafferpy-version:
-    runs-on: ubuntu-latest
-    needs:
-    - create-release-tag
-
-    steps:
-    - name: Set version
-      run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }} | cut -c 2-)" >> $GITHUB_ENV
-
-    - name: Update gafferpy's Gaffer version
-      uses: benc-uk/workflow-dispatch@v1
-      with:
-        workflow: Update Gaffer Version
-        repo: gchq/gafferpy
-        token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
-        inputs: '{ "version": "${{ env.RELEASE_VERSION }}" }'
-        ref: main
