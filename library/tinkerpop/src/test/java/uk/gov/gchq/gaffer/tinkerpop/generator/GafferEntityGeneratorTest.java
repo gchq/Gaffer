@@ -28,14 +28,23 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 
+import java.util.AbstractMap.SimpleEntry;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class GafferEntityGeneratorTest {
+class GafferEntityGeneratorTest {
+
     @Test
-    public void shouldConvertGafferPopVertexToGafferEntity() {
+    void shouldConvertBasicGafferPopVertex() {
         // Given
+        final String vertexNoPropsId = "vertexNoProps";
+        final String vertexWithPropsId = "vertexWithProps";
+        final String propValue = "propertyValue";
+
+        // Mock relevant bits so we can make a vertex with properties
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final Features features = mock(Features.class);
         final VertexFeatures vertexFeatures = mock(VertexFeatures.class);
@@ -46,21 +55,68 @@ public class GafferEntityGeneratorTest {
         given(vertexFeatures.properties()).willReturn(vertexPropertyFeatures);
         given(vertexPropertyFeatures.supportsNullPropertyValues()).willReturn(true);
 
-        final String vertex = "vertex";
-        final String propValue = "property value";
-        final GafferPopVertex gafferPopVertex = new GafferPopVertex(TestGroups.ENTITY, vertex, graph);
-        gafferPopVertex.property(Cardinality.list, TestPropertyNames.STRING, propValue);
+        // Create vertexes with and without properties
+        final GafferPopVertex vertexNoProps = new GafferPopVertex(TestGroups.ENTITY, vertexNoPropsId, graph);
+        final GafferPopVertex vertexWithProps = new GafferPopVertex(TestGroups.ENTITY, vertexWithPropsId, graph);
+        vertexWithProps.property(Cardinality.list, TestPropertyNames.STRING, propValue);
 
         final GafferEntityGenerator generator = new GafferEntityGenerator();
-
         // When
-        final Entity entity = generator._apply(gafferPopVertex);
+        final Entity entityNoProps = generator._apply(vertexNoProps);
+        final Entity entityWithProps = generator._apply(vertexWithProps);
 
         // Then
-        assertThat(entity.getGroup()).isEqualTo(TestGroups.ENTITY);
-        assertThat(entity.getVertex()).isEqualTo(vertex);
-        assertThat(entity.getProperties()).hasSize(1);
-        assertThat(entity.getProperty(TestPropertyNames.STRING)).isEqualTo(propValue);
+        assertThat(entityNoProps.getGroup()).isEqualTo(TestGroups.ENTITY);
+        assertThat(entityNoProps.getVertex()).isEqualTo(vertexNoPropsId);
+        assertThat(entityNoProps.getProperties()).isEmpty();
+        assertThat(entityWithProps.getGroup()).isEqualTo(TestGroups.ENTITY);
+        assertThat(entityWithProps.getVertex()).isEqualTo(vertexWithPropsId);
+        assertThat(entityWithProps.getProperties()).containsOnly(
+            new SimpleEntry<String, String>(TestPropertyNames.STRING, propValue));
     }
 
+    @Test
+    void shouldConvertGafferPopVertexWithNestedProperties() {
+        // Given
+        final String vertexNestedPropsId = "vertexNestedProps";
+        final String outerPropKey = "outerPropKey";
+        final String outerPropValue = "outerPropValue";
+        final String nestedPropKey = "nestedPropKey";
+        final String nestedPropValue = "nestedPropValue";
+
+        // Mock relevant bits so we can make a vertex with properties
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final Features features = mock(Features.class);
+        final VertexFeatures vertexFeatures = mock(VertexFeatures.class);
+        final VertexPropertyFeatures vertexPropertyFeatures = mock(VertexPropertyFeatures.class);
+        given(graph.features()).willReturn(features);
+        given(features.vertex()).willReturn(vertexFeatures);
+        given(vertexFeatures.supportsNullPropertyValues()).willReturn(true);
+        given(vertexFeatures.properties()).willReturn(vertexPropertyFeatures);
+        given(vertexPropertyFeatures.supportsNullPropertyValues()).willReturn(true);
+
+        final GafferPopVertex vertexNestedProps = new GafferPopVertex(TestGroups.ENTITY, vertexNestedPropsId, graph);
+        // Add an outer property key value pair then also nest a property with in it
+        vertexNestedProps.property(Cardinality.list, outerPropKey, outerPropValue);
+        vertexNestedProps.property(outerPropKey).property(nestedPropKey, nestedPropValue);
+
+        final GafferEntityGenerator generator = new GafferEntityGenerator();
+        // When
+        final Entity entityNestedProps = generator._apply(vertexNestedProps);
+
+        // Then
+        assertThat(entityNestedProps.getGroup()).isEqualTo(TestGroups.ENTITY);
+        assertThat(entityNestedProps.getVertex()).isEqualTo(vertexNestedPropsId);
+        assertThat(entityNestedProps.getProperties()).containsOnly(
+            new SimpleEntry<String, String>(outerPropKey, outerPropValue),
+            new SimpleEntry<String, String>(nestedPropKey, nestedPropValue));
+    }
+
+    @Test
+    void shouldNotConvertNullObject() {
+        final GafferEntityGenerator generator = new GafferEntityGenerator();
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> generator._apply(null));
+    }
 }
