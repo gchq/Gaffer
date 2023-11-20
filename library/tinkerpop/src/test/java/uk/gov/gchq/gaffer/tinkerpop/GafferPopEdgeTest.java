@@ -136,6 +136,33 @@ public class GafferPopEdgeTest {
         );
     }
 
+    @Test
+    void shouldCreateValidGafferPopPropertyObjects() {
+        // Given
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, SOURCE, DEST, graph);
+        final String propValue1 = "propValue1";
+        // Make some values to compare against
+        final GafferPopProperty<Object> equalProp = new GafferPopProperty<Object>(edge, TestPropertyNames.STRING, propValue1);
+        final String notAProp = "NotAGafferPopProperty";
+
+        // When
+        // Add and get the returned property and check its methods
+        edge.property(TestPropertyNames.STRING, propValue1);
+        GafferPopProperty<Object> prop = (GafferPopProperty<Object>) edge.property(TestPropertyNames.STRING);
+
+        // Then
+        assertThat(prop.element()).isEqualTo(edge);
+        assertThat(prop.isPresent()).isTrue();
+        assertThat(prop)
+            .hasToString("p[stringProperty->" + propValue1 + "]")
+            .isEqualTo(equalProp)
+            .hasSameHashCodeAs(equalProp)
+            .isNotEqualTo(notAProp)
+            .doesNotHaveSameHashCodeAs(notAProp);
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> prop.remove());
+    }
+
 
     @Test
     public void shouldCreateReadableToString() {
