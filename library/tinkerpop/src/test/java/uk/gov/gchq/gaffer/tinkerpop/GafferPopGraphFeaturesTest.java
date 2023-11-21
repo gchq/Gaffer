@@ -19,26 +19,29 @@ package uk.gov.gchq.gaffer.tinkerpop;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features;
 
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphFeatures.GafferPopGraphEdgeFeatures;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphFeatures.GafferPopGraphGraphFeatures;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphFeatures.GafferPopGraphVertexFeatures;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphFeatures.GafferPopGraphVertexPropertyFeatures;
+import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 public class GafferPopGraphFeaturesTest {
     public static final String STRING_ID = "testId";
     public static final Integer INT_ID = 1;
     public static final UUID UUID_ID = UUID.randomUUID();
+    public static final TypeSubTypeValue TSTV_ID = new TypeSubTypeValue("myType", "mySubType", "30");
     final GafferPopGraph graph = mock(GafferPopGraph.class);
     final Features features = new GafferPopGraphFeatures();
 
     @Test
-    public void shouldHaveCertainGafferPopGraphGraphFeatures() {
+    void shouldHaveCertainGafferPopGraphGraphFeatures() {
         given(graph.features()).willReturn(features);
         final Features graphFeatures = graph.features();
 
@@ -49,7 +52,7 @@ public class GafferPopGraphFeaturesTest {
     }
 
     @Test
-    public void shouldHaveCertainGafferPopGraphVertexFeatures() {
+    void shouldHaveCertainGafferPopGraphVertexFeatures() {
         given(graph.features()).willReturn(features);
 
         final Features vertexFeatures = graph.features();
@@ -60,11 +63,12 @@ public class GafferPopGraphFeaturesTest {
         assertThat(vertexFeatures.vertex().willAllowId(STRING_ID)).isTrue();
         assertThat(vertexFeatures.vertex().willAllowId(INT_ID)).isTrue();
         assertThat(vertexFeatures.vertex().willAllowId(UUID_ID)).isTrue();
+        assertThat(vertexFeatures.vertex().willAllowId(TSTV_ID)).isTrue();
         assertThat(vertexFeatures.vertex().willAllowId(null)).isFalse();
     }
 
     @Test
-    public void shouldHaveCertainGafferPopGraphEdgeFeatures() {
+    void shouldHaveCertainGafferPopGraphEdgeFeatures() {
         given(graph.features()).willReturn(features);
 
         final Features edgeFeatures = graph.features();
@@ -75,11 +79,12 @@ public class GafferPopGraphFeaturesTest {
         assertThat(edgeFeatures.edge().willAllowId(STRING_ID)).isTrue();
         assertThat(edgeFeatures.vertex().willAllowId(INT_ID)).isTrue();
         assertThat(edgeFeatures.vertex().willAllowId(UUID_ID)).isTrue();
+        assertThat(edgeFeatures.vertex().willAllowId(TSTV_ID)).isTrue();
         assertThat(edgeFeatures.vertex().willAllowId(null)).isFalse();
     }
 
     @Test
-    public void shouldReturnStringOfFeatures() {
+    void shouldReturnStringOfFeatures() {
         given(graph.features()).willReturn(features);
 
         assertThat(graph.features().toString()).contains("FEATURES", "GraphFeatures", "VariableFeatures",
@@ -87,7 +92,7 @@ public class GafferPopGraphFeaturesTest {
     }
 
     @Test
-    public void shouldHaveCertainGafferPopGraphVertexPropertyFeatures() {
+    void shouldHaveCertainGafferPopGraphVertexPropertyFeatures() {
         given(graph.features()).willReturn(features);
 
         final Features.VertexPropertyFeatures vertexPropertyFeatures = graph.features().vertex().properties();
@@ -97,6 +102,7 @@ public class GafferPopGraphFeaturesTest {
         assertThat(vertexPropertyFeatures.willAllowId(STRING_ID)).isTrue();
         assertThat(vertexPropertyFeatures.willAllowId(INT_ID)).isTrue();
         assertThat(vertexPropertyFeatures.willAllowId(UUID_ID)).isTrue();
+        assertThat(vertexPropertyFeatures.willAllowId(TSTV_ID)).isTrue();
         assertThat(vertexPropertyFeatures.willAllowId(null)).isFalse();
     }
 }
