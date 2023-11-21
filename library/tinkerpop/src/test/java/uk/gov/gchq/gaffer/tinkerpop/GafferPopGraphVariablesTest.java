@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -60,7 +62,7 @@ public class GafferPopGraphVariablesTest {
         final ConcurrentHashMap<String, Object> variablesMap = new ConcurrentHashMap<>();
         variablesMap.put(GafferPopGraphVariables.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
         variablesMap.put(GafferPopGraphVariables.USER, "user");
-        variablesMap.put(GafferPopGraphVariables.SCHEMA, "schema");
+        variablesMap.put(GafferPopGraphVariables.SCHEMA, new Schema());
         return new GafferPopGraphVariables(variablesMap);
     }
 
