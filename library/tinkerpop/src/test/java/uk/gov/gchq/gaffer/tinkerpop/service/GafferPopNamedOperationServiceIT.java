@@ -111,10 +111,10 @@ public class GafferPopNamedOperationServiceIT {
         final GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
-        Map<String, Object> addParams = new HashMap<>();
+        Map<String, String> addParams = new HashMap<>();
         addParams.put("name", "testNamedOp");
         addParams.put("opChain", getAddNamedOpElementCount(null).getOperationChainAsString());
-        Map<String, Object> params = Collections.singletonMap("add", addParams);
+        Map<String, Map<String, String>> params = Collections.singletonMap("add", addParams);
 
         // Then
         assertThatNoException().isThrownBy(() -> g.call("namedoperation", params).toList());
