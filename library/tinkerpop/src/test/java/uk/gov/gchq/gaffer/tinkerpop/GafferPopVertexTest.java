@@ -151,6 +151,50 @@ class GafferPopVertexTest {
     }
 
     @Test
+    void shouldOnlyCreateValidGafferPopVertexPropertyObjects() {
+        // Given
+        final GafferPopGraph graph = mock(GafferPopGraph.class);
+        final Features features = mock(Features.class);
+        final VertexFeatures vertexFeatures = mock(VertexFeatures.class);
+        final VertexPropertyFeatures vertexPropertyFeatures = mock(VertexPropertyFeatures.class);
+        given(graph.features()).willReturn(features);
+        given(features.vertex()).willReturn(vertexFeatures);
+        given(vertexFeatures.properties()).willReturn(vertexPropertyFeatures);
+        final String propValue = "propValue";
+        // Make new vertex with the mocked bits
+        final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
+        // Make some values to compare against
+        final GafferPopVertexProperty<Object> equalProp = new GafferPopVertexProperty<Object>(vertex, TestPropertyNames.STRING, propValue);
+        final String notAProp = "notAProp";
+        final String nestedKey = "nestedKey";
+        final String nestedVal = "nestedVal";
+
+        // Set and get the property
+        vertex.property(Cardinality.list, TestPropertyNames.STRING, propValue);
+        GafferPopVertexProperty<Object> prop = (GafferPopVertexProperty<Object>) vertex.property(TestPropertyNames.STRING);
+
+        // Then
+        assertThat(prop.element()).isEqualTo(vertex);
+        assertThat(prop.isPresent()).isTrue();
+        assertThat(prop)
+                .hasToString("vp[" + TestPropertyNames.STRING + "->" + propValue + "]")
+                .isEqualTo(equalProp)
+                .hasSameHashCodeAs(equalProp)
+                .isNotEqualTo(notAProp)
+                .doesNotHaveSameHashCodeAs(notAProp);
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> prop.remove());
+        // Check nested properties work
+        assertThat(prop.property(nestedKey, nestedVal)).isEqualTo(new GafferPopProperty<Object>(vertex, nestedKey, nestedVal));
+        assertThat(prop.keys()).containsExactlyInAnyOrder(nestedKey);
+        assertThat(prop.property(nestedKey)).isEqualTo(new GafferPopProperty<Object>(prop, nestedKey, nestedVal));
+        // Check can't make a bad property
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> new GafferPopVertexProperty<Object>(vertex, "InvalidNumberOfArgs", "val1", "KeyNoVal"));
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> new GafferPopVertexProperty<Object>(vertex, "BadKeyType", "val1", 1, "BadKeysValue"));
+    }
+
+    @Test
     void shouldNotAllowChangesWhenVertexReadOnly() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
@@ -163,12 +207,18 @@ class GafferPopVertexTest {
         // Make new vertex with the mocked bits
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
 
+        // Set and get a property
+        vertex.property(Cardinality.list, TestPropertyNames.STRING, "propValue");
+        GafferPopVertexProperty<Object> prop = (GafferPopVertexProperty<Object>) vertex.property(TestPropertyNames.STRING);
+
         // Set the vertex to read only
         vertex.setReadOnly();
 
-        // Attempt to add a property
+        // Attempt to add a properties
         assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> vertex.property(Cardinality.list, TestPropertyNames.STRING, "prop"));
+            .isThrownBy(() -> vertex.property(Cardinality.list, TestPropertyNames.STRING, "propValue"));
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> prop.property(TestPropertyNames.STRING, "nestedPropValue"));
     }
 
     @Test
