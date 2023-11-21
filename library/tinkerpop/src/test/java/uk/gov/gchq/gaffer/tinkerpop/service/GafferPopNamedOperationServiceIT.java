@@ -63,7 +63,7 @@ public class GafferPopNamedOperationServiceIT {
     void shouldHaveNamedOperationService() {
         // Given
         final GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, getGafferGraph());
-        GraphTraversalSource g = gafferPopGraph.traversal();
+        final GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
         GraphTraversal<Object, Object> traversal = g.call().with("verbose").with("service", "namedoperation");
@@ -78,7 +78,7 @@ public class GafferPopNamedOperationServiceIT {
     void shouldThrowExceptionForMissingParameter() {
         // Given
         final GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, getGafferGraph());
-        GraphTraversalSource g = gafferPopGraph.traversal();
+        final GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
         Map<String, String> params = Collections.singletonMap("missing", "missing");
@@ -92,8 +92,8 @@ public class GafferPopNamedOperationServiceIT {
     @Test
     void shouldThrowExceptionWhenTryingToExecuteMissingNamedOperation() {
         // Given
-        GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, getGafferGraph());
-        GraphTraversalSource g = gafferPopGraph.traversal();
+        final GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, getGafferGraph());
+        final GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
         Map<String, String> params = Collections.singletonMap("execute", "missingNamedOp");
@@ -108,12 +108,12 @@ public class GafferPopNamedOperationServiceIT {
     void shouldAddNamedOperation() {
         // Given
         final GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, getGafferGraph());
-        GraphTraversalSource g = gafferPopGraph.traversal();
+        final GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
         Map<String, Object> addParams = new HashMap<>();
         addParams.put("name", "testNamedOp");
-        addParams.put("opChain", getOpChainElementCount(null).getOperationChainAsString());
+        addParams.put("opChain", getAddNamedOpElementCount(null).getOperationChainAsString());
         Map<String, Object> params = Collections.singletonMap("add", addParams);
 
         // Then
@@ -123,9 +123,9 @@ public class GafferPopNamedOperationServiceIT {
     @Test
     void shouldExecuteNonIterableReturningNamedOperation() throws OperationException {
         // Given
-        String opName = "testNamedOpNonIterableReturn";
-        Graph gafferGraph = getGafferGraph();
-        gafferGraph.execute(getOpChainElementCount(opName), new User(USER_ID));
+        final String opName = "testNamedOpNonIterableReturn";
+        final Graph gafferGraph = getGafferGraph();
+        gafferGraph.execute(getAddNamedOpElementCount(opName), new User(USER_ID));
         GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, gafferGraph);
         GraphTraversalSource g = gafferPopGraph.traversal();
 
@@ -141,9 +141,9 @@ public class GafferPopNamedOperationServiceIT {
     @Test
     void shouldExecuteIterableReturningNamedOperation() throws OperationException {
         // Given
-        String opName = "testNamedOpIterableReturn";
-        Graph gafferGraph = getGafferGraph();
-        gafferGraph.execute(getOpChainElements(opName), new User(USER_ID));
+        final String opName = "testNamedOpIterableReturn";
+        final Graph gafferGraph = getGafferGraph();
+        gafferGraph.execute(getAddNamedOpAllElements(opName), new User(USER_ID));
         GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, gafferGraph);
         GraphTraversalSource g = gafferPopGraph.traversal();
 
@@ -165,7 +165,7 @@ public class GafferPopNamedOperationServiceIT {
                 .build();
     }
 
-    private AddNamedOperation getOpChainElementCount(String name) {
+    private AddNamedOperation getAddNamedOpElementCount(String name) {
         return new AddNamedOperation.Builder()
                 .operationChain(new OperationChain.Builder()
                         .first(new GetAllElements())
@@ -175,7 +175,7 @@ public class GafferPopNamedOperationServiceIT {
                 .build();
     }
 
-    private AddNamedOperation getOpChainElements(String name) {
+    private AddNamedOperation getAddNamedOpAllElements(String name) {
         return new AddNamedOperation.Builder()
                 .operationChain(new OperationChain.Builder()
                         .first(new GetAllElements())

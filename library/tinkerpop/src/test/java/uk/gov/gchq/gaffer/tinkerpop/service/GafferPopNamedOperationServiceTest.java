@@ -33,7 +33,7 @@ public class GafferPopNamedOperationServiceTest {
     @Test
     void shouldGetType() {
         // Given
-        GafferPopNamedOperationService<String, String> namedOpService = new GafferPopNamedOperationService<>(graph);
+        final GafferPopNamedOperationService<String, String> namedOpService = new GafferPopNamedOperationService<>(graph);
 
         // When / Then
         assertThat(namedOpService.getType()).isNotNull();
@@ -44,7 +44,7 @@ public class GafferPopNamedOperationServiceTest {
     @Test
     void shouldThrowErrorForInvalidParams() {
         // Given
-        GafferPopNamedOperationService<String, String> namedOpService = new GafferPopNamedOperationService<>(graph);
+        final GafferPopNamedOperationService<String, String> namedOpService = new GafferPopNamedOperationService<>(graph);
 
         // When / Then
         assertThatThrownBy(() -> namedOpService.execute(null, Collections.singletonMap("invalid", "invalid")))

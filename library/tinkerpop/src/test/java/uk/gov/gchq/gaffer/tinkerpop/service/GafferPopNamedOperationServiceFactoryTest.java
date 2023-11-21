@@ -32,10 +32,10 @@ public class GafferPopNamedOperationServiceFactoryTest {
     @Test
     void shouldCreateServiceWhenStartIsTrue() {
         // Given
-        GafferPopNamedOperationServiceFactory<String, String> namedOpServiceFactory = new GafferPopNamedOperationServiceFactory<>(graph);
+        final GafferPopNamedOperationServiceFactory<String, String> namedOpServiceFactory = new GafferPopNamedOperationServiceFactory<>(graph);
 
         // When
-        Service<String, String> namedOpService = namedOpServiceFactory.createService(true, null);
+        final Service<String, String> namedOpService = namedOpServiceFactory.createService(true, null);
 
         // Then
         assertThat(namedOpService).isNotNull();
@@ -45,7 +45,7 @@ public class GafferPopNamedOperationServiceFactoryTest {
     @Test
     void shouldNotCreateServiceWhenStartIsFalse() {
         // Given
-        GafferPopNamedOperationServiceFactory<String, String> namedOpServiceFactory = new GafferPopNamedOperationServiceFactory<>(graph);
+        final GafferPopNamedOperationServiceFactory<String, String> namedOpServiceFactory = new GafferPopNamedOperationServiceFactory<>(graph);
 
         // When / Then
         assertThatThrownBy(() -> namedOpServiceFactory.createService(false, null))
@@ -56,7 +56,7 @@ public class GafferPopNamedOperationServiceFactoryTest {
     @Test
     void shouldGetName() {
         // When
-        GafferPopNamedOperationServiceFactory<String, String> namedOpServiceFactory = new GafferPopNamedOperationServiceFactory<>(graph);
+        final GafferPopNamedOperationServiceFactory<String, String> namedOpServiceFactory = new GafferPopNamedOperationServiceFactory<>(graph);
 
         // Then
         assertThat(namedOpServiceFactory.getName()).isNotNull();
@@ -66,7 +66,7 @@ public class GafferPopNamedOperationServiceFactoryTest {
     @Test
     void shouldSupportedTypes() {
         // When
-        GafferPopNamedOperationServiceFactory<String, String> namedOpServiceFactory = new GafferPopNamedOperationServiceFactory<>(graph);
+        final GafferPopNamedOperationServiceFactory<String, String> namedOpServiceFactory = new GafferPopNamedOperationServiceFactory<>(graph);
 
         // Then
         assertThat(namedOpServiceFactory.getSupportedTypes()).isNotNull();
