@@ -38,8 +38,9 @@ public class GafferPopNamedOperationServiceFactoryTest {
         final Service<String, String> namedOpService = namedOpServiceFactory.createService(true, null);
 
         // Then
-        assertThat(namedOpService).isNotNull();
-        assertThat(namedOpService).isExactlyInstanceOf(GafferPopNamedOperationService.class);
+        assertThat(namedOpService)
+                .isNotNull()
+                .isExactlyInstanceOf(GafferPopNamedOperationService.class);
     }
 
     @Test
@@ -59,8 +60,9 @@ public class GafferPopNamedOperationServiceFactoryTest {
         final GafferPopNamedOperationServiceFactory<String, String> namedOpServiceFactory = new GafferPopNamedOperationServiceFactory<>(graph);
 
         // Then
-        assertThat(namedOpServiceFactory.getName()).isNotNull();
-        assertThat(namedOpServiceFactory.getName()).isEqualTo("namedoperation");
+        assertThat(namedOpServiceFactory.getName())
+                .isNotNull()
+                .isEqualTo("namedoperation");
     }
 
     @Test
@@ -69,7 +71,8 @@ public class GafferPopNamedOperationServiceFactoryTest {
         final GafferPopNamedOperationServiceFactory<String, String> namedOpServiceFactory = new GafferPopNamedOperationServiceFactory<>(graph);
 
         // Then
-        assertThat(namedOpServiceFactory.getSupportedTypes()).isNotNull();
-        assertThat(namedOpServiceFactory.getSupportedTypes()).containsExactly(Service.Type.Start);
+        assertThat(namedOpServiceFactory.getSupportedTypes())
+                .isNotNull()
+                .containsExactly(Service.Type.Start);
     }
 }

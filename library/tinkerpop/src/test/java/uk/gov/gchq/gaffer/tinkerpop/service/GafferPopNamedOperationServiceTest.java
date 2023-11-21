@@ -36,9 +36,10 @@ public class GafferPopNamedOperationServiceTest {
         final GafferPopNamedOperationService<String, String> namedOpService = new GafferPopNamedOperationService<>(graph);
 
         // When / Then
-        assertThat(namedOpService.getType()).isNotNull();
-        assertThat(namedOpService.getType()).isExactlyInstanceOf(Type.class);
-        assertThat(namedOpService.getType()).isEqualTo(Type.Start);
+        assertThat(namedOpService.getType())
+                .isNotNull()
+                .isExactlyInstanceOf(Type.class)
+                .isEqualTo(Type.Start);
     }
 
     @Test
