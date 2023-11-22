@@ -192,7 +192,7 @@ class GafferPopVertexTest {
         assertThat(prop.keys()).containsExactlyInAnyOrder(nestedKey);
         assertThat(prop.property(nestedKey)).isEqualTo(new GafferPopProperty<Object>(prop, nestedKey, nestedValue));
 
-        // Check can't make a bad property
+        // Check can't create an invalid property
         assertThatExceptionOfType(IllegalArgumentException.class)
             .isThrownBy(() -> new GafferPopVertexProperty<Object>(vertex, "InvalidNumberOfArgs", "val1", "KeyNoValue"));
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -216,7 +216,7 @@ class GafferPopVertexTest {
         // Set the vertex to read only
         vertex.setReadOnly();
 
-        // Attempt to add a properties
+        // Attempt to add some properties
         assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> vertex.property(Cardinality.list, TestPropertyNames.STRING, "propValue"));
         assertThatExceptionOfType(UnsupportedOperationException.class)
