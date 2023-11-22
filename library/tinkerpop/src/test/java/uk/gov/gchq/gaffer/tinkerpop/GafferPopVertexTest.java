@@ -20,6 +20,7 @@ import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features.VertexFeatures;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features.VertexPropertyFeatures;
+import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
 import org.junit.jupiter.api.Test;
@@ -182,9 +183,11 @@ class GafferPopVertexTest {
                 .doesNotHaveSameHashCodeAs(notAProp);
         assertThat(prop.element()).isEqualTo(vertex);
         assertThat(prop.isPresent()).isTrue();
+        assertThat(prop.keys()).isEmpty();
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> prop.remove());
 
         // Check nested properties work
+        assertThat(prop.property("keyDoesNotExist")).isEqualTo(Property.<Object>empty());
         assertThat(prop.property(nestedKey, nestedValue)).isEqualTo(new GafferPopProperty<Object>(vertex, nestedKey, nestedValue));
         assertThat(prop.keys()).containsExactlyInAnyOrder(nestedKey);
         assertThat(prop.property(nestedKey)).isEqualTo(new GafferPopProperty<Object>(prop, nestedKey, nestedValue));
@@ -197,7 +200,7 @@ class GafferPopVertexTest {
     }
 
     @Test
-    void shouldNotAllowChangesWhenVertexReadOnly() {
+    void shouldNotAllowChangesWhenReadOnly() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         given(graph.features()).willReturn(features);
@@ -216,6 +219,13 @@ class GafferPopVertexTest {
         // Attempt to add a properties
         assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> vertex.property(Cardinality.list, TestPropertyNames.STRING, "propValue"));
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> prop.property(TestPropertyNames.STRING, "nestedPropValue"));
+
+        // Set the property to read only
+        prop.setReadOnly();
+
+        // Attempt to modify the property
         assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> prop.property(TestPropertyNames.STRING, "nestedPropValue"));
     }
