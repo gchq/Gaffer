@@ -31,7 +31,14 @@ import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 
+/**
+ * Service for running Gaffer Named Operations
+ *
+ * @param <I> Ignored
+ * @param <R> Ignored
+ */
 public class GafferPopNamedOperationService<I, R> implements Service<I, R> {
     private final GafferPopGraph graph;
 
@@ -44,44 +51,61 @@ public class GafferPopNamedOperationService<I, R> implements Service<I, R> {
         return Type.Start;
     }
 
+    /**
+     * Executes the Service, either calling an existing Named Operation or
+     * adding a new Named Operation.
+     *
+     * @param ctx Unused
+     * @param params {@link Map} containing a key of either "execute" or
+     * "add" and value with name to execute or operation chain to add
+     * @return {@link CloseableIterator} with results or empty if adding
+     * a Named Operation
+     */
     @Override
     public CloseableIterator<R> execute(final ServiceCallContext ctx, final Map params) {
         if (params.containsKey("execute")) {
-            final String name = (String) params.get("execute");
-            Iterable<NamedOperationDetail> namedOps = graph.execute(new OperationChain.Builder().first(new GetAllNamedOperations()).build());
-            for (final NamedOperationDetail namedOp : namedOps) {
-                if (namedOp.getOperationName().equals(name)) {
-                    if (namedOp.getOperationChainWithDefaultParams().getOutputClass().equals(Iterable.class)) {
-                        return (CloseableIterator<R>) CloseableIterator.of(graph.execute(new OperationChain.Builder()
-                                .first(new NamedOperation.Builder()
-                                        .name(name)
-                                        .build())
-                                .then(new GenerateObjects.Builder<GafferPopElement>()
-                                        .generator(new GafferPopElementGenerator(graph))
-                                        .build())
-                                .build()).iterator());
-                    } else {
-                        return CloseableIterator.of(Arrays.asList(graph.execute(new OperationChain.Builder()
-                                .first(new NamedOperation.Builder<Void, R>()
-                                        .name(name)
-                                        .build())
-                                .build())).iterator());
-                    }
-                }
-            }
-            throw new IllegalStateException("Named Operation not found");
+            return executeNamedOperation((String) params.get("execute"));
         } else if (params.containsKey("add")) {
-            final Map<String, Object> addParams = (Map) params.get("add");
-            graph.execute(new OperationChain.Builder()
-                    .first(new AddNamedOperation.Builder()
-                            .name((String) addParams.get("name"))
-                            .operationChain((String) addParams.get("opChain"))
-                            .build())
-                    .build());
-            return CloseableIterator.empty();
+            return addNamedOperation((Map<String, String>) params.get("add"));
         } else {
             throw new IllegalStateException("Missing parameter");
         }
     }
 
+    protected CloseableIterator<R> executeNamedOperation(final String name) {
+        // Fetch details for the requested Named Operation or throw an exception if it's not found
+        Iterable<NamedOperationDetail> allNamedOps = graph.execute(new OperationChain.Builder().first(new GetAllNamedOperations()).build());
+        NamedOperationDetail namedOperation = StreamSupport.stream(allNamedOps.spliterator(), false)
+                .filter((NamedOperationDetail nd) -> nd.getOperationName().equals(name)).findFirst()
+                .orElseThrow(() -> new IllegalStateException("Named Operation not found"));
+
+        // If the Named Operation outputs an Iterable, then execute and convert Elements to GafferPopElement
+        // Else execute and wrap the output as an iterator
+        if (namedOperation.getOperationChainWithDefaultParams().getOutputClass().equals(Iterable.class)) {
+            return (CloseableIterator<R>) CloseableIterator.of(graph.execute(new OperationChain.Builder()
+                    .first(new NamedOperation.Builder()
+                            .name(name)
+                            .build())
+                    .then(new GenerateObjects.Builder<GafferPopElement>()
+                            .generator(new GafferPopElementGenerator(graph))
+                            .build())
+                    .build()).iterator());
+        } else {
+            return CloseableIterator.of(Arrays.asList(graph.execute(new OperationChain.Builder()
+                    .first(new NamedOperation.Builder<Void, R>()
+                            .name(name)
+                            .build())
+                    .build())).iterator());
+        }
+    }
+
+    protected CloseableIterator<R> addNamedOperation(final Map<String, String> addParams) {
+        graph.execute(new OperationChain.Builder()
+                .first(new AddNamedOperation.Builder()
+                        .name(addParams.get("name"))
+                        .operationChain(addParams.get("opChain"))
+                        .build())
+                .build());
+        return CloseableIterator.empty();
+    }
 }
