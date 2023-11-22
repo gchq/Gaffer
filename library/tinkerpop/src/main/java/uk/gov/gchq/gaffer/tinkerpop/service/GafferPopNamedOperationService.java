@@ -36,6 +36,11 @@ import java.util.stream.StreamSupport;
 /**
  * Service for running Gaffer Named Operations
  *
+ * <p>This service should be called at the start
+ * of a traversal.
+ * @see <a href="https://tinkerpop.apache.org/docs/3.7.0/reference/#call-step">
+ * Tinkerpop Call Step Documentation</a></p>
+ *
  * @param <I> Ignored
  * @param <R> Ignored
  */
