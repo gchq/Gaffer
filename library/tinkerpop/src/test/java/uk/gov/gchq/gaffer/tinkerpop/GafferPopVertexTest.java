@@ -36,6 +36,14 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 class GafferPopVertexTest {
+    // Common mocks for tests
+    final Features features = mock(Features.class);
+    final VertexFeatures vertexFeatures = mock(VertexFeatures.class);
+    final VertexPropertyFeatures vertexPropertyFeatures = mock(VertexPropertyFeatures.class);
+    final Iterator<GafferPopVertex> vertices = mock(Iterator.class);
+    final Iterator<GafferPopEdge> edges = mock(Iterator.class);
+    final View view = mock(View.class);
+
     @Test
     void shouldConstructVertex() {
         // Given
@@ -54,10 +62,6 @@ class GafferPopVertexTest {
     void shouldOnlyAddAndGetValidVertexProperties() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final Features features = mock(Features.class);
-        final VertexFeatures vertexFeatures = mock(VertexFeatures.class);
-        final VertexPropertyFeatures vertexPropertyFeatures = mock(VertexPropertyFeatures.class);
-
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
         final String stringProp1 = "stringProp1";
         final String stringProp2 = "stringProp2";
@@ -132,9 +136,6 @@ class GafferPopVertexTest {
     void shouldNotAddOrGetIllegalProperties() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final Features features = mock(Features.class);
-        final VertexFeatures vertexFeatures = mock(VertexFeatures.class);
-        final VertexPropertyFeatures vertexPropertyFeatures = mock(VertexPropertyFeatures.class);
         given(graph.features()).willReturn(features);
         given(features.vertex()).willReturn(vertexFeatures);
         given(vertexFeatures.properties()).willReturn(vertexPropertyFeatures);
@@ -154,9 +155,6 @@ class GafferPopVertexTest {
     void shouldOnlyCreateValidGafferPopVertexPropertyObjects() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final Features features = mock(Features.class);
-        final VertexFeatures vertexFeatures = mock(VertexFeatures.class);
-        final VertexPropertyFeatures vertexPropertyFeatures = mock(VertexPropertyFeatures.class);
         given(graph.features()).willReturn(features);
         given(features.vertex()).willReturn(vertexFeatures);
         given(vertexFeatures.properties()).willReturn(vertexPropertyFeatures);
@@ -202,9 +200,6 @@ class GafferPopVertexTest {
     void shouldNotAllowChangesWhenVertexReadOnly() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final Features features = mock(Features.class);
-        final VertexFeatures vertexFeatures = mock(VertexFeatures.class);
-        final VertexPropertyFeatures vertexPropertyFeatures = mock(VertexPropertyFeatures.class);
         given(graph.features()).willReturn(features);
         given(features.vertex()).willReturn(vertexFeatures);
         given(vertexFeatures.properties()).willReturn(vertexPropertyFeatures);
@@ -240,7 +235,6 @@ class GafferPopVertexTest {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
-        final Iterator<GafferPopEdge> edges = mock(Iterator.class);
         given(graph.edges(GafferPopGraph.ID_LABEL, Direction.IN, TestGroups.ENTITY)).willReturn(edges);
 
         // Then
@@ -252,8 +246,6 @@ class GafferPopVertexTest {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
-        final Iterator<GafferPopEdge> edges = mock(Iterator.class);
-        final View view = mock(View.class);
         given(graph.edgesWithView(GafferPopGraph.ID_LABEL, Direction.IN, view)).willReturn(edges);
 
         // Then
@@ -265,7 +257,6 @@ class GafferPopVertexTest {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
-        final Iterator<GafferPopVertex> vertices = mock(Iterator.class);
         given(graph.adjVertices(GafferPopGraph.ID_LABEL, Direction.IN, TestGroups.EDGE)).willReturn(vertices);
 
         // Then
@@ -278,8 +269,6 @@ class GafferPopVertexTest {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
-        final Iterator<GafferPopVertex> vertices = mock(Iterator.class);
-        final View view = mock(View.class);
         given(graph.adjVerticesWithView(GafferPopGraph.ID_LABEL, Direction.IN, view)).willReturn(vertices);
 
         // Then
