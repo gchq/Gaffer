@@ -20,6 +20,7 @@ import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Graph.OptIn;
 import org.apache.tinkerpop.gremlin.structure.Transaction;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
@@ -78,6 +79,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * In addition to the tinkerpop methods required there are methods to add edges
  * query for adjacent vertices and to provide a {@link View} to filter out results.
  */
+@OptIn(OptIn.SUITE_STRUCTURE_STANDARD)
+// @OptIn(OptIn.SUITE_STRUCTURE_INTEGRATE)
 public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Graph {
     public static final String GRAPH_ID = "gaffer.graphId";
 
