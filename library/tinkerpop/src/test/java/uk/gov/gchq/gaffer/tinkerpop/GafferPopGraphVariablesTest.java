@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,9 +36,8 @@ public class GafferPopGraphVariablesTest {
         given(graph.variables()).willReturn(variables);
 
         graph.variables().remove(GafferPopGraphVariables.SCHEMA);
-        final Map<String, Object> graphVariables = graph.variables().asMap();
 
-        assertThat(graphVariables).hasSize(2);
+        assertThat(graph.variables().asMap()).hasSize(2);
     }
 
     @Test
@@ -51,11 +49,12 @@ public class GafferPopGraphVariablesTest {
     }
 
     @Test
-    void shouldReturnStringOfGraphVariables() {
+    void shouldReturnStringOfTotalNumberOfGraphVariables() {
         given(graph.variables()).willReturn(variables);
+        final Integer varSize = graph.variables().asMap().size();
 
         assertThat(graph.variables().toString())
-            .hasToString(variables.toString());
+            .contains("variables", "size", varSize.toString());
     }
 
     private GafferPopGraphVariables createVariables() {
