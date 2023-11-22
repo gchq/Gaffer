@@ -37,12 +37,13 @@ import java.util.stream.StreamSupport;
  * Service for running Gaffer Named Operations
  *
  * <p>This service should be called at the start
- * of a traversal.
- * @see <a href="https://tinkerpop.apache.org/docs/3.7.0/reference/#call-step">
- * Tinkerpop Call Step Documentation</a></p>
+ * of a traversal.</p>
  *
  * @param <I> Ignored
  * @param <R> Ignored
+ *
+ * @see <a href="https://tinkerpop.apache.org/docs/3.7.0/reference/#call-step">
+ * Tinkerpop Call Step Documentation</a>
  */
 public class GafferPopNamedOperationService<I, R> implements Service<I, R> {
     private final GafferPopGraph graph;
