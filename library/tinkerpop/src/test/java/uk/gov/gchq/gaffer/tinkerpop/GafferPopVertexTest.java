@@ -161,35 +161,39 @@ class GafferPopVertexTest {
         given(features.vertex()).willReturn(vertexFeatures);
         given(vertexFeatures.properties()).willReturn(vertexPropertyFeatures);
         final String propValue = "propValue";
+        final String nestedKey = "nestedKey";
+        final String nestedValue = "nestedValue";
         // Make new vertex with the mocked bits
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
         // Make some values to compare against
-        final GafferPopVertexProperty<Object> equalProp = new GafferPopVertexProperty<Object>(vertex, TestPropertyNames.STRING, propValue);
+        final GafferPopVertexProperty<Object> equalProp = new GafferPopVertexProperty<>(vertex, TestPropertyNames.STRING, propValue);
         final String notAProp = "notAProp";
-        final String nestedKey = "nestedKey";
-        final String nestedVal = "nestedVal";
 
+        // When
         // Set and get the property
         vertex.property(Cardinality.list, TestPropertyNames.STRING, propValue);
         GafferPopVertexProperty<Object> prop = (GafferPopVertexProperty<Object>) vertex.property(TestPropertyNames.STRING);
 
         // Then
-        assertThat(prop.element()).isEqualTo(vertex);
-        assertThat(prop.isPresent()).isTrue();
+        // Validate the created property
         assertThat(prop)
                 .hasToString("vp[" + TestPropertyNames.STRING + "->" + propValue + "]")
                 .isEqualTo(equalProp)
                 .hasSameHashCodeAs(equalProp)
                 .isNotEqualTo(notAProp)
                 .doesNotHaveSameHashCodeAs(notAProp);
+        assertThat(prop.element()).isEqualTo(vertex);
+        assertThat(prop.isPresent()).isTrue();
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> prop.remove());
+
         // Check nested properties work
-        assertThat(prop.property(nestedKey, nestedVal)).isEqualTo(new GafferPopProperty<Object>(vertex, nestedKey, nestedVal));
+        assertThat(prop.property(nestedKey, nestedValue)).isEqualTo(new GafferPopProperty<Object>(vertex, nestedKey, nestedValue));
         assertThat(prop.keys()).containsExactlyInAnyOrder(nestedKey);
-        assertThat(prop.property(nestedKey)).isEqualTo(new GafferPopProperty<Object>(prop, nestedKey, nestedVal));
+        assertThat(prop.property(nestedKey)).isEqualTo(new GafferPopProperty<Object>(prop, nestedKey, nestedValue));
+
         // Check can't make a bad property
         assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> new GafferPopVertexProperty<Object>(vertex, "InvalidNumberOfArgs", "val1", "KeyNoVal"));
+            .isThrownBy(() -> new GafferPopVertexProperty<Object>(vertex, "InvalidNumberOfArgs", "val1", "KeyNoValue"));
         assertThatExceptionOfType(IllegalArgumentException.class)
             .isThrownBy(() -> new GafferPopVertexProperty<Object>(vertex, "BadKeyType", "val1", 1, "BadKeysValue"));
     }
