@@ -41,7 +41,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class GafferPopGraphTest {
@@ -100,13 +99,13 @@ public class GafferPopGraphTest {
 
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
-        assertEquals(expectedUser, variables.get(GafferPopGraphVariables.USER));
+        assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertEquals("value1", opOptions.get("key1"));
-        assertEquals("value2", opOptions.get("key2"));
-        assertEquals(2, opOptions.size());
-        assertEquals(3, variables.size());
+        assertThat(opOptions.get("key1")).isEqualTo("value1");
+        assertThat(opOptions.get("key2")).isEqualTo("value2");
+        assertThat(opOptions.size()).isEqualTo(2);
+        assertThat(variables.size()).isEqualTo(3);
     }
 
     @Test
@@ -124,9 +123,9 @@ public class GafferPopGraphTest {
         assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertEquals("value1", opOptions.get("key1"));
-        assertEquals(1, opOptions.size());
-        assertEquals(3, variables.size());
+        assertThat(opOptions.get("key1")).isEqualTo("value1");
+        assertThat(opOptions.size()).isEqualTo(1);
+        assertThat(variables.size()).isEqualTo(3);
     }
 
     @Test
@@ -143,14 +142,14 @@ public class GafferPopGraphTest {
 
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
-        assertEquals(gafferGraph.getSchema(), variables.get(GafferPopGraphVariables.SCHEMA));
-        assertEquals(expectedUser, variables.get(GafferPopGraphVariables.USER));
+        assertThat(variables.get(GafferPopGraphVariables.SCHEMA)).isEqualTo(gafferGraph.getSchema());
+        assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertEquals("value1", opOptions.get("key1"));
-        assertEquals("value2", opOptions.get("key2"));
-        assertEquals(2, opOptions.size());
-        assertEquals(3, variables.size());
+        assertThat(opOptions.get("key1")).isEqualTo("value1");
+        assertThat(opOptions.get("key2")).isEqualTo("value2");
+        assertThat(opOptions.size()).isEqualTo(2);
+        assertThat(variables.size()).isEqualTo(3);
     }
 
     @Test
@@ -229,9 +228,9 @@ public class GafferPopGraphTest {
         // Then
         final GafferPopVertex vertex = vertices.next();
         assertFalse(vertices.hasNext());
-        assertEquals(VERTEX_1, vertex.id());
-        assertEquals(SOFTWARE_NAME_GROUP, vertex.label());
-        assertEquals("GafferPop", vertex.property(NAME_PROPERTY).value());
+        assertThat(vertex.id()).isEqualTo(VERTEX_1);
+        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
+        assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
     }
 
     @Test
@@ -248,9 +247,9 @@ public class GafferPopGraphTest {
         // Then
         final GafferPopVertex vertex = vertices.next();
         assertFalse(vertices.hasNext()); // there is only 1 vertex
-        assertEquals(VERTEX_1, vertex.id());
-        assertEquals(SOFTWARE_NAME_GROUP, vertex.label());
-        assertEquals("GafferPop", vertex.property(NAME_PROPERTY).value());
+        assertThat(vertex.id()).isEqualTo(VERTEX_1);
+        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
+        assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
     }
 
 
@@ -268,9 +267,9 @@ public class GafferPopGraphTest {
         // Then
         final GafferPopVertex vertex = vertices.next();
         assertFalse(vertices.hasNext()); // there is only 1 vertex
-        assertEquals(VERTEX_1, vertex.id());
-        assertEquals(SOFTWARE_NAME_GROUP, vertex.label());
-        assertEquals("GafferPop", vertex.property(NAME_PROPERTY).value());
+        assertThat(vertex.id()).isEqualTo(VERTEX_1);
+        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
+        assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
     }
 
     @Test
@@ -291,9 +290,9 @@ public class GafferPopGraphTest {
         // Then
         final GafferPopVertex vertex = vertices.next();
         assertFalse(vertices.hasNext()); // there is only 1 vertex
-        assertEquals(VERTEX_1, vertex.id());
-        assertEquals(SOFTWARE_NAME_GROUP, vertex.label());
-        assertEquals("GafferPop", vertex.property(NAME_PROPERTY).value());
+        assertThat(vertex.id()).isEqualTo(VERTEX_1);
+        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
+        assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
     }
 
     @Test
@@ -332,9 +331,9 @@ public class GafferPopGraphTest {
         // Then
         final Vertex vertex = vertices.next();
         assertFalse(vertices.hasNext()); // there is only 1 vertex
-        assertEquals(VERTEX_1, vertex.id());
-        assertEquals(SOFTWARE_NAME_GROUP, vertex.label());
-        assertEquals("GafferPop", vertex.property(NAME_PROPERTY).value());
+        assertThat(vertex.id()).isEqualTo(VERTEX_1);
+        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
+        assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
     }
 
     @Test
@@ -376,8 +375,8 @@ public class GafferPopGraphTest {
         // Then
         final GafferPopVertex vertex = vertices.next();
         assertFalse(vertices.hasNext()); // there is only 1 vertex
-        assertEquals(VERTEX_1, vertex.id());
-        assertEquals(SOFTWARE_NAME_GROUP, vertex.label());
+        assertThat(vertex.id()).isEqualTo(VERTEX_1);
+        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
     }
 
     @Test
@@ -397,12 +396,12 @@ public class GafferPopGraphTest {
         // Then
         final Edge edge = edges.next();
         assertFalse(edges.hasNext()); // there is only 1 vertex
-        assertEquals(VERTEX_1, ((List) edge.id()).get(0));
-        assertEquals(VERTEX_2, ((List) edge.id()).get(1));
-        assertEquals(CREATED_EDGE_GROUP, edge.label());
-        assertEquals(gafferPopInVertex, edge.inVertex());
-        assertEquals(gafferPopOutVertex, edge.outVertex());
-        assertEquals(1.5, (Double) edge.property(WEIGHT_PROPERTY).value(), 0);
+        assertThat(((List) edge.id()).get(0)).isEqualTo(VERTEX_1);
+        assertThat(((List) edge.id()).get(1)).isEqualTo(VERTEX_2);
+        assertThat(edge.label()).isEqualTo(CREATED_EDGE_GROUP);
+        assertThat(edge.inVertex()).isEqualTo(gafferPopInVertex);
+        assertThat(edge.outVertex()).isEqualTo(gafferPopOutVertex);
+        assertThat((Double) edge.property(WEIGHT_PROPERTY).value()).isEqualTo(1.5);
     }
 
     @Test
@@ -565,9 +564,9 @@ public class GafferPopGraphTest {
         // Then
         final GafferPopVertex vertex = vertices.next();
         assertFalse(vertices.hasNext()); // there is only 1 vertex
-        assertEquals(VERTEX_2, vertex.id());
-        assertEquals(SOFTWARE_NAME_GROUP, vertex.label());
-        assertEquals("Gaffer", vertex.property(NAME_PROPERTY).value());
+        assertThat(vertex.id()).isEqualTo(VERTEX_2);
+        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
+        assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("Gaffer");
     }
 
     @Test
