@@ -39,7 +39,7 @@ public class GafferPopGraphProvider extends AbstractGraphProvider {
     public static final String TEST_USER_ID = "tinkerpopTestUser";
     public static final String[] TEST_OP_OPTIONS = new String[] {"key1:value1", "key2:value2"};
     public static final String TEST_STORE_PROPS = GafferPopGraphProvider.class.getClassLoader().getResource("gaffer/map-store.properties").getPath();
-    public static final String TEST_SCHEMAS = GafferPopGraphProvider.class.getClassLoader().getResource("gaffer/schema").getPath();
+    public static final String TEST_SCHEMAS = GafferPopGraphProvider.class.getClassLoader().getResource("gaffer/standard-test-schema").getPath();
 
     private static final Set<Class> IMPLEMENTATION = Stream.of(
         GafferPopEdge.class,
@@ -74,7 +74,8 @@ public class GafferPopGraphProvider extends AbstractGraphProvider {
             new SimpleEntry<>(GafferPopGraph.OP_OPTIONS, TEST_OP_OPTIONS),
             new SimpleEntry<>(GafferPopGraph.USER_ID, TEST_USER_ID),
             new SimpleEntry<>(GafferPopGraph.STORE_PROPERTIES, TEST_STORE_PROPS),
-            new SimpleEntry<>(GafferPopGraph.SCHEMAS, TEST_SCHEMAS))
+            new SimpleEntry<>(GafferPopGraph.SCHEMAS, TEST_SCHEMAS),
+            new SimpleEntry<>(GafferPopGraph.INCREMENTAL_VERTEX_IDS, "true"))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 

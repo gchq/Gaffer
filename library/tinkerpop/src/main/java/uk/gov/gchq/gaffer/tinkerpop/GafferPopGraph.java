@@ -71,6 +71,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A <code>GafferPopGraph</code> is an implementation of
@@ -109,10 +110,18 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public static final String DATA_AUTHS = "gaffer.dataAuths";
 
     /**
+     * Are incremental Vertex IDs allowed meaning a vertex can be added without
+     * specifying an ID for it.
+     */
+    public static final String INCREMENTAL_VERTEX_IDS = "vertex.incrementalIds";
+
+    /**
      * The vertex label for vertex IDs. These are {@link GafferPopVertex}s that
      * don't have any properties, just an ID value and a label of 'id'.
      */
     public static final String ID_LABEL = "id";
+
+    protected AtomicLong currentId = new AtomicLong(-1L);
 
     private final Graph graph;
     private final Configuration configuration;
@@ -187,8 +196,16 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     @Override
     public Vertex addVertex(final Object... keyValues) {
         ElementHelper.legalPropertyKeyValueArray(keyValues);
-        final Object idValue = ElementHelper.getIdValue(keyValues).orElseThrow(() -> new IllegalArgumentException("ID is required"));
+        final Object idValue;
         final String label = ElementHelper.getLabelValue(keyValues).orElseThrow(() -> new IllegalArgumentException("Label is required"));
+        if (configuration.containsKey(INCREMENTAL_VERTEX_IDS)) {
+            idValue = ElementHelper.getIdValue(keyValues).orElse(null);
+            if (idValue == null) {
+                currentId.incrementAndGet();
+            }
+        } else {
+            idValue = ElementHelper.getIdValue(keyValues).orElseThrow(() -> new IllegalArgumentException("ID is required"));
+        }
 
         final GafferPopVertex vertex = new GafferPopVertex(label, idValue, this);
         ElementHelper.attachProperties(vertex, VertexProperty.Cardinality.list, keyValues);
