@@ -106,7 +106,6 @@ public class GafferPopGraphTest {
         assertEquals("value1", opOptions.get("key1"));
         assertEquals("value2", opOptions.get("key2"));
         assertEquals(2, opOptions.size());
-
         assertEquals(3, variables.size());
     }
 
@@ -126,7 +125,6 @@ public class GafferPopGraphTest {
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertEquals("value1", opOptions.get("key1"));
-        // assertEquals("value2", opOptions.get("key2"));
         assertEquals(1, opOptions.size());
         assertEquals(3, variables.size());
     }
@@ -152,7 +150,6 @@ public class GafferPopGraphTest {
         assertEquals("value1", opOptions.get("key1"));
         assertEquals("value2", opOptions.get("key2"));
         assertEquals(2, opOptions.size());
-
         assertEquals(3, variables.size());
     }
 
@@ -228,6 +225,68 @@ public class GafferPopGraphTest {
         // When
         graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
         final Iterator<GafferPopVertex> vertices = graph.vertices(Arrays.asList(VERTEX_1, VERTEX_2), SOFTWARE_NAME_GROUP);
+
+        // Then
+        final GafferPopVertex vertex = vertices.next();
+        assertFalse(vertices.hasNext());
+        assertEquals(VERTEX_1, vertex.id());
+        assertEquals(SOFTWARE_NAME_GROUP, vertex.label());
+        assertEquals("GafferPop", vertex.property(NAME_PROPERTY).value());
+    }
+
+    @Test
+    public void shouldAddAndGetVertexWithNullViewAndVertexList() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+        final Vertex vertex1 = graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
+
+
+        // When
+        final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(vertex1), null);
+
+        // Then
+        final GafferPopVertex vertex = vertices.next();
+        assertFalse(vertices.hasNext()); // there is only 1 vertex
+        assertEquals(VERTEX_1, vertex.id());
+        assertEquals(SOFTWARE_NAME_GROUP, vertex.label());
+        assertEquals("GafferPop", vertex.property(NAME_PROPERTY).value());
+    }
+
+
+    @Test
+    public void shouldAddAndGetVertexWithNullView() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+
+
+        // When
+        graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
+        final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(VERTEX_1), null);
+
+        // Then
+        final GafferPopVertex vertex = vertices.next();
+        assertFalse(vertices.hasNext()); // there is only 1 vertex
+        assertEquals(VERTEX_1, vertex.id());
+        assertEquals(SOFTWARE_NAME_GROUP, vertex.label());
+        assertEquals("GafferPop", vertex.property(NAME_PROPERTY).value());
+    }
+
+    @Test
+    public void shouldAddAndGetVertexWithViewWithEdges() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+        final View view = new View.Builder()
+                .edge(SOFTWARE_NAME_GROUP)
+                .build();
+
+
+
+        // When
+        graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
+        final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(), view);
 
         // Then
         final GafferPopVertex vertex = vertices.next();
@@ -347,7 +406,48 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetAllEdgesInGroupTEST() {
+    public void shouldGetEdgeInGroup() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
+        graph.addEdge(edgeToAdd1);
+
+        // When
+        final Iterator<GafferPopEdge> edges = graph.edges(VERTEX_1, Direction.OUT, CREATED_EDGE_GROUP);
+
+        // Then
+        final List<Edge> edgesList = new ArrayList<>();
+        while (edges.hasNext()) {
+            edgesList.add(edges.next());
+        }
+        assertThat(edgesList).contains(edgeToAdd1);
+    }
+
+    @Test
+    public void shouldGetEdgeInGroupWithViewWithEntity() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
+        graph.addEdge(edgeToAdd1);
+        final View view = new View.Builder()
+                .entity(CREATED_EDGE_GROUP)
+                .build();
+
+        // When
+        final Iterator<GafferPopEdge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, view);
+
+        // Then
+        final List<Edge> edgesList = new ArrayList<>();
+        while (edges.hasNext()) {
+            edgesList.add(edges.next());
+        }
+        assertThat(edgesList).contains(edgeToAdd1);
+    }
+
+    @Test
+    public void shouldGetEdgesWithEdgeIdsPassedIn() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -355,9 +455,50 @@ public class GafferPopGraphTest {
         final GafferPopEdge edgeToAdd2 = new GafferPopEdge(DEPENDS_ON_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
         graph.addEdge(edgeToAdd1);
         graph.addEdge(edgeToAdd2);
+        final View view = new View.Builder()
+                .entity(CREATED_EDGE_GROUP)
+                .build();
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edges(VERTEX_1, Direction.OUT, CREATED_EDGE_GROUP);
+        final Iterator<GafferPopEdge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1.id(), edgeToAdd2.id()), Direction.OUT, view);
+
+        // Then
+        final List<Edge> edgesList = new ArrayList<>();
+        while (edges.hasNext()) {
+            edgesList.add(edges.next());
+        }
+
+        assertThat(edgesList).contains(edgeToAdd1, edgeToAdd2);
+    }
+    @Test
+    public void shouldGetEdgeInGroupWithNullView() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
+        graph.addEdge(edgeToAdd1);
+
+        // When
+        final Iterator<GafferPopEdge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, null);
+
+        // Then
+        final List<Edge> edgesList = new ArrayList<>();
+        while (edges.hasNext()) {
+            edgesList.add(edges.next());
+        }
+        assertThat(edgesList).contains(edgeToAdd1);
+    }
+
+    @Test
+    public void shouldGetEdgeInGroupWithNullViewAndEdgeList() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
+        graph.addEdge(edgeToAdd1);
+
+        // When
+        final Iterator<GafferPopEdge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1), Direction.OUT, null);
 
         // Then
         final List<Edge> edgesList = new ArrayList<>();
@@ -440,7 +581,6 @@ public class GafferPopGraphTest {
 
         // When
         final Iterator<GafferPopVertex> vertices = graph.adjVertices(Arrays.asList(VERTEX_1, VERTEX_2), Direction.BOTH);
-        System.out.println(vertices);
 
         // Then
         final List<Vertex>  verticesList = new ArrayList<>();
@@ -450,6 +590,8 @@ public class GafferPopGraphTest {
         assertThat(verticesList).contains(vertex1);
         assertThat(verticesList).contains(vertex2);
     }
+
+
 
     @Test
     public void shouldThrowExceptionIfGetAdjacentVerticesWithNoSeeds() {
