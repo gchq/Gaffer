@@ -1,0 +1,104 @@
+{
+    "entities": {
+        "vertex": {
+            "vertex": "long.id",
+            "aggregate": false
+        },
+        "person": {
+            "vertex": "long.id",
+            "properties": {
+                "name": "name.string",
+                "age": "age.integer"
+            },
+            "aggregate": false
+        },
+        "software": {
+            "vertex": "long.id",
+            "properties": {
+                "name": "name.string",
+                "lang": "name.string"
+            },
+            "aggregate": false
+        },
+        "blah": {
+            "vertex": "long.id",
+            "properties": {
+                "test": "name.string"
+            },
+            "aggregate": false
+        }
+    },
+    "edges": {
+        "self": {
+            "source": "long.id",
+            "destination": "long.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "friend": {
+            "source": "long.id",
+            "destination": "long.id",
+            "directed": "true",
+            "properties": {
+                "weight": "weight.double",
+                "acl": "acl.string"
+
+            },
+            "aggregate": false
+        },
+        "friends": {
+            "source": "long.id",
+            "destination": "long.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "knows": {
+            "source": "long.id",
+            "destination": "long.id",
+            "directed": "true",
+            "properties": {
+                "weight": "weight.double"
+            },
+            "aggregate": false
+        },
+        "created": {
+            "source": "long.id",
+            "destination": "long.id",
+            "directed": "true",
+            "properties": {
+                "weight": "weight.double"
+            },
+            "aggregate": false
+        },
+        "dependsOn": {
+            "source": "long.id",
+            "destination": "long.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "encapsulates": {
+            "source": "long.id",
+            "destination": "long.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "test": {
+            "source": "long.id",
+            "destination": "long.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "CONTROL": {
+            "source": "long.id",
+            "destination": "long.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "SELFLOOP": {
+            "source": "long.id",
+            "destination": "long.id",
+            "directed": "true",
+            "aggregate": false
+        }
+    }
+}

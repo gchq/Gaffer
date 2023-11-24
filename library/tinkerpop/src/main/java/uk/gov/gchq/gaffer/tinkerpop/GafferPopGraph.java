@@ -70,6 +70,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -110,17 +111,26 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public static final String DATA_AUTHS = "gaffer.dataAuths";
 
     /**
-     * Are incremental Vertex IDs allowed meaning a vertex can be added without
-     * specifying an ID for it.
-     */
-    public static final String INCREMENTAL_VERTEX_IDS = "vertex.incrementalIds";
-
-    /**
      * The vertex label for vertex IDs. These are {@link GafferPopVertex}s that
      * don't have any properties, just an ID value and a label of 'id'.
      */
     public static final String ID_LABEL = "id";
 
+    /**
+     * The type of vertex id manager to use see {@link DefaultIdManager}
+     */
+    public static final String ID_MANAGER = "vertex.id.manager";
+
+    /**
+     * Types of ID managers available for this graph.
+     */
+    public enum DefaultIdManager {
+        INTEGER,
+        LONG,
+        UUID
+    }
+
+    // Internal ID tracker for using a number based ID manager
     protected AtomicLong currentId = new AtomicLong(-1L);
 
     private final Graph graph;
@@ -196,12 +206,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     @Override
     public Vertex addVertex(final Object... keyValues) {
         ElementHelper.legalPropertyKeyValueArray(keyValues);
-        final Object idValue;
-        final String label = ElementHelper.getLabelValue(keyValues).orElseThrow(() -> new IllegalArgumentException("Label is required"));
-        if (configuration.containsKey(INCREMENTAL_VERTEX_IDS)) {
+        final String label = ElementHelper.getLabelValue(keyValues).orElse(Vertex.DEFAULT_LABEL);
+        Object idValue;
+        if (configuration.containsKey(ID_MANAGER)) {
             idValue = ElementHelper.getIdValue(keyValues).orElse(null);
             if (idValue == null) {
-                currentId.incrementAndGet();
+                idValue = getNextVertexId();
             }
         } else {
             idValue = ElementHelper.getIdValue(keyValues).orElseThrow(() -> new IllegalArgumentException("ID is required"));
@@ -574,6 +584,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 for (final ElementSeed elementSeed : seeds) {
                     if (elementSeed instanceof EntitySeed) {
                         idVertices.add(new GafferPopVertex(ID_LABEL, ((EntitySeed) elementSeed).getVertex(), this));
+                        // Entity entitySeed = ((Entity) ((EntitySeed) elementSeed).getVertex());
+                        // idVertices.add(
+                        //     new GafferPopVertex(entitySeed.getGroup(), entitySeed.getIdentifier(IdentifierType.VERTEX), this));
                     }
                 }
             }
@@ -745,6 +758,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     edgeIdList = Arrays.asList(((GafferPopEdge) edgeIdObj).outVertex().id(), ((GafferPopEdge) edgeIdObj).inVertex().id());
                 } else if (edgeIdObj instanceof List) {
                     edgeIdList = ((List) edgeIdObj);
+                } else if (edgeIdObj instanceof String) {
+                    // Attempt to extract IDs from a string form of an array/list
+                    edgeIdList = Arrays.asList(((String) edgeIdObj).replace("[", "").replace ("]", "").split (","));
                 } else {
                     final String className = null != edgeIdObj ? edgeIdObj.getClass().getName() : " a null object";
                     throw new IllegalArgumentException("Edge IDs must be either a EdgeId list or a GafferPopEdge. Not " + className);
@@ -775,5 +791,20 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         variablesMap.put(GafferPopGraphVariables.USER, user);
         variablesMap.put(GafferPopGraphVariables.SCHEMA, graph.getSchema());
         return new GafferPopGraphVariables(variablesMap);
+    }
+
+
+    private Object getNextVertexId() {
+        switch (configuration.getEnum(ID_MANAGER, DefaultIdManager.class)) {
+            case INTEGER:
+                return ((Long) currentId.incrementAndGet()).intValue();
+
+            case UUID:
+                return UUID.randomUUID();
+
+            // Use long for default
+            default:
+                return currentId.incrementAndGet();
+        }
     }
 }

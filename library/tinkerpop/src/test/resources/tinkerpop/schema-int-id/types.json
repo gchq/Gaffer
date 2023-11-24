@@ -1,10 +1,7 @@
 {
   "types": {
-    "person": {
-      "class": "java.lang.String"
-    },
-    "software": {
-      "class": "java.lang.String"
+    "int.id": {
+      "class": "java.lang.Integer"
     },
     "true": {
       "class": "java.lang.Boolean"

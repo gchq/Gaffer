@@ -1,0 +1,104 @@
+{
+    "entities": {
+        "vertex": {
+            "vertex": "int.id",
+            "aggregate": false
+        },
+        "person": {
+            "vertex": "int.id",
+            "properties": {
+                "name": "name.string",
+                "age": "age.integer"
+            },
+            "aggregate": false
+        },
+        "software": {
+            "vertex": "int.id",
+            "properties": {
+                "name": "name.string",
+                "lang": "name.string"
+            },
+            "aggregate": false
+        },
+        "blah": {
+            "vertex": "int.id",
+            "properties": {
+                "test": "name.string"
+            },
+            "aggregate": false
+        }
+    },
+    "edges": {
+        "self": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "friend": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "properties": {
+                "weight": "weight.double",
+                "acl": "acl.string"
+
+            },
+            "aggregate": false
+        },
+        "friends": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "knows": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "properties": {
+                "weight": "weight.double"
+            },
+            "aggregate": false
+        },
+        "created": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "properties": {
+                "weight": "weight.double"
+            },
+            "aggregate": false
+        },
+        "dependsOn": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "encapsulates": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "test": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "CONTROL": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "SELFLOOP": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "aggregate": false
+        }
+    }
+}

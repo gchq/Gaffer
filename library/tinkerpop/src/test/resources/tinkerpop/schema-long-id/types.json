@@ -1,0 +1,22 @@
+{
+  "types": {
+    "long.id": {
+      "class": "java.lang.Long"
+    },
+    "true": {
+      "class": "java.lang.Boolean"
+    },
+    "name.string": {
+      "class": "java.lang.String"
+    },
+    "age.integer": {
+      "class": "java.lang.Integer"
+    },
+    "weight.double": {
+      "class": "java.lang.Double"
+    },
+    "acl.string": {
+      "class": "java.lang.String"
+    }
+  }
+}
