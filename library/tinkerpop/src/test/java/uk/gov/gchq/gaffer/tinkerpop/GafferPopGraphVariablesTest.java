@@ -61,7 +61,6 @@ public class GafferPopGraphVariablesTest {
         // Given
         given(graph.variables()).willReturn(variables);
         final Integer varSize = graph.variables().asMap().size();
-        
         // Then
         assertThat(graph.variables().toString())
             .contains("variables", "size", varSize.toString());
