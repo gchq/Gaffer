@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
@@ -316,6 +317,30 @@ public class FederatedStoreSchemaOverlapTest {
         assertThat(schema.toString())
                 .isEqualTo(GRAPH_A_SCHEMA.toString())
                 .isNotEqualTo(graphBSchema.toString());
+    }
+
+    @Test
+    public void shouldErrorAtTypeDefinitionSerialiserWhenConflictingDuringSchemasMerge() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, GRAPH_A_SCHEMA);
+        final Schema graphBSchema = new Schema.Builder()
+                .merge(GRAPH_A_SCHEMA)
+                .type(INTEGER, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .serialiser(new CompactRawIntegerSerialiser())
+                        .aggregateFunction(new Sum())
+                        .validateFunctions(new IsLessThan(10))
+                        .build())
+                .build();
+        addGraphWith(GRAPH_ID_B, graphBSchema);
+
+        // When
+        assertThatException()
+                .isThrownBy(() -> federatedStore.execute(new GetSchema.Builder().build(), testContext))
+                .withStackTraceContaining("Error with the schema type named:integer")
+                .withStackTraceContaining("Unable to merge schemas because of conflict with the type serialiser")
+                .withStackTraceContaining("options are: uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser")
+                .withStackTraceContaining("and uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser");
     }
 
     @Test
