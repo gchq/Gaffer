@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.tinkerpop;
 
+import org.apache.tinkerpop.gremlin.structure.Graph.Variables;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -44,8 +45,10 @@ public class GafferPopGraphVariablesTest {
     void shouldThrowErrorWhenTryRemoveVariables() {
         given(graph.variables()).willReturn(variables);
 
+        final Variables graphVariables = graph.variables();
+
         assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> graph.variables().set("key1", "value1"));
+            .isThrownBy(() -> graphVariables.set("key1", "value1"));
     }
 
     @Test
