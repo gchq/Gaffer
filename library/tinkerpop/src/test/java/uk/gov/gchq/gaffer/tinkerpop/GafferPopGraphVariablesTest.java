@@ -34,17 +34,22 @@ public class GafferPopGraphVariablesTest {
 
     @Test
     void shouldRemoveValueFromVariables() {
+        // Given
         given(graph.variables()).willReturn(variables);
 
+        // When
         graph.variables().remove(GafferPopGraphVariables.SCHEMA);
 
+        // Then
         assertThat(graph.variables().asMap()).hasSize(2);
     }
 
     @Test
     void shouldThrowErrorWhenTryRemoveVariables() {
+        // Given
         given(graph.variables()).willReturn(variables);
 
+        // Then
         final Variables graphVariables = graph.variables();
 
         assertThatExceptionOfType(UnsupportedOperationException.class)
@@ -53,9 +58,11 @@ public class GafferPopGraphVariablesTest {
 
     @Test
     void shouldReturnStringOfTotalNumberOfGraphVariables() {
+        // Given
         given(graph.variables()).willReturn(variables);
         final Integer varSize = graph.variables().asMap().size();
-
+        
+        // Then
         assertThat(graph.variables().toString())
             .contains("variables", "size", varSize.toString());
     }
