@@ -67,7 +67,7 @@ public class GafferPopGraphFeatures implements Features {
 
         @Override
         public boolean willAllowId(final Object id) {
-            return true;
+            return id != null;
         }
     }
 
@@ -87,7 +87,7 @@ public class GafferPopGraphFeatures implements Features {
 
         @Override
         public boolean willAllowId(final Object id) {
-            return true;
+            return id != null;
         }
     }
 
@@ -122,7 +122,7 @@ public class GafferPopGraphFeatures implements Features {
 
         @Override
         public boolean willAllowId(final Object id) {
-            return true;
+            return id != null;
         }
     }
 }
