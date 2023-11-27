@@ -16,33 +16,25 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.generator;
 
-import org.apache.tinkerpop.gremlin.structure.Property;
-import org.apache.tinkerpop.gremlin.structure.VertexProperty;
-
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 
-import java.util.Iterator;
-
 public class GafferEntityGenerator implements OneToOneElementGenerator<GafferPopVertex> {
     @Override
     public Entity _apply(final GafferPopVertex vertex) {
-        final Entity entity = new Entity(vertex.label(), vertex.id());
-        final Iterator<VertexProperty<Object>> vertPropItr = vertex.properties();
-        while (vertPropItr.hasNext()) {
-            final VertexProperty<Object> vertProp = vertPropItr.next();
-            if (null != vertProp.key()) {
-                entity.putProperty(vertProp.key(), vertProp.value());
-            }
-            final Iterator<Property<Object>> propItr = vertProp.properties();
-            while (propItr.hasNext()) {
-                final Property<Object> prop = propItr.next();
-                if (null != prop.key()) {
-                    entity.putProperty(prop.key(), prop.value());
-                }
-            }
+        if (vertex == null) {
+            throw new IllegalArgumentException("Unable to convert a null GafferPopVertex Object");
         }
+
+        final Entity entity = new Entity(vertex.label(), vertex.id());
+
+        // Tinkerpop allows nested properties under a key for Gaffer we need to flatten these so only one property per key
+        vertex.properties().forEachRemaining(vertProp -> {
+            entity.putProperty(vertProp.key(), vertProp.value());
+            vertProp.properties().forEachRemaining(prop -> entity.putProperty(prop.key(), prop.value()));
+        });
+
         return entity;
     }
 }

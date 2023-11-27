@@ -61,8 +61,8 @@ public class GafferPopNamedOperationService<I, R> implements Service<I, R> {
                                         .build())
                                 .build()).iterator());
                     } else {
-                        return (CloseableIterator<R>) CloseableIterator.of(Arrays.asList(graph.execute(new OperationChain.Builder()
-                                .first(new NamedOperation.Builder()
+                        return CloseableIterator.of(Arrays.asList(graph.execute(new OperationChain.Builder()
+                                .first(new NamedOperation.Builder<Void, R>()
                                         .name(name)
                                         .build())
                                 .build())).iterator());
