@@ -122,11 +122,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public static final String ID_MANAGER = "vertex.id.manager";
 
     /**
-     * Types of ID managers available for this graph.
+     * Types of ID managers available for this graph (mainly used for testing).
      */
     public enum DefaultIdManager {
         INTEGER,
         LONG,
+        STRING,
         UUID
     }
 
@@ -758,12 +759,16 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     edgeIdList = Arrays.asList(((GafferPopEdge) edgeIdObj).outVertex().id(), ((GafferPopEdge) edgeIdObj).inVertex().id());
                 } else if (edgeIdObj instanceof List) {
                     edgeIdList = ((List) edgeIdObj);
+                // Attempt to extract source and destination IDs from a string form of an array/list
                 } else if (edgeIdObj instanceof String) {
-                    // Attempt to extract IDs from a string form of an array/list
                     edgeIdList = Arrays.asList(((String) edgeIdObj).replace("[", "").replace ("]", "").split (","));
                 } else {
                     final String className = null != edgeIdObj ? edgeIdObj.getClass().getName() : " a null object";
                     throw new IllegalArgumentException("Edge IDs must be either a EdgeId list or a GafferPopEdge. Not " + className);
+                }
+                // Make sure we have a source and destination
+                if (edgeIdList.size() < 2) {
+                    throw new IllegalArgumentException("Unable to determine source and destination vertex IDs for edge seed, found: " + edgeIdList);
                 }
                 seeds.add(new EdgeSeed(edgeIdList.get(0), edgeIdList.get(1), true));
             }
@@ -801,6 +806,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
             case UUID:
                 return UUID.randomUUID();
+
+            case STRING:
+                return UUID.randomUUID().toString();
 
             // Use long for default
             default:

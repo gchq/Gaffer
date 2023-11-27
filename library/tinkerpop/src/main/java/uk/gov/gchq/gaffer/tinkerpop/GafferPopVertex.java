@@ -22,6 +22,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -63,7 +64,7 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
     @Override
     public <V> VertexProperty<V> property(final VertexProperty.Cardinality cardinality, final String key, final V value, final Object... keyValues) {
         if (isReadOnly()) {
-            throw new UnsupportedOperationException("Updates are not supported");
+            throw new IllegalStateException("Updates are not supported, Vertex is readonly");
         }
 
         ElementHelper.legalPropertyKeyValueArray(keyValues);
@@ -151,7 +152,12 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
     }
 
     @Override
+    public void remove() {
+        throw Vertex.Exceptions.vertexRemovalNotSupported();
+    }
+
+    @Override
     public String toString() {
-        return "v[" + label() + "-" + id() + "]";
+        return StringFactory.vertexString(this);
     }
 }

@@ -1,7 +1,7 @@
 {
   "types": {
-    "long.id": {
-      "class": "java.lang.Long"
+    "string.id": {
+      "class": "java.lang.String"
     },
     "true": {
       "class": "java.lang.Boolean"

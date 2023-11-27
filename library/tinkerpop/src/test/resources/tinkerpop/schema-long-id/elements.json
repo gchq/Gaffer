@@ -52,12 +52,18 @@
             "directed": "true",
             "aggregate": false
         },
+        "hate": {
+            "source": "long.id",
+            "destination": "long.id",
+            "directed": "true",
+            "aggregate": false
+        },
         "knows": {
             "source": "long.id",
             "destination": "long.id",
             "directed": "true",
             "properties": {
-                "weight": "weight.double"
+                "weight": "weight.float"
             },
             "aggregate": false
         },
@@ -66,7 +72,7 @@
             "destination": "long.id",
             "directed": "true",
             "properties": {
-                "weight": "weight.double"
+                "weight": "weight.float"
             },
             "aggregate": false
         },
@@ -77,6 +83,12 @@
             "aggregate": false
         },
         "encapsulates": {
+            "source": "long.id",
+            "destination": "long.id",
+            "directed": "true",
+            "aggregate": false
+        },
+        "uses": {
             "source": "long.id",
             "destination": "long.id",
             "directed": "true",

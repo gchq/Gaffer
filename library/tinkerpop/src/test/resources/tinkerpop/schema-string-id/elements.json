@@ -1,11 +1,11 @@
 {
     "entities": {
         "vertex": {
-            "vertex": "uuid.id",
+            "vertex": "string.id",
             "aggregate": false
         },
         "person": {
-            "vertex": "uuid.id",
+            "vertex": "string.id",
             "properties": {
                 "name": "name.string",
                 "age": "age.integer"
@@ -13,7 +13,7 @@
             "aggregate": false
         },
         "software": {
-            "vertex": "uuid.id",
+            "vertex": "string.id",
             "properties": {
                 "name": "name.string",
                 "lang": "name.string"
@@ -21,7 +21,7 @@
             "aggregate": false
         },
         "blah": {
-            "vertex": "uuid.id",
+            "vertex": "string.id",
             "properties": {
                 "test": "name.string"
             },
@@ -30,14 +30,14 @@
     },
     "edges": {
         "self": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
+            "source": "string.id",
+            "destination": "string.id",
             "directed": "true",
             "aggregate": false
         },
         "friend": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
+            "source": "string.id",
+            "destination": "string.id",
             "directed": "true",
             "properties": {
                 "weight": "weight.double",
@@ -47,20 +47,20 @@
             "aggregate": false
         },
         "friends": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
+            "source": "string.id",
+            "destination": "string.id",
             "directed": "true",
             "aggregate": false
         },
         "hate": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
+            "source": "string.id",
+            "destination": "string.id",
             "directed": "true",
             "aggregate": false
         },
         "knows": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
+            "source": "string.id",
+            "destination": "string.id",
             "directed": "true",
             "properties": {
                 "weight": "weight.float"
@@ -68,8 +68,8 @@
             "aggregate": false
         },
         "created": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
+            "source": "string.id",
+            "destination": "string.id",
             "directed": "true",
             "properties": {
                 "weight": "weight.float"
@@ -77,38 +77,38 @@
             "aggregate": false
         },
         "dependsOn": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
+            "source": "string.id",
+            "destination": "string.id",
             "directed": "true",
             "aggregate": false
         },
         "encapsulates": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
+            "source": "string.id",
+            "destination": "string.id",
             "directed": "true",
             "aggregate": false
         },
         "uses": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
+            "source": "string.id",
+            "destination": "string.id",
             "directed": "true",
             "aggregate": false
         },
         "test": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
+            "source": "string.id",
+            "destination": "string.id",
             "directed": "true",
             "aggregate": false
         },
         "CONTROL": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
+            "source": "string.id",
+            "destination": "string.id",
             "directed": "true",
             "aggregate": false
         },
         "SELFLOOP": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
+            "source": "string.id",
+            "destination": "string.id",
             "directed": "true",
             "aggregate": false
         }

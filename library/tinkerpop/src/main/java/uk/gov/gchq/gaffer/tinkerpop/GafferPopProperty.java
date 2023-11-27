@@ -69,6 +69,6 @@ public final class GafferPopProperty<V> implements Property<V> {
 
     @Override
     public void remove() {
-        throw new UnsupportedOperationException("Properties cannot be removed");
+        throw Property.Exceptions.propertyRemovalNotSupported();
     }
 }

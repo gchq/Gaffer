@@ -15,6 +15,9 @@
     "weight.double": {
       "class": "java.lang.Double"
     },
+    "weight.float": {
+      "class": "java.lang.Float"
+    },
     "acl.string": {
       "class": "java.lang.String"
     }
