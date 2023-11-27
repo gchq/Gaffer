@@ -20,7 +20,6 @@ import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
-import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -110,16 +109,10 @@ public class GafferPopVertexProperty<V> extends GafferPopElement implements Vert
             return Collections.emptyIterator();
         }
 
-        if (propertyKeys.length == 1) {
-            final Property<U> property = properties.get(propertyKeys[0]);
-            return null == property ? Collections.emptyIterator() : IteratorUtils.of(property);
-        }
-
-        return (Iterator<Property<U>>) (Iterator) properties.entrySet()
-                .stream()
-                .filter(entry -> ElementHelper.keyExists(entry.getKey(), propertyKeys))
-                .map(entry -> entry.getValue())
-                .collect(Collectors.toList())
-                .iterator();
+        return properties.entrySet().stream()
+            .filter(entry -> ElementHelper.keyExists(entry.getKey(), propertyKeys))
+            .map(entry -> (Property<U>) entry.getValue())
+            .collect(Collectors.toList())
+            .iterator();
     }
 }
