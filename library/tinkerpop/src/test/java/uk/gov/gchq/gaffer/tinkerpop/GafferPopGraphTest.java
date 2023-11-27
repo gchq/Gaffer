@@ -73,7 +73,7 @@ public class GafferPopGraphTest {
             this.setProperty(GafferPopGraph.USER_ID, USER_ID);
             this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
             this.setProperty(GafferPopGraph.GRAPH_ID, "Graph1");
-            this.setProperty(GafferPopGraph.STORE_PROPERTIES, GafferPopGraphTest.class.getClassLoader().getResource("gaffer/store.properties").getPath().toString());
+            this.setProperty(GafferPopGraph.STORE_PROPERTIES, GafferPopGraphTest.class.getClassLoader().getResource("gaffer/store.properties").getPath());
         }
     };
 
@@ -102,9 +102,7 @@ public class GafferPopGraphTest {
         assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertThat(opOptions.get("key1")).isEqualTo("value1");
-        assertThat(opOptions.get("key2")).isEqualTo("value2");
-        assertThat(opOptions.size()).isEqualTo(2);
+        assertThat(opOptions).contains(Map.entry("key1", "value1")).contains(Map.entry("key2", "value2")).hasSize(2);
         assertThat(variables.size()).isEqualTo(3);
     }
 
@@ -116,15 +114,14 @@ public class GafferPopGraphTest {
                 .build();
 
         // when
-        final GafferPopGraph graph = GafferPopGraph.open(GafferPopGraphTest.class.getClassLoader().getResource("gafferpop-tinkerpop-modern.properties").getPath().toString());
+        final GafferPopGraph graph = GafferPopGraph.open(GafferPopGraphTest.class.getClassLoader().getResource("gafferpop-tinkerpop-modern.properties").getPath());
 
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertThat(opOptions.get("key1")).isEqualTo("value1");
-        assertThat(opOptions.size()).isEqualTo(1);
+        assertThat(opOptions).contains(Map.entry("key1", "value1")).hasSize(1);
         assertThat(variables.size()).isEqualTo(3);
     }
 
@@ -146,9 +143,7 @@ public class GafferPopGraphTest {
         assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertThat(opOptions.get("key1")).isEqualTo("value1");
-        assertThat(opOptions.get("key2")).isEqualTo("value2");
-        assertThat(opOptions.size()).isEqualTo(2);
+        assertThat(opOptions).contains(Map.entry("key1", "value1")).contains(Map.entry("key2", "value2")).hasSize(2);
         assertThat(variables.size()).isEqualTo(3);
     }
 
@@ -227,7 +222,7 @@ public class GafferPopGraphTest {
 
         // Then
         final GafferPopVertex vertex = vertices.next();
-        assertFalse(vertices.hasNext());
+        assertThat(vertices).isExhausted();
         assertThat(vertex.id()).isEqualTo(VERTEX_1);
         assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
         assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
@@ -318,7 +313,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetVerticesByNonIterableObject() {
+    public void shouldGetVerticesById() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -401,7 +396,7 @@ public class GafferPopGraphTest {
         assertThat(edge.label()).isEqualTo(CREATED_EDGE_GROUP);
         assertThat(edge.inVertex()).isEqualTo(gafferPopInVertex);
         assertThat(edge.outVertex()).isEqualTo(gafferPopOutVertex);
-        assertThat((Double) edge.property(WEIGHT_PROPERTY).value()).isEqualTo(1.5);
+        assertThat(edge.property(WEIGHT_PROPERTY).value()).isEqualTo(1.5);
     }
 
     @Test
