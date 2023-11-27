@@ -78,11 +78,21 @@ public class GafferPopNamedOperationService<I, R> implements Service<I, R> {
         }
     }
 
+    /**
+     * Find the requested Named Operation and depending on its output class
+     * either execute and then convert all {@link uk.gov.gchq.gaffer.data.element.Element}
+     * to {@link GafferPopElement}, to just execute and return the result as
+     * an Iterable.
+     *
+     * @param name Name of the Named Operation to execute
+     * @return results of the operation execution
+     */
     protected CloseableIterator<R> executeNamedOperation(final String name) {
         // Fetch details for the requested Named Operation or throw an exception if it's not found
         Iterable<NamedOperationDetail> allNamedOps = graph.execute(new OperationChain.Builder().first(new GetAllNamedOperations()).build());
         NamedOperationDetail namedOperation = StreamSupport.stream(allNamedOps.spliterator(), false)
-                .filter((NamedOperationDetail nd) -> nd.getOperationName().equals(name)).findFirst()
+                .filter(nd -> nd.getOperationName().equals(name))
+                .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Named Operation not found"));
 
         // If the Named Operation outputs an Iterable, then execute and convert Elements to GafferPopElement
@@ -105,6 +115,14 @@ public class GafferPopNamedOperationService<I, R> implements Service<I, R> {
         }
     }
 
+    /**
+     * Add a new Named Operation with the supplied Name and Operation Chain.
+     *
+     * @param addParams {@link Map} with Key "name" containing the name to give
+     * the new Named Operation being added and key "OpChain" containing the
+     * operation chain to use with this Named Operation.
+     * @return
+     */
     protected CloseableIterator<R> addNamedOperation(final Map<String, String> addParams) {
         graph.execute(new OperationChain.Builder()
                 .first(new AddNamedOperation.Builder()
