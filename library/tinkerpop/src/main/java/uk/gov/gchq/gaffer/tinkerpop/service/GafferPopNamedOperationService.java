@@ -121,7 +121,7 @@ public class GafferPopNamedOperationService<I, R> implements Service<I, R> {
      * @param addParams {@link Map} with Key "name" containing the name to give
      * the new Named Operation being added and key "OpChain" containing the
      * operation chain to use with this Named Operation.
-     * @return
+     * @return Empty
      */
     protected CloseableIterator<R> addNamedOperation(final Map<String, String> addParams) {
         graph.execute(new OperationChain.Builder()
