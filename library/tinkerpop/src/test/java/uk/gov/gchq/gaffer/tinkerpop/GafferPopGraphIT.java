@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.tinkerpop;
 
-import org.apache.commons.configuration2.BaseConfiguration;
-import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -29,7 +27,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -43,7 +41,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class GafferPopGraphTest {
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.AUTH_1;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.AUTH_2;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_1;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_2;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_3;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.getTestUser;
+
+public class GafferPopGraphIT {
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphIT.class, "/gaffer/store.properties"));
+
     public static final String VERTEX_1 = "1";
     public static final String VERTEX_2 = "2";
     public static final String SOFTWARE_NAME_GROUP = "software";
@@ -52,47 +59,11 @@ public class GafferPopGraphTest {
     public static final String CREATED_EDGE_GROUP = "created";
     public static final String NAME_PROPERTY = "name";
     public static final String WEIGHT_PROPERTY = "weight";
-    public static final String USER_ID = "user01";
-    public static final String AUTH_1 = "auth1";
-    public static final String AUTH_2 = "auth2";
-
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphTest.class, "/gaffer/store.properties"));
-
-    private static final Configuration TEST_CONFIGURATION_1 = new BaseConfiguration() {
-        {
-            this.setProperty(GafferPopGraph.GRAPH, GafferPopGraph.class.getName());
-            this.setProperty(GafferPopGraph.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
-            this.setProperty(GafferPopGraph.USER_ID, USER_ID);
-            this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
-        }
-    };
-
-    private static final Configuration TEST_CONFIGURATION_2 = new BaseConfiguration() {
-        {
-            this.setProperty(GafferPopGraph.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
-            this.setProperty(GafferPopGraph.USER_ID, USER_ID);
-            this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
-            this.setProperty(GafferPopGraph.GRAPH_ID, "Graph1");
-            this.setProperty(GafferPopGraph.STORE_PROPERTIES, GafferPopGraphTest.class.getClassLoader().getResource("gaffer/store.properties").getPath());
-        }
-    };
-
-    private static final Configuration TEST_CONFIGURATION_3 = new BaseConfiguration() {
-        {
-            this.setProperty(GafferPopGraph.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
-            this.setProperty(GafferPopGraph.USER_ID, USER_ID);
-            this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
-        }
-    };
-
 
     @Test
     public void shouldConstructGafferPopGraphWithOnlyConfig() {
         // Given
-        final User expectedUser = new User.Builder()
-                .userId(USER_ID)
-                .dataAuths(AUTH_1, AUTH_2)
-                .build();
+        final User expectedUser = getTestUser(AUTH_1, AUTH_2);
 
         // When
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_2);
@@ -109,12 +80,10 @@ public class GafferPopGraphTest {
     @Test
     public void shouldConstructGafferPopGraphWithConfigFile() {
         // Given
-        final User expectedUser = new User.Builder()
-                .userId(USER_ID)
-                .build();
+        final User expectedUser = getTestUser();
 
         // when
-        final GafferPopGraph graph = GafferPopGraph.open(GafferPopGraphTest.class.getClassLoader().getResource("gafferpop-test.properties").getPath());
+        final GafferPopGraph graph = GafferPopGraph.open(GafferPopGraphIT.class.getClassLoader().getResource("gafferpop-test.properties").getPath());
 
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
@@ -129,10 +98,7 @@ public class GafferPopGraphTest {
     public void shouldConstructGafferPopGraph() {
         // Given
         final Graph gafferGraph = getGafferGraph();
-        final User expectedUser = new User.Builder()
-                .userId(USER_ID)
-                .dataAuths(AUTH_1, AUTH_2)
-                .build();
+        final User expectedUser = getTestUser(AUTH_1, AUTH_2);
 
         // When
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -585,8 +551,6 @@ public class GafferPopGraphTest {
         assertThat(verticesList).contains(vertex2);
     }
 
-
-
     @Test
     public void shouldThrowExceptionIfGetAdjacentVerticesWithNoSeeds() {
         // Given
@@ -598,13 +562,7 @@ public class GafferPopGraphTest {
     }
 
     private Graph getGafferGraph() {
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graph1")
-                        .build())
-                .storeProperties(PROPERTIES)
-                .addSchemas(StreamUtil.openStreams(this.getClass(), "/gaffer/schema"))
-                .build();
+        return GafferPopTestUtil.getGafferGraph(this.getClass(), PROPERTIES);
     }
 
 }
