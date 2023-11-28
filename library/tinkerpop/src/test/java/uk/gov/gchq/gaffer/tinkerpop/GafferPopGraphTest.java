@@ -102,7 +102,7 @@ public class GafferPopGraphTest {
         assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertThat(opOptions).contains(Map.entry("key1", "value1")).contains(Map.entry("key2", "value2")).hasSize(2);
+        assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
         assertThat(variables.size()).isEqualTo(3);
     }
 
@@ -121,7 +121,7 @@ public class GafferPopGraphTest {
         assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertThat(opOptions).contains(Map.entry("key1", "value1")).hasSize(1);
+        assertThat(opOptions).containsEntry("key1", "value1").hasSize(1);
         assertThat(variables.size()).isEqualTo(3);
     }
 
@@ -143,7 +143,7 @@ public class GafferPopGraphTest {
         assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertThat(opOptions).contains(Map.entry("key1", "value1")).contains(Map.entry("key2", "value2")).hasSize(2);
+        assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
         assertThat(variables.size()).isEqualTo(3);
     }
 
