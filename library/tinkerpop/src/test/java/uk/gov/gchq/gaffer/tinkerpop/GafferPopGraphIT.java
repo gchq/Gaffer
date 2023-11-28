@@ -48,8 +48,6 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURA
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.getTestUser;
 
 public class GafferPopGraphIT {
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphIT.class, "/gaffer/store.properties"));
-
     public static final String VERTEX_1 = "1";
     public static final String VERTEX_2 = "2";
     public static final String SOFTWARE_NAME_GROUP = "software";
@@ -58,6 +56,8 @@ public class GafferPopGraphIT {
     public static final String CREATED_EDGE_GROUP = "created";
     public static final String NAME_PROPERTY = "name";
     public static final String WEIGHT_PROPERTY = "weight";
+
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphIT.class, "/gaffer/store.properties"));
 
     @Test
     public void shouldConstructGafferPopGraphWithOnlyConfig() {
