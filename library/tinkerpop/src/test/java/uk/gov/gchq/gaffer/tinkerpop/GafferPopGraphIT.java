@@ -376,11 +376,7 @@ public class GafferPopGraphIT {
         final Iterator<GafferPopEdge> edges = graph.edges(VERTEX_1, Direction.OUT, CREATED_EDGE_GROUP);
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-        assertThat(edgesList).contains(edgeToAdd1);
+        assertThat(edges).toIterable().contains(edgeToAdd1);
     }
 
     @Test
@@ -398,11 +394,7 @@ public class GafferPopGraphIT {
         final Iterator<GafferPopEdge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, view);
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-        assertThat(edgesList).contains(edgeToAdd1);
+        assertThat(edges).toIterable().contains(edgeToAdd1);
     }
 
     @Test
@@ -422,12 +414,7 @@ public class GafferPopGraphIT {
         final Iterator<GafferPopEdge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1.id(), edgeToAdd2.id()), Direction.OUT, view);
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-
-        assertThat(edgesList).contains(edgeToAdd1, edgeToAdd2);
+        assertThat(edges).toIterable().contains(edgeToAdd1, edgeToAdd2);
     }
     @Test
     public void shouldGetEdgeInGroupWithNullView() {
@@ -441,11 +428,7 @@ public class GafferPopGraphIT {
         final Iterator<GafferPopEdge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, null);
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-        assertThat(edgesList).contains(edgeToAdd1);
+        assertThat(edges).toIterable().contains(edgeToAdd1);
     }
 
     @Test
@@ -460,11 +443,7 @@ public class GafferPopGraphIT {
         final Iterator<GafferPopEdge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1), Direction.OUT, null);
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-        assertThat(edgesList).contains(edgeToAdd1);
+        assertThat(edges).toIterable().contains(edgeToAdd1);
     }
 
     @Test
@@ -481,11 +460,7 @@ public class GafferPopGraphIT {
         final Iterator<Edge> edges = graph.edges();
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-        assertThat(edgesList).contains(edgeToAdd1, edgeToAdd2);
+        assertThat(edges).toIterable().contains(edgeToAdd1, edgeToAdd2);
     }
 
     @Test
@@ -502,11 +477,7 @@ public class GafferPopGraphIT {
         final Iterator<GafferPopEdge> edges = graph.edges(null, Direction.OUT, CREATED_EDGE_GROUP);
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-        assertThat(edgesList).contains(edgeToAdd1);
+        assertThat(edges).toIterable().contains(edgeToAdd1);
     }
 
     @Test
@@ -534,20 +505,17 @@ public class GafferPopGraphIT {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final Vertex vertex1 = graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
-        final Vertex vertex2 = graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
+        final GafferPopVertex vertex1 = (GafferPopVertex) graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
+        final GafferPopVertex vertex2 = (GafferPopVertex) graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
         vertex1.addEdge(DEPENDS_ON_EDGE_GROUP, vertex2);
 
         // When
         final Iterator<GafferPopVertex> vertices = graph.adjVertices(Arrays.asList(VERTEX_1, VERTEX_2), Direction.BOTH);
 
         // Then
-        final List<Vertex>  verticesList = new ArrayList<>();
-        while (vertices.hasNext()) {
-            verticesList.add(vertices.next());
-        }
-        assertThat(verticesList).contains(vertex1);
-        assertThat(verticesList).contains(vertex2);
+        assertThat(vertices).toIterable()
+                .contains(vertex1)
+                .contains(vertex2);
     }
 
     @Test
