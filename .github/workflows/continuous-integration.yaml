@@ -16,7 +16,7 @@ jobs:
     name: Check all modules are tested
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check all modules are tested
         run: ./cd/check_modules.sh
 
@@ -24,7 +24,7 @@ jobs:
     name: Build Javadoc
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup JDK
         uses: actions/setup-java@v3
@@ -94,7 +94,7 @@ jobs:
     env:
       MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -137,7 +137,7 @@ jobs:
     needs:
       - build-and-run-tests
     steps:
-      - uses: actions/checkout@v3 # Codecov need to see the src code to pair with coverage
+      - uses: actions/checkout@v4 # Codecov need to see the src code to pair with coverage
 
       - name: Fetch JaCoCo reports artifact
         uses: actions/download-artifact@v3
@@ -149,3 +149,4 @@ jobs:
         with:
           name: gaffer-coverage
           fail_ci_if_error: true # Ensures upload doesn't fail silently
+          token: ${{ secrets.CODECOV_TOKEN }}
