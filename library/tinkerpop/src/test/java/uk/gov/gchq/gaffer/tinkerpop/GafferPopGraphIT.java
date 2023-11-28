@@ -39,7 +39,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.AUTH_1;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.AUTH_2;
@@ -207,7 +206,7 @@ public class GafferPopGraphIT {
 
         // Then
         final GafferPopVertex vertex = vertices.next();
-        assertFalse(vertices.hasNext()); // there is only 1 vertex
+        assertThat(vertices).isExhausted(); // there is only 1 vertex
         assertThat(vertex.id()).isEqualTo(VERTEX_1);
         assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
         assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
@@ -227,7 +226,7 @@ public class GafferPopGraphIT {
 
         // Then
         final GafferPopVertex vertex = vertices.next();
-        assertFalse(vertices.hasNext()); // there is only 1 vertex
+        assertThat(vertices).isExhausted(); // there is only 1 vertex
         assertThat(vertex.id()).isEqualTo(VERTEX_1);
         assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
         assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
@@ -250,7 +249,7 @@ public class GafferPopGraphIT {
 
         // Then
         final GafferPopVertex vertex = vertices.next();
-        assertFalse(vertices.hasNext()); // there is only 1 vertex
+        assertThat(vertices).isExhausted(); // there is only 1 vertex
         assertThat(vertex.id()).isEqualTo(VERTEX_1);
         assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
         assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
@@ -291,7 +290,7 @@ public class GafferPopGraphIT {
 
         // Then
         final Vertex vertex = vertices.next();
-        assertFalse(vertices.hasNext()); // there is only 1 vertex
+        assertThat(vertices).isExhausted(); // there is only 1 vertex
         assertThat(vertex.id()).isEqualTo(VERTEX_1);
         assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
         assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
@@ -335,7 +334,7 @@ public class GafferPopGraphIT {
 
         // Then
         final GafferPopVertex vertex = vertices.next();
-        assertFalse(vertices.hasNext()); // there is only 1 vertex
+        assertThat(vertices).isExhausted(); // there is only 1 vertex
         assertThat(vertex.id()).isEqualTo(VERTEX_1);
         assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
     }
@@ -356,7 +355,7 @@ public class GafferPopGraphIT {
 
         // Then
         final Edge edge = edges.next();
-        assertFalse(edges.hasNext()); // there is only 1 vertex
+        assertThat(edges).isExhausted(); // there is only 1 vertex
         assertThat(((List) edge.id()).get(0)).isEqualTo(VERTEX_1);
         assertThat(((List) edge.id()).get(1)).isEqualTo(VERTEX_2);
         assertThat(edge.label()).isEqualTo(CREATED_EDGE_GROUP);
@@ -524,7 +523,7 @@ public class GafferPopGraphIT {
 
         // Then
         final GafferPopVertex vertex = vertices.next();
-        assertFalse(vertices.hasNext()); // there is only 1 vertex
+        assertThat(vertices).isExhausted(); // there is only 1 vertex
         assertThat(vertex.id()).isEqualTo(VERTEX_2);
         assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
         assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("Gaffer");
