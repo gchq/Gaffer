@@ -114,7 +114,7 @@ public class GafferPopGraphTest {
                 .build();
 
         // when
-        final GafferPopGraph graph = GafferPopGraph.open(GafferPopGraphTest.class.getClassLoader().getResource("gafferpop-tinkerpop-modern.properties").getPath());
+        final GafferPopGraph graph = GafferPopGraph.open(GafferPopGraphTest.class.getClassLoader().getResource("gafferpop-test.properties").getPath());
 
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
