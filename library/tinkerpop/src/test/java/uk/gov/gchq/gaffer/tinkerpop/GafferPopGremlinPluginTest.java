@@ -64,13 +64,11 @@ public class GafferPopGremlinPluginTest {
 
         // When
         final Optional<Customizer[]> customizers = plugin.getCustomizers();
-        assertThat(customizers).isPresent();
 
         Optional<ImportCustomizer> importCustomizer = Arrays.stream(customizers.get())
                 .filter(ImportCustomizer.class::isInstance)
                 .map(customizer -> (ImportCustomizer) customizer)
                 .findFirst();
-        assertThat(importCustomizer).isPresent();
 
         // Then
         assertThat(importCustomizer.get().getClassImports())
