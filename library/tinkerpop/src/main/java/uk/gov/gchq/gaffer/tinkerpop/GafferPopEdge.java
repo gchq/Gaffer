@@ -47,8 +47,8 @@ import java.util.stream.Collectors;
  */
 public final class GafferPopEdge extends GafferPopElement implements Edge {
     private Map<String, Property> properties;
-    private GafferPopVertex inVertex;
-    private GafferPopVertex outVertex;
+    private final GafferPopVertex inVertex;
+    private final GafferPopVertex outVertex;
 
     public GafferPopEdge(final String label, final Object outVertex, final Object inVertex, final GafferPopGraph graph) {
         super(label, Arrays.asList(getVertexId(outVertex), getVertexId(inVertex)), graph);

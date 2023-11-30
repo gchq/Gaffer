@@ -233,6 +233,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         ElementHelper.legalPropertyKeyValueArray(keyValues);
         final String label = ElementHelper.getLabelValue(keyValues).orElse(Vertex.DEFAULT_LABEL);
         Object idValue;
+        // Check if we are using an ID manager
         if (configuration.containsKey(ID_MANAGER)) {
             idValue = ElementHelper.getIdValue(keyValues).orElse(null);
             if (idValue == null) {
