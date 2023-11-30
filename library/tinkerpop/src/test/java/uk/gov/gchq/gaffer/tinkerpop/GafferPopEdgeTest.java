@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -65,7 +66,7 @@ public class GafferPopEdgeTest {
     }
 
     @Test
-    public void shouldChangeVertexLabelToGraphLabel() {
+    public void shouldPreserveVertexLabelWhenSuppliedVertexObject() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex outVertex = new GafferPopVertex("label", SOURCE, graph);
@@ -75,8 +76,8 @@ public class GafferPopEdgeTest {
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
 
         // Then
-        assertSame("id", edge.outVertex().label());
-        assertSame("id", edge.inVertex().label());
+        assertThat(edge.outVertex().label()).isEqualTo("label");
+        assertThat(edge.inVertex().label()).isEqualTo("label");
     }
 
     @Test
@@ -161,7 +162,7 @@ public class GafferPopEdgeTest {
             .hasSameHashCodeAs(equalProp)
             .isNotEqualTo(notAProp)
             .doesNotHaveSameHashCodeAs(notAProp);
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> prop.remove());
+        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> prop.remove());
         assertThat(nullProp.isPresent()).isFalse();
     }
 
@@ -172,11 +173,8 @@ public class GafferPopEdgeTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, SOURCE, DEST, graph);
 
-        // When
-        final String toString = edge.toString();
-
         // Then
-        assertEquals("e[source-BasicEdge->dest]", toString);
+        assertThat(edge).hasToString(StringFactory.edgeString(edge));
     }
 
     @Test
@@ -218,9 +216,9 @@ public class GafferPopEdgeTest {
         edge.setReadOnly();
 
         // Then
-        assertThatExceptionOfType(UnsupportedOperationException.class)
+        assertThatExceptionOfType(IllegalStateException.class)
             .isThrownBy(() -> edge.property(TestPropertyNames.STRING, propValue1))
-            .withMessageMatching("Updates are not supported");
+            .withMessageMatching("Updates are not supported.*");
 
     }
 
@@ -228,8 +226,8 @@ public class GafferPopEdgeTest {
     public void shouldCreateNewGafferPopVertexWithVertexId() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final Vertex outVertex = mock(Vertex.class);
-        final Vertex inVertex = mock(Vertex.class);
+        final GafferPopVertex outVertex = mock(GafferPopVertex.class);
+        final GafferPopVertex inVertex = mock(GafferPopVertex.class);
         when(inVertex.id()).thenReturn("inVertextId");
         when(outVertex.id()).thenReturn("outVertextId");
 
@@ -237,7 +235,7 @@ public class GafferPopEdgeTest {
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
 
         // Then
-        assertSame(outVertex.id(), edge.outVertex().id());
-        assertSame(inVertex.id(), edge.inVertex().id());
+        assertThat(edge.outVertex().id()).isEqualTo(outVertex.id());
+        assertThat(edge.inVertex().id()).isEqualTo(inVertex.id());
     }
 }

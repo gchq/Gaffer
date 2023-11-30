@@ -35,10 +35,10 @@ import java.util.stream.Stream;
  */
 public class GafferPopGraphProvider extends AbstractGraphProvider {
 
-    public static final String TEST_GRAPH_ID = "tinkerpopTestGraph";
     public static final String TEST_USER_ID = "tinkerpopTestUser";
     public static final String[] TEST_OP_OPTIONS = new String[] {"key1:value1", "key2:value2"};
     public static final String TEST_STORE_PROPS = GafferPopGraphProvider.class.getClassLoader().getResource("gaffer/map-store.properties").getPath();
+    public static final String TEST_TYPES_SCHEMA = GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/types").getPath();
 
     private static final Set<Class> IMPLEMENTATION = Stream.of(
         GafferPopEdge.class,
@@ -68,6 +68,7 @@ public class GafferPopGraphProvider extends AbstractGraphProvider {
         "shouldAddVertexWithUserSuppliedAnyIdUsingUuid")
         .collect(Collectors.toCollection(HashSet::new));
 
+    // TODO: Review this list based on tests
     private static final Set<String> TESTS_THAT_NEED_STRING_IDS = Stream.of(
         "shouldIterateEdgesWithCustomIdSupportUsingStringRepresentations",
         "shouldIterateVerticesWithStringIdSupportUsingStringRepresentations",
@@ -86,6 +87,7 @@ public class GafferPopGraphProvider extends AbstractGraphProvider {
         "shouldIterateEdgesWithStringIdSupportUsingStringRepresentations",
         "shouldIterateVerticesWithStringIdSupportUsingStringRepresentation",
         "shouldIterateVerticesWithStringIdSupportUsingVertex",
+        "shouldProperlySerializeCustomIdWithGraphSON",
         "shouldReadGraphML")
         .collect(Collectors.toCollection(HashSet::new));
 
@@ -110,25 +112,26 @@ public class GafferPopGraphProvider extends AbstractGraphProvider {
             new SimpleEntry<>(GafferPopGraph.GRAPH_ID, graphName),
             new SimpleEntry<>(GafferPopGraph.OP_OPTIONS, TEST_OP_OPTIONS),
             new SimpleEntry<>(GafferPopGraph.USER_ID, TEST_USER_ID),
-            new SimpleEntry<>(GafferPopGraph.STORE_PROPERTIES, TEST_STORE_PROPS))
+            new SimpleEntry<>(GafferPopGraph.STORE_PROPERTIES, TEST_STORE_PROPS),
+            new SimpleEntry<>(GafferPopGraph.TYPES_SCHEMA, TEST_TYPES_SCHEMA))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // Some tests require different type of ID used by default.
         if (TESTS_THAT_NEED_UUID_IDS.contains(testMethodName)) {
             configuration.put(GafferPopGraph.ID_MANAGER, GafferPopGraph.DefaultIdManager.UUID);
             configuration.put(
-                GafferPopGraph.SCHEMAS,
-                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema-uuid-id").getPath());
+                GafferPopGraph.ELEMENTS_SCHEMA,
+                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/elements-uuid-id").getPath());
         } else if (TESTS_THAT_NEED_STRING_IDS.contains(testMethodName)) {
             configuration.put(GafferPopGraph.ID_MANAGER, GafferPopGraph.DefaultIdManager.STRING);
             configuration.put(
-                GafferPopGraph.SCHEMAS,
-                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema-string-id").getPath());
+                GafferPopGraph.ELEMENTS_SCHEMA,
+                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/elements-string-id").getPath());
         } else {
             configuration.put(GafferPopGraph.ID_MANAGER, GafferPopGraph.DefaultIdManager.LONG);
             configuration.put(
-                GafferPopGraph.SCHEMAS,
-                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema-long-id").getPath());
+                GafferPopGraph.ELEMENTS_SCHEMA,
+                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/elements-long-id").getPath());
         }
         // The types of test data can also affect the ID manager we need to use
         if (loadGraphWith != null) {
@@ -139,8 +142,8 @@ public class GafferPopGraphProvider extends AbstractGraphProvider {
                     || (loadGraphWith.equals(LoadGraphWith.GraphData.SINK))) {
                 configuration.put(GafferPopGraph.ID_MANAGER, GafferPopGraph.DefaultIdManager.INTEGER);
                 configuration.put(
-                    GafferPopGraph.SCHEMAS,
-                    GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema-int-id").getPath());
+                    GafferPopGraph.ELEMENTS_SCHEMA,
+                    GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/elements-int-id").getPath());
             }
         }
         return configuration;

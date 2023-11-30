@@ -187,15 +187,13 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionForNoVertexLabel() {
+    public void shouldAssignDefaultLabelWhenNoVertexLabel() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
 
         //Then
-        assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> graph.addVertex(T.id, VERTEX_1))
-            .withMessageMatching("Label is required");
+        assertThat(graph.addVertex(T.id, VERTEX_1).label()).isEqualTo(Vertex.DEFAULT_LABEL);
     }
 
     @Test

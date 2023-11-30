@@ -23,6 +23,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph.Features.VertexPropertyFeatu
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -184,7 +185,7 @@ class GafferPopVertexTest {
         assertThat(prop.element()).isEqualTo(vertex);
         assertThat(prop.isPresent()).isTrue();
         assertThat(prop.keys()).isEmpty();
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> prop.remove());
+        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> prop.remove());
 
         // Check nested properties work
         assertThat(prop.property("keyDoesNotExist")).isEqualTo(Property.<Object>empty());
@@ -217,16 +218,16 @@ class GafferPopVertexTest {
         vertex.setReadOnly();
 
         // Attempt to add some properties
-        assertThatExceptionOfType(UnsupportedOperationException.class)
+        assertThatExceptionOfType(IllegalStateException.class)
             .isThrownBy(() -> vertex.property(Cardinality.list, TestPropertyNames.STRING, "propValue"));
-        assertThatExceptionOfType(UnsupportedOperationException.class)
+        assertThatExceptionOfType(IllegalStateException.class)
             .isThrownBy(() -> prop.property(TestPropertyNames.STRING, "nestedPropValue"));
 
         // Set the property to read only
         prop.setReadOnly();
 
         // Attempt to modify the property
-        assertThatExceptionOfType(UnsupportedOperationException.class)
+        assertThatExceptionOfType(IllegalStateException.class)
             .isThrownBy(() -> prop.property(TestPropertyNames.STRING, "nestedPropValue"));
     }
 
@@ -292,6 +293,6 @@ class GafferPopVertexTest {
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
 
         // Then
-        assertThat(vertex).hasToString("v[BasicEntity-id]");
+        assertThat(vertex).hasToString(StringFactory.vertexString(vertex));
     }
 }

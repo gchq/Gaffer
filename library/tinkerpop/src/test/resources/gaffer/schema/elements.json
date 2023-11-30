@@ -1,5 +1,8 @@
 {
   "entities": {
+    "vertex": {
+      "vertex": "id"
+    },
     "person": {
       "vertex": "person",
       "properties": {

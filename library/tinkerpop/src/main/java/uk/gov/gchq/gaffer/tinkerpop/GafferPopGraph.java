@@ -73,6 +73,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
 
 /**
  * A <code>GafferPopGraph</code> is an implementation of
@@ -82,7 +83,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * query for adjacent vertices and to provide a {@link View} to filter out results.
  */
 @OptIn(OptIn.SUITE_STRUCTURE_STANDARD)
-// @OptIn(OptIn.SUITE_STRUCTURE_INTEGRATE)
+@OptIn(OptIn.SUITE_STRUCTURE_INTEGRATE)
 public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Graph {
     public static final String GRAPH_ID = "gaffer.graphId";
 
@@ -99,6 +100,22 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @see Schema
      */
     public static final String SCHEMAS = "gaffer.schemas";
+
+    /**
+     * Configuration key for a directory of Gaffer type schemas.
+     * Primary use is for when the types and elements schemas are in different
+     * directories, if main SCHEMAS key is defined it will be used in
+     * preference to this one.
+     */
+    public static final String TYPES_SCHEMA = "gaffer.schema.types";
+
+    /**
+     * Configuration key for a directory of Gaffer element schemas.
+     * Primary use is for when the types and elements schemas are in different
+     * directories, if main SCHEMAS key is defined it will be used in
+     * preference to this one.
+     */
+    public static final String ELEMENTS_SCHEMA = "gaffer.schema.elements";
 
     /**
      * Configuration key for a string array of operation options.
@@ -179,8 +196,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final Path storeProps = Paths.get(configuration.getString(STORE_PROPERTIES));
         final Schema.Builder schemaBuilder = new Schema.Builder();
-        for (final String schemaPath : configuration.getStringArray(SCHEMAS)) {
-            schemaBuilder.merge(Schema.fromJson(Paths.get(schemaPath)));
+        // Use SCHEMAS key if defined else use separate types and elements keys
+        if (configuration.containsKey(SCHEMAS)) {
+            Arrays.stream(configuration.getStringArray(SCHEMAS))
+                .forEach(path -> schemaBuilder.merge(Schema.fromJson(Paths.get(path))));
+        } else {
+            Stream.concat(
+                Arrays.stream(configuration.getStringArray(TYPES_SCHEMA)),
+                Arrays.stream(configuration.getStringArray(ELEMENTS_SCHEMA)))
+                    .forEach(path -> schemaBuilder.merge(Schema.fromJson(Paths.get(path))));
         }
 
         return new Graph.Builder()
@@ -217,6 +241,21 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         } else {
             idValue = ElementHelper.getIdValue(keyValues).orElseThrow(() -> new IllegalArgumentException("ID is required"));
         }
+
+        /*
+         * TODO: Check the ID type is relevant for the group (a.k.a label) in the schema and auto convert
+         *       as the some Standard tinkerpop tests add data for the same group but with a different
+         *       Object type for the ID. Using a String ID manager should be the most flexible for these
+         *       tests.
+         * Basic idea of auto converting the type is below:
+         *
+         * String idSchemaType = graph.getSchema().getEntity(label).getVertex();
+         * String idTypeName = graph.getSchema().getType(idSchemaType).getFullClassString();
+         * if (!idTypeName.equals(idValue.getClass().getName())) {
+         *     LOGGER.warn("Vertex ID is not the correct type for the schema: " + idValue);
+         *     idValue = graph.getSchema().getType(idSchemaType).getClazz().cast(idValue);
+         * }
+         */
 
         final GafferPopVertex vertex = new GafferPopVertex(label, idValue, this);
         ElementHelper.attachProperties(vertex, VertexProperty.Cardinality.list, keyValues);
@@ -585,9 +624,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 for (final ElementSeed elementSeed : seeds) {
                     if (elementSeed instanceof EntitySeed) {
                         idVertices.add(new GafferPopVertex(ID_LABEL, ((EntitySeed) elementSeed).getVertex(), this));
-                        // Entity entitySeed = ((Entity) ((EntitySeed) elementSeed).getVertex());
-                        // idVertices.add(
-                        //     new GafferPopVertex(entitySeed.getGroup(), entitySeed.getIdentifier(IdentifierType.VERTEX), this));
                     }
                 }
             }
@@ -761,7 +797,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     edgeIdList = ((List) edgeIdObj);
                 // Attempt to extract source and destination IDs from a string form of an array/list
                 } else if (edgeIdObj instanceof String) {
-                    edgeIdList = Arrays.asList(((String) edgeIdObj).replace("[", "").replace ("]", "").split (","));
+                    edgeIdList = Arrays.asList(((String) edgeIdObj).replace("[", "").replace("]", "").split(","));
                 } else {
                     final String className = null != edgeIdObj ? edgeIdObj.getClass().getName() : " a null object";
                     throw new IllegalArgumentException("Edge IDs must be either a EdgeId list or a GafferPopEdge. Not " + className);
@@ -798,7 +834,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         return new GafferPopGraphVariables(variablesMap);
     }
 
-
+    /**
+     * Gets the next ID to assign to a supplied vertex based on the currently configured
+     * ID manager.
+     *
+     * @return Next ID Object
+     */
     private Object getNextVertexId() {
         switch (configuration.getEnum(ID_MANAGER, DefaultIdManager.class)) {
             case INTEGER:

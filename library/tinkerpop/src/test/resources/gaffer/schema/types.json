@@ -1,5 +1,8 @@
 {
   "types": {
+    "id": {
+      "class": "java.lang.String"
+    },
     "person": {
       "class": "java.lang.String"
     },
