@@ -137,8 +137,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
      */
     private static Object getVertexId(final Object vertex) {
         // Check if we need to pull the ID from the vertex or can use it directly
-        if ((vertex instanceof GafferPopVertex)
-                || (vertex instanceof Vertex)) {
+        if (vertex instanceof Vertex) {
             return ((GafferPopVertex) vertex).id();
         } else {
             return vertex;
@@ -154,8 +153,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
      */
     private static GafferPopVertex getValidVertex(final Object vertex, final GafferPopGraph graph) {
         // Determine if we can cast the vertex object we have been supplied
-        if ((vertex instanceof GafferPopVertex)
-                || (vertex instanceof Vertex)) {
+        if (vertex instanceof Vertex) {
             return (GafferPopVertex) vertex;
         }
 
