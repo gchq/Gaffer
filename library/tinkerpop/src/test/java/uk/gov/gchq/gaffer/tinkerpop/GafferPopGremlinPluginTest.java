@@ -71,9 +71,9 @@ public class GafferPopGremlinPluginTest {
                 .findFirst();
 
         // Then
+        assertThat(importCustomizer).isPresent();
         assertThat(importCustomizer.get().getClassImports())
-                .hasSize(8);
-        assertThat(importCustomizer.get().getClassImports())
+                .hasSize(8)
                 .contains(GafferPopGraph.class,
                         View.class,
                         ViewElementDefinition.class,
