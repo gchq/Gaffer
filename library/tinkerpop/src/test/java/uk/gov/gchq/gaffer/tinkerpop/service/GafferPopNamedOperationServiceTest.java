@@ -50,6 +50,6 @@ public class GafferPopNamedOperationServiceTest {
         // When / Then
         assertThatThrownBy(() -> namedOpService.execute(null, Collections.singletonMap("invalid", "invalid")))
                 .isExactlyInstanceOf(IllegalStateException.class)
-                .hasMessage("Missing parameter");
+                .hasMessage("Missing parameter, either 'execute' or 'add' expected");
     }
 }
