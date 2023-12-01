@@ -74,7 +74,7 @@ public class GafferPopNamedOperationService<I, R> implements Service<I, R> {
         } else if (params.containsKey("add")) {
             return addNamedOperation((Map<String, String>) params.get("add"));
         } else {
-            throw new IllegalStateException("Missing parameter");
+            throw new IllegalStateException("Missing parameter, either 'execute' or 'add' expected");
         }
     }
 
