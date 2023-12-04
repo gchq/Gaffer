@@ -79,15 +79,15 @@ public class StoreProperties implements Cloneable {
     public static final String ADMIN_AUTH = "gaffer.store.admin.auth";
 
     /**
-     * This is used....
-     * eg.gaffer.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
+     * This is used to set the cache implementation for all caches
+     * e.g. gaffer.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
      */
     public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
 
     /**
-     * This is used...
+     * These are used to set the suffix for all caches or per cache
      * CASE INSENSITIVE
-     * e.g. gaffer.cache.service.name.suffix="v2"
+     * e.g. gaffer.cache.service.default.suffix="v2"
      */
     public static final String CACHE_SERVICE_DEFAULT_SUFFIX = "gaffer.cache.service.default.suffix";
     public static final String CACHE_SERVICE_NAMED_OPERATION_SUFFIX = "gaffer.cache.service.named.operation.suffix";
