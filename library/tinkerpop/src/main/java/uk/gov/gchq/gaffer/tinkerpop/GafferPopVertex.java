@@ -24,6 +24,8 @@ import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
@@ -36,11 +38,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {@link Vertex}.
  */
 public class GafferPopVertex extends GafferPopElement implements Vertex {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopVertex.class);
+
     private Map<String, List<VertexProperty>> properties;
 
     public GafferPopVertex(final String label, final Object id, final GafferPopGraph graph) {
@@ -63,9 +68,7 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
     @Override
     public <V> VertexProperty<V> property(final VertexProperty.Cardinality cardinality, final String key, final V value, final Object... keyValues) {
-        if (isReadOnly()) {
-            throw new IllegalStateException("Updates are not supported, Vertex is readonly");
-        }
+        LOGGER.warn("Updating Vertex properties via aggregation");
 
         ElementHelper.legalPropertyKeyValueArray(keyValues);
         ElementHelper.validateProperty(key, value);
@@ -84,6 +87,9 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
         list.add(vertexProperty);
         this.properties.put(key, list);
         ElementHelper.attachProperties(vertexProperty, keyValues);
+
+        // Re add to do a update via aggregation
+        this.graph().addVertex(this);
         return vertexProperty;
     }
 
@@ -127,19 +133,28 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
     @Override
     public Iterator<Edge> edges(final Direction direction, final String... edgeLabels) {
-        return (Iterator) graph().edges(id, direction, edgeLabels);
+        // Get edges from the graph then filter direction
+        Iterable<Edge> allEdges = () -> graph().edges(id, edgeLabels);
+        return StreamSupport.stream(allEdges.spliterator(), false)
+            .filter(e -> {
+                // Get all vertexes the edge has in the desired direction see if this vertex is one of them
+                Iterable<Vertex> edgeVertexes = () -> e.vertices(direction);
+                return StreamSupport.stream(edgeVertexes.spliterator(), false)
+                    .anyMatch(v -> ElementHelper.areEqual(v, this));
+            })
+            .iterator();
     }
 
-    public Iterator<GafferPopEdge> edges(final Direction direction, final View view) {
+    public Iterator<Edge> edges(final Direction direction, final View view) {
         return graph().edgesWithView(id, direction, view);
     }
 
     @Override
     public Iterator<Vertex> vertices(final Direction direction, final String... edgeLabels) {
-        return (Iterator) graph().adjVertices(id, direction, edgeLabels);
+        return graph().adjVertices(id, direction, edgeLabels);
     }
 
-    public Iterator<GafferPopVertex> vertices(final Direction direction, final View view) {
+    public Iterator<Vertex> vertices(final Direction direction, final View view) {
         return graph().adjVerticesWithView(id, direction, view);
     }
 

@@ -17,10 +17,12 @@
 package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.apache.tinkerpop.gremlin.structure.Direction;
+import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features.VertexFeatures;
 import org.apache.tinkerpop.gremlin.structure.Graph.Features.VertexPropertyFeatures;
 import org.apache.tinkerpop.gremlin.structure.Property;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
@@ -30,6 +32,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +45,8 @@ class GafferPopVertexTest {
     final Features features = mock(Features.class);
     final VertexFeatures vertexFeatures = mock(VertexFeatures.class);
     final VertexPropertyFeatures vertexPropertyFeatures = mock(VertexPropertyFeatures.class);
-    final Iterator<GafferPopVertex> vertices = mock(Iterator.class);
-    final Iterator<GafferPopEdge> edges = mock(Iterator.class);
+    final Iterator<Vertex> vertices = mock(Iterator.class);
+    final Iterator<Edge> edges = mock(Iterator.class);
     final View view = mock(View.class);
 
     @Test
@@ -214,15 +217,6 @@ class GafferPopVertexTest {
         vertex.property(Cardinality.list, TestPropertyNames.STRING, "propValue");
         GafferPopVertexProperty<Object> prop = (GafferPopVertexProperty<Object>) vertex.property(TestPropertyNames.STRING);
 
-        // Set the vertex to read only
-        vertex.setReadOnly();
-
-        // Attempt to add some properties
-        assertThatExceptionOfType(IllegalStateException.class)
-            .isThrownBy(() -> vertex.property(Cardinality.list, TestPropertyNames.STRING, "propValue"));
-        assertThatExceptionOfType(IllegalStateException.class)
-            .isThrownBy(() -> prop.property(TestPropertyNames.STRING, "nestedPropValue"));
-
         // Set the property to read only
         prop.setReadOnly();
 
@@ -246,10 +240,11 @@ class GafferPopVertexTest {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
-        given(graph.edges(GafferPopGraph.ID_LABEL, Direction.IN, TestGroups.ENTITY)).willReturn(edges);
+        final Iterable<Edge> resultEdges = Arrays.asList(((Edge) new GafferPopEdge(GafferPopGraph.ID_LABEL, vertex, vertex, graph)));
+        given(graph.edges(GafferPopGraph.ID_LABEL, new String[]{TestGroups.ENTITY})).willReturn(resultEdges.iterator());
 
         // Then
-        assertThat(vertex.edges(Direction.IN, TestGroups.ENTITY)).isEqualTo(edges);
+        assertThat(vertex.edges(Direction.IN, TestGroups.ENTITY)).toIterable().containsExactlyElementsOf(resultEdges);
     }
 
     @Test

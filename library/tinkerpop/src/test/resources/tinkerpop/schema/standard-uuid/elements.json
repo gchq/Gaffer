@@ -2,115 +2,116 @@
     "entities": {
         "vertex": {
             "vertex": "uuid.id",
-            "aggregate": false
+            "properties": {
+                "test": "property.string"
+            }
         },
         "person": {
             "vertex": "uuid.id",
             "properties": {
-                "name": "name.string",
-                "age": "age.integer"
-            },
-            "aggregate": false
+                "name": "property.string",
+                "age": "property.integer"
+            }
         },
         "software": {
             "vertex": "uuid.id",
             "properties": {
-                "name": "name.string",
-                "lang": "name.string"
-            },
-            "aggregate": false
+                "name": "property.string",
+                "lang": "property.string"
+            }
+        },
+        "dog": {
+            "vertex": "uuid.id"
+        },
+        "test": {
+            "vertex": "uuid.id",
+            "properties": {
+                "test": "property.string"
+            }
         },
         "blah": {
             "vertex": "uuid.id",
             "properties": {
-                "test": "name.string"
-            },
-            "aggregate": false
+                "test": "property.string"
+            }
         }
     },
     "edges": {
         "self": {
             "source": "uuid.id",
             "destination": "uuid.id",
-            "directed": "true",
-            "aggregate": false
+            "directed": "true"
         },
         "friend": {
             "source": "uuid.id",
             "destination": "uuid.id",
             "directed": "true",
             "properties": {
-                "weight": "weight.double",
-                "acl": "acl.string"
+                "weight": "property.double",
+                "acl": "property.string"
 
-            },
-            "aggregate": false
+            }
         },
         "friends": {
             "source": "uuid.id",
             "destination": "uuid.id",
-            "directed": "true",
-            "aggregate": false
+            "directed": "true"
         },
         "hate": {
             "source": "uuid.id",
             "destination": "uuid.id",
-            "directed": "true",
-            "aggregate": false
+            "directed": "true"
         },
         "knows": {
             "source": "uuid.id",
             "destination": "uuid.id",
             "directed": "true",
             "properties": {
-                "weight": "weight.float"
-            },
-            "aggregate": false
+                "weight": "property.double"
+            }
         },
         "created": {
             "source": "uuid.id",
             "destination": "uuid.id",
             "directed": "true",
             "properties": {
-                "weight": "weight.float"
-            },
-            "aggregate": false
+                "weight": "property.double"
+            }
+        },
+        "collaborator": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true"
         },
         "dependsOn": {
             "source": "uuid.id",
             "destination": "uuid.id",
-            "directed": "true",
-            "aggregate": false
+            "directed": "true"
         },
         "encapsulates": {
             "source": "uuid.id",
             "destination": "uuid.id",
-            "directed": "true",
-            "aggregate": false
+            "directed": "true"
         },
         "uses": {
             "source": "uuid.id",
             "destination": "uuid.id",
-            "directed": "true",
-            "aggregate": false
-        },
-        "test": {
-            "source": "uuid.id",
-            "destination": "uuid.id",
-            "directed": "true",
-            "aggregate": false
+            "directed": "true"
         },
         "CONTROL": {
             "source": "uuid.id",
             "destination": "uuid.id",
-            "directed": "true",
-            "aggregate": false
+            "directed": "true"
         },
         "SELFLOOP": {
             "source": "uuid.id",
             "destination": "uuid.id",
-            "directed": "true",
-            "aggregate": false
+            "directed": "true"
+        },
+        "test1": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true"
         }
     }
 }

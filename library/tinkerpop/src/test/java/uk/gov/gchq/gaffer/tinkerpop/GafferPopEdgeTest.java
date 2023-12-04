@@ -206,23 +206,6 @@ public class GafferPopEdgeTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenReadOnlyIsTrue() {
-        // Given
-        final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, SOURCE, DEST, graph);
-        final String propValue1 = "propValue1";
-
-        // When
-        edge.setReadOnly();
-
-        // Then
-        assertThatExceptionOfType(IllegalStateException.class)
-            .isThrownBy(() -> edge.property(TestPropertyNames.STRING, propValue1))
-            .withMessageMatching("Updates are not supported.*");
-
-    }
-
-    @Test
     public void shouldCreateNewGafferPopVertexWithVertexId() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);

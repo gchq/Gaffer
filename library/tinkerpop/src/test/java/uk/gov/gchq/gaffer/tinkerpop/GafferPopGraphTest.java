@@ -274,8 +274,6 @@ public class GafferPopGraphTest {
                 .edge(SOFTWARE_NAME_GROUP)
                 .build();
 
-
-
         // When
         graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
         final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(), view);
@@ -406,7 +404,7 @@ public class GafferPopGraphTest {
         graph.addEdge(edgeToAdd1);
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edges(VERTEX_1, Direction.OUT, CREATED_EDGE_GROUP);
+        final Iterator<Edge> edges = graph.edges(VERTEX_1, Direction.OUT, CREATED_EDGE_GROUP);
 
         // Then
         final List<Edge> edgesList = new ArrayList<>();
@@ -428,7 +426,7 @@ public class GafferPopGraphTest {
                 .build();
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, view);
+        final Iterator<Edge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, view);
 
         // Then
         final List<Edge> edgesList = new ArrayList<>();
@@ -452,7 +450,7 @@ public class GafferPopGraphTest {
                 .build();
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1.id(), edgeToAdd2.id()), Direction.OUT, view);
+        final Iterator<Edge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1.id(), edgeToAdd2.id()), Direction.OUT, view);
 
         // Then
         final List<Edge> edgesList = new ArrayList<>();
@@ -471,7 +469,7 @@ public class GafferPopGraphTest {
         graph.addEdge(edgeToAdd1);
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, null);
+        final Iterator<Edge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, null);
 
         // Then
         final List<Edge> edgesList = new ArrayList<>();
@@ -490,7 +488,7 @@ public class GafferPopGraphTest {
         graph.addEdge(edgeToAdd1);
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1), Direction.OUT, null);
+        final Iterator<Edge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1), Direction.OUT, null);
 
         // Then
         final List<Edge> edgesList = new ArrayList<>();
@@ -532,7 +530,7 @@ public class GafferPopGraphTest {
         graph.addEdge(edgeToAdd2);
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edges(null, Direction.OUT, CREATED_EDGE_GROUP);
+        final Iterator<Edge> edges = graph.edges(null, Direction.OUT, CREATED_EDGE_GROUP);
 
         // Then
         final List<Edge> edgesList = new ArrayList<>();
@@ -552,10 +550,10 @@ public class GafferPopGraphTest {
         vertex1.addEdge(DEPENDS_ON_EDGE_GROUP, vertex2);
 
         // When
-        final Iterator<GafferPopVertex> vertices = graph.adjVertices(VERTEX_1, Direction.BOTH);
+        final Iterator<Vertex> vertices = graph.adjVertices(VERTEX_1, Direction.BOTH);
 
         // Then
-        final GafferPopVertex vertex = vertices.next();
+        final GafferPopVertex vertex = (GafferPopVertex) vertices.next();
         assertFalse(vertices.hasNext()); // there is only 1 vertex
         assertThat(vertex.id()).isEqualTo(VERTEX_2);
         assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
@@ -572,10 +570,10 @@ public class GafferPopGraphTest {
         vertex1.addEdge(DEPENDS_ON_EDGE_GROUP, vertex2);
 
         // When
-        final Iterator<GafferPopVertex> vertices = graph.adjVertices(Arrays.asList(VERTEX_1, VERTEX_2), Direction.BOTH);
+        final Iterator<Vertex> vertices = graph.adjVertices(Arrays.asList(VERTEX_1, VERTEX_2), Direction.BOTH);
 
         // Then
-        final List<Vertex>  verticesList = new ArrayList<>();
+        final List<Vertex> verticesList = new ArrayList<>();
         while (vertices.hasNext()) {
             verticesList.add(vertices.next());
         }

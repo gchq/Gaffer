@@ -23,6 +23,8 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,6 +48,8 @@ import java.util.stream.Collectors;
  * </p>
  */
 public final class GafferPopEdge extends GafferPopElement implements Edge {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopEdge.class);
+
     private Map<String, Property> properties;
     private final GafferPopVertex inVertex;
     private final GafferPopVertex outVertex;
@@ -58,15 +62,17 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
 
     @Override
     public <V> Property<V> property(final String key, final V value) {
-        if (isReadOnly()) {
-            throw new IllegalStateException("Updates are not supported, Edge is readonly");
-        }
+        LOGGER.warn("Updating Edge properties via aggregation");
+
         ElementHelper.validateProperty(key, value);
         final Property<V> newProperty = new GafferPopProperty<>(this, key, value);
         if (null == this.properties) {
             this.properties = new HashMap<>();
         }
         this.properties.put(key, newProperty);
+
+        // Re add to do the update via aggregation
+        this.graph().addEdge(this);
         return newProperty;
     }
 

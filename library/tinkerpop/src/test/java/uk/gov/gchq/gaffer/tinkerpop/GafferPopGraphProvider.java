@@ -18,9 +18,10 @@ package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.AbstractGraphProvider;
-import org.apache.tinkerpop.gremlin.LoadGraphWith;
 import org.apache.tinkerpop.gremlin.LoadGraphWith.GraphData;
 import org.apache.tinkerpop.gremlin.structure.Graph;
+
+import uk.gov.gchq.gaffer.tinkerpop.cucumber.GafferPopFeatureTest;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.HashSet;
@@ -82,13 +83,22 @@ public class GafferPopGraphProvider extends AbstractGraphProvider {
         "shouldIterateVerticesWithStringIdSupportUsingVertexId",
         "shouldIterateVerticesWithStringIdSupportUsingVertices",
         "shouldIterateVerticesWithStringIdSupportUsingVertexIds",
-        "shouldEvaluateConnectivityPatterns",
+        "shouldEvaluateEquivalentVertexHashCodeWithSuppliedIds",
+        "shouldEvaluateVerticesEquivalentWithSuppliedIdsViaTraversal",
+        "shouldEvaluateVerticesEquivalentWithSuppliedIdsViaIterators",
         "shouldIterateEdgesWithStringIdSupportUsingEdgeIds",
         "shouldIterateEdgesWithStringIdSupportUsingStringRepresentations",
         "shouldIterateVerticesWithStringIdSupportUsingStringRepresentation",
         "shouldIterateVerticesWithStringIdSupportUsingVertex",
         "shouldProperlySerializeCustomIdWithGraphSON",
         "shouldReadGraphML")
+        .collect(Collectors.toCollection(HashSet::new));
+
+    // TODO: Review this list based on tests
+    private static final Set<String> TESTS_THAT_NEED_INT_IDS = Stream.of(
+        "shouldIterateVerticesWithNumericIdSupportUsingDoubleRepresentation",
+        "shouldPersistDataOnClose",
+        "shouldIterateVerticesWithNumericIdSupportUsingIntegerRepresentations")
         .collect(Collectors.toCollection(HashSet::new));
 
     @Override
@@ -121,29 +131,33 @@ public class GafferPopGraphProvider extends AbstractGraphProvider {
             configuration.put(GafferPopGraph.ID_MANAGER, GafferPopGraph.DefaultIdManager.UUID);
             configuration.put(
                 GafferPopGraph.ELEMENTS_SCHEMA,
-                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/elements-uuid-id").getPath());
+                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/standard-uuid").getPath());
         } else if (TESTS_THAT_NEED_STRING_IDS.contains(testMethodName)) {
             configuration.put(GafferPopGraph.ID_MANAGER, GafferPopGraph.DefaultIdManager.STRING);
             configuration.put(
                 GafferPopGraph.ELEMENTS_SCHEMA,
-                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/elements-string-id").getPath());
+                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/standard-string").getPath());
+        } else if (TESTS_THAT_NEED_INT_IDS.contains(testMethodName)) {
+            configuration.put(GafferPopGraph.ID_MANAGER, GafferPopGraph.DefaultIdManager.INTEGER);
+            configuration.put(
+                GafferPopGraph.ELEMENTS_SCHEMA,
+                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/standard-int").getPath());
         } else {
             configuration.put(GafferPopGraph.ID_MANAGER, GafferPopGraph.DefaultIdManager.LONG);
             configuration.put(
                 GafferPopGraph.ELEMENTS_SCHEMA,
-                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/elements-long-id").getPath());
+                GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/standard-long").getPath());
         }
-        // The types of test data can also affect the ID manager we need to use
+        // If we have test data then load relevant schemas and ID manager
         if (loadGraphWith != null) {
-            if ((loadGraphWith.equals(LoadGraphWith.GraphData.CLASSIC))
-                    || (loadGraphWith.equals(LoadGraphWith.GraphData.MODERN))
-                    || (loadGraphWith.equals(LoadGraphWith.GraphData.CREW))
-                    || (loadGraphWith.equals(LoadGraphWith.GraphData.GRATEFUL))
-                    || (loadGraphWith.equals(LoadGraphWith.GraphData.SINK))) {
-                configuration.put(GafferPopGraph.ID_MANAGER, GafferPopGraph.DefaultIdManager.INTEGER);
-                configuration.put(
-                    GafferPopGraph.ELEMENTS_SCHEMA,
-                    GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/elements-int-id").getPath());
+            if (loadGraphWith.equals(GraphData.MODERN)) {
+            configuration.put(GafferPopGraph.GRAPH_ID, loadGraphWith.name());
+            configuration.put(GafferPopGraph.ID_MANAGER, GafferPopGraph.DefaultIdManager.INTEGER);
+            configuration.put(
+                    GafferPopGraph.SCHEMAS,
+                    GafferPopFeatureTest.class.getClassLoader().getResource("tinkerpop/schema/modern-int").getPath());
+            } else {
+                throw new IllegalStateException("TEST DATA NOT SUPPORTED");
             }
         }
         return configuration;
