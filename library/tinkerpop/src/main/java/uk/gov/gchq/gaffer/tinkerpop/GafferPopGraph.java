@@ -56,6 +56,7 @@ import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEdgeGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopEdgeGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
+import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopVertexGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
@@ -341,9 +342,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                             .build())
                     .build();
         } else {
-            final List<EntitySeed> entitySeeds = getEntitySeeds(Arrays.asList(vertexIds));
             getOperation = new GetElements.Builder()
-                    .input(entitySeeds)
+                    .input(getElementSeeds(Arrays.asList(vertexIds)))
                     .view(new View.Builder()
                             .entities(graph.getSchema().getEntityGroups())
                             .build())
@@ -468,21 +468,22 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @return iterator of {@link GafferPopVertex}
      */
     public Iterator<Vertex> adjVerticesWithView(final Iterable<Object> vertexIds, final Direction direction, final View view) {
-        return adjVerticesWithSeedsAndView(getEntitySeeds(vertexIds), direction, view);
+        return adjVerticesWithSeedsAndView(getElementSeeds(vertexIds), direction, view);
     }
 
     /**
      * This performs a getEdgesBySeed operation on Gaffer.
-     * At least 1 edgeIds must be provided. Gaffer does not support unseeded
-     * queries.
+     * At least 1 ID must be provided as Gaffer does not support unseeded
+     * queries. Supports various forms of IDs to enable passing either edge IDs
+     * or Entity/Vertex IDs but will filter to only return edges.
      *
-     * @param edgeIds EdgeIds or {@link GafferPopEdge}s to query for
+     * @param elementIds EdgeIds, {@link GafferPopEdge}s or Vertex IDs to query for
      * @return iterator of {@link GafferPopEdge}s.
      * @see org.apache.tinkerpop.gremlin.structure.Graph#edges(Object...)
      */
     @Override
-    public Iterator<Edge> edges(final Object... edgeIds) {
-        final boolean getAll = null == edgeIds || 0 == edgeIds.length;
+    public Iterator<Edge> edges(final Object... elementIds) {
+        final boolean getAll = null == elementIds || 0 == elementIds.length;
 
         final Output<Iterable<? extends Element>> getOperation;
         if (getAll) {
@@ -493,25 +494,20 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     .build();
         } else {
             getOperation = new GetElements.Builder()
-                    .input(getEdgeSeeds(Arrays.asList(edgeIds)))
+                    .input(getElementSeeds(Arrays.asList(elementIds)))
                     .view(new View.Builder()
                             .edges(graph.getSchema().getEdgeGroups())
                             .build())
                     .build();
         }
 
-        final Iterable<? extends GafferPopElement> result = execute(new Builder()
+        return (Iterator) execute(new Builder()
                 .first(getOperation)
-                .then(new GenerateObjects.Builder<GafferPopElement>()
-                        .generator(new GafferPopElementGenerator(this))
+                .then(new GenerateObjects.Builder<GafferPopEdge>()
+                        .generator(new GafferPopEdgeGenerator(this))
                         .build())
-                .build());
-
-        final Iterable<Edge> resultEdges = () -> StreamSupport.stream(result.spliterator(), false)
-            .filter(Edge.class::isInstance)
-            .map(e -> (Edge) e)
-            .iterator();
-        return resultEdges.iterator();
+                .build())
+                .iterator();
     }
 
     /**
@@ -663,34 +659,29 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     .build();
 
             if (null == entitiesView || entitiesView.getEntityGroups().contains(ID_LABEL)) {
-                for (final ElementSeed elementSeed : seeds) {
-                    if (elementSeed instanceof EntitySeed) {
-                        idVertices.add(new GafferPopVertex(ID_LABEL, ((EntitySeed) elementSeed).getVertex(), this));
+                seeds.forEach(seed -> {
+                    if (seed instanceof EntitySeed) {
+                        idVertices.add(new GafferPopVertex(ID_LABEL, ((EntitySeed) seed).getVertex(), this));
                     }
-                }
+                });
             }
         }
 
-        final Iterable<? extends GafferPopElement> result = execute(new OperationChain.Builder()
+        final Iterable<? extends GafferPopVertex> result = execute(new OperationChain.Builder()
                 .first(getOperation)
-                .then(new GenerateObjects.Builder<GafferPopElement>()
-                        .generator(new GafferPopElementGenerator(this))
+                .then(new GenerateObjects.Builder<GafferPopVertex>()
+                        .generator(new GafferPopVertexGenerator(this))
                         .build())
                 .build());
 
-        final Iterable<GafferPopVertex> resultVertexes = () -> StreamSupport.stream(result.spliterator(), false)
-            .filter(Vertex.class::isInstance)
-            .map(e -> (GafferPopVertex) e)
-            .iterator();
-
         if (!idVertices.isEmpty()) {
-            return new ChainedIterable<GafferPopVertex>(resultVertexes, idVertices).iterator();
+            return new ChainedIterable<GafferPopVertex>(result, idVertices).iterator();
         } else {
-            return resultVertexes.iterator();
+            return (Iterator<GafferPopVertex>) result.iterator();
         }
     }
 
-    private Iterator<Vertex> adjVerticesWithSeedsAndView(final List<EntitySeed> seeds, final Direction direction, final View view) {
+    private Iterator<Vertex> adjVerticesWithSeedsAndView(final List<ElementSeed> seeds, final Direction direction, final View view) {
         if (null == seeds || seeds.isEmpty()) {
             throw new UnsupportedOperationException("There could be a lot of vertices, so please add some seeds");
         }
@@ -799,70 +790,44 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         return viewBuilder.build();
     }
 
+    /**
+     * Determines the element seeds based on supplied IDs.
+     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
+     *
+     * @param ids The iterable of IDs
+     * @return List of {@link ElementSeed}s
+     */
     private List<ElementSeed> getElementSeeds(final Iterable<Object> ids) {
-        List<ElementSeed> seeds = null;
-        if (null != ids) {
-            seeds = new LinkedList<>();
-            for (final Object id : ids) {
-                if (id instanceof Vertex) {
-                    seeds.add(new EntitySeed(((Vertex) id).id()));
-                } else if (id instanceof GafferPopEdge) {
-                    seeds.add(new EdgeSeed(((GafferPopEdge) id).outVertex().id(), ((GafferPopEdge) id).inVertex().id(), true));
-                } else if (id instanceof List) {
-                    final List edgeIdList = (List) id;
-                    if (edgeIdList.size() == 2) {
-                        seeds.add(new EdgeSeed(edgeIdList.get(0), edgeIdList.get(1), true));
-                    }
-                } else {
-                    seeds.add(new EntitySeed(id));
-                }
-            }
+        List<ElementSeed> seeds = new LinkedList<>();
+        if (null == ids) {
+            LOGGER.warn("Gaffer does not support unseeded queries, no results will be returned");
+            return seeds;
         }
 
-        return seeds;
-    }
-
-    private List<EntitySeed> getEntitySeeds(final Iterable<Object> vertexIds) {
-        List<EntitySeed> seeds = null;
-        if (null != vertexIds) {
-            seeds = new LinkedList<>();
-            for (final Object vertexId : vertexIds) {
-                if (vertexId instanceof Vertex) {
-                    seeds.add(new EntitySeed(((Vertex) vertexId).id()));
-                } else {
-                    seeds.add(new EntitySeed(vertexId));
-                }
+        ids.forEach(id -> {
+            List<Object> edgeIdList = new LinkedList<>();
+            // Extract Vertex ID
+            if (id instanceof Vertex) {
+                seeds.add(new EntitySeed(((Vertex) id).id()));
+            // Extract Edge ID
+            } else if (id instanceof Edge) {
+                seeds.add(new EdgeSeed(((Edge) id).outVertex().id(), ((Edge) id).inVertex().id(), true));
+            // Extract source and destination from ID list
+            } else if (id instanceof List) {
+                edgeIdList = (List<Object>) id;
+            // Attempt to extract source and destination IDs from a string form of an array/list
+            } else if ((id instanceof String) && (((String) id).matches("^\\[.*,.*\\]$"))) {
+                edgeIdList = Arrays.asList(((String) id).replace("[", "").replace("]", "").split(","));
+            // Assume entity ID as fallback
+            } else {
+                seeds.add(new EntitySeed(id));
             }
-        }
 
-        return seeds;
-    }
-
-    private List<EdgeSeed> getEdgeSeeds(final Iterable<Object> edgeIds) {
-        // TODO: Review if edge IDs could be something other than a list/pair of vertexs it connects
-        List<EdgeSeed> seeds = null;
-        if (null != edgeIds) {
-            seeds = new LinkedList<>();
-            for (final Object edgeIdObj : edgeIds) {
-                final List edgeIdList;
-                if (edgeIdObj instanceof GafferPopEdge) {
-                    edgeIdList = Arrays.asList(((GafferPopEdge) edgeIdObj).outVertex().id(), ((GafferPopEdge) edgeIdObj).inVertex().id());
-                } else if (edgeIdObj instanceof List) {
-                    edgeIdList = ((List) edgeIdObj);
-                // Attempt to extract source and destination IDs from a string form of an array/list
-                } else if (edgeIdObj instanceof String) {
-                    edgeIdList = Arrays.asList(((String) edgeIdObj).replace("[", "").replace("]", "").split(","));
-                } else {
-                    final String className = null != edgeIdObj ? edgeIdObj.getClass().getName() : " a null object";
-                    throw new IllegalArgumentException("Edge IDs must be either a EdgeId list or a GafferPopEdge. Not " + className);
-                }
-                // Make sure we have a source and destination
-                if (edgeIdList.size() < 2) {
-                    throw new IllegalArgumentException("Unable to determine source and destination vertex IDs for edge seed, found: " + edgeIdList);
-                }
+            // If found a list verify source and destination
+            if (edgeIdList.size() == 2) {
                 seeds.add(new EdgeSeed(edgeIdList.get(0), edgeIdList.get(1), true));
             }
-        }
+        });
 
         return seeds;
     }
