@@ -75,6 +75,8 @@ jobs:
             values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
           - name: Tinkerpop
             values: :tinkerpop
+          - name: Tinkerpop Standard Test
+            values: :tinkerpop -P tinkerpop-standard-test
         exclude:
           - os: windows-latest
             modules:
@@ -118,9 +120,6 @@ jobs:
 
       - name: Test
         run: mvn -B -ntp verify -P coverage -pl ${{matrix.modules.values}}
-
-      - name: Tinkerpop Standard Tests
-        run: mvn -B -ntp verify -P coverage,tinkerpop-standard-test -pl :tinkerpop
 
       - name: Check Copyright Headers
         if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest'
