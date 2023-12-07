@@ -119,6 +119,9 @@ jobs:
       - name: Test
         run: mvn -B -ntp verify -P coverage -pl ${{matrix.modules.values}}
 
+      - name: Tinkerpop Standard Tests
+        run: mvn -B -ntp verify -P coverage,tinkerpop-standard-test -pl :tinkerpop
+
       - name: Check Copyright Headers
         if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest'
         run: mvn -B -ntp spotless:check -pl ${{matrix.modules.values}}
