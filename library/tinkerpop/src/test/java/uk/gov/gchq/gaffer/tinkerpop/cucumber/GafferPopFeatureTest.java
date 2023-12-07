@@ -27,6 +27,7 @@ import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
 
 import org.apache.commons.configuration2.MapConfiguration;
+import org.apache.tinkerpop.gremlin.LoadGraphWith.GraphData;
 import org.apache.tinkerpop.gremlin.TestHelper;
 import org.apache.tinkerpop.gremlin.features.World;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -137,7 +138,8 @@ public final class GafferPopFeatureTest {
                 new SimpleEntry<>(GafferPopGraph.GRAPH_ID, "empty"),
                 new SimpleEntry<>(GafferPopGraph.OP_OPTIONS, TEST_OP_OPTIONS),
                 new SimpleEntry<>(GafferPopGraph.USER_ID, TEST_USER_ID),
-                new SimpleEntry<>(GafferPopGraph.STORE_PROPERTIES, TEST_STORE_PROPS))
+                new SimpleEntry<>(GafferPopGraph.STORE_PROPERTIES, TEST_STORE_PROPS),
+                new SimpleEntry<>(GafferPopGraph.NOT_READ_ONLY_ELEMENTS, "true"))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
             // If we have test data then load relevant schemas and ID manager

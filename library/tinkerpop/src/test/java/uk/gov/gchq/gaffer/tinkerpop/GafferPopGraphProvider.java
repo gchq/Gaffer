@@ -123,7 +123,8 @@ public class GafferPopGraphProvider extends AbstractGraphProvider {
             new SimpleEntry<>(GafferPopGraph.OP_OPTIONS, TEST_OP_OPTIONS),
             new SimpleEntry<>(GafferPopGraph.USER_ID, TEST_USER_ID),
             new SimpleEntry<>(GafferPopGraph.STORE_PROPERTIES, TEST_STORE_PROPS),
-            new SimpleEntry<>(GafferPopGraph.TYPES_SCHEMA, TEST_TYPES_SCHEMA))
+            new SimpleEntry<>(GafferPopGraph.TYPES_SCHEMA, TEST_TYPES_SCHEMA),
+            new SimpleEntry<>(GafferPopGraph.NOT_READ_ONLY_ELEMENTS, "true"))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // Some tests require different type of ID used by default.

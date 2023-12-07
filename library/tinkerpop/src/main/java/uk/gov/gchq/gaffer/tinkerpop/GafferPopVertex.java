@@ -68,25 +68,12 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
     @Override
     public <V> VertexProperty<V> property(final VertexProperty.Cardinality cardinality, final String key, final V value, final Object... keyValues) {
+        if (isReadOnly()) {
+            throw new UnsupportedOperationException("Updates are not supported, Vertex is readonly");
+        }
+        // Attach the property to this vertex before updating and re adding to the graph
+        VertexProperty<V> vertexProperty = propertyWithoutUpdate(cardinality, key, value, keyValues);
         LOGGER.warn("Updating Vertex properties via aggregation");
-
-        ElementHelper.legalPropertyKeyValueArray(keyValues);
-        ElementHelper.validateProperty(key, value);
-        final Optional<VertexProperty<V>> optionalVertexProperty = ElementHelper.stageVertexProperty(this, cardinality, key, value, keyValues);
-        if (optionalVertexProperty.isPresent()) {
-            return optionalVertexProperty.get();
-        }
-
-        final VertexProperty<V> vertexProperty = new GafferPopVertexProperty<>(this, key, value);
-
-        if (null == this.properties) {
-            this.properties = new HashMap<>();
-        }
-
-        final List<VertexProperty> list = this.properties.getOrDefault(key, new ArrayList<>());
-        list.add(vertexProperty);
-        this.properties.put(key, list);
-        ElementHelper.attachProperties(vertexProperty, keyValues);
 
         // Re add to do a update via aggregation
         this.graph().addVertex(this);
@@ -117,6 +104,45 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
         }
     }
 
+    /**
+     * Updates the properties attached to this Vertex but without modifying the
+     * underlying graph.
+     *
+     * This method is largely a helper for generating GafferPopVertex objects
+     * from Gaffer Entities returned from the graph as, in that instance we want
+     * to be able to create a representative Vertex but without modifying the
+     * one stored in the graph.
+     *
+     * @param <V> Value type
+     * @param cardinality The cardinality
+     * @param key The property key
+     * @param value The property value
+     * @param keyValues Additional key value pairs
+     * @return The VertexProperty
+     */
+    public <V> VertexProperty<V> propertyWithoutUpdate(final VertexProperty.Cardinality cardinality, final String key, final V value, final Object... keyValues) {
+        // Validate the property to be added
+        ElementHelper.legalPropertyKeyValueArray(keyValues);
+        ElementHelper.validateProperty(key, value);
+        final Optional<VertexProperty<V>> optionalVertexProperty = ElementHelper.stageVertexProperty(this, cardinality, key, value, keyValues);
+        if (optionalVertexProperty.isPresent()) {
+            return optionalVertexProperty.get();
+        }
+
+        final VertexProperty<V> vertexProperty = new GafferPopVertexProperty<>(this, key, value);
+
+        if (null == this.properties) {
+            this.properties = new HashMap<>();
+        }
+
+        final List<VertexProperty> list = this.properties.getOrDefault(key, new ArrayList<>());
+        list.add(vertexProperty);
+        this.properties.put(key, list);
+        ElementHelper.attachProperties(vertexProperty, keyValues);
+
+        return vertexProperty;
+    }
+
     @Override
     public Edge addEdge(final String label, final Vertex vertex, final Object... keyValues) {
         if (null == vertex) {
@@ -127,7 +153,11 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
         ElementHelper.attachProperties(edge, keyValues);
         graph().addEdge(edge);
 
-        edge.setReadOnly();
+        // Check if read only elements
+        if (!graph().configuration().containsKey(GafferPopGraph.NOT_READ_ONLY_ELEMENTS)) {
+            edge.setReadOnly();
+        }
+
         return edge;
     }
 

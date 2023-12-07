@@ -159,6 +159,14 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public static final String DATA_AUTHS = "gaffer.dataAuths";
 
     /**
+     * Configuration key for stopping the elements added via Gremlin/Tinkerpop
+     * from being readonly. If this is set a vertex or edge may have its properties
+     * modified via the Tinkerpop interface using the defined ingest aggregation
+     * function(s) it has set.
+     */
+    public static final String NOT_READ_ONLY_ELEMENTS = "gaffer.elements.notreadonly";
+
+    /**
      * The vertex label for vertex IDs. These are {@link GafferPopVertex}s that
      * don't have any properties, just an ID value and a label of 'id'.
      */
@@ -304,7 +312,10 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .then(new AddElements())
                 .build());
 
-        vertex.setReadOnly();
+        // Set read only if not told otherwise
+        if (!configuration.containsKey(NOT_READ_ONLY_ELEMENTS)) {
+            vertex.setReadOnly();
+        }
     }
 
     public void addEdge(final GafferPopEdge edge) {

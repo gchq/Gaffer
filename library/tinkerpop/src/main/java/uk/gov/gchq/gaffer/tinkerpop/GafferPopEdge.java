@@ -62,14 +62,13 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
 
     @Override
     public <V> Property<V> property(final String key, final V value) {
-        LOGGER.warn("Updating Edge properties via aggregation");
-
-        ElementHelper.validateProperty(key, value);
-        final Property<V> newProperty = new GafferPopProperty<>(this, key, value);
-        if (null == this.properties) {
-            this.properties = new HashMap<>();
+        if (isReadOnly()) {
+            throw new UnsupportedOperationException("Updates are not supported, Edge is readonly");
         }
-        this.properties.put(key, newProperty);
+
+        // Attach properties before updating the graph
+        final Property<V> newProperty = propertyWithoutUpdate(key, value);
+        LOGGER.warn("Updating Edge properties via aggregation");
 
         // Re add to do the update via aggregation
         this.graph().addEdge(this);
@@ -96,6 +95,32 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
                     .map(entry -> entry.getValue()).collect(Collectors.toList())
                     .iterator();
         }
+    }
+
+
+    /**
+     * Updates the properties attached to this Edge but without modifying the
+     * underlying graph.
+     *
+     * This method is largely a helper for generating GafferPopEdge objects from
+     * Gaffer Edge returned from the graph as, in that instance we want to be
+     * able to create a representative GafferPopEdge but without modifying the
+     * one stored in the graph.
+     *
+     * @param <V> Value type
+     * @param key The key
+     * @param value The value
+     * @return The property
+     */
+    public <V> Property<V> propertyWithoutUpdate(final String key, final V value) {
+        ElementHelper.validateProperty(key, value);
+        final Property<V> newProperty = new GafferPopProperty<>(this, key, value);
+        if (null == this.properties) {
+            this.properties = new HashMap<>();
+        }
+        this.properties.put(key, newProperty);
+
+        return newProperty;
     }
 
     @Override
