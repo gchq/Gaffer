@@ -26,7 +26,7 @@
     <artifactId>tinkerpop</artifactId>
 
     <properties>
-        <tinkerpop.version>3.6.4</tinkerpop.version>
+        <tinkerpop.version>3.7.1</tinkerpop.version>
         <google-guice.version>4.2.3</google-guice.version>
 
         <!-- Don't run any of the standard tinkerpop tests by default-->
