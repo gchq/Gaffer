@@ -86,7 +86,7 @@ public class GafferPopNamedOperationServiceIT {
         // Then
         assertThatThrownBy(() -> g.call("namedoperation", params).toList())
                 .isExactlyInstanceOf(IllegalStateException.class)
-                .hasMessage("Missing parameter");
+                .hasMessage("Missing parameter, either 'execute' or 'add' expected");
     }
 
     @Test
