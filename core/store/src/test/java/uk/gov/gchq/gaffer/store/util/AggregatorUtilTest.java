@@ -55,6 +55,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
+import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEqualsIncludingMatchedVertex;
+
 
 public class AggregatorUtilTest {
     @Test
@@ -1007,7 +1009,7 @@ public class AggregatorUtilTest {
         final Iterable<Element> aggregatedElementsIncludingMatchedVertex = AggregatorUtil.queryAggregate(elements, schema, view, true);
 
         // then
-        assertElementEquals(expectedIncludingMatchedVertex, aggregatedElementsIncludingMatchedVertex);
+        assertElementEqualsIncludingMatchedVertex(expectedIncludingMatchedVertex, aggregatedElementsIncludingMatchedVertex);
     }
 
     @Test

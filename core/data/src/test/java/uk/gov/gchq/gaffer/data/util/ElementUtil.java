@@ -43,4 +43,22 @@ public final class ElementUtil {
             assertThat(resultCache).containsExactlyInAnyOrderElementsOf(expectedCache);
         }
     }
+
+    public static void assertElementEqualsIncludingMatchedVertex(final Iterable<? extends ElementId> expected, final Iterable<? extends ElementId> result) {
+        assertElementEqualsIncludingMatchedVertex(expected, result, false);
+    }
+
+    public static void assertElementEqualsIncludingMatchedVertex(final Iterable<? extends ElementId> expected, final Iterable<? extends ElementId> result, final boolean ignoreDuplicates) {
+        final List<ElementId> expectedCache = Lists.newArrayList(expected);
+        final List<ElementId> resultCache = Lists.newArrayList(result);
+        if (ignoreDuplicates) {
+            assertThat(resultCache)
+                .usingRecursiveFieldByFieldElementComparator()
+                .hasSameElementsAs(expectedCache);
+        } else {
+            assertThat(resultCache)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrderElementsOf(expectedCache);
+        }
+    }
 }

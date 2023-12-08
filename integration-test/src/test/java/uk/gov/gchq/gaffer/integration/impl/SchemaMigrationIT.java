@@ -517,7 +517,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                 new User());
 
         // Then
-        ElementUtil.assertElementEquals(
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(
                 Arrays.asList(
                         EDGE_OLD_AGGREGATION_ALT_COUNT_MIGRATED_TO_NEW
                 ),
@@ -557,7 +557,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                 new User());
 
         // Then
-        ElementUtil.assertElementEquals(
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(
                 Arrays.asList(
                         EDGE_NEW_POST_OP_AGGREGATION_AGGREGATED
                 ),

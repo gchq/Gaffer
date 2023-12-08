@@ -88,7 +88,7 @@ public class GeneratorsIT extends AbstractStoreIT {
                 .first(new GenerateElements.Builder<DomainObject>()
                         .generator(new BasicElementGenerator())
                         .input(new EntityDomainObject(NEW_VERTEX, "1", null),
-                                new EdgeDomainObject(NEW_SOURCE, NEW_DEST, false, 1, 1L))
+                                new EdgeDomainObject(NEW_SOURCE, NEW_DEST, true, 1, 1L))
                         .build())
                 .then(new AddElements())
                 .build();
@@ -98,15 +98,15 @@ public class GeneratorsIT extends AbstractStoreIT {
 
         // Then - check they were added correctly
         final List<Element> results = Lists.newArrayList(graph.execute(new GetElements.Builder()
-                .input(new EntitySeed(NEW_VERTEX), new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
+                .input(new EntitySeed(NEW_VERTEX), new EdgeSeed(NEW_SOURCE, NEW_DEST, true))
                 .build(), getUser()));
 
         final Edge expectedEdge = new Edge.Builder()
                 .group(TestGroups.EDGE)
                 .source(NEW_SOURCE)
                 .dest(NEW_DEST)
-                .directed(false)
-                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                .directed(true)
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build();
         expectedEdge.putProperty(TestPropertyNames.INT, 1);
         expectedEdge.putProperty(TestPropertyNames.COUNT, 1L);
@@ -114,6 +114,6 @@ public class GeneratorsIT extends AbstractStoreIT {
         final Entity expectedEntity = new Entity(TestGroups.ENTITY, NEW_VERTEX);
         expectedEntity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("1"));
 
-        ElementUtil.assertElementEquals(Arrays.asList(expectedEntity, expectedEdge), results);
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(Arrays.asList(expectedEntity, expectedEdge), results);
     }
 }

@@ -69,7 +69,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverterTest extends Abstra
 
     @Test
     public void shouldDeserialiseSourceDestinationValuesCorrectWayRound() {
-        // Given 
+        // Given
         final Edge edge = new Edge.Builder()
                 .source("1")
                 .dest("2")
@@ -109,7 +109,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverterTest extends Abstra
 
     @Test
     public void shouldDeserialiseSourceDestinationValuesUndirected() {
-        // Given 
+        // Given
         final Edge edge = new Edge.Builder()
                 .source("1")
                 .dest("2")

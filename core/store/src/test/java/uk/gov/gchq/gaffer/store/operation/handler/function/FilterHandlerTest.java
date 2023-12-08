@@ -707,7 +707,7 @@ public class FilterHandlerTest {
         final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
 
         // Then
-        ElementUtil.assertElementEquals(
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(
                 Arrays.asList(new Edge.Builder()
                                 .group(TestGroups.EDGE)
                                 .source("srcVal1")
@@ -718,7 +718,7 @@ public class FilterHandlerTest {
                                 .group(TestGroups.EDGE)
                                 .source("srcVal3")
                                 .dest("destVal3")
-                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
                                 .build()),
                 results);
     }
@@ -774,7 +774,7 @@ public class FilterHandlerTest {
         final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
 
         // Then
-        ElementUtil.assertElementEquals(
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(
                 Arrays.asList(new Edge.Builder()
                                 .group(TestGroups.EDGE)
                                 .source("srcVal1")
@@ -785,7 +785,7 @@ public class FilterHandlerTest {
                                 .group(TestGroups.EDGE)
                                 .source("srcVal3")
                                 .dest("destVal3")
-                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
                                 .build()),
                 results);
     }

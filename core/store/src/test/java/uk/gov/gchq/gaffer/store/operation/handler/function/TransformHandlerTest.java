@@ -470,7 +470,7 @@ public class TransformHandlerTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(TestPropertyNames.PROP_3, "srcVal")
                 .build();
-        ElementUtil.assertElementEquals(Collections.singletonList(expectedEdge), results);
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(Collections.singletonList(expectedEdge), results);
     }
 
     @Test
@@ -505,6 +505,6 @@ public class TransformHandlerTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(TestPropertyNames.PROP_3, "destVal")
                 .build();
-        ElementUtil.assertElementEquals(Collections.singletonList(expectedEdge), results);
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(Collections.singletonList(expectedEdge), results);
     }
 }

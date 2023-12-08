@@ -479,7 +479,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
 
     @Test
     public void shouldSerialiseAndDeserialisePropertiesWhenAllAreEmpty() {
-        // Given 
+        // Given
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                                 .vertex("string")
@@ -503,7 +503,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
                 .property(TestPropertyNames.PROP_2, new FreqMap())
                 .build();
 
-        // When 1 
+        // When 1
         final Value value = converter.getValueFromProperties(TestGroups.ENTITY, entity.getProperties());
 
         // Then 1
@@ -519,7 +519,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
 
     @Test
     public void shouldDeserialiseEntityId() {
-        // Given 
+        // Given
         final EntityId expectedElementId = new EntitySeed("vertex1");
         final Entity entity = new Entity.Builder()
                 .vertex("vertex1")
@@ -538,7 +538,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
 
     @Test
     public void shouldDeserialiseEdgeId() {
-        // Given 
+        // Given
         final EdgeId expectedElementId = new EdgeSeed("source1", "dest1", true);
         final Edge edge = new Edge.Builder()
                 .source("source1")
@@ -559,7 +559,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
 
     @Test
     public void shouldDeserialiseEdgeIdWithQueriedDestVertex() {
-        // Given 
+        // Given
         final EdgeId expectedElementId = new EdgeSeed("vertex1", "vertex2", true, EdgeId.MatchedVertex.DESTINATION);
         final Edge edge = new Edge.Builder()
                 .source("vertex1")
@@ -581,7 +581,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
 
     @Test
     public void shouldDeserialiseEdgeIdWithQueriedSourceVertex() {
-        // Given 
+        // Given
         final EdgeId expectedElementId = new EdgeSeed("source1", "dest1", true);
         final Edge edge = new Edge.Builder()
                 .source("source1")
