@@ -196,7 +196,6 @@ public class GafferPopGraphIT {
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
         final Vertex vertex1 = addSoftwareVertex(graph);
 
-
         // When
         final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(vertex1), null);
 
@@ -204,13 +203,11 @@ public class GafferPopGraphIT {
         testSoftwareVertex(vertices);
     }
 
-
     @Test
     public void shouldAddAndGetVertexWithNullView() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
 
         // When
         addSoftwareVertex(graph);
@@ -228,8 +225,6 @@ public class GafferPopGraphIT {
         final View view = new View.Builder()
                 .edge(SOFTWARE_NAME_GROUP)
                 .build();
-
-
 
         // When
         addSoftwareVertex(graph);
@@ -271,16 +266,8 @@ public class GafferPopGraphIT {
         addSoftwareVertex(graph);
         final Iterator<Vertex> vertices = graph.vertices(VERTEX_1);
 
-
         // Then
-        assertThat(vertices)
-                .toIterable()
-                .hasSize(1)
-                .first()
-                .hasFieldOrPropertyWithValue("id", VERTEX_1)
-                .hasFieldOrPropertyWithValue("label", SOFTWARE_NAME_GROUP)
-                .extracting(v -> v.property(NAME_PROPERTY).value())
-                .isEqualTo("GafferPop");
+        testSoftwareVertex(vertices);
     }
 
     @Test
@@ -525,7 +512,7 @@ public class GafferPopGraphIT {
         return graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
     }
 
-    private static void testSoftwareVertex(Iterator<GafferPopVertex> vertices) {
+    private static void testSoftwareVertex(Iterator<? extends Vertex> vertices) {
         assertThat(vertices)
                 .toIterable()
                 .hasSize(1)
