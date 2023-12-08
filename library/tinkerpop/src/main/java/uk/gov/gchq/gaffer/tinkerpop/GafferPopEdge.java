@@ -103,7 +103,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
      * underlying graph.
      *
      * This method is largely a helper for generating GafferPopEdge objects from
-     * Gaffer Edge returned from the graph as, in that instance we want to be
+     * Gaffer Edge returned from the graph. In this situation we want to be
      * able to create a representative GafferPopEdge but without modifying the
      * one stored in the graph.
      *
