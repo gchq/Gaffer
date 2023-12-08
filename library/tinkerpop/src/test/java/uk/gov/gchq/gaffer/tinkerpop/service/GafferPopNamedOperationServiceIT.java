@@ -16,15 +16,12 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.service;
 
-import org.apache.commons.configuration2.BaseConfiguration;
-import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -32,7 +29,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphTest;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphIT;
+import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collections;
@@ -44,25 +42,17 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphTest.AUTH_1;
-import static uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphTest.AUTH_2;
-import static uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphTest.USER_ID;
+
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_1;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.USER_ID;
 
 public class GafferPopNamedOperationServiceIT {
-    private static final MapStoreProperties PROPERTIES = MapStoreProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphTest.class, "/gaffer/map-store.properties"));
-    private static final Configuration TEST_CONFIGURATION = new BaseConfiguration() {
-        {
-            this.setProperty(GafferPopGraph.GRAPH, GafferPopGraph.class.getName());
-            this.setProperty(GafferPopGraph.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
-            this.setProperty(GafferPopGraph.USER_ID, USER_ID);
-            this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
-        }
-    };
+    private static final MapStoreProperties PROPERTIES = MapStoreProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphIT.class, "/gaffer/map-store.properties"));
 
     @Test
     void shouldHaveNamedOperationService() {
         // Given
-        final GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, getGafferGraph());
+        final GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION_1, getGafferGraph());
         final GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
@@ -77,7 +67,7 @@ public class GafferPopNamedOperationServiceIT {
     @Test
     void shouldThrowExceptionForMissingParameter() {
         // Given
-        final GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, getGafferGraph());
+        final GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION_1, getGafferGraph());
         final GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
@@ -92,7 +82,7 @@ public class GafferPopNamedOperationServiceIT {
     @Test
     void shouldThrowExceptionWhenTryingToExecuteMissingNamedOperation() {
         // Given
-        final GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, getGafferGraph());
+        final GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION_1, getGafferGraph());
         final GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
@@ -107,7 +97,7 @@ public class GafferPopNamedOperationServiceIT {
     @Test
     void shouldAddNamedOperation() {
         // Given
-        final GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, getGafferGraph());
+        final GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION_1, getGafferGraph());
         final GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
@@ -126,7 +116,7 @@ public class GafferPopNamedOperationServiceIT {
         final String opName = "testNamedOpNonIterableReturn";
         final Graph gafferGraph = getGafferGraph();
         gafferGraph.execute(getAddNamedOpElementCount(opName), new User(USER_ID));
-        GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, gafferGraph);
+        GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
         GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
@@ -144,7 +134,7 @@ public class GafferPopNamedOperationServiceIT {
         final String opName = "testNamedOpIterableReturn";
         final Graph gafferGraph = getGafferGraph();
         gafferGraph.execute(getAddNamedOpAllElements(opName), new User(USER_ID));
-        GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION, gafferGraph);
+        GafferPopGraph gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
         GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
@@ -156,13 +146,7 @@ public class GafferPopNamedOperationServiceIT {
     }
 
     private Graph getGafferGraph() {
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graph1")
-                        .build())
-                .storeProperties(PROPERTIES)
-                .addSchemas(StreamUtil.openStreams(this.getClass(), "/gaffer/schema"))
-                .build();
+        return GafferPopTestUtil.getGafferGraph(this.getClass(), PROPERTIES);
     }
 
     private AddNamedOperation getAddNamedOpElementCount(String name) {
