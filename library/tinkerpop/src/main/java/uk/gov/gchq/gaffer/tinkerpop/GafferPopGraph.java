@@ -35,8 +35,8 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -518,8 +518,14 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         try {
             LOGGER.info("GafferPop operation chain called: " + opChain.toString());
             return graph.execute(opChain, user);
-        } catch (final OperationException e) {
-            throw new RuntimeException(e);
+        } catch (final UnsupportedOperationException | OperationException | IllegalArgumentException e) {
+            // Catch the common exceptions
+            LOGGER.error("Failed to execute operation chain: " + opChain.toString() + " due to " + e.getMessage(), e);
+            throw new UnsupportedOperationException(e);
+        } catch (final Exception e) {
+            // Catch any leftover exceptions
+            LOGGER.error("Failed to execute operation chain: " + opChain.toString() + " due to " + e.getMessage(), e);
+            throw new UnsupportedOperationException(e);
         }
     }
 
