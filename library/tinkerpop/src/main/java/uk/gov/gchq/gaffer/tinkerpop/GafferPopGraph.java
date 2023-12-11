@@ -85,8 +85,11 @@ import java.util.stream.StreamSupport;
  * In addition to the tinkerpop methods required there are methods to add edges
  * query for adjacent vertices and to provide a {@link View} to filter out results.
  */
+
 @OptIn(OptIn.SUITE_STRUCTURE_STANDARD)
 @OptIn(OptIn.SUITE_STRUCTURE_INTEGRATE)
+@OptIn(OptIn.SUITE_PROCESS_STANDARD)
+@OptIn(OptIn.SUITE_PROCESS_LIMITED_STANDARD)
 @OptOut(
     test = "org.apache.tinkerpop.gremlin.structure.io.IoCustomTest",
     method = "*",
@@ -111,10 +114,6 @@ import java.util.stream.StreamSupport;
     test = "org.apache.tinkerpop.gremlin.structure.io.IoVertexTest",
     method = "*",
     reason = "GafferPopGraph does not support Tinkerpop IO test cases")
-@OptOut(
-    test = "org.apache.tinkerpop.gremlin.structure.util.detached.DetachedEdgeTest",
-    method = "*",
-    reason = "GafferPopGraph does not support detached test cases")
 public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Graph {
     public static final String GRAPH_ID = "gaffer.graphId";
 
