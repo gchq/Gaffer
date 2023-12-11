@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.tinkerpop;
 
-import org.apache.commons.configuration2.BaseConfiguration;
-import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -29,10 +27,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -44,9 +39,15 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class GafferPopGraphTest {
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.AUTH_1;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.AUTH_2;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_1;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_2;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_3;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.getTestUser;
+
+public class GafferPopGraphIT {
     public static final String VERTEX_1 = "1";
     public static final String VERTEX_2 = "2";
     public static final String SOFTWARE_NAME_GROUP = "software";
@@ -55,47 +56,13 @@ public class GafferPopGraphTest {
     public static final String CREATED_EDGE_GROUP = "created";
     public static final String NAME_PROPERTY = "name";
     public static final String WEIGHT_PROPERTY = "weight";
-    public static final String USER_ID = "user01";
-    public static final String AUTH_1 = "auth1";
-    public static final String AUTH_2 = "auth2";
 
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphTest.class, "/gaffer/store.properties"));
-
-    private static final Configuration TEST_CONFIGURATION_1 = new BaseConfiguration() {
-        {
-            this.setProperty(GafferPopGraph.GRAPH, GafferPopGraph.class.getName());
-            this.setProperty(GafferPopGraph.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
-            this.setProperty(GafferPopGraph.USER_ID, USER_ID);
-            this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
-        }
-    };
-
-    private static final Configuration TEST_CONFIGURATION_2 = new BaseConfiguration() {
-        {
-            this.setProperty(GafferPopGraph.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
-            this.setProperty(GafferPopGraph.USER_ID, USER_ID);
-            this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
-            this.setProperty(GafferPopGraph.GRAPH_ID, "Graph1");
-            this.setProperty(GafferPopGraph.STORE_PROPERTIES, GafferPopGraphTest.class.getClassLoader().getResource("gaffer/store.properties").getPath());
-        }
-    };
-
-    private static final Configuration TEST_CONFIGURATION_3 = new BaseConfiguration() {
-        {
-            this.setProperty(GafferPopGraph.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
-            this.setProperty(GafferPopGraph.USER_ID, USER_ID);
-            this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
-        }
-    };
-
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphIT.class, "/gaffer/store.properties"));
 
     @Test
     public void shouldConstructGafferPopGraphWithOnlyConfig() {
         // Given
-        final User expectedUser = new User.Builder()
-                .userId(USER_ID)
-                .dataAuths(AUTH_1, AUTH_2)
-                .build();
+        final User expectedUser = getTestUser(AUTH_1, AUTH_2);
 
         // When
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_2);
@@ -112,12 +79,10 @@ public class GafferPopGraphTest {
     @Test
     public void shouldConstructGafferPopGraphWithConfigFile() {
         // Given
-        final User expectedUser = new User.Builder()
-                .userId(USER_ID)
-                .build();
+        final User expectedUser = getTestUser();
 
         // when
-        final GafferPopGraph graph = GafferPopGraph.open(GafferPopGraphTest.class.getClassLoader().getResource("gafferpop-test.properties").getPath());
+        final GafferPopGraph graph = GafferPopGraph.open(GafferPopGraphIT.class.getClassLoader().getResource("gafferpop-test.properties").getPath());
 
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
@@ -132,10 +97,7 @@ public class GafferPopGraphTest {
     public void shouldConstructGafferPopGraph() {
         // Given
         final Graph gafferGraph = getGafferGraph();
-        final User expectedUser = new User.Builder()
-                .userId(USER_ID)
-                .dataAuths(AUTH_1, AUTH_2)
-                .build();
+        final User expectedUser = getTestUser(AUTH_1, AUTH_2);
 
         // When
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -220,15 +182,11 @@ public class GafferPopGraphTest {
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
 
         // When
-        graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
+        addSoftwareVertex(graph);
         final Iterator<GafferPopVertex> vertices = graph.vertices(Arrays.asList(VERTEX_1, VERTEX_2), SOFTWARE_NAME_GROUP);
 
         // Then
-        final GafferPopVertex vertex = vertices.next();
-        assertThat(vertices).isExhausted();
-        assertThat(vertex.id()).isEqualTo(VERTEX_1);
-        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
-        assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
+        testSoftwareVertex(vertices);
     }
 
     @Test
@@ -236,20 +194,14 @@ public class GafferPopGraphTest {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final Vertex vertex1 = graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
-
+        final Vertex vertex1 = addSoftwareVertex(graph);
 
         // When
         final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(vertex1), null);
 
         // Then
-        final GafferPopVertex vertex = vertices.next();
-        assertFalse(vertices.hasNext()); // there is only 1 vertex
-        assertThat(vertex.id()).isEqualTo(VERTEX_1);
-        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
-        assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
+        testSoftwareVertex(vertices);
     }
-
 
     @Test
     public void shouldAddAndGetVertexWithNullView() {
@@ -257,17 +209,12 @@ public class GafferPopGraphTest {
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
 
-
         // When
-        graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
+        addSoftwareVertex(graph);
         final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(VERTEX_1), null);
 
         // Then
-        final GafferPopVertex vertex = vertices.next();
-        assertFalse(vertices.hasNext()); // there is only 1 vertex
-        assertThat(vertex.id()).isEqualTo(VERTEX_1);
-        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
-        assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
+        testSoftwareVertex(vertices);
     }
 
     @Test
@@ -279,18 +226,12 @@ public class GafferPopGraphTest {
                 .edge(SOFTWARE_NAME_GROUP)
                 .build();
 
-
-
         // When
-        graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
+        addSoftwareVertex(graph);
         final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(), view);
 
         // Then
-        final GafferPopVertex vertex = vertices.next();
-        assertFalse(vertices.hasNext()); // there is only 1 vertex
-        assertThat(vertex.id()).isEqualTo(VERTEX_1);
-        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
-        assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
+        testSoftwareVertex(vertices);
     }
 
     @Test
@@ -300,7 +241,7 @@ public class GafferPopGraphTest {
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
 
         // When
-        graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
+        addSoftwareVertex(graph);
         graph.addVertex(T.label, PERSON_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
         final Iterator<Vertex> vertices = graph.vertices();
 
@@ -322,16 +263,11 @@ public class GafferPopGraphTest {
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
 
         // When
-        graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
+        addSoftwareVertex(graph);
         final Iterator<Vertex> vertices = graph.vertices(VERTEX_1);
 
-
         // Then
-        final Vertex vertex = vertices.next();
-        assertFalse(vertices.hasNext()); // there is only 1 vertex
-        assertThat(vertex.id()).isEqualTo(VERTEX_1);
-        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
-        assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("GafferPop");
+        testSoftwareVertex(vertices);
     }
 
     @Test
@@ -341,7 +277,7 @@ public class GafferPopGraphTest {
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
 
         // When
-        graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
+        addSoftwareVertex(graph);
         graph.addVertex(T.label, PERSON_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
         final Iterator<GafferPopVertex> vertices = graph.vertices(null, SOFTWARE_NAME_GROUP);
 
@@ -371,10 +307,12 @@ public class GafferPopGraphTest {
         final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(VERTEX_1, VERTEX_2), view);
 
         // Then
-        final GafferPopVertex vertex = vertices.next();
-        assertFalse(vertices.hasNext()); // there is only 1 vertex
-        assertThat(vertex.id()).isEqualTo(VERTEX_1);
-        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
+        assertThat(vertices)
+                .toIterable()
+                .hasSize(1)
+                .first()
+                .hasFieldOrPropertyWithValue("id", VERTEX_1)
+                .hasFieldOrPropertyWithValue("label", SOFTWARE_NAME_GROUP);
     }
 
     @Test
@@ -393,7 +331,7 @@ public class GafferPopGraphTest {
 
         // Then
         final Edge edge = edges.next();
-        assertFalse(edges.hasNext()); // there is only 1 vertex
+        assertThat(edges).isExhausted(); // there is only 1 vertex
         assertThat(((List) edge.id()).get(0)).isEqualTo(VERTEX_1);
         assertThat(((List) edge.id()).get(1)).isEqualTo(VERTEX_2);
         assertThat(edge.label()).isEqualTo(CREATED_EDGE_GROUP);
@@ -414,11 +352,7 @@ public class GafferPopGraphTest {
         final Iterator<GafferPopEdge> edges = graph.edges(VERTEX_1, Direction.OUT, CREATED_EDGE_GROUP);
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-        assertThat(edgesList).contains(edgeToAdd1);
+        assertThat(edges).toIterable().contains(edgeToAdd1);
     }
 
     @Test
@@ -436,11 +370,7 @@ public class GafferPopGraphTest {
         final Iterator<GafferPopEdge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, view);
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-        assertThat(edgesList).contains(edgeToAdd1);
+        assertThat(edges).toIterable().contains(edgeToAdd1);
     }
 
     @Test
@@ -460,12 +390,7 @@ public class GafferPopGraphTest {
         final Iterator<GafferPopEdge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1.id(), edgeToAdd2.id()), Direction.OUT, view);
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-
-        assertThat(edgesList).contains(edgeToAdd1, edgeToAdd2);
+        assertThat(edges).toIterable().contains(edgeToAdd1, edgeToAdd2);
     }
     @Test
     public void shouldGetEdgeInGroupWithNullView() {
@@ -479,11 +404,7 @@ public class GafferPopGraphTest {
         final Iterator<GafferPopEdge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, null);
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-        assertThat(edgesList).contains(edgeToAdd1);
+        assertThat(edges).toIterable().contains(edgeToAdd1);
     }
 
     @Test
@@ -498,11 +419,7 @@ public class GafferPopGraphTest {
         final Iterator<GafferPopEdge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1), Direction.OUT, null);
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-        assertThat(edgesList).contains(edgeToAdd1);
+        assertThat(edges).toIterable().contains(edgeToAdd1);
     }
 
     @Test
@@ -519,11 +436,7 @@ public class GafferPopGraphTest {
         final Iterator<Edge> edges = graph.edges();
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-        assertThat(edgesList).contains(edgeToAdd1, edgeToAdd2);
+        assertThat(edges).toIterable().contains(edgeToAdd1, edgeToAdd2);
     }
 
     @Test
@@ -540,11 +453,7 @@ public class GafferPopGraphTest {
         final Iterator<GafferPopEdge> edges = graph.edges(null, Direction.OUT, CREATED_EDGE_GROUP);
 
         // Then
-        final List<Edge> edgesList = new ArrayList<>();
-        while (edges.hasNext()) {
-            edgesList.add(edges.next());
-        }
-        assertThat(edgesList).contains(edgeToAdd1);
+        assertThat(edges).toIterable().contains(edgeToAdd1);
     }
 
     @Test
@@ -552,7 +461,7 @@ public class GafferPopGraphTest {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final Vertex vertex1 = graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
+        final Vertex vertex1 = addSoftwareVertex(graph);
         final Vertex vertex2 = graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
         vertex1.addEdge(DEPENDS_ON_EDGE_GROUP, vertex2);
 
@@ -561,7 +470,7 @@ public class GafferPopGraphTest {
 
         // Then
         final GafferPopVertex vertex = vertices.next();
-        assertFalse(vertices.hasNext()); // there is only 1 vertex
+        assertThat(vertices).isExhausted(); // there is only 1 vertex
         assertThat(vertex.id()).isEqualTo(VERTEX_2);
         assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
         assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("Gaffer");
@@ -572,38 +481,18 @@ public class GafferPopGraphTest {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final Vertex vertex1 = graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
-        final Vertex vertex2 = graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
+        final GafferPopVertex vertex1 = (GafferPopVertex) addSoftwareVertex(graph);
+        final GafferPopVertex vertex2 = (GafferPopVertex) graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
         vertex1.addEdge(DEPENDS_ON_EDGE_GROUP, vertex2);
 
         // When
         final Iterator<GafferPopVertex> vertices = graph.adjVertices(Arrays.asList(VERTEX_1, VERTEX_2), Direction.BOTH);
 
         // Then
-        final List<Vertex>  verticesList = new ArrayList<>();
-        while (vertices.hasNext()) {
-            verticesList.add(vertices.next());
-        }
-        assertThat(verticesList).contains(vertex1);
-        assertThat(verticesList).contains(vertex2);
+        assertThat(vertices).toIterable()
+                .contains(vertex1)
+                .contains(vertex2);
     }
-
-    @Test
-    void shouldThrowExceptionWhenPassedInvalidOpChain() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        final OperationChain<?> invalidOperationChain = new OperationChain.Builder()
-                .first(new AddElementsFromSocket())
-                .then(new GetElements())
-                .build();
-
-        // When / Then
-        assertThatExceptionOfType(RuntimeException.class)
-            .isThrownBy(() -> graph.execute(invalidOperationChain));
-    }
-
 
     @Test
     public void shouldThrowExceptionIfGetAdjacentVerticesWithNoSeeds() {
@@ -616,13 +505,21 @@ public class GafferPopGraphTest {
     }
 
     private Graph getGafferGraph() {
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graph1")
-                        .build())
-                .storeProperties(PROPERTIES)
-                .addSchemas(StreamUtil.openStreams(this.getClass(), "/gaffer/schema"))
-                .build();
+        return GafferPopTestUtil.getGafferGraph(this.getClass(), PROPERTIES);
     }
 
+    private static Vertex addSoftwareVertex(GafferPopGraph graph) {
+        return graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
+    }
+
+    private static void testSoftwareVertex(Iterator<? extends Vertex> vertices) {
+        assertThat(vertices)
+                .toIterable()
+                .hasSize(1)
+                .first()
+                .hasFieldOrPropertyWithValue("id", VERTEX_1)
+                .hasFieldOrPropertyWithValue("label", SOFTWARE_NAME_GROUP)
+                .extracting(v -> v.property(NAME_PROPERTY).value())
+                .isEqualTo("GafferPop");
+    }
 }
