@@ -27,6 +27,9 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -501,7 +504,23 @@ public class GafferPopGraphIT {
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
 
         // When / Then
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> graph.adjVertices(Collections.emptyList(), Direction.BOTH));
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> graph.adjVertices(Collections.emptyList(), Direction.BOTH));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenPassedInvalidOpChain() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+        final OperationChain<?> invalidOperationChain = new OperationChain.Builder()
+                .first(new AddElementsFromSocket())
+                .then(new GetElements())
+                .build();
+
+        // When / Then
+        assertThatExceptionOfType(RuntimeException.class)
+            .isThrownBy(() -> graph.execute(invalidOperationChain));
     }
 
     private Graph getGafferGraph() {
