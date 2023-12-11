@@ -163,6 +163,10 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
     /**
      * Gets the vertex ID object from the supplied vertex.
      *
+     * Will check if the supplied Object implements the {@link Vertex} interface
+     * if so will pull it from the instance otherwise assumes the Object itself
+     * is the ID.
+     *
      * @param vertex The vertex Object or ID.
      * @return The ID for the vertex.
      */
