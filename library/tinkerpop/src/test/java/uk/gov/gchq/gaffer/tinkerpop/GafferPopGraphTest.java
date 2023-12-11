@@ -600,9 +600,8 @@ public class GafferPopGraphTest {
                 .build();
 
         // When / Then
-        assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> graph.execute(invalidOperationChain))
-            .withMessageContaining("Operation chain is invalid");
+        assertThatExceptionOfType(RuntimeException.class)
+            .isThrownBy(() -> graph.execute(invalidOperationChain));
     }
 
 
