@@ -519,7 +519,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             return graph.execute(opChain, user);
         } catch (final Exception e) {
             LOGGER.error("Operation chain failed: " + e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to execute GafferPop operation chain", e);
         }
     }
 

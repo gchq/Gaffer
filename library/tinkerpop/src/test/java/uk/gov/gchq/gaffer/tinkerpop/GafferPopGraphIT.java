@@ -520,7 +520,8 @@ public class GafferPopGraphIT {
 
         // When / Then
         assertThatExceptionOfType(RuntimeException.class)
-            .isThrownBy(() -> graph.execute(invalidOperationChain));
+            .isThrownBy(() -> graph.execute(invalidOperationChain))
+            .withMessageMatching("Failed to execute GafferPop operation chain");
     }
 
     private Graph getGafferGraph() {
