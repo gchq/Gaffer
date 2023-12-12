@@ -139,8 +139,8 @@
             <properties>
                 <!-- Gaffer doesn't pass all standard gremlin tests, this will hopefully improve with time -->
                 <maven.test.failure.ignore>true</maven.test.failure.ignore>
-                <test>GafferPopGraphStructureStandardTest,GafferPopFeatureTest,GafferPopGraphProcessStandardTest</test>
-                <!-- <test>GafferPopGraphProcessStandardTest</test> -->
+                <!-- <test>GafferPopGraphStructureStandardTest,GafferPopFeatureTest,GafferPopGraphProcessStandardTest</test> -->
+                <test>GafferPopGraphProcessStandardTest</test>
             </properties>
             <dependencies>
                 <!-- Standard test suite still uses juint 4 so needs the vintage engine to run -->

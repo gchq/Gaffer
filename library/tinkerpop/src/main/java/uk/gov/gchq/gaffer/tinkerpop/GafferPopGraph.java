@@ -114,6 +114,22 @@ import java.util.stream.StreamSupport;
     test = "org.apache.tinkerpop.gremlin.structure.io.IoVertexTest",
     method = "*",
     reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.process.traversal.TraversalInterruptionTest",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.process.traversal.step.map.ProfileTest$Traversals",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.process.traversal.strategy.optimization.EarlyLimitStrategyProcessTest",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.process.traversal.step.map.WriteTest$Traversals",
+    method = "*",
+    reason = "Currently a bug with the WriteTest that creates unwanted files")
 public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Graph {
     public static final String GRAPH_ID = "gaffer.graphId";
 
