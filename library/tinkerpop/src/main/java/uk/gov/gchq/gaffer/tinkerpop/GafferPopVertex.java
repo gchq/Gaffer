@@ -109,7 +109,7 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
      * underlying graph.
      *
      * This method is largely a helper for generating GafferPopVertex objects
-     * from Gaffer Entities returned from the graph as, in that instance we want
+     * from Gaffer Entities returned from the graph. In this situation we want
      * to be able to create a representative Vertex but without modifying the
      * one stored in the graph.
      *

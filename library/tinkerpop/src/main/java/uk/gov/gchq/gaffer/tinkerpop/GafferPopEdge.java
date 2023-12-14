@@ -103,7 +103,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
      * underlying graph.
      *
      * This method is largely a helper for generating GafferPopEdge objects from
-     * Gaffer Edge returned from the graph as, in that instance we want to be
+     * Gaffer Edge returned from the graph. In this situation we want to be
      * able to create a representative GafferPopEdge but without modifying the
      * one stored in the graph.
      *
@@ -162,6 +162,10 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
 
     /**
      * Gets the vertex ID object from the supplied vertex.
+     *
+     * Will check if the supplied Object implements the {@link Vertex} interface
+     * if so will pull it from the instance otherwise assumes the Object itself
+     * is the ID.
      *
      * @param vertex The vertex Object or ID.
      * @return The ID for the vertex.
