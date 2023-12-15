@@ -27,7 +27,6 @@ import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
 
 import org.apache.commons.configuration2.MapConfiguration;
-import org.apache.tinkerpop.gremlin.LoadGraphWith.GraphData;
 import org.apache.tinkerpop.gremlin.TestHelper;
 import org.apache.tinkerpop.gremlin.features.World;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -54,7 +53,7 @@ import static org.apache.tinkerpop.gremlin.LoadGraphWith.GraphData;
         glue = { "org.apache.tinkerpop.gremlin.features" },
         objectFactory = GuiceFactory.class,
         features = { "classpath:/org/apache/tinkerpop/gremlin/test/features" },
-        plugin = {"progress", "junit:target/cucumber-reports/cucumber.xml", "html:target/cucumber-reports/cucumber.html"})
+        plugin = {"junit:target/cucumber-reports/cucumber.xml", "html:target/cucumber-reports/cucumber.html"})
 public final class GafferPopFeatureTest {
 
     public static final String TEST_USER_ID = "tinkerpopTestUser";
