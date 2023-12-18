@@ -1,10 +1,11 @@
 # GafferPop
 
-GafferPop is a lightweight Gaffer implementation of the TinkerPop framework, where
-TinkerPop methods are delegated to Gaffer graph operations.
+GafferPop is a lightweight Gaffer implementation of the
+[TinkerPop framework](https://tinkerpop.apache.org/), where TinkerPop methods
+are delegated to Gaffer graph operations.
 
 It is still in development. The implementation is basic and its performance is
-unknown in comparison to using standard Gaffer OperationChains.
+unknown in comparison to using standard Gaffer `OperationChains`.
 
 ## Setup
 
@@ -62,7 +63,7 @@ Current TinkerPop features not present in the GafferPop implementation:
 - Removal of entities/edges or properties - base Gaffer currently does not
   support this.
 - TinkerPop Graph Computer is not supported.
-- Graph Variables can't be updated, there is limited support for this in base
+- Graph Variables can't be updated - there is limited support for this in base
   Gaffer as usually requires shutting down and restarting the Graph.
 - TinkerPop Transactions are not supported.
 
