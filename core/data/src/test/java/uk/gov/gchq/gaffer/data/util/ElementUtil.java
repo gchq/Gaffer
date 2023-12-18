@@ -35,10 +35,12 @@ public final class ElementUtil {
     }
 
     public static void assertElementEquals(final Iterable<? extends ElementId> expected, final Iterable<? extends ElementId> result, final boolean ignoreDuplicates) {
+        final List<ElementId> expectedCache = Lists.newArrayList(expected);
+        final List<ElementId> resultCache = Lists.newArrayList(result);
         if (ignoreDuplicates) {
-            assertThat(result).asList().hasSameElementsAs(expected);
+            assertThat(resultCache).hasSameElementsAs(expectedCache);
         } else {
-            assertThat(result).asList().containsExactlyInAnyOrderElementsOf(expected);
+            assertThat(resultCache).containsExactlyInAnyOrderElementsOf(expectedCache);
         }
     }
 
@@ -47,16 +49,16 @@ public final class ElementUtil {
     }
 
     public static void assertElementEqualsIncludingMatchedVertex(final Iterable<? extends ElementId> expected, final Iterable<? extends ElementId> result, final boolean ignoreDuplicates) {
+        final List<ElementId> expectedCache = Lists.newArrayList(expected);
+        final List<ElementId> resultCache = Lists.newArrayList(result);
         if (ignoreDuplicates) {
-            assertThat(result)
-                .asList()
+            assertThat(resultCache)
                 .usingRecursiveFieldByFieldElementComparator()
-                .hasSameElementsAs(expected);
+                .hasSameElementsAs(expectedCache);
         } else {
-            assertThat(result)
-                .asList()
+            assertThat(resultCache)
                 .usingRecursiveFieldByFieldElementComparator()
-                .containsExactlyInAnyOrderElementsOf(expected);
+                .containsExactlyInAnyOrderElementsOf(expectedCache);
         }
     }
 }
