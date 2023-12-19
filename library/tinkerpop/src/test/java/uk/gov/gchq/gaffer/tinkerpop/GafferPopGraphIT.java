@@ -155,15 +155,13 @@ public class GafferPopGraphIT {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionForNoVertexLabel() {
+    public void shouldAssignDefaultLabelWhenNoVertexLabel() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
 
         //Then
-        assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> graph.addVertex(T.id, VERTEX_1))
-            .withMessageMatching("Label is required");
+        assertThat(graph.addVertex(T.id, VERTEX_1).label()).isEqualTo(Vertex.DEFAULT_LABEL);
     }
 
     @Test
@@ -352,7 +350,7 @@ public class GafferPopGraphIT {
         graph.addEdge(edgeToAdd1);
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edges(VERTEX_1, Direction.OUT, CREATED_EDGE_GROUP);
+        final Iterator<Edge> edges = graph.edges(VERTEX_1, Direction.OUT, CREATED_EDGE_GROUP);
 
         // Then
         assertThat(edges).toIterable().contains(edgeToAdd1);
@@ -370,7 +368,7 @@ public class GafferPopGraphIT {
                 .build();
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, view);
+        final Iterator<Edge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, view);
 
         // Then
         assertThat(edges).toIterable().contains(edgeToAdd1);
@@ -390,7 +388,7 @@ public class GafferPopGraphIT {
                 .build();
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1.id(), edgeToAdd2.id()), Direction.OUT, view);
+        final Iterator<Edge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1.id(), edgeToAdd2.id()), Direction.OUT, view);
 
         // Then
         assertThat(edges).toIterable().contains(edgeToAdd1, edgeToAdd2);
@@ -404,7 +402,7 @@ public class GafferPopGraphIT {
         graph.addEdge(edgeToAdd1);
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, null);
+        final Iterator<Edge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, null);
 
         // Then
         assertThat(edges).toIterable().contains(edgeToAdd1);
@@ -419,7 +417,7 @@ public class GafferPopGraphIT {
         graph.addEdge(edgeToAdd1);
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1), Direction.OUT, null);
+        final Iterator<Edge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1), Direction.OUT, null);
 
         // Then
         assertThat(edges).toIterable().contains(edgeToAdd1);
@@ -453,7 +451,7 @@ public class GafferPopGraphIT {
         graph.addEdge(edgeToAdd2);
 
         // When
-        final Iterator<GafferPopEdge> edges = graph.edges(null, Direction.OUT, CREATED_EDGE_GROUP);
+        final Iterator<Edge> edges = graph.edges(null, Direction.OUT, CREATED_EDGE_GROUP);
 
         // Then
         assertThat(edges).toIterable().contains(edgeToAdd1);
@@ -469,10 +467,10 @@ public class GafferPopGraphIT {
         vertex1.addEdge(DEPENDS_ON_EDGE_GROUP, vertex2);
 
         // When
-        final Iterator<GafferPopVertex> vertices = graph.adjVertices(VERTEX_1, Direction.BOTH);
+        final Iterator<Vertex> vertices = graph.adjVertices(VERTEX_1, Direction.BOTH);
 
         // Then
-        final GafferPopVertex vertex = vertices.next();
+        final GafferPopVertex vertex = (GafferPopVertex) vertices.next();
         assertThat(vertices).isExhausted(); // there is only 1 vertex
         assertThat(vertex.id()).isEqualTo(VERTEX_2);
         assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
@@ -489,7 +487,7 @@ public class GafferPopGraphIT {
         vertex1.addEdge(DEPENDS_ON_EDGE_GROUP, vertex2);
 
         // When
-        final Iterator<GafferPopVertex> vertices = graph.adjVertices(Arrays.asList(VERTEX_1, VERTEX_2), Direction.BOTH);
+        final Iterator<Vertex> vertices = graph.adjVertices(Arrays.asList(VERTEX_1, VERTEX_2), Direction.BOTH);
 
         // Then
         assertThat(vertices).toIterable()
