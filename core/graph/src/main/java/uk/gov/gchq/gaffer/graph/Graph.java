@@ -994,7 +994,7 @@ public final class Graph {
             }
 
             // Use the store's schema if not already set
-            if (schema == null || schema.getGroups().isEmpty()) {
+            if (schema == null) {
                 schema = store.getSchema();
             }
 
