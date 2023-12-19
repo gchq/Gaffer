@@ -87,7 +87,7 @@ public class GafferPopVertexProperty<V> extends GafferPopElement implements Vert
     @Override
     public <U> Property<U> property(final String key, final U value) {
         if (isReadOnly() || vertex.isReadOnly()) {
-            throw new UnsupportedOperationException("Updates are not supported");
+            throw new IllegalStateException("Updates are not supported");
         }
 
         final Property<U> property = new GafferPopProperty<>(this, key, value);
@@ -114,5 +114,10 @@ public class GafferPopVertexProperty<V> extends GafferPopElement implements Vert
             .map(entry -> (Property<U>) entry.getValue())
             .collect(Collectors.toList())
             .iterator();
+    }
+
+    @Override
+    public void remove() {
+        throw Property.Exceptions.propertyRemovalNotSupported();
     }
 }

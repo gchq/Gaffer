@@ -1,0 +1,114 @@
+{
+    "entities": {
+        "vertex": {
+            "vertex": "uuid.id"
+        },
+        "person": {
+            "vertex": "uuid.id",
+            "properties": {
+                "name": "property.string",
+                "age": "property.integer"
+            }
+        },
+        "software": {
+            "vertex": "uuid.id",
+            "properties": {
+                "name": "property.string",
+                "lang": "property.string"
+            }
+        },
+        "dog": {
+            "vertex": "uuid.id"
+        },
+        "test": {
+            "vertex": "uuid.id",
+            "properties": {
+                "test": "property.string"
+            }
+        },
+        "blah": {
+            "vertex": "uuid.id",
+            "properties": {
+                "test": "property.string"
+            }
+        }
+    },
+    "edges": {
+        "self": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true"
+        },
+        "friend": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true",
+            "properties": {
+                "weight": "property.double",
+                "acl": "property.string"
+
+            }
+        },
+        "friends": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true"
+        },
+        "hate": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true"
+        },
+        "knows": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true",
+            "properties": {
+                "weight": "property.double"
+            }
+        },
+        "created": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true",
+            "properties": {
+                "weight": "property.double"
+            }
+        },
+        "collaborator": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true"
+        },
+        "dependsOn": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true"
+        },
+        "encapsulates": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true"
+        },
+        "uses": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true"
+        },
+        "CONTROL": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true"
+        },
+        "SELFLOOP": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true"
+        },
+        "test1": {
+            "source": "uuid.id",
+            "destination": "uuid.id",
+            "directed": "true"
+        }
+    }
+}

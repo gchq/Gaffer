@@ -1,0 +1,101 @@
+{
+    "entities": {
+        "vertex": {
+            "vertex": "int.id"
+        },
+        "person": {
+            "vertex": "int.id",
+            "properties": {
+                "name": "property.string",
+                "age": "property.integer"
+            }
+        },
+        "software": {
+            "vertex": "int.id",
+            "properties": {
+                "name": "property.string",
+                "lang": "property.string",
+                "creators": "property.string.concat"
+            }
+        },
+        "message": {
+            "vertex": "int.id",
+            "properties": {
+                "name": "property.string"
+            }
+        }
+    },
+    "edges": {
+        "self": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true"
+        },
+        "friend": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "properties": {
+                "weight": "property.double",
+                "acl": "property.string"
+
+            }
+        },
+        "friends": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true"
+        },
+        "hate": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true"
+        },
+        "knows": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "properties": {
+                "weight": "property.double"
+            }
+        },
+        "created": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true",
+            "properties": {
+                "weight": "property.double"
+            }
+        },
+        "dependsOn": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true"
+        },
+        "encapsulates": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true"
+        },
+        "uses": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true"
+        },
+        "test": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true"
+        },
+        "CONTROL": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true"
+        },
+        "SELFLOOP": {
+            "source": "int.id",
+            "destination": "int.id",
+            "directed": "true"
+        }
+    }
+}
