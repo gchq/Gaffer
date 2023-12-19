@@ -52,7 +52,7 @@ public class GafferPopVertexGenerator implements OneToOneObjectGenerator<GafferP
         final GafferPopVertex vertex = new GafferPopVertex(entity.getGroup(), entity.getVertex(), graph);
         for (final Entry<String, Object> entry : entity.getProperties().entrySet()) {
             if (null != entry.getValue()) {
-                vertex.property(Cardinality.list, entry.getKey(), entry.getValue());
+                vertex.propertyWithoutUpdate(Cardinality.list, entry.getKey(), entry.getValue());
             }
         }
         if (gafferPopReadOnly) {

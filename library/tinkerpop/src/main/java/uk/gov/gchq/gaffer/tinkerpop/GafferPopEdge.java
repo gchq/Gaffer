@@ -21,7 +21,10 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,54 +48,79 @@ import java.util.stream.Collectors;
  * </p>
  */
 public final class GafferPopEdge extends GafferPopElement implements Edge {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopEdge.class);
+
     private Map<String, Property> properties;
-    private GafferPopVertex inVertex;
-    private GafferPopVertex outVertex;
+    private final GafferPopVertex inVertex;
+    private final GafferPopVertex outVertex;
 
-    public GafferPopEdge(final String label, final Object outVertexId, final Object inVertexId, final GafferPopGraph graph) {
-        this(label, checkVertex(outVertexId, graph), checkVertex(inVertexId, graph), graph);
-    }
-
-    public GafferPopEdge(final String label, final GafferPopVertex outVertex, final GafferPopVertex inVertex, final GafferPopGraph graph) {
-        super(label, Arrays.asList(outVertex.id(), inVertex.id()), graph);
-        this.outVertex = checkVertex(outVertex, graph);
-        this.inVertex = checkVertex(inVertex, graph);
+    public GafferPopEdge(final String label, final Object outVertex, final Object inVertex, final GafferPopGraph graph) {
+        super(label, Arrays.asList(getVertexId(outVertex), getVertexId(inVertex)), graph);
+        this.outVertex = getValidVertex(outVertex, graph);
+        this.inVertex = getValidVertex(inVertex, graph);
     }
 
     @Override
     public <V> Property<V> property(final String key, final V value) {
         if (isReadOnly()) {
-            throw new UnsupportedOperationException("Updates are not supported");
+            throw new UnsupportedOperationException("Updates are not supported, Edge is readonly");
         }
-        ElementHelper.validateProperty(key, value);
-        final Property<V> newProperty = new GafferPopProperty<>(this, key, value);
-        if (null == this.properties) {
-            this.properties = new HashMap<>();
-        }
-        this.properties.put(key, newProperty);
+
+        // Attach properties before updating the graph
+        final Property<V> newProperty = propertyWithoutUpdate(key, value);
+        LOGGER.info("Updating Edge properties via aggregation");
+
+        // Re add to do the update via aggregation
+        graph().addEdge(this);
         return newProperty;
     }
 
     @Override
     public <V> Property<V> property(final String key) {
-        return null == this.properties ? Property.<V>empty() : this.properties.getOrDefault(key, Property.<V>empty());
+        return null == properties ? Property.<V>empty() : properties.getOrDefault(key, Property.<V>empty());
     }
 
     @Override
     public <V> Iterator<Property<V>> properties(final String... propertyKeys) {
-        if (null == this.properties) {
+        if (properties == null) {
             return Collections.emptyIterator();
         }
         if (propertyKeys.length == 1) {
-            final Property<V> property = this.properties.get(propertyKeys[0]);
+            final Property<V> property = properties.get(propertyKeys[0]);
             return null == property ? Collections.emptyIterator() : IteratorUtils.of(property);
         } else {
-            return (Iterator) this.properties.entrySet()
+            return (Iterator) properties.entrySet()
                     .stream()
                     .filter(entry -> ElementHelper.keyExists(entry.getKey(), propertyKeys))
                     .map(entry -> entry.getValue()).collect(Collectors.toList())
                     .iterator();
         }
+    }
+
+
+    /**
+     * Updates the properties attached to this Edge but without modifying the
+     * underlying graph.
+     *
+     * This method is largely a helper for generating GafferPopEdge objects from
+     * Gaffer Edge returned from the graph. In this situation we want to be
+     * able to create a representative GafferPopEdge but without modifying the
+     * one stored in the graph.
+     *
+     * @param <V> Value type
+     * @param key The key
+     * @param value The value
+     * @return The property
+     */
+    public <V> Property<V> propertyWithoutUpdate(final String key, final V value) {
+        ElementHelper.validateProperty(key, value);
+        final Property<V> newProperty = new GafferPopProperty<>(this, key, value);
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+        properties.put(key, newProperty);
+
+        return newProperty;
     }
 
     @Override
@@ -109,12 +137,18 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
 
     @Override
     public Set<String> keys() {
-        return null == this.properties ? Collections.emptySet() : this.properties.keySet();
+        return properties == null ? Collections.emptySet() : properties.keySet();
+    }
+
+    @Override
+    public void remove() {
+        // Gaffer does not support deleting elements
+        throw Edge.Exceptions.edgeRemovalNotSupported();
     }
 
     @Override
     public String toString() {
-        return "e[" + outVertex().id() + "-" + label + "->" + inVertex().id() + "]";
+        return StringFactory.edgeString(this);
     }
 
     @Override
@@ -127,29 +161,62 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
         return inVertex;
     }
 
-    private static GafferPopVertex checkVertex(final Object vertexId, final GafferPopGraph graph) {
-        final GafferPopVertex gafferPopVertex;
-        if (vertexId instanceof Vertex) {
-            if (vertexId instanceof GafferPopVertex) {
-                gafferPopVertex = checkVertex(((GafferPopVertex) vertexId), graph);
-            } else {
-                gafferPopVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, ((Vertex) vertexId).id(), graph);
-            }
+    /**
+     * Gets the vertex ID object from the supplied vertex.
+     *
+     * Will check if the supplied Object implements the {@link Vertex} interface
+     * if so will pull it from the instance otherwise assumes the Object itself
+     * is the ID.
+     *
+     * @param vertex The vertex Object or ID.
+     * @return The ID for the vertex.
+     */
+    private static Object getVertexId(final Object vertex) {
+        // Check if we need to pull the ID from the vertex or can use it directly
+        if (vertex instanceof Vertex) {
+            return ((GafferPopVertex) vertex).id();
         } else {
-            gafferPopVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, vertexId, graph);
+            return vertex;
         }
-
-        return gafferPopVertex;
     }
 
-    private static GafferPopVertex checkVertex(final GafferPopVertex gafferPopVertex, final GafferPopGraph graph) {
-        final GafferPopVertex gafferPopVertexId;
-        if (GafferPopGraph.ID_LABEL.equals(gafferPopVertex.label())) {
-            gafferPopVertexId = gafferPopVertex;
-        } else {
-            gafferPopVertexId = new GafferPopVertex(GafferPopGraph.ID_LABEL, gafferPopVertex.id(), graph);
+    /**
+     * Determines the GafferPopVertex object to connect this GafferPopEdge on.
+     *
+     * @param vertex The vertex object or ID
+     * @param graph The graph
+     * @return A valid GafferPopVertex based on the supplied object or ID.
+     */
+    private static GafferPopVertex getValidVertex(final Object vertex, final GafferPopGraph graph) {
+        // Determine if we can cast the vertex object we have been supplied
+        if (vertex instanceof Vertex) {
+            return (GafferPopVertex) vertex;
         }
 
-        return gafferPopVertexId;
+        // As a fallback assume its the vertex ID object and construct with the ID label.
+        return new GafferPopVertex(GafferPopGraph.ID_LABEL, vertex, graph);
+
+        /*
+         * TODO: Review whether a search should be carried out to determine the correct
+         *       Entity to use to construct the GafferPopVertex to add this edge too.
+         *       Currently a default label will be used if a vertex ID is given to this
+         *       method which may result in an incorrect mapping of a GafferPop
+         *       'label' to a Gaffer 'group'.
+         *
+         * A basic example of a search is given below:
+         *
+         * OperationChain<Iterable<? extends Element>> findBasedOnID = new OperationChain.Builder()
+         *     .first(new GetElements.Builder().input(new EntitySeed(vertex)).build())
+         *     .build();
+         *
+         * Iterable<? extends Element> result = graph.execute(findBasedOnID);
+         * Object foundEntity = StreamSupport.stream(result.spliterator(), false)
+         *     .filter(Entity.class::isInstance)
+         *     .findFirst()
+         *     .get();
+         *
+         * return new GafferPopVertexGenerator(graph)._apply((Element) foundEntity);
+         */
     }
+
 }
