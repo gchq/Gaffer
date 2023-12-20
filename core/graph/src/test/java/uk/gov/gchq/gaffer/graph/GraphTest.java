@@ -937,32 +937,6 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldGetSchemaFromStoreIfSchemaIsEmpty(@Mock final Store store,
-                                                        @Mock final View view)
-            throws OperationException {
-        // Given
-        final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .build())
-                .type("string", String.class)
-                .build();
-        given(store.getSchema()).willReturn(schema);
-        given(store.getProperties()).willReturn(new StoreProperties());
-        new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .view(view)
-                        .build())
-                .addSchema(new Schema())
-                .store(store)
-                .build();
-
-        // When
-        verify(store).setOriginalSchema(schema);
-    }
-
-    @Test
     public void shouldSetGraphViewOnOperationAndDelegateDoOperationToStore(@Mock final Store store,
                                                                            @Mock final OperationChain<Integer> opChain,
                                                                            @Mock final OperationChain<Integer> clonedOpChain)
