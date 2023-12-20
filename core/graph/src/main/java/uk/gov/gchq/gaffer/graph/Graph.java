@@ -811,10 +811,8 @@ public final class Graph {
         }
 
         public Graph build() {
+            // Initialise GraphConfig (with default library of NoGraphLibrary)
             final GraphConfig config = configBuilder.build();
-            if (null == config.getLibrary()) {
-                config.setLibrary(new NoGraphLibrary());
-            }
 
             // Make sure parent store properties are applied
             if (parentStorePropertiesId != null) {
