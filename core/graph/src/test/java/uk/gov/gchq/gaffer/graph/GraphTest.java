@@ -1051,6 +1051,23 @@ public class GraphTest {
     }
 
     @Test
+    public void shouldThrowExceptionIfGraphIdIsMissing() {
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        try {
+            new Graph.Builder()
+                    .config(new GraphConfig.Builder()
+                            .build())
+                    .addSchema(new Schema())
+                    .storeProperties(storeProperties)
+                    .build();
+            fail("exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("graphId is required", e.getMessage());
+        }
+    }
+
+    @Test
     public void shouldThrowExceptionIfSchemaIsInvalid() throws OperationException {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());

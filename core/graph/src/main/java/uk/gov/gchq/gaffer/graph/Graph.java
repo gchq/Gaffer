@@ -840,10 +840,7 @@ public final class Graph {
             // Initialise the store
             initStore(config);
 
-            // Validate the graph Id
-            if (config.getGraphId() == null) {
-                throw new IllegalArgumentException("graphId is required");
-            }
+            // Check this graph does not conflict with an existing graph library graph
             config.getLibrary().checkExisting(config.getGraphId(), schema, properties);
 
             // Initialise the view
@@ -852,6 +849,7 @@ public final class Graph {
             // Validate and set up the graph hooks
             validateAndUpdateHooks(config);
 
+            // Add this graph to the graph library (true by default)
             if (addToLibrary) {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
             }
@@ -972,6 +970,8 @@ public final class Graph {
          * @param config The graph config
          */
         private void initStore(final GraphConfig config) {
+            // If store was not supplied then create it
+            // This also checks the GraphId is valid
             if (store == null) {
                 LOGGER.debug("Store currently null initialising with Id: {} and existing schema/properties", config.getGraphId());
                 store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
@@ -988,7 +988,7 @@ public final class Graph {
                 }
             }
 
-            // Use the store's graph Id if we don't have on configured already
+            // Use the store's graph Id if we don't have one configured already
             if (config.getGraphId() == null) {
                 config.setGraphId(store.getGraphId());
             }
