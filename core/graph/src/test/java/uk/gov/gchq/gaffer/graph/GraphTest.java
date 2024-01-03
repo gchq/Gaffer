@@ -113,6 +113,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -1078,17 +1079,15 @@ public class GraphTest {
     public void shouldThrowExceptionIfGraphIdIsMissing() {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
-        try {
-            new Graph.Builder()
-                    .config(new GraphConfig.Builder()
-                            .build())
-                    .addSchema(new Schema())
-                    .storeProperties(storeProperties)
-                    .build();
-            fail("exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("graphId is required", e.getMessage());
-        }
+        Graph.Builder initNoGraphId = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .build())
+                .addSchema(new Schema())
+                .storeProperties(storeProperties);
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(initNoGraphId::build)
+                .withMessage("graphId is required");
     }
 
     @Test
