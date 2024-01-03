@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,23 @@ public final class ElementUtil {
             assertThat(resultCache).hasSameElementsAs(expectedCache);
         } else {
             assertThat(resultCache).containsExactlyInAnyOrderElementsOf(expectedCache);
+        }
+    }
+
+    public static void assertElementEqualsIncludingMatchedVertex(final Iterable<? extends ElementId> expected, final Iterable<? extends ElementId> result) {
+        assertElementEqualsIncludingMatchedVertex(expected, result, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void assertElementEqualsIncludingMatchedVertex(final Iterable<? extends ElementId> expected, final Iterable<? extends ElementId> result, final boolean ignoreDuplicates) {
+        if (ignoreDuplicates) {
+            assertThat((Iterable<ElementId>) result)
+                .usingRecursiveFieldByFieldElementComparator()
+                .hasSameElementsAs((Iterable<ElementId>) expected);
+        } else {
+            assertThat((Iterable<ElementId>) result)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrderElementsOf((Iterable<ElementId>) expected);
         }
     }
 }

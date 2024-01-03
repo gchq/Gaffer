@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
 import com.google.common.collect.Lists;
@@ -470,7 +471,7 @@ public class TransformHandlerTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(TestPropertyNames.PROP_3, "srcVal")
                 .build();
-        ElementUtil.assertElementEquals(Collections.singletonList(expectedEdge), results);
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(Collections.singletonList(expectedEdge), results);
     }
 
     @Test
@@ -505,6 +506,6 @@ public class TransformHandlerTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(TestPropertyNames.PROP_3, "destVal")
                 .build();
-        ElementUtil.assertElementEquals(Collections.singletonList(expectedEdge), results);
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(Collections.singletonList(expectedEdge), results);
     }
 }

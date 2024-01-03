@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,7 +193,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final Iterable<? extends Element> resultsIncludingAllEdges = graph.execute(opIncludingAllEdges, user);
 
         // Then
-        ElementUtil.assertElementEquals(Arrays.asList(
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(Arrays.asList(
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
                         .source(SOURCE_1)
@@ -238,7 +238,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final Iterable<? extends Element> resultsExcludingAllEntities = graph.execute(opExcludingAllEntities, user);
 
         // Then
-        ElementUtil.assertElementEquals(Arrays.asList(
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(Arrays.asList(
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
                         .source(SOURCE_1)
@@ -297,7 +297,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final Iterable<? extends Element> results = graph.execute(op, user);
 
         // Then
-        ElementUtil.assertElementEquals(Arrays.asList(
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(Arrays.asList(
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
                         .source(SOURCE_DIR_1)
@@ -350,7 +350,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final Iterable<? extends Element> results = graph.execute(op, user);
 
         // Then
-        ElementUtil.assertElementEquals(Arrays.asList(
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(Arrays.asList(
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
                         .source(SOURCE_DIR_1)
@@ -652,8 +652,13 @@ public class GetElementsIT extends AbstractStoreIT {
         final Iterable<? extends Element> resultsElement = graph.execute(opElement, user);
 
         // Then
-        ElementUtil.assertElementEquals(expectedElements, resultsSeed, true);
-        ElementUtil.assertElementEquals(expectedElements, resultsElement, true);
+        if (includeEdges && inOutType == IncludeIncomingOutgoingType.INCOMING) {
+            ElementUtil.assertElementEquals(expectedElements, resultsSeed, true);
+            ElementUtil.assertElementEquals(expectedElements, resultsElement, true);
+        } else {
+            ElementUtil.assertElementEqualsIncludingMatchedVertex(expectedElements, resultsSeed, true);
+            ElementUtil.assertElementEqualsIncludingMatchedVertex(expectedElements, resultsElement, true);
+        }
     }
 
     private static Collection<Element> getElements(final Collection<ElementId> seeds, final Boolean direction) {

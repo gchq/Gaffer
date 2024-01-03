@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2023 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -517,7 +517,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                 new User());
 
         // Then
-        ElementUtil.assertElementEquals(
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(
                 Arrays.asList(
                         EDGE_OLD_AGGREGATION_ALT_COUNT_MIGRATED_TO_NEW
                 ),
@@ -557,7 +557,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                 new User());
 
         // Then
-        ElementUtil.assertElementEquals(
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(
                 Arrays.asList(
                         EDGE_NEW_POST_OP_AGGREGATION_AGGREGATED
                 ),
