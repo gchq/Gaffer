@@ -25,6 +25,11 @@
 
     <artifactId>store</artifactId>
 
+    <properties>
+        <!-- Non-bundled mockserver used except when legacy profile active -->
+        <mockserver.artifactId>mockserver-junit-jupiter</mockserver.artifactId>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
@@ -74,7 +79,7 @@
         </dependency>
         <dependency>
             <groupId>org.mock-server</groupId>
-            <artifactId>mockserver-junit-jupiter</artifactId>
+            <artifactId>${mockserver.artifactId}</artifactId>
             <version>${mockserver.version}</version>
             <scope>test</scope>
         </dependency>
@@ -85,4 +90,20 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>legacy</id>
+            <activation>
+                <property>
+                    <name>legacy</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <properties>
+                <!-- Bundled mockserver required for legacy profile due to Guava version conflicts -->
+                <mockserver.artifactId>mockserver-junit-jupiter-no-dependencies</mockserver.artifactId>
+            </properties>
+        </profile>
+    </profiles>
 </project>
