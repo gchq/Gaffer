@@ -327,6 +327,19 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .then(new AddElements())
                 .build());
 
+        Operation getOperation = new GetAllElements.Builder()
+        .view(new View.Builder()
+                .entities(graph.getSchema().getEntityGroups())
+                .build())
+        .build();
+
+        final Iterable<? extends GafferPopElement> result = execute(new Builder()
+                .first(getOperation)
+                .then(new GenerateObjects.Builder<GafferPopElement>()
+                        .generator(new GafferPopElementGenerator(this))
+                        .build())
+                .build());
+
         // Set read only if not told otherwise
         if (!configuration.containsKey(NOT_READ_ONLY_ELEMENTS)) {
             vertex.setReadOnly();
@@ -360,7 +373,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         final boolean getAll = null == vertexIds || 0 == vertexIds.length;
 
         final Output<Iterable<? extends Element>> getOperation;
-        final List<Vertex> idVertices = new LinkedList<>();
         if (getAll) {
             getOperation = new GetAllElements.Builder()
                     .view(new View.Builder()
@@ -383,13 +395,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                         .build())
                 .build());
 
-        final Iterable<GafferPopVertex> resultVertexes = () -> StreamSupport.stream(result.spliterator(), false)
-            .filter(Vertex.class::isInstance)
-            .map(e -> (GafferPopVertex) e)
-            .iterator();
-
-        return new ChainedIterable<Vertex>(resultVertexes, idVertices).iterator();
-    }
+        return (Iterator) result.iterator();
+        }
 
     /**
      * This performs getRelatedEntities operation on Gaffer.
