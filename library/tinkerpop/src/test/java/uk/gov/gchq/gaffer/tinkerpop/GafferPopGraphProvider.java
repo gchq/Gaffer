@@ -106,6 +106,7 @@ public class GafferPopGraphProvider extends AbstractGraphProvider {
         if (graph != null) {
             graph.close();
         }
+
     }
 
     @Override

@@ -114,6 +114,10 @@ import java.util.stream.StreamSupport;
     method = "*",
     reason = "GafferPopGraph does not support Tinkerpop IO test cases")
 @OptOut(
+    test = "org.apache.tinkerpop.gremlin.structure.util.detached.DetachedEdgeTest",
+    method = "*",
+    reason = "GafferPopGraph does not support detached test cases")
+@OptOut(
     test = "org.apache.tinkerpop.gremlin.process.traversal.TraversalInterruptionTest",
     method = "*",
     reason = "GafferPopGraph does not support Tinkerpop IO test cases")

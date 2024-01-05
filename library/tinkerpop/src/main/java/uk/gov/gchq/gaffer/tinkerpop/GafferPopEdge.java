@@ -142,6 +142,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
 
     @Override
     public void remove() {
+        // Gaffer does not support deleting elements
         throw Edge.Exceptions.edgeRemovalNotSupported();
     }
 
