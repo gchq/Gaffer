@@ -152,9 +152,9 @@ public class GafferPopGraphProvider extends AbstractGraphProvider {
         // If we have test data then load relevant schemas and ID manager
         if (loadGraphWith != null) {
             if (loadGraphWith.equals(GraphData.MODERN)) {
-            configuration.put(GafferPopGraph.GRAPH_ID, loadGraphWith.name());
-            configuration.put(GafferPopGraph.ID_MANAGER, GafferPopGraph.DefaultIdManager.INTEGER);
-            configuration.put(
+                configuration.put(GafferPopGraph.GRAPH_ID, loadGraphWith.name() + testMethodName);
+                configuration.put(GafferPopGraph.ID_MANAGER, GafferPopGraph.DefaultIdManager.INTEGER);
+                configuration.put(
                     GafferPopGraph.SCHEMAS,
                     GafferPopFeatureTest.class.getClassLoader().getResource("tinkerpop/schema/modern-int").getPath());
             } else {

@@ -137,7 +137,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
 
     @Override
     public Set<String> keys() {
-        return null == this.properties ? Collections.emptySet() : this.properties.keySet();
+        return properties == null ? Collections.emptySet() : properties.keySet();
     }
 
     @Override
