@@ -54,8 +54,8 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
     @Override
     public <V> VertexProperty<V> property(final String key) {
-        if (this.properties != null && this.properties.containsKey(key)) {
-            final List<VertexProperty> list = this.properties.get(key);
+        if (properties != null && properties.containsKey(key)) {
+            final List<VertexProperty> list = properties.get(key);
             if (list.size() > 1) {
                 throw Vertex.Exceptions.multiplePropertiesExistForProvidedKey(key);
             } else {
@@ -73,29 +73,29 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
         }
         // Attach the property to this vertex before updating and re adding to the graph
         VertexProperty<V> vertexProperty = propertyWithoutUpdate(cardinality, key, value, keyValues);
-        LOGGER.warn("Updating Vertex properties via aggregation");
+        LOGGER.info("Updating Vertex properties via aggregation");
 
         // Re add to do a update via aggregation
-        this.graph().addVertex(this);
+        graph().addVertex(this);
         return vertexProperty;
     }
 
     @Override
     public <V> Iterator<VertexProperty<V>> properties(final String... propertyKeys) {
-        if (null == this.properties) {
+        if (properties == null) {
             return Collections.emptyIterator();
         }
         if (propertyKeys.length == 1) {
-            final List<VertexProperty> properties = this.properties.getOrDefault(propertyKeys[0], Collections.emptyList());
-            if (properties.size() == 1) {
-                return IteratorUtils.of(properties.get(0));
-            } else if (properties.isEmpty()) {
+            final List<VertexProperty> props = properties.getOrDefault(propertyKeys[0], Collections.emptyList());
+            if (props.size() == 1) {
+                return IteratorUtils.of(props.get(0));
+            } else if (props.isEmpty()) {
                 return Collections.emptyIterator();
             } else {
-                return (Iterator) new ArrayList<>(properties).iterator();
+                return (Iterator) new ArrayList<>(props).iterator();
             }
         } else {
-            return (Iterator) this.properties.entrySet()
+            return (Iterator) properties.entrySet()
                     .stream()
                     .filter(entry -> ElementHelper.keyExists(entry.getKey(), propertyKeys))
                     .flatMap(entry -> entry.getValue().stream())
@@ -131,13 +131,13 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
         final VertexProperty<V> vertexProperty = new GafferPopVertexProperty<>(this, key, value);
 
-        if (null == this.properties) {
-            this.properties = new HashMap<>();
+        if (null == properties) {
+            properties = new HashMap<>();
         }
 
-        final List<VertexProperty> list = this.properties.getOrDefault(key, new ArrayList<>());
+        final List<VertexProperty> list = properties.getOrDefault(key, new ArrayList<>());
         list.add(vertexProperty);
-        this.properties.put(key, list);
+        properties.put(key, list);
         ElementHelper.attachProperties(vertexProperty, keyValues);
 
         return vertexProperty;
@@ -190,14 +190,15 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
     @Override
     public Set<String> keys() {
-        if (null == this.properties) {
+        if (properties == null) {
             return Collections.emptySet();
         }
-        return this.properties.keySet();
+        return properties.keySet();
     }
 
     @Override
     public void remove() {
+        // Gaffer does not support deleting elements
         throw Vertex.Exceptions.vertexRemovalNotSupported();
     }
 

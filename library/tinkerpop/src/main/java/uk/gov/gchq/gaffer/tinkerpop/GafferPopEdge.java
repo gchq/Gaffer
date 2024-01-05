@@ -68,28 +68,28 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
 
         // Attach properties before updating the graph
         final Property<V> newProperty = propertyWithoutUpdate(key, value);
-        LOGGER.warn("Updating Edge properties via aggregation");
+        LOGGER.info("Updating Edge properties via aggregation");
 
         // Re add to do the update via aggregation
-        this.graph().addEdge(this);
+        graph().addEdge(this);
         return newProperty;
     }
 
     @Override
     public <V> Property<V> property(final String key) {
-        return null == this.properties ? Property.<V>empty() : this.properties.getOrDefault(key, Property.<V>empty());
+        return null == properties ? Property.<V>empty() : properties.getOrDefault(key, Property.<V>empty());
     }
 
     @Override
     public <V> Iterator<Property<V>> properties(final String... propertyKeys) {
-        if (null == this.properties) {
+        if (properties == null) {
             return Collections.emptyIterator();
         }
         if (propertyKeys.length == 1) {
-            final Property<V> property = this.properties.get(propertyKeys[0]);
+            final Property<V> property = properties.get(propertyKeys[0]);
             return null == property ? Collections.emptyIterator() : IteratorUtils.of(property);
         } else {
-            return (Iterator) this.properties.entrySet()
+            return (Iterator) properties.entrySet()
                     .stream()
                     .filter(entry -> ElementHelper.keyExists(entry.getKey(), propertyKeys))
                     .map(entry -> entry.getValue()).collect(Collectors.toList())
@@ -115,10 +115,10 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
     public <V> Property<V> propertyWithoutUpdate(final String key, final V value) {
         ElementHelper.validateProperty(key, value);
         final Property<V> newProperty = new GafferPopProperty<>(this, key, value);
-        if (null == this.properties) {
-            this.properties = new HashMap<>();
+        if (properties == null) {
+            properties = new HashMap<>();
         }
-        this.properties.put(key, newProperty);
+        properties.put(key, newProperty);
 
         return newProperty;
     }

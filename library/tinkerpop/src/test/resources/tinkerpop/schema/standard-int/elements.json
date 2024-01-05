@@ -1,10 +1,7 @@
 {
     "entities": {
         "vertex": {
-            "vertex": "int.id",
-            "properties": {
-                "test": "property.string"
-            }
+            "vertex": "int.id"
         },
         "person": {
             "vertex": "int.id",
