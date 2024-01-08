@@ -31,7 +31,7 @@
         <cucumber.version>7.15.0</cucumber.version>
 
         <!-- Don't run any of the standard tinkerpop tests by default-->
-        <test>!GafferPopGraphStructureStandardTest,!GafferPopFeatureTest</test>
+        <test>!GafferPopGraphStructureStandardTest,!GafferPopFeatureTest,!GafferPopGraphProcessStandardTest</test>
     </properties>
 
     <dependencies>
