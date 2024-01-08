@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -44,14 +45,14 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AbstractExamplesFactoryTest {
+class AbstractExamplesFactoryTest {
 
     private static final Schema SCHEMA  = new Schema.Builder()
             .json(StreamUtil.schema(TestExamplesFactory.class))
             .build();
 
     @Test
-    public void shouldUseSchemaToCreateGetElementsInput() throws InstantiationException, IllegalAccessException {
+    void shouldUseSchemaToCreateGetElementsInput() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -73,7 +74,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldUseSchemaToCreateGetAdjacentIdsInput() throws InstantiationException, IllegalAccessException {
+    void shouldUseSchemaToCreateGetAdjacentIdsInput() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -94,7 +95,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldPopulateAddElementsAccordingToSchema() throws InstantiationException, IllegalAccessException {
+    void shouldPopulateAddElementsAccordingToSchema() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -126,7 +127,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldUseSchemaForGroupsInSortOperation() throws InstantiationException, IllegalAccessException {
+    void shouldUseSchemaForGroupsInSortOperation() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -141,7 +142,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldUseSchemaForMaxOperation() throws InstantiationException, IllegalAccessException {
+    void shouldUseSchemaForMaxOperation() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -156,7 +157,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldUseSchemaForMinOperation() throws InstantiationException, IllegalAccessException {
+    void shouldUseSchemaForMinOperation() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -171,7 +172,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldProvideEmptyGetWalksIfSchemaEmpty() throws InstantiationException, IllegalAccessException {
+    void shouldProvideEmptyGetWalksIfSchemaEmpty() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(new Schema());
 
@@ -184,7 +185,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldProvideEmptyGetWalksIfSchemaContainsNoEdges() throws InstantiationException, IllegalAccessException {
+    void shouldProvideEmptyGetWalksIfSchemaContainsNoEdges() throws InstantiationException, IllegalAccessException {
         // Given
         final Schema schemaNoEdges = new Schema.Builder()
                 .json(StreamUtil.openStream(TestExamplesFactory.class, "schema/schemaNoEdges.json"))
@@ -200,7 +201,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldProvideEmptyGetWalksIfSchemaContainsNoEntities() throws InstantiationException, IllegalAccessException {
+    void shouldProvideEmptyGetWalksIfSchemaContainsNoEntities() throws InstantiationException, IllegalAccessException {
         // Given
         final Schema schemaNoEdges = new Schema.Builder()
                 .json(StreamUtil.openStream(TestExamplesFactory.class, "schema/schemaNoEntities.json"))
@@ -216,7 +217,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldProvideSchemaPopulatedGetWalksIfSchemaContainsEdges() throws InstantiationException, IllegalAccessException {
+    void shouldProvideSchemaPopulatedGetWalksIfSchemaContainsEdges() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -234,6 +235,31 @@ public class AbstractExamplesFactoryTest {
         // Then
         assertThat(operation.getInput()).singleElement().isEqualTo(new EntitySeed("vertex1"));
         assertThat(operation.getOperations()).isEqualTo(expectedOperations);
+    }
+
+    @Test
+    void shouldAssumeEdgesDirectedFieldIfSchemaDoesNotSpecify() throws InstantiationException, IllegalAccessException {
+        // Given
+        final Schema schemaNoDirected = new Schema.Builder()
+                .json(StreamUtil.openStream(TestExamplesFactory.class, "schema/schemaNoDirected.json"))
+                .build();
+        final TestExamplesFactory examplesFactory = new TestExamplesFactory(schemaNoDirected);
+
+        // When
+        GetElements getElementsOperation = (GetElements) examplesFactory.generateExample(GetElements.class);
+        AddElements addElementsOperation = (AddElements) examplesFactory.generateExample(AddElements.class);
+
+        // Then
+        for (ElementId e : getElementsOperation.getInput()) {
+            if (e instanceof EdgeId) {
+                assertThat(((EdgeId) e).getDirectedType()).isEqualTo(DirectedType.EITHER);
+            }
+        }
+        for (ElementId e : addElementsOperation.getInput()) {
+            if (e instanceof EdgeId) {
+                assertThat(((EdgeId) e).getDirectedType()).isEqualTo(DirectedType.UNDIRECTED);
+            }
+        }
     }
 
     private static class TestExamplesFactory extends AbstractExamplesFactory {

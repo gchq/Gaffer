@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -225,7 +225,7 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
         return new EdgeSeed(sourceVert, destVert, isEdgeDirected(group));
     }
 
-    protected boolean isEdgeDirected(String group) {
+    protected boolean isEdgeDirected(final String group) {
         SchemaEdgeDefinition edge = getSchema().getEdge(group);
         // Schema may not define if directed
         if (edge.getDirected() == null) {
