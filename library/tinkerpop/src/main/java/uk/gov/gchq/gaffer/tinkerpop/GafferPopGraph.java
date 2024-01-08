@@ -330,19 +330,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .then(new AddElements())
                 .build());
 
-        Operation getOperation = new GetAllElements.Builder()
-        .view(new View.Builder()
-                .entities(graph.getSchema().getEntityGroups())
-                .build())
-        .build();
-
-        final Iterable<? extends GafferPopElement> result = execute(new Builder()
-                .first(getOperation)
-                .then(new GenerateObjects.Builder<GafferPopElement>()
-                        .generator(new GafferPopElementGenerator(this))
-                        .build())
-                .build());
-
         // Set read only if not told otherwise
         if (!configuration.containsKey(NOT_READ_ONLY_ELEMENTS)) {
             vertex.setReadOnly();
