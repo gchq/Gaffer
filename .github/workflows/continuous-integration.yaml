@@ -75,8 +75,6 @@ jobs:
             values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
           - name: Tinkerpop
             values: :tinkerpop
-          - name: Tinkerpop Standard Test
-            values: :tinkerpop -P tinkerpop-standard-test
         exclude:
           - os: windows-latest
             modules:
