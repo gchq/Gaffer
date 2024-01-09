@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,8 +84,11 @@ import java.util.stream.StreamSupport;
  * In addition to the tinkerpop methods required there are methods to add edges
  * query for adjacent vertices and to provide a {@link View} to filter out results.
  */
+
 @OptIn(OptIn.SUITE_STRUCTURE_STANDARD)
 @OptIn(OptIn.SUITE_STRUCTURE_INTEGRATE)
+@OptIn(OptIn.SUITE_PROCESS_STANDARD)
+@OptIn(OptIn.SUITE_PROCESS_LIMITED_STANDARD)
 @OptOut(
     test = "org.apache.tinkerpop.gremlin.structure.io.IoCustomTest",
     method = "*",
@@ -114,6 +117,22 @@ import java.util.stream.StreamSupport;
     test = "org.apache.tinkerpop.gremlin.structure.util.detached.DetachedEdgeTest",
     method = "*",
     reason = "GafferPopGraph does not support detached test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.process.traversal.TraversalInterruptionTest",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.process.traversal.step.map.ProfileTest$Traversals",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.process.traversal.strategy.optimization.EarlyLimitStrategyProcessTest",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.process.traversal.step.map.WriteTest$Traversals",
+    method = "*",
+    reason = "Currently a bug with the WriteTest that creates unwanted files")
 public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Graph {
     public static final String GRAPH_ID = "gaffer.graphId";
 
@@ -359,14 +378,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     .build();
         }
 
-        return (Iterator) execute(new Builder()
-            .first(getOperation)
-            .then(new GenerateObjects.Builder<GafferPopElement>()
-                    .generator(new GafferPopElementGenerator(this))
-                    .build())
-            .build())
-            .iterator();
-    }
+        final Iterable<? extends GafferPopElement> result = execute(new Builder()
+                .first(getOperation)
+                .then(new GenerateObjects.Builder<GafferPopElement>()
+                        .generator(new GafferPopElementGenerator(this))
+                        .build())
+                .build());
+
+        return (Iterator) result.iterator();
+        }
 
     /**
      * This performs getRelatedEntities operation on Gaffer.
