@@ -36,8 +36,10 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.rest.example.ExampleDomainObject;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Arrays;
@@ -250,16 +252,64 @@ class AbstractExamplesFactoryTest {
         AddElements addElementsOperation = (AddElements) examplesFactory.generateExample(AddElements.class);
 
         // Then
+        assertThat(getElementsOperation.getInput()).hasAtLeastOneElementOfType(EdgeId.class);
         for (ElementId e : getElementsOperation.getInput()) {
             if (e instanceof EdgeId) {
                 assertThat(((EdgeId) e).getDirectedType()).isEqualTo(DirectedType.EITHER);
             }
         }
+        assertThat(addElementsOperation.getInput()).hasAtLeastOneElementOfType(EdgeId.class);
         for (ElementId e : addElementsOperation.getInput()) {
             if (e instanceof EdgeId) {
                 assertThat(((EdgeId) e).getDirectedType()).isEqualTo(DirectedType.UNDIRECTED);
             }
         }
+    }
+
+    @Test
+    void shouldModifyAccessibilityOfOperationsWithoutDefinedExample() throws InstantiationException, IllegalAccessException {
+        // Given
+        TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
+
+        // When
+        // Use a test operation to check the example factory modifies the accessibility of operations
+        Filter filterExample = (Filter) examplesFactory.generateExample(Filter.class);
+
+        // Then
+        Arrays.asList(filterExample.getClass().getDeclaredFields()).forEach(field ->
+            assertThat(field.isAccessible()));
+    }
+
+    @Test
+    void shouldGenerateElementsWithCorrectTypes() {
+        checkCorrectTypesAreGeneratedFromSchema("schema/schemaCharEntities.json", Character.class);
+        checkCorrectTypesAreGeneratedFromSchema("schema/schemaIntEntities.json", Integer.class);
+        checkCorrectTypesAreGeneratedFromSchema("schema/schemaDoubleEntities.json", Double.class);
+        checkCorrectTypesAreGeneratedFromSchema("schema/schemaLongEntities.json", Long.class);
+        checkCorrectTypesAreGeneratedFromSchema("schema/schemaFloatEntities.json", Float.class);
+    }
+
+
+    private void checkCorrectTypesAreGeneratedFromSchema(String schemaPath, Class expectedEntityType) {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .json(StreamUtil.openStream(TestExamplesFactory.class, schemaPath))
+                .build();
+        final TestExamplesFactory examplesFactory = new TestExamplesFactory(schema);
+
+        // When/Then
+        ((Iterable<ExampleDomainObject>) examplesFactory.generateElements().getInput()).forEach(e -> {
+            // Check if a entity or edge
+            if (schema.getEntityGroups().contains(e.getType())) {
+                // Ensure the ID is correct
+                assertThat(e.getIds()).singleElement()
+                    .isInstanceOf(expectedEntityType);
+            } else if (schema.getEdgeGroups().contains(e.getType())) {
+                // Ensure the ID is the two entities the edge connects and if its directed
+                assertThat(e.getIds()).hasSize(3)
+                    .hasExactlyElementsOfTypes(expectedEntityType, expectedEntityType, Boolean.class);
+            }
+        });
     }
 
     private static class TestExamplesFactory extends AbstractExamplesFactory {
