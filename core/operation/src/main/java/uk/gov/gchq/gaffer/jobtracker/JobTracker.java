@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,9 @@ import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * A {@code JobTracker} is an entry in a Gaffer cache service which is used to store
@@ -53,12 +51,8 @@ public class JobTracker extends Cache<String, JobDetail> {
      * @param user      the user making the request
      */
     public void addOrUpdateJob(final JobDetail jobDetail, final User user) {
-        try {
-            validateJobDetail(jobDetail);
-            super.addToCache(jobDetail.getJobId(), jobDetail, true);
-        } catch (final CacheOperationException e) {
-            throw new RuntimeException("Failed to add jobDetail " + jobDetail.toString() + " to the cache", e);
-        }
+        validateJobDetail(jobDetail);
+        super.addToCache(jobDetail.getJobId(), jobDetail, true);
     }
 
     /**
@@ -83,7 +77,6 @@ public class JobTracker extends Cache<String, JobDetail> {
      * @return a {@link Iterable} containing all of the job details
      */
     public Iterable<JobDetail> getAllJobs(final User user) {
-
         return getAllJobsMatching(user, jd -> true);
     }
 
@@ -93,21 +86,16 @@ public class JobTracker extends Cache<String, JobDetail> {
      * @return a {@link Iterable} containing all of the scheduled job details
      */
     public Iterable<JobDetail> getAllScheduledJobs() {
-
         return getAllJobsMatching(new User(), jd -> jd.getStatus().equals(JobStatus.SCHEDULED_PARENT));
     }
 
     private Iterable<JobDetail> getAllJobsMatching(final User user, final Predicate<JobDetail> jobDetailPredicate) {
-
-        final Set<String> jobIds = getAllKeys();
-        final List<JobDetail> jobs = jobIds.stream()
-                .filter(Objects::nonNull)
-                .map(jobId -> getJob(jobId, user))
-                .filter(Objects::nonNull)
-                .filter(jobDetailPredicate)
-                .collect(Collectors.toList());
-
-        return jobs;
+        return () -> StreamSupport.stream(getAllKeys().spliterator(), false)
+            .filter(Objects::nonNull)
+            .map(jobId -> getJob(jobId, user))
+            .filter(Objects::nonNull)
+            .filter(jobDetailPredicate)
+            .iterator();
     }
 
 

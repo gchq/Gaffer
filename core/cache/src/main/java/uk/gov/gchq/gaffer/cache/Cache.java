@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2023 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 
 import java.util.Collections;
 import java.util.Locale;
-import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.StreamSupport;
 
 import static java.util.Objects.nonNull;
 
@@ -46,28 +47,35 @@ public class Cache<K, V> {
         return cacheName;
     }
 
-    protected void addToCache(final K key, final V value, final boolean overwrite) throws CacheOperationException {
-        try {
-            final ICacheService service = CacheServiceLoader.getService();
-            if (overwrite) {
-                service.putInCache(getCacheName(), key, value);
-            } else {
-                service.putSafeInCache(getCacheName(), key, value);
-            }
-        } catch (final CacheOperationException e) {
-            throw new CacheOperationException(String.format(ERROR_ADDING_KEY_TO_CACHE_KEY_S, key), e);
+
+    /**
+     * Adds key value to the cache using the configured Cache Service.
+     *
+     * @param key       The key
+     * @param value     The value
+     * @param overwrite overwrite any existing key or not
+     * @return A {@link CompletableFuture} for the async operation
+     * @throws CacheOperationException if there was an error trying to add to the cache
+     */
+    protected CompletableFuture<Void> addToCache(final K key, final V value, final boolean overwrite) {
+        final ICacheService service = CacheServiceLoader.getService();
+        // Run relevant put method asynchronously
+        if (overwrite) {
+            return service.putInCache(getCacheName(), key, value);
+        } else {
+            return service.putSafeInCache(getCacheName(), key, value);
         }
     }
 
-    public Set<K> getAllKeys() {
+    public Iterable<K> getAllKeys() {
         try {
-            final Set<K> allKeysFromCache;
+            final Iterable<K> allKeysFromCache;
             if (CacheServiceLoader.isEnabled()) {
                 allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
             } else {
                 throw new GafferRuntimeException("Cache is not enabled, check it was Initialised");
             }
-            return (null == allKeysFromCache) ? Collections.emptySet() : Collections.unmodifiableSet(allKeysFromCache);
+            return (null == allKeysFromCache) ? Collections.emptySet() : allKeysFromCache;
         } catch (final Exception e) {
             throw new GafferRuntimeException("Error getting all keys", e);
         }
@@ -83,16 +91,18 @@ public class Cache<K, V> {
     }
 
     public boolean contains(final String graphId) {
-        return getAllKeys().contains(graphId);
+        return StreamSupport.stream(getAllKeys().spliterator(), false)
+            .anyMatch(graphId::equals);
     }
 
     /**
      * Delete the value related to the specified ID from the cache.
      *
      * @param key the ID of the key to be deleted
+     * @return A {@link CompletableFuture} for the async operation
      */
-    public void deleteFromCache(final String key) {
-        CacheServiceLoader.getService().removeFromCache(cacheName, key);
+    public CompletableFuture<Void> deleteFromCache(final String key) {
+        return CacheServiceLoader.getService().removeFromCache(cacheName, key);
     }
 
     /**

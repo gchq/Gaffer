@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Crown Copyright
+ * Copyright 2023-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-
-import java.util.Set;
 
 import static java.util.Objects.isNull;
 
@@ -49,9 +47,9 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
     /**
      * Get all the ID's related to the {@link Graph}'s stored in the cache.
      *
-     * @return all the Graph ID's within the cache as unmodifiable set.
+     * @return Iterable of all the Graph ID's within the cache.
      */
-    public Set<String> getAllGraphIds() {
+    public Iterable<String> getAllGraphIds() {
         return super.getAllKeys();
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,16 +132,11 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
      */
     public Iterable<NamedViewDetail> getAllNamedViews(final User user, final String adminAuth)
             throws CacheOperationException {
-        final Set<String> keys = super.getAllKeys();
         final Set<NamedViewDetail> views = new HashSet<>();
-        for (final String key : keys) {
-            try {
-                final NamedViewDetail namedViewDetail = getFromCache(key);
-                if (namedViewDetail.hasReadAccess(user, adminAuth)) {
-                    views.add(namedViewDetail);
-                }
-            } catch (final CacheOperationException e) {
-                throw e;
+        for (final String key : super.getAllKeys()) {
+            final NamedViewDetail namedViewDetail = getFromCache(key);
+            if (namedViewDetail.hasReadAccess(user, adminAuth)) {
+                views.add(namedViewDetail);
             }
         }
         return views;
@@ -167,6 +162,7 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
      * @return the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail}
      * @throws CacheOperationException if the get operation fails, or the name does not exist in cache
      */
+    @Override
     public NamedViewDetail getFromCache(final String name) throws CacheOperationException {
         if (null != name) {
             final NamedViewDetail namedViewFromCache = super.getFromCache(name);

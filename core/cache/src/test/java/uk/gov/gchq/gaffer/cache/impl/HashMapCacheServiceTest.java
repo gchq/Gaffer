@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,30 +22,30 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class HashMapCacheServiceTest {
+import java.util.concurrent.CompletionException;
+
+class HashMapCacheServiceTest {
 
     private HashMapCacheService service = new HashMapCacheService();
 
     private static final String CACHE_NAME = "test";
 
     @BeforeEach
-    public void before() {
+    void before() {
         service.initialise(null);
     }
 
     @AfterEach
-    public void after() {
+    void after() {
         service.shutdown();
     }
 
     @Test
-    public void shouldReturnInstanceOfHashMapCache() {
+    void shouldReturnInstanceOfHashMapCache() {
         // When
         final ICache cache = service.getCache(CACHE_NAME);
 
@@ -54,7 +54,7 @@ public class HashMapCacheServiceTest {
     }
 
     @Test
-    public void shouldCreateNewHashMapCacheIfOneDoesNotExist() {
+    void shouldCreateNewHashMapCacheIfOneDoesNotExist() {
         // When
         final ICache cache = service.getCache(CACHE_NAME);
 
@@ -63,7 +63,7 @@ public class HashMapCacheServiceTest {
     }
 
     @Test
-    public void shouldReUseCacheIfOneExists() throws CacheOperationException {
+    void shouldReUseCacheIfOneExists() throws CacheOperationException {
         // Given
         final ICache<String, Integer> cache = service.getCache(CACHE_NAME);
         cache.put("key", 1);
@@ -77,47 +77,48 @@ public class HashMapCacheServiceTest {
     }
 
     @Test
-    public void shouldAddEntriesToCache() throws CacheOperationException {
+    void shouldAddEntriesToCache() throws CacheOperationException {
        // When
-        service.putInCache(CACHE_NAME, "test", 1);
+        service.putInCache(CACHE_NAME, "test", 1).join();
 
         // Then
-        assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
+        service.getFromCache(CACHE_NAME, "test");
+        assertThat((Object) service.getFromCache(CACHE_NAME, "test")).isEqualTo(1);
     }
 
     @Test
-    public void shouldOnlyUpdateIfInstructed() throws CacheOperationException {
-      // When
-        service.putInCache(CACHE_NAME, "test", 1);
+    void shouldOnlyUpdateIfInstructed() throws CacheOperationException {
+        // When
+        service.putInCache(CACHE_NAME, "test", 1).join();
 
         // Then
-        assertThatExceptionOfType(OverwritingException.class).isThrownBy(() -> {
-            service.putSafeInCache(CACHE_NAME, "test", 2);
-        });
+        assertThatExceptionOfType(CompletionException.class)
+            .isThrownBy(() -> service.putSafeInCache(CACHE_NAME, "test", 2).join())
+            .withMessageContaining("Cache entry already exists for key: test");
 
-        assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
+        assertThat((Object) service.getFromCache(CACHE_NAME, "test")).isEqualTo(1);
 
         // When
-        service.putInCache(CACHE_NAME, "test", 2);
+        service.putInCache(CACHE_NAME, "test", 2).join();
 
         // Then
-        assertEquals((Integer) 2, service.getFromCache(CACHE_NAME, "test"));
+        assertThat((Object) service.getFromCache(CACHE_NAME, "test")).isEqualTo(2);
     }
 
     @Test
-    public void shouldBeAbleToDeleteCacheEntries() throws CacheOperationException {
+    void shouldBeAbleToDeleteCacheEntries() throws CacheOperationException {
         // Given
-        service.putInCache(CACHE_NAME, "test", 1);
+        service.putInCache(CACHE_NAME, "test", 1).join();
 
         // When
-        service.removeFromCache(CACHE_NAME, "test");
+        service.removeFromCache(CACHE_NAME, "test").join();
 
         // Then
         assertThat(service.sizeOfCache(CACHE_NAME)).isZero();
     }
 
     @Test
-    public void shouldBeAbleToClearCache() throws CacheOperationException {
+    void shouldBeAbleToClearCache() throws CacheOperationException {
         // Given
         populateCache();
 
@@ -129,7 +130,7 @@ public class HashMapCacheServiceTest {
     }
 
     @Test
-    public void shouldGetAllKeysFromCache() throws CacheOperationException {
+    void shouldGetAllKeysFromCache() throws CacheOperationException {
         // When
         populateCache();
 
@@ -139,12 +140,12 @@ public class HashMapCacheServiceTest {
     }
 
     @Test
-    public void shouldGetAllValues() throws CacheOperationException {
+    void shouldGetAllValues() throws CacheOperationException {
         // Given
         populateCache();
 
         // When
-        service.putInCache(CACHE_NAME, "duplicate", 3);
+        service.putInCache(CACHE_NAME, "duplicate", 3).join();
 
         // Then
         assertThat(service.sizeOfCache(CACHE_NAME)).isEqualTo(4);
@@ -154,8 +155,8 @@ public class HashMapCacheServiceTest {
     }
 
     private void populateCache() throws CacheOperationException {
-        service.putInCache(CACHE_NAME, "test1", 1);
-        service.putInCache(CACHE_NAME, "test2", 2);
-        service.putInCache(CACHE_NAME, "test3", 3);
+        service.putInCache(CACHE_NAME, "test1", 1).join();
+        service.putInCache(CACHE_NAME, "test2", 2).join();
+        service.putInCache(CACHE_NAME, "test3", 3).join();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public class EmptyCacheService implements ICacheService {
     @Override
@@ -44,18 +45,18 @@ public class EmptyCacheService implements ICacheService {
     }
 
     @Override
-    public <K, V> void putInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
-
+    public <K, V> CompletableFuture<Void> putInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
+        return null;
     }
 
     @Override
-    public <K, V> void putSafeInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
-
+    public <K, V> CompletableFuture<Void> putSafeInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
+        return null;
     }
 
     @Override
-    public <K, V> void removeFromCache(final String cacheName, final K key) {
-
+    public <K> CompletableFuture<Void> removeFromCache(final String cacheName, final K key) {
+        return null;
     }
 
     @Override

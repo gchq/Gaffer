@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,9 +45,9 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
     /**
      * Get all the ID's related to the {@link Graph}'s stored in the cache.
      *
-     * @return all the Graph ID's within the cache as unmodifiable set.
+     * @return all the Graph ID's within the cache.
      */
-    public Set<String> getAllGraphIds() {
+    public Iterable<String> getAllGraphIds() {
         return cacheTransient.getAllGraphIds();
     }
 
@@ -142,7 +142,7 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
     }
 
     @Override
-    public Set<String> getAllKeys() {
+    public Iterable<String> getAllKeys() {
         return cacheTransient.getAllKeys();
     }
 

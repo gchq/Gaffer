@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.cache;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
-import java.util.Collection;
 import java.util.Properties;
-import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 /**
  * The cache service interface which enables the cache service loader to instantiate
@@ -59,8 +59,9 @@ public interface ICacheService {
      * @param <K>       The object type that acts as the key for the cache
      * @param <V>       The value that is stored in the cache
      * @return the requested cache object
+     * @throws CacheOperationException if there is an error getting the key-value pair from the cache
      */
-    default <K, V> V getFromCache(final String cacheName, final K key) {
+    default <K, V> V getFromCache(final String cacheName, final K key) throws CacheOperationException {
         final ICache<K, V> cache = getCache(cacheName);
         return cache.get(key);
     }
@@ -73,11 +74,17 @@ public interface ICacheService {
      * @param value     the value to add
      * @param <K>       The object type that acts as the key for the cache
      * @param <V>       The value that is stored in the cache
+     * @return A {@link CompletableFuture} for the async operation
      * @throws CacheOperationException if there is an error adding the new key-value pair to the cache
      */
-    default <K, V> void putInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
-        final ICache<K, V> cache = getCache(cacheName);
-        cache.put(key, value);
+    default <K, V> CompletableFuture<Void> putInCache(final String cacheName, final K key, final V value) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                getCache(cacheName).put(key, value);
+            } catch (final CacheOperationException e) {
+                throw new CompletionException("Failed to add key: " +  key + " value: " + value + " to cache: " + cacheName, e);
+            }
+        });
     }
 
     /**
@@ -89,11 +96,17 @@ public interface ICacheService {
      * @param value     the value to add
      * @param <K>       The object type that acts as the key for the cache
      * @param <V>       The value that is stored in the cache
+     * @return A {@link CompletableFuture} for the async operation
      * @throws CacheOperationException if the specified key already exists in the cache with a non-null value
      */
-    default <K, V> void putSafeInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
-        final ICache<K, V> cache = getCache(cacheName);
-        cache.putSafe(key, value);
+    default <K, V> CompletableFuture<Void> putSafeInCache(final String cacheName, final K key, final V value) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                getCache(cacheName).putSafe(key, value);
+            } catch (final CacheOperationException e) {
+                throw new CompletionException("Failed to add key: " +  key + " value: " + value + " to cache: " + cacheName, e);
+            }
+        });
     }
 
     /**
@@ -102,11 +115,10 @@ public interface ICacheService {
      * @param cacheName the name of the cache to look in
      * @param key       the key of the entry to remove
      * @param <K>       The object type that acts as the key for the cache
-     * @param <V>       The value that is stored in the cache
+     * @return A {@link CompletableFuture} for the async operation
      */
-    default <K, V> void removeFromCache(final String cacheName, final K key) {
-        final ICache<K, V> cache = getCache(cacheName);
-        cache.remove(key);
+    default <K> CompletableFuture<Void> removeFromCache(final String cacheName, final K key) {
+        return CompletableFuture.runAsync(() -> getCache(cacheName).remove(key));
     }
 
     /**
@@ -117,7 +129,7 @@ public interface ICacheService {
      * @param <V>       The value that is stored in the cache
      * @return the requested cache objects
      */
-    default <K, V> Collection<V> getAllValuesFromCache(final String cacheName) {
+    default <K, V> Iterable<V> getAllValuesFromCache(final String cacheName) {
         final ICache<K, V> cache = getCache(cacheName);
         return cache.getAllValues();
     }
@@ -130,7 +142,7 @@ public interface ICacheService {
      * @param <V>       The value that is stored in the cache
      * @return the requested cache keys
      */
-    default <K, V> Set<K> getAllKeysFromCache(final String cacheName) {
+    default <K, V> Iterable<K> getAllKeysFromCache(final String cacheName) {
         final ICache<K, V> cache = getCache(cacheName);
         return cache.getAllKeys();
     }

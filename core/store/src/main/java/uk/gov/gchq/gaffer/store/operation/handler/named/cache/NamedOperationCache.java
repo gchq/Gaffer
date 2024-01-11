@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -217,9 +217,8 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
      * @return a {@link Iterable} containing the named operation details
      */
     public Iterable<NamedOperationDetail> getAllNamedOperations(final User user, final String adminAuth) {
-        final Set<String> keys = getAllKeys();
         final Set<NamedOperationDetail> executables = new HashSet<>();
-        for (final String key : keys) {
+        for (final String key : getAllKeys()) {
             try {
                 final NamedOperationDetail op = getFromCache(key);
                 if (op.hasReadAccess(user, adminAuth)) {
@@ -228,7 +227,6 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
             } catch (final CacheOperationException e) {
                 LOGGER.error(e.getMessage(), e);
             }
-
         }
         return executables;
     }
