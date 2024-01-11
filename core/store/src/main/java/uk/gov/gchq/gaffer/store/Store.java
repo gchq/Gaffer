@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -227,8 +227,6 @@ public abstract class Store {
     private JobTracker jobTracker;
     private String graphId;
 
-    private boolean jobsRescheduled;
-
     public Store() {
         this(true);
     }
@@ -291,20 +289,20 @@ public abstract class Store {
         validateSchemas();
         addExecutorService(properties);
 
-        if (properties.getJobTrackerEnabled() && !jobsRescheduled) {
+        if (properties.getJobTrackerEnabled() && properties.getRescheduleJobsOnStart()) {
             Iterable<JobDetail> scheduledJobs = null;
             try {
                 scheduledJobs = this.jobTracker.getAllScheduledJobs();
                 if (scheduledJobs != null) {
                     StreamSupport.stream(scheduledJobs.spliterator(), false)
-                            .peek(jd -> LOGGER.debug("Rescheduling job: {}", jd))
-                            .forEach(this::rescheduleJob);
+                        .forEach(jd -> {
+                            LOGGER.debug("Rescheduling job: {}", jd);
+                            rescheduleJob(jd);
+                        });
                 }
             } finally {
                 CloseableUtil.close(scheduledJobs);
             }
-
-            jobsRescheduled = true;
         }
     }
 
