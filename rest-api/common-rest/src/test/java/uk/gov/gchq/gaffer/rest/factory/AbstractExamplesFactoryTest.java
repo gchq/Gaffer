@@ -41,6 +41,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObject;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -282,19 +286,33 @@ class AbstractExamplesFactoryTest {
 
     @Test
     void shouldGenerateElementsWithCorrectTypes() {
-        checkCorrectTypesAreGeneratedFromSchema("schema/schemaCharEntities.json", Character.class);
-        checkCorrectTypesAreGeneratedFromSchema("schema/schemaIntEntities.json", Integer.class);
-        checkCorrectTypesAreGeneratedFromSchema("schema/schemaDoubleEntities.json", Double.class);
-        checkCorrectTypesAreGeneratedFromSchema("schema/schemaLongEntities.json", Long.class);
-        checkCorrectTypesAreGeneratedFromSchema("schema/schemaFloatEntities.json", Float.class);
+        checkCorrectTypesAreGeneratedFromSchema(Character.class);
+        checkCorrectTypesAreGeneratedFromSchema(Integer.class);
+        checkCorrectTypesAreGeneratedFromSchema(Double.class);
+        checkCorrectTypesAreGeneratedFromSchema(Long.class);
+        checkCorrectTypesAreGeneratedFromSchema(Float.class);
+        checkCorrectTypesAreGeneratedFromSchema(TestEnum.class);
     }
 
 
-    private void checkCorrectTypesAreGeneratedFromSchema(String schemaPath, Class expectedEntityType) {
+    private void checkCorrectTypesAreGeneratedFromSchema(Class<?> expectedEntityType) {
         // Given
         final Schema schema = new Schema.Builder()
-                .json(StreamUtil.openStream(TestExamplesFactory.class, schemaPath))
-                .build();
+            .entity("BasicEntity", new SchemaEntityDefinition.Builder()
+                .vertex("id")
+                .build())
+            .edge("BasicEdge", new SchemaEdgeDefinition.Builder()
+                .source("id")
+                .destination("id")
+                .directed("true")
+                .build())
+            .type("id", expectedEntityType)
+            .type("true", new TypeDefinition.Builder()
+                .clazz(Boolean.class)
+                .validateFunctions(Arrays.asList(new IsTrue()))
+                .build())
+            .build();
+
         final TestExamplesFactory examplesFactory = new TestExamplesFactory(schema);
 
         // When/Then
@@ -324,5 +342,11 @@ class AbstractExamplesFactoryTest {
         protected Schema getSchema() {
             return this.schema;
         }
+    }
+
+    public enum TestEnum {
+        TEST1,
+        TEST2,
+        TEST3;
     }
 }

@@ -64,6 +64,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsLongerThan;
 import javax.annotation.PostConstruct;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -157,17 +158,20 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
             } else if (BinaryOperator.class.equals(clazz)) {
                 value = new First();
             } else if (clazz.isEnum()) {
-                final List l = Arrays.asList(clazz.getEnumConstants());
+                final List<Object> l = Arrays.asList(clazz.getEnumConstants());
                 if (!l.isEmpty()) {
                     value = Enum.valueOf(clazz, l.get(0).toString());
                 } else {
-                    value = clazz.newInstance();
+                    value = clazz.getDeclaredConstructor().newInstance();
                 }
             } else {
-                value = clazz.newInstance();
+                value = clazz.getDeclaredConstructor().newInstance();
             }
 
-        } catch (final InstantiationException | IllegalAccessException e) {
+        } catch (final InstantiationException |
+                       IllegalAccessException |
+                       NoSuchMethodException |
+                       InvocationTargetException e) {
             value = null;
         }
 
