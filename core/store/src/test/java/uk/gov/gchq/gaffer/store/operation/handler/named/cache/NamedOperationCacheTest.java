@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -106,30 +105,34 @@ public class NamedOperationCacheTest {
     @Test
     public void shouldThrowExceptionIfNamedOperationAlreadyExists() throws CacheOperationException {
         cache.addNamedOperation(standard, false, standardUser);
-        assertThatExceptionOfType(OverwritingException.class).isThrownBy(() -> cache.addNamedOperation(alternative, false, advancedUser));
+        assertThatExceptionOfType(CacheOperationException.class)
+            .isThrownBy(() -> cache.addNamedOperation(alternative, false, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionWhenDeletingIfKeyIsNull() throws CacheOperationException { // needs work
         cache.addNamedOperation(standard, false, standardUser);
-        assertThatExceptionOfType(CacheOperationException.class).isThrownBy(() -> cache.deleteNamedOperation(null, advancedUser));
+        assertThatExceptionOfType(CacheOperationException.class)
+            .isThrownBy(() -> cache.deleteNamedOperation(null, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionWhenGettingIfKeyIsNull() throws CacheOperationException {
-        assertThatExceptionOfType(CacheOperationException.class).isThrownBy(() -> cache.getNamedOperation(null, advancedUser));
+        assertThatExceptionOfType(CacheOperationException.class)
+            .isThrownBy(() -> cache.getNamedOperation(null, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionIfNamedOperationIsNull() throws CacheOperationException {
-        assertThatExceptionOfType(CacheOperationException.class).isThrownBy(() -> cache.addNamedOperation(null, false, standardUser));
+        assertThatExceptionOfType(CacheOperationException.class)
+            .isThrownBy(() -> cache.addNamedOperation(null, false, standardUser));
     }
 
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToReadOperation() throws CacheOperationException {
         cache.addNamedOperation(standard, false, standardUser);
         assertThatExceptionOfType(CacheOperationException.class)
-                .isThrownBy(() -> cache.getNamedOperation(OPERATION_NAME, new User()));
+            .isThrownBy(() -> cache.getNamedOperation(OPERATION_NAME, new User()));
     }
 
     @Test

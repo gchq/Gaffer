@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import java.io.File;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -193,10 +194,10 @@ public class JcsCacheServiceTest {
         service.putInCache(TEST_REGION, "test3", 3);
         service.putInCache(TEST_REGION, "duplicate", 3);
 
-        assertEquals(4, service.sizeOfCache(TEST_REGION));
-        assertEquals(4, service.getAllValuesFromCache(TEST_REGION).size());
-
-        assertThat(service.getAllValuesFromCache(TEST_REGION)).contains(1, 2, 3);
+        assertThat(service.sizeOfCache(TEST_REGION)).isEqualTo(4);
+        assertThat(service.getAllValuesFromCache(TEST_REGION))
+            .hasSize(4)
+            .contains(1, 2, 3);
     }
 
     @Test

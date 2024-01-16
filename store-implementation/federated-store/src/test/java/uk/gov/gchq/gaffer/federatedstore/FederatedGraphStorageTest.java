@@ -550,9 +550,9 @@ public class FederatedGraphStorageTest {
         final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
         //then
-        assertEquals(1, cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues().size());
-        assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+        assertThat(cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues()).hasSize(1);
+        assertThat(allIds).hasSize(1);
+        assertThat(allIds.iterator().next()).isEqualTo(GRAPH_ID_A);
 
     }
 
@@ -572,9 +572,9 @@ public class FederatedGraphStorageTest {
         final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
         //then
-        assertEquals(1, cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues().size());
-        assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+        assertThat(cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues()).hasSize(1);
+        assertThat(allIds).hasSize(1);
+        assertThat(allIds.iterator().next()).isEqualTo(GRAPH_ID_A);
 
     }
 

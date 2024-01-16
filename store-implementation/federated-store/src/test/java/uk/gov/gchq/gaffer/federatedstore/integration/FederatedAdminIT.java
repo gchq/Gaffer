@@ -584,12 +584,8 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
                 .build(), user);
 
         //then
-        Set<String> graphIds = federatedStoreCache.getAllGraphIds();
-
         assertThat(changed).isTrue();
-        assertThat(graphIds.toArray())
-                .as(graphIds.toString())
-                .containsExactly(new String[]{newName});
+        assertThat(federatedStoreCache.getAllGraphIds()).containsExactly(newName);
     }
 
     @Test
