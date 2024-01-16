@@ -24,6 +24,10 @@ import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 
 import static java.util.Objects.isNull;
 
+import java.util.concurrent.CompletableFuture;
+
+import org.eclipse.jetty.util.Callback.Completable;
+
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
  * handling the {@link Graph}s within a {@link FederatedStore}.
@@ -57,12 +61,13 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
      * Add the specified {@link Graph} to the cache.
      *
      * @param graph     the {@link Graph} to be added
-     * @param overwrite if true, overwrite any graphs already in the cache with the same ID
+     * @param overwrite if true, overwrite any graphs already in the cache with the
+     *                  same ID
      * @param access    Access for the graph being stored.
-     * @throws CacheOperationException if there was an error trying to add to the cache
+     * @return CompletableFuture of the async cache add.
      */
-    public void addGraphToCache(final Graph graph, final byte[] access, final boolean overwrite) throws CacheOperationException {
-        addGraphToCache(new GraphSerialisable.Builder(graph).build(), access, overwrite);
+    public CompletableFuture<Void> addGraphToCache(final Graph graph, final byte[] access, final boolean overwrite) {
+        return addGraphToCache(new GraphSerialisable.Builder(graph).build(), access, overwrite);
     }
 
     /**
@@ -70,21 +75,18 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
      *
      * @param graphSerialisable the serialised {@link Graph} to be added
      * @param access            Access for the graph being stored.
-     * @param overwrite         if true, overwrite any graphs already in the cache with the same ID
-     * @throws CacheOperationException if there was an error trying to add to the cache
+     * @param overwrite         if true, overwrite any graphs already in the cache
+     *                          with the same ID
+     * @return CompletableFuture of the async cache add.
      */
-    public void addGraphToCache(final GraphSerialisable graphSerialisable, final byte[] access, final boolean overwrite) throws CacheOperationException {
+    public CompletableFuture<Void> addGraphToCache(final GraphSerialisable graphSerialisable, final byte[] access, final boolean overwrite) {
         String graphId = graphSerialisable.getGraphId();
         Pair<GraphSerialisable, byte[]> pair = new Pair<>(graphSerialisable, access);
-        try {
-            addToCache(graphId, pair, overwrite);
-        } catch (final CacheOperationException e) {
-            throw new CacheOperationException(String.format(ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S, graphId), e);
-        }
+        return super.addToCache(graphId, pair, overwrite);
     }
 
-    public void deleteGraphFromCache(final String graphId) {
-        super.deleteFromCache(graphId);
+    public CompletableFuture<Void> deleteGraphFromCache(final String graphId) {
+        return super.deleteFromCache(graphId);
     }
 
     /**

@@ -26,9 +26,9 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
+import java.util.concurrent.CompletionException;
+import java.util.stream.StreamSupport;
 
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for handling
@@ -150,19 +150,21 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
         if (namedOperation == null) {
             throw new CacheOperationException("NamedOperation cannot be null");
         }
-        String name = namedOperation.getOperationName();
-        if (contains(name) && overwrite) {
-            final boolean doesUserHavePermissionToWrite = getFromCache(name).hasWriteAccess(user, adminAuth);
-            if (doesUserHavePermissionToWrite) {
-                addToCache(name, namedOperation, true);
+        try {
+            String name = namedOperation.getOperationName();
+            if (overwrite && contains(name)) {
+                final boolean doesUserHavePermissionToWrite = getFromCache(name).hasWriteAccess(user, adminAuth);
+                if (doesUserHavePermissionToWrite) {
+                    addToCache(name, namedOperation, true).join();
+                } else {
+                    throw new CacheOperationException(String.format("User %s does not have permission to overwrite", user.getUserId()));
+                }
             } else {
-                throw new CacheOperationException(String.format("User %s does not have permission to overwrite", user.getUserId()));
+                addToCache(name, namedOperation, overwrite).join();
             }
-        } else {
-            addToCache(name, namedOperation, overwrite);
+        } catch (final CompletionException e) {
+            throw new CacheOperationException(e.getCause());
         }
-
-
     }
 
     /**
@@ -179,9 +181,17 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
         if (Objects.isNull(name)) {
             throw new CacheOperationException("NamedOperation name cannot be null");
         }
-        final NamedOperationDetail existing = getFromCache(name);
+
+        NamedOperationDetail existing = null;
+        try {
+            existing = getFromCache(name);
+        } catch (final CacheOperationException e) {
+            // Unable to find the requested entry to delete
+            return;
+        }
+
         if (existing.hasWriteAccess(user, adminAuth)) {
-            deleteFromCache(name);
+            super.deleteFromCache(name).join();
         } else {
             throw new CacheOperationException(String.format("User %s does not have authority to delete named operation: %s", user, name));
         }
@@ -217,17 +227,17 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
      * @return a {@link Iterable} containing the named operation details
      */
     public Iterable<NamedOperationDetail> getAllNamedOperations(final User user, final String adminAuth) {
-        final Set<NamedOperationDetail> executables = new HashSet<>();
-        for (final String key : getAllKeys()) {
-            try {
-                final NamedOperationDetail op = getFromCache(key);
-                if (op.hasReadAccess(user, adminAuth)) {
-                    executables.add(op);
+        return () -> StreamSupport.stream(getAllKeys().spliterator(), false)
+            .map(key -> {
+                try {
+                    return getFromCache(key);
+                } catch (final CacheOperationException e) {
+                    LOGGER.error(e.getMessage(), e);
+                    return null;
                 }
-            } catch (final CacheOperationException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
-        return executables;
+            })
+            .filter(Objects::nonNull)
+            .filter(op -> op.hasReadAccess(user, adminAuth))
+            .iterator();
     }
 }

@@ -45,12 +45,12 @@ public class EmptyCacheService implements ICacheService {
     }
 
     @Override
-    public <K, V> CompletableFuture<Void> putInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
+    public <K, V> CompletableFuture<Void> putInCache(final String cacheName, final K key, final V value) {
         return null;
     }
 
     @Override
-    public <K, V> CompletableFuture<Void> putSafeInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
+    public <K, V> CompletableFuture<Void> putSafeInCache(final String cacheName, final K key, final V value) {
         return null;
     }
 

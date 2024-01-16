@@ -37,10 +37,8 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -99,14 +97,13 @@ public class NamedOperationResolver implements GetFromCacheHook {
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-
-        final ExecutorService executor = Executors.newSingleThreadExecutor();
-        final Future<?> future = executor.submit(new NamedOperationResolverTask(opChain, context.getUser(), cache));
+        CompletableFuture<Void> resolver = CompletableFuture.runAsync(() ->
+            NamedOperationResolver.resolveNamedOperations(opChain, context.getUser(), cache));
 
         final String time = timeout + timeUnit.name();
         try {
             LOGGER.info("Starting ResolverTask with timeout: " + time);
-            future.get(timeout, timeUnit);
+            resolver.get(timeout, timeUnit);
             LOGGER.info("finished ResolverTask");
         } catch (final TimeoutException e) {
             throw new GafferRuntimeException("ResolverTask timed out after: " + time, e);
@@ -114,8 +111,6 @@ public class NamedOperationResolver implements GetFromCacheHook {
             throw new GafferRuntimeException("Future interrupted out", e);
         } catch (final ExecutionException e) {
             throw new GafferRuntimeException("ResolverTask failed due to: " + e.getMessage(), e);
-        } finally {
-            executor.shutdownNow();
         }
     }
 
@@ -130,24 +125,21 @@ public class NamedOperationResolver implements GetFromCacheHook {
     }
 
     public static void resolveNamedOperations(final Operations<?> operations, final User user, final NamedOperationCache cache) {
-        final List<Operation> updatedOperations = new ArrayList<>(operations.getOperations().size());
-        for (final Operation operation : operations.getOperations()) {
-            if (Thread.interrupted()) {
-                return;
-            }
+        final List<Operation> updatedOperations = new ArrayList<>();
+        operations.getOperations().forEach(operation -> {
             if (operation instanceof NamedOperation) {
-                updatedOperations.addAll(resolveNamedOperation((NamedOperation) operation, user, cache));
+                updatedOperations.addAll(resolveNamedOperation((NamedOperation<?, ?>) operation, user, cache));
             } else {
                 if (operation instanceof Operations) {
                     resolveNamedOperations(((Operations<?>) operation), user, cache);
                 }
                 updatedOperations.add(operation);
             }
-        }
+        });
         operations.updateOperations((List) updatedOperations);
     }
 
-    private static List<Operation> resolveNamedOperation(final NamedOperation namedOp, final User user, final NamedOperationCache cache) {
+    private static List<Operation> resolveNamedOperation(final NamedOperation<?, ?> namedOp, final User user, final NamedOperationCache cache) {
         final NamedOperationDetail namedOpDetail;
         try {
             namedOpDetail = cache.getNamedOperation(namedOp.getOperationName(), user);

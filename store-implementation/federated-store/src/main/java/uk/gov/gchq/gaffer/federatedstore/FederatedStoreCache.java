@@ -27,6 +27,9 @@ import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+
+import org.eclipse.jetty.util.Callback.Completable;
 
 import static java.util.Objects.isNull;
 
@@ -57,11 +60,11 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
      * @param graph     the {@link Graph} to be added
      * @param overwrite if true, overwrite any graphs already in the cache with the same ID
      * @param access    Access for the graph being stored.
-     * @throws CacheOperationException if there was an error trying to add to the cache
+     * @return CompletableFuture of the async cache add.
      */
-    public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
+    public CompletableFuture<Void> addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) {
         try {
-            cacheTransient.addGraphToCache(graph, JSONSerialiser.serialise(access), overwrite);
+            return cacheTransient.addGraphToCache(graph, JSONSerialiser.serialise(access), overwrite);
         } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
@@ -73,12 +76,12 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
      * @param graphSerialisable the serialised {@link Graph} to be added
      * @param access            Access for the graph being stored.
      * @param overwrite         if true, overwrite any graphs already in the cache with the same ID
-     * @throws CacheOperationException if there was an error trying to add to the cache
+     * @return CompletableFuture of the the async cache add.
      */
     @SuppressWarnings("PMD.PreserveStackTrace") //False positive
-    public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
+    public CompletableFuture<Void> addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
         try {
-            cacheTransient.addGraphToCache(graphSerialisable, JSONSerialiser.serialise(access), overwrite);
+            return cacheTransient.addGraphToCache(graphSerialisable, JSONSerialiser.serialise(access), overwrite);
         } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
@@ -157,8 +160,8 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
     }
 
     @Override
-    public void deleteFromCache(final String key) {
-        cacheTransient.deleteFromCache(key);
+    public CompletableFuture<Void> deleteFromCache(final String key) {
+        return cacheTransient.deleteFromCache(key);
     }
 
     @Override
