@@ -27,6 +27,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
@@ -152,6 +154,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatRuntimeException;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -244,6 +247,24 @@ public class StoreTest {
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
         JSONSerialiser.update();
+    }
+
+    @Test
+    public void shouldExecuteOperationWhenJobTrackerCacheIsBroken(@Mock final StoreProperties storeProperties) throws Exception {
+        // Given
+        String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.store.BrokenCacheService";
+        Properties properties = new Properties();
+        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
+        CacheServiceLoader.initialise(properties);
+        final AddElements addElements = new AddElements();
+        final StoreImpl store = new StoreImpl();
+        store.initialise("graphId", createSchemaMock(), storeProperties);
+
+        // When
+        store.execute(addElements, context);
+
+        // Then
+        verify(addElementsHandler).doOperation(addElements, context, store);
     }
 
     @Test

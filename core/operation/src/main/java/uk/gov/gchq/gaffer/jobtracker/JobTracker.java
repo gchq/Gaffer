@@ -26,12 +26,16 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A {@code JobTracker} is an entry in a Gaffer cache service which is used to store
  * details of jobs submitted to the graph.
  */
 public class JobTracker extends Cache<String, JobDetail> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobTracker.class);
     private static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
 
     public JobTracker(final String suffixJobTrackerCacheName) {
@@ -57,7 +61,7 @@ public class JobTracker extends Cache<String, JobDetail> {
             validateJobDetail(jobDetail);
             super.addToCache(jobDetail.getJobId(), jobDetail, true);
         } catch (final CacheOperationException e) {
-            throw new RuntimeException("Failed to add jobDetail " + jobDetail.toString() + " to the cache", e);
+            LOGGER.error("Failed to add jobDetail " + jobDetail.toString() + " to the cache", e);
         }
     }
 
