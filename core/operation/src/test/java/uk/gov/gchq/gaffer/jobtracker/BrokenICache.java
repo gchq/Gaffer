@@ -20,8 +20,9 @@ import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.Collections;
+import java.util.Set;
+
 
 import static java.util.Collections.emptySet;
 
