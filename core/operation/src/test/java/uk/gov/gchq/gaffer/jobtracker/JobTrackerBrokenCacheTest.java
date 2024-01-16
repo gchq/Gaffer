@@ -16,13 +16,10 @@
 
 package uk.gov.gchq.gaffer.jobtracker;
 
-import java.util.concurrent.TimeUnit;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
@@ -30,13 +27,10 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
-
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class JobTrackerBrokenCacheTest {
     @Mock

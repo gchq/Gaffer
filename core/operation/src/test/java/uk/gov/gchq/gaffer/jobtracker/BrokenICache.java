@@ -16,16 +16,16 @@
 
 package uk.gov.gchq.gaffer.jobtracker;
 
-import static java.util.Collections.emptySet;
+import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
 import java.util.Collection;
 import java.util.Set;
 import java.util.Collections;
 
-import uk.gov.gchq.gaffer.cache.ICache;
-import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import static java.util.Collections.emptySet;
 
-public class BrokenICache<K, V> implements ICache<K, V>{
+public class BrokenICache<K, V> implements ICache<K, V> {
 
     @Override
     public Object get(Object key) {

@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.jobtracker;
 
-import java.util.Properties;
-
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.ICacheService;
+
+import java.util.Properties;
 
 public class BrokenCacheService implements ICacheService {
 
