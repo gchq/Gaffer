@@ -53,7 +53,6 @@ import java.util.stream.Stream;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.getConnector;
-import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 
 public class FederatedGraphStorage {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE = "Error adding graph, GraphId is known within the cache, but %s is different. GraphId: %s";
@@ -68,10 +67,9 @@ public class FederatedGraphStorage {
         federatedStoreCache = new FederatedStoreCache(suffixFederatedStoreCacheName);
     }
 
-    protected void startCacheServiceLoader() throws StorageException {
-        if (!CacheServiceLoader.isEnabled()) {
-            throw new StorageException("Cache is not enabled for the FederatedStore, Set a value in StoreProperties for " + CACHE_SERVICE_CLASS);
-        }
+    public boolean isCacheServiceEnabled() {
+        return CacheServiceLoader.isEnabled(FederatedStoreCacheTransient.FEDERATED_STORE_CACHE_SERVICE_NAME) ||
+                CacheServiceLoader.isDefaultEnabled();
     }
 
     /**

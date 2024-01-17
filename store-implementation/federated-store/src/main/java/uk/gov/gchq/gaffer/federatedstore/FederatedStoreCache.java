@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -34,11 +33,10 @@ import static java.util.Objects.isNull;
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
  * handling the {@link Graph}s within a {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
  */
-public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, FederatedAccess>> {
+public final class FederatedStoreCache {
     private final FederatedStoreCacheTransient cacheTransient;
 
     public FederatedStoreCache(final String suffixFederatedStoreCacheName) {
-        super(null);
         cacheTransient = new FederatedStoreCacheTransient(suffixFederatedStoreCacheName);
     }
 
@@ -126,7 +124,6 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
         }
     }
 
-    @Override
     public Pair<GraphSerialisable, FederatedAccess> getFromCache(final String key) {
         try {
             final Pair<GraphSerialisable, byte[]> fromCache = cacheTransient.getFromCache(key);
@@ -136,32 +133,26 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
         }
     }
 
-    @Override
     public String getCacheName() {
         return cacheTransient.getCacheName();
     }
 
-    @Override
     public Set<String> getAllKeys() {
         return cacheTransient.getAllKeys();
     }
 
-    @Override
     public void clearCache() throws CacheOperationException {
         cacheTransient.clearCache();
     }
 
-    @Override
     public boolean contains(final String graphId) {
         return cacheTransient.contains(graphId);
     }
 
-    @Override
     public void deleteFromCache(final String key) {
         cacheTransient.deleteFromCache(key);
     }
 
-    @Override
     public ICache getCache() {
         return cacheTransient.getCache();
     }

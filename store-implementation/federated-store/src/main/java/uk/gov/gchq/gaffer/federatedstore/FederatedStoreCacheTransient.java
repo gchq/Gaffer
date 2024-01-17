@@ -33,9 +33,10 @@ import static java.util.Objects.isNull;
 public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerialisable, byte[]>> {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";
     private static final String CACHE_SERVICE_NAME_PREFIX = "federatedStoreGraphs";
+    public static final String FEDERATED_STORE_CACHE_SERVICE_NAME = "FederatedStore";
 
     public FederatedStoreCacheTransient(final String suffixFederatedStoreCacheName) {
-        super(getCacheNameFrom(suffixFederatedStoreCacheName));
+        super(getCacheNameFrom(suffixFederatedStoreCacheName), FEDERATED_STORE_CACHE_SERVICE_NAME);
     }
 
     public static String getCacheNameFrom(final String suffixFederatedStoreCacheName) {
