@@ -107,7 +107,7 @@ public final class CacheServiceLoader {
      * @return the cache service
      */
     public static ICacheService getService(final String serviceName) {
-        return SERVICES.get(serviceName); //TODO - should null be handled here if not found? No. A null is consistent with old behaviour and not an issue
+        return SERVICES.get(serviceName);
     }
 
     /**
@@ -143,7 +143,9 @@ public final class CacheServiceLoader {
             LOGGER.warn("received null properties - exiting initialise method without creating service");
             return;
         }
-        final String cacheClass = properties.getProperty(CacheProperties.CACHE_SERVICE_CLASS);
+        final String cacheClass = (properties.getProperty(CacheProperties.CACHE_SERVICE_DEFAULT_CLASS) != null) ?
+                properties.getProperty(CacheProperties.CACHE_SERVICE_DEFAULT_CLASS) :
+                properties.getProperty(CacheProperties.CACHE_SERVICE_CLASS);
 
         if (null == cacheClass) {
             LOGGER.debug("No cache service class was specified in properties.");

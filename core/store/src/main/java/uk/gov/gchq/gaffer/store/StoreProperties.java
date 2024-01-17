@@ -489,6 +489,7 @@ public class StoreProperties implements Cloneable {
 
     @Deprecated
     public void setCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_CLASS, cacheServiceClassString);
         setDefaultCacheServiceClass(cacheServiceClassString);
     }
 
@@ -500,7 +501,7 @@ public class StoreProperties implements Cloneable {
     @Deprecated
     public String getCacheServiceClass(final String defaultValue) {
         final String cacheServiceClass = getDefaultCacheServiceClass();
-        return (cacheServiceClass != null) ? cacheServiceClass : defaultValue;
+        return (cacheServiceClass != null) ? cacheServiceClass : get(CACHE_SERVICE_CLASS, defaultValue);
     }
 
     public void setCacheServiceNameSuffix(final String suffix) {
