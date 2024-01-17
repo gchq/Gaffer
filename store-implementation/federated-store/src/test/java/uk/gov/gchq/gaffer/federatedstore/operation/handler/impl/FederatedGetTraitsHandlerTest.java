@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -50,6 +49,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -62,15 +64,14 @@ public class FederatedGetTraitsHandlerTest {
     public static final String ALT_STORE = "altStore";
     public static final String FED_STORE_ID = "fedStoreId";
     public static final String ACC_STORE = "accStore";
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedGetTraitsHandlerTest.class, "/properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
     private StoreProperties storeProperties;
     private FederatedStore federatedStore;
-    private FederatedStoreProperties properties;
+    private static final FederatedStoreProperties FEDERATED_STORE_PROPERTIES = getFederatedStorePropertiesWithHashMapCache();
 
     @BeforeEach
     public void setUp() throws Exception {
         federatedStore = new FederatedStore();
-        properties = new FederatedStoreProperties();
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
         storeProperties = new StoreProperties();
@@ -86,7 +87,7 @@ public class FederatedGetTraitsHandlerTest {
     @Test
     public void shouldGetZeroTraitsForEmptyStore() throws Exception {
         // Given
-        federatedStore.initialise(FED_STORE_ID, null, properties);
+        federatedStore.initialise(FED_STORE_ID, null, FEDERATED_STORE_PROPERTIES);
 
         // When
         final Set<StoreTrait> traits = federatedStore.execute(
@@ -102,7 +103,7 @@ public class FederatedGetTraitsHandlerTest {
     @Test
     public void shouldGetNullTraitsForEmptyStoreWithCurrentTraits() throws Exception {
         // Given
-        federatedStore.initialise(FED_STORE_ID, null, properties);
+        federatedStore.initialise(FED_STORE_ID, null, FEDERATED_STORE_PROPERTIES);
         assertThat(federatedStore.getAllGraphIds(testUser())).withFailMessage("graph is not starting empty").isEmpty();
 
         // When
@@ -117,7 +118,7 @@ public class FederatedGetTraitsHandlerTest {
     @Test
     public void shouldGetAllTraitsWhenContainsStoreWithOtherTraits() throws Exception {
         // Given
-        federatedStore.initialise(FED_STORE_ID, null, properties);
+        federatedStore.initialise(FED_STORE_ID, null, FEDERATED_STORE_PROPERTIES);
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ALT_STORE)
@@ -153,7 +154,7 @@ public class FederatedGetTraitsHandlerTest {
     @Test
     public void shouldGetCurrentTraitsWhenContainsStoreWithOtherTraits() throws Exception {
         // Given
-        federatedStore.initialise(FED_STORE_ID, null, properties);
+        federatedStore.initialise(FED_STORE_ID, null, FEDERATED_STORE_PROPERTIES);
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ALT_STORE)
@@ -180,7 +181,7 @@ public class FederatedGetTraitsHandlerTest {
     @Test
     public void shouldGetCurrentTraitsWhenContainsStoreWithOtherTraitsWithOptions() throws Exception {
         // Given
-        federatedStore.initialise(FED_STORE_ID, null, properties);
+        federatedStore.initialise(FED_STORE_ID, null, FEDERATED_STORE_PROPERTIES);
 
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
@@ -192,7 +193,7 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ACC_STORE)
-                .storeProperties(PROPERTIES)
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
@@ -217,7 +218,7 @@ public class FederatedGetTraitsHandlerTest {
     @Test
     public void shouldGetAllTraitsWhenContainsStoreWithOtherTraitsWithOptions() throws Exception {
         // Given
-        federatedStore.initialise(FED_STORE_ID, null, properties);
+        federatedStore.initialise(FED_STORE_ID, null, FEDERATED_STORE_PROPERTIES);
 
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
@@ -229,7 +230,7 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ACC_STORE)
-                .storeProperties(PROPERTIES)
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 

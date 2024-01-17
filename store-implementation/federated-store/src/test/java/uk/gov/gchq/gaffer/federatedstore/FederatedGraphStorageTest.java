@@ -542,7 +542,6 @@ public class FederatedGraphStorageTest {
         final Properties serviceLoaderProperties = new Properties();
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
         CacheServiceLoader.initialise(serviceLoaderProperties);
-        graphStorage.startCacheServiceLoader();
         final ICacheService cacheService = CacheServiceLoader.getService();
 
         //when
@@ -564,10 +563,8 @@ public class FederatedGraphStorageTest {
         CacheServiceLoader.initialise(serviceLoaderProperties);
         final ICacheService cacheService = CacheServiceLoader.getService();
         final FederatedGraphStorage otherGraphStorage = new FederatedGraphStorage(CACHE_NAME_SUFFIX);
-        graphStorage.startCacheServiceLoader();
 
         //when
-        otherGraphStorage.startCacheServiceLoader();
         otherGraphStorage.put(graphSerialisableA, auth1Access);
         final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
