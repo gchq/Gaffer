@@ -26,9 +26,31 @@ public final class CacheProperties {
     }
 
     /**
-     * Name of the system property to use in order to define the cache service class.
+     * Name of a system property previously used for defining the default cache service class.
+     * @deprecated Use {@link #CACHE_SERVICE_DEFAULT_CLASS} instead.
      */
+    @Deprecated
     public static final String CACHE_SERVICE_CLASS = "gaffer.cache.service.class";
+
+    /**
+     * Name of the system property to use for defining the default cache service class.
+     */
+    public static final String CACHE_SERVICE_DEFAULT_CLASS = "gaffer.cache.service.default.class";
+
+    /**
+     * Name of the system property to use for defining a cache service class dedicated to the Job Tracker.
+     */
+    public static final String CACHE_SERVICE_JOB_TRACKER_CLASS = "gaffer.cache.service.jobtracker.class";
+
+    /**
+     * Name of the system property to use for defining a cache service class dedicated to Named Views.
+     */
+    public static final String CACHE_SERVICE_NAMED_VIEW_CLASS = "gaffer.cache.service.namedview.class";
+
+    /**
+     * Name of the system property to use for defining a cache service class dedicated to Named Operations.
+     */
+    public static final String CACHE_SERVICE_NAMED_OPERATION_CLASS = "gaffer.cache.service.namedoperation.class";
 
     /**
      * Name of the system property to use in order to locate the cache config file.

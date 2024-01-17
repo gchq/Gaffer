@@ -43,7 +43,7 @@ public class CacheServiceLoaderTest {
     @DisplayName("Should not throw NullPointer when Loader is initialised with null properties")
     @Test
     public void shouldINotThrowNullPointerExceptionOnInitialiseLoader() {
-        CacheServiceLoader.initialise(null);
+        CacheServiceLoader.initialise((Properties) null);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class CacheServiceLoaderTest {
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> CacheServiceLoader.initialise(serviceLoaderProperties))
-                .withMessage("Failed to instantiate cache using class invalid.cache.name");
+                .withMessage("Failed to instantiate cache, class 'invalid.cache.name' is invalid");
     }
 
     @Test

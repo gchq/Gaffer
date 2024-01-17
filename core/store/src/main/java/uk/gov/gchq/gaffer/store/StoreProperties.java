@@ -49,6 +49,10 @@ import java.util.Set;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_DEFAULT_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_JOB_TRACKER_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_NAMED_OPERATION_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_NAMED_VIEW_CLASS;
 import static uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler.DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED;
 
 /**
@@ -82,6 +86,7 @@ public class StoreProperties implements Cloneable {
      * This is used to set the cache implementation for all caches
      * e.g. gaffer.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
      */
+    @Deprecated
     public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
 
     /**
@@ -448,16 +453,54 @@ public class StoreProperties implements Cloneable {
         set(ADMIN_AUTH, adminAuth);
     }
 
-    public void setCacheServiceClass(final String cacheServiceClassString) {
-        set(CACHE_SERVICE_CLASS, cacheServiceClassString);
+    public String getDefaultCacheServiceClass() {
+        final String defaultCacheClass = get(CACHE_SERVICE_DEFAULT_CLASS);
+        // Fallback to old CACHE_SERVICE_CLASS property if CACHE_SERVICE_DEFAULT_CLASS is missing
+        return (defaultCacheClass == null ? get(CACHE_SERVICE_CLASS) : defaultCacheClass);
     }
 
+    public void setDefaultCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_DEFAULT_CLASS, cacheServiceClassString);
+    }
+
+    public String getJobTrackerCacheServiceClass() {
+        return get(CACHE_SERVICE_JOB_TRACKER_CLASS);
+    }
+
+    public void setJobTrackerCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_JOB_TRACKER_CLASS, cacheServiceClassString);
+    }
+
+    public String getNamedViewCacheServiceClass() {
+        return get(CACHE_SERVICE_NAMED_VIEW_CLASS);
+    }
+
+    public void setNamedViewCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_NAMED_VIEW_CLASS, cacheServiceClassString);
+    }
+
+    public String getNamedOperationCacheServiceClass() {
+        return get(CACHE_SERVICE_NAMED_OPERATION_CLASS);
+    }
+
+    public void setNamedOperationCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_NAMED_OPERATION_CLASS, cacheServiceClassString);
+    }
+
+    @Deprecated
+    public void setCacheServiceClass(final String cacheServiceClassString) {
+        setDefaultCacheServiceClass(cacheServiceClassString);
+    }
+
+    @Deprecated
     public String getCacheServiceClass() {
         return getCacheServiceClass(null);
     }
 
+    @Deprecated
     public String getCacheServiceClass(final String defaultValue) {
-        return get(CACHE_SERVICE_CLASS, defaultValue);
+        final String cacheServiceClass = getDefaultCacheServiceClass();
+        return (cacheServiceClass != null) ? cacheServiceClass : defaultValue;
     }
 
     public void setCacheServiceNameSuffix(final String suffix) {

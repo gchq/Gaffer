@@ -183,6 +183,10 @@ import java.util.stream.StreamSupport;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
+import static uk.gov.gchq.gaffer.jobtracker.JobTracker.JOB_TRACKER_CACHE_SERVICE_NAME;
+import static uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache.NAMED_OPERATION_CACHE_SERVICE_NAME;
+import static uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache.NAMED_VIEW_CACHE_SERVICE_NAME;
 
 /**
  * A {@code Store} backs a Graph and is responsible for storing the {@link
@@ -1022,7 +1026,10 @@ public abstract class Store {
         addOperationHandler(ToStream.class, new ToStreamHandler<>());
         addOperationHandler(ToVertices.class, new ToVerticesHandler());
 
-        if (nonNull(CacheServiceLoader.getService())) {
+        if (CacheServiceLoader.isDefaultEnabled() ||
+                (CacheServiceLoader.isEnabled(NAMED_OPERATION_CACHE_SERVICE_NAME) &&
+                 CacheServiceLoader.isEnabled(NAMED_VIEW_CACHE_SERVICE_NAME))
+            ) {
             // Named operation
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
             final String suffixNamedOperationCacheName = properties.getCacheServiceNamedOperationSuffix(graphId);
@@ -1101,6 +1108,25 @@ public abstract class Store {
     }
 
     protected void startCacheServiceLoader(final StoreProperties properties) {
-        CacheServiceLoader.initialise(properties.getProperties());
+        final String jobTrackerCacheClass = properties.getJobTrackerCacheServiceClass();
+        final String namedViewCacheClass = properties.getNamedViewCacheServiceClass();
+        final String namedOperationCacheClass = properties.getNamedOperationCacheServiceClass();
+        final String defaultCacheClass = properties.getDefaultCacheServiceClass();
+        final boolean defaultServiceRequired = !((jobTrackerCacheClass != null) && (namedViewCacheClass != null) && (namedOperationCacheClass != null));
+
+        if (jobTrackerCacheClass != null) {
+            CacheServiceLoader.initialise(JOB_TRACKER_CACHE_SERVICE_NAME, jobTrackerCacheClass, properties.getProperties());
+        }
+        if (namedViewCacheClass != null) {
+            CacheServiceLoader.initialise(NAMED_VIEW_CACHE_SERVICE_NAME, jobTrackerCacheClass, properties.getProperties());
+        }
+        if (namedOperationCacheClass != null) {
+            CacheServiceLoader.initialise(NAMED_OPERATION_CACHE_SERVICE_NAME, jobTrackerCacheClass, properties.getProperties());
+        }
+        if (defaultServiceRequired && defaultCacheClass != null) {
+            CacheServiceLoader.initialise(DEFAULT_SERVICE_NAME, properties.getDefaultCacheServiceClass(), properties.getProperties());
+        } else if (defaultServiceRequired) {
+            LOGGER.info("Store Properties did not include a cache class, no cache has been initialised");
+        }
     }
 }

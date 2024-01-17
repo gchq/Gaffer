@@ -31,11 +31,11 @@ import java.util.stream.Collectors;
  * details of jobs submitted to the graph.
  */
 public class JobTracker extends Cache<String, JobDetail> {
-
     private static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
+    public static final String JOB_TRACKER_CACHE_SERVICE_NAME = "JobTracker";
 
     public JobTracker(final String suffixJobTrackerCacheName) {
-        super(getCacheNameFrom(suffixJobTrackerCacheName));
+        super(getCacheNameFrom(suffixJobTrackerCacheName), JOB_TRACKER_CACHE_SERVICE_NAME);
     }
 
     public static String getCacheNameFrom(final String suffixJobTrackerCacheName) {

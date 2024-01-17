@@ -21,25 +21,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
-
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CacheTest {
-
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static Cache<String, Integer> cache;
-    private static Properties properties = new Properties();
 
     @BeforeAll
     public static void setUp() {
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
-        CacheServiceLoader.initialise(properties);
+        CacheServiceLoader.initialise(CACHE_SERVICE_CLASS_STRING);
         cache = new Cache<>("serviceName1");
     }
 
