@@ -252,7 +252,7 @@ public class StoreTest {
     @Test
     public void shouldExecuteOperationWhenJobTrackerCacheIsBroken(@Mock final StoreProperties storeProperties) throws Exception {
         // Given
-        String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.store.BrokenCacheService";
+        String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.jobtracker.BrokenCacheService";
         Properties properties = new Properties();
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
         CacheServiceLoader.initialise(properties);

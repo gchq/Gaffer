@@ -43,7 +43,6 @@ public class JobTrackerBrokenCacheTest {
     public static void setUp() {
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
         CacheServiceLoader.initialise(properties);
-
     }
 
     @Test
@@ -58,11 +57,11 @@ public class JobTrackerBrokenCacheTest {
                 .parentJobId("2")
                 .repeat(new Repeat(20L, 30L, TimeUnit.MINUTES))
                 .status(JobStatus.RUNNING)
-                .user(new User("user"))
+                .user(user)
                 .opChain(operationChain)
                 .serialisedOperationChain(operationChain)
                 .build();
 
-        assertThatCode(() -> jobTracker.addOrUpdateJob(jobDetail, new User("user"))).doesNotThrowAnyException();
+        assertThatCode(() -> jobTracker.addOrUpdateJob(jobDetail, user)).doesNotThrowAnyException();
     }
 }

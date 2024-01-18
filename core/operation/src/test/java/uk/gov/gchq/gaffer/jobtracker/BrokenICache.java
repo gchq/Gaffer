@@ -54,8 +54,6 @@ public class BrokenICache<K, V> implements ICache<K, V> {
 
     @Override
     public void clear() throws CacheOperationException {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method 'clear'");
     }
 
 }

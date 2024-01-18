@@ -25,19 +25,14 @@ public class BrokenCacheService implements ICacheService {
 
     @Override
     public void initialise(Properties properties) {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method 'initialise'");
     }
 
     @Override
     public void shutdown() {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method 'shutdown'");
     }
 
     @Override
     public <K, V> ICache<K, V> getCache(String cacheName) {
-        // TODO Auto-generated method stub
         return new BrokenICache<K, V>();
     }
 
