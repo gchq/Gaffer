@@ -254,7 +254,7 @@ public class StoreTest {
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
         CacheServiceLoader.initialise(properties);
         final AddElements addElements = new AddElements();
-        final StoreImpl store = new StoreImpl();
+        final StoreImpl3 store = new StoreImpl3();
         store.initialise("graphId", createSchemaMock(), storeProperties);
 
         // When
@@ -1260,6 +1260,99 @@ public class StoreTest {
 
         public TestCustomJsonSerialiser1() {
             super(mapper);
+        }
+    }
+    private class StoreImpl3 extends Store {
+        private final Set<StoreTrait> traits =
+                new HashSet<>(asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
+        private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
+        private int createOperationHandlersCallCount;
+
+        @Mock
+        private ScheduledExecutorService executorService;
+
+        @Override
+        protected OperationChainValidator createOperationChainValidator() {
+            return operationChainValidator;
+        }
+
+        @SuppressWarnings("rawtypes")
+        public OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
+            return super.getOperationHandler(opClass);
+        }
+
+        @Override
+        public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+            if (opClass.equals(SetVariable.class)) {
+                return null;
+            }
+            return super.getOperationHandler(opClass);
+        }
+
+        @Override
+        protected void addAdditionalOperationHandlers() {
+            createOperationHandlersCallCount++;
+            addOperationHandler(mock(AddElements.class).getClass(), addElementsHandler);
+            addOperationHandler(mock(GetElements.class).getClass(), getElementsHandler);
+            addOperationHandler(mock(GetAdjacentIds.class).getClass(), getElementsHandler);
+            addOperationHandler(Validate.class, validateHandler);
+            addOperationHandler(ExportToGafferResultCache.class, exportToGafferResultCacheHandler);
+            addOperationHandler(GetGafferResultCacheExport.class, getGafferResultCacheExportHandler);
+        }
+
+        @Override
+        protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
+            return getElementsHandler;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
+            return getAllElementsHandler;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
+            return getAdjacentIdsHandler;
+        }
+
+        @Override
+        protected OperationHandler<AddElements> getAddElementsHandler() {
+            return addElementsHandler;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(traits);
+        }
+
+        @Override
+        protected Object doUnhandledOperation(final Operation operation, final Context context) {
+            doUnhandledOperationCalls.add(operation);
+            return null;
+        }
+
+        public int getCreateOperationHandlersCallCount() {
+            return createOperationHandlersCallCount;
+        }
+
+        public ArrayList<Operation> getDoUnhandledOperationCalls() {
+            return doUnhandledOperationCalls;
+        }
+
+        @Override
+        protected SchemaOptimiser createSchemaOptimiser() {
+            return schemaOptimiser;
+        }
+
+        @Override
+        protected JobTracker createJobTracker() {
+            return new JobTracker("Test");
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return Serialiser.class;
         }
     }
 }
