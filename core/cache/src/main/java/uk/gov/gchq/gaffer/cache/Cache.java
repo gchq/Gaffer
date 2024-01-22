@@ -41,7 +41,7 @@ public class Cache<K, V> {
      * Gets the requested value from the graph
      * @param key Key to the value
      * @return The value associated with the key
-     * @throws CacheOperationException
+     * @throws CacheOperationException if issue getting from cache
      */
     public V getFromCache(final String key) throws CacheOperationException {
         return CacheServiceLoader.getService().getFromCache(cacheName, key);

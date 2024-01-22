@@ -17,10 +17,13 @@
 package uk.gov.gchq.gaffer.jobtracker;
 
 import uk.gov.gchq.gaffer.cache.Cache;
-import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
@@ -31,6 +34,8 @@ import java.util.stream.StreamSupport;
 public class JobTracker extends Cache<String, JobDetail> {
 
     private static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
+    // Executor to queue to allow queuing up async operations on the cache
+    private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
 
     public JobTracker(final String suffixJobTrackerCacheName) {
         super(getCacheNameFrom(suffixJobTrackerCacheName));
@@ -52,7 +57,7 @@ public class JobTracker extends Cache<String, JobDetail> {
      */
     public void addOrUpdateJob(final JobDetail jobDetail, final User user) {
         validateJobDetail(jobDetail);
-        super.addToCache(jobDetail.getJobId(), jobDetail, true);
+        executor.submit(() -> super.addToCache(jobDetail.getJobId(), jobDetail, true));
     }
 
     /**
@@ -64,8 +69,8 @@ public class JobTracker extends Cache<String, JobDetail> {
      */
     public JobDetail getJob(final String jobId, final User user) {
         try {
-            return super.getFromCache(jobId);
-        } catch (final CacheOperationException e) {
+            return executor.submit(() -> super.getFromCache(jobId)).get();
+        } catch (final ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -77,7 +82,11 @@ public class JobTracker extends Cache<String, JobDetail> {
      * @return a {@link Iterable} containing all of the job details
      */
     public Iterable<JobDetail> getAllJobs(final User user) {
-        return getAllJobsMatching(user, jd -> true);
+        try {
+            return executor.submit(() -> getAllJobsMatching(user, jd -> true)).get();
+        } catch (final ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -86,7 +95,12 @@ public class JobTracker extends Cache<String, JobDetail> {
      * @return a {@link Iterable} containing all of the scheduled job details
      */
     public Iterable<JobDetail> getAllScheduledJobs() {
-        return getAllJobsMatching(new User(), jd -> jd.getStatus().equals(JobStatus.SCHEDULED_PARENT));
+        try {
+            return executor.submit(() ->
+                getAllJobsMatching(new User(), jd -> jd.getStatus().equals(JobStatus.SCHEDULED_PARENT))).get();
+        } catch (final ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Iterable<JobDetail> getAllJobsMatching(final User user, final Predicate<JobDetail> jobDetailPredicate) {

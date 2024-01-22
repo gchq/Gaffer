@@ -58,6 +58,7 @@ public interface ICacheService {
      * @param <K>       The object type that acts as the key for the cache
      * @param <V>       The value that is stored in the cache
      * @return the requested cache object
+     * @throws CacheOperationException if issue getting from cache.
      */
     default <K, V> V getFromCache(final String cacheName, final K key) throws CacheOperationException {
         final ICache<K, V> cache = getCache(cacheName);
