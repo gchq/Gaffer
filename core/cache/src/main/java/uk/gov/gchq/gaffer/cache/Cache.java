@@ -31,13 +31,18 @@ import static java.util.Objects.nonNull;
  * @param <V> The type of values to add and get.
  */
 public class Cache<K, V> {
-    public static final String ERROR_ADDING_KEY_TO_CACHE_KEY_S = "Error adding key to cache. key: %s";
     protected String cacheName;
 
     public Cache(final String cacheName) {
         this.cacheName = cacheName;
     }
 
+    /**
+     * Gets the requested value from the graph
+     * @param key Key to the value
+     * @return The value associated with the key
+     * @throws CacheOperationException
+     */
     public V getFromCache(final String key) throws CacheOperationException {
         return CacheServiceLoader.getService().getFromCache(cacheName, key);
     }
@@ -56,7 +61,6 @@ public class Cache<K, V> {
      */
     protected void addToCache(final K key, final V value, final boolean overwrite) {
         final ICacheService service = CacheServiceLoader.getService();
-        // Run relevant put method asynchronously
         if (overwrite) {
             service.putInCache(getCacheName(), key, value);
         } else {

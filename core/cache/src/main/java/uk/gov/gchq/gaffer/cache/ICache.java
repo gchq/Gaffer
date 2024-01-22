@@ -35,8 +35,10 @@ public interface ICache<K, V> {
      *
      * @param key the key to lookup in the cache
      * @return the value associated with the key
+     * @throws CacheOperationException if there is an error getting the key-value
+     *                                 pair from the cache
      */
-    V get(final K key);
+    V get(final K key) throws CacheOperationException;
 
     /**
      * Add a new key-value pair to the cache.
@@ -56,7 +58,7 @@ public interface ICache<K, V> {
      * @throws OverwritingException    if the specified key already exists in the cache with a non-null value
      */
     default void putSafe(final K key, final V value) throws OverwritingException, CacheOperationException {
-        if (null == get(key)) {
+        if (get(key) == null) {
             put(key, value);
         } else {
             throw new OverwritingException("Cache entry already exists for key: " + key);
