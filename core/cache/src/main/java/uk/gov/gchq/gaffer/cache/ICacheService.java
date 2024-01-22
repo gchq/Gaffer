@@ -17,10 +17,9 @@
 package uk.gov.gchq.gaffer.cache;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 /**
  * The cache service interface which enables the cache service loader to instantiate
@@ -74,17 +73,13 @@ public interface ICacheService {
      * @param value     the value to add
      * @param <K>       The object type that acts as the key for the cache
      * @param <V>       The value that is stored in the cache
-     * @return A {@link CompletableFuture} for the async operation
-     * @throws CacheOperationException if there is an error adding the new key-value pair to the cache
      */
-    default <K, V> CompletableFuture<Void> putInCache(final String cacheName, final K key, final V value) {
-        return CompletableFuture.runAsync(() -> {
-            try {
-                getCache(cacheName).put(key, value);
-            } catch (final CacheOperationException e) {
-                throw new CompletionException("Failed to add key: " +  key + " value: " + value + " to cache: " + cacheName, e);
-            }
-        });
+    default <K, V> void putInCache(final String cacheName, final K key, final V value) {
+        try {
+            getCache(cacheName).put(key, value);
+        } catch (final CacheOperationException e) {
+            throw new GafferRuntimeException("Failed to add key: " +  key + " value: " + value + " to cache: " + cacheName, e);
+        }
     }
 
     /**
@@ -96,17 +91,13 @@ public interface ICacheService {
      * @param value     the value to add
      * @param <K>       The object type that acts as the key for the cache
      * @param <V>       The value that is stored in the cache
-     * @return A {@link CompletableFuture} for the async operation
-     * @throws CacheOperationException if the specified key already exists in the cache with a non-null value
      */
-    default <K, V> CompletableFuture<Void> putSafeInCache(final String cacheName, final K key, final V value) {
-        return CompletableFuture.runAsync(() -> {
-            try {
-                getCache(cacheName).putSafe(key, value);
-            } catch (final CacheOperationException e) {
-                throw new CompletionException("Failed to add key: " +  key + " value: " + value + " to cache: " + cacheName, e);
-            }
-        });
+    default <K, V> void putSafeInCache(final String cacheName, final K key, final V value) {
+        try {
+            getCache(cacheName).putSafe(key, value);
+        } catch (final CacheOperationException e) {
+            throw new GafferRuntimeException("Failed to add key: " +  key + " value: " + value + " to cache: " + cacheName, e);
+        }
     }
 
     /**
@@ -115,10 +106,9 @@ public interface ICacheService {
      * @param cacheName the name of the cache to look in
      * @param key       the key of the entry to remove
      * @param <K>       The object type that acts as the key for the cache
-     * @return A {@link CompletableFuture} for the async operation
      */
-    default <K> CompletableFuture<Void> removeFromCache(final String cacheName, final K key) {
-        return CompletableFuture.runAsync(() -> getCache(cacheName).remove(key));
+    default <K> void removeFromCache(final String cacheName, final K key) {
+        getCache(cacheName).remove(key);
     }
 
     /**

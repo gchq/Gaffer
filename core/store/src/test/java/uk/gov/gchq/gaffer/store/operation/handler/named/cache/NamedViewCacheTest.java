@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.user.User;
@@ -103,7 +104,7 @@ public class NamedViewCacheTest {
     @Test
     public void shouldThrowExceptionIfNamedViewAlreadyExists() throws CacheOperationException {
         cache.addNamedView(viewDetailA, false);
-        assertThatExceptionOfType(CacheOperationException.class)
+        assertThatExceptionOfType(OverwritingException.class)
             .isThrownBy(() -> cache.addNamedView(viewDetailA, false))
             .withMessageContaining(String.format("Cache entry already exists for key: %s", VIEW_NAME_A));
     }

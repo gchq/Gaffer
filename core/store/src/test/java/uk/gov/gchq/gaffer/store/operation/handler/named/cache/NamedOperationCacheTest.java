@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -105,7 +106,7 @@ public class NamedOperationCacheTest {
     @Test
     public void shouldThrowExceptionIfNamedOperationAlreadyExists() throws CacheOperationException {
         cache.addNamedOperation(standard, false, standardUser);
-        assertThatExceptionOfType(CacheOperationException.class)
+        assertThatExceptionOfType(OverwritingException.class)
             .isThrownBy(() -> cache.addNamedOperation(alternative, false, advancedUser));
     }
 

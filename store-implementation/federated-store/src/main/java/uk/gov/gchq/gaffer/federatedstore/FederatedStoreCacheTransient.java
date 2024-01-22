@@ -22,11 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 
-import static java.util.Objects.isNull;
-
-import java.util.concurrent.CompletableFuture;
-
-import org.eclipse.jetty.util.Callback.Completable;
+import java.util.Objects;
 
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
@@ -64,10 +60,9 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
      * @param overwrite if true, overwrite any graphs already in the cache with the
      *                  same ID
      * @param access    Access for the graph being stored.
-     * @return CompletableFuture of the async cache add.
      */
-    public CompletableFuture<Void> addGraphToCache(final Graph graph, final byte[] access, final boolean overwrite) {
-        return addGraphToCache(new GraphSerialisable.Builder(graph).build(), access, overwrite);
+    public void addGraphToCache(final Graph graph, final byte[] access, final boolean overwrite) {
+        addGraphToCache(new GraphSerialisable.Builder(graph).build(), access, overwrite);
     }
 
     /**
@@ -77,16 +72,15 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
      * @param access            Access for the graph being stored.
      * @param overwrite         if true, overwrite any graphs already in the cache
      *                          with the same ID
-     * @return CompletableFuture of the async cache add.
      */
-    public CompletableFuture<Void> addGraphToCache(final GraphSerialisable graphSerialisable, final byte[] access, final boolean overwrite) {
+    public void addGraphToCache(final GraphSerialisable graphSerialisable, final byte[] access, final boolean overwrite) {
         String graphId = graphSerialisable.getGraphId();
         Pair<GraphSerialisable, byte[]> pair = new Pair<>(graphSerialisable, access);
-        return super.addToCache(graphId, pair, overwrite);
+        super.addToCache(graphId, pair, overwrite);
     }
 
-    public CompletableFuture<Void> deleteGraphFromCache(final String graphId) {
-        return super.deleteFromCache(graphId);
+    public void deleteGraphFromCache(final String graphId) {
+        super.deleteFromCache(graphId);
     }
 
     /**
@@ -98,7 +92,7 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
      */
     public GraphSerialisable getGraphFromCache(final String graphId) throws CacheOperationException {
         final GraphSerialisable graphSerialisable = getGraphSerialisableFromCache(graphId);
-        return (isNull(graphSerialisable)) ? null : graphSerialisable;
+        return (Objects.isNull(graphSerialisable)) ? null : graphSerialisable;
     }
 
     /**
@@ -110,11 +104,11 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
      */
     public GraphSerialisable getGraphSerialisableFromCache(final String graphId) throws CacheOperationException {
         final Pair<GraphSerialisable, byte[]> fromCache = getFromCache(graphId);
-        return (isNull(fromCache)) ? null : fromCache.getFirst();
+        return (Objects.isNull(fromCache)) ? null : fromCache.getFirst();
     }
 
     public byte[] getAccessFromCache(final String graphId) throws CacheOperationException {
         final Pair<GraphSerialisable, byte[]> fromCache = getFromCache(graphId);
-        return isNull(fromCache) ? null : fromCache.getSecond();
+        return Objects.isNull(fromCache) ? null : fromCache.getSecond();
     }
 }

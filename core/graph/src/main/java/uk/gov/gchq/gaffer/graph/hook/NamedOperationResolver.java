@@ -26,15 +26,16 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
-import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
+import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -42,14 +43,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
-
 /**
  * A {@link GraphHook} to resolve named operations.
  */
 @JsonPropertyOrder(alphabetic = true)
 public class NamedOperationResolver implements GetFromCacheHook {
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationResolver.class);
+    // TODO: Possibly implement a depth limit rather than a hard timeout
     public static final int TIMEOUT_DEFAULT = 1;
     public static final TimeUnit TIME_UNIT_DEFAULT = TimeUnit.MINUTES;
     private final NamedOperationCache cache;
@@ -61,9 +61,10 @@ public class NamedOperationResolver implements GetFromCacheHook {
     }
 
     @JsonCreator
-    public NamedOperationResolver(@JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName,
-                                  @JsonProperty("timeout") final int timeout,
-                                  @JsonProperty("timeUnit") final TimeUnit timeUnit) {
+    public NamedOperationResolver(
+            @JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName,
+            @JsonProperty("timeout") final int timeout,
+            @JsonProperty("timeUnit") final TimeUnit timeUnit) {
         this(new NamedOperationCache(suffixNamedOperationCacheName), timeout, timeUnit);
 
     }
@@ -72,9 +73,10 @@ public class NamedOperationResolver implements GetFromCacheHook {
         this(cache, TIMEOUT_DEFAULT, TIME_UNIT_DEFAULT);
     }
 
-    public NamedOperationResolver(final NamedOperationCache cache,
-                                  final int timeout,
-                                  final TimeUnit timeUnit) {
+    public NamedOperationResolver(
+            final NamedOperationCache cache,
+            final int timeout,
+            final TimeUnit timeUnit) {
         this.cache = cache;
         this.timeout = timeout;
         this.timeUnit = timeUnit;
@@ -97,21 +99,15 @@ public class NamedOperationResolver implements GetFromCacheHook {
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        CompletableFuture<Void> resolver = CompletableFuture.runAsync(() ->
-            NamedOperationResolver.resolveNamedOperations(opChain, context.getUser(), cache));
-
-        final String time = timeout + timeUnit.name();
         try {
-            LOGGER.info("Starting ResolverTask with timeout: " + time);
-            resolver.get(timeout, timeUnit);
-            LOGGER.info("finished ResolverTask");
-        } catch (final TimeoutException e) {
-            throw new GafferRuntimeException("ResolverTask timed out after: " + time, e);
-        } catch (final InterruptedException e) {
-            throw new GafferRuntimeException("Future interrupted out", e);
-        } catch (final ExecutionException e) {
-            throw new GafferRuntimeException("ResolverTask failed due to: " + e.getMessage(), e);
+            CompletableFuture.runAsync(() -> resolveNamedOperations(opChain, context.getUser())).get(timeout, timeUnit);
+        } catch (ExecutionException | TimeoutException e) {
+            throw new GafferRuntimeException("ResolverTask did not complete", e);
+        } catch (InterruptedException e) {
+            LOGGER.warn("Thread interrupted", e);
+            Thread.currentThread().interrupt();
         }
+
     }
 
     @Override
@@ -124,25 +120,34 @@ public class NamedOperationResolver implements GetFromCacheHook {
         return result;
     }
 
-    public static void resolveNamedOperations(final Operations<?> operations, final User user, final NamedOperationCache cache) {
+    private void resolveNamedOperations(final Operations<?> operations, final User user) {
         final List<Operation> updatedOperations = new ArrayList<>();
+
         operations.getOperations().forEach(operation -> {
             if (operation instanceof NamedOperation) {
-                updatedOperations.addAll(resolveNamedOperation((NamedOperation<?, ?>) operation, user, cache));
-            } else {
-                if (operation instanceof Operations) {
-                    resolveNamedOperations(((Operations<?>) operation), user, cache);
-                }
+                updatedOperations.addAll(resolveNamedOperation((NamedOperation<?, ?>) operation, user));
+            } else if (operation instanceof Operations) {
+                resolveNamedOperations(((Operations<?>) operation), user);
+            } else if (operation instanceof Operation) {
                 updatedOperations.add(operation);
             }
         });
-        operations.updateOperations((List) updatedOperations);
+
+        operations.updateOperations((Collection) updatedOperations);
     }
 
-    private static List<Operation> resolveNamedOperation(final NamedOperation<?, ?> namedOp, final User user, final NamedOperationCache cache) {
-        final NamedOperationDetail namedOpDetail;
+    private List<? extends Operation> resolveNamedOperation(final NamedOperation<?, ?> namedOp, final User user) {
         try {
-            namedOpDetail = cache.getNamedOperation(namedOp.getOperationName(), user);
+            // Get the named operation chain from the cache
+            final OperationChain<?> namedOperationChain = cache
+                .getNamedOperation(namedOp.getOperationName(), user)
+                .getOperationChain(namedOp.getParameters());
+
+            OperationHandlerUtil.updateOperationInput(namedOperationChain, namedOp.getInput());
+
+            // Call resolveNamedOperations again to check there are no nested named operations
+            resolveNamedOperations(namedOperationChain, user);
+            return namedOperationChain.getOperations();
         } catch (final CacheOperationException e) {
             // An Exception with the cache has occurred e.g. it was unable to find named operation
             // and then simply returned the original operation chain with the unresolved NamedOperation.
@@ -151,12 +156,5 @@ public class NamedOperationResolver implements GetFromCacheHook {
             LOGGER.error("Exception resolving NamedOperation within the cache:{}", e.getMessage());
             return Collections.singletonList(namedOp);
         }
-
-        final OperationChain<?> namedOperationChain = namedOpDetail.getOperationChain(namedOp.getParameters());
-        updateOperationInput(namedOperationChain, namedOp.getInput());
-
-        // Call resolveNamedOperations again to check there are no nested named operations
-        resolveNamedOperations(namedOperationChain, user, cache);
-        return namedOperationChain.getOperations();
     }
 }

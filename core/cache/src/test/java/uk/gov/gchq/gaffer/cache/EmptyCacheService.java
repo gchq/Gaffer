@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 public class EmptyCacheService implements ICacheService {
     @Override
@@ -45,18 +44,18 @@ public class EmptyCacheService implements ICacheService {
     }
 
     @Override
-    public <K, V> CompletableFuture<Void> putInCache(final String cacheName, final K key, final V value) {
-        return null;
+    public <K, V> void putInCache(final String cacheName, final K key, final V value) {
+
     }
 
     @Override
-    public <K, V> CompletableFuture<Void> putSafeInCache(final String cacheName, final K key, final V value) {
-        return null;
+    public <K, V> void putSafeInCache(final String cacheName, final K key, final V value) {
+
     }
 
     @Override
-    public <K> CompletableFuture<Void> removeFromCache(final String cacheName, final K key) {
-        return null;
+    public <K> void removeFromCache(final String cacheName, final K key) {
+
     }
 
     @Override

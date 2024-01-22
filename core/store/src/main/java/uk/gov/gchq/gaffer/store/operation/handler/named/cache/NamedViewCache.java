@@ -18,13 +18,13 @@ package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
 import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CompletionException;
 
 import static java.util.Objects.nonNull;
 
@@ -153,9 +153,9 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
      */
     public void addToCache(final NamedViewDetail namedView, final boolean overwrite) throws CacheOperationException {
         try {
-            super.addToCache(namedView.getName(), namedView, overwrite).join();
-        } catch (final CompletionException e) {
-            throw new CacheOperationException(e.getCause());
+            super.addToCache(namedView.getName(), namedView, overwrite);
+        } catch (final GafferRuntimeException e) {
+            throw new CacheOperationException(e);
         }
     }
 
@@ -228,7 +228,7 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
             throw new IllegalArgumentException("NamedView name cannot be null");
         }
 
-        NamedViewDetail existing = null;
+        NamedViewDetail existing;
         try {
             existing = getFromCache(name);
         } catch (final CacheOperationException e) {
@@ -237,7 +237,7 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
         }
 
         if (user == null || (existing != null && existing.hasWriteAccess(user, adminAuth))) {
-            deleteFromCache(name).join();
+            deleteFromCache(name);
         } else {
             throw new CacheOperationException(String.format("User %s does not have permission to delete named view: %s", user, name));
         }

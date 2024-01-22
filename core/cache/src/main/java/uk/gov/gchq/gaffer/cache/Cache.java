@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 
 import java.util.Collections;
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.StreamSupport;
 
 import static java.util.Objects.nonNull;
@@ -54,16 +53,14 @@ public class Cache<K, V> {
      * @param key       The key
      * @param value     The value
      * @param overwrite overwrite any existing key or not
-     * @return A {@link CompletableFuture} for the async operation
-     * @throws CacheOperationException if there was an error trying to add to the cache
      */
-    protected CompletableFuture<Void> addToCache(final K key, final V value, final boolean overwrite) {
+    protected void addToCache(final K key, final V value, final boolean overwrite) {
         final ICacheService service = CacheServiceLoader.getService();
         // Run relevant put method asynchronously
         if (overwrite) {
-            return service.putInCache(getCacheName(), key, value);
+            service.putInCache(getCacheName(), key, value);
         } else {
-            return service.putSafeInCache(getCacheName(), key, value);
+            service.putSafeInCache(getCacheName(), key, value);
         }
     }
 
@@ -99,10 +96,9 @@ public class Cache<K, V> {
      * Delete the value related to the specified ID from the cache.
      *
      * @param key the ID of the key to be deleted
-     * @return A {@link CompletableFuture} for the async operation
      */
-    public CompletableFuture<Void> deleteFromCache(final String key) {
-        return CacheServiceLoader.getService().removeFromCache(cacheName, key);
+    public void deleteFromCache(final String key) {
+        CacheServiceLoader.getService().removeFromCache(cacheName, key);
     }
 
     /**

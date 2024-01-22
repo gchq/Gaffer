@@ -23,11 +23,11 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Objects;
-import java.util.concurrent.CompletionException;
 import java.util.stream.StreamSupport;
 
 /**
@@ -155,15 +155,15 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
             if (overwrite && contains(name)) {
                 final boolean doesUserHavePermissionToWrite = getFromCache(name).hasWriteAccess(user, adminAuth);
                 if (doesUserHavePermissionToWrite) {
-                    addToCache(name, namedOperation, true).join();
+                    addToCache(name, namedOperation, true);
                 } else {
                     throw new CacheOperationException(String.format("User %s does not have permission to overwrite", user.getUserId()));
                 }
             } else {
-                addToCache(name, namedOperation, overwrite).join();
+                addToCache(name, namedOperation, overwrite);
             }
-        } catch (final CompletionException e) {
-            throw new CacheOperationException(e.getCause());
+        } catch (final GafferRuntimeException e) {
+            throw new CacheOperationException(e);
         }
     }
 
@@ -182,7 +182,7 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
             throw new CacheOperationException("NamedOperation name cannot be null");
         }
 
-        NamedOperationDetail existing = null;
+        NamedOperationDetail existing;
         try {
             existing = getFromCache(name);
         } catch (final CacheOperationException e) {
@@ -191,7 +191,7 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
         }
 
         if (existing.hasWriteAccess(user, adminAuth)) {
-            super.deleteFromCache(name).join();
+            super.deleteFromCache(name);
         } else {
             throw new CacheOperationException(String.format("User %s does not have authority to delete named operation: %s", user, name));
         }

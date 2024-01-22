@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
 import java.util.Properties;
-import java.util.concurrent.CompletionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -49,7 +49,7 @@ class CacheTest {
 
     @Test
     void shouldAddAndGetValueFromCache() throws CacheOperationException {
-        cache.addToCache("key1", 1, true).join();
+        cache.addToCache("key1", 1, true);
 
         assertThat(cache.getFromCache("key1")).isEqualTo(1);
         assertThat(cache.getFromCache("key2")).isNull();
@@ -57,18 +57,18 @@ class CacheTest {
 
     @Test
     void shouldAddAndGetCacheOverwrite() throws CacheOperationException {
-        cache.addToCache("key1", 1, true).join();
-        cache.addToCache("key1", 2, true).join();
+        cache.addToCache("key1", 1, true);
+        cache.addToCache("key1", 2, true);
 
         assertThat(cache.getFromCache("key1")).isEqualTo(2);
     }
 
     @Test
     void shouldAddAndGetCacheNoOverwrite() throws CacheOperationException {
-        cache.addToCache("key1", 1, true).join();
+        cache.addToCache("key1", 1, true);
 
-        assertThatExceptionOfType(CompletionException.class)
-                .isThrownBy(() -> cache.addToCache("key1", 2, false).join())
+        assertThatExceptionOfType(OverwritingException.class)
+                .isThrownBy(() -> cache.addToCache("key1", 2, false))
                 .withMessageContaining("Cache entry already exists for key: key1");
         assertThat(cache.getFromCache("key1").intValue()).isEqualTo(1);
     }
@@ -80,8 +80,8 @@ class CacheTest {
 
     @Test
     void shouldDeleteKeyValuePair() throws CacheOperationException {
-        cache.addToCache("key1", 1, false).join();
-        cache.deleteFromCache("key1").join();
+        cache.addToCache("key1", 1, false);
+        cache.deleteFromCache("key1");
         assertThat(cache.getFromCache("key1")).isNull();
     }
 }

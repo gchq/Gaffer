@@ -26,12 +26,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-
-import org.eclipse.jetty.util.Callback.Completable;
-
-import static java.util.Objects.isNull;
+import java.util.Objects;
 
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
@@ -60,11 +55,10 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
      * @param graph     the {@link Graph} to be added
      * @param overwrite if true, overwrite any graphs already in the cache with the same ID
      * @param access    Access for the graph being stored.
-     * @return CompletableFuture of the async cache add.
      */
-    public CompletableFuture<Void> addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) {
+    public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) {
         try {
-            return cacheTransient.addGraphToCache(graph, JSONSerialiser.serialise(access), overwrite);
+            cacheTransient.addGraphToCache(graph, JSONSerialiser.serialise(access), overwrite);
         } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
@@ -76,12 +70,11 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
      * @param graphSerialisable the serialised {@link Graph} to be added
      * @param access            Access for the graph being stored.
      * @param overwrite         if true, overwrite any graphs already in the cache with the same ID
-     * @return CompletableFuture of the the async cache add.
      */
     @SuppressWarnings("PMD.PreserveStackTrace") //False positive
-    public CompletableFuture<Void> addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
+    public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) {
         try {
-            return cacheTransient.addGraphToCache(graphSerialisable, JSONSerialiser.serialise(access), overwrite);
+            cacheTransient.addGraphToCache(graphSerialisable, JSONSerialiser.serialise(access), overwrite);
         } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
@@ -123,7 +116,7 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
     public FederatedAccess getAccessFromCache(final String graphId) {
         try {
             final byte[] accessFromCache = cacheTransient.getAccessFromCache(graphId);
-            return (isNull(accessFromCache)) ? null : JSONSerialiser.deserialise(accessFromCache, FederatedAccess.class);
+            return (Objects.isNull(accessFromCache)) ? null : JSONSerialiser.deserialise(accessFromCache, FederatedAccess.class);
         } catch (final Exception e) {
             throw new GafferRuntimeException(String.format("Error Getting Access from Cache for graphId:%s", graphId), e);
         }
@@ -160,8 +153,8 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
     }
 
     @Override
-    public CompletableFuture<Void> deleteFromCache(final String key) {
-        return cacheTransient.deleteFromCache(key);
+    public void deleteFromCache(final String key) {
+        cacheTransient.deleteFromCache(key);
     }
 
     @Override
