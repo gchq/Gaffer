@@ -19,30 +19,38 @@ package uk.gov.gchq.gaffer.jobtracker;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.ICacheService;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.lang.reflect.Field;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 
 public class JobTrackerBrokenCacheTest {
-    @Mock
-    private Logger loggerMock;
-
-    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.jobtracker.BrokenCacheService";
-    private static Properties properties = new Properties();
-
     @BeforeAll
-    public static void setUp() {
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
-        CacheServiceLoader.initialise(properties);
+    public static void setUp() throws Exception {
+        ICache<Object, Object> mockICache = Mockito.mock(ICache.class);
+        doThrow(new CacheOperationException("Stubbed class")).when(mockICache).put(any(), any());
+        ICacheService mockICacheService = Mockito.spy(ICacheService.class);
+        given(mockICacheService.getCache(any())).willReturn(mockICache);
+
+        Field field = CacheServiceLoader.class.getDeclaredField("service");
+        field.setAccessible(true);
+        field.set(null, mockICacheService);
     }
 
     @Test
