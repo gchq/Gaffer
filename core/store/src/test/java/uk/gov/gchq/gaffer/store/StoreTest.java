@@ -29,6 +29,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.ICacheService;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -134,6 +137,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -157,6 +161,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -249,10 +254,15 @@ public class StoreTest {
     @Test
     public void shouldExecuteOperationWhenJobTrackerCacheIsBroken(@Mock final StoreProperties storeProperties) throws Exception {
         // Given
-        String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.jobtracker.BrokenCacheService";
-        Properties properties = new Properties();
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
-        CacheServiceLoader.initialise(properties);
+        ICache<Object, Object> mockICache = Mockito.mock(ICache.class);
+        doThrow(new CacheOperationException("Stubbed class")).when(mockICache).put(any(), any());
+        ICacheService mockICacheService = Mockito.spy(ICacheService.class);
+        given(mockICacheService.getCache(any())).willReturn(mockICache);
+
+        Field field = CacheServiceLoader.class.getDeclaredField("service");
+        field.setAccessible(true);
+        field.set(null, mockICacheService);
+
         final AddElements addElements = new AddElements();
         final StoreImpl3 store = new StoreImpl3();
         store.initialise("graphId", createSchemaMock(), storeProperties);
@@ -262,6 +272,8 @@ public class StoreTest {
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);
+        verify(mockICacheService, Mockito.atLeast(1)).getCache(any());
+        verify(mockICache, Mockito.atLeast(1)).put(any(), any());
     }
 
     @Test
