@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Crown Copyright
+ * Copyright 2023-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class GafferPopGraphProvider extends AbstractGraphProvider {
 
     public static final String TEST_USER_ID = "tinkerpopTestUser";
     public static final String[] TEST_OP_OPTIONS = new String[] {"key1:value1", "key2:value2"};
-    public static final String TEST_STORE_PROPS = GafferPopGraphProvider.class.getClassLoader().getResource("gaffer/map-store.properties").getPath();
+    public static final String TEST_STORE_PROPS = GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/map-store.properties").getPath();
     public static final String TEST_TYPES_SCHEMA = GafferPopGraphProvider.class.getClassLoader().getResource("tinkerpop/schema/types").getPath();
 
     private static final Set<Class> IMPLEMENTATION = Stream.of(
