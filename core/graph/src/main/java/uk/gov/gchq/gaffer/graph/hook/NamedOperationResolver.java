@@ -100,7 +100,9 @@ public class NamedOperationResolver implements GetFromCacheHook {
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
         try {
+            LOGGER.info("Resolving Named Operations with timeout: " + timeout);
             CompletableFuture.runAsync(() -> resolveNamedOperations(opChain, context.getUser())).get(timeout, timeUnit);
+            LOGGER.info("Finished Named Operation resolver");
         } catch (ExecutionException | TimeoutException e) {
             throw new GafferRuntimeException("ResolverTask did not complete", e);
         } catch (InterruptedException e) {
@@ -126,9 +128,10 @@ public class NamedOperationResolver implements GetFromCacheHook {
         operations.getOperations().forEach(operation -> {
             if (operation instanceof NamedOperation) {
                 updatedOperations.addAll(resolveNamedOperation((NamedOperation<?, ?>) operation, user));
-            } else if (operation instanceof Operations) {
-                resolveNamedOperations(((Operations<?>) operation), user);
-            } else if (operation instanceof Operation) {
+            } else {
+                if (operation instanceof Operations) {
+                    resolveNamedOperations(((Operations<?>) operation), user);
+                }
                 updatedOperations.add(operation);
             }
         });

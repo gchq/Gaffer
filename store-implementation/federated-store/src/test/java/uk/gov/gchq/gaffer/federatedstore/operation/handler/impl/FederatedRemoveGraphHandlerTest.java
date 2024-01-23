@@ -196,10 +196,11 @@ public class FederatedRemoveGraphHandlerTest {
         final String removeThisCache = "removeThisCache";
         final String myViewToRemove = "myViewToRemove";
 
-        assertThat(CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
-                .isNotNull()
-                .returns(null, c -> c.get(myViewToRemove))
-                .returns(0, ICache::size);
+        final ICache<Object, Object> cache = CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache));
+
+        assertThat(cache).isNotNull();
+        assertThat(cache.get(myViewToRemove)).isNull();
+        assertThat(cache.size()).isZero();
 
         final AccumuloProperties clone = PROPERTIES.clone();
         clone.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
@@ -214,12 +215,9 @@ public class FederatedRemoveGraphHandlerTest {
 
         store.execute(new FederatedOperation.Builder().op(new AddNamedView.Builder().name(myViewToRemove).view(new View.Builder().edge(GROUP_BASIC_ENTITY, new ViewElementDefinition.Builder().properties(PROPERTY_1).build()).build()).build()).build(), contextTestUser());
 
-        assertThat(CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
-                .isNotNull()
-                .returns(1, ICache::size)
-                .doesNotReturn(null, cache -> cache.get(myViewToRemove));
-
-        assertEquals(1, store.getGraphs(testUser, null, new RemoveGraph()).size());
+        assertThat(cache.get(myViewToRemove)).isNotNull();
+        assertThat(cache.size()).isEqualTo(1);
+        assertThat(store.getGraphs(testUser, null, new RemoveGraph())).hasSize(1);
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
@@ -229,10 +227,8 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        assertThat(CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
-                .isNotNull()
-                .returns(1, ICache::size)
-                .doesNotReturn(null, c -> c.get(myViewToRemove));
+        assertThat(cache.get(myViewToRemove)).isNotNull();
+        assertThat(cache.size()).isEqualTo(1);
 
         Collection<GraphSerialisable> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
@@ -249,11 +245,11 @@ public class FederatedRemoveGraphHandlerTest {
 
         final String removeThisCache = "removeThisCache";
         final String myViewToRemove = "myViewToRemove";
+        final ICache<Object, Object> cache = CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache));
 
-        assertThat(CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
-                .isNotNull()
-                .returns(null, c -> c.get(myViewToRemove))
-                .returns(0, ICache::size);
+        assertThat(cache).isNotNull();
+        assertThat(cache.get(myViewToRemove)).isNull();
+        assertThat(cache.size()).isZero();
 
         final AccumuloProperties clone = PROPERTIES.clone();
         clone.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
@@ -268,12 +264,9 @@ public class FederatedRemoveGraphHandlerTest {
 
         store.execute(new FederatedOperation.Builder().op(new AddNamedView.Builder().name(myViewToRemove).view(new View.Builder().edge(GROUP_BASIC_ENTITY, new ViewElementDefinition.Builder().properties(PROPERTY_1).build()).build()).build()).build(), contextTestUser());
 
-        assertThat(CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
-                .isNotNull()
-                .returns(1, ICache::size)
-                .doesNotReturn(null, cache -> cache.get(myViewToRemove));
-
-        assertEquals(1, store.getGraphs(testUser, null, new RemoveGraph()).size());
+        assertThat(cache.size()).isEqualTo(1);
+        assertThat(cache.get(myViewToRemove)).isNotNull();
+        assertThat(store.getGraphs(testUser, null, new RemoveGraph())).hasSize(1);
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
@@ -283,10 +276,8 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        assertThat(CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
-                .isNotNull()
-                .returns(0, ICache::size)
-                .returns(null, c -> c.get(myViewToRemove));
+        assertThat(cache.size()).isZero();
+        assertThat(cache.get(myViewToRemove)).isNull();
 
         Collection<GraphSerialisable> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
