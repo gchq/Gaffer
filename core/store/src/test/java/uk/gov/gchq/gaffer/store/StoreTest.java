@@ -29,6 +29,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.ICacheService;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -134,6 +137,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -157,6 +161,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -244,6 +249,31 @@ public class StoreTest {
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
         JSONSerialiser.update();
+    }
+
+    @Test
+    public void shouldExecuteOperationWhenJobTrackerCacheIsBroken(@Mock final StoreProperties storeProperties) throws Exception {
+        // Given
+        ICache<Object, Object> mockICache = Mockito.mock(ICache.class);
+        doThrow(new CacheOperationException("Stubbed class")).when(mockICache).put(any(), any());
+        ICacheService mockICacheService = Mockito.spy(ICacheService.class);
+        given(mockICacheService.getCache(any())).willReturn(mockICache);
+
+        Field field = CacheServiceLoader.class.getDeclaredField("service");
+        field.setAccessible(true);
+        field.set(null, mockICacheService);
+
+        final AddElements addElements = new AddElements();
+        final StoreImpl3 store = new StoreImpl3();
+        store.initialise("graphId", createSchemaMock(), storeProperties);
+
+        // When
+        store.execute(addElements, context);
+
+        // Then
+        verify(addElementsHandler).doOperation(addElements, context, store);
+        verify(mockICacheService, Mockito.atLeast(1)).getCache(any());
+        verify(mockICache, Mockito.atLeast(1)).put(any(), any());
     }
 
     @Test
@@ -1243,6 +1273,99 @@ public class StoreTest {
 
         public TestCustomJsonSerialiser1() {
             super(mapper);
+        }
+    }
+    private class StoreImpl3 extends Store {
+        private final Set<StoreTrait> traits =
+                new HashSet<>(asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
+        private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
+        private int createOperationHandlersCallCount;
+
+        @Mock
+        private ScheduledExecutorService executorService;
+
+        @Override
+        protected OperationChainValidator createOperationChainValidator() {
+            return operationChainValidator;
+        }
+
+        @SuppressWarnings("rawtypes")
+        public OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
+            return super.getOperationHandler(opClass);
+        }
+
+        @Override
+        public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+            if (opClass.equals(SetVariable.class)) {
+                return null;
+            }
+            return super.getOperationHandler(opClass);
+        }
+
+        @Override
+        protected void addAdditionalOperationHandlers() {
+            createOperationHandlersCallCount++;
+            addOperationHandler(mock(AddElements.class).getClass(), addElementsHandler);
+            addOperationHandler(mock(GetElements.class).getClass(), getElementsHandler);
+            addOperationHandler(mock(GetAdjacentIds.class).getClass(), getElementsHandler);
+            addOperationHandler(Validate.class, validateHandler);
+            addOperationHandler(ExportToGafferResultCache.class, exportToGafferResultCacheHandler);
+            addOperationHandler(GetGafferResultCacheExport.class, getGafferResultCacheExportHandler);
+        }
+
+        @Override
+        protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
+            return getElementsHandler;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
+            return getAllElementsHandler;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
+            return getAdjacentIdsHandler;
+        }
+
+        @Override
+        protected OperationHandler<AddElements> getAddElementsHandler() {
+            return addElementsHandler;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(traits);
+        }
+
+        @Override
+        protected Object doUnhandledOperation(final Operation operation, final Context context) {
+            doUnhandledOperationCalls.add(operation);
+            return null;
+        }
+
+        public int getCreateOperationHandlersCallCount() {
+            return createOperationHandlersCallCount;
+        }
+
+        public ArrayList<Operation> getDoUnhandledOperationCalls() {
+            return doUnhandledOperationCalls;
+        }
+
+        @Override
+        protected SchemaOptimiser createSchemaOptimiser() {
+            return schemaOptimiser;
+        }
+
+        @Override
+        protected JobTracker createJobTracker() {
+            return new JobTracker("Test");
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return Serialiser.class;
         }
     }
 }

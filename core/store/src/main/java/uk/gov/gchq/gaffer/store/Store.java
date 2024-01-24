@@ -363,8 +363,8 @@ public abstract class Store {
     }
 
     protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
-        addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
         try {
+            addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
             final O result = (O) handleOperation(operation, context);
             addOrUpdateJobDetail(operation, context, null, JobStatus.FINISHED);
             return result;
