@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 
 package uk.gov.gchq.gaffer.jobtracker;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
  */
 public class JobTracker extends Cache<String, JobDetail> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobTracker.class);
     private static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
 
     public JobTracker(final String suffixJobTrackerCacheName) {
@@ -57,7 +61,7 @@ public class JobTracker extends Cache<String, JobDetail> {
             validateJobDetail(jobDetail);
             super.addToCache(jobDetail.getJobId(), jobDetail, true);
         } catch (final CacheOperationException e) {
-            throw new RuntimeException("Failed to add jobDetail " + jobDetail.toString() + " to the cache", e);
+            LOGGER.error("Failed to add jobDetail " + jobDetail.toString() + " to the cache", e);
         }
     }
 
