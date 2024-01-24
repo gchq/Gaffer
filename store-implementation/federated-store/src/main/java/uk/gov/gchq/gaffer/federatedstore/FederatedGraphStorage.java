@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -198,25 +199,23 @@ public class FederatedGraphStorage {
     }
 
     private void removeGraphCaches(final String graphId) {
-        if (CacheServiceLoader.isEnabled()) {
-            try {
-                final GraphSerialisable graphFromCache = federatedStoreCache.getGraphFromCache(graphId);
-                final StoreProperties storeProperties = graphFromCache.getStoreProperties();
-                final ArrayList<String> cacheNames = Lists.newArrayList(
-                        NamedViewCache.getCacheNameFrom(storeProperties.getCacheServiceNamedViewSuffix(graphId)),
-                        NamedOperationCache.getCacheNameFrom(storeProperties.getCacheServiceNamedOperationSuffix(graphId)),
-                        JobTracker.getCacheNameFrom(storeProperties.getCacheServiceJobTrackerSuffix(graphId)));
-                for (final String cacheName : cacheNames) {
-                    final ICache<Object, Object> cache = CacheServiceLoader.getService().getCache(cacheName);
-                    if (nonNull(cache)) {
-                        cache.clear();
-                    } else {
-                        LOGGER.debug(String.format("No cache found graphId:%s with cacheName:%s", graphId, cacheName));
-                    }
+        try {
+            final GraphSerialisable graphFromCache = federatedStoreCache.getGraphFromCache(graphId);
+            final StoreProperties storeProperties = graphFromCache.getStoreProperties();
+            final List<Cache<?, ?>> caches = Lists.newArrayList(
+                    new NamedViewCache(storeProperties.getCacheServiceNamedViewSuffix(graphId)),
+                    new NamedOperationCache(storeProperties.getCacheServiceNamedOperationSuffix(graphId)),
+                    new JobTracker(storeProperties.getCacheServiceJobTrackerSuffix(graphId)));
+            for (final Cache<?, ?> cacheInstance : caches) {
+                final ICache<?, ?> cache = cacheInstance.getCache();
+                if (nonNull(cache)) {
+                    cache.clear();
+                } else {
+                    LOGGER.debug(String.format("No cache found graphId:%s with cacheName:%s", graphId, cacheInstance.getCacheName()));
                 }
-            } catch (final CacheOperationException e) {
-                throw new GafferRuntimeException(String.format("Error clearing Cache while removing graphId: %s", graphId), e);
             }
+        } catch (final CacheOperationException e) {
+            throw new GafferRuntimeException(String.format("Error clearing Cache while removing graphId: %s", graphId), e);
         }
     }
 

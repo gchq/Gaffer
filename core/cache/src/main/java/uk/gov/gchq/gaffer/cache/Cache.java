@@ -114,7 +114,7 @@ public class Cache<K, V> {
      *
      * @return ICache
      */
-    public ICache getCache() {
+    public ICache<K, V> getCache() {
         if (CacheServiceLoader.isEnabled(serviceName)) {
             return CacheServiceLoader.getService(serviceName).getCache(cacheName);
         } else {
