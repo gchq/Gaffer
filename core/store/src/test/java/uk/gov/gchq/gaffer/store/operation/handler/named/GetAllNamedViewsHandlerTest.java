@@ -89,7 +89,7 @@ public class GetAllNamedViewsHandlerTest {
 
     @BeforeEach
     public void beforeEach() throws CacheOperationException {
-        if (namedViewCache != null && CacheServiceLoader.isEnabled()) {
+        if (CacheServiceLoader.isDefaultEnabled()) {
             namedViewCache.clearCache();
         }
     }
