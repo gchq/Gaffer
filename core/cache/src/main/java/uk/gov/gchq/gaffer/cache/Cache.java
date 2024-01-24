@@ -38,7 +38,7 @@ public class Cache<K, V> {
     }
 
     /**
-     * Gets the requested value from the graph
+     * Gets the requested value from the cache
      * @param key Key to the value
      * @return The value associated with the key
      * @throws CacheOperationException if issue getting from cache
