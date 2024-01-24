@@ -103,9 +103,9 @@ public class NamedOperationResolver implements GetFromCacheHook {
             LOGGER.info("Resolving Named Operations with timeout: " + timeout);
             CompletableFuture.runAsync(() -> resolveNamedOperations(opChain, context.getUser())).get(timeout, timeUnit);
             LOGGER.info("Finished Named Operation resolver");
-        } catch (ExecutionException | TimeoutException e) {
-            throw new GafferRuntimeException("ResolverTask did not complete", e);
-        } catch (InterruptedException e) {
+        } catch (final ExecutionException | TimeoutException e) {
+            throw new GafferRuntimeException("ResolverTask did not complete: " + e.getMessage(), e);
+        } catch (final InterruptedException e) {
             LOGGER.warn("Thread interrupted", e);
             Thread.currentThread().interrupt();
         }
