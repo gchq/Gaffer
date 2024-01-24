@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import java.io.File;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
