@@ -30,7 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -139,7 +138,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.RunnableScheduledFuture;
 import java.util.concurrent.ScheduledExecutorService;
@@ -450,9 +448,7 @@ public class StoreTest {
     @Test
     public void shouldReturnAllSupportedOperations(@Mock final StoreProperties properties) throws Exception {
         // Given
-        final Properties cacheProperties = new Properties();
-        cacheProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        CacheServiceLoader.initialise(cacheProperties);
+        CacheServiceLoader.initialise(HashMapCacheService.class.getName());
 
         final Schema schema = createSchemaMock();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -562,9 +558,7 @@ public class StoreTest {
     @Test
     public void shouldReturnAllSupportedOperationsWhenJobTrackerIsDisabled(@Mock final StoreProperties properties) throws Exception {
         // Given
-        final Properties cacheProperties = new Properties();
-        cacheProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        CacheServiceLoader.initialise(cacheProperties);
+        CacheServiceLoader.initialise(HashMapCacheService.class.getName());
 
         final Schema schema = createSchemaMock();
         given(properties.getJobExecutorThreadCount()).willReturn(1);

@@ -109,9 +109,7 @@ public class FederatedAccessResourceAccessPredicateTest {
                 .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
                 .build();
 
-        final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
-        CacheServiceLoader.initialise(storeProperties.getProperties());
+        CacheServiceLoader.initialise(CACHE_SERVICE_CLASS_DEFAULT);
         final FederatedStoreCache testCache = new FederatedStoreCache("shouldBeSerialisableWithCacheWhenUsingCustomPredicate");
         final String testKey = "testKey";
 

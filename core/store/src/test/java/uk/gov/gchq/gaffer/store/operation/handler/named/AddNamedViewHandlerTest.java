@@ -87,14 +87,9 @@ public class AddNamedViewHandlerTest {
                 .writeAccessRoles(writeAccessRoles)
                 .build();
 
-        StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties.getProperties());
+        CacheServiceLoader.initialise("uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        namedViewCache.clearCache();
         given(store.getProperties()).willReturn(new StoreProperties());
-
-        if (namedViewCache != null && CacheServiceLoader.isEnabled()) {
-            namedViewCache.clearCache();
-        }
     }
 
     @AfterEach

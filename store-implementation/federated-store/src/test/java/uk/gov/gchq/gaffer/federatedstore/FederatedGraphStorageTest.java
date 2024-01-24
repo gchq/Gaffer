@@ -26,8 +26,6 @@ import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.ICacheService;
-import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -40,7 +38,6 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import static java.util.Collections.singleton;
@@ -97,9 +94,7 @@ public class FederatedGraphStorageTest {
     @BeforeEach
     public void setUp() throws Exception {
         resetForFederatedTests();
-        FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
-        CacheServiceLoader.initialise(federatedStoreProperties.getProperties());
+        CacheServiceLoader.initialise(CACHE_SERVICE_CLASS_DEFAULT);
         graphStorage = new FederatedGraphStorage(CACHE_NAME_SUFFIX);
     }
 
@@ -535,14 +530,10 @@ public class FederatedGraphStorageTest {
                 .build();
     }
 
-
     @Test
     public void shouldAddGraphWithCacheEnabled() throws StorageException {
         //given
-        final Properties serviceLoaderProperties = new Properties();
-        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        CacheServiceLoader.initialise(serviceLoaderProperties);
-        final ICacheService cacheService = CacheServiceLoader.getService();
+        final ICacheService cacheService = CacheServiceLoader.getDefaultService();
 
         //when
         graphStorage.put(graphSerialisableA, auth1Access);
@@ -552,16 +543,12 @@ public class FederatedGraphStorageTest {
         assertEquals(1, cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues().size());
         assertEquals(1, allIds.size());
         assertEquals(GRAPH_ID_A, allIds.iterator().next());
-
     }
 
     @Test
     public void shouldAddGraphReplicatedBetweenInstances() throws StorageException {
         //given
-        final Properties serviceLoaderProperties = new Properties();
-        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        CacheServiceLoader.initialise(serviceLoaderProperties);
-        final ICacheService cacheService = CacheServiceLoader.getService();
+        final ICacheService cacheService = CacheServiceLoader.getDefaultService();
         final FederatedGraphStorage otherGraphStorage = new FederatedGraphStorage(CACHE_NAME_SUFFIX);
 
         //when
@@ -572,7 +559,6 @@ public class FederatedGraphStorageTest {
         assertEquals(1, cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues().size());
         assertEquals(1, allIds.size());
         assertEquals(GRAPH_ID_A, allIds.iterator().next());
-
     }
 
 }
