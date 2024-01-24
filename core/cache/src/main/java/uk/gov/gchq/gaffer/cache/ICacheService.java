@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.cache;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 
 import java.util.Properties;
 
@@ -73,6 +72,7 @@ public interface ICacheService {
      * @param value     the value to add
      * @param <K>       The object type that acts as the key for the cache
      * @param <V>       The value that is stored in the cache
+     * @throws CacheOperationException if issue adding to cache.
      */
     default <K, V> void putInCache(final String cacheName, final K key, final V value)
             throws CacheOperationException {
@@ -80,7 +80,8 @@ public interface ICacheService {
     }
 
     /**
-     * Add a new key-value pair to the specified cache, but only if there is no existing
+     * Add a new key-value pair to the specified cache, but only if there is no
+     * existing
      * entry associated with the specified key.
      *
      * @param cacheName the name of the cache
@@ -88,6 +89,7 @@ public interface ICacheService {
      * @param value     the value to add
      * @param <K>       The object type that acts as the key for the cache
      * @param <V>       The value that is stored in the cache
+     * @throws CacheOperationException if issue adding to cache.
      */
     default <K, V> void putSafeInCache(final String cacheName, final K key, final V value)
             throws CacheOperationException {

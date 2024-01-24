@@ -66,7 +66,7 @@ public class JobTracker extends Cache<String, JobDetail> {
         executor.submit(() -> {
             try {
                 super.addToCache(jobDetail.getJobId(), jobDetail, true);
-            } catch (CacheOperationException e) {
+            } catch (final CacheOperationException e) {
                 LOGGER.error("Failed to add jobDetail " + jobDetail.toString() + " to the cache", e);
             }
         });
