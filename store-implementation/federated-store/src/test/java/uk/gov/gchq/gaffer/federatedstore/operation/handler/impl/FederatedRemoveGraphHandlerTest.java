@@ -196,7 +196,7 @@ public class FederatedRemoveGraphHandlerTest {
         final String removeThisCache = "removeThisCache";
         final String myViewToRemove = "myViewToRemove";
 
-        assertThat(CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
+        assertThat(CacheServiceLoader.getDefaultService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
                 .isNotNull()
                 .returns(null, c -> c.get(myViewToRemove))
                 .returns(0, ICache::size);
@@ -214,7 +214,7 @@ public class FederatedRemoveGraphHandlerTest {
 
         store.execute(new FederatedOperation.Builder().op(new AddNamedView.Builder().name(myViewToRemove).view(new View.Builder().edge(GROUP_BASIC_ENTITY, new ViewElementDefinition.Builder().properties(PROPERTY_1).build()).build()).build()).build(), contextTestUser());
 
-        assertThat(CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
+        assertThat(CacheServiceLoader.getDefaultService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
                 .isNotNull()
                 .returns(1, ICache::size)
                 .doesNotReturn(null, cache -> cache.get(myViewToRemove));
@@ -229,7 +229,7 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        assertThat(CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
+        assertThat(CacheServiceLoader.getDefaultService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
                 .isNotNull()
                 .returns(1, ICache::size)
                 .doesNotReturn(null, c -> c.get(myViewToRemove));
@@ -250,7 +250,7 @@ public class FederatedRemoveGraphHandlerTest {
         final String removeThisCache = "removeThisCache";
         final String myViewToRemove = "myViewToRemove";
 
-        assertThat(CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
+        assertThat(CacheServiceLoader.getDefaultService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
                 .isNotNull()
                 .returns(null, c -> c.get(myViewToRemove))
                 .returns(0, ICache::size);
@@ -268,7 +268,7 @@ public class FederatedRemoveGraphHandlerTest {
 
         store.execute(new FederatedOperation.Builder().op(new AddNamedView.Builder().name(myViewToRemove).view(new View.Builder().edge(GROUP_BASIC_ENTITY, new ViewElementDefinition.Builder().properties(PROPERTY_1).build()).build()).build()).build(), contextTestUser());
 
-        assertThat(CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
+        assertThat(CacheServiceLoader.getDefaultService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
                 .isNotNull()
                 .returns(1, ICache::size)
                 .doesNotReturn(null, cache -> cache.get(myViewToRemove));
@@ -283,7 +283,7 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        assertThat(CacheServiceLoader.getService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
+        assertThat(CacheServiceLoader.getDefaultService().getCache(NamedViewCache.getCacheNameFrom(removeThisCache)))
                 .isNotNull()
                 .returns(0, ICache::size)
                 .returns(null, c -> c.get(myViewToRemove));

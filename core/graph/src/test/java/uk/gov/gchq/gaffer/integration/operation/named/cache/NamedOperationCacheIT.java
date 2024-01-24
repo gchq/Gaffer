@@ -84,8 +84,8 @@ public class NamedOperationCacheIT {
 
     @AfterEach
     public void after() throws CacheOperationException {
-        CacheServiceLoader.getService().clearCache(CACHE_NAME);
-        CacheServiceLoader.getService().clearCache(NamedOperationCache.getCacheNameFrom(SUFFIX));
+        CacheServiceLoader.getDefaultService().clearCache(CACHE_NAME);
+        CacheServiceLoader.getDefaultService().clearCache(NamedOperationCache.getCacheNameFrom(SUFFIX));
     }
 
     @Test
