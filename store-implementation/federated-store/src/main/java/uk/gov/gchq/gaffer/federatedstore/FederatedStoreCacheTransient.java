@@ -22,8 +22,6 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 
-import java.util.Objects;
-
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
  * handling the {@link Graph}s within a {@link FederatedStore}.
@@ -60,8 +58,10 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
      * @param overwrite if true, overwrite any graphs already in the cache with the
      *                  same ID
      * @param access    Access for the graph being stored.
+     * @throws CacheOperationException if issues adding to cache
      */
-    public void addGraphToCache(final Graph graph, final byte[] access, final boolean overwrite) {
+    public void addGraphToCache(final Graph graph, final byte[] access, final boolean overwrite)
+            throws CacheOperationException {
         addGraphToCache(new GraphSerialisable.Builder(graph).build(), access, overwrite);
     }
 
@@ -72,8 +72,10 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
      * @param access            Access for the graph being stored.
      * @param overwrite         if true, overwrite any graphs already in the cache
      *                          with the same ID
+     * @throws CacheOperationException if issues adding to cache
      */
-    public void addGraphToCache(final GraphSerialisable graphSerialisable, final byte[] access, final boolean overwrite) {
+    public void addGraphToCache(final GraphSerialisable graphSerialisable, final byte[] access, final boolean overwrite)
+            throws CacheOperationException {
         String graphId = graphSerialisable.getGraphId();
         Pair<GraphSerialisable, byte[]> pair = new Pair<>(graphSerialisable, access);
         super.addToCache(graphId, pair, overwrite);
@@ -92,7 +94,7 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
      */
     public GraphSerialisable getGraphFromCache(final String graphId) throws CacheOperationException {
         final GraphSerialisable graphSerialisable = getGraphSerialisableFromCache(graphId);
-        return (Objects.isNull(graphSerialisable)) ? null : graphSerialisable;
+        return graphSerialisable == null ? null : graphSerialisable;
     }
 
     /**
@@ -104,11 +106,11 @@ public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerial
      */
     public GraphSerialisable getGraphSerialisableFromCache(final String graphId) throws CacheOperationException {
         final Pair<GraphSerialisable, byte[]> fromCache = getFromCache(graphId);
-        return (Objects.isNull(fromCache)) ? null : fromCache.getFirst();
+        return fromCache == null ? null : fromCache.getFirst();
     }
 
     public byte[] getAccessFromCache(final String graphId) throws CacheOperationException {
         final Pair<GraphSerialisable, byte[]> fromCache = getFromCache(graphId);
-        return Objects.isNull(fromCache) ? null : fromCache.getSecond();
+        return fromCache == null ? null : fromCache.getSecond();
     }
 }

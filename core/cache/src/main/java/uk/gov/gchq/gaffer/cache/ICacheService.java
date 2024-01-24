@@ -74,12 +74,9 @@ public interface ICacheService {
      * @param <K>       The object type that acts as the key for the cache
      * @param <V>       The value that is stored in the cache
      */
-    default <K, V> void putInCache(final String cacheName, final K key, final V value) {
-        try {
-            getCache(cacheName).put(key, value);
-        } catch (final CacheOperationException e) {
-            throw new GafferRuntimeException("Failed to add key: " +  key + " value: " + value + " to cache: " + cacheName, e);
-        }
+    default <K, V> void putInCache(final String cacheName, final K key, final V value)
+            throws CacheOperationException {
+        getCache(cacheName).put(key, value);
     }
 
     /**
@@ -92,12 +89,9 @@ public interface ICacheService {
      * @param <K>       The object type that acts as the key for the cache
      * @param <V>       The value that is stored in the cache
      */
-    default <K, V> void putSafeInCache(final String cacheName, final K key, final V value) {
-        try {
-            getCache(cacheName).putSafe(key, value);
-        } catch (final CacheOperationException e) {
-            throw new GafferRuntimeException("Failed to add key: " +  key + " value: " + value + " to cache: " + cacheName, e);
-        }
+    default <K, V> void putSafeInCache(final String cacheName, final K key, final V value)
+            throws CacheOperationException {
+        getCache(cacheName).putSafe(key, value);
     }
 
     /**

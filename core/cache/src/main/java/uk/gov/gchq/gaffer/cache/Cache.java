@@ -58,8 +58,10 @@ public class Cache<K, V> {
      * @param key       The key
      * @param value     The value
      * @param overwrite overwrite any existing key or not
+     * @throws CacheOperationException if there was an error trying to add to
+     *                                 cache
      */
-    protected void addToCache(final K key, final V value, final boolean overwrite) {
+    protected void addToCache(final K key, final V value, final boolean overwrite) throws CacheOperationException {
         final ICacheService service = CacheServiceLoader.getService();
         if (overwrite) {
             service.putInCache(getCacheName(), key, value);

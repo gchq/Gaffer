@@ -16,7 +16,11 @@
 
 package uk.gov.gchq.gaffer.jobtracker;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.cache.Cache;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Objects;
@@ -33,7 +37,9 @@ import java.util.stream.StreamSupport;
  */
 public class JobTracker extends Cache<String, JobDetail> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobTracker.class);
     private static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
+
     // Executor to queue to allow queuing up async operations on the cache
     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
 
@@ -57,7 +63,13 @@ public class JobTracker extends Cache<String, JobDetail> {
      */
     public void addOrUpdateJob(final JobDetail jobDetail, final User user) {
         validateJobDetail(jobDetail);
-        executor.submit(() -> super.addToCache(jobDetail.getJobId(), jobDetail, true));
+        executor.submit(() -> {
+            try {
+                super.addToCache(jobDetail.getJobId(), jobDetail, true);
+            } catch (CacheOperationException e) {
+                LOGGER.error("Failed to add jobDetail " + jobDetail.toString() + " to the cache", e);
+            }
+        });
     }
 
     /**

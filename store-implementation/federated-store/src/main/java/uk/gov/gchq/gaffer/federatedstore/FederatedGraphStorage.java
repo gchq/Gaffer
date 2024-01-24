@@ -329,8 +329,10 @@ public class FederatedGraphStorage {
         } else {
             try {
                 federatedStoreCache.addGraphToCache(newGraph, access, false);
-            } catch (final OverwritingException e) {
+            } catch (OverwritingException e) {
                 throw new OverwritingException((String.format("User is attempting to overwrite a graph within the cacheService. GraphId: %s", newGraph.getGraphId())));
+            } catch (CacheOperationException e) {
+                throw new RuntimeException(e);
             }
         }
     }
