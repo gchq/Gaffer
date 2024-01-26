@@ -40,7 +40,13 @@ public class JobTracker extends Cache<String, JobDetail> {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobTracker.class);
     private static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
 
-    // Executor to queue to allow queuing up async operations on the cache
+    /**
+     * Executor to allow queuing up async operations on the cache.
+     * This is largely to allow additions to the cache to not block the calling
+     * thread as it will impact overall operation performance. Gets from the
+     * cache are executed in the pool but as has a thread size of one they wait
+     * until all queued up executions finish to prevent race conditions.
+     */
     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
 
     public JobTracker(final String suffixJobTrackerCacheName) {
