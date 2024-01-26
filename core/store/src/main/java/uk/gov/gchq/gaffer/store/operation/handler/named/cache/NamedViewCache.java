@@ -152,11 +152,7 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
      * @throws CacheOperationException if the add operation fails
      */
     public void addToCache(final NamedViewDetail namedView, final boolean overwrite) throws CacheOperationException {
-        try {
-            super.addToCache(namedView.getName(), namedView, overwrite);
-        } catch (final GafferRuntimeException e) {
-            throw new CacheOperationException(e);
-        }
+        super.addToCache(namedView.getName(), namedView, overwrite);
     }
 
     /**

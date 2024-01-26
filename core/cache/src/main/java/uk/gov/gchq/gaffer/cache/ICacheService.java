@@ -60,8 +60,7 @@ public interface ICacheService {
      * @throws CacheOperationException if issue getting from cache.
      */
     default <K, V> V getFromCache(final String cacheName, final K key) throws CacheOperationException {
-        final ICache<K, V> cache = getCache(cacheName);
-        return cache.get(key);
+        return (V) getCache(cacheName).get(key);
     }
 
     /**
