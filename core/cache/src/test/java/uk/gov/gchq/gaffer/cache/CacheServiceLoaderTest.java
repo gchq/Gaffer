@@ -30,9 +30,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+/**
+ * This class tests only deprecated parts of
+ * {@link CacheServiceLoader}. When these parts
+ * are removed this class can be removed.
+ */
+@Deprecated
 public class CacheServiceLoaderTest {
-
-    private Properties serviceLoaderProperties = new Properties();
+    private final Properties serviceLoaderProperties = new Properties();
 
     @BeforeEach
     public void before() {
