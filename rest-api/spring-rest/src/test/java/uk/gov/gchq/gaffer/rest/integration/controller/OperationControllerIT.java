@@ -56,7 +56,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
-import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 
@@ -167,7 +166,7 @@ public class OperationControllerIT extends AbstractRestApiIT {
         // Given
         StoreProperties properties = new MapStoreProperties();
         properties.setJobTrackerEnabled(true);
-        properties.set(CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        properties.setDefaultCacheServiceClass(HashMapCacheService.class.getName());
 
         Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))
