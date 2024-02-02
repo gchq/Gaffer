@@ -49,6 +49,7 @@ import java.util.Set;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_DEFAULT_CLASS;
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_JOB_TRACKER_CLASS;
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_NAMED_OPERATION_CLASS;
@@ -81,13 +82,6 @@ public class StoreProperties implements Cloneable {
     public static final String STRICT_JSON = JSONSerialiser.STRICT_JSON;
 
     public static final String ADMIN_AUTH = "gaffer.store.admin.auth";
-
-    /**
-     * This is used to set the cache implementation for all caches
-     * e.g. gaffer.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
-     */
-    @Deprecated
-    public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
 
     /**
      * These are used to set the suffix for all caches or per cache
