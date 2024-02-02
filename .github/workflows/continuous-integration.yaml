@@ -20,6 +20,24 @@ jobs:
       - name: Check all modules are tested
         run: ./cd/check_modules.sh
 
+  check-copyright:
+    name: Check Copyright Headers
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+
+      - name: Run Spotless copyright check
+        run: mvn -ntp spotless:check -T0.5C
+
   build-javadoc:
     name: Build Javadoc
     runs-on: ubuntu-latest
@@ -118,10 +136,6 @@ jobs:
 
       - name: Test
         run: mvn -B -ntp verify -P coverage -pl ${{matrix.modules.values}}
-
-      - name: Check Copyright Headers
-        if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest'
-        run: mvn -B -ntp spotless:check -pl ${{matrix.modules.values}}
 
       - name: Add JaCoCo reports to artifact
         uses: actions/upload-artifact@v4
