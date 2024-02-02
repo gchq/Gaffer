@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * are removed this class can be removed.
  */
 @Deprecated
-public class CacheServiceLoaderTest {
+public class DeprecatedCacheServiceLoaderTest {
     private final Properties serviceLoaderProperties = new Properties();
 
     @BeforeEach
