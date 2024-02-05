@@ -31,7 +31,6 @@ public class CacheServiceLoaderTest {
 
     @BeforeEach
     void reset() {
-//        serviceLoaderProperties.clear();
         CacheServiceLoader.shutdown();
     }
 
