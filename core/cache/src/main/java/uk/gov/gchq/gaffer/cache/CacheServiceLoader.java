@@ -137,7 +137,7 @@ public final class CacheServiceLoader {
      */
     @Deprecated
     public static void initialise(final Properties properties) {
-        LOGGER.warn("Calling this deprecated method initialises the default cache service, " +
+        LOGGER.warn("Calling the deprecated initialise method initialises the default cache service, " +
                 "this will cause problems if you are using service specific cache services");
         if (null == properties) {
             LOGGER.warn("received null properties - exiting initialise method without creating service");
@@ -185,7 +185,7 @@ public final class CacheServiceLoader {
      */
     @Deprecated
     public static ICacheService getService() {
-        LOGGER.warn("Calling this deprecated method returns the default cache service, " +
+        LOGGER.warn("Calling the deprecated getService method returns the default cache service, " +
                 "this will cause problems if you are using service specific cache services");
         return getDefaultService();
     }
@@ -197,8 +197,8 @@ public final class CacheServiceLoader {
      */
     @Deprecated
     public static boolean isEnabled() {
-        LOGGER.warn("Calling this deprecated method returns if the default cache service, " +
-                "is enabled and will cause problems if you are using service specific cache services");
+        LOGGER.warn("Calling the deprecated isEnabled method only returns if the default cache service " +
+                "is enabled, this will cause problems if you are using service specific cache services");
         return isDefaultEnabled();
     }
 
