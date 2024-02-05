@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -335,13 +335,16 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * This method exists for compatibility only. It will
-     * always return a blank {@link Schema}. Either use the
-     * {@link FederatedStore#getSchema} method and supply a
-     * {@link Context}, or ideally use the {@link GetSchema}
-     * operation instead.
+     * Get {@link Schema} for this FederatedStore (without a context)
+     * <p>
+     * This will return a merged schema of the optimised compact schemas
+     * of the stores inside this FederatedStore. It uses an empty/default
+     * {@link Context}, meaning it can only return results for graphs where
+     * this is valid, an empty Schema is otherwise returned. To supply a
+     * {@link Context}, use the {@link FederatedStore#getSchema} method,
+     * or ideally use the {@link GetSchema} operation instead.
      *
-     * @return {@link Schema} blank schema
+     * @return {@link Schema}, empty if default {@link Context} not valid
      */
     @Override
     public Schema getSchema() {
@@ -349,13 +352,16 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * This method exists for compatibility only. It will
-     * always return a blank {@link Schema}. Either use the
-     * {@link FederatedStore#getSchema} method and supply a
-     * {@link Context}, or ideally use the {@link GetSchema}
-     * operation instead.
+     * Get {@link Schema} for this FederatedStore (without a context)
+     * <p>
+     * This will return a merged schema of the original schemas of the
+     * stores inside this FederatedStore. This method uses an empty/default
+     * {@link Context}, meaning it can only return results for graphs where
+     * this is valid, an empty Schema is otherwise returned. To supply a
+     * {@link Context}, use the {@link FederatedStore#getSchema} method,
+     * or ideally use the {@link GetSchema} operation instead.
      *
-     * @return {@link Schema} blank schema
+     * @return {@link Schema}, empty if default {@link Context} not valid
      */
     @Override
     public Schema getOriginalSchema() {
@@ -371,7 +377,7 @@ public class FederatedStore extends Store {
      *
      * @param context          context with valid User
      * @param getCompactSchema if true, gets the optimised compact schemas
-     * @return schema
+     * @return {@link Schema}
      */
     public Schema getSchema(final Context context, final boolean getCompactSchema) {
         try {

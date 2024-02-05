@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -35,23 +36,29 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.rest.example.ExampleDomainObject;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AbstractExamplesFactoryTest {
+class AbstractExamplesFactoryTest {
 
     private static final Schema SCHEMA  = new Schema.Builder()
             .json(StreamUtil.schema(TestExamplesFactory.class))
             .build();
 
     @Test
-    public void shouldUseSchemaToCreateGetElementsInput() throws InstantiationException, IllegalAccessException {
+    void shouldUseSchemaToCreateGetElementsInput() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -73,7 +80,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldUseSchemaToCreateGetAdjacentIdsInput() throws InstantiationException, IllegalAccessException {
+    void shouldUseSchemaToCreateGetAdjacentIdsInput() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -94,7 +101,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldPopulateAddElementsAccordingToSchema() throws InstantiationException, IllegalAccessException {
+    void shouldPopulateAddElementsAccordingToSchema() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -126,7 +133,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldUseSchemaForGroupsInSortOperation() throws InstantiationException, IllegalAccessException {
+    void shouldUseSchemaForGroupsInSortOperation() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -141,7 +148,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldUseSchemaForMaxOperation() throws InstantiationException, IllegalAccessException {
+    void shouldUseSchemaForMaxOperation() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -156,7 +163,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldUseSchemaForMinOperation() throws InstantiationException, IllegalAccessException {
+    void shouldUseSchemaForMinOperation() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -171,7 +178,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldProvideEmptyGetWalksIfSchemaEmpty() throws InstantiationException, IllegalAccessException {
+    void shouldProvideEmptyGetWalksIfSchemaEmpty() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(new Schema());
 
@@ -184,7 +191,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldProvideEmptyGetWalksIfSchemaContainsNoEdges() throws InstantiationException, IllegalAccessException {
+    void shouldProvideEmptyGetWalksIfSchemaContainsNoEdges() throws InstantiationException, IllegalAccessException {
         // Given
         final Schema schemaNoEdges = new Schema.Builder()
                 .json(StreamUtil.openStream(TestExamplesFactory.class, "schema/schemaNoEdges.json"))
@@ -200,7 +207,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldProvideEmptyGetWalksIfSchemaContainsNoEntities() throws InstantiationException, IllegalAccessException {
+    void shouldProvideEmptyGetWalksIfSchemaContainsNoEntities() throws InstantiationException, IllegalAccessException {
         // Given
         final Schema schemaNoEdges = new Schema.Builder()
                 .json(StreamUtil.openStream(TestExamplesFactory.class, "schema/schemaNoEntities.json"))
@@ -216,7 +223,7 @@ public class AbstractExamplesFactoryTest {
     }
 
     @Test
-    public void shouldProvideSchemaPopulatedGetWalksIfSchemaContainsEdges() throws InstantiationException, IllegalAccessException {
+    void shouldProvideSchemaPopulatedGetWalksIfSchemaContainsEdges() throws InstantiationException, IllegalAccessException {
         // Given
         TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
 
@@ -236,6 +243,93 @@ public class AbstractExamplesFactoryTest {
         assertThat(operation.getOperations()).isEqualTo(expectedOperations);
     }
 
+    @Test
+    void shouldAssumeEdgesDirectedFieldIfSchemaDoesNotSpecify() throws InstantiationException, IllegalAccessException {
+        // Given
+        final Schema schemaNoDirected = new Schema.Builder()
+                .json(StreamUtil.openStream(TestExamplesFactory.class, "schema/schemaNoDirected.json"))
+                .build();
+        final TestExamplesFactory examplesFactory = new TestExamplesFactory(schemaNoDirected);
+
+        // When
+        GetElements getElementsOperation = (GetElements) examplesFactory.generateExample(GetElements.class);
+        AddElements addElementsOperation = (AddElements) examplesFactory.generateExample(AddElements.class);
+
+        // Then
+        assertThat(getElementsOperation.getInput()).hasAtLeastOneElementOfType(EdgeId.class);
+        for (ElementId e : getElementsOperation.getInput()) {
+            if (e instanceof EdgeId) {
+                assertThat(((EdgeId) e).getDirectedType()).isEqualTo(DirectedType.EITHER);
+            }
+        }
+        assertThat(addElementsOperation.getInput()).hasAtLeastOneElementOfType(EdgeId.class);
+        for (ElementId e : addElementsOperation.getInput()) {
+            if (e instanceof EdgeId) {
+                assertThat(((EdgeId) e).getDirectedType()).isEqualTo(DirectedType.UNDIRECTED);
+            }
+        }
+    }
+
+    @Test
+    void shouldModifyAccessibilityOfOperationsWithoutDefinedExample() throws InstantiationException, IllegalAccessException {
+        // Given
+        TestExamplesFactory examplesFactory = new TestExamplesFactory(SCHEMA);
+
+        // When
+        // Use a test operation to check the example factory modifies the accessibility of operations
+        Filter filterExample = (Filter) examplesFactory.generateExample(Filter.class);
+
+        // Then
+        Arrays.asList(filterExample.getClass().getDeclaredFields()).forEach(field ->
+            assertThat(field.isAccessible()));
+    }
+
+    @Test
+    void shouldGenerateElementsWithCorrectTypes() {
+        checkCorrectTypesAreGeneratedFromSchema(Character.class);
+        checkCorrectTypesAreGeneratedFromSchema(Integer.class);
+        checkCorrectTypesAreGeneratedFromSchema(Double.class);
+        checkCorrectTypesAreGeneratedFromSchema(Long.class);
+        checkCorrectTypesAreGeneratedFromSchema(Float.class);
+        checkCorrectTypesAreGeneratedFromSchema(TestEnum.class);
+    }
+
+
+    private void checkCorrectTypesAreGeneratedFromSchema(Class<?> expectedEntityType) {
+        // Given
+        final Schema schema = new Schema.Builder()
+            .entity("BasicEntity", new SchemaEntityDefinition.Builder()
+                .vertex("id")
+                .build())
+            .edge("BasicEdge", new SchemaEdgeDefinition.Builder()
+                .source("id")
+                .destination("id")
+                .directed("true")
+                .build())
+            .type("id", expectedEntityType)
+            .type("true", new TypeDefinition.Builder()
+                .clazz(Boolean.class)
+                .validateFunctions(Arrays.asList(new IsTrue()))
+                .build())
+            .build();
+
+        final TestExamplesFactory examplesFactory = new TestExamplesFactory(schema);
+
+        // When/Then
+        ((Iterable<ExampleDomainObject>) examplesFactory.generateElements().getInput()).forEach(e -> {
+            // Check if a entity or edge
+            if (schema.getEntityGroups().contains(e.getType())) {
+                // Ensure the ID is correct
+                assertThat(e.getIds()).singleElement()
+                    .isInstanceOf(expectedEntityType);
+            } else if (schema.getEdgeGroups().contains(e.getType())) {
+                // Ensure the ID is the two entities the edge connects and if its directed
+                assertThat(e.getIds()).hasSize(3)
+                    .hasExactlyElementsOfTypes(expectedEntityType, expectedEntityType, Boolean.class);
+            }
+        });
+    }
+
     private static class TestExamplesFactory extends AbstractExamplesFactory {
 
         private final Schema schema;
@@ -248,5 +342,11 @@ public class AbstractExamplesFactoryTest {
         protected Schema getSchema() {
             return this.schema;
         }
+    }
+
+    public enum TestEnum {
+        TEST1,
+        TEST2,
+        TEST3;
     }
 }

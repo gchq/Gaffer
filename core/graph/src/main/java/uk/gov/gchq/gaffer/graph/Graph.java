@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
@@ -811,10 +810,8 @@ public final class Graph {
         }
 
         public Graph build() {
+            // Initialise GraphConfig (with default library of NoGraphLibrary)
             final GraphConfig config = configBuilder.build();
-            if (null == config.getLibrary()) {
-                config.setLibrary(new NoGraphLibrary());
-            }
 
             // Make sure parent store properties are applied
             if (parentStorePropertiesId != null) {
@@ -840,10 +837,7 @@ public final class Graph {
             // Initialise the store
             initStore(config);
 
-            // Validate the graph Id
-            if (config.getGraphId() == null) {
-                throw new IllegalArgumentException("graphId is required");
-            }
+            // Check this graph does not conflict with an existing graph library graph
             config.getLibrary().checkExisting(config.getGraphId(), schema, properties);
 
             // Initialise the view
@@ -852,6 +846,7 @@ public final class Graph {
             // Validate and set up the graph hooks
             validateAndUpdateHooks(config);
 
+            // Add this graph to the graph library (true by default)
             if (addToLibrary) {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
             }
@@ -972,6 +967,8 @@ public final class Graph {
          * @param config The graph config
          */
         private void initStore(final GraphConfig config) {
+            // If store was not supplied then create it
+            // This also checks the GraphId is valid
             if (store == null) {
                 LOGGER.debug("Store currently null initialising with Id: {} and existing schema/properties", config.getGraphId());
                 store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
@@ -988,13 +985,13 @@ public final class Graph {
                 }
             }
 
-            // Use the store's graph Id if we don't have on configured already
+            // Use the store's graph Id if we don't have one configured already
             if (config.getGraphId() == null) {
                 config.setGraphId(store.getGraphId());
             }
 
             // Use the store's schema if not already set
-            if (schema == null || schema.getGroups().isEmpty()) {
+            if (schema == null) {
                 schema = store.getSchema();
             }
 

@@ -18,13 +18,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '8'
 
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.m2/repository
@@ -33,12 +33,13 @@ jobs:
           restore-keys: Accumulo-gaffer-dependencies
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: java
+          queries: security-extended
 
       - name: Build Code
         run: mvn -B -ntp clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
