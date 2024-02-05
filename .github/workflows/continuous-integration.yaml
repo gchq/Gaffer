@@ -20,6 +20,24 @@ jobs:
       - name: Check all modules are tested
         run: ./cd/check_modules.sh
 
+  check-copyright:
+    name: Check Copyright Headers
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+
+      - name: Run Spotless copyright check
+        run: mvn -ntp spotless:check -T0.5C
+
   build-javadoc:
     name: Build Javadoc
     runs-on: ubuntu-latest
@@ -27,13 +45,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '8'
 
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.m2/repository
@@ -99,13 +117,13 @@ jobs:
           fetch-depth: 0
 
       - name: Setup JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '8'
 
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.m2/repository
@@ -119,15 +137,11 @@ jobs:
       - name: Test
         run: mvn -B -ntp verify -P coverage -pl ${{matrix.modules.values}}
 
-      - name: Check Copyright Headers
-        if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest'
-        run: mvn -B -ntp spotless:check -pl ${{matrix.modules.values}}
-
       - name: Add JaCoCo reports to artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: matrix.os == 'ubuntu-latest'
         with:
-          name: combined-jacoco-coverage
+          name: jacoco-coverage-${{matrix.modules.name}}
           path: "*/**/jacoco.xml"
           retention-days: 5
 
@@ -140,12 +154,13 @@ jobs:
       - uses: actions/checkout@v4 # Codecov need to see the src code to pair with coverage
 
       - name: Fetch JaCoCo reports artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: combined-jacoco-coverage
+          pattern: jacoco-coverage-*
+          merge-multiple: true
 
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           name: gaffer-coverage
           fail_ci_if_error: true # Ensures upload doesn't fail silently
