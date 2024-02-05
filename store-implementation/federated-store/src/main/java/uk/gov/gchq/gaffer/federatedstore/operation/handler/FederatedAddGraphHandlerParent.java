@@ -111,7 +111,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         final boolean propertiesContainCacheConfig = operation.getStoreProperties().getProperties().keySet()
                 .stream().anyMatch(matchCacheClassPredicate);
 
-        if (propertiesContainCacheConfig){
+        if (propertiesContainCacheConfig) {
             LOGGER.info("Graph '{}' specifies Cache class(s), which will be ignored if they are already initialised.", operation.getGraphId());
             Function<StoreProperties, Set<Object>> extractCacheProperties = (StoreProperties sp) -> sp.getProperties().keySet()
                     .stream().filter(matchCacheClassPredicate).collect(Collectors.toSet());
@@ -119,7 +119,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
             Set<Object> opCacheProps = extractCacheProperties.apply(operation.getStoreProperties());
             // Intersection of existing props and operation props, indicates conflicting props unless empty
             initCacheProps.retainAll(opCacheProps);
-            if (!initCacheProps.isEmpty()){
+            if (!initCacheProps.isEmpty()) {
                 LOGGER.warn("Graph '{}' specifies property {} - will be ignored as these cache(s) were already initialised by the Federated Store.", operation.getGraphId(), initCacheProps);
             }
         }

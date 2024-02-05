@@ -140,6 +140,7 @@ import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -165,6 +166,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.jobtracker.JobTracker.JOB_TRACKER_CACHE_SERVICE_NAME;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
@@ -257,9 +259,10 @@ public class StoreTest {
         ICacheService mockICacheService = Mockito.spy(ICacheService.class);
         given(mockICacheService.getCache(any())).willReturn(mockICache);
 
-        Field field = CacheServiceLoader.class.getDeclaredField("service");
+        Field field = CacheServiceLoader.class.getDeclaredField("SERVICES");
         field.setAccessible(true);
-        field.set(null, mockICacheService);
+        java.util.Map<String, ICacheService> mockCacheServices = (java.util.Map<String, ICacheService>) field.get(new HashMap<>());
+        mockCacheServices.put(JOB_TRACKER_CACHE_SERVICE_NAME, mockICacheService);
 
         final AddElements addElements = new AddElements();
         final StoreImpl3 store = new StoreImpl3();
