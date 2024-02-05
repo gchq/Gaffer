@@ -80,7 +80,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
         CacheServiceLoader.shutdown();
         this.store = new FederatedStore();
         federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         testUser = testUser();
         authUser = authUser();

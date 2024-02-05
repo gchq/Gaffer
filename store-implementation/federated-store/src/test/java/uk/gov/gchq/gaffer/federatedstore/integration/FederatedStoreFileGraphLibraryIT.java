@@ -129,7 +129,7 @@ public class FederatedStoreFileGraphLibraryIT {
     static Graph getFederatedGraphUsingFileGraphLibrary() {
         FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
-        federatedStoreProperties.setCacheServiceClass("uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        federatedStoreProperties.setDefaultCacheServiceClass("uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(libraryPath.toString());
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()

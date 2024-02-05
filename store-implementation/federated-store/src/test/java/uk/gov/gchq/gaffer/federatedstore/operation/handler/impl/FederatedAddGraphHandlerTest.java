@@ -83,7 +83,7 @@ public class FederatedAddGraphHandlerTest {
         CacheServiceLoader.shutdown();
         this.store = new FederatedStore();
         federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         testUser = testUser();
         authUser = authUser();
@@ -397,7 +397,7 @@ public class FederatedAddGraphHandlerTest {
         final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         final AccumuloProperties properties = new AccumuloProperties();
         properties.setProperties(PROPERTIES.getProperties());
-        properties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        properties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()

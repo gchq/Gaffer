@@ -67,7 +67,7 @@ public class FederatedStoreAuthTest {
 
         FederatedStoreProperties federatedStoreProperties;
         federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
 

@@ -69,7 +69,7 @@ public class FederatedStoreVisibilityTest {
     public void setUp() throws Exception {
         resetForFederatedTests();
         FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         federatedGraph = new Graph.Builder()
                 .config(new GraphConfig.Builder()

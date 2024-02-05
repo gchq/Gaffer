@@ -71,7 +71,7 @@ public class FederatedRemoveGraphHandlerTest {
     public void shouldRemoveGraphForOwningUser() throws Exception {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
@@ -100,7 +100,7 @@ public class FederatedRemoveGraphHandlerTest {
     public void shouldNotRemoveGraphForNonOwningUser() throws Exception {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
@@ -129,7 +129,7 @@ public class FederatedRemoveGraphHandlerTest {
     public void shouldReturnFalseWhenNoGraphWasRemoved() throws Exception {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
@@ -153,7 +153,7 @@ public class FederatedRemoveGraphHandlerTest {
     public void shouldNotRemoveGraphConfiguredWithNoAccessWritePredicate() throws Exception {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
@@ -189,7 +189,7 @@ public class FederatedRemoveGraphHandlerTest {
     public void shouldRemoveGraphButNotCache() throws Exception {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
@@ -202,7 +202,7 @@ public class FederatedRemoveGraphHandlerTest {
                 .returns(0, ICache::size);
 
         final AccumuloProperties clone = PROPERTIES.clone();
-        clone.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        clone.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         clone.setCacheServiceNameSuffix(removeThisCache);
 
         store.execute(new AddGraph.Builder()
@@ -243,7 +243,7 @@ public class FederatedRemoveGraphHandlerTest {
     public void shouldRemoveGraphAndCache() throws Exception {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
@@ -256,7 +256,7 @@ public class FederatedRemoveGraphHandlerTest {
                 .returns(0, ICache::size);
 
         final AccumuloProperties clone = PROPERTIES.clone();
-        clone.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        clone.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         clone.setCacheServiceNameSuffix(removeThisCache);
 
         store.execute(new AddGraph.Builder()

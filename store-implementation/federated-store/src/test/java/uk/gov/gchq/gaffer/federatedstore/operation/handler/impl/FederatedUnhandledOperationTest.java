@@ -51,7 +51,7 @@ public class FederatedUnhandledOperationTest {
     public void setUp() throws Exception {
         FederatedStoreTestUtil.resetForFederatedTests();
         federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
     }
 
     @AfterEach
