@@ -36,10 +36,10 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
-import static uk.gov.gchq.gaffer.store.StoreProperties.CACHE_SERVICE_CLASS;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * A handler for operations that addGraph to the FederatedStore.
@@ -59,11 +59,11 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         final User user = context.getUser();
         final boolean isLimitedToLibraryProperties = ((FederatedStore) store).isLimitedToLibraryProperties(user, operation.isUserRequestingAdminUsage());
 
-        if (isLimitedToLibraryProperties && nonNull(operation.getStoreProperties())) {
+        if (isLimitedToLibraryProperties && (operation.getStoreProperties() != null)) {
             throw new OperationException(String.format(USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, operation.getProperties().toString()));
         }
 
-        overwriteCacheProperty(operation, store);
+        checkCacheProperties(operation, store);
 
         final GraphSerialisable graphSerialisable;
         try {
@@ -95,17 +95,33 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         return null;
     }
 
-    private void overwriteCacheProperty(final OP operation, final Store store) {
-        /*
-         * FederatedStore can't survive if a subgraph changes the static
-         * cache to another cache, or re-initialises the cache.
-         */
-        final String cacheServiceClass = isNull(store.getProperties()) ? null : store.getProperties().getCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
-        final StoreProperties storeProperties = operation.getStoreProperties();
-        if (nonNull(storeProperties) && !storeProperties.getCacheServiceClass(cacheServiceClass).equals(cacheServiceClass)) {
-            LOGGER.info(String.format("Removing %s from properties of the operation and substituting the FederatedStore's cache", CACHE_SERVICE_CLASS));
-            storeProperties.setCacheServiceClass(cacheServiceClass);
-            operation.setStoreProperties(storeProperties);
+    /**
+     * Warns users when their specified cache config may be ignored
+     * <p>
+     * FederatedStore initialises its own cache(s) and a subgraph cannot
+     * re-initialise these. If an added graph tries to initialise a cache
+     * class which was already initialised, then this is ignored and the
+     * existing cache service is used instead.
+     *
+     * @param operation {@link Operation} adding a new subgraph
+     * @param store existing federated {@link Store}
+     */
+    private void checkCacheProperties(final OP operation, final Store store) {
+        Predicate<Object> matchCacheClassPredicate = (key) -> ((String) key).matches("^gaffer\\.cache\\.service\\..*class$");
+        final boolean propertiesContainCacheConfig = operation.getStoreProperties().getProperties().keySet()
+                .stream().anyMatch(matchCacheClassPredicate);
+
+        if (propertiesContainCacheConfig){
+            LOGGER.info("Graph '{}' specifies Cache class(s), which will be ignored if they are already initialised.", operation.getGraphId());
+            Function<StoreProperties, Set<Object>> extractCacheProperties = (StoreProperties sp) -> sp.getProperties().keySet()
+                    .stream().filter(matchCacheClassPredicate).collect(Collectors.toSet());
+            Set<Object> initCacheProps = extractCacheProperties.apply(store.getProperties());
+            Set<Object> opCacheProps = extractCacheProperties.apply(operation.getStoreProperties());
+            // Intersection of existing props and operation props, indicates conflicting props unless empty
+            initCacheProps.retainAll(opCacheProps);
+            if (!initCacheProps.isEmpty()){
+                LOGGER.warn("Graph '{}' specifies property {} - will be ignored as these cache(s) were already initialised by the Federated Store.", operation.getGraphId(), initCacheProps);
+            }
         }
     }
 
