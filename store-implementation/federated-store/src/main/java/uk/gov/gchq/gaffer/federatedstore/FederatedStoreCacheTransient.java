@@ -27,8 +27,8 @@ import java.util.Set;
 import static java.util.Objects.isNull;
 
 /**
- * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
- * handling the {@link Graph}s within a {@link FederatedStore}.
+ * Implementation of {@link Cache} for handling
+ * {@link Graph}s within a {@link FederatedStore}.
  */
 public class FederatedStoreCacheTransient extends Cache<String, Pair<GraphSerialisable, byte[]>> {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";

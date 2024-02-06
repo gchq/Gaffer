@@ -30,8 +30,8 @@ import java.util.Set;
 import static java.util.Objects.isNull;
 
 /**
- * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
- * handling the {@link Graph}s within a {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
+ * Wrapper around {@link FederatedStoreCacheTransient} to provide an interface for
+ * handling {@link Graph}s within a {@link FederatedStore}.
  */
 public final class FederatedStoreCache {
     private final FederatedStoreCacheTransient cacheTransient;
