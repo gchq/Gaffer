@@ -32,12 +32,11 @@ import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Properties;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -63,7 +62,10 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
             throw new OperationException(String.format(USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, operation.getProperties().toString()));
         }
 
-        checkCacheProperties(operation, store);
+        // If the operation has store properties, check them for conflicts with existing cache configuration
+        if (operation.getStoreProperties() != null) {
+            checkCacheProperties(operation, store);
+        }
 
         final GraphSerialisable graphSerialisable;
         try {
@@ -107,18 +109,16 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
      * @param store existing federated {@link Store}
      */
     private void checkCacheProperties(final OP operation, final Store store) {
+        final Properties operationProperties = operation.getStoreProperties().getProperties();
+        final Properties storeProperties = store.getProperties().getProperties();
         Predicate<Object> matchCacheClassPredicate = (key) -> ((String) key).matches("^gaffer\\.cache\\.service\\..*class$");
-        final boolean propertiesContainCacheConfig = operation.getStoreProperties().getProperties().keySet()
-                .stream().anyMatch(matchCacheClassPredicate);
+        final boolean propertiesContainCacheConfig = operationProperties.keySet().stream().anyMatch(matchCacheClassPredicate);
 
         if (propertiesContainCacheConfig) {
             LOGGER.info("Graph '{}' specifies Cache class(s), which will be ignored if they are already initialised.", operation.getGraphId());
-            Function<StoreProperties, Set<Object>> extractCacheProperties = (StoreProperties sp) -> sp.getProperties().keySet()
-                    .stream().filter(matchCacheClassPredicate).collect(Collectors.toSet());
-            Set<Object> initCacheProps = extractCacheProperties.apply(store.getProperties());
-            Set<Object> opCacheProps = extractCacheProperties.apply(operation.getStoreProperties());
-            // Intersection of existing props and operation props, indicates conflicting props unless empty
-            initCacheProps.retainAll(opCacheProps);
+            Set<Object> initCacheProps = storeProperties.keySet().stream().filter(matchCacheClassPredicate).collect(Collectors.toSet());
+            Set<Object> opCacheProps = operationProperties.keySet().stream().filter(matchCacheClassPredicate).collect(Collectors.toSet());
+            initCacheProps.retainAll(opCacheProps); // Intersection of existing props and operation props, indicates conflicting props unless empty
             if (!initCacheProps.isEmpty()) {
                 LOGGER.warn("Graph '{}' specifies property {} - will be ignored as these cache(s) were already initialised by the Federated Store.", operation.getGraphId(), initCacheProps);
             }
