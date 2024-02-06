@@ -183,9 +183,6 @@ public class FederatedStore extends Store {
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
         graphStorage = new FederatedGraphStorage(getCacheServiceFederatedStoreSuffix(properties, graphId));
         super.initialise(graphId, new Schema(), properties);
-        if (!graphStorage.isCacheServiceEnabled()) {
-            throw new StoreException("The Federated Store requires a cache to be configured in StoreProperties");
-        }
         final FederatedStoreProperties federatedProperties = getProperties();
 
         loadCustomPropertiesAuthFromProperties(federatedProperties);
@@ -573,8 +570,9 @@ public class FederatedStore extends Store {
         } else if (defaultCacheClass != null) {
             CacheServiceLoader.initialise(DEFAULT_SERVICE_NAME, defaultCacheClass, properties.getProperties());
         } else {
-            LOGGER.warn("Federated Store Properties did not include a cache class, falling back to '{}'", CACHE_SERVICE_CLASS_DEFAULT);
-            CacheServiceLoader.initialise(DEFAULT_SERVICE_NAME, CACHE_SERVICE_CLASS_DEFAULT, properties.getProperties());
+            LOGGER.warn("Federated Store Properties did not include a cache class, using '{}' as default", CACHE_SERVICE_CLASS_DEFAULT);
+            properties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
+            startCacheServiceLoader(properties);
         }
         super.startCacheServiceLoader(properties);
     }

@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.cache.Cache;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
@@ -66,11 +65,6 @@ public class FederatedGraphStorage {
 
     public FederatedGraphStorage(final String suffixFederatedStoreCacheName) {
         federatedStoreCache = new FederatedStoreCache(suffixFederatedStoreCacheName);
-    }
-
-    public boolean isCacheServiceEnabled() {
-        return CacheServiceLoader.isEnabled(FederatedStoreCacheTransient.FEDERATED_STORE_CACHE_SERVICE_NAME) ||
-                CacheServiceLoader.isDefaultEnabled();
     }
 
     /**
