@@ -95,7 +95,9 @@ public class GraphSerialisableTest {
         final GraphSerialisable result = new GraphSerialisable.Builder(graph).build();
 
         // When / Then
-        assertThat(result).isEqualTo(expected);
+        assertThat(result.getSerialisedConfig()).isEqualTo(expected.getSerialisedConfig());
+        assertThat(result.getSerialisedSchema()).isEqualTo(expected.getSerialisedSchema());
+        assertThat(result.getStoreProperties()).isEqualTo(expected.getStoreProperties());
     }
 
     @Test
