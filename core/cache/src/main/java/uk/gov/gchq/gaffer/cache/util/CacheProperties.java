@@ -53,6 +53,16 @@ public final class CacheProperties {
     public static final String CACHE_SERVICE_NAMED_OPERATION_CLASS = "gaffer.cache.service.namedoperation.class";
 
     /**
+     * Names of the system properties used to set the suffix for all caches or per cache.
+     * CASE INSENSITIVE
+     * e.g. gaffer.cache.service.default.suffix="v2"
+     */
+    public static final String CACHE_SERVICE_DEFAULT_SUFFIX = "gaffer.cache.service.default.suffix";
+    public static final String CACHE_SERVICE_NAMED_OPERATION_SUFFIX = "gaffer.cache.service.named.operation.suffix";
+    public static final String CACHE_SERVICE_JOB_TRACKER_SUFFIX = "gaffer.cache.service.job.tracker.suffix";
+    public static final String CACHE_SERVICE_NAMED_VIEW_SUFFIX = "gaffer.cache.service.named.view.suffix";
+
+    /**
      * Name of the system property to use in order to locate the cache config file.
      */
     public static final String CACHE_CONFIG_FILE = "gaffer.cache.config.file";
