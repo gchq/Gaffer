@@ -203,6 +203,7 @@ public class StoreTest {
 
     @BeforeEach
     public void setup() {
+        CacheServiceLoader.shutdown();
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
         JSONSerialiser.update();
@@ -275,6 +276,35 @@ public class StoreTest {
         verify(addElementsHandler).doOperation(addElements, context, store);
         verify(mockICacheService, Mockito.atLeast(1)).getCache(any());
         verify(mockICache, Mockito.atLeast(1)).put(any(), any());
+    }
+
+    @Test
+    public void shouldCreateStoreWithSpecificCaches() throws SchemaException, StoreException {
+        // Given
+        final Store testStore = new StoreImpl();
+
+        // When
+        testStore.initialise("testGraph", new Schema(), StoreProperties.loadStoreProperties("allCaches.properties"));
+
+        // Then
+        assertThat(CacheServiceLoader.isDefaultEnabled()).isFalse();
+        assertThat(CacheServiceLoader.isEnabled("JobTracker")).isTrue();
+        assertThat(CacheServiceLoader.isEnabled("NamedView")).isTrue();
+        assertThat(CacheServiceLoader.isEnabled("NamedOperation")).isTrue();
+    }
+
+    @Test
+    public void shouldCreateStoreWithDefaultCache() throws SchemaException, StoreException {
+        // Given
+        final Store testStore = new StoreImpl();
+        final StoreProperties props = new StoreProperties();
+
+        // When
+        props.setDefaultCacheServiceClass(HashMapCacheService.class.getName());
+        testStore.initialise("testGraph", new Schema(), props);
+
+        // Then
+        assertThat(CacheServiceLoader.isDefaultEnabled()).isTrue();
     }
 
     @Test
