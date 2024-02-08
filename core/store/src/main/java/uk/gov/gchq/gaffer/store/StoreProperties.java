@@ -335,7 +335,7 @@ public class StoreProperties implements Cloneable {
     }
 
     public void setSchemaClass(final Class<? extends Schema> schemaClass) {
-        set(SCHEMA_CLASS, schemaClass.getName());
+        setSchemaClass(schemaClass.getName());
     }
 
     public String getStorePropertiesClassName() {
