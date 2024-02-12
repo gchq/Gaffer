@@ -43,8 +43,8 @@ public class JobTracker extends Cache<String, JobDetail> {
     /**
      * Executor to allow queuing up async operations on the cache.
      * This is largely to allow additions to the cache to not block the calling
-     * thread as it will impact overall operation performance. Gets from the
-     * cache are executed in the pool but as has a thread size of one they wait
+     * thread, which would impact overall operation performance. Gets from the
+     * cache are executed in the pool, but as it has a thread size of one they wait
      * until all queued up executions finish to prevent race conditions.
      */
     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
