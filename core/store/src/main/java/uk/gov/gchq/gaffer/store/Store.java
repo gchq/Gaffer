@@ -1112,21 +1112,23 @@ public abstract class Store {
         final String namedViewCacheClass = properties.getNamedViewCacheServiceClass();
         final String namedOperationCacheClass = properties.getNamedOperationCacheServiceClass();
         final String defaultCacheClass = properties.getDefaultCacheServiceClass();
-        final boolean defaultServiceRequired = !((jobTrackerCacheClass != null) && (namedViewCacheClass != null) && (namedOperationCacheClass != null));
+        final boolean jobTrackerEnabled = properties.getJobTrackerEnabled();
+        final boolean defaultServiceRequired = (jobTrackerEnabled && jobTrackerCacheClass == null) |
+                                               (namedViewCacheClass == null) | (namedOperationCacheClass == null);
 
-        if (jobTrackerCacheClass != null) {
+        if (jobTrackerEnabled && jobTrackerCacheClass != null) {
             CacheServiceLoader.initialise(JOB_TRACKER_CACHE_SERVICE_NAME, jobTrackerCacheClass, properties.getProperties());
         }
         if (namedViewCacheClass != null) {
-            CacheServiceLoader.initialise(NAMED_VIEW_CACHE_SERVICE_NAME, jobTrackerCacheClass, properties.getProperties());
+            CacheServiceLoader.initialise(NAMED_VIEW_CACHE_SERVICE_NAME, namedViewCacheClass, properties.getProperties());
         }
         if (namedOperationCacheClass != null) {
-            CacheServiceLoader.initialise(NAMED_OPERATION_CACHE_SERVICE_NAME, jobTrackerCacheClass, properties.getProperties());
+            CacheServiceLoader.initialise(NAMED_OPERATION_CACHE_SERVICE_NAME, namedOperationCacheClass, properties.getProperties());
         }
         if (defaultServiceRequired && defaultCacheClass != null) {
             CacheServiceLoader.initialise(DEFAULT_SERVICE_NAME, properties.getDefaultCacheServiceClass(), properties.getProperties());
         } else if (defaultServiceRequired) {
-            LOGGER.info("Store Properties did not include a cache class, no cache has been initialised");
+            LOGGER.info("Store Properties did not include a default cache class, caches not fully initialised");
         }
     }
 }
