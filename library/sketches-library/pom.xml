@@ -95,7 +95,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>com.clearspring.analytics:stream</include>
-                                    <include>org.apache.datasketches:datasketches-java</include>
+                                    <include>org.apache.datasketches:*</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
