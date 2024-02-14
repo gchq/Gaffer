@@ -94,8 +94,8 @@
                             </shadedClassifierName>
                             <artifactSet>
                                 <includes>
-                                    <include>com.clearspring.analytics:stream
-                                    </include>
+                                    <include>com.clearspring.analytics:stream</include>
+                                    <include>org.apache.datasketches:datasketches-java</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
