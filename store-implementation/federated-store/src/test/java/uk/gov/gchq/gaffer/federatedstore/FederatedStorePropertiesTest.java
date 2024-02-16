@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -31,6 +32,12 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SER
 public class FederatedStorePropertiesTest {
     final String key = "gaffer.store.class";
     final String value = FederatedStore.class.getName();
+    static Path propertiesFilePath;
+
+    @BeforeAll
+    public static void init() throws URISyntaxException {
+        propertiesFilePath = Paths.get(FederatedStorePropertiesTest.class.getResource("/properties/federatedStore.properties").toURI());
+    }
 
     @Test
     public void shouldGetIsPublicAccessAllowed() {
@@ -76,10 +83,8 @@ public class FederatedStorePropertiesTest {
 
     @Test
     public void shouldReturnFederatedStorePropertiesFromPath() {
-        // Given
-        Path propsPath = getPropertiesFilePath();
-        // When
-        FederatedStoreProperties props = FederatedStoreProperties.loadStoreProperties(propsPath);
+        // Given / When
+        FederatedStoreProperties props = FederatedStoreProperties.loadStoreProperties(propertiesFilePath);
         // Then
         assertThat(props.get(key)).isEqualTo(value);
         assertThat(props.getClass()).isEqualTo(FederatedStoreProperties.class);
@@ -88,7 +93,7 @@ public class FederatedStorePropertiesTest {
     @Test
     public void shouldReturnFederatedStorePropertiesFromPathString() {
         // Given
-        String propsPathString = getPropertiesFilePath().toString();
+        String propsPathString = propertiesFilePath.toString();
         // When
         FederatedStoreProperties props = FederatedStoreProperties.loadStoreProperties(propsPathString);
         // Then
@@ -104,13 +109,5 @@ public class FederatedStorePropertiesTest {
         FederatedStoreProperties props = FederatedStoreProperties.loadStoreProperties(inputStream, FederatedStoreProperties.class);
         // Then
         assertThat(props.getClass()).isEqualTo(FederatedStoreProperties.class);
-    }
-
-    private Path getPropertiesFilePath() {
-        try {
-            return Paths.get(FederatedStorePropertiesTest.class.getResource("/properties/federatedStore.properties").toURI());
-        } catch (URISyntaxException e) {
-            return null;
-        }
     }
 }
