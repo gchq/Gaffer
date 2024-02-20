@@ -68,7 +68,7 @@ public class CacheTest {
 
     @Test
     public void shouldGetCacheName() {
-        assertThat(cache.getCacheName()).isEqualTo("serviceName1");
+        assertThat(cache.getCacheName()).isEqualTo("cacheName1");
     }
 
     @Test
