@@ -1003,6 +1003,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobTrackerEnabled()).willReturn(true);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getRescheduleJobsOnStart()).willReturn(true);
 
         final Repeat repeat = new Repeat(0, 100, TimeUnit.SECONDS);
         final OperationChain<?> opChain = new OperationChain.Builder().first(new DiscardOutput()).build();

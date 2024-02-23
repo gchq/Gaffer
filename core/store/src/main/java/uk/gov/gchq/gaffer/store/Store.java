@@ -230,8 +230,7 @@ public abstract class Store {
 
     private JobTracker jobTracker;
     private String graphId;
-
-    private boolean jobsRescheduled;
+    private boolean jobsRescheduled = false;
 
     public Store() {
         this(true);
@@ -295,20 +294,16 @@ public abstract class Store {
         validateSchemas();
         addExecutorService(properties);
 
-        if (properties.getJobTrackerEnabled() && !jobsRescheduled) {
-            Iterable<JobDetail> scheduledJobs = null;
-            try {
-                scheduledJobs = this.jobTracker.getAllScheduledJobs();
-                if (scheduledJobs != null) {
-                    StreamSupport.stream(scheduledJobs.spliterator(), false)
-                            .peek(jd -> LOGGER.debug("Rescheduling job: {}", jd))
-                            .forEach(this::rescheduleJob);
-                }
-            } finally {
-                CloseableUtil.close(scheduledJobs);
+        if (!jobsRescheduled && properties.getJobTrackerEnabled() && properties.getRescheduleJobsOnStart()) {
+            Iterable<JobDetail> scheduledJobs = this.jobTracker.getAllScheduledJobs();
+            if (scheduledJobs != null) {
+                StreamSupport.stream(scheduledJobs.spliterator(), false)
+                    .forEach(jd -> {
+                        LOGGER.debug("Rescheduling job: {}", jd);
+                        rescheduleJob(jd);
+                    });
+                jobsRescheduled = true;
             }
-
-            jobsRescheduled = true;
         }
     }
 

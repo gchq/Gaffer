@@ -100,8 +100,9 @@ public class NamedViewCacheTest {
     @Test
     public void shouldThrowExceptionIfNamedViewAlreadyExists() throws CacheOperationException {
         cache.addNamedView(viewDetailA, false);
-        assertThatExceptionOfType(OverwritingException.class).isThrownBy(() -> cache.addNamedView(viewDetailA, false))
-                .withMessage(String.format("Cache entry already exists for key: %s", VIEW_NAME_A));
+        assertThatExceptionOfType(OverwritingException.class)
+            .isThrownBy(() -> cache.addNamedView(viewDetailA, false))
+            .withMessageContaining(String.format("Cache entry already exists for key: %s", VIEW_NAME_A));
     }
 
     @Test

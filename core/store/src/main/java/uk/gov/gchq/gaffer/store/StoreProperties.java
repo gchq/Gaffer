@@ -76,6 +76,7 @@ public class StoreProperties implements Cloneable {
     public static final String OPERATION_DECLARATIONS_JSON = "gaffer.store.operation.declarations.json";
 
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
+    public static final String RESCHEDULE_JOBS_ON_START = "gaffer.store.job.rescheduleOnStart";
 
     public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
     public static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
@@ -306,12 +307,20 @@ public class StoreProperties implements Cloneable {
         set(STORE_CLASS, storeClass);
     }
 
-    public Boolean getJobTrackerEnabled() {
+    public boolean getJobTrackerEnabled() {
         return Boolean.valueOf(get(JOB_TRACKER_ENABLED, "false"));
     }
 
-    public void setJobTrackerEnabled(final Boolean jobTrackerEnabled) {
-        set(JOB_TRACKER_ENABLED, jobTrackerEnabled.toString());
+    public void setJobTrackerEnabled(final boolean jobTrackerEnabled) {
+        set(JOB_TRACKER_ENABLED, Boolean.toString(jobTrackerEnabled));
+    }
+
+    public boolean getRescheduleJobsOnStart() {
+        return Boolean.valueOf(get(RESCHEDULE_JOBS_ON_START, "false"));
+    }
+
+    public void setRescheduleJobsOnStart(final boolean rescheduleJobsOnStart) {
+        set(RESCHEDULE_JOBS_ON_START, Boolean.toString(rescheduleJobsOnStart));
     }
 
     public String getSchemaClassName() {

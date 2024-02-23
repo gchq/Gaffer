@@ -28,19 +28,19 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class CacheTest {
+class CacheTest {
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static Cache<String, Integer> cache;
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         CacheServiceLoader.shutdown();
         CacheServiceLoader.initialise(CACHE_SERVICE_CLASS_STRING);
         cache = new Cache<>("cacheName1");
     }
 
     @Test
-    public void shouldAddAndGetValueFromCache() throws CacheOperationException {
+    void shouldAddAndGetValueFromCache() throws CacheOperationException {
         cache.addToCache("key1", 1, true);
 
         assertThat(cache.getFromCache("key1")).isEqualTo(1);
@@ -48,31 +48,30 @@ public class CacheTest {
     }
 
     @Test
-    public void shouldAddAndGetCacheOverwrite() throws CacheOperationException {
+    void shouldAddAndGetCacheOverwrite() throws CacheOperationException {
         cache.addToCache("key1", 1, true);
         cache.addToCache("key1", 2, true);
 
-        assertThat(cache.getFromCache("key1").intValue()).isEqualTo(2);
+        assertThat(cache.getFromCache("key1")).isEqualTo(2);
     }
 
     @Test
-    public void shouldAddAndGetCacheNoOverwrite() throws CacheOperationException {
+    void shouldAddAndGetCacheNoOverwrite() throws CacheOperationException {
         cache.addToCache("key1", 1, true);
 
         assertThatExceptionOfType(OverwritingException.class)
                 .isThrownBy(() -> cache.addToCache("key1", 2, false))
                 .withMessage("Cache entry already exists for key: key1");
-
-        assertThat(cache.getFromCache("key1").intValue()).isEqualTo(1);
+        assertThat(cache.getFromCache("key1")).isEqualTo(1);
     }
 
     @Test
-    public void shouldGetCacheName() {
+    void shouldGetCacheName() {
         assertThat(cache.getCacheName()).isEqualTo("cacheName1");
     }
 
     @Test
-    public void shouldDeleteKeyValuePair() throws CacheOperationException {
+    void shouldDeleteKeyValuePair() throws CacheOperationException {
         cache.addToCache("key1", 1, false);
         cache.deleteFromCache("key1");
 
@@ -80,14 +79,14 @@ public class CacheTest {
     }
 
     @Test
-    public void shouldGetAllKeys() throws CacheOperationException {
+    void shouldGetAllKeys() throws CacheOperationException {
         assertThat(cache.getAllKeys()).isEqualTo(Collections.emptySet());
         cache.addToCache("key1", 1, false);
         assertThat(cache.getAllKeys()).isEqualTo(Collections.singleton("key1"));
     }
 
     @Test
-    public void shouldThrowExceptionTryingToGetAllKeysWhenNoServiceAvailable() {
+    void shouldThrowExceptionTryingToGetAllKeysWhenNoServiceAvailable() {
         CacheServiceLoader.shutdown();
         assertThatExceptionOfType(uk.gov.gchq.gaffer.core.exception.GafferRuntimeException.class)
                 .isThrownBy(() -> cache.getAllKeys())
@@ -96,7 +95,7 @@ public class CacheTest {
     }
 
     @Test
-    public void shouldConstructCacheWithCacheAndServiceName() {
+    void shouldConstructCacheWithCacheAndServiceName() {
         final String serviceName = "myService";
         final String cacheName = "myCache";
         // Using the default service
@@ -111,7 +110,7 @@ public class CacheTest {
     }
 
     @Test
-    public void shouldGetICache() {
+    void shouldGetICache() {
         assertThat(cache.getCache().getClass().getName()).isEqualTo(CACHE_SERVICE_CLASS_STRING.replaceAll("Service", ""));
         CacheServiceLoader.shutdown();
         assertThat(cache.getCache()).isNull();

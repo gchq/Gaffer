@@ -118,6 +118,7 @@ public class GetAllNamedOperationsHandlerTest {
                 .name(expectedOperationDetailWithInputType.getOperationName())
                 .description(expectedOperationDetailWithInputType.getDescription())
                 .operationChain(expectedOperationDetailWithInputType.getOperationChainWithDefaultParams())
+                .overwrite(true)
                 .build();
 
         addNamedOperationHandler.doOperation(addNamedOperation, context, store);

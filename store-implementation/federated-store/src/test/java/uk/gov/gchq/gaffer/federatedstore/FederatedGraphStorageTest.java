@@ -45,9 +45,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreCacheTransient.getCacheNameFrom;
@@ -297,7 +294,7 @@ public class FederatedGraphStorageTest {
         final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser(), false);
         final Collection<GraphSerialisable> graphs = graphStorage.getAll(testUser());
         //when
-        assertTrue(remove);
+        assertThat(remove).isTrue();
         assertThat(graphs).isEmpty();
     }
 
@@ -309,7 +306,7 @@ public class FederatedGraphStorageTest {
         final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser(), false);
         final Collection<GraphSerialisable> graphs = graphStorage.getAll(testUser());
         //then
-        assertFalse(remove);
+        assertThat(remove).isFalse();
         assertThat(graphs).containsExactly(graphSerialisableA);
     }
 
@@ -320,7 +317,7 @@ public class FederatedGraphStorageTest {
         //when
         final boolean remove = graphStorage.remove(GRAPH_ID_A, authUser(), false);
         //then
-        assertFalse(remove);
+        assertThat(remove).isFalse();
     }
 
     @Test
@@ -330,7 +327,7 @@ public class FederatedGraphStorageTest {
         //when
         final boolean remove = graphStorage.remove(GRAPH_ID_A, blankUser(), false);
         //then
-        assertFalse(remove);
+        assertThat(remove).isFalse();
     }
 
     @Test
@@ -340,7 +337,7 @@ public class FederatedGraphStorageTest {
         //when
         final boolean remove = graphStorage.remove(GRAPH_ID_A, blankUser(), false);
         //then
-        assertTrue(remove);
+        assertThat(remove).isTrue();
     }
 
     @Test
@@ -540,9 +537,9 @@ public class FederatedGraphStorageTest {
         final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
         //then
-        assertEquals(1, cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues().size());
-        assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+        assertThat(cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues()).hasSize(1);
+        assertThat(allIds).hasSize(1);
+        assertThat(allIds.iterator().next()).isEqualTo(GRAPH_ID_A);
     }
 
     @Test
@@ -556,9 +553,9 @@ public class FederatedGraphStorageTest {
         final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
         //then
-        assertEquals(1, cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues().size());
-        assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+        assertThat(cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues()).hasSize(1);
+        assertThat(allIds).hasSize(1);
+        assertThat(allIds.iterator().next()).isEqualTo(GRAPH_ID_A);
     }
 
 }

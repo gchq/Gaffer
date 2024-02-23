@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,7 @@ package uk.gov.gchq.gaffer.cache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.stream.StreamSupport;
 
 /**
  * Interface that All cache objects must abide by so components may instantiate any implementation of a cache - no
@@ -36,8 +35,10 @@ public interface ICache<K, V> {
      *
      * @param key the key to lookup in the cache
      * @return the value associated with the key
+     * @throws CacheOperationException if there is an error getting the key-value
+     *                                 pair from the cache
      */
-    V get(final K key);
+    V get(final K key) throws CacheOperationException;
 
     /**
      * Add a new key-value pair to the cache.
@@ -57,12 +58,8 @@ public interface ICache<K, V> {
      * @throws OverwritingException    if the specified key already exists in the cache with a non-null value
      */
     default void putSafe(final K key, final V value) throws OverwritingException, CacheOperationException {
-        if (null == get(key)) {
-            try {
-                put(key, value);
-            } catch (final CacheOperationException e) {
-                throw e;
-            }
+        if (get(key) == null) {
+            put(key, value);
         } else {
             throw new OverwritingException("Cache entry already exists for key: " + key);
         }
@@ -78,16 +75,16 @@ public interface ICache<K, V> {
     /**
      * Get all values present in the cache.
      *
-     * @return a {@link Collection} containing all of the cache values
+     * @return a {@link Iterable} containing all of the cache values
      */
-    Collection<V> getAllValues();
+    Iterable<V> getAllValues();
 
     /**
      * Get all keys present in the cache.
      *
-     * @return a {@link Set} containing all of the cache keys
+     * @return a {@link Iterable} containing all of the cache keys
      */
-    Set<K> getAllKeys();
+    Iterable<K> getAllKeys();
 
     /**
      * Get the size of the cache.
@@ -95,7 +92,7 @@ public interface ICache<K, V> {
      * @return the number of entries in the caches
      */
     default int size() {
-        return getAllKeys().size();
+        return (int) StreamSupport.stream(getAllKeys().spliterator(), false).count();
     }
 
     /**
