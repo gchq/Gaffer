@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -208,9 +208,9 @@ public class HazelcastCacheServiceTest {
         service.putInCache(CACHE_NAME, "test3", 3);
         service.putInCache(CACHE_NAME, "duplicate", 3);
 
-        assertEquals(4, service.sizeOfCache(CACHE_NAME));
-        assertEquals(4, service.getAllValuesFromCache(CACHE_NAME).size());
-
-        assertThat(service.getAllValuesFromCache(CACHE_NAME)).contains(1, 2, 3);
+        assertThat(service.sizeOfCache(CACHE_NAME)).isEqualTo(4);
+        assertThat(service.getAllValuesFromCache(CACHE_NAME))
+            .hasSize(4)
+            .contains(1, 2, 3);
     }
 }

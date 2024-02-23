@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,8 +55,6 @@ public class HashMapCacheService implements ICacheService {
 
     @Override
     public <K, V> ICache<K, V> getCache(final String cacheName) {
-        HashMapCache<K, V> cache = caches.computeIfAbsent(cacheName, k -> new HashMapCache<>(useJavaSerialisation));
-
-        return cache;
+        return caches.computeIfAbsent(cacheName, k -> new HashMapCache<>(useJavaSerialisation));
     }
 }
