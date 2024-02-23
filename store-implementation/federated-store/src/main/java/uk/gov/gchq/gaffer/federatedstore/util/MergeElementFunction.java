@@ -121,7 +121,9 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
 
     @Override
     public MergeElementFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
-        return new MergeElementFunction(context);
+        final MergeElementFunction mergeElementFunction = new MergeElementFunction();
+        mergeElementFunction.context = context;
+        return mergeElementFunction;
     }
 
     /**
