@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 Crown Copyright
+ * Copyright 2022-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -222,10 +222,10 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
     }
 
     private static Graph getGraph(final Map<String, Object> context) {
-        final Object g = context.get(TEMP_RESULTS_GRAPH);
-        final Graph resultsGraph = g instanceof GraphSerialisable
-                ? ((GraphSerialisable) g).getGraph()
-                : (Graph) g;
+        final Object o = context.get(TEMP_RESULTS_GRAPH);
+        final Graph resultsGraph = o instanceof GraphSerialisable
+                ? ((GraphSerialisable) o).getGraph()
+                : (Graph) o;
         return resultsGraph;
     }
 }
