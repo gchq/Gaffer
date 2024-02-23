@@ -312,7 +312,6 @@ public class FederatedStoreSchemaTest {
         assertThat(schemaFromStoreMethod.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_1);
     }
 
-    @Test
     public void shouldErrorWhenGetSchemaASharedGroupHasNoSharedProperties() throws OperationException {
         // Given
         addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
