@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.store.schema.exception.SplitElementGroupDefSchemaException;
 import uk.gov.gchq.gaffer.store.schema.exception.VertexSerialiserSchemaException;
 import uk.gov.gchq.gaffer.store.schema.exception.VisibilityPropertySchemaException;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -531,7 +530,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                         continue;
                     }
 
-                    throw new SplitElementGroupDefSchemaException(sharedGroup);
+//                    throw new SplitElementGroupDefSchemaException(sharedGroup);
                 }
             }
         }
