@@ -20,7 +20,6 @@ import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
-import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -88,7 +87,7 @@ public class GafferPopVertexProperty<V> extends GafferPopElement implements Vert
     @Override
     public <U> Property<U> property(final String key, final U value) {
         if (isReadOnly() || vertex.isReadOnly()) {
-            throw new UnsupportedOperationException("Updates are not supported");
+            throw new IllegalStateException("Updates are not supported");
         }
 
         final Property<U> property = new GafferPopProperty<>(this, key, value);
@@ -110,16 +109,15 @@ public class GafferPopVertexProperty<V> extends GafferPopElement implements Vert
             return Collections.emptyIterator();
         }
 
-        if (propertyKeys.length == 1) {
-            final Property<U> property = properties.get(propertyKeys[0]);
-            return null == property ? Collections.emptyIterator() : IteratorUtils.of(property);
-        }
+        return properties.entrySet().stream()
+            .filter(entry -> ElementHelper.keyExists(entry.getKey(), propertyKeys))
+            .map(entry -> (Property<U>) entry.getValue())
+            .collect(Collectors.toList())
+            .iterator();
+    }
 
-        return (Iterator<Property<U>>) (Iterator) properties.entrySet()
-                .stream()
-                .filter(entry -> ElementHelper.keyExists(entry.getKey(), propertyKeys))
-                .map(entry -> entry.getValue())
-                .collect(Collectors.toList())
-                .iterator();
+    @Override
+    public void remove() {
+        throw Property.Exceptions.propertyRemovalNotSupported();
     }
 }

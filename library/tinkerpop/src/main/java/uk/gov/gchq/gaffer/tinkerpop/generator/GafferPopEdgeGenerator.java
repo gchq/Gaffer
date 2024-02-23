@@ -53,7 +53,7 @@ public class GafferPopEdgeGenerator implements OneToOneObjectGenerator<GafferPop
 
         for (final Entry<String, Object> entry : edge.getProperties().entrySet()) {
             if (null != entry.getValue()) {
-                gafferPopEdge.property(entry.getKey(), entry.getValue());
+                gafferPopEdge.propertyWithoutUpdate(entry.getKey(), entry.getValue());
             }
         }
         if (gafferPopReadOnly) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Graph.OptIn;
+import org.apache.tinkerpop.gremlin.structure.Graph.OptOut;
 import org.apache.tinkerpop.gremlin.structure.Transaction;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
@@ -36,7 +38,6 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -53,6 +54,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEdgeGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopEdgeGenerator;
+import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopVertexGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.user.User;
@@ -69,7 +71,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * A <code>GafferPopGraph</code> is an implementation of
@@ -78,6 +84,55 @@ import java.util.concurrent.ConcurrentHashMap;
  * In addition to the tinkerpop methods required there are methods to add edges
  * query for adjacent vertices and to provide a {@link View} to filter out results.
  */
+
+@OptIn(OptIn.SUITE_STRUCTURE_STANDARD)
+@OptIn(OptIn.SUITE_STRUCTURE_INTEGRATE)
+@OptIn(OptIn.SUITE_PROCESS_STANDARD)
+@OptIn(OptIn.SUITE_PROCESS_LIMITED_STANDARD)
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.structure.io.IoCustomTest",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.structure.io.IoEdgeTest",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.structure.io.IoGraphTest",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.structure.io.IoPropertyTest",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.structure.io.IoTest",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.structure.io.IoVertexTest",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.structure.util.detached.DetachedEdgeTest",
+    method = "*",
+    reason = "GafferPopGraph does not support detached test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.process.traversal.TraversalInterruptionTest",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.process.traversal.step.map.ProfileTest$Traversals",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.process.traversal.strategy.optimization.EarlyLimitStrategyProcessTest",
+    method = "*",
+    reason = "GafferPopGraph does not support Tinkerpop IO test cases")
+@OptOut(
+    test = "org.apache.tinkerpop.gremlin.process.traversal.step.map.WriteTest$Traversals",
+    method = "*",
+    reason = "Currently a bug with the WriteTest that creates unwanted files")
 public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Graph {
     public static final String GRAPH_ID = "gaffer.graphId";
 
@@ -96,6 +151,22 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public static final String SCHEMAS = "gaffer.schemas";
 
     /**
+     * Configuration key for a directory of Gaffer type schemas.
+     * Primary use is for when the types and elements schemas are in different
+     * directories, if main SCHEMAS key is defined it will be used in
+     * preference to this one.
+     */
+    public static final String TYPES_SCHEMA = "gaffer.schema.types";
+
+    /**
+     * Configuration key for a directory of Gaffer element schemas.
+     * Primary use is for when the types and elements schemas are in different
+     * directories, if main SCHEMAS key is defined it will be used in
+     * preference to this one.
+     */
+    public static final String ELEMENTS_SCHEMA = "gaffer.schema.elements";
+
+    /**
      * Configuration key for a string array of operation options.
      * Each option should in the form: key:value
      */
@@ -106,10 +177,36 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public static final String DATA_AUTHS = "gaffer.dataAuths";
 
     /**
+     * Configuration key for stopping the elements added via Gremlin/Tinkerpop
+     * from being readonly. If this is set a vertex or edge may have its properties
+     * modified via the Tinkerpop interface using the defined ingest aggregation
+     * function(s) it has set.
+     */
+    public static final String NOT_READ_ONLY_ELEMENTS = "gaffer.elements.notreadonly";
+
+    /**
      * The vertex label for vertex IDs. These are {@link GafferPopVertex}s that
      * don't have any properties, just an ID value and a label of 'id'.
      */
     public static final String ID_LABEL = "id";
+
+    /**
+     * The type of vertex id manager to use see {@link DefaultIdManager}
+     */
+    public static final String ID_MANAGER = "vertex.id.manager";
+
+    /**
+     * Types of ID managers available for this graph (mainly used for testing).
+     */
+    public enum DefaultIdManager {
+        INTEGER,
+        LONG,
+        STRING,
+        UUID
+    }
+
+    // Internal ID tracker for using a number based ID manager
+    protected AtomicLong currentId = new AtomicLong(-1L);
 
     private final Graph graph;
     private final Configuration configuration;
@@ -156,8 +253,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final Path storeProps = Paths.get(configuration.getString(STORE_PROPERTIES));
         final Schema.Builder schemaBuilder = new Schema.Builder();
-        for (final String schemaPath : configuration.getStringArray(SCHEMAS)) {
-            schemaBuilder.merge(Schema.fromJson(Paths.get(schemaPath)));
+        // Use SCHEMAS key if defined else use separate types and elements keys
+        if (configuration.containsKey(SCHEMAS)) {
+            Arrays.stream(configuration.getStringArray(SCHEMAS))
+                .forEach(path -> schemaBuilder.merge(Schema.fromJson(Paths.get(path))));
+        } else {
+            Stream.concat(
+                Arrays.stream(configuration.getStringArray(TYPES_SCHEMA)),
+                Arrays.stream(configuration.getStringArray(ELEMENTS_SCHEMA)))
+                    .forEach(path -> schemaBuilder.merge(Schema.fromJson(Paths.get(path))));
         }
 
         return new Graph.Builder()
@@ -184,8 +288,32 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     @Override
     public Vertex addVertex(final Object... keyValues) {
         ElementHelper.legalPropertyKeyValueArray(keyValues);
-        final Object idValue = ElementHelper.getIdValue(keyValues).orElseThrow(() -> new IllegalArgumentException("ID is required"));
-        final String label = ElementHelper.getLabelValue(keyValues).orElseThrow(() -> new IllegalArgumentException("Label is required"));
+        final String label = ElementHelper.getLabelValue(keyValues).orElse(Vertex.DEFAULT_LABEL);
+        Object idValue;
+        // Check if we are using an ID manager
+        if (configuration.containsKey(ID_MANAGER)) {
+            idValue = ElementHelper.getIdValue(keyValues).orElse(null);
+            if (idValue == null) {
+                idValue = getNextVertexId();
+            }
+        } else {
+            idValue = ElementHelper.getIdValue(keyValues).orElseThrow(() -> new IllegalArgumentException("ID is required"));
+        }
+
+        /*
+         * TODO: Check the ID type is relevant for the group (a.k.a label) in the schema and auto convert
+         *       as the some Standard tinkerpop tests add data for the same group but with a different
+         *       Object type for the ID. Using a String ID manager might be the most flexible for these
+         *       tests.
+         * Basic idea of auto converting the type is below:
+         *
+         * String idSchemaType = graph.getSchema().getEntity(label).getVertex();
+         * String idTypeName = graph.getSchema().getType(idSchemaType).getFullClassString();
+         * if (!idTypeName.equals(idValue.getClass().getName())) {
+         *     LOGGER.warn("Vertex ID is not the correct type for the schema: " + idValue);
+         *     idValue = graph.getSchema().getType(idSchemaType).getClazz().cast(idValue);
+         * }
+         */
 
         final GafferPopVertex vertex = new GafferPopVertex(label, idValue, this);
         ElementHelper.attachProperties(vertex, VertexProperty.Cardinality.list, keyValues);
@@ -202,7 +330,10 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .then(new AddElements())
                 .build());
 
-        vertex.setReadOnly();
+        // Set read only if not told otherwise
+        if (!configuration.containsKey(NOT_READ_ONLY_ELEMENTS)) {
+            vertex.setReadOnly();
+        }
     }
 
     public void addEdge(final GafferPopEdge edge) {
@@ -232,7 +363,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         final boolean getAll = null == vertexIds || 0 == vertexIds.length;
 
         final Output<Iterable<? extends Element>> getOperation;
-        final List<Vertex> idVertices = new LinkedList<>();
         if (getAll) {
             getOperation = new GetAllElements.Builder()
                     .view(new View.Builder()
@@ -240,24 +370,23 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                             .build())
                     .build();
         } else {
-            final List<EntitySeed> entitySeeds = getEntitySeeds(Arrays.asList(vertexIds));
             getOperation = new GetElements.Builder()
-                    .input(entitySeeds)
+                    .input(getElementSeeds(Arrays.asList(vertexIds)))
                     .view(new View.Builder()
                             .entities(graph.getSchema().getEntityGroups())
                             .build())
                     .build();
         }
 
-        final Iterable<? extends GafferPopVertex> result = execute(new Builder()
+        final Iterable<? extends GafferPopElement> result = execute(new Builder()
                 .first(getOperation)
-                .then(new GenerateObjects.Builder<GafferPopVertex>()
-                        .generator(new GafferPopVertexGenerator(this))
+                .then(new GenerateObjects.Builder<GafferPopElement>()
+                        .generator(new GafferPopElementGenerator(this))
                         .build())
                 .build());
 
-        return new ChainedIterable<Vertex>(result, idVertices).iterator();
-    }
+        return (Iterator) result.iterator();
+        }
 
     /**
      * This performs getRelatedEntities operation on Gaffer.
@@ -310,7 +439,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param labels    labels of vertices and edges. Alternatively you can supply a Gaffer View serialised into JSON.
      * @return iterator of {@link GafferPopVertex}
      */
-    public Iterator<GafferPopVertex> adjVertices(final Object vertexId, final Direction direction, final String... labels) {
+    public Iterator<Vertex> adjVertices(final Object vertexId, final Direction direction, final String... labels) {
         return adjVerticesWithView(vertexId, direction, createView(labels));
     }
 
@@ -327,7 +456,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param labels    labels of vertices and edges. Alternatively you can supply a Gaffer View serialised into JSON.
      * @return iterator of {@link GafferPopVertex}
      */
-    public Iterator<GafferPopVertex> adjVertices(final Iterable<Object> vertexIds, final Direction direction, final String... labels) {
+    public Iterator<Vertex> adjVertices(final Iterable<Object> vertexIds, final Direction direction, final String... labels) {
         return adjVerticesWithView(vertexIds, direction, createView(labels));
     }
 
@@ -344,7 +473,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param view      a Gaffer {@link View} containing edge and entity groups.
      * @return iterator of {@link GafferPopVertex}
      */
-    public Iterator<GafferPopVertex> adjVerticesWithView(final Object vertexId, final Direction direction, final View view) {
+    public Iterator<Vertex> adjVerticesWithView(final Object vertexId, final Direction direction, final View view) {
         return adjVerticesWithView(Collections.singletonList(vertexId), direction, view);
     }
 
@@ -361,22 +490,23 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param view      a Gaffer {@link View} containing edge and entity groups.
      * @return iterator of {@link GafferPopVertex}
      */
-    public Iterator<GafferPopVertex> adjVerticesWithView(final Iterable<Object> vertexIds, final Direction direction, final View view) {
-        return adjVerticesWithSeedsAndView(getEntitySeeds(vertexIds), direction, view);
+    public Iterator<Vertex> adjVerticesWithView(final Iterable<Object> vertexIds, final Direction direction, final View view) {
+        return adjVerticesWithSeedsAndView(getElementSeeds(vertexIds), direction, view);
     }
 
     /**
      * This performs a getEdgesBySeed operation on Gaffer.
-     * At least 1 edgeIds must be provided. Gaffer does not support unseeded
-     * queries.
+     * At least 1 ID must be provided as Gaffer does not support unseeded
+     * queries. Supports various forms of IDs to enable passing either edge IDs
+     * or Entity/Vertex IDs but will filter to only return edges.
      *
-     * @param edgeIds EdgeIds or {@link GafferPopEdge}s to query for
+     * @param elementIds EdgeIds, {@link GafferPopEdge}s or Vertex IDs to query for
      * @return iterator of {@link GafferPopEdge}s.
      * @see org.apache.tinkerpop.gremlin.structure.Graph#edges(Object...)
      */
     @Override
-    public Iterator<Edge> edges(final Object... edgeIds) {
-        final boolean getAll = null == edgeIds || 0 == edgeIds.length;
+    public Iterator<Edge> edges(final Object... elementIds) {
+        final boolean getAll = null == elementIds || 0 == elementIds.length;
 
         final Output<Iterable<? extends Element>> getOperation;
         if (getAll) {
@@ -387,19 +517,20 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     .build();
         } else {
             getOperation = new GetElements.Builder()
-                    .input(getEdgeSeeds(Arrays.asList(edgeIds)))
+                    .input(getElementSeeds(Arrays.asList(elementIds)))
                     .view(new View.Builder()
                             .edges(graph.getSchema().getEdgeGroups())
                             .build())
                     .build();
         }
 
-        return (Iterator) execute(new OperationChain.Builder()
+        return (Iterator) execute(new Builder()
                 .first(getOperation)
                 .then(new GenerateObjects.Builder<GafferPopEdge>()
                         .generator(new GafferPopEdgeGenerator(this))
                         .build())
-                .build()).iterator();
+                .build())
+                .iterator();
     }
 
     /**
@@ -412,7 +543,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param labels    labels of edges. Alternatively you can supply a Gaffer View serialised into JSON.
      * @return iterator of {@link GafferPopEdge}
      */
-    public Iterator<GafferPopEdge> edges(final Object id, final Direction direction, final String... labels) {
+    public Iterator<Edge> edges(final Object id, final Direction direction, final String... labels) {
         return edgesWithView(id, direction, createView(labels));
     }
 
@@ -426,7 +557,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param labels    labels of edges. Alternatively you can supply a Gaffer View serialised into JSON.
      * @return iterator of {@link GafferPopEdge}
      */
-    public Iterator<GafferPopEdge> edges(final Iterable<Object> ids, final Direction direction, final String... labels) {
+    public Iterator<Edge> edges(final Iterable<Object> ids, final Direction direction, final String... labels) {
         return edgesWithView(ids, direction, createView(labels));
     }
 
@@ -440,7 +571,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param view      labels of edges. Alternatively you can supply a Gaffer View serialised into JSON.
      * @return iterator of {@link GafferPopEdge}
      */
-    public Iterator<GafferPopEdge> edgesWithView(final Object id, final Direction direction, final View view) {
+    public Iterator<Edge> edgesWithView(final Object id, final Direction direction, final View view) {
         return edgesWithView(Collections.singletonList(id), direction, view);
     }
 
@@ -454,7 +585,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param view      a Gaffer {@link View} containing edge groups.
      * @return iterator of {@link GafferPopEdge}
      */
-    public Iterator<GafferPopEdge> edgesWithView(final Iterable<Object> ids, final Direction direction, final View view) {
+    public Iterator<Edge> edgesWithView(final Iterable<Object> ids, final Direction direction, final View view) {
         return edgesWithSeedsAndView(getElementSeeds(ids), direction, view);
     }
 
@@ -518,8 +649,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         try {
             LOGGER.info("GafferPop operation chain called: " + opChain.toString());
             return graph.execute(opChain, user);
-        } catch (final OperationException e) {
-            throw new RuntimeException(e);
+        } catch (final Exception e) {
+            LOGGER.error("Operation chain failed: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to execute GafferPop operation chain", e);
         }
     }
 
@@ -551,11 +683,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     .build();
 
             if (null == entitiesView || entitiesView.getEntityGroups().contains(ID_LABEL)) {
-                for (final ElementSeed elementSeed : seeds) {
-                    if (elementSeed instanceof EntitySeed) {
-                        idVertices.add(new GafferPopVertex(ID_LABEL, ((EntitySeed) elementSeed).getVertex(), this));
+                seeds.forEach(seed -> {
+                    if (seed instanceof EntitySeed) {
+                        idVertices.add(new GafferPopVertex(ID_LABEL, ((EntitySeed) seed).getVertex(), this));
                     }
-                }
+                });
             }
         }
 
@@ -566,21 +698,21 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                         .build())
                 .build());
 
-        if (idVertices.isEmpty()) {
+        if (!idVertices.isEmpty()) {
             return new ChainedIterable<GafferPopVertex>(result, idVertices).iterator();
         } else {
             return (Iterator<GafferPopVertex>) result.iterator();
         }
     }
 
-    private Iterator<GafferPopVertex> adjVerticesWithSeedsAndView(final List<EntitySeed> seeds, final Direction direction, final View view) {
+    private Iterator<Vertex> adjVerticesWithSeedsAndView(final List<ElementSeed> seeds, final Direction direction, final View view) {
         if (null == seeds || seeds.isEmpty()) {
             throw new UnsupportedOperationException("There could be a lot of vertices, so please add some seeds");
         }
 
         View processedView = view == null ? createAllEntitiesView() : view;
 
-        return (Iterator) execute(new OperationChain.Builder()
+        final Iterable<? extends GafferPopElement> result = execute(new OperationChain.Builder()
                 .first(new GetAdjacentIds.Builder()
                         .input(seeds)
                         .view(processedView)
@@ -589,13 +721,19 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .then(new GetElements.Builder()
                         .view(processedView)
                         .build())
-                .then(new GenerateObjects.Builder<GafferPopVertex>()
-                        .generator(new GafferPopVertexGenerator(this))
+                .then(new GenerateObjects.Builder<GafferPopElement>()
+                        .generator(new GafferPopElementGenerator(this))
                         .build())
-                .build()).iterator();
+                .build());
+
+        final Iterable<Vertex> resultVertexes = () -> StreamSupport.stream(result.spliterator(), false)
+            .filter(Vertex.class::isInstance)
+            .map(e -> (Vertex) e)
+            .iterator();
+        return resultVertexes.iterator();
     }
 
-    private Iterator<GafferPopEdge> edgesWithSeedsAndView(final List<ElementSeed> seeds, final Direction direction, final View view) {
+    private Iterator<Edge> edgesWithSeedsAndView(final List<ElementSeed> seeds, final Direction direction, final View view) {
         final boolean getAll = null == seeds || seeds.isEmpty();
 
         View edgesView = view;
@@ -676,62 +814,44 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         return viewBuilder.build();
     }
 
+    /**
+     * Determines the element seeds based on supplied IDs.
+     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
+     *
+     * @param ids The iterable of IDs
+     * @return List of {@link ElementSeed}s
+     */
     private List<ElementSeed> getElementSeeds(final Iterable<Object> ids) {
-        List<ElementSeed> seeds = null;
-        if (null != ids) {
-            seeds = new LinkedList<>();
-            for (final Object id : ids) {
-                if (id instanceof Vertex) {
-                    seeds.add(new EntitySeed(((Vertex) id).id()));
-                } else if (id instanceof GafferPopEdge) {
-                    seeds.add(new EdgeSeed(((GafferPopEdge) id).outVertex().id(), ((GafferPopEdge) id).inVertex().id(), true));
-                } else if (id instanceof List) {
-                    final List edgeIdList = (List) id;
-                    if (edgeIdList.size() == 2) {
-                        seeds.add(new EdgeSeed(edgeIdList.get(0), edgeIdList.get(1), true));
-                    }
-                } else {
-                    seeds.add(new EntitySeed(id));
-                }
-            }
+        List<ElementSeed> seeds = new LinkedList<>();
+        if (null == ids) {
+            LOGGER.warn("Gaffer does not support unseeded queries, no results will be returned");
+            return seeds;
         }
 
-        return seeds;
-    }
-
-    private List<EntitySeed> getEntitySeeds(final Iterable<Object> vertexIds) {
-        List<EntitySeed> seeds = null;
-        if (null != vertexIds) {
-            seeds = new LinkedList<>();
-            for (final Object vertexId : vertexIds) {
-                if (vertexId instanceof Vertex) {
-                    seeds.add(new EntitySeed(((Vertex) vertexId).id()));
-                } else {
-                    seeds.add(new EntitySeed(vertexId));
-                }
+        ids.forEach(id -> {
+            List<Object> edgeIdList = new LinkedList<>();
+            // Extract Vertex ID
+            if (id instanceof Vertex) {
+                seeds.add(new EntitySeed(((Vertex) id).id()));
+            // Extract Edge ID
+            } else if (id instanceof Edge) {
+                seeds.add(new EdgeSeed(((Edge) id).outVertex().id(), ((Edge) id).inVertex().id(), true));
+            // Extract source and destination from ID list
+            } else if (id instanceof List) {
+                edgeIdList = (List<Object>) id;
+            // Attempt to extract source and destination IDs from a string form of an array/list
+            } else if ((id instanceof String) && (((String) id).matches("^\\[.*,.*\\]$"))) {
+                edgeIdList = Arrays.asList(((String) id).replace("[", "").replace("]", "").split(","));
+            // Assume entity ID as fallback
+            } else {
+                seeds.add(new EntitySeed(id));
             }
-        }
 
-        return seeds;
-    }
-
-    private List<EdgeSeed> getEdgeSeeds(final Iterable<Object> edgeIds) {
-        List<EdgeSeed> seeds = null;
-        if (null != edgeIds) {
-            seeds = new LinkedList<>();
-            for (final Object edgeIdObj : edgeIds) {
-                final List edgeIdList;
-                if (edgeIdObj instanceof GafferPopEdge) {
-                    edgeIdList = Arrays.asList(((GafferPopEdge) edgeIdObj).outVertex().id(), ((GafferPopEdge) edgeIdObj).inVertex().id());
-                } else if (edgeIdObj instanceof List) {
-                    edgeIdList = ((List) edgeIdObj);
-                } else {
-                    final String className = null != edgeIdObj ? edgeIdObj.getClass().getName() : " a null object";
-                    throw new IllegalArgumentException("Edge IDs must be either a EdgeId list or a GafferPopEdge. Not " + className);
-                }
+            // If found a list verify source and destination
+            if (edgeIdList.size() == 2) {
                 seeds.add(new EdgeSeed(edgeIdList.get(0), edgeIdList.get(1), true));
             }
-        }
+        });
 
         return seeds;
     }
@@ -755,5 +875,28 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         variablesMap.put(GafferPopGraphVariables.USER, user);
         variablesMap.put(GafferPopGraphVariables.SCHEMA, graph.getSchema());
         return new GafferPopGraphVariables(variablesMap);
+    }
+
+    /**
+     * Gets the next ID to assign to a supplied vertex based on the currently configured
+     * ID manager.
+     *
+     * @return Next ID Object
+     */
+    private Object getNextVertexId() {
+        switch (configuration.getEnum(ID_MANAGER, DefaultIdManager.class)) {
+            case INTEGER:
+                return ((Long) currentId.incrementAndGet()).intValue();
+
+            case UUID:
+                return UUID.randomUUID();
+
+            case STRING:
+                return UUID.randomUUID().toString();
+
+            // Use long for default
+            default:
+                return currentId.incrementAndGet();
+        }
     }
 }

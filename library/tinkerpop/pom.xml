@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2023 Crown Copyright
+  ~ Copyright 2016-2024 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,14 +19,19 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>2.0.2-SNAPSHOT</version>
+        <version>2.1.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>tinkerpop</artifactId>
 
     <properties>
-        <tinkerpop.version>3.6.4</tinkerpop.version>
+        <tinkerpop.version>3.7.1</tinkerpop.version>
+        <google-guice.version>4.2.3</google-guice.version>
+        <cucumber.version>7.15.0</cucumber.version>
+
+        <!-- Don't run any of the standard tinkerpop tests by default-->
+        <test>!GafferPopGraphStructureStandardTest,!GafferPopFeatureTest,!GafferPopGraphProcessStandardTest</test>
     </properties>
 
     <dependencies>
@@ -90,6 +95,25 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <!-- For standard gremlin test suites -->
+        <dependency>
+            <groupId>org.apache.tinkerpop</groupId>
+            <artifactId>gremlin-test</artifactId>
+            <version>${tinkerpop.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+         <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${google-guice.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -115,4 +139,24 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>tinkerpop-standard-test</id>
+            <properties>
+                <!-- Gaffer doesn't pass all standard gremlin tests, this will hopefully improve with time -->
+                <maven.test.failure.ignore>true</maven.test.failure.ignore>
+                <test>GafferPopGraphStructureStandardTest,GafferPopFeatureTest,GafferPopGraphProcessStandardTest</test>
+            </properties>
+            <dependencies>
+                <!-- Standard test suite still uses juint 4 so needs the vintage engine to run -->
+                <dependency>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                    <version>${junit.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

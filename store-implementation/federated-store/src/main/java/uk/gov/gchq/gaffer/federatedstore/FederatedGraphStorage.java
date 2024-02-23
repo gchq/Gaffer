@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -270,7 +271,7 @@ public class FederatedGraphStorage {
     }
 
     private void validateExisting(final String graphId) throws StorageException {
-        boolean exists = federatedStoreCache.getAllGraphIds().contains(graphId);
+        boolean exists = federatedStoreCache.contains(graphId);
         if (exists) {
             throw new StorageException(new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, graphId))));
         }
@@ -296,16 +297,16 @@ public class FederatedGraphStorage {
     private Stream<GraphSerialisable> getStream(final User user, final Collection<String> graphIds) {
         Stream<GraphSerialisable> rtn;
         if (isNull(graphIds)) {
-            rtn = federatedStoreCache.getAllGraphIds().stream()
-                    .map(g -> federatedStoreCache.getFromCache(g))
+            rtn = StreamSupport.stream(federatedStoreCache.getAllGraphIds().spliterator(), false)
+                    .map(federatedStoreCache::getFromCache)
                     .filter(pair -> isValidToView(user, pair.getSecond()))
-                    .map(pair -> pair.getFirst());
+                    .map(Pair::getFirst);
         } else {
-            rtn = federatedStoreCache.getAllGraphIds().stream()
-                    .map(g -> federatedStoreCache.getFromCache(g))
+            rtn = StreamSupport.stream(federatedStoreCache.getAllGraphIds().spliterator(), false)
+                    .map(federatedStoreCache::getFromCache)
                     .filter(pair -> isValidToView(user, pair.getSecond()))
                     .filter(pair -> graphIds.contains(pair.getFirst().getGraphId()))
-                    .map(pair -> pair.getFirst());
+                    .map(Pair::getFirst);
         }
         return rtn;
     }
@@ -315,10 +316,10 @@ public class FederatedGraphStorage {
      * @return a stream of graphs the user has visibility for.
      */
     private Stream<GraphSerialisable> getUserGraphStream(final Predicate<FederatedAccess> readAccessPredicate) {
-        return federatedStoreCache.getAllGraphIds().stream()
-                .map(graphId -> federatedStoreCache.getFromCache(graphId))
-                .filter(pair -> readAccessPredicate.test(pair.getSecond()))
-                .map(Pair::getFirst);
+        return StreamSupport.stream(federatedStoreCache.getAllGraphIds().spliterator(), false)
+            .map(federatedStoreCache::getFromCache)
+            .filter(pair -> readAccessPredicate.test(pair.getSecond()))
+            .map(Pair::getFirst);
     }
 
     @SuppressWarnings("PMD.PreserveStackTrace") //Not Required
@@ -365,17 +366,17 @@ public class FederatedGraphStorage {
     }
 
     private Map<String, Object> getAllGraphsAndAccess(final List<String> graphIds, final Predicate<FederatedAccess> accessPredicate) {
-        return federatedStoreCache.getAllGraphIds().stream()
-                .map(graphId -> federatedStoreCache.getFromCache(graphId))
-                //filter on FederatedAccess
-                .filter(pair -> accessPredicate.test(pair.getSecond()))
-                //filter on if graph required?
-                .filter(pair -> {
-                    final boolean isGraphIdRequested = nonNull(graphIds) && graphIds.contains(pair.getFirst().getGraphId());
-                    final boolean isAllGraphIdsRequired = isNull(graphIds) || graphIds.isEmpty();
-                    return isGraphIdRequested || isAllGraphIdsRequired;
-                })
-                .collect(Collectors.toMap(pair -> pair.getFirst().getGraphId(), Pair::getSecond));
+        return StreamSupport.stream(federatedStoreCache.getAllGraphIds().spliterator(), false)
+            .map(federatedStoreCache::getFromCache)
+            // filter on FederatedAccess
+            .filter(pair -> accessPredicate.test(pair.getSecond()))
+            // filter on if graph required?
+            .filter(pair -> {
+                final boolean isGraphIdRequested = nonNull(graphIds) && graphIds.contains(pair.getFirst().getGraphId());
+                final boolean isAllGraphIdsRequired = isNull(graphIds) || graphIds.isEmpty();
+                return isGraphIdRequested || isAllGraphIdsRequired;
+            })
+            .collect(Collectors.toMap(pair -> pair.getFirst().getGraphId(), Pair::getSecond));
     }
 
     public boolean changeGraphAccess(final String graphId, final FederatedAccess newFederatedAccess, final User requestingUser) throws StorageException {

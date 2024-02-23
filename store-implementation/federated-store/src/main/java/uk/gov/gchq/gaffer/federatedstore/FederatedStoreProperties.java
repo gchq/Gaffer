@@ -28,14 +28,16 @@ import java.nio.file.Path;
  */
 public class FederatedStoreProperties extends StoreProperties {
     /**
-     * This is used....
-     * e.g gaffer.federatedstore.isPublicAllowed=true
+     * Controls if adding graphs with public access is allowed.
+     * True by default.
+     * e.g. gaffer.federatedstore.isPublicAllowed=true
      */
     public static final String IS_PUBLIC_ACCESS_ALLOWED = "gaffer.federatedstore.isPublicAllowed";
     public static final String IS_PUBLIC_ACCESS_ALLOWED_DEFAULT = String.valueOf(true);
     /**
-     * This is used....
-     * e.g gaffer.federatedstore.customPropertiesAuths="auth1"
+     * String containing auths for allowing users to use store properties other than those contained in a graph library.
+     * Unset by default, allowing all users to do this.
+     * e.g. gaffer.federatedstore.customPropertiesAuths="auth1"
      */
     public static final String CUSTOM_PROPERTIES_AUTHS = "gaffer.federatedstore.customPropertiesAuths";
     public static final String CUSTOM_PROPERTIES_AUTHS_DEFAULT = null;
