@@ -77,6 +77,9 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
     public MergeElementFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
         final MergeElementFunction mergeElementFunction = new MergeElementFunction();
 
+        // Validate the supplied context before using
+        validate(context);
+
         try {
             // Check if results graph, hasn't already be supplied, otherwise make a default results graph.
             if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
@@ -91,8 +94,7 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
 
                 context.put(TEMP_RESULTS_GRAPH, resultsGraph);
             }
-            // Validate the supplied context before using
-            validate(context);
+
 
             updateViewWithValidationFromSchema(context);
 
@@ -129,30 +131,47 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
      * @param context The context e.g. view, schema and user
      */
     private static void validate(final Map<String, Object> context) {
-        View view = (View) context.get(VIEW);
-        if (view != null && view.hasTransform()) {
-            throw new UnsupportedOperationException("Error: context invalid: can not use this function with a POST AGGREGATION TRANSFORM VIEW, " +
-                    "because transformation may have created items that does not exist in the schema. " +
-                    "The re-applying of the View to the collected federated results would not be be possible. " +
-                    "Try a simple concat merge that doesn't require the re-application of view");
-            // Solution is to derive and use the "Transformed schema" from the uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition.
-        }
-
-        Schema schema = (Schema) context.get(SCHEMA);
-        if (schema == null || !schema.hasGroups()) {
-            throw new IllegalArgumentException("Error: context invalid, requires a populated schema.");
-        }
-
-        if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
-            throw new IllegalStateException("Error: context invalid, did not contain a Temporary Results Graph.");
-        } else if (!(context.get(TEMP_RESULTS_GRAPH) instanceof Graph)
-                && !(context.get(TEMP_RESULTS_GRAPH) instanceof GraphSerialisable)) {
-            throw new IllegalArgumentException(String.format("Error: context invalid, value for %s was not a Graph, found: %s", TEMP_RESULTS_GRAPH, context.get(TEMP_RESULTS_GRAPH)));
-        }
-
-        if (!context.containsKey(USER)) {
+        if (!containsUser(context)) {
             throw new IllegalArgumentException("Error: context invalid, requires a User");
         }
+
+        if (!containsTempResultsGraph(context)) {
+            if (!containsValidView(context)) {
+                throw new UnsupportedOperationException("Error: context invalid: can not use this function with a POST AGGREGATION TRANSFORM VIEW, " +
+                        "because transformation may have created items that does not exist in the schema. " +
+                        "The re-applying of the View to the collected federated results would not be be possible. " +
+                        "Try a simple concat merge that doesn't require the re-application of view");
+                // Solution is to derive and use the "Transformed schema" from the uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition.
+            }
+
+            if (!containsValidSchema(context)) {
+                throw new IllegalArgumentException("Error: context invalid, requires a populated schema.");
+            }
+
+        } else if (!containsValidTempResultsGraph(context)) {
+            throw new IllegalArgumentException(String.format("Error: context invalid, value for %s was not a Graph, found: %s", TEMP_RESULTS_GRAPH, context.get(TEMP_RESULTS_GRAPH)));
+        }
+    }
+
+    private static boolean containsValidTempResultsGraph(final Map<String, Object> context) {
+        return (context.get(TEMP_RESULTS_GRAPH) instanceof Graph)
+                && (context.get(TEMP_RESULTS_GRAPH) instanceof GraphSerialisable);
+    }
+
+    private static boolean containsTempResultsGraph(final Map<String, Object> context) {
+        return context.containsKey(TEMP_RESULTS_GRAPH);
+    }
+
+    private static boolean containsUser(final Map<String, Object> context) {
+        return context.containsKey(USER);
+    }
+
+    private static boolean containsValidSchema(final Map<String, Object> context) {
+        return context.get(SCHEMA) != null && ((Schema) context.get(SCHEMA)).hasGroups();
+    }
+
+    private static boolean containsValidView(final Map<String, Object> context) {
+        return context.get(VIEW) == null || !((View) context.get(VIEW)).hasTransform();
     }
 
     private static Stream<Map.Entry<String, ViewElementDefinition>> getUpdatedViewDefsFromSchemaDefs(final Map<String, ? extends SchemaElementDefinition> groupDefs, final View view) {
