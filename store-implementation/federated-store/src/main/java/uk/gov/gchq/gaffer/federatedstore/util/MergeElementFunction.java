@@ -73,8 +73,10 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
     public MergeElementFunction() {
     }
 
-    public MergeElementFunction(final Map<String, Object> context) throws GafferCheckedException {
-        this();
+    @Override
+    public MergeElementFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
+        final MergeElementFunction mergeElementFunction = new MergeElementFunction();
+
         try {
             // Check if results graph, hasn't already be supplied, otherwise make a default results graph.
             if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
@@ -99,6 +101,8 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
             throw new GafferCheckedException("Unable to create TemporaryResultsGraph", e);
         }
 
+        mergeElementFunction.context = context;
+        return mergeElementFunction;
     }
 
     private static void updateViewWithValidationFromSchema(final Map<String, Object> context) {
@@ -117,13 +121,6 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
 
             context.put(VIEW, updatedView.build());
         }
-    }
-
-    @Override
-    public MergeElementFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
-        final MergeElementFunction mergeElementFunction = new MergeElementFunction();
-        mergeElementFunction.context = context;
-        return mergeElementFunction;
     }
 
     /**
