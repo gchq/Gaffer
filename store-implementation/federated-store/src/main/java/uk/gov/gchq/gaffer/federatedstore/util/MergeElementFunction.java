@@ -112,8 +112,6 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
         }
     }
 
-
-
     private static void makeTempResultsGraphIfRequired(final HashMap<String, Object> context) {
         // Check if results graph, hasn't already be supplied, otherwise make a default results graph.
         if (!containsTempResultsGraph(context)) {
@@ -230,12 +228,14 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
             }
         }
 
-        final Graph resultsGraph = getGraph(context).orElseThrow();
+        final Graph resultsGraph;
         final Context userContext = new Context((User) context.get(USER));
+
         try {
+            resultsGraph = getGraph(context).orElseThrow(() -> new GafferCheckedException("No results Graph available for merging "));
             // The update object might be a lazy AccumuloElementRetriever and might be MASSIVE.
             resultsGraph.execute(new AddElements.Builder().input((Iterable<Element>) update).build(), userContext);
-        } catch (final OperationException e) {
+        } catch (final GafferCheckedException e) {
             throw new GafferRuntimeException("Error adding elements to temporary results graph, due to:" + e.getMessage(), e);
         }
 
