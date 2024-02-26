@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
@@ -312,6 +313,8 @@ public class FederatedStoreSchemaTest {
         assertThat(schemaFromStoreMethod.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_1);
     }
 
+    @Test
+    @Disabled
     public void shouldErrorWhenGetSchemaASharedGroupHasNoSharedProperties() throws OperationException {
         // Given
         addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
