@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -473,7 +474,14 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         @Override
         @JsonIgnore
         public CHILD_CLASS merge(final View view) {
-            if (null != view) {
+            return view == null ? merge(Optional.empty()) : merge(Optional.of(view));
+
+        }
+
+        @JsonIgnore
+        public CHILD_CLASS merge(final Optional<View> viewOptional) {
+            if (viewOptional.isPresent()) {
+                final View view = viewOptional.get();
                 if (!(getThisView().canMerge(view, getThisView()) && view.canMerge(view, getThisView()))) {
                     throw new IllegalArgumentException("A " + view.getClass().getSimpleName() +
                             " cannot be merged into a " + getThisView().getClass().getSimpleName());
@@ -559,6 +567,11 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
 
         public Builder(final View view) {
+            this();
+            merge(view);
+        }
+
+        public Builder(final Optional<View> view) {
             this();
             merge(view);
         }

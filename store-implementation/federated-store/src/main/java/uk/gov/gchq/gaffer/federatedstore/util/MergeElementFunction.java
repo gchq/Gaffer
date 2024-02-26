@@ -54,6 +54,13 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.SCHEMA;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.USER;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.VIEW;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.containsUser;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getSchema;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getView;
+
 /**
  * This class is used to address some of the issues with having the same element groups distributed amongst multiple graphs.
  * Such as the re-application of View filter or Schema Validation after the local aggregation of results from multiple graphs.
@@ -62,9 +69,6 @@ import java.util.stream.Stream;
  */
 public class MergeElementFunction implements ContextSpecificMergeFunction<Object, Iterable<Object>, Iterable<Object>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeElementFunction.class);
-    public static final String VIEW = "view";
-    public static final String SCHEMA = "schema";
-    public static final String USER = "user";
     public static final String TEMP_RESULTS_GRAPH = "temporaryResultsGraph";
     private static final Random RANDOM = new Random();
 
@@ -98,17 +102,17 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
         final Optional<Graph> graph = getGraph(context);
         if (graph.isPresent() && MapStore.class.getName().equals(graph.get().getStoreProperties().getStoreClass())) {
             //Update View with
-            final View view = (View) context.get(VIEW);
-            final Schema schema = (Schema) context.get(SCHEMA);
-            final View.Builder updatedView = new View.Builder(view);
+            final Optional<View> view = getView(context);
+            final Schema schema = getSchema(context).orElseThrow(() -> new IllegalStateException("No Schema was found from context, which should have been validated"));
+            final View.Builder editableView = new View.Builder(view);
 
             //getUpdatedDefs and add to new view.
             getUpdatedViewDefsFromSchemaDefs(schema.getEdges(), view)
-                    .forEach(e -> updatedView.edge(e.getKey(), e.getValue()));
+                    .forEach(e -> editableView.edge(e.getKey(), e.getValue()));
             getUpdatedViewDefsFromSchemaDefs(schema.getEntities(), view)
-                    .forEach(e -> updatedView.entity(e.getKey(), e.getValue()));
+                    .forEach(e -> editableView.entity(e.getKey(), e.getValue()));
 
-            context.put(VIEW, updatedView.build());
+            context.put(VIEW, editableView.build());
         }
     }
 
@@ -133,7 +137,7 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
      *
      * @param context The context e.g. view, schema and user
      */
-    private static void validate(final Map<String, Object> context) {
+    public static void validate(final Map<String, Object> context) {
         if (!containsUser(context)) {
             throw new IllegalArgumentException("Error: context invalid, requires a User");
         }
@@ -165,26 +169,22 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
         return context.containsKey(TEMP_RESULTS_GRAPH);
     }
 
-    private static boolean containsUser(final Map<String, Object> context) {
-        return context.containsKey(USER);
-    }
-
     private static boolean containsValidSchema(final Map<String, Object> context) {
-        final Object o = context.get(SCHEMA);
-        return o instanceof Schema && ((Schema) o).hasGroups();
+        final Optional<Schema> schema = getSchema(context);
+        return schema.isPresent() && (schema.get()).hasGroups();
     }
 
     private static boolean containsValidView(final Map<String, Object> context) {
-        final Object o = context.get(VIEW);
-        return o == null || (o instanceof View && !((View) o).hasTransform());
+        final Optional<View> view = getView(context);
+        return view.isEmpty() || !view.get().hasTransform();
     }
 
-    private static Stream<Map.Entry<String, ViewElementDefinition>> getUpdatedViewDefsFromSchemaDefs(final Map<String, ? extends SchemaElementDefinition> groupDefs, final View view) {
+    private static Stream<Map.Entry<String, ViewElementDefinition>> getUpdatedViewDefsFromSchemaDefs(final Map<String, ? extends SchemaElementDefinition> groupDefs, final Optional<View> view) {
         return groupDefs.entrySet().stream()
                 .map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), getUpdatedViewDefFromSchemaDef(e.getKey(), e.getValue(), view)));
     }
 
-    private static ViewElementDefinition getUpdatedViewDefFromSchemaDef(final String groupName, final SchemaElementDefinition schemaElementDef, final View view) {
+    private static ViewElementDefinition getUpdatedViewDefFromSchemaDef(final String groupName, final SchemaElementDefinition schemaElementDef, final Optional<View> view) {
         final ViewElementDefinition.Builder updatePreAggregationFilter;
         final ArrayList<TupleAdaptedPredicate<String, ?>> updatedFilterFunctions = new ArrayList<>();
 
@@ -193,8 +193,8 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
             updatedFilterFunctions.addAll(schemaElementDef.getValidator().getComponents());
         }
 
-        if (view != null) {
-            final ViewElementDefinition viewElementDef = view.getElement(groupName);
+        if (view.isPresent()) {
+            final ViewElementDefinition viewElementDef = view.get().getElement(groupName);
             //Add View Validation
             if (viewElementDef != null && viewElementDef.hasPostAggregationFilters()) {
                 updatedFilterFunctions.addAll(viewElementDef.getPostAggregationFilter().getComponents());

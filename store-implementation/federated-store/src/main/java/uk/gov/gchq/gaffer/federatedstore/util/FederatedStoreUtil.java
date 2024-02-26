@@ -59,6 +59,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.regex.Pattern;
@@ -66,11 +67,11 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.util.MergeElementFunction.SCHEMA;
-import static uk.gov.gchq.gaffer.federatedstore.util.MergeElementFunction.USER;
-import static uk.gov.gchq.gaffer.federatedstore.util.MergeElementFunction.VIEW;
 
 public final class FederatedStoreUtil {
+    public static final String SCHEMA = "schema";
+    public static final String VIEW = "view";
+    public static final String USER = "user";
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreUtil.class);
     private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
 
@@ -342,7 +343,7 @@ public final class FederatedStoreUtil {
                         .graphIds(graphIds)
                         .build(), operationContext);
 
-                functionContext.put(SCHEMA, schema);
+                putSchema(functionContext, schema);
             } catch (final OperationException e) {
                 throw new GafferCheckedException(String.format("Error getting Schema for SpecificMergeFunction, due to:%s", e.getMessage()), e);
             }
@@ -415,6 +416,23 @@ public final class FederatedStoreUtil {
         }
 
 
+
+    }
+    public static void putSchema(final HashMap<String, Object> functionContext, final Schema schema) {
+        functionContext.put(SCHEMA, schema);
     }
 
+    public static Optional<Schema> getSchema(final Map<String, Object> context) {
+        final Object o = context.get(SCHEMA);
+        return o instanceof Schema ? Optional.of((Schema) o) : Optional.empty();
+    }
+
+    public static Optional<View> getView(final Map<String, Object> context) {
+        final Object o = context.get(VIEW);
+        return o instanceof View ? Optional.of((View) o) : Optional.empty();
+    }
+
+    public static boolean containsUser(final Map<String, Object> context) {
+        return context.containsKey(USER);
+    }
 }

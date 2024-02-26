@@ -168,9 +168,9 @@ class MergeElementFunctionTest {
 
     private static HashMap<String, Object> makeContext(final View view, final Schema schema) {
         final HashMap<String, Object> map = new HashMap<>();
-        map.put(MergeElementFunction.VIEW, view);
-        map.put(MergeElementFunction.SCHEMA, schema);
-        map.put(MergeElementFunction.USER, testUser());
+        map.put(FederatedStoreUtil.VIEW, view);
+        map.put(FederatedStoreUtil.SCHEMA, schema);
+        map.put(FederatedStoreUtil.USER, testUser());
         return map;
     }
 }
