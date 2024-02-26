@@ -176,7 +176,7 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
 
     private static boolean containsValidView(final Map<String, Object> context) {
         final Optional<View> view = getView(context);
-        return view.isEmpty() || !view.get().hasTransform();
+        return !view.isPresent() || !view.get().hasTransform();
     }
 
     private static Stream<Map.Entry<String, ViewElementDefinition>> getUpdatedViewDefsFromSchemaDefs(final Map<String, ? extends SchemaElementDefinition> groupDefs, final Optional<View> view) {
