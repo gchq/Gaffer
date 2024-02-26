@@ -77,12 +77,12 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
     public MergeElementFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
         final MergeElementFunction mergeElementFunction = new MergeElementFunction();
 
-        // Validate the supplied context before using
-        validate(context);
 
         try {
+            // Validate the supplied context before using
+            validate(context);
             // Check if results graph, hasn't already be supplied, otherwise make a default results graph.
-            if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
+            if (!containsTempResultsGraph(context)) {
                 final Graph resultsGraph = new Graph.Builder()
                         .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, MergeElementFunction.class.getSimpleName(), RANDOM.nextInt(Integer.MAX_VALUE))))
                         .addSchema((Schema) context.get(SCHEMA))
@@ -95,16 +95,12 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
                 context.put(TEMP_RESULTS_GRAPH, resultsGraph);
             }
 
-
-            updateViewWithValidationFromSchema(context);
-
-            this.context = Collections.unmodifiableMap(context);
+            mergeElementFunction.context = Collections.unmodifiableMap(context);
+            return mergeElementFunction;
         } catch (final Exception e) {
             throw new GafferCheckedException("Unable to create TemporaryResultsGraph", e);
         }
 
-        mergeElementFunction.context = context;
-        return mergeElementFunction;
     }
 
     private static void updateViewWithValidationFromSchema(final Map<String, Object> context) {
@@ -151,11 +147,13 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
         } else if (!containsValidTempResultsGraph(context)) {
             throw new IllegalArgumentException(String.format("Error: context invalid, value for %s was not a Graph, found: %s", TEMP_RESULTS_GRAPH, context.get(TEMP_RESULTS_GRAPH)));
         }
+
+        updateViewWithValidationFromSchema(context);
     }
 
     private static boolean containsValidTempResultsGraph(final Map<String, Object> context) {
-        return (context.get(TEMP_RESULTS_GRAPH) instanceof Graph)
-                && (context.get(TEMP_RESULTS_GRAPH) instanceof GraphSerialisable);
+        final Object o = context.get(TEMP_RESULTS_GRAPH);
+        return o instanceof Graph || o instanceof GraphSerialisable;
     }
 
     private static boolean containsTempResultsGraph(final Map<String, Object> context) {
@@ -167,7 +165,8 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
     }
 
     private static boolean containsValidSchema(final Map<String, Object> context) {
-        return (Schema) context.get(SCHEMA) != null && ((Schema) context.get(SCHEMA)).hasGroups();
+        final Object o = context.get(SCHEMA);
+        return o instanceof Schema && ((Schema) o).hasGroups();
     }
 
     private static boolean containsValidView(final Map<String, Object> context) {
