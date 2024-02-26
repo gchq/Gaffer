@@ -49,6 +49,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -77,12 +78,12 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
     public MergeElementFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
         final MergeElementFunction mergeElementFunction = new MergeElementFunction();
 
-        // Validate the supplied context before using
-        validate(context);
 
         try {
+            // Validate the supplied context before using
+            validate(context);
             // Check if results graph, hasn't already be supplied, otherwise make a default results graph.
-            if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
+            if (!containsTempResultsGraph(context)) {
                 final Graph resultsGraph = new Graph.Builder()
                         .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, MergeElementFunction.class.getSimpleName(), RANDOM.nextInt(Integer.MAX_VALUE))))
                         .addSchema((Schema) context.get(SCHEMA))
@@ -95,21 +96,20 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
                 context.put(TEMP_RESULTS_GRAPH, resultsGraph);
             }
 
-
             updateViewWithValidationFromSchema(context);
 
-            this.context = Collections.unmodifiableMap(context);
+            mergeElementFunction.context = Collections.unmodifiableMap(context);
+            return mergeElementFunction;
         } catch (final Exception e) {
             throw new GafferCheckedException("Unable to create TemporaryResultsGraph", e);
         }
 
-        mergeElementFunction.context = context;
-        return mergeElementFunction;
     }
 
     private static void updateViewWithValidationFromSchema(final Map<String, Object> context) {
         //Only do this for MapStore, not required for other stores.
-        if (MapStore.class.getName().equals(getGraph(context).getStoreProperties().getStoreClass())) {
+        final Optional<Graph> graph = getGraph(context);
+        if (graph.isPresent() && MapStore.class.getName().equals(graph.get().getStoreProperties().getStoreClass())) {
             //Update View with
             final View view = (View) context.get(VIEW);
             final Schema schema = (Schema) context.get(SCHEMA);
@@ -154,8 +154,8 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
     }
 
     private static boolean containsValidTempResultsGraph(final Map<String, Object> context) {
-        return (context.get(TEMP_RESULTS_GRAPH) instanceof Graph)
-                && (context.get(TEMP_RESULTS_GRAPH) instanceof GraphSerialisable);
+        final Object o = context.get(TEMP_RESULTS_GRAPH);
+        return o instanceof Graph || o instanceof GraphSerialisable;
     }
 
     private static boolean containsTempResultsGraph(final Map<String, Object> context) {
@@ -167,11 +167,13 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
     }
 
     private static boolean containsValidSchema(final Map<String, Object> context) {
-        return context.get(SCHEMA) != null && ((Schema) context.get(SCHEMA)).hasGroups();
+        final Object o = context.get(SCHEMA);
+        return o instanceof Schema && ((Schema) o).hasGroups();
     }
 
     private static boolean containsValidView(final Map<String, Object> context) {
-        return context.get(VIEW) == null || !((View) context.get(VIEW)).hasTransform();
+        final Object o = context.get(VIEW);
+        return o == null || (o instanceof View && !((View) o).hasTransform());
     }
 
     private static Stream<Map.Entry<String, ViewElementDefinition>> getUpdatedViewDefsFromSchemaDefs(final Map<String, ? extends SchemaElementDefinition> groupDefs, final View view) {
@@ -223,7 +225,7 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
             }
         }
 
-        final Graph resultsGraph = getGraph(context);
+        final Graph resultsGraph = getGraph(context).orElseThrow();
         final Context userContext = new Context((User) context.get(USER));
         try {
             // The update object might be a lazy AccumuloElementRetriever and might be MASSIVE.
@@ -239,11 +241,16 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
         }
     }
 
-    private static Graph getGraph(final Map<String, Object> context) {
+    private static Optional<Graph> getGraph(final Map<String, Object> context) {
         final Object o = context.get(TEMP_RESULTS_GRAPH);
-        final Graph resultsGraph = o instanceof GraphSerialisable
-                ? ((GraphSerialisable) o).getGraph()
-                : (Graph) o;
+        final Optional<Graph> resultsGraph;
+        if (o instanceof GraphSerialisable) {
+            resultsGraph = Optional.of(((GraphSerialisable) o).getGraph());
+        } else if (o instanceof Graph) {
+            resultsGraph = Optional.of((Graph) o);
+        } else {
+            resultsGraph = Optional.empty();
+        }
         return resultsGraph;
     }
 }
