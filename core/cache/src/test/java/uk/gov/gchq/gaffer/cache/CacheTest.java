@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2023 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,65 +26,62 @@ import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
 import java.util.Properties;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class CacheTest {
+class CacheTest {
 
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static Cache<String, Integer> cache;
     private static Properties properties = new Properties();
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
         CacheServiceLoader.initialise(properties);
         cache = new Cache<>("serviceName1");
     }
 
     @BeforeEach
-    public void beforeEach() throws CacheOperationException {
+    void beforeEach() throws CacheOperationException {
         cache.clearCache();
     }
 
     @Test
-    public void shouldAddAndGetValueFromCache() throws CacheOperationException {
+    void shouldAddAndGetValueFromCache() throws CacheOperationException {
         cache.addToCache("key1", 1, true);
 
-        assertEquals((Integer) 1, cache.getFromCache("key1"));
-        assertNull(cache.getFromCache("key2"));
+        assertThat(cache.getFromCache("key1")).isEqualTo(1);
+        assertThat(cache.getFromCache("key2")).isNull();
     }
 
     @Test
-    public void shouldAddAndGetCacheOverwrite() throws CacheOperationException {
+    void shouldAddAndGetCacheOverwrite() throws CacheOperationException {
         cache.addToCache("key1", 1, true);
         cache.addToCache("key1", 2, true);
 
-        assertEquals(2, cache.getFromCache("key1").intValue());
+        assertThat(cache.getFromCache("key1")).isEqualTo(2);
     }
 
     @Test
-    public void shouldAddAndGetCacheNoOverwrite() throws CacheOperationException {
+    void shouldAddAndGetCacheNoOverwrite() throws CacheOperationException {
         cache.addToCache("key1", 1, true);
 
         assertThatExceptionOfType(OverwritingException.class)
                 .isThrownBy(() -> cache.addToCache("key1", 2, false))
-                .withMessage("Cache entry already exists for key: key1");
-
-        assertEquals(1, cache.getFromCache("key1").intValue());
+                .withMessageContaining("Cache entry already exists for key: key1");
+        assertThat(cache.getFromCache("key1").intValue()).isEqualTo(1);
     }
 
     @Test
-    public void shouldGetCacheServiceName() {
-        assertEquals("serviceName1", cache.getCacheName());
+    void shouldGetCacheServiceName() {
+        assertThat(cache.getCacheName()).isEqualTo("serviceName1");
     }
 
     @Test
-    public void shouldDeleteKeyValuePair() throws CacheOperationException {
+    void shouldDeleteKeyValuePair() throws CacheOperationException {
         cache.addToCache("key1", 1, false);
         cache.deleteFromCache("key1");
-
-        assertNull(cache.getFromCache("key1"));
+        assertThat(cache.getFromCache("key1")).isNull();
     }
 }

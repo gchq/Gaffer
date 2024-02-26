@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class HashMapCache<K, V> implements ICache<K, V> {
                 throw new RuntimeException(e);
             }
         } else {
-            cache.<K, V>put(key, value);
+            cache.put(key, value);
         }
     }
 
@@ -78,19 +78,18 @@ public class HashMapCache<K, V> implements ICache<K, V> {
 
     @Override
     public Collection<V> getAllValues() {
-        ArrayList<V> rtn = Lists.newArrayList();
-        if (useJavaSerialisation) {
-            cache.values()
-                    .forEach((Object o) -> {
-                        try {
-                            rtn.add((V) JAVA_SERIALISER.deserialise((byte[]) o));
-                        } catch (final SerialisationException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-        } else {
-            rtn.addAll((Collection<V>) cache.values());
+        if (!useJavaSerialisation) {
+            return (Collection<V>) cache.values();
         }
+
+        ArrayList<V> rtn = Lists.newArrayList();
+        cache.values().forEach(o -> {
+            try {
+                rtn.add((V) JAVA_SERIALISER.deserialise((byte[]) o));
+            } catch (final SerialisationException e) {
+                throw new RuntimeException(e);
+            }
+        });
         return rtn;
     }
 
