@@ -77,23 +77,10 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
     public MergeElementFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
         final MergeElementFunction mergeElementFunction = new MergeElementFunction();
 
-
         try {
-            // Validate the supplied context before using
             validate(context);
-            // Check if results graph, hasn't already be supplied, otherwise make a default results graph.
-            if (!containsTempResultsGraph(context)) {
-                final Graph resultsGraph = new Graph.Builder()
-                        .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, MergeElementFunction.class.getSimpleName(), RANDOM.nextInt(Integer.MAX_VALUE))))
-                        .addSchema((Schema) context.get(SCHEMA))
-                        //MapStore easy in memory Store. Large results size may not be suitable, a graph could be provided via Context.
-                        .addStoreProperties(new MapStoreProperties())
-                        .build();
 
-                LOGGER.debug("A Temporary results graph named:{} is being made with schema:{}", resultsGraph.getGraphId(), resultsGraph.getSchema());
-
-                context.put(TEMP_RESULTS_GRAPH, resultsGraph);
-            }
+            makeTempResultsGraphIfRequired(context);
 
             mergeElementFunction.context = Collections.unmodifiableMap(context);
             return mergeElementFunction;
@@ -118,6 +105,24 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
                     .forEach(e -> updatedView.entity(e.getKey(), e.getValue()));
 
             context.put(VIEW, updatedView.build());
+        }
+    }
+
+
+
+    private static void makeTempResultsGraphIfRequired(final HashMap<String, Object> context) {
+        // Check if results graph, hasn't already be supplied, otherwise make a default results graph.
+        if (!containsTempResultsGraph(context)) {
+            final Graph resultsGraph = new Graph.Builder()
+                    .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, MergeElementFunction.class.getSimpleName(), RANDOM.nextInt(Integer.MAX_VALUE))))
+                    .addSchema((Schema) context.get(SCHEMA))
+                    //MapStore easy in memory Store. Large results size may not be suitable, a graph could be provided via Context.
+                    .addStoreProperties(new MapStoreProperties())
+                    .build();
+
+            LOGGER.debug("A Temporary results graph named:{} is being made with schema:{}", resultsGraph.getGraphId(), resultsGraph.getSchema());
+
+            context.put(TEMP_RESULTS_GRAPH, resultsGraph);
         }
     }
 
