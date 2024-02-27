@@ -1,0 +1,114 @@
+{
+    "entities": {
+        "vertex": {
+            "vertex": "string.id"
+        },
+        "person": {
+            "vertex": "string.id",
+            "properties": {
+                "name": "property.string",
+                "age": "property.integer"
+            }
+        },
+        "software": {
+            "vertex": "string.id",
+            "properties": {
+                "name": "property.string",
+                "lang": "property.string"
+            }
+        },
+        "dog": {
+            "vertex": "string.id"
+        },
+        "test": {
+            "vertex": "string.id",
+            "properties": {
+                "test": "property.string"
+            }
+        },
+        "blah": {
+            "vertex": "string.id",
+            "properties": {
+                "test": "property.string"
+            }
+        }
+    },
+    "edges": {
+        "self": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true"
+        },
+        "friend": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true",
+            "properties": {
+                "weight": "property.double",
+                "acl": "property.string"
+
+            }
+        },
+        "friends": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true"
+        },
+        "hate": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true"
+        },
+        "knows": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true",
+            "properties": {
+                "weight": "property.double"
+            }
+        },
+        "created": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true",
+            "properties": {
+                "weight": "property.double"
+            }
+        },
+        "collaborator": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true"
+        },
+        "dependsOn": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true"
+        },
+        "encapsulates": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true"
+        },
+        "uses": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true"
+        },
+        "CONTROL": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true"
+        },
+        "SELFLOOP": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true"
+        },
+        "test1": {
+            "source": "string.id",
+            "destination": "string.id",
+            "directed": "true"
+        }
+    }
+}

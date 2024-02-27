@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,8 +104,9 @@ public class NamedViewCacheTest {
     @Test
     public void shouldThrowExceptionIfNamedViewAlreadyExists() throws CacheOperationException {
         cache.addNamedView(viewDetailA, false);
-        assertThatExceptionOfType(OverwritingException.class).isThrownBy(() -> cache.addNamedView(viewDetailA, false))
-                .withMessage(String.format("Cache entry already exists for key: %s", VIEW_NAME_A));
+        assertThatExceptionOfType(OverwritingException.class)
+            .isThrownBy(() -> cache.addNamedView(viewDetailA, false))
+            .withMessageContaining(String.format("Cache entry already exists for key: %s", VIEW_NAME_A));
     }
 
     @Test

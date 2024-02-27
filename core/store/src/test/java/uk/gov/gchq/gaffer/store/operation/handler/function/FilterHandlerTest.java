@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
 import com.google.common.collect.Lists;
@@ -707,7 +708,7 @@ public class FilterHandlerTest {
         final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
 
         // Then
-        ElementUtil.assertElementEquals(
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(
                 Arrays.asList(new Edge.Builder()
                                 .group(TestGroups.EDGE)
                                 .source("srcVal1")
@@ -718,7 +719,7 @@ public class FilterHandlerTest {
                                 .group(TestGroups.EDGE)
                                 .source("srcVal3")
                                 .dest("destVal3")
-                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
                                 .build()),
                 results);
     }
@@ -774,7 +775,7 @@ public class FilterHandlerTest {
         final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
 
         // Then
-        ElementUtil.assertElementEquals(
+        ElementUtil.assertElementEqualsIncludingMatchedVertex(
                 Arrays.asList(new Edge.Builder()
                                 .group(TestGroups.EDGE)
                                 .source("srcVal1")
@@ -785,7 +786,7 @@ public class FilterHandlerTest {
                                 .group(TestGroups.EDGE)
                                 .source("srcVal3")
                                 .dest("destVal3")
-                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
                                 .build()),
                 results);
     }

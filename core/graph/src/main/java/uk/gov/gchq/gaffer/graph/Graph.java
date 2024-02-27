@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,11 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriserUtil;
-import uk.gov.gchq.gaffer.graph.hook.GetFromCacheHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
@@ -53,9 +51,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.named.AddToCacheHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
@@ -116,8 +111,7 @@ public final class Graph {
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
      * @param config a {@link GraphConfig} used to store the configuration for
-     *               a
-     *               Graph.
+     *               a Graph.
      * @param store  a {@link Store} used to store the elements and handle
      *               operations.
      */
@@ -332,7 +326,7 @@ public final class Graph {
                     hookInstances.add((UpdateViewHook) graphHook);
                 }
             }
-            if (hookInstances.size() == 0) {
+            if (hookInstances.isEmpty()) {
                 hookInstances.add(new UpdateViewHook());
             }
             for (final UpdateViewHook hook : hookInstances) {
@@ -411,6 +405,46 @@ public final class Graph {
     }
 
     /**
+     * Returns the current {@link GraphConfig} that holds the configuration for
+     * the graph.
+     *
+     * @return The graph config.
+     */
+    public GraphConfig getConfig() {
+        return config;
+    }
+
+    /**
+     * Returns the graph view from the {@link GraphConfig}.
+     *
+     * @return the graph view.
+     */
+    public View getView() {
+        return config.getView();
+    }
+
+    /**
+     * Returns the description held in the {@link GraphConfig}.
+     *
+     * @return the description
+     */
+    public String getDescription() {
+        return config.getDescription();
+    }
+
+    /**
+     * Returns the graph hooks from the {@link GraphConfig}
+     *
+     * @return The list of {@link GraphHook}s
+     */
+    public List<Class <? extends GraphHook>> getGraphHooks() {
+        if (config.getHooks().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return config.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList());
+    }
+
+    /**
      * @return a collection of all the supported {@link Operation}s.
      */
     public Set<Class<? extends Operation>> getSupportedOperations() {
@@ -427,15 +461,6 @@ public final class Graph {
     }
 
     /**
-     * Returns the graph view.
-     *
-     * @return the graph view.
-     */
-    public View getView() {
-        return config.getView();
-    }
-
-    /**
      * Get the Store's original {@link Schema}.
      * <p>
      * This is not the same as the {@link Schema} used internally by
@@ -446,13 +471,6 @@ public final class Graph {
      */
     public Schema getSchema() {
         return store.getOriginalSchema();
-    }
-
-    /**
-     * @return the description held in the {@link GraphConfig}
-     */
-    public String getDescription() {
-        return config.getDescription();
     }
 
     /**
@@ -469,21 +487,10 @@ public final class Graph {
         return store.getProperties();
     }
 
-    public List<Class<? extends GraphHook>> getGraphHooks() {
-        if (config.getHooks().isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return (List) config.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList());
-    }
-
     public GraphLibrary getGraphLibrary() {
         return store.getGraphLibrary();
     }
 
-    protected GraphConfig getConfig() {
-        return config;
-    }
 
     @FunctionalInterface
     private interface StoreExecuter<O> {
@@ -509,9 +516,6 @@ public final class Graph {
      */
     public static class Builder {
         public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
-        public static final String HOOK_SUFFIX_ERROR_FORMAT_MESSAGE = "%s hook is configured with suffix:%s and %s handler is configured with suffix:%s this causes a cache reading and writing misalignment.";
-        public static final String HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX = "For GraphID:{} a handler was supplied for Operation {}, but without a {}, adding {} with suffix:{}";
-        public static final String HANDLER_WAS_NOT_EXPECTED_TYPE_ADD_TO_CACHE_HANDLER = "Handler for:%s was not expected type:%s cant get suffixCache using value from property:%s";
         private final GraphConfig.Builder configBuilder = new GraphConfig.Builder();
         private final List<byte[]> schemaBytesList = new ArrayList<>();
         private Store store;
@@ -777,16 +781,18 @@ public final class Graph {
         }
 
         public Builder addSchema(final Path schemaPath) {
-            if (schemaPath != null) {
-                try (DirectoryStream<Path> stream = Files.isDirectory(schemaPath) ? Files.newDirectoryStream(schemaPath) : null) {
-                    if (stream != null) {
-                        stream.forEach(this::addSchema);
-                    } else {
-                        addSchema(Files.readAllBytes(schemaPath));
+            try {
+                // If directory load all schemas from it
+                if (Files.isDirectory(schemaPath)) {
+                    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(schemaPath)) {
+                        directoryStream.forEach(this::addSchema);
                     }
-                } catch (final IOException e) {
-                    throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
+                } else {
+                    // Just load the file
+                    addSchema(Files.readAllBytes(schemaPath));
                 }
+            } catch (final IOException e) {
+                throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
             }
             return this;
         }
@@ -804,18 +810,22 @@ public final class Graph {
         }
 
         public Graph build() {
+            // Initialise GraphConfig (with default library of NoGraphLibrary)
             final GraphConfig config = configBuilder.build();
-            if (null == config.getLibrary()) {
-                config.setLibrary(new NoGraphLibrary());
+
+            // Make sure parent store properties are applied
+            if (parentStorePropertiesId != null) {
+                final StoreProperties parentStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
+                properties = applyParentStoreProperties(properties, parentStoreProperties);
             }
 
-            if (null == config.getGraphId() && null != store) {
-                config.setGraphId(store.getGraphId());
+            // Make sure parent schemas are applied
+            if (parentSchemaIds != null) {
+                final List<Schema> parentSchemas = parentSchemaIds.stream().map(id -> config.getLibrary().getSchema(id)).collect(Collectors.toList());
+                schema = applyParentSchemas(schema, parentSchemas);
             }
 
-            updateStoreProperties(config);
-
-            updateSchema(config);
+            loadSchemaFromJson();
 
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
                 // Set Props & Schema if null.
@@ -824,24 +834,19 @@ public final class Graph {
                 schema = (null == schema) ? pair.getFirst() : schema;
             }
 
-            updateStore(config);
+            // Initialise the store
+            initStore(config);
 
-            if (null != config.getGraphId()) {
-                config.getLibrary().checkExisting(config.getGraphId(), schema, properties);
-            }
+            // Check this graph does not conflict with an existing graph library graph
+            config.getLibrary().checkExisting(config.getGraphId(), schema, properties);
 
-            updateView(config);
+            // Initialise the view
+            config.initView(schema);
 
-            if (null == config.getGraphId()) {
-                config.setGraphId(store.getGraphId());
-            }
+            // Validate and set up the graph hooks
+            validateAndUpdateHooks(config);
 
-            if (null == config.getGraphId()) {
-                throw new IllegalArgumentException("graphId is required");
-            }
-
-            updateGraphHooks(config);
-
+            // Add this graph to the graph library (true by default)
             if (addToLibrary) {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
             }
@@ -854,174 +859,125 @@ public final class Graph {
             return new Graph(config, store);
         }
 
-        private void updateGraphHooks(final GraphConfig config) {
-            updateNamedViewResolverHook(config);
+        private void validateAndUpdateHooks(final GraphConfig config) {
+            config.validateAndUpdateGetFromCacheHook(
+                store,
+                AddNamedView.class,
+                NamedViewResolver.class,
+                properties != null ? properties.getCacheServiceNamedViewSuffix(config.getGraphId()) : null);
 
-            updateNamedOperationResolverHook(config);
+            config.validateAndUpdateGetFromCacheHook(
+                store,
+                AddNamedOperation.class,
+                NamedOperationResolver.class,
+                properties != null ? properties.getCacheServiceNamedOperationSuffix(config.getGraphId()) : null);
 
-            updateFunctionAuthoriserHook(config);
-        }
-
-        private void updateFunctionAuthoriserHook(final GraphConfig config) {
-            final List<GraphHook> hooks = config.getHooks();
-            if (!hasHook(hooks, FunctionAuthoriser.class)) {
+            if (!config.hasHook(FunctionAuthoriser.class)) {
                 LOGGER.info("No FunctionAuthoriser hook was supplied, adding default hook.");
-                hooks.add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
+                config.addHook(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
             }
-        }
-
-        private void updateNamedViewResolverHook(final GraphConfig config) {
-            validateAndUpdateGetFromCacheHook(
-                    config,
-                    AddNamedView.class,
-                    NamedViewResolver.class,
-                    null != properties ? properties.getCacheServiceNamedViewSuffix(config.getGraphId()) : null);
-        }
-
-        private void updateNamedOperationResolverHook(final GraphConfig config) {
-            validateAndUpdateGetFromCacheHook(
-                    config,
-                    AddNamedOperation.class,
-                    NamedOperationResolver.class,
-                    null != properties ? properties.getCacheServiceNamedOperationSuffix(config.getGraphId()) : null);
         }
 
         /**
-         * This method is designed to keep suffix used for cache names aligned between
-         * a Handler which Adds to the cache and ResolverHook which Gets from the cache.
-         * If the suffix is mismatched then writing and reading to cache will not behave correctly.
-         *
-         * @param config               the graphConfig containing the Hooks
-         * @param operationClass       the Operation requiring cache write
-         * @param hookClass            the Hook requiring cache reading
-         * @param suffixFromProperties the suffix from property
-         * @see NamedOperationResolver#NamedOperationResolver(String)
-         * @see NamedViewResolver#NamedViewResolver(String)
+         * Loads the current schema list of byte arrays as json.
          */
-        private void validateAndUpdateGetFromCacheHook(final GraphConfig config, final Class<? extends Operation> operationClass, final Class<? extends GetFromCacheHook> hookClass, final String suffixFromProperties) {
-            if (store.isSupported(operationClass)) {
-                //Get Handler
-                final OperationHandler<Operation> addToCacheHandler = store.getOperationHandler(operationClass);
-                //If Handler is a AddToCacheHandler
-                final String suffix;
-                if (AddToCacheHandler.class.isAssignableFrom(addToCacheHandler.getClass())) {
-                    // get Suffix
-                    suffix = ((AddToCacheHandler<?>) addToCacheHandler).getSuffixCacheName();
-                } else {
-                    // otherwise get from properties
-                    LOGGER.warn(String.format(HANDLER_WAS_NOT_EXPECTED_TYPE_ADD_TO_CACHE_HANDLER, operationClass, AddToCacheHandler.class.getSimpleName(), suffixFromProperties));
-                    suffix = suffixFromProperties;
-                }
-                final List<GraphHook> hooks = config.getHooks();
-                //Is GetFromCacheHook missing
-                if (!hasHook(hooks, hookClass)) {
-                    //provide info about the graph not having the required hook
-                    LOGGER.info(HANDLER_WAS_SUPPLIED_BUT_WITHOUT_A_ADDING_WITH_SUFFIX, config.getGraphId(), operationClass, hookClass.getSimpleName(), hookClass.getSimpleName(), suffix);
-                    try {
-                        hooks.add(0, hookClass.getDeclaredConstructor(String.class).newInstance(suffix));
-                    } catch (final Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                } else {
-                    //get the resolver and suffix
-                    final GetFromCacheHook nvrHook = (GetFromCacheHook) hooks.stream().filter(gh -> hookClass.isAssignableFrom(gh.getClass())).findAny().get();
-                    final String nvrSuffix = nvrHook.getSuffixCacheName();
-                    //Is there a suffix mismatch
-                    if (!suffix.equals(nvrSuffix)) {
-                        //Error
-                        throw new GafferRuntimeException(String.format(HOOK_SUFFIX_ERROR_FORMAT_MESSAGE, hookClass.getSimpleName(), nvrSuffix, addToCacheHandler.getClass().getSimpleName(), suffix));
-                    }
-                }
+        private void loadSchemaFromJson() {
+            if (schemaBytesList.isEmpty()) {
+                LOGGER.debug("No schema bytes have been supplied unable to load as JSON");
+                return;
             }
-        }
-
-        private boolean hasHook(final List<GraphHook> hooks, final Class<? extends GraphHook> hookClass) {
-            for (final GraphHook hook : hooks) {
-                if (hookClass.isAssignableFrom(hook.getClass())) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private void updateSchema(final GraphConfig config) {
-            Schema mergedParentSchema = null;
-
-            if (null != parentSchemaIds) {
-                for (final String parentSchemaId : parentSchemaIds) {
-                    if (null != parentSchemaId) {
-                        final Schema parentSchema = config.getLibrary().getSchema(parentSchemaId);
-                        if (null != parentSchema) {
-                            if (null == mergedParentSchema) {
-                                mergedParentSchema = parentSchema;
-                            } else {
-                                mergedParentSchema = new Schema.Builder()
-                                        .merge(mergedParentSchema)
-                                        .merge(parentSchema)
-                                        .build();
-                            }
-                        }
-                    }
-                }
+            if (properties == null) {
+                throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
             }
 
-            if (null != mergedParentSchema) {
-                if (null == schema) {
-                    schema = mergedParentSchema;
-                } else {
-                    schema = new Schema.Builder()
-                            .merge(mergedParentSchema)
-                            .merge(schema)
-                            .build();
-                }
-            }
+            // Get the schema class to load with
+            final Class<? extends Schema> schemaClass = properties.getSchemaClass();
 
-            if (!schemaBytesList.isEmpty()) {
-                if (null == properties) {
-                    throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
-                }
-
-                final Class<? extends Schema> schemaClass = properties.getSchemaClass();
-                final Schema newSchema = new Schema.Builder()
-                        .json(schemaClass, schemaBytesList.toArray(new byte[schemaBytesList.size()][]))
-                        .build();
+            // Add the schemas
+            schemaBytesList.forEach(schemaBytes -> {
+                Schema newSchema = new Schema.Builder()
+                    .json(schemaClass, schemaBytes)
+                    .build();
                 addSchema(newSchema);
-            }
+            });
         }
 
-        private void updateStoreProperties(final GraphConfig config) {
-            StoreProperties mergedStoreProperties = null;
-            if (null != parentStorePropertiesId) {
-                mergedStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
-            }
+        /**
+         * Merges the supplied properties with the properties from the parent store
+         * and returns the result. The parent store properties are applied first so
+         * the properties supplied can override them during the merge.
+         *
+         * @param properties The current properties.
+         * @param parentStoreProperties The properties the parent store to apply
+         * @return Merged properties of the parent store and the supplied properties.
+         */
+        private StoreProperties applyParentStoreProperties(final StoreProperties properties, final StoreProperties parentStoreProperties) {
+            // Start with the parent store properties
+            StoreProperties mergedProperties = parentStoreProperties;
 
-            if (null != properties) {
-                if (null == mergedStoreProperties) {
-                    mergedStoreProperties = properties;
+            // Apply rest of properties
+            if (properties != null) {
+                mergedProperties.merge(properties);
+            }
+            return mergedProperties;
+        }
+
+        /**
+         * Merges the supplied schema with any parent schemas and returns the
+         * result.
+         *
+         * @param currentSchema The current schema.
+         * @param parentSchemas The list of parent schemas to merge.
+         * @return Merged schema of any parents and the supplied schema.
+         */
+        private Schema applyParentSchemas(final Schema currentSchema, final List<Schema> parentSchemas) {
+            Schema mergedSchema = null;
+
+            // Apply parent schemas
+            for (final Schema parentSchema : parentSchemas) {
+                // If the merged result is still null init with the current schema else merge
+                if (mergedSchema == null) {
+                    mergedSchema = parentSchema;
                 } else {
-                    mergedStoreProperties.merge(properties);
+                    mergedSchema = new Schema.Builder()
+                        .merge(mergedSchema)
+                        .merge(parentSchema)
+                        .build();
                 }
             }
-            properties = mergedStoreProperties;
+            // Merge parent schemas with current schema
+            if (mergedSchema != null && currentSchema != null) {
+                mergedSchema = new Schema.Builder()
+                    .merge(mergedSchema)
+                    .merge(currentSchema)
+                    .build();
+            }
+
+            return mergedSchema;
         }
 
-        private void updateStore(final GraphConfig config) {
-            if (null == store) {
+        /**
+         * Initialises the {@link Store} class instance with a given graph configuration.
+         * Will only initialise the store if it is currently null or relevant parameters
+         * are not null e.g. schema/graph ID.
+         * <p>
+         * Will also attempt to extract some graph configuration from the current store if
+         * not currently configured.
+         *
+         * @param config The graph config
+         */
+        private void initStore(final GraphConfig config) {
+            // If store was not supplied then create it
+            // This also checks the GraphId is valid
+            if (store == null) {
+                LOGGER.debug("Store currently null initialising with Id: {} and existing schema/properties", config.getGraphId());
                 store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
-            } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
-                    || (null != schema)
-                    || (null != properties && !properties.equals(store.getProperties()))) {
-                if (null == config.getGraphId()) {
-                    config.setGraphId(store.getGraphId());
-                }
-                if (null == schema || schema.getGroups().isEmpty()) {
-                    schema = store.getSchema();
-                }
+            }
 
-                if (null == properties) {
-                    properties = store.getProperties();
-                }
-
+            // Only init if some configuration has already been set up and is different to what the store already has
+            if ((config.getGraphId() != null && !config.getGraphId().equals(store.getGraphId())) ||
+                (schema != null) ||
+                (properties != null && !properties.equals(store.getProperties()))) {
                 try {
                     store.initialise(config.getGraphId(), cloneSchema(schema), properties);
                 } catch (final StoreException e) {
@@ -1029,24 +985,32 @@ public final class Graph {
                 }
             }
 
-            store.setGraphLibrary(config.getLibrary());
+            // Use the store's graph Id if we don't have one configured already
+            if (config.getGraphId() == null) {
+                config.setGraphId(store.getGraphId());
+            }
 
-            if (null == schema || schema.getGroups().isEmpty()) {
+            // Use the store's schema if not already set
+            if (schema == null) {
                 schema = store.getSchema();
             }
-        }
 
-        private void updateView(final GraphConfig config) {
-            if (null == config.getView()) {
-                config.setView(new View.Builder()
-                        .entities(store.getSchema().getEntityGroups())
-                        .edges(store.getSchema().getEdgeGroups())
-                        .build());
+            // Use the store's properties if not already set
+            if (properties == null) {
+                properties = store.getProperties();
             }
+
+            store.setGraphLibrary(config.getLibrary());
         }
 
+        /**
+         * Null safe clone of the supplied schema.
+         *
+         * @param schema The schema to clone.
+         * @return Clone of the schema.
+         */
         private Schema cloneSchema(final Schema schema) {
-            return null != schema ? schema.clone() : null;
+            return schema != null ? schema.clone() : null;
         }
     }
 

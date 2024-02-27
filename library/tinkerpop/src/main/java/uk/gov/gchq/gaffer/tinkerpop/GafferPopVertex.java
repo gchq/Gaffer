@@ -22,7 +22,10 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
@@ -35,11 +38,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {@link Vertex}.
  */
 public class GafferPopVertex extends GafferPopElement implements Vertex {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopVertex.class);
+
     private Map<String, List<VertexProperty>> properties;
 
     public GafferPopVertex(final String label, final Object id, final GafferPopGraph graph) {
@@ -48,8 +54,8 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
     @Override
     public <V> VertexProperty<V> property(final String key) {
-        if (this.properties != null && this.properties.containsKey(key)) {
-            final List<VertexProperty> list = this.properties.get(key);
+        if (properties != null && properties.containsKey(key)) {
+            final List<VertexProperty> list = properties.get(key);
             if (list.size() > 1) {
                 throw Vertex.Exceptions.multiplePropertiesExistForProvidedKey(key);
             } else {
@@ -63,9 +69,59 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
     @Override
     public <V> VertexProperty<V> property(final VertexProperty.Cardinality cardinality, final String key, final V value, final Object... keyValues) {
         if (isReadOnly()) {
-            throw new UnsupportedOperationException("Updates are not supported");
+            throw new UnsupportedOperationException("Updates are not supported, Vertex is readonly");
         }
+        // Attach the property to this vertex before updating and re adding to the graph
+        VertexProperty<V> vertexProperty = propertyWithoutUpdate(cardinality, key, value, keyValues);
+        LOGGER.info("Updating Vertex properties via aggregation");
 
+        // Re add to do a update via aggregation
+        graph().addVertex(this);
+        return vertexProperty;
+    }
+
+    @Override
+    public <V> Iterator<VertexProperty<V>> properties(final String... propertyKeys) {
+        if (properties == null) {
+            return Collections.emptyIterator();
+        }
+        if (propertyKeys.length == 1) {
+            final List<VertexProperty> props = properties.getOrDefault(propertyKeys[0], Collections.emptyList());
+            if (props.size() == 1) {
+                return IteratorUtils.of(props.get(0));
+            } else if (props.isEmpty()) {
+                return Collections.emptyIterator();
+            } else {
+                return (Iterator) new ArrayList<>(props).iterator();
+            }
+        } else {
+            return (Iterator) properties.entrySet()
+                    .stream()
+                    .filter(entry -> ElementHelper.keyExists(entry.getKey(), propertyKeys))
+                    .flatMap(entry -> entry.getValue().stream())
+                    .collect(Collectors.toList())
+                    .iterator();
+        }
+    }
+
+    /**
+     * Updates the properties attached to this Vertex but without modifying the
+     * underlying graph.
+     *
+     * This method is largely a helper for generating GafferPopVertex objects
+     * from Gaffer Entities returned from the graph. In this situation we want
+     * to be able to create a representative Vertex but without modifying the
+     * one stored in the graph.
+     *
+     * @param <V> Value type
+     * @param cardinality The cardinality
+     * @param key The property key
+     * @param value The property value
+     * @param keyValues Additional key value pairs
+     * @return The VertexProperty
+     */
+    public <V> VertexProperty<V> propertyWithoutUpdate(final VertexProperty.Cardinality cardinality, final String key, final V value, final Object... keyValues) {
+        // Validate the property to be added
         ElementHelper.legalPropertyKeyValueArray(keyValues);
         ElementHelper.validateProperty(key, value);
         final Optional<VertexProperty<V>> optionalVertexProperty = ElementHelper.stageVertexProperty(this, cardinality, key, value, keyValues);
@@ -75,39 +131,16 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
         final VertexProperty<V> vertexProperty = new GafferPopVertexProperty<>(this, key, value);
 
-        if (null == this.properties) {
-            this.properties = new HashMap<>();
+        if (null == properties) {
+            properties = new HashMap<>();
         }
 
-        final List<VertexProperty> list = this.properties.getOrDefault(key, new ArrayList<>());
+        final List<VertexProperty> list = properties.getOrDefault(key, new ArrayList<>());
         list.add(vertexProperty);
-        this.properties.put(key, list);
+        properties.put(key, list);
         ElementHelper.attachProperties(vertexProperty, keyValues);
-        return vertexProperty;
-    }
 
-    @Override
-    public <V> Iterator<VertexProperty<V>> properties(final String... propertyKeys) {
-        if (null == this.properties) {
-            return Collections.emptyIterator();
-        }
-        if (propertyKeys.length == 1) {
-            final List<VertexProperty> properties = this.properties.getOrDefault(propertyKeys[0], Collections.emptyList());
-            if (properties.size() == 1) {
-                return IteratorUtils.of(properties.get(0));
-            } else if (properties.isEmpty()) {
-                return Collections.emptyIterator();
-            } else {
-                return (Iterator) new ArrayList<>(properties).iterator();
-            }
-        } else {
-            return (Iterator) this.properties.entrySet()
-                    .stream()
-                    .filter(entry -> ElementHelper.keyExists(entry.getKey(), propertyKeys))
-                    .flatMap(entry -> entry.getValue().stream())
-                    .collect(Collectors.toList())
-                    .iterator();
-        }
+        return vertexProperty;
     }
 
     @Override
@@ -120,38 +153,57 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
         ElementHelper.attachProperties(edge, keyValues);
         graph().addEdge(edge);
 
-        edge.setReadOnly();
+        // Check if read only elements
+        if (!graph().configuration().containsKey(GafferPopGraph.NOT_READ_ONLY_ELEMENTS)) {
+            edge.setReadOnly();
+        }
+
         return edge;
     }
 
     @Override
     public Iterator<Edge> edges(final Direction direction, final String... edgeLabels) {
-        return (Iterator) graph().edges(id, direction, edgeLabels);
+        // Get edges from the graph then filter direction
+        Iterable<Edge> allEdges = () -> graph().edges(id, edgeLabels);
+        return StreamSupport.stream(allEdges.spliterator(), false)
+            .filter(e -> {
+                // Get all vertexes the edge has in the desired direction see if this vertex is one of them
+                Iterable<Vertex> edgeVertexes = () -> e.vertices(direction);
+                return StreamSupport.stream(edgeVertexes.spliterator(), false)
+                    .anyMatch(v -> ElementHelper.areEqual(v, this));
+            })
+            .iterator();
     }
 
-    public Iterator<GafferPopEdge> edges(final Direction direction, final View view) {
+    public Iterator<Edge> edges(final Direction direction, final View view) {
         return graph().edgesWithView(id, direction, view);
     }
 
     @Override
     public Iterator<Vertex> vertices(final Direction direction, final String... edgeLabels) {
-        return (Iterator) graph().adjVertices(id, direction, edgeLabels);
+        return graph().adjVertices(id, direction, edgeLabels);
     }
 
-    public Iterator<GafferPopVertex> vertices(final Direction direction, final View view) {
+    public Iterator<Vertex> vertices(final Direction direction, final View view) {
         return graph().adjVerticesWithView(id, direction, view);
     }
 
     @Override
     public Set<String> keys() {
-        if (null == this.properties) {
+        if (properties == null) {
             return Collections.emptySet();
         }
-        return this.properties.keySet();
+        return properties.keySet();
+    }
+
+    @Override
+    public void remove() {
+        // Gaffer does not support deleting elements
+        throw Vertex.Exceptions.vertexRemovalNotSupported();
     }
 
     @Override
     public String toString() {
-        return "v[" + label() + "-" + id() + "]";
+        return StringFactory.vertexString(this);
     }
 }

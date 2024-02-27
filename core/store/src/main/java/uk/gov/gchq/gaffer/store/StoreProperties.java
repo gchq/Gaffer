@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ public class StoreProperties implements Cloneable {
     public static final String OPERATION_DECLARATIONS_JSON = "gaffer.store.operation.declarations.json";
 
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
+    public static final String RESCHEDULE_JOBS_ON_START = "gaffer.store.job.rescheduleOnStart";
 
     public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
     public static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
@@ -79,15 +80,15 @@ public class StoreProperties implements Cloneable {
     public static final String ADMIN_AUTH = "gaffer.store.admin.auth";
 
     /**
-     * This is used....
-     * eg.gaffer.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
+     * This is used to set the cache implementation for all caches
+     * e.g. gaffer.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
      */
     public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
 
     /**
-     * This is used...
+     * These are used to set the suffix for all caches or per cache
      * CASE INSENSITIVE
-     * e.g. gaffer.cache.service.name.suffix="v2"
+     * e.g. gaffer.cache.service.default.suffix="v2"
      */
     public static final String CACHE_SERVICE_DEFAULT_SUFFIX = "gaffer.cache.service.default.suffix";
     public static final String CACHE_SERVICE_NAMED_OPERATION_SUFFIX = "gaffer.cache.service.named.operation.suffix";
@@ -314,12 +315,20 @@ public class StoreProperties implements Cloneable {
         set(STORE_CLASS, storeClass);
     }
 
-    public Boolean getJobTrackerEnabled() {
+    public boolean getJobTrackerEnabled() {
         return Boolean.valueOf(get(JOB_TRACKER_ENABLED, "false"));
     }
 
-    public void setJobTrackerEnabled(final Boolean jobTrackerEnabled) {
-        set(JOB_TRACKER_ENABLED, jobTrackerEnabled.toString());
+    public void setJobTrackerEnabled(final boolean jobTrackerEnabled) {
+        set(JOB_TRACKER_ENABLED, Boolean.toString(jobTrackerEnabled));
+    }
+
+    public boolean getRescheduleJobsOnStart() {
+        return Boolean.valueOf(get(RESCHEDULE_JOBS_ON_START, "false"));
+    }
+
+    public void setRescheduleJobsOnStart(final boolean rescheduleJobsOnStart) {
+        set(RESCHEDULE_JOBS_ON_START, Boolean.toString(rescheduleJobsOnStart));
     }
 
     public String getSchemaClassName() {

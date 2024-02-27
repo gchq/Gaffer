@@ -1,5 +1,8 @@
 {
   "types": {
+    "id": {
+      "class": "java.lang.String"
+    },
     "person": {
       "class": "java.lang.String"
     },
@@ -10,13 +13,22 @@
       "class": "java.lang.Boolean"
     },
     "name.string": {
-      "class": "java.lang.String"
+      "class": "java.lang.String",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
     },
     "age.integer": {
-      "class": "java.lang.Integer"
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
     },
     "weight.double": {
-      "class": "java.lang.Double"
+      "class": "java.lang.Double",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
     }
   }
 }

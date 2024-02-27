@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -550,9 +549,9 @@ public class FederatedGraphStorageTest {
         final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
         //then
-        assertEquals(1, cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues().size());
-        assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+        assertThat(cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues()).hasSize(1);
+        assertThat(allIds).hasSize(1);
+        assertThat(allIds.iterator().next()).isEqualTo(GRAPH_ID_A);
 
     }
 
@@ -572,9 +571,9 @@ public class FederatedGraphStorageTest {
         final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
         //then
-        assertEquals(1, cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues().size());
-        assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+        assertThat(cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues()).hasSize(1);
+        assertThat(allIds).hasSize(1);
+        assertThat(allIds.iterator().next()).isEqualTo(GRAPH_ID_A);
 
     }
 
