@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -1254,7 +1255,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         // Then
         assertThat(view.hasPreAggregationFilters()).isTrue();
         assertThat(view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
-                        .getComponents().get(0).getPredicate())
+                .getComponents().get(0).getPredicate())
                 .isExactlyInstanceOf(Exists.class);
     }
 
@@ -1287,10 +1288,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
         // Then
         assertThat(view.hasPreAggregationFilters()).isTrue();
         assertThat(view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
-                        .getComponents().get(0).getPredicate())
+                .getComponents().get(0).getPredicate())
                 .isExactlyInstanceOf(Exists.class);
         assertThat(view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
-                        .getComponents().get(1).getPredicate())
+                .getComponents().get(1).getPredicate())
                 .isExactlyInstanceOf(ExampleFilterFunction.class);
     }
 
@@ -1316,7 +1317,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         // Then
         assertThat(view.hasPostAggregationFilters()).isTrue();
         assertThat(view.getEntity(TestGroups.ENTITY).getPostAggregationFilter()
-                        .getComponents().get(0).getPredicate())
+                .getComponents().get(0).getPredicate())
                 .isExactlyInstanceOf(Exists.class);
     }
 
@@ -1349,10 +1350,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
         // Then
         assertThat(view.hasPostAggregationFilters()).isTrue();
         assertThat(view.getEntity(TestGroups.ENTITY).getPostAggregationFilter()
-                        .getComponents().get(0).getPredicate())
+                .getComponents().get(0).getPredicate())
                 .isExactlyInstanceOf(Exists.class);
         assertThat(view.getEntity(TestGroups.ENTITY).getPostAggregationFilter()
-                        .getComponents().get(1).getPredicate())
+                .getComponents().get(1).getPredicate())
                 .isExactlyInstanceOf(ExampleFilterFunction.class);
     }
 
@@ -1378,7 +1379,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         // Then
         assertThat(view.hasPostTransformFilters()).isTrue();
         assertThat(view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
-                        .getComponents().get(0).getPredicate())
+                .getComponents().get(0).getPredicate())
                 .isExactlyInstanceOf(Exists.class);
     }
 
@@ -1411,10 +1412,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
         // Then
         assertThat(view.hasPostTransformFilters()).isTrue();
         assertThat(view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
-                        .getComponents().get(0).getPredicate())
+                .getComponents().get(0).getPredicate())
                 .isExactlyInstanceOf(Exists.class);
         assertThat(view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
-                        .getComponents().get(1).getPredicate())
+                .getComponents().get(1).getPredicate())
                 .isExactlyInstanceOf(ExampleFilterFunction.class);
     }
 
@@ -1620,5 +1621,16 @@ public class ViewTest extends JSONSerialisationTest<View> {
                         .build())
                 .config("key1", "value1")
                 .build();
+    }
+
+    @Test
+    void shouldWorkWithBuilder() {
+        final View view = createView();
+
+        final View builderView = new View.Builder(view).build();
+        final View optionalBuilderView = new View.Builder(Optional.of(view)).build();
+
+        assertThat(view).isEqualTo(builderView);
+        assertThat(view).isEqualTo(optionalBuilderView);
     }
 }
