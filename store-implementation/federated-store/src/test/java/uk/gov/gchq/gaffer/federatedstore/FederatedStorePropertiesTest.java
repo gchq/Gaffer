@@ -35,12 +35,12 @@ public class FederatedStorePropertiesTest {
     static Path propertiesFilePath;
 
     @BeforeAll
-    public static void init() throws URISyntaxException {
+    static void init() throws URISyntaxException {
         propertiesFilePath = Paths.get(FederatedStorePropertiesTest.class.getResource("/properties/federatedStore.properties").toURI());
     }
 
     @Test
-    public void shouldGetIsPublicAccessAllowed() {
+    void shouldGetIsPublicAccessAllowed() {
         // Given / When
         final FederatedStoreProperties props = new FederatedStoreProperties();
         // Then
@@ -48,7 +48,7 @@ public class FederatedStorePropertiesTest {
     }
 
     @Test
-    public void shouldGetAndSetStoreConfiguredMergeFunctions() {
+    void shouldGetAndSetStoreConfiguredMergeFunctions() {
         // Given / When
         final FederatedStoreProperties props = new FederatedStoreProperties();
         // Then
@@ -61,7 +61,7 @@ public class FederatedStorePropertiesTest {
     }
 
     @Test
-    public void shouldGetCacheServiceFederatedStoreSuffix() {
+    void shouldGetCacheServiceFederatedStoreSuffix() {
         // Given / When
         final FederatedStoreProperties props = new FederatedStoreProperties();
         // Then
@@ -70,7 +70,7 @@ public class FederatedStorePropertiesTest {
     }
 
     @Test
-    public void shouldGetAndSetFederatedStoreCacheServiceClass() {
+    void shouldGetAndSetFederatedStoreCacheServiceClass() {
         // Given / When
         final FederatedStoreProperties props = new FederatedStoreProperties();
         // Then
@@ -82,7 +82,7 @@ public class FederatedStorePropertiesTest {
     }
 
     @Test
-    public void shouldReturnFederatedStorePropertiesFromPath() {
+    void shouldReturnFederatedStorePropertiesFromPath() {
         // Given / When
         FederatedStoreProperties props = FederatedStoreProperties.loadStoreProperties(propertiesFilePath);
         // Then
@@ -91,7 +91,7 @@ public class FederatedStorePropertiesTest {
     }
 
     @Test
-    public void shouldReturnFederatedStorePropertiesFromPathString() {
+    void shouldReturnFederatedStorePropertiesFromPathString() {
         // Given
         String propsPathString = propertiesFilePath.toString();
         // When
@@ -102,7 +102,7 @@ public class FederatedStorePropertiesTest {
     }
 
     @Test
-    public void shouldReturnFederatedStorePropertiesFromInputStream() {
+    void shouldReturnFederatedStorePropertiesFromInputStream() {
         // Given
         InputStream inputStream = StreamUtil.openStream(FederatedStorePropertiesTest.class, "properties/federatedStore.properties");
         // When
