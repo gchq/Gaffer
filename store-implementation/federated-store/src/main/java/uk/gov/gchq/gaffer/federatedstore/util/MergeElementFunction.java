@@ -49,9 +49,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.SCHEMA;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.USER;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.VIEW;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.containsUser;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getSchema;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getView;
 
 /**
  * This class is used to address some of the issues with having the same element groups distributed amongst multiple graphs.
@@ -61,9 +69,6 @@ import java.util.stream.Stream;
  */
 public class MergeElementFunction implements ContextSpecificMergeFunction<Object, Iterable<Object>, Iterable<Object>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeElementFunction.class);
-    public static final String VIEW = "view";
-    public static final String SCHEMA = "schema";
-    public static final String USER = "user";
     public static final String TEMP_RESULTS_GRAPH = "temporaryResultsGraph";
     private static final Random RANDOM = new Random();
 
@@ -73,28 +78,19 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
     public MergeElementFunction() {
     }
 
-    public MergeElementFunction(final Map<String, Object> context) throws GafferCheckedException {
-        this();
+    @Override
+    public MergeElementFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
+        final MergeElementFunction mergeElementFunction = new MergeElementFunction();
+
         try {
-            // Check if results graph, hasn't already be supplied, otherwise make a default results graph.
-            if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
-                final Graph resultsGraph = new Graph.Builder()
-                        .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, MergeElementFunction.class.getSimpleName(), RANDOM.nextInt(Integer.MAX_VALUE))))
-                        .addSchema((Schema) context.get(SCHEMA))
-                        //MapStore easy in memory Store. Large results size may not be suitable, a graph could be provided via Context.
-                        .addStoreProperties(new MapStoreProperties())
-                        .build();
-
-                LOGGER.debug("A Temporary results graph named:{} is being made with schema:{}", resultsGraph.getGraphId(), resultsGraph.getSchema());
-
-                context.put(TEMP_RESULTS_GRAPH, resultsGraph);
-            }
-            // Validate the supplied context before using
             validate(context);
+
+            makeTempResultsGraphIfRequired(context);
 
             updateViewWithValidationFromSchema(context);
 
-            this.context = Collections.unmodifiableMap(context);
+            mergeElementFunction.context = Collections.unmodifiableMap(context);
+            return mergeElementFunction;
         } catch (final Exception e) {
             throw new GafferCheckedException("Unable to create TemporaryResultsGraph", e);
         }
@@ -103,25 +99,37 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
 
     private static void updateViewWithValidationFromSchema(final Map<String, Object> context) {
         //Only do this for MapStore, not required for other stores.
-        if (MapStore.class.getName().equals(getGraph(context).getStoreProperties().getStoreClass())) {
+        final Optional<Graph> graph = getGraph(context);
+        if (graph.isPresent() && MapStore.class.getName().equals(graph.get().getStoreProperties().getStoreClass())) {
             //Update View with
-            final View view = (View) context.get(VIEW);
-            final Schema schema = (Schema) context.get(SCHEMA);
-            final View.Builder updatedView = new View.Builder(view);
+            final Optional<View> view = getView(context);
+            final Schema schema = getSchema(context).orElseThrow(() -> new IllegalStateException("No Schema was found from context, which should have been validated"));
+            final View.Builder editableView = new View.Builder(view);
 
             //getUpdatedDefs and add to new view.
             getUpdatedViewDefsFromSchemaDefs(schema.getEdges(), view)
-                    .forEach(e -> updatedView.edge(e.getKey(), e.getValue()));
+                    .forEach(e -> editableView.edge(e.getKey(), e.getValue()));
             getUpdatedViewDefsFromSchemaDefs(schema.getEntities(), view)
-                    .forEach(e -> updatedView.entity(e.getKey(), e.getValue()));
+                    .forEach(e -> editableView.entity(e.getKey(), e.getValue()));
 
-            context.put(VIEW, updatedView.build());
+            context.put(VIEW, editableView.build());
         }
     }
 
-    @Override
-    public MergeElementFunction createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
-        return new MergeElementFunction(context);
+    private static void makeTempResultsGraphIfRequired(final HashMap<String, Object> context) {
+        // Check if results graph, hasn't already be supplied, otherwise make a default results graph.
+        if (!containsTempResultsGraph(context)) {
+            final Graph resultsGraph = new Graph.Builder()
+                    .config(new GraphConfig(String.format("%s%s%d", TEMP_RESULTS_GRAPH, MergeElementFunction.class.getSimpleName(), RANDOM.nextInt(Integer.MAX_VALUE))))
+                    .addSchema((Schema) context.get(SCHEMA))
+                    //MapStore easy in memory Store. Large results size may not be suitable, a graph could be provided via Context.
+                    .addStoreProperties(new MapStoreProperties())
+                    .build();
+
+            LOGGER.debug("A Temporary results graph named:{} is being made with schema:{}", resultsGraph.getGraphId(), resultsGraph.getSchema());
+
+            context.put(TEMP_RESULTS_GRAPH, resultsGraph);
+        }
     }
 
     /**
@@ -129,39 +137,54 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
      *
      * @param context The context e.g. view, schema and user
      */
-    private static void validate(final Map<String, Object> context) {
-        View view = (View) context.get(VIEW);
-        if (view != null && view.hasTransform()) {
-            throw new UnsupportedOperationException("Error: context invalid: can not use this function with a POST AGGREGATION TRANSFORM VIEW, " +
-                    "because transformation may have created items that does not exist in the schema. " +
-                    "The re-applying of the View to the collected federated results would not be be possible. " +
-                    "Try a simple concat merge that doesn't require the re-application of view");
-            // Solution is to derive and use the "Transformed schema" from the uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition.
-        }
-
-        Schema schema = (Schema) context.get(SCHEMA);
-        if (schema == null || !schema.hasGroups()) {
-            throw new IllegalArgumentException("Error: context invalid, requires a populated schema.");
-        }
-
-        if (!context.containsKey(TEMP_RESULTS_GRAPH)) {
-            throw new IllegalStateException("Error: context invalid, did not contain a Temporary Results Graph.");
-        } else if (!(context.get(TEMP_RESULTS_GRAPH) instanceof Graph)
-                && !(context.get(TEMP_RESULTS_GRAPH) instanceof GraphSerialisable)) {
-            throw new IllegalArgumentException(String.format("Error: context invalid, value for %s was not a Graph, found: %s", TEMP_RESULTS_GRAPH, context.get(TEMP_RESULTS_GRAPH)));
-        }
-
-        if (!context.containsKey(USER)) {
+    public static void validate(final Map<String, Object> context) {
+        if (!containsUser(context)) {
             throw new IllegalArgumentException("Error: context invalid, requires a User");
+        }
+
+        if (!containsTempResultsGraph(context)) {
+            if (!containsValidView(context)) {
+                throw new UnsupportedOperationException("Error: context invalid: can not use this function with a POST AGGREGATION TRANSFORM VIEW, " +
+                        "because transformation may have created items that does not exist in the schema. " +
+                        "The re-applying of the View to the collected federated results would not be be possible. " +
+                        "Try a simple concat merge that doesn't require the re-application of view");
+                // Solution is to derive and use the "Transformed schema" from the uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition.
+            }
+
+            if (!containsValidSchema(context)) {
+                throw new IllegalArgumentException("Error: context invalid, requires a populated schema.");
+            }
+
+        } else if (!containsValidTempResultsGraph(context)) {
+            throw new IllegalArgumentException(String.format("Error: context invalid, value for %s was not a Graph, found: %s", TEMP_RESULTS_GRAPH, context.get(TEMP_RESULTS_GRAPH)));
         }
     }
 
-    private static Stream<Map.Entry<String, ViewElementDefinition>> getUpdatedViewDefsFromSchemaDefs(final Map<String, ? extends SchemaElementDefinition> groupDefs, final View view) {
+    private static boolean containsValidTempResultsGraph(final Map<String, Object> context) {
+        final Object o = context.get(TEMP_RESULTS_GRAPH);
+        return o instanceof Graph || o instanceof GraphSerialisable;
+    }
+
+    private static boolean containsTempResultsGraph(final Map<String, Object> context) {
+        return context.containsKey(TEMP_RESULTS_GRAPH);
+    }
+
+    private static boolean containsValidSchema(final Map<String, Object> context) {
+        final Optional<Schema> schema = getSchema(context);
+        return schema.isPresent() && (schema.get()).hasGroups();
+    }
+
+    private static boolean containsValidView(final Map<String, Object> context) {
+        final Optional<View> view = getView(context);
+        return !view.isPresent() || !view.get().hasTransform();
+    }
+
+    private static Stream<Map.Entry<String, ViewElementDefinition>> getUpdatedViewDefsFromSchemaDefs(final Map<String, ? extends SchemaElementDefinition> groupDefs, final Optional<View> view) {
         return groupDefs.entrySet().stream()
                 .map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), getUpdatedViewDefFromSchemaDef(e.getKey(), e.getValue(), view)));
     }
 
-    private static ViewElementDefinition getUpdatedViewDefFromSchemaDef(final String groupName, final SchemaElementDefinition schemaElementDef, final View view) {
+    private static ViewElementDefinition getUpdatedViewDefFromSchemaDef(final String groupName, final SchemaElementDefinition schemaElementDef, final Optional<View> view) {
         final ViewElementDefinition.Builder updatePreAggregationFilter;
         final ArrayList<TupleAdaptedPredicate<String, ?>> updatedFilterFunctions = new ArrayList<>();
 
@@ -170,8 +193,8 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
             updatedFilterFunctions.addAll(schemaElementDef.getValidator().getComponents());
         }
 
-        if (view != null) {
-            final ViewElementDefinition viewElementDef = view.getElement(groupName);
+        if (view.isPresent()) {
+            final ViewElementDefinition viewElementDef = view.get().getElement(groupName);
             //Add View Validation
             if (viewElementDef != null && viewElementDef.hasPostAggregationFilters()) {
                 updatedFilterFunctions.addAll(viewElementDef.getPostAggregationFilter().getComponents());
@@ -205,12 +228,14 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
             }
         }
 
-        final Graph resultsGraph = getGraph(context);
+        final Graph resultsGraph;
         final Context userContext = new Context((User) context.get(USER));
+
         try {
+            resultsGraph = getGraph(context).orElseThrow(() -> new GafferCheckedException("No results Graph available for merging "));
             // The update object might be a lazy AccumuloElementRetriever and might be MASSIVE.
             resultsGraph.execute(new AddElements.Builder().input((Iterable<Element>) update).build(), userContext);
-        } catch (final OperationException e) {
+        } catch (final GafferCheckedException e) {
             throw new GafferRuntimeException("Error adding elements to temporary results graph, due to:" + e.getMessage(), e);
         }
 
@@ -221,11 +246,16 @@ public class MergeElementFunction implements ContextSpecificMergeFunction<Object
         }
     }
 
-    private static Graph getGraph(final Map<String, Object> context) {
+    private static Optional<Graph> getGraph(final Map<String, Object> context) {
         final Object o = context.get(TEMP_RESULTS_GRAPH);
-        final Graph resultsGraph = o instanceof GraphSerialisable
-                ? ((GraphSerialisable) o).getGraph()
-                : (Graph) o;
+        final Optional<Graph> resultsGraph;
+        if (o instanceof GraphSerialisable) {
+            resultsGraph = Optional.of(((GraphSerialisable) o).getGraph());
+        } else if (o instanceof Graph) {
+            resultsGraph = Optional.of((Graph) o);
+        } else {
+            resultsGraph = Optional.empty();
+        }
         return resultsGraph;
     }
 }

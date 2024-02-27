@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -42,8 +41,10 @@ import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_EDGE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
@@ -51,12 +52,15 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextBl
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.edgeBasic;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.SCHEMA;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.USER;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.VIEW;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 class MergeElementFunctionTest {
 
-    public static final Schema SCHEMA = loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON);
+    public static final Schema EDGE_SCHEMA = loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON);
     public static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
 
     @Test
@@ -92,7 +96,7 @@ class MergeElementFunctionTest {
         final MergeElementFunction function = new MergeElementFunction().createFunctionWithContext(
                 makeContext(
                         new View.Builder().edge(GROUP_BASIC_EDGE).build(),
-                        SCHEMA.clone()));
+                        EDGE_SCHEMA.clone()));
 
         //when
         Iterable<Object> iterable = null;
@@ -112,7 +116,7 @@ class MergeElementFunctionTest {
 
     private static FederatedStore getFederatedStore() throws StoreException {
         final FederatedStore federatedStore = new FederatedStore();
-        federatedStore.initialise(FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), new FederatedStoreProperties());
+        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), new FederatedStoreProperties());
         return federatedStore;
     }
 
@@ -132,7 +136,7 @@ class MergeElementFunctionTest {
                                                 .execute(new IsLessThan(3))
                                                 .build())
                                         .build()).build(),
-                        SCHEMA.clone()));
+                        EDGE_SCHEMA.clone()));
 
         //when
         Iterable<Object> iterable = null;
@@ -162,15 +166,51 @@ class MergeElementFunctionTest {
         //This line allows different MiniAccumuloStore
         //tableName = NameSpace.GraphId.
         clone.setNamespace(instanceName);
-        accumuloStore.initialise(GRAPH_ID_ACCUMULO, SCHEMA.clone(), clone);
+        accumuloStore.initialise(GRAPH_ID_ACCUMULO, EDGE_SCHEMA.clone(), clone);
         return accumuloStore;
     }
 
     private static HashMap<String, Object> makeContext(final View view, final Schema schema) {
         final HashMap<String, Object> map = new HashMap<>();
-        map.put(MergeElementFunction.VIEW, view);
-        map.put(MergeElementFunction.SCHEMA, schema);
-        map.put(MergeElementFunction.USER, testUser());
+        map.put(VIEW, view);
+        map.put(SCHEMA, schema);
+        map.put(USER, testUser());
         return map;
     }
+
+    @Test
+    void shouldRequireUserInFunctionContext() {
+        final HashMap<String, Object> context = getTestFunctionContext();
+        context.remove(USER);
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> MergeElementFunction.validate(context))
+                .withMessageContaining("context invalid, requires a User");
+    }
+
+    @Test
+    void shouldRequireSchemaInFunctionContext() {
+        final HashMap<String, Object> context = getTestFunctionContext();
+        context.remove(SCHEMA);
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> MergeElementFunction.validate(context))
+                .withMessageContaining("context invalid, requires a populated schema");
+    }
+
+    @Test
+    void shouldRequireSchemaWithGroupsInFunctionContext() {
+        final HashMap<String, Object> context = getTestFunctionContext();
+        context.put(SCHEMA, new Schema());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> MergeElementFunction.validate(context))
+                .withMessageContaining("context invalid, requires a populated schema");
+    }
+
+    private static HashMap<String, Object> getTestFunctionContext() {
+        final HashMap<String, Object> context = new HashMap<>();
+        context.put(USER, testUser());
+        context.put(SCHEMA, EDGE_SCHEMA);
+        return context;
+    }
+
+
 }

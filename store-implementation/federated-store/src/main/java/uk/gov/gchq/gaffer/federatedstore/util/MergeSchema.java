@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 Crown Copyright
+ * Copyright 2022-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.federatedstore.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -29,6 +28,7 @@ import uk.gov.gchq.gaffer.store.schema.exception.VisibilityPropertySchemaExcepti
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -43,14 +43,9 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
     public static final String FORMAT_CAUGHT_SCHEMA_EXCEPTION_ATTEMPTING_TO_RE_MERGE_BUT_WITHOUT_S_ERROR_MESSAGE_S = "Caught SchemaException, attempting to re-merge but without %s. Error message:%s";
     public static final String MERGE_FUNCTION_UNABLE_TO_RECOVER_FROM_ERROR_DUE_TO = MergeSchema.class.getSimpleName() + " function unable to recover from error, due to: ";
     public static final String MATCHING_ELEMENT_GROUPS_HAVING_NO_SHARED_PROPERTIES_CAUSED_BY = "Matching element groups having no shared properties, caused by:";
-    private HashMap<String, Object> context;
+    private Map<String, Object> context;
 
     public MergeSchema() {
-    }
-
-    public MergeSchema(final HashMap<String, Object> context) {
-        this();
-        this.context = new HashMap<>(validate(context));
     }
 
     public Schema apply(final Schema update, final Schema state) {
@@ -109,9 +104,10 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
         }
     }
 
-    @Override
-    public ContextSpecificMergeFunction<Schema, Schema, Schema> createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException {
-        return new MergeSchema(context);
+    public MergeSchema createFunctionWithContext(final HashMap<String, Object> context) {
+        final MergeSchema function = new MergeSchema();
+        function.context = new HashMap<>(validate(context));
+        return function;
     }
 
 
@@ -120,7 +116,7 @@ public class MergeSchema implements BiFunction<Schema, Schema, Schema>, ContextS
         return Collections.emptySet();
     }
 
-    private static HashMap<String, Object> validate(final HashMap<String, Object> context) {
+    private static Map<String, Object> validate(final Map<String, Object> context) {
         return context;
     }
 }
