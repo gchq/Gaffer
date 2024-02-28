@@ -1191,12 +1191,10 @@ public class StoreTest {
         }
 
         @Override
-        protected JobTracker createJobTracker() {
+        protected void populateCaches() {
             if (getProperties().getJobTrackerEnabled()) {
-                return jobTracker;
+                super.jobTracker = StoreTest.this.jobTracker;
             }
-
-            return null;
         }
 
         @SuppressWarnings("rawtypes")
@@ -1270,12 +1268,10 @@ public class StoreTest {
         }
 
         @Override
-        protected JobTracker createJobTracker() {
+        protected void populateCaches() {
             if (getProperties().getJobTrackerEnabled()) {
-                return jobTracker;
+                super.jobTracker = StoreTest.this.jobTracker;
             }
-
-            return null;
         }
 
         @SuppressWarnings("rawtypes")
@@ -1385,8 +1381,8 @@ public class StoreTest {
         }
 
         @Override
-        protected JobTracker createJobTracker() {
-            return new JobTracker("Test");
+        protected void populateCaches() {
+            super.jobTracker = new JobTracker("Test");
         }
 
         @SuppressWarnings("rawtypes")

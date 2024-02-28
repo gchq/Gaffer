@@ -20,6 +20,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
@@ -149,6 +150,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedViewHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedViewsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToArrayHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToCsvHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToEntitySeedsHandler;
@@ -169,6 +172,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -228,7 +232,8 @@ public abstract class Store {
 
     private GraphLibrary library;
 
-    private JobTracker jobTracker;
+    JobTracker jobTracker;
+    private List<Cache<?, ?>> caches;
     private String graphId;
     private boolean jobsRescheduled = false;
 
@@ -287,7 +292,7 @@ public abstract class Store {
         updateJsonSerialiser();
 
         startCacheServiceLoader(properties);
-        this.jobTracker = createJobTracker();
+        populateCaches();
 
         addOpHandlers();
         optimiseSchema();
@@ -549,6 +554,10 @@ public abstract class Store {
         return jobTracker;
     }
 
+    public List<Cache<?, ?>> getCaches() {
+        return Collections.unmodifiableList(caches);
+    }
+
     /**
      * @param operationClass the operation class to check
      * @return true if the provided operation is supported.
@@ -806,11 +815,19 @@ public abstract class Store {
         }
     }
 
-    protected JobTracker createJobTracker() {
+    protected void populateCaches() {
+        caches = new ArrayList<>();
         if (properties.getJobTrackerEnabled()) {
-            return new JobTracker(getProperties().getCacheServiceJobTrackerSuffix(graphId));
+            jobTracker = new JobTracker(getProperties().getCacheServiceJobTrackerSuffix(graphId));
+            caches.add(jobTracker);
         }
-        return null;
+        if (CacheServiceLoader.isDefaultEnabled() ||
+                (CacheServiceLoader.isEnabled(NAMED_OPERATION_CACHE_SERVICE_NAME) &&
+                 CacheServiceLoader.isEnabled(NAMED_VIEW_CACHE_SERVICE_NAME))
+        ) {
+            caches.add(new NamedOperationCache(getProperties().getCacheServiceNamedOperationSuffix(graphId)));
+            caches.add(new NamedViewCache(getProperties().getCacheServiceNamedViewSuffix(graphId)));
+        }
     }
 
     protected SchemaOptimiser createSchemaOptimiser() {
