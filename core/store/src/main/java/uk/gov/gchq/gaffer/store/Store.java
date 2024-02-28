@@ -172,7 +172,6 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -555,7 +554,7 @@ public abstract class Store {
     }
 
     public List<Cache<?, ?>> getCaches() {
-        return Collections.unmodifiableList(caches);
+        return unmodifiableList(caches);
     }
 
     /**
