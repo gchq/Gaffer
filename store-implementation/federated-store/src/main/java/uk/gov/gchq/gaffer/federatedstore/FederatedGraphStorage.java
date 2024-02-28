@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Lists;
 import org.apache.accumulo.core.client.Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +32,7 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.jobtracker.JobTracker;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
-import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -196,12 +191,7 @@ public class FederatedGraphStorage {
     private void removeGraphCaches(final String graphId) {
         try {
             final GraphSerialisable graphFromCache = federatedStoreCache.getGraphFromCache(graphId);
-            final StoreProperties storeProperties = graphFromCache.getStoreProperties();
-            final List<Cache<?, ?>> caches = Lists.newArrayList(
-                    new NamedViewCache(storeProperties.getCacheServiceNamedViewSuffix(graphId)),
-                    new NamedOperationCache(storeProperties.getCacheServiceNamedOperationSuffix(graphId)),
-                    new JobTracker(storeProperties.getCacheServiceJobTrackerSuffix(graphId)));
-            for (final Cache<?, ?> cacheInstance : caches) {
+            for (final Cache<?, ?> cacheInstance : graphFromCache.getGraph().getCaches()) {
                 final ICache<?, ?> cache = cacheInstance.getCache();
                 if (nonNull(cache)) {
                     cache.clear();
