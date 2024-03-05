@@ -60,14 +60,18 @@ public class WhileHandler implements OutputOperationHandler<While<Object, Object
 
         Object input = operation.getInput();
         for (int repeatCount = 0; repeatCount < operation.getMaxRepeats(); repeatCount++) {
-            final While operationClone = operation.shallowClone();
-            if (!isSatisfied(input, operationClone, context, store)) {
+            final While clonedWhile = operation.shallowClone();
+            if (!isSatisfied(input, clonedWhile, context, store)) {
                 break;
             }
-            input = doDelegateOperation(input, operationClone.getOperation(), context, store);
+            input = doDelegateOperation(input, getOperationFromWhile(clonedWhile), context, store);
         }
 
         return input;
+    }
+
+    protected Operation getOperationFromWhile(final While aWhile) {
+        return aWhile.getOperation();
     }
 
     public void validateMaxRepeats(final While operation) throws OperationException {
