@@ -115,7 +115,6 @@ public class MergeElementFunctionAggregationViewFilterTest {
                 .isNotNull()
                 .withFailMessage("should not return entity with property 99 which is more than view filter 2")
                 .doesNotContain(entity99)
-                .withFailMessage("should contain only 1")
                 .withFailMessage("should return entity with property 1 which is less than view filter 2")
                 .containsExactly(entity1);
 
