@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.ICacheService;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -141,9 +140,9 @@ import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.RunnableScheduledFuture;
 import java.util.concurrent.ScheduledExecutorService;
@@ -167,6 +166,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.jobtracker.JobTracker.JOB_TRACKER_CACHE_SERVICE_NAME;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
@@ -203,6 +203,7 @@ public class StoreTest {
 
     @BeforeEach
     public void setup() {
+        CacheServiceLoader.shutdown();
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
         JSONSerialiser.update();
@@ -259,9 +260,10 @@ public class StoreTest {
         ICacheService mockICacheService = Mockito.spy(ICacheService.class);
         given(mockICacheService.getCache(any())).willReturn(mockICache);
 
-        Field field = CacheServiceLoader.class.getDeclaredField("service");
+        Field field = CacheServiceLoader.class.getDeclaredField("SERVICES");
         field.setAccessible(true);
-        field.set(null, mockICacheService);
+        java.util.Map<String, ICacheService> mockCacheServices = (java.util.Map<String, ICacheService>) field.get(new HashMap<>());
+        mockCacheServices.put(JOB_TRACKER_CACHE_SERVICE_NAME, mockICacheService);
 
         final AddElements addElements = new AddElements();
         final StoreImpl3 store = new StoreImpl3();
@@ -274,6 +276,35 @@ public class StoreTest {
         verify(addElementsHandler).doOperation(addElements, context, store);
         verify(mockICacheService, Mockito.atLeast(1)).getCache(any());
         verify(mockICache, Mockito.atLeast(1)).put(any(), any());
+    }
+
+    @Test
+    public void shouldCreateStoreWithSpecificCaches() throws SchemaException, StoreException {
+        // Given
+        final Store testStore = new StoreImpl();
+
+        // When
+        testStore.initialise("testGraph", new Schema(), StoreProperties.loadStoreProperties("allCaches.properties"));
+
+        // Then
+        assertThat(CacheServiceLoader.isDefaultEnabled()).isFalse();
+        assertThat(CacheServiceLoader.isEnabled("JobTracker")).isTrue();
+        assertThat(CacheServiceLoader.isEnabled("NamedView")).isTrue();
+        assertThat(CacheServiceLoader.isEnabled("NamedOperation")).isTrue();
+    }
+
+    @Test
+    public void shouldCreateStoreWithDefaultCache() throws SchemaException, StoreException {
+        // Given
+        final Store testStore = new StoreImpl();
+        final StoreProperties props = new StoreProperties();
+
+        // When
+        props.setDefaultCacheServiceClass(HashMapCacheService.class.getName());
+        testStore.initialise("testGraph", new Schema(), props);
+
+        // Then
+        assertThat(CacheServiceLoader.isDefaultEnabled()).isTrue();
     }
 
     @Test
@@ -480,9 +511,7 @@ public class StoreTest {
     @Test
     public void shouldReturnAllSupportedOperations(@Mock final StoreProperties properties) throws Exception {
         // Given
-        final Properties cacheProperties = new Properties();
-        cacheProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        CacheServiceLoader.initialise(cacheProperties);
+        CacheServiceLoader.initialise(HashMapCacheService.class.getName());
 
         final Schema schema = createSchemaMock();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -592,9 +621,7 @@ public class StoreTest {
     @Test
     public void shouldReturnAllSupportedOperationsWhenJobTrackerIsDisabled(@Mock final StoreProperties properties) throws Exception {
         // Given
-        final Properties cacheProperties = new Properties();
-        cacheProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        CacheServiceLoader.initialise(cacheProperties);
+        CacheServiceLoader.initialise(HashMapCacheService.class.getName());
 
         final Schema schema = createSchemaMock();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -1164,12 +1191,10 @@ public class StoreTest {
         }
 
         @Override
-        protected JobTracker createJobTracker() {
+        protected void populateCaches() {
             if (getProperties().getJobTrackerEnabled()) {
-                return jobTracker;
+                super.jobTracker = StoreTest.this.jobTracker;
             }
-
-            return null;
         }
 
         @SuppressWarnings("rawtypes")
@@ -1243,12 +1268,10 @@ public class StoreTest {
         }
 
         @Override
-        protected JobTracker createJobTracker() {
+        protected void populateCaches() {
             if (getProperties().getJobTrackerEnabled()) {
-                return jobTracker;
+                super.jobTracker = StoreTest.this.jobTracker;
             }
-
-            return null;
         }
 
         @SuppressWarnings("rawtypes")
@@ -1358,8 +1381,8 @@ public class StoreTest {
         }
 
         @Override
-        protected JobTracker createJobTracker() {
-            return new JobTracker("Test");
+        protected void populateCaches() {
+            super.jobTracker = new JobTracker("Test");
         }
 
         @SuppressWarnings("rawtypes")

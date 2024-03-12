@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -87,22 +86,18 @@ public class GetAllNamedViewsHandlerTest {
             .readAccessPredicate(new NoAccessPredicate())
             .build();
 
-    @BeforeEach
-    public void beforeEach() throws CacheOperationException {
-        if (namedViewCache != null && CacheServiceLoader.isEnabled()) {
-            namedViewCache.clearCache();
-        }
-    }
-
     @AfterAll
     public static void tearDown() {
         CacheServiceLoader.shutdown();
     }
 
     @Test
-    public void shouldGetAllAccessibleNamedViewsFromCache() throws OperationException {
+    public void shouldGetAllAccessibleNamedViewsFromCache() throws OperationException, CacheOperationException {
         // Given
-        initialiseCache();
+        given(store.getProperties()).willReturn(new StoreProperties());
+        CacheServiceLoader.initialise("uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        namedViewCache.clearCache();
+
         final NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder()
                 .name(testNamedViewName)
                 .view(view)
@@ -128,12 +123,5 @@ public class GetAllNamedViewsHandlerTest {
                 .hasSize(2)
                 .contains(namedViewAsDetail)
                 .contains(namedViewAsDetail2);
-    }
-
-    private void initialiseCache() {
-        given(store.getProperties()).willReturn(new StoreProperties());
-        final StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties.getProperties());
     }
 }

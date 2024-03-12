@@ -20,6 +20,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
@@ -149,6 +150,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedViewHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedViewsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToArrayHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToCsvHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToEntitySeedsHandler;
@@ -183,6 +186,10 @@ import java.util.stream.StreamSupport;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
+import static uk.gov.gchq.gaffer.jobtracker.JobTracker.JOB_TRACKER_CACHE_SERVICE_NAME;
+import static uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache.NAMED_OPERATION_CACHE_SERVICE_NAME;
+import static uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache.NAMED_VIEW_CACHE_SERVICE_NAME;
 
 /**
  * A {@code Store} backs a Graph and is responsible for storing the {@link
@@ -224,7 +231,8 @@ public abstract class Store {
 
     private GraphLibrary library;
 
-    private JobTracker jobTracker;
+    JobTracker jobTracker;
+    private List<Cache<?, ?>> caches;
     private String graphId;
     private boolean jobsRescheduled = false;
 
@@ -283,7 +291,7 @@ public abstract class Store {
         updateJsonSerialiser();
 
         startCacheServiceLoader(properties);
-        this.jobTracker = createJobTracker();
+        populateCaches();
 
         addOpHandlers();
         optimiseSchema();
@@ -545,6 +553,10 @@ public abstract class Store {
         return jobTracker;
     }
 
+    public List<Cache<?, ?>> getCaches() {
+        return unmodifiableList(caches);
+    }
+
     /**
      * @param operationClass the operation class to check
      * @return true if the provided operation is supported.
@@ -802,11 +814,19 @@ public abstract class Store {
         }
     }
 
-    protected JobTracker createJobTracker() {
+    protected void populateCaches() {
+        caches = new ArrayList<>();
         if (properties.getJobTrackerEnabled()) {
-            return new JobTracker(getProperties().getCacheServiceJobTrackerSuffix(graphId));
+            jobTracker = new JobTracker(getProperties().getCacheServiceJobTrackerSuffix(graphId));
+            caches.add(jobTracker);
         }
-        return null;
+        if (CacheServiceLoader.isDefaultEnabled() ||
+                (CacheServiceLoader.isEnabled(NAMED_OPERATION_CACHE_SERVICE_NAME) &&
+                 CacheServiceLoader.isEnabled(NAMED_VIEW_CACHE_SERVICE_NAME))
+        ) {
+            caches.add(new NamedOperationCache(getProperties().getCacheServiceNamedOperationSuffix(graphId)));
+            caches.add(new NamedViewCache(getProperties().getCacheServiceNamedViewSuffix(graphId)));
+        }
     }
 
     protected SchemaOptimiser createSchemaOptimiser() {
@@ -1017,7 +1037,10 @@ public abstract class Store {
         addOperationHandler(ToStream.class, new ToStreamHandler<>());
         addOperationHandler(ToVertices.class, new ToVerticesHandler());
 
-        if (nonNull(CacheServiceLoader.getService())) {
+        if (CacheServiceLoader.isDefaultEnabled() ||
+                (CacheServiceLoader.isEnabled(NAMED_OPERATION_CACHE_SERVICE_NAME) &&
+                 CacheServiceLoader.isEnabled(NAMED_VIEW_CACHE_SERVICE_NAME))
+            ) {
             // Named operation
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
             final String suffixNamedOperationCacheName = properties.getCacheServiceNamedOperationSuffix(graphId);
@@ -1096,6 +1119,27 @@ public abstract class Store {
     }
 
     protected void startCacheServiceLoader(final StoreProperties properties) {
-        CacheServiceLoader.initialise(properties.getProperties());
+        final String jobTrackerCacheClass = properties.getJobTrackerCacheServiceClass();
+        final String namedViewCacheClass = properties.getNamedViewCacheServiceClass();
+        final String namedOperationCacheClass = properties.getNamedOperationCacheServiceClass();
+        final String defaultCacheClass = properties.getDefaultCacheServiceClass();
+        final boolean jobTrackerEnabled = properties.getJobTrackerEnabled();
+        final boolean defaultServiceRequired = (jobTrackerEnabled && jobTrackerCacheClass == null) |
+                                               (namedViewCacheClass == null) | (namedOperationCacheClass == null);
+
+        if (jobTrackerEnabled && jobTrackerCacheClass != null) {
+            CacheServiceLoader.initialise(JOB_TRACKER_CACHE_SERVICE_NAME, jobTrackerCacheClass, properties.getProperties());
+        }
+        if (namedViewCacheClass != null) {
+            CacheServiceLoader.initialise(NAMED_VIEW_CACHE_SERVICE_NAME, namedViewCacheClass, properties.getProperties());
+        }
+        if (namedOperationCacheClass != null) {
+            CacheServiceLoader.initialise(NAMED_OPERATION_CACHE_SERVICE_NAME, namedOperationCacheClass, properties.getProperties());
+        }
+        if (defaultServiceRequired && defaultCacheClass != null) {
+            CacheServiceLoader.initialise(DEFAULT_SERVICE_NAME, properties.getDefaultCacheServiceClass(), properties.getProperties());
+        } else if (defaultServiceRequired) {
+            LOGGER.info("Store Properties did not include a default cache class, caches not fully initialised");
+        }
     }
 }

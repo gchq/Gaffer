@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,6 @@ public class DeleteNamedViewHandlerTest {
     private final String invalidNamedViewName = "invalidNamedViewName";
     private final String testUserId = "testUser";
     private final Map<String, ViewParameterDetail> testParameters = new HashMap<>();
-    private final StoreProperties properties = new StoreProperties();
     private final Context context = new Context(new User.Builder()
             .userId(testUserId)
             .opAuth(WRITE_ACCESS_ROLE)
@@ -66,9 +65,7 @@ public class DeleteNamedViewHandlerTest {
     @BeforeEach
     public void before() throws OperationException {
         CacheServiceLoader.shutdown();
-
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties.getProperties());
+        CacheServiceLoader.initialise("uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
 
         given(store.getProperties()).willReturn(new StoreProperties());
 

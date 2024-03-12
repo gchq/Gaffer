@@ -39,9 +39,10 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationCache.class);
     public static final String CACHE_SERVICE_NAME_PREFIX = "NamedOperation";
     public static final String NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX = "NamedOperation Cache was made with Null or Empty suffix, This is very likely a mistake. GraphId or a supplied suffix is normal";
+    public static final String NAMED_OPERATION_CACHE_SERVICE_NAME = "NamedOperation";
 
     public NamedOperationCache(final String suffixNamedOperationCacheName) {
-        super(getCacheNameFrom(suffixNamedOperationCacheName));
+        super(getCacheNameFrom(suffixNamedOperationCacheName), NAMED_OPERATION_CACHE_SERVICE_NAME);
         if (Strings.isNullOrEmpty(suffixNamedOperationCacheName)) {
             LOGGER.error(NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX);
         }
