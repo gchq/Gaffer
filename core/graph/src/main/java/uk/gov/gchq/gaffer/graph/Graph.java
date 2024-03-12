@@ -23,6 +23,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -491,6 +492,9 @@ public final class Graph {
         return store.getGraphLibrary();
     }
 
+    public List<Cache<?, ?>> getCaches() {
+        return store.getCaches();
+    }
 
     @FunctionalInterface
     private interface StoreExecuter<O> {

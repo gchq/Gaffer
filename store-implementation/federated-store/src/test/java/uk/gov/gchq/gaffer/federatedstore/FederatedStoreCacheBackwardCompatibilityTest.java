@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreCacheTransient.FEDERATED_STORE_CACHE_SERVICE_NAME;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_MAP;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.MAP_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
@@ -60,12 +61,11 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
         resetForFederatedTests();
 
         Properties properties = new Properties();
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, JcsCacheService.class.getName());
         // Note that this config causes a binary resource file containing data to be loaded into the cache
         // This data includes MAP_ID_1 and user auths
         properties.setProperty(CacheProperties.CACHE_CONFIG_FILE, GAFFER_2_1_0_CACHE_CACHE_CCF);
 
-        CacheServiceLoader.initialise(properties);
+        CacheServiceLoader.initialise(FEDERATED_STORE_CACHE_SERVICE_NAME, JcsCacheService.class.getName(), properties);
         federatedStoreCache = new FederatedStoreCache(BACKWARDS_COMPATABILITY_2_1_0);
 
         new Graph.Builder().config(new GraphConfig(GRAPH_ID_MAP))

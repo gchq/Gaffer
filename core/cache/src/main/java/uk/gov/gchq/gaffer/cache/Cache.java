@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.stream.StreamSupport;
 
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
 
 /**
  * Type safe cache, adding and getting is guaranteed to be same type.
@@ -32,9 +33,22 @@ import static java.util.Objects.nonNull;
  */
 public class Cache<K, V> {
     protected String cacheName;
+    private final String serviceName;
+
+    public Cache(final String cacheName, final String serviceName) {
+        this.cacheName = cacheName;
+        // Use the supplied cache service name if it exists, otherwise
+        // fallback to the default cache service name
+        if (CacheServiceLoader.isEnabled(serviceName)) {
+            this.serviceName = serviceName;
+        } else {
+            this.serviceName = DEFAULT_SERVICE_NAME;
+        }
+    }
 
     public Cache(final String cacheName) {
         this.cacheName = cacheName;
+        this.serviceName = DEFAULT_SERVICE_NAME;
     }
 
     /**
@@ -44,7 +58,7 @@ public class Cache<K, V> {
      * @throws CacheOperationException if issue getting from cache
      */
     public V getFromCache(final String key) throws CacheOperationException {
-        return CacheServiceLoader.getService().getFromCache(cacheName, key);
+        return CacheServiceLoader.getService(serviceName).getFromCache(cacheName, key);
     }
 
     public String getCacheName() {
@@ -62,7 +76,7 @@ public class Cache<K, V> {
      *                                 cache
      */
     protected void addToCache(final K key, final V value, final boolean overwrite) throws CacheOperationException {
-        final ICacheService service = CacheServiceLoader.getService();
+        final ICacheService service = CacheServiceLoader.getService(serviceName);
         if (overwrite) {
             service.putInCache(getCacheName(), key, value);
         } else {
@@ -73,10 +87,10 @@ public class Cache<K, V> {
     public Iterable<K> getAllKeys() {
         try {
             final Iterable<K> allKeysFromCache;
-            if (CacheServiceLoader.isEnabled()) {
-                allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
+            if (CacheServiceLoader.isEnabled(serviceName)) {
+                allKeysFromCache = CacheServiceLoader.getService(serviceName).getAllKeysFromCache(cacheName);
             } else {
-                throw new GafferRuntimeException("Cache is not enabled, check it was Initialised");
+                throw new GafferRuntimeException(String.format("Cache '%s' is not enabled, check it was initialised", serviceName));
             }
             return (null == allKeysFromCache) ? Collections.emptySet() : allKeysFromCache;
         } catch (final Exception e) {
@@ -90,7 +104,7 @@ public class Cache<K, V> {
      * @throws CacheOperationException if there was an error trying to clear the cache
      */
     public void clearCache() throws CacheOperationException {
-        CacheServiceLoader.getService().clearCache(cacheName);
+        CacheServiceLoader.getService(serviceName).clearCache(cacheName);
     }
 
     public boolean contains(final String graphId) {
@@ -104,7 +118,7 @@ public class Cache<K, V> {
      * @param key the ID of the key to be deleted
      */
     public void deleteFromCache(final String key) {
-        CacheServiceLoader.getService().removeFromCache(cacheName, key);
+        CacheServiceLoader.getService(serviceName).removeFromCache(cacheName, key);
     }
 
     /**
@@ -112,9 +126,9 @@ public class Cache<K, V> {
      *
      * @return ICache
      */
-    public ICache getCache() {
-        if (CacheServiceLoader.getService() != null) {
-            return CacheServiceLoader.getService().getCache(cacheName);
+    public ICache<K, V> getCache() {
+        if (CacheServiceLoader.isEnabled(serviceName)) {
+            return CacheServiceLoader.getService(serviceName).getCache(cacheName);
         } else {
             return null;
         }

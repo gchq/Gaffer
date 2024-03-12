@@ -26,7 +26,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
@@ -49,6 +48,15 @@ import java.util.Set;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_DEFAULT_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_DEFAULT_SUFFIX;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_JOB_TRACKER_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_JOB_TRACKER_SUFFIX;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_NAMED_OPERATION_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_NAMED_OPERATION_SUFFIX;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_NAMED_VIEW_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_NAMED_VIEW_SUFFIX;
 import static uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler.DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED;
 
 /**
@@ -78,22 +86,6 @@ public class StoreProperties implements Cloneable {
     public static final String STRICT_JSON = JSONSerialiser.STRICT_JSON;
 
     public static final String ADMIN_AUTH = "gaffer.store.admin.auth";
-
-    /**
-     * This is used to set the cache implementation for all caches
-     * e.g. gaffer.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
-     */
-    public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
-
-    /**
-     * These are used to set the suffix for all caches or per cache
-     * CASE INSENSITIVE
-     * e.g. gaffer.cache.service.default.suffix="v2"
-     */
-    public static final String CACHE_SERVICE_DEFAULT_SUFFIX = "gaffer.cache.service.default.suffix";
-    public static final String CACHE_SERVICE_NAMED_OPERATION_SUFFIX = "gaffer.cache.service.named.operation.suffix";
-    public static final String CACHE_SERVICE_JOB_TRACKER_SUFFIX = "gaffer.cache.service.job.tracker.suffix";
-    public static final String CACHE_SERVICE_NAMED_VIEW_SUFFIX = "gaffer.cache.service.named.view.suffix";
 
     /**
      * CSV of extra packages to be included in the reflection scanning.
@@ -352,7 +344,7 @@ public class StoreProperties implements Cloneable {
     }
 
     public void setSchemaClass(final Class<? extends Schema> schemaClass) {
-        set(SCHEMA_CLASS, schemaClass.getName());
+        setSchemaClass(schemaClass.getName());
     }
 
     public String getStorePropertiesClassName() {
@@ -457,16 +449,55 @@ public class StoreProperties implements Cloneable {
         set(ADMIN_AUTH, adminAuth);
     }
 
-    public void setCacheServiceClass(final String cacheServiceClassString) {
-        set(CACHE_SERVICE_CLASS, cacheServiceClassString);
+    public String getDefaultCacheServiceClass() {
+        final String defaultCacheClass = get(CACHE_SERVICE_DEFAULT_CLASS);
+        // Fallback to old CACHE_SERVICE_CLASS property if CACHE_SERVICE_DEFAULT_CLASS is missing
+        return (defaultCacheClass == null ? get(CACHE_SERVICE_CLASS) : defaultCacheClass);
     }
 
+    public void setDefaultCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_DEFAULT_CLASS, cacheServiceClassString);
+    }
+
+    public String getJobTrackerCacheServiceClass() {
+        return get(CACHE_SERVICE_JOB_TRACKER_CLASS);
+    }
+
+    public void setJobTrackerCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_JOB_TRACKER_CLASS, cacheServiceClassString);
+    }
+
+    public String getNamedViewCacheServiceClass() {
+        return get(CACHE_SERVICE_NAMED_VIEW_CLASS);
+    }
+
+    public void setNamedViewCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_NAMED_VIEW_CLASS, cacheServiceClassString);
+    }
+
+    public String getNamedOperationCacheServiceClass() {
+        return get(CACHE_SERVICE_NAMED_OPERATION_CLASS);
+    }
+
+    public void setNamedOperationCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_NAMED_OPERATION_CLASS, cacheServiceClassString);
+    }
+
+    @Deprecated
+    public void setCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_CLASS, cacheServiceClassString);
+        setDefaultCacheServiceClass(cacheServiceClassString);
+    }
+
+    @Deprecated
     public String getCacheServiceClass() {
         return getCacheServiceClass(null);
     }
 
+    @Deprecated
     public String getCacheServiceClass(final String defaultValue) {
-        return get(CACHE_SERVICE_CLASS, defaultValue);
+        final String cacheServiceClass = getDefaultCacheServiceClass();
+        return (cacheServiceClass != null) ? cacheServiceClass : get(CACHE_SERVICE_CLASS, defaultValue);
     }
 
     public void setCacheServiceNameSuffix(final String suffix) {

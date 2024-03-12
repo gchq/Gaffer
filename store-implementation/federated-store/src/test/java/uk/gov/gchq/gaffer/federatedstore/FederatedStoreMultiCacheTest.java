@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class FederatedStoreMultiCacheTest {
         resetForFederatedTests();
 
         federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         federatedStoreProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
         federatedStoreProperties.setCacheServiceNameSuffix(USER_SAME_CACHE_SUFFIX);
         federatedStore = new FederatedStore();

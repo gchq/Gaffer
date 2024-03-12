@@ -22,13 +22,10 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -50,10 +47,7 @@ public class FederatedStoreCacheTest {
     public static void setUp() {
         resetForFederatedTests();
 
-        Properties properties = new Properties();
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
-        CacheServiceLoader.initialise(properties);
-
+        CacheServiceLoader.initialise(CACHE_SERVICE_CLASS_STRING);
         federatedStoreCache = new FederatedStoreCache("GRAPH_ID_ACCUMULO");
         testGraph = new Graph.Builder().config(new GraphConfig(GRAPH_ID_ACCUMULO))
                 .addStoreProperties(loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES))

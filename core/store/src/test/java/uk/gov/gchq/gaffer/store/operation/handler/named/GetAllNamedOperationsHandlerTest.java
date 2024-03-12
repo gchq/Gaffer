@@ -76,9 +76,7 @@ public class GetAllNamedOperationsHandlerTest {
     @BeforeEach
     public void before() {
         given(store.getProperties()).willReturn(new StoreProperties());
-        final StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties.getProperties());
+        CacheServiceLoader.initialise("uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
     }
 
     @Test
