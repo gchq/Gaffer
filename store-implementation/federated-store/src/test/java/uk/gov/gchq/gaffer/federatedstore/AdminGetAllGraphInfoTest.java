@@ -76,7 +76,7 @@ public class AdminGetAllGraphInfoTest {
                 .properties(PROPERTIES)
                 .build());
 
-        final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(ADMIN_USER, null, true);
+        final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(ADMIN_USER, null, null, true);
 
 
         assertThat(allGraphsAndAuths)
@@ -102,7 +102,7 @@ public class AdminGetAllGraphInfoTest {
                 .properties(PROPERTIES)
                 .build());
 
-        final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(new User(), null, true);
+        final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(new User(), null, null, true);
 
         assertThat(allGraphsAndAuths)
                 .isNotNull()

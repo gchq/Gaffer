@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -31,7 +32,10 @@ public class FederatedGetAllGraphInfoHandler implements OutputOperationHandler<G
     @Override
     public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store) throws OperationException {
         try {
-            return ((FederatedStore) store).getAllGraphsAndAuths(context.getUser(), operation.getGraphIds(), operation.isUserRequestingAdminUsage());
+            final List<String> graphIds = operation.getGraphIds();
+            final List<String> excludedGraphIds = operation.getexcludedGraphIds();
+
+            return ((FederatedStore) store).getAllGraphsAndAuths(context.getUser(), graphIds, excludedGraphIds ,operation.isUserRequestingAdminUsage());
         } catch (final Exception e) {
             throw new OperationException("Error getting graph information.", e);
         }
