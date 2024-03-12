@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
 @Summary("Federates a payload operation across given graphs and merges the results with a given function.")
 public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, InputOutput<INPUT, OUTPUT>, Operations<Operation> {
     private List<String> graphIds;
+    private List<String> blackListGraphsIds;
     @Required
     private Operation payloadOperation;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
@@ -83,9 +84,22 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     }
 
     @Override
+    @JsonProperty("blackListGraphsIds")
+    public IFederatedOperation blackListGraphIds(final List<String> blackListGraphsIds) {
+        this.blackListGraphsIds = blackListGraphsIds == null ? null : Collections.unmodifiableList(blackListGraphsIds);
+        return this;
+    }
+
+    @Override
     @JsonIgnore
     public FederatedOperation<INPUT, OUTPUT> graphIdsCSV(final String graphIds) {
         return graphIds(getCleanStrings(graphIds));
+    }
+
+    @Override
+    @JsonIgnore
+    public IFederatedOperation blackListGraphIdsCSV(final String blackListGraphIds) {
+        return graphIds(getCleanStrings(blackListGraphIds));
     }
 
     @JsonProperty("operation")
@@ -155,6 +169,12 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @JsonProperty("graphIds")
     public List<String> getGraphIds() {
         return (graphIds == null) ? null : Lists.newArrayList(graphIds);
+    }
+
+    @JsonProperty("blackListGraphsIds")
+    @Override
+    public List<String> getBlackListGraphIds() {
+        return (blackListGraphsIds == null) ? null : Lists.newArrayList(blackListGraphsIds);
     }
 
 
@@ -347,8 +367,18 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
             return _self();
         }
 
+        public BuilderParent<INPUT, OUTPUT> blackListGraphIdsCSV(final String blackListGraphIdsCSV) {
+            _getOp().blackListGraphIdsCSV(blackListGraphIdsCSV);
+            return _self();
+        }
+
         public BuilderParent<INPUT, OUTPUT> graphIds(final List<String> graphIds) {
             _getOp().graphIds(graphIds);
+            return _self();
+        }
+
+        public BuilderParent<INPUT, OUTPUT> blackListGraphIds(final List<String> blackListGraphIds) {
+            _getOp().blackListGraphIds(blackListGraphIds);
             return _self();
         }
 

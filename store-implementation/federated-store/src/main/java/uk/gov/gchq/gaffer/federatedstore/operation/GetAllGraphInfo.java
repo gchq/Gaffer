@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,11 +47,18 @@ public class GetAllGraphInfo implements
         IFederatedOperation {
     private Map<String, String> options;
     private List<String> graphIds;
+    private List<String> blackListGraphsIds;
     private boolean userRequestingAdminUsage;
 
     @Override
     public GetAllGraphInfo graphIds(final List<String> graphsIds) {
         this.graphIds = graphsIds == null ? null : Collections.unmodifiableList(graphsIds);
+        return this;
+    }
+
+    @Override
+    public IFederatedOperation blackListGraphIds(final List<String> blackListGraphsIds) {
+        this.blackListGraphsIds = blackListGraphsIds == null ? null : Collections.unmodifiableList(blackListGraphsIds);
         return this;
     }
 
@@ -62,9 +69,21 @@ public class GetAllGraphInfo implements
     }
 
     @Override
+    @JsonIgnore
+    public IFederatedOperation blackListGraphIdsCSV(final String blackListGraphIds) {
+        return blackListGraphIds(FederatedStoreUtil.getCleanStrings(blackListGraphIds));
+    }
+
+    @Override
     @JsonProperty("graphIds")
     public List<String> getGraphIds() {
         return (graphIds == null) ? null : Lists.newArrayList(graphIds);
+    }
+
+    @Override
+    @JsonProperty("blackListGraphsIds")
+    public List<String> getBlackListGraphIds() {
+        return (blackListGraphsIds == null) ? null : Lists.newArrayList(blackListGraphsIds);
     }
 
     @Override
@@ -139,8 +158,17 @@ public class GetAllGraphInfo implements
             return this;
         }
 
+        public Builder blackListGraphIdsCSV(final String blackListGraphIdsCSV) {
+            this._getOp().blackListGraphIdsCSV(blackListGraphIdsCSV);
+            return this;
+        }
         public Builder graphIDs(final List<String> graphIds) {
             this._getOp().graphIds(graphIds);
+            return this;
+        }
+
+        public Builder blackListGraphIds(final List<String> blackListGraphIds) {
+            this._getOp().blackListGraphIds(blackListGraphIds);
             return this;
         }
     }

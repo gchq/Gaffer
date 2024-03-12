@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Crown Copyright
+ * Copyright 2021-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,15 @@ public interface IFederatedOperation extends Operation {
     @JsonProperty("graphIds")
     IFederatedOperation graphIds(final List<String> graphsIds);
 
+    @JsonProperty("blackListGraphIds")
+    IFederatedOperation blackListGraphIds(final List<String> blackListGraphsIds);
+
     IFederatedOperation graphIdsCSV(final String graphIds);
+    IFederatedOperation blackListGraphIdsCSV(final String blackListGraphIds);
 
     @JsonProperty("graphIds")
     List<String> getGraphIds();
+
+    @JsonProperty("blackListGraphIds")
+    List<String> getBlackListGraphIds();
 }
