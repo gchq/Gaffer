@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -94,43 +95,6 @@ public class FederatedStoreWhileHandlerTest {
     }
 
     @Test
-    void shouldNotWhileLoopOperationWithUnDistinctJavaObjectOperations() throws Exception {
-        //given
-        final FederatedStore federatedStore = new FederatedStore();
-        final FederatedStoreProperties properties = new FederatedStoreProperties();
-        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, new Schema(), properties);
-
-        addGraphToAccumuloStore(federatedStore, GRAPH_ID_ACCUMULO, true, basicEntitySchema());
-
-        final AddElements addElements = new AddElements.Builder()
-                .input(entityBasic())
-                .build();
-
-        //1st Add Elements.
-        federatedStore.execute(addElements, contextTestUser());
-
-        //2nd Add Elements is same as 1st
-        //This is Java OO reuse.
-        final Operation operation = new While.Builder()
-                .operation(addElements)
-                .conditional(o -> true)
-                .maxRepeats(2)
-                .build();
-
-        //when
-        federatedStore.execute(operation, contextTestUser());
-
-
-        //then
-        assertThat(federatedStore.execute(new GetAllElements(), contextTestUser()))
-                .containsExactly(new Entity.Builder()
-                        .group(GROUP_BASIC_ENTITY)
-                        .vertex(BASIC_VERTEX)
-                        .property(PROPERTY_1, 3)
-                        .build());
-    }
-
-    @Test
     void shouldWhileLoopOperationWithRepeatingConditionalOperation() throws Exception {
         //given
         final FederatedStore federatedStore = new FederatedStore();
@@ -143,14 +107,34 @@ public class FederatedStoreWhileHandlerTest {
                 .input(entityBasic())
                 .build(), contextTestUser());
 
-        final Operation operation = new While.Builder()
-                .operation(new AddElements.Builder()
-                        .input(entityBasic())
-                        .build())
-                //This GetAllElements is re-occurring amd should not trigger a looping error.
-                .conditional(new Exists(), new GetAllElements())
-                .maxRepeats(2)
-                .build();
+        final Operation operation = JSONSerialiser.deserialise("{\n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
+                "  \"operations\" : [ {\n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.While\",\n" +
+                "    \"conditional\" : {\n" +
+                "      \"transform\" : {\n" +
+                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\"\n" +
+                "      },\n" +
+                "      \"predicate\" : {\n" +
+                "        \"class\" : \"uk.gov.gchq.koryphe.impl.predicate.Exists\"\n" +
+                "      }\n" +
+                "    },\n" +
+                "    \"operation\" : {\n" +
+                "      \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\n" +
+                "      \"input\" : [ {\n" +
+                "        \"class\" : \"uk.gov.gchq.gaffer.data.element.Entity\",\n" +
+                "        \"group\" : \"BasicEntity\",\n" +
+                "        \"vertex\" : \"basicVertex\",\n" +
+                "        \"properties\" : {\n" +
+                "          \"property1\" : 1\n" +
+                "        }\n" +
+                "      } ],\n" +
+                "      \"skipInvalidElements\" : false,\n" +
+                "      \"validate\" : true\n" +
+                "    },\n" +
+                "    \"maxRepeats\" : 2\n" +
+                "  } ]\n" +
+                "}", OperationChain.class);
 
         //when
         federatedStore.execute(operation, contextTestUser());

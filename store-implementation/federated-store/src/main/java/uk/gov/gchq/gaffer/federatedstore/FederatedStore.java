@@ -41,7 +41,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.IFederationOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraphAndDeleteAllData;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedDelegateToHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedStoreWhileHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphWithHooksHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphAccessHandler;
@@ -61,7 +60,6 @@ import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
-import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
@@ -508,9 +506,6 @@ public class FederatedStore extends Store {
         addOperationHandler(Aggregate.class, new FederatedDelegateToHandler(new AggregateHandler()));
         addOperationHandler(Transform.class, new FederatedDelegateToHandler(new TransformHandler()));
         addOperationHandler(Validate.class, new FederatedDelegateToHandler(new ValidateHandler()));
-
-        //override with Federated safe version.
-        addOperationHandler(While.class, new FederatedStoreWhileHandler());
 
         //FederationOperations
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
