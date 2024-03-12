@@ -16,14 +16,13 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Lists;
 import org.apache.accumulo.core.client.Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
@@ -33,11 +32,7 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.jobtracker.JobTracker;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
-import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -54,7 +49,6 @@ import java.util.stream.StreamSupport;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.getConnector;
-import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 
 public class FederatedGraphStorage {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE = "Error adding graph, GraphId is known within the cache, but %s is different. GraphId: %s";
@@ -67,12 +61,6 @@ public class FederatedGraphStorage {
 
     public FederatedGraphStorage(final String suffixFederatedStoreCacheName) {
         federatedStoreCache = new FederatedStoreCache(suffixFederatedStoreCacheName);
-    }
-
-    protected void startCacheServiceLoader() throws StorageException {
-        if (!CacheServiceLoader.isEnabled()) {
-            throw new StorageException("Cache is not enabled for the FederatedStore, Set a value in StoreProperties for " + CACHE_SERVICE_CLASS);
-        }
     }
 
     /**
@@ -201,25 +189,18 @@ public class FederatedGraphStorage {
     }
 
     private void removeGraphCaches(final String graphId) {
-        if (CacheServiceLoader.isEnabled()) {
-            try {
-                final GraphSerialisable graphFromCache = federatedStoreCache.getGraphFromCache(graphId);
-                final StoreProperties storeProperties = graphFromCache.getStoreProperties();
-                final ArrayList<String> cacheNames = Lists.newArrayList(
-                        NamedViewCache.getCacheNameFrom(storeProperties.getCacheServiceNamedViewSuffix(graphId)),
-                        NamedOperationCache.getCacheNameFrom(storeProperties.getCacheServiceNamedOperationSuffix(graphId)),
-                        JobTracker.getCacheNameFrom(storeProperties.getCacheServiceJobTrackerSuffix(graphId)));
-                for (final String cacheName : cacheNames) {
-                    final ICache<Object, Object> cache = CacheServiceLoader.getService().getCache(cacheName);
-                    if (nonNull(cache)) {
-                        cache.clear();
-                    } else {
-                        LOGGER.debug(String.format("No cache found graphId:%s with cacheName:%s", graphId, cacheName));
-                    }
+        try {
+            final GraphSerialisable graphFromCache = federatedStoreCache.getGraphFromCache(graphId);
+            for (final Cache<?, ?> cacheInstance : graphFromCache.getGraph().getCaches()) {
+                final ICache<?, ?> cache = cacheInstance.getCache();
+                if (nonNull(cache)) {
+                    cache.clear();
+                } else {
+                    LOGGER.debug(String.format("No cache found graphId:%s with cacheName:%s", graphId, cacheInstance.getCacheName()));
                 }
-            } catch (final CacheOperationException e) {
-                throw new GafferRuntimeException(String.format("Error clearing Cache while removing graphId: %s", graphId), e);
             }
+        } catch (final CacheOperationException e) {
+            throw new GafferRuntimeException(String.format("Error clearing Cache while removing graphId: %s", graphId), e);
         }
     }
 

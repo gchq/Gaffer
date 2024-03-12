@@ -32,11 +32,11 @@ import static java.util.Objects.nonNull;
  * the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView}s for a Gaffer graph.
  */
 public class NamedViewCache extends Cache<String, NamedViewDetail> {
-
     public static final String CACHE_SERVICE_NAME_PREFIX = "NamedView";
+    public static final String NAMED_VIEW_CACHE_SERVICE_NAME = "NamedView";
 
     public NamedViewCache(final String suffixNamedViewCacheName) {
-        super(getCacheNameFrom(suffixNamedViewCacheName));
+        super(getCacheNameFrom(suffixNamedViewCacheName), NAMED_VIEW_CACHE_SERVICE_NAME);
     }
 
     public static String getCacheNameFrom(final String suffixNamedViewCacheName) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 Crown Copyright
+ * Copyright 2022-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@ public final class FederatedStoreTestUtil {
     public static final String GRAPH_ID_B = "graphB";
     public static final String GRAPH_ID_C = "graphC";
     public static final String FEDERATED_STORE_SINGLE_USE_PROPERTIES = "properties/singleUseFederatedStore.properties";
+    public static final String FEDERATED_STORE_WITH_CACHE_PROPERTIES = "properties/federatedStore.properties";
     public static final String SCHEMA_EDGE_BASIC_JSON = "/schema/basicEdgeSchema.json";
     public static final String SCHEMA_ENTITY_BASIC_JSON = "/schema/basicEntitySchema.json";
     public static final String SCHEMA_ENTITY_A_JSON = "/schema/entityASchema.json";
@@ -126,6 +127,10 @@ public final class FederatedStoreTestUtil {
 
     public static AccumuloProperties loadAccumuloStoreProperties(final String path) {
         return AccumuloProperties.loadStoreProperties(path);
+    }
+
+    public static FederatedStoreProperties getFederatedStorePropertiesWithHashMapCache() {
+        return loadFederatedStoreProperties(FEDERATED_STORE_WITH_CACHE_PROPERTIES);
     }
 
     public static void addGraphToAccumuloStore(final FederatedStore federatedStore, final String graphId,

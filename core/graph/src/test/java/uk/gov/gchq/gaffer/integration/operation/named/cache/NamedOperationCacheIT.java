@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
@@ -43,7 +42,6 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -53,7 +51,6 @@ import static org.mockito.Mockito.mock;
 public class NamedOperationCacheIT {
     private static final String CACHE_NAME = "NamedOperation";
     public static final String SUFFIX = "suffix";
-    private final Properties cacheProps = new Properties();
     private final Store store = mock(Store.class);
     private final String adminAuth = "admin auth";
     private final StoreProperties properties = new StoreProperties();
@@ -81,15 +78,14 @@ public class NamedOperationCacheIT {
 
     @BeforeEach
     public void before() throws CacheOperationException {
-        cacheProps.clear();
         properties.setAdminAuth(adminAuth);
         given(store.getProperties()).willReturn(properties);
     }
 
     @AfterEach
     public void after() throws CacheOperationException {
-        CacheServiceLoader.getService().clearCache(CACHE_NAME);
-        CacheServiceLoader.getService().clearCache(NamedOperationCache.getCacheNameFrom(SUFFIX));
+        CacheServiceLoader.getDefaultService().clearCache(CACHE_NAME);
+        CacheServiceLoader.getDefaultService().clearCache(NamedOperationCache.getCacheNameFrom(SUFFIX));
     }
 
     @Test
@@ -99,9 +95,8 @@ public class NamedOperationCacheIT {
     }
 
     private void reInitialiseCacheService(final Class clazz) throws CacheOperationException {
-        cacheProps.setProperty(CacheProperties.CACHE_SERVICE_CLASS, clazz.getCanonicalName());
-        CacheServiceLoader.initialise(cacheProps);
-        CacheServiceLoader.getService().clearCache(CACHE_NAME);
+        CacheServiceLoader.initialise(clazz.getCanonicalName());
+        CacheServiceLoader.getDefaultService().clearCache(CACHE_NAME);
     }
 
     private void runTests() throws OperationException, CacheOperationException {

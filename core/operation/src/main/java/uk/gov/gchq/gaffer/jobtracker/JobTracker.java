@@ -36,9 +36,9 @@ import java.util.stream.StreamSupport;
  * details of jobs submitted to the graph.
  */
 public class JobTracker extends Cache<String, JobDetail> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(JobTracker.class);
     private static final String CACHE_SERVICE_NAME_PREFIX = "JobTracker";
+    public static final String JOB_TRACKER_CACHE_SERVICE_NAME = "JobTracker";
 
     /**
      * Executor to allow queuing up async operations on the cache.
@@ -50,7 +50,7 @@ public class JobTracker extends Cache<String, JobDetail> {
     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
 
     public JobTracker(final String suffixJobTrackerCacheName) {
-        super(getCacheNameFrom(suffixJobTrackerCacheName));
+        super(getCacheNameFrom(suffixJobTrackerCacheName), JOB_TRACKER_CACHE_SERVICE_NAME);
     }
 
     public static String getCacheNameFrom(final String suffixJobTrackerCacheName) {

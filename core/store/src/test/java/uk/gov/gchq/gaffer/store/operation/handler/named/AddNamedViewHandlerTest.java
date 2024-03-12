@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,14 +87,9 @@ public class AddNamedViewHandlerTest {
                 .writeAccessRoles(writeAccessRoles)
                 .build();
 
-        StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties.getProperties());
+        CacheServiceLoader.initialise("uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        namedViewCache.clearCache();
         given(store.getProperties()).willReturn(new StoreProperties());
-
-        if (namedViewCache != null && CacheServiceLoader.isEnabled()) {
-            namedViewCache.clearCache();
-        }
     }
 
     @AfterEach

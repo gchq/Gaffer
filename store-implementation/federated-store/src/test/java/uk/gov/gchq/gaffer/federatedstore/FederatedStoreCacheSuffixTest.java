@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Crown Copyright
+ * Copyright 2023-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.graph.hook.exception.GraphHookSuffixException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
@@ -120,7 +120,7 @@ public class FederatedStoreCacheSuffixTest {
     @Test
     void shouldNotAllowResolverWithNullSuffixToBeMismatchedWithNamedOperationHandlersDefaultSuffix() {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
-        properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
 
         // Configure builder
         Graph.Builder builder = new Graph.Builder()
@@ -141,7 +141,7 @@ public class FederatedStoreCacheSuffixTest {
     @Test
     void shouldNotAllowResolverWithNullSuffixToBeMismatchedWithNamedViewHandlersDefaultSuffix() {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
-        properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
 
         // Configure builder
         Graph.Builder builder = new Graph.Builder()
@@ -162,7 +162,7 @@ public class FederatedStoreCacheSuffixTest {
     @Test
     void shouldNotAllowResolverWithDifferentSuffixToBeMismatchedWithNamedOperationHandlersDefaultSuffix() {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
-        properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
 
         // Configure builder
         Graph.Builder builder = new Graph.Builder()
@@ -184,7 +184,7 @@ public class FederatedStoreCacheSuffixTest {
     @Test
     void shouldNotAllowResolverWithDifferentSuffixToBeMismatchedWithNamedViewHandlersDefaultSuffix() {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
-        properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
 
         // Configure builder
         Graph.Builder builder = new Graph.Builder()
@@ -206,8 +206,8 @@ public class FederatedStoreCacheSuffixTest {
     @Test
     void shouldNotAllowResolverWithNullSuffixToBeMismatchedWithNamedOperationHandlersServiceNamedOperationSuffix() {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
-        properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
-        properties.set(StoreProperties.CACHE_SERVICE_NAMED_OPERATION_SUFFIX, PRIORITY_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_NAMED_OPERATION_SUFFIX, PRIORITY_SUFFIX);
 
         // Configure builder
         Graph.Builder builder = new Graph.Builder()
@@ -228,8 +228,8 @@ public class FederatedStoreCacheSuffixTest {
     @Test
     void shouldNotAllowResolverWithNullSuffixToBeMismatchedWithNamedViewHandlersServiceNamedViewSuffix() {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
-        properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
-        properties.set(StoreProperties.CACHE_SERVICE_NAMED_VIEW_SUFFIX, PRIORITY_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_NAMED_VIEW_SUFFIX, PRIORITY_SUFFIX);
 
         // Configure builder
         Graph.Builder builder = new Graph.Builder()
@@ -250,8 +250,8 @@ public class FederatedStoreCacheSuffixTest {
     @Test
     void shouldNotAllowResolverWithDifferentSuffixToBeMismatchedWithNamedOperationHandlersServiceNamedOperationSuffix() {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
-        properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
-        properties.set(StoreProperties.CACHE_SERVICE_NAMED_OPERATION_SUFFIX, PRIORITY_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_NAMED_OPERATION_SUFFIX, PRIORITY_SUFFIX);
 
         // Configure builder
         Graph.Builder builder = new Graph.Builder()
@@ -273,8 +273,8 @@ public class FederatedStoreCacheSuffixTest {
     @Test
     void shouldNotAllowResolverWithDifferentSuffixToBeMismatchedWithNamedViewHandlersServiceNamedOperationSuffix() {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
-        properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
-        properties.set(StoreProperties.CACHE_SERVICE_NAMED_VIEW_SUFFIX, PRIORITY_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_DEFAULT_SUFFIX, IGNORE_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_NAMED_VIEW_SUFFIX, PRIORITY_SUFFIX);
 
         // Configure builder
         Graph.Builder builder = new Graph.Builder()
@@ -296,7 +296,7 @@ public class FederatedStoreCacheSuffixTest {
     @Test
     void ShouldAddMissingResolvers() throws Exception {
         final FederatedStoreProperties properties = new FederatedStoreProperties();
-        properties.set(StoreProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
+        properties.set(CacheProperties.CACHE_SERVICE_DEFAULT_SUFFIX, DEFAULT_SUFFIX);
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
