@@ -41,7 +41,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.IFederationOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraphAndDeleteAllData;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedDelegateToHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedStoreWhileHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphWithHooksHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphAccessHandler;
@@ -54,7 +53,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputH
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphAndDeleteAllDataHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedStoreJoinHandler;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.MergeSchema;
@@ -62,7 +60,6 @@ import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
-import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
@@ -70,7 +67,6 @@ import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.Context;
@@ -510,10 +506,6 @@ public class FederatedStore extends Store {
         addOperationHandler(Aggregate.class, new FederatedDelegateToHandler(new AggregateHandler()));
         addOperationHandler(Transform.class, new FederatedDelegateToHandler(new TransformHandler()));
         addOperationHandler(Validate.class, new FederatedDelegateToHandler(new ValidateHandler()));
-
-        //override with Federated safe version.
-        addOperationHandler(While.class, new FederatedStoreWhileHandler());
-        addOperationHandler(Join.class, new FederatedStoreJoinHandler());
 
         //FederationOperations
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
