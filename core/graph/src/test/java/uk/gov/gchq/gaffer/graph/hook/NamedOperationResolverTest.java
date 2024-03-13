@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
@@ -31,7 +32,9 @@ import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -41,12 +44,14 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -135,6 +140,74 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
 
         verify(op1).setInput(input);
         verify(op2, never()).setInput(input);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Test
+    public void shouldResolveNestedNamedOperationWithLimit(@Mock final User user,
+                                                  @Mock final NamedOperationCache cache,
+                                                  @Mock final NamedOperationDetail extendedNamedOperation,
+                                                  @Mock final NamedOperationDetail extendedNamedOperation2,
+                                                  @Mock final GetAdjacentIds op1,
+                                                  @Mock final GetElements op2,
+                                                  @Mock final GetAllElements op3,
+                                                  @Mock final Count op4,
+                                                  @Mock final Iterable<? extends EntityId> input)
+            throws OperationException, CacheOperationException {
+        // Given
+        final String opName = "opName";
+        final NamedOperationResolver resolver = new NamedOperationResolver(cache); 
+        
+        final OperationChain operationChainTwo = new OperationChain(Arrays.asList(op3));
+
+
+
+        final OperationChain namedOperationOpChain = new OperationChain(Arrays.asList(op1));
+
+        final Map<String, Object> params = null;
+
+        given(op1.getInput()).willReturn(null);
+        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
+        given(cache.getNamedOperation("f", user)).willReturn(extendedNamedOperation2);
+
+        given(extendedNamedOperation.getOperationChain(params)).willReturn(namedOperationOpChain); 
+        given(extendedNamedOperation2.getOperationChain(params)).willReturn(operationChainTwo);     
+
+        final OperationChain<Object> opChain = new OperationChain.Builder()
+                .first(new OperationChain.Builder()
+                        .first(new NamedOperation.Builder<>()
+                                .name(opName)
+                                .input(input)
+                                .parameters(params)
+                                .build())
+                        .then(new OperationChain.Builder()
+                                .first(new NamedOperation.Builder<>()
+                                        .name("f")
+                                        .input(input)
+                                        .build())
+                                .then(new OperationChain.Builder()
+                                        .first(new NamedOperation.Builder<>()
+                                                .name("f")
+                                                .input(input)
+                                                .build())
+                                        .then(new OperationChain.Builder()
+                                        .first(new NamedOperation.Builder<>()
+                                                .name("f")
+                                                .input(input)
+                                                .build())
+                                        .build())
+                                        .build())                                
+                                .build())     
+                        .build())                
+                .build();
+
+        // When
+        resolver.preExecute(opChain, new Context(user));
+
+        // Then
+        final OperationChain<?> nestedOpChain = (OperationChain<?>) opChain.getOperations().get(0);
+        System.out.println(opChain.getOperations());
+        //assertThat(nestedOpChain.getOperations().size()).isEqualTo(2); // Operations in the named operation chain       
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

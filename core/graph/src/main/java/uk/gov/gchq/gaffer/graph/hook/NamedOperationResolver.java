@@ -55,6 +55,7 @@ public class NamedOperationResolver implements GetFromCacheHook {
     private final NamedOperationCache cache;
     private final int timeout;
     private final TimeUnit timeUnit;
+    private int counting;
 
     public NamedOperationResolver(final String suffixNamedOperationCacheName) {
         this(suffixNamedOperationCacheName, TIMEOUT_DEFAULT, TIME_UNIT_DEFAULT);
@@ -101,7 +102,10 @@ public class NamedOperationResolver implements GetFromCacheHook {
     public void preExecute(final OperationChain<?> opChain, final Context context) {
         try {
             LOGGER.info("Resolving Named Operations with timeout: " + timeout);
+            System.out.println(opChain.getOperations().get(0));
             CompletableFuture.runAsync(() -> resolveNamedOperations(opChain, context.getUser())).get(timeout, timeUnit);
+            System.out.println("HELLOOOOOOOOOOOOOO" + counting);
+
             LOGGER.info("Finished Named Operation resolver");
         } catch (final ExecutionException | TimeoutException e) {
             throw new GafferRuntimeException("ResolverTask did not complete: " + e.getMessage(), e);
@@ -126,10 +130,13 @@ public class NamedOperationResolver implements GetFromCacheHook {
         final List<Operation> updatedOperations = new ArrayList<>();
 
         operations.getOperations().forEach(operation -> {
-            if (operation instanceof NamedOperation) {
+            if (operation instanceof NamedOperation) { 
+                counting++;     
                 updatedOperations.addAll(resolveNamedOperation((NamedOperation<?, ?>) operation, user));
             } else {
-                if (operation instanceof Operations) {
+                if (operation instanceof Operations) {    
+                    
+                
                     resolveNamedOperations(((Operations<?>) operation), user);
                 }
                 updatedOperations.add(operation);
