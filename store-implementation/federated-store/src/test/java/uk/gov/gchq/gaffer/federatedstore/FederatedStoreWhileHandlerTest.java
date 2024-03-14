@@ -39,8 +39,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.BASIC_VERTEX;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
@@ -124,7 +122,7 @@ public class FederatedStoreWhileHandlerTest {
                         .build()), context);
 
         federated.execute(new AddElements.Builder()
-                .input(entityBasic(),entityBasic(),entityBasic())
+                .input(entityBasic(), entityBasic(), entityBasic())
                 .build(), contextTestUser());
 
         final Operation operation = JSONSerialiser.deserialise("{\n" +
