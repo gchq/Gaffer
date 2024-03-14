@@ -20,11 +20,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -34,53 +37,37 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 /**
  * A {@link GraphHook} to resolve named operations.
  */
 @JsonPropertyOrder(alphabetic = true)
 public class NamedOperationResolver implements GetFromCacheHook {
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationResolver.class);
-    // TODO: Possibly implement a depth limit rather than a hard timeout
-    public static final int TIMEOUT_DEFAULT = 1;
-    public static final TimeUnit TIME_UNIT_DEFAULT = TimeUnit.MINUTES;
+    /**
+     * Default depth the resolver will go when checking for nested named operations
+     */
+    public static final int DEPTH_LIMIT_DEFAULT = 3;
+    private final int depthLimit;
     private final NamedOperationCache cache;
-    private final int timeout;
-    private final TimeUnit timeUnit;
-    private int counting;
-
-    public NamedOperationResolver(final String suffixNamedOperationCacheName) {
-        this(suffixNamedOperationCacheName, TIMEOUT_DEFAULT, TIME_UNIT_DEFAULT);
-    }
 
     @JsonCreator
     public NamedOperationResolver(
             @JsonProperty("suffixNamedOperationCacheName") final String suffixNamedOperationCacheName,
-            @JsonProperty("timeout") final int timeout,
-            @JsonProperty("timeUnit") final TimeUnit timeUnit) {
-        this(new NamedOperationCache(suffixNamedOperationCacheName), timeout, timeUnit);
+            @JsonProperty("depthLimit") final int depthLimit) {
+        this(new NamedOperationCache(suffixNamedOperationCacheName), depthLimit);
+    }
 
+    public NamedOperationResolver(final String suffixNamedOperationCacheName) {
+        this(suffixNamedOperationCacheName, DEPTH_LIMIT_DEFAULT);
     }
 
     public NamedOperationResolver(final NamedOperationCache cache) {
-        this(cache, TIMEOUT_DEFAULT, TIME_UNIT_DEFAULT);
+        this(cache, DEPTH_LIMIT_DEFAULT);
     }
 
-    public NamedOperationResolver(
-            final NamedOperationCache cache,
-            final int timeout,
-            final TimeUnit timeUnit) {
+    public NamedOperationResolver(final NamedOperationCache cache, final int depthLimit) {
         this.cache = cache;
-        this.timeout = timeout;
-        this.timeUnit = timeUnit;
+        this.depthLimit = depthLimit;
     }
 
     @JsonGetter("suffixNamedOperationCacheName")
@@ -88,32 +75,23 @@ public class NamedOperationResolver implements GetFromCacheHook {
         return cache.getSuffixCacheName();
     }
 
-    @JsonGetter("timeout")
-    public int getTimeout() {
-        return timeout;
-    }
-
-    @JsonGetter("timeUnit")
-    public TimeUnit getTimeUnit() {
-        return timeUnit;
+    @JsonGetter("depthLimit")
+    public int getDepthLimit() {
+        return depthLimit;
     }
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        try {
-            LOGGER.info("Resolving Named Operations with timeout: " + timeout);
-            System.out.println(opChain.getOperations().get(0));
-            CompletableFuture.runAsync(() -> resolveNamedOperations(opChain, context.getUser())).get(timeout, timeUnit);
-            System.out.println("HELLOOOOOOOOOOOOOO" + counting);
-
-            LOGGER.info("Finished Named Operation resolver");
-        } catch (final ExecutionException | TimeoutException e) {
-            throw new GafferRuntimeException("ResolverTask did not complete: " + e.getMessage(), e);
-        } catch (final InterruptedException e) {
-            LOGGER.warn("Thread interrupted", e);
-            Thread.currentThread().interrupt();
-        }
-
+        final Collection<Operation> updatedOperations = new ArrayList<>();
+        opChain.getOperations().forEach(op -> {
+            // If just a plain operation then nothing to resolve
+            if (!(op instanceof NamedOperation) && !(op instanceof Operations)) {
+                updatedOperations.add(op);
+            } else {
+                updatedOperations.addAll(resolveNamedOperations(op, context.getUser(), 0));
+            }
+        });
+        opChain.updateOperations(updatedOperations);
     }
 
     @Override
@@ -126,45 +104,50 @@ public class NamedOperationResolver implements GetFromCacheHook {
         return result;
     }
 
-    private void resolveNamedOperations(final Operations<?> operations, final User user) {
-        final List<Operation> updatedOperations = new ArrayList<>();
+    /**
+     * Resolves any named operations from the cache. Method will ensure any
+     * supplied {@link NamedOperation}s actually exist in the cache and
+     * contain their correct {@link Operation}s.
+     * Will also run recursively to a given depth limit to ensure any nested
+     * {@link NamedOperation}s are also resolved from the cache.
+     *
+     * @param operation {@link NamedOperation} or {@link Operations} list to act on.
+     * @param user User for the cache access.
+     * @param depth Current recursive depth, will use limit set in class to continue or not.
+     * @return A list of resolved named operations.
+     */
+    private Collection<Operation> resolveNamedOperations(final Operation operation, final User user, final int depth) {
+        final Collection<Operation> updatedOperations = new ArrayList<>();
+        LOGGER.debug("Current resolver depth is: {}", depth);
 
-        operations.getOperations().forEach(operation -> {
-            if (operation instanceof NamedOperation) { 
-                counting++;     
-                updatedOperations.addAll(resolveNamedOperation((NamedOperation<?, ?>) operation, user));
-            } else {
-                if (operation instanceof Operations) {    
-                    
-                
-                    resolveNamedOperations(((Operations<?>) operation), user);
+        // If a named operation resolve the operations within it
+        if (operation instanceof NamedOperation) {
+            NamedOperation<?, ?> namedOperation = (NamedOperation<?, ?>) operation;
+            LOGGER.debug("Resolving named operation called: {}", namedOperation.getOperationName());
+            try {
+                // Get the chain for the named operation
+                final OperationChain<?> namedOperationChain = cache
+                        .getNamedOperation(namedOperation.getOperationName(), user)
+                        .getOperationChain(namedOperation.getParameters());
+                // Update the operation inputs and add operation chain to the updated list
+                OperationHandlerUtil.updateOperationInput(namedOperationChain, namedOperation.getInput());
+                updatedOperations.add(namedOperationChain);
+
+                // Run again to get resolve any nested operations
+                if (depth < depthLimit) {
+                    updatedOperations.addAll(resolveNamedOperations(namedOperationChain, user, depth + 1));
+                    namedOperationChain.updateOperations(updatedOperations);
                 }
-                updatedOperations.add(operation);
+
+            } catch (final CacheOperationException e) {
+                LOGGER.error("Exception resolving NamedOperation within the cache: {}", e.getMessage());
             }
-        });
 
-        operations.updateOperations((Collection) updatedOperations);
-    }
-
-    private List<? extends Operation> resolveNamedOperation(final NamedOperation<?, ?> namedOp, final User user) {
-        try {
-            // Get the named operation chain from the cache
-            final OperationChain<?> namedOperationChain = cache
-                .getNamedOperation(namedOp.getOperationName(), user)
-                .getOperationChain(namedOp.getParameters());
-
-            OperationHandlerUtil.updateOperationInput(namedOperationChain, namedOp.getInput());
-
-            // Call resolveNamedOperations again to check there are no nested named operations
-            resolveNamedOperations(namedOperationChain, user);
-            return namedOperationChain.getOperations();
-        } catch (final CacheOperationException e) {
-            // An Exception with the cache has occurred e.g. it was unable to find named operation
-            // and then simply returned the original operation chain with the unresolved NamedOperation.
-
-            // The exception from cache would otherwise be lost, so capture it here and print to LOGS.
-            LOGGER.error("Exception resolving NamedOperation within the cache:{}", e.getMessage());
-            return Collections.singletonList(namedOp);
+        } else if ((operation instanceof Operations) && (depth < depthLimit)) {
+            LOGGER.debug("Resolving Operation List");
+            ((Operations<?>) operation).getOperations()
+                .forEach(op -> updatedOperations.addAll(resolveNamedOperations(op, user, depth + 1)));
         }
+        return updatedOperations;
     }
 }
