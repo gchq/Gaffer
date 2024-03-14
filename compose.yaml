@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  gaffer-rest:
+    image: gchq/gaffer-rest:2.1.0-accumulo-2.0.1
+    environment:
+      - OTEL_TRACES_EXPORTER=logging
+      - OTEL_METRICS_EXPORTER=logging
+      - OTEL_LOGS_EXPORTER=logging
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./rest-api/spring-rest/target/spring-rest-2.1.1-SNAPSHOT-exec.jar:/gaffer/jars/rest.jar

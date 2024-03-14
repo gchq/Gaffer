@@ -17,6 +17,13 @@
 package uk.gov.gchq.gaffer.store;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,6 +178,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -211,6 +219,9 @@ public abstract class Store {
     private final SchemaOptimiser schemaOptimiser;
     private final Boolean addCoreOpHandlers;
 
+    private final OpenTelemetrySdk otelSdk;
+    private final Tracer tracer;
+
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
      * to be stored and how to aggregate the elements.
@@ -241,6 +252,8 @@ public abstract class Store {
     }
 
     public Store(final Boolean addCoreOpHandlers) {
+        this.otelSdk = AutoConfiguredOpenTelemetrySdk.initialize().getOpenTelemetrySdk();
+        this.tracer = otelSdk.getTracer(Store.class.getName());
         this.addCoreOpHandlers = addCoreOpHandlers;
         this.requiredParentSerialiserClass = getRequiredParentSerialiserClass();
         this.opChainValidator = createOperationChainValidator();
@@ -371,14 +384,25 @@ public abstract class Store {
     }
 
     protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
-        try {
+        Span span = tracer.spanBuilder(operation.toOverviewString()).startSpan();
+
+        try (Scope scope = span.makeCurrent()) {
             addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
+            span.setStatus(StatusCode.OK);
+            span.addEvent("StartedOperation", Instant.now());
+
             final O result = (O) handleOperation(operation, context);
+
             addOrUpdateJobDetail(operation, context, null, JobStatus.FINISHED);
+            span.addEvent("FinishedOperation", Instant.now());
+
             return result;
         } catch (final Throwable t) {
+            span.recordException(t);
             addOrUpdateJobDetail(operation, context, t.getMessage(), JobStatus.FAILED);
             throw t;
+        } finally {
+            span.end();
         }
     }
 
