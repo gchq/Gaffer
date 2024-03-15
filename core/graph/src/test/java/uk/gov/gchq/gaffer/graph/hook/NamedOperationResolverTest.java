@@ -16,15 +16,12 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import com.google.common.collect.Maps;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
@@ -32,9 +29,7 @@ import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -44,31 +39,30 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
+class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
 
-    public static final String SUFFIX_CACHE_NAME = "suffix";
+    static final String SUFFIX_CACHE_NAME = "suffix";
 
-    public NamedOperationResolverTest() {
+    NamedOperationResolverTest() {
         super(NamedOperationResolver.class);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldResolveNamedOperation(@Mock final User user,
+    void shouldResolveNamedOperation(@Mock final User user,
                                             @Mock final NamedOperationCache cache,
-                                            @Mock final NamedOperationDetail extendedNamedOperation,
+                                            @Mock final NamedOperationDetail namedOp,
                                             @Mock final GetAdjacentIds op1,
                                             @Mock final GetElements op2,
                                             @Mock final Iterable<? extends EntityId> input)
@@ -76,25 +70,24 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
-        final OperationChain namedOperationOpChain = new OperationChain(Arrays.asList(op1, op2));
-        final Map<String, Object> params = null;
+        final List<Operation> expectedResolvedChain = Arrays.asList(new OperationChain(Arrays.asList(op1, op2)));
 
         given(op1.getInput()).willReturn(null);
-        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
-        given(extendedNamedOperation.getOperationChain(params)).willReturn(namedOperationOpChain);
+        given(cache.getNamedOperation(opName, user)).willReturn(namedOp);
+        given(namedOp.getOperationChain(null)).willReturn(new OperationChain(Arrays.asList(op1, op2)));
 
         final OperationChain<Object> opChain = new OperationChain.Builder()
-                .first(new NamedOperation.Builder<>()
-                        .name(opName)
-                        .input(input)
-                        .build())
-                .build();
+            .first(new NamedOperation.Builder<>()
+                    .name(opName)
+                    .input(input)
+                    .build())
+            .build();
 
         // When
         resolver.preExecute(opChain, new Context(user));
 
         // Then
-        assertThat(opChain.getOperations()).isEqualTo(namedOperationOpChain.getOperations());
+        assertThat(opChain.getOperations()).isEqualTo(expectedResolvedChain);
 
         verify(op1).setInput(input);
         verify(op2, never()).setInput(input);
@@ -102,7 +95,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldResolveNestedNamedOperation(@Mock final User user,
+    void shouldResolveNestedNamedOperation(@Mock final User user,
                                                   @Mock final NamedOperationCache cache,
                                                   @Mock final NamedOperationDetail extendedNamedOperation,
                                                   @Mock final GetAdjacentIds op1,
@@ -134,7 +127,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         resolver.preExecute(opChain, new Context(user));
 
         // Then
-        assertThat(opChain.getOperations().size()).isEqualTo(1);
+        assertThat(opChain.getOperations()).hasSize(1);
         final OperationChain<?> nestedOpChain = (OperationChain<?>) opChain.getOperations().get(0);
         assertThat(nestedOpChain.getOperations()).isEqualTo(namedOperationOpChain.getOperations());
 
@@ -144,75 +137,83 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldResolveNestedNamedOperationWithLimit(@Mock final User user,
-                                                  @Mock final NamedOperationCache cache,
-                                                  @Mock final NamedOperationDetail extendedNamedOperation,
-                                                  @Mock final NamedOperationDetail extendedNamedOperation2,
-                                                  @Mock final GetAdjacentIds op1,
-                                                  @Mock final GetElements op2,
-                                                  @Mock final GetAllElements op3,
-                                                  @Mock final Count op4,
-                                                  @Mock final Iterable<? extends EntityId> input)
-            throws OperationException, CacheOperationException {
+    void shouldResolveNestedNamedOperationsWithLimit(@Mock final User user,
+                                                     @Mock final NamedOperationCache cache,
+                                                     @Mock final NamedOperationDetail namedOp1Detail,
+                                                     @Mock final NamedOperationDetail namedOp2Detail,
+                                                     @Mock final NamedOperationDetail namedOp3Detail,
+                                                     @Mock final GetAdjacentIds op1,
+                                                     @Mock final GetElements op2,
+                                                     @Mock final GetElements op3,
+                                                     @Mock final Iterable<? extends EntityId> input)
+            throws CacheOperationException {
         // Given
-        final String opName = "opName";
-        final NamedOperationResolver resolver = new NamedOperationResolver(cache); 
-        
-        final OperationChain operationChainTwo = new OperationChain(Arrays.asList(op3));
+        final String namedOp1Name = "namedOp1";
+        final String namedOp2Name = "namedOp2";
+        final String namedOp3Name = "namedOp3";
+        final String namedOp4Name = "namedOp4";
+        final NamedOperationResolver resolver = new NamedOperationResolver(cache);
 
+        // Setup cache returns (we can ignore named op 4 as it wont be used due to the depth limit)
+        given(cache.getNamedOperation(namedOp1Name, user)).willReturn(namedOp1Detail);
+        given(cache.getNamedOperation(namedOp2Name, user)).willReturn(namedOp2Detail);
+        given(cache.getNamedOperation(namedOp3Name, user)).willReturn(namedOp3Detail);
 
-
-        final OperationChain namedOperationOpChain = new OperationChain(Arrays.asList(op1));
-
-        final Map<String, Object> params = null;
-
-        given(op1.getInput()).willReturn(null);
-        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
-        given(cache.getNamedOperation("f", user)).willReturn(extendedNamedOperation2);
-
-        given(extendedNamedOperation.getOperationChain(params)).willReturn(namedOperationOpChain); 
-        given(extendedNamedOperation2.getOperationChain(params)).willReturn(operationChainTwo);     
-
-        final OperationChain<Object> opChain = new OperationChain.Builder()
-                .first(new OperationChain.Builder()
-                        .first(new NamedOperation.Builder<>()
-                                .name(opName)
-                                .input(input)
-                                .parameters(params)
-                                .build())
-                        .then(new OperationChain.Builder()
-                                .first(new NamedOperation.Builder<>()
-                                        .name("f")
-                                        .input(input)
-                                        .build())
-                                .then(new OperationChain.Builder()
-                                        .first(new NamedOperation.Builder<>()
-                                                .name("f")
-                                                .input(input)
-                                                .build())
-                                        .then(new OperationChain.Builder()
-                                        .first(new NamedOperation.Builder<>()
-                                                .name("f")
-                                                .input(input)
-                                                .build())
-                                        .build())
-                                        .build())                                
-                                .build())     
-                        .build())                
+        // Create named ops
+        NamedOperation namedOp1 = new NamedOperation.Builder<>()
+                .name(namedOp1Name)
+                .input(input)
                 .build();
+        NamedOperation namedOp2 = new NamedOperation.Builder<>()
+                .name(namedOp2Name)
+                .input(input)
+                .build();
+        NamedOperation namedOp3 = new NamedOperation.Builder<>()
+                .name(namedOp3Name)
+                .input(input)
+                .build();
+        NamedOperation namedOp4 = new NamedOperation.Builder<>()
+                .name(namedOp4Name)
+                .input(input)
+                .build();
+        // Set up named op returns so theyre nested e.g. 4 is nested in 3, 3 in 2 and so on
+        given(namedOp1Detail.getOperationChain(null)).willReturn(
+                new OperationChain.Builder()
+                        .first(op1)
+                        .then(namedOp2)
+                        .build());
+        given(namedOp2Detail.getOperationChain(null)).willReturn(
+                new OperationChain.Builder()
+                        .first(op2)
+                        .then(namedOp3)
+                        .build());
+        given(namedOp3Detail.getOperationChain(null)).willReturn(
+                new OperationChain.Builder()
+                        .first(op3)
+                        .then(namedOp4)
+                        .build());
+        // This is the expected list of resolved operation(s), only to a depth of 3 should be returned by default
+        final List<Operation> expectedResolvedChain = Arrays.asList(
+            new OperationChain<>(Arrays.asList(op1,
+                new OperationChain<>(Arrays.asList(op2,
+                    new OperationChain<>(Arrays.asList(op3, namedOp4)))
+                ))));
 
+        // Create chain with named op 1 in to see if get resolved to the limit
+        final OperationChain<Object> opChain = new OperationChain.Builder()
+                .first(namedOp1)
+                .build();
         // When
         resolver.preExecute(opChain, new Context(user));
 
         // Then
-        final OperationChain<?> nestedOpChain = (OperationChain<?>) opChain.getOperations().get(0);
-        System.out.println(opChain.getOperations());
-        //assertThat(nestedOpChain.getOperations().size()).isEqualTo(2); // Operations in the named operation chain       
+        assertThat(opChain.getOperations()).isEqualTo(expectedResolvedChain);
     }
+
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldExecuteNamedOperationWithoutOverridingInput(@Mock final User user,
+    void shouldExecuteNamedOperationWithoutOverridingInput(@Mock final User user,
                                                                   @Mock final NamedOperationCache cache,
                                                                   @Mock final NamedOperationDetail extendedNamedOperation,
                                                                   @Mock final GetAdjacentIds op1,
@@ -241,21 +242,20 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         resolver.preExecute(opChain, new Context(user));
 
         // Then
-        assertThat(opChain.getOperations().get(0)).isSameAs(op1);
+        assertThat(opChain.getOperations().get(0)).isSameAs(namedOpChain);
         verify(op1, never()).setInput(input);
-        assertThat(opChain.getOperations().get(1)).isSameAs(op2);
         verify(op2, never()).setInput(input);
     }
 
     @Test
-    public void shouldResolveNamedOperationWithParameter(@Mock final User user,
+    void shouldResolveNamedOperationWithParameter(@Mock final User user,
                                                          @Mock final NamedOperationCache cache)
             throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
 
-        final Map<String, Object> paramMap = Maps.newHashMap();
+        final Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("param1", 1L);
 
         final ParameterDetail param = new ParameterDetail.Builder()
@@ -263,7 +263,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
                 .description("Limit param")
                 .valueClass(Long.class)
                 .build();
-        final Map<String, ParameterDetail> paramDetailMap = Maps.newHashMap();
+        final Map<String, ParameterDetail> paramDetailMap = new HashMap<>();
         paramDetailMap.put("param1", param);
 
         // Make a real NamedOperationDetail with a parameter
@@ -288,21 +288,23 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         resolver.preExecute(opChain, new Context(user));
 
         // Then
-        assertThat(opChain.getOperations().get(0)).isInstanceOf(GetAllElements.class);
-        assertThat(opChain.getOperations().get(1)).isInstanceOf(Limit.class);
+        assertThat(opChain.getOperations().get(0))
+            .isInstanceOf(OperationChain.class);
+        assertThat(((OperationChain) opChain.getOperations().get(0)).getOperations().get(0)).isInstanceOf(GetAllElements.class);
+        assertThat(((OperationChain) opChain.getOperations().get(0)).getOperations().get(1)).isInstanceOf(Limit.class);
 
         // Check the parameter has been inserted
-        assertThat(((Limit<?>) opChain.getOperations().get(1)).getResultLimit()).isEqualTo(1L);
+        assertThat(((Limit<?>) ((OperationChain) opChain.getOperations().get(0)).getOperations().get(1)).getResultLimit()).isEqualTo(1L);
     }
 
     @Test
-    public void shouldNotExecuteNamedOperationWithParameterOfWrongType(@Mock final User user,
+    void shouldNotExecuteNamedOperationWithParameterOfWrongType(@Mock final User user,
                                                                        @Mock final NamedOperationCache cache)
             throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
-        final Map<String, Object> paramMap = Maps.newHashMap();
+        final Map<String, Object> paramMap = new HashMap<>();
         // A parameter of the wrong type
         paramMap.put("param1", new ArrayList<>());
 
@@ -311,7 +313,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
                 .description("Limit param")
                 .valueClass(Long.class)
                 .build();
-        final Map<String, ParameterDetail> paramDetailMap = Maps.newHashMap();
+        final Map<String, ParameterDetail> paramDetailMap = new HashMap<>();
         paramDetailMap.put("param1", param);
 
         // Make a real NamedOperationDetail with a parameter
@@ -326,7 +328,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        assertThatExceptionOfType(GafferRuntimeException.class)
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
                         .first(new NamedOperation.Builder<>()
                                 .name(opName)
@@ -337,13 +339,13 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     }
 
     @Test
-    public void shouldNotExecuteNamedOperationWithWrongParameterName(@Mock final User user,
+    void shouldNotExecuteNamedOperationWithWrongParameterName(@Mock final User user,
                                                                      @Mock final NamedOperationCache cache)
             throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
-        final Map<String, Object> paramMap = Maps.newHashMap();
+        final Map<String, Object> paramMap = new HashMap<>();
         // A parameter with the wrong name
         paramMap.put("param2", 1L);
 
@@ -352,7 +354,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
                 .description("Limit param")
                 .valueClass(Long.class)
                 .build();
-        final Map<String, ParameterDetail> paramDetailMap = Maps.newHashMap();
+        final Map<String, ParameterDetail> paramDetailMap = new HashMap<>();
         paramDetailMap.put("param1", param);
 
         // Make a real NamedOperationDetail with a parameter
@@ -367,7 +369,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        assertThatExceptionOfType(GafferRuntimeException.class)
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
                 .first(new NamedOperation.Builder<>()
                         .name(opName)
@@ -378,21 +380,21 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     }
 
     @Test
-    public void shouldNotExecuteNamedOperationWithMissingRequiredArg(@Mock final User user,
+    void shouldNotExecuteNamedOperationWithMissingRequiredArg(@Mock final User user,
                                                                      @Mock final NamedOperationCache cache)
             throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
         // Don't set any parameters
-        final Map<String, Object> paramMap = Maps.newHashMap();
+        final Map<String, Object> paramMap = new HashMap<>();
 
         final ParameterDetail param = new ParameterDetail.Builder()
                 .description("Limit param")
                 .valueClass(Long.class)
                 .required(true)
                 .build();
-        final Map<String, ParameterDetail> paramDetailMap = Maps.newHashMap();
+        final Map<String, ParameterDetail> paramDetailMap = new HashMap<>();
         paramDetailMap.put("param1", param);
 
         // Make a real NamedOperationDetail with a parameter
@@ -407,7 +409,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        assertThatExceptionOfType(GafferRuntimeException.class)
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
                         .first(new NamedOperation.Builder<>()
                                 .name(opName)
@@ -419,11 +421,11 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
 
     @SuppressWarnings({"unchecked", "resource", "rawtypes"})
     @Test
-    public void shouldReturnOperationsInParameters() {
+    void shouldReturnOperationsInParameters() {
         // Given
         final NamedOperation namedOperation = new NamedOperation();
         final Operation operation = new GetElements();
-        final Map<String, Object> paramMap = Maps.newHashMap();
+        final Map<String, Object> paramMap = new HashMap<>();
 
         paramMap.put("test param", operation);
         namedOperation.setParameters(paramMap);
