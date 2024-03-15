@@ -20,10 +20,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +33,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
  * A {@link GraphHook} to resolve named operations.
  */
@@ -47,6 +46,7 @@ public class NamedOperationResolver implements GetFromCacheHook {
      * Default depth the resolver will go when checking for nested named operations
      */
     public static final int DEPTH_LIMIT_DEFAULT = 3;
+
     private final int depthLimit;
     private final NamedOperationCache cache;
 
@@ -105,48 +105,64 @@ public class NamedOperationResolver implements GetFromCacheHook {
     }
 
     /**
-     * Resolves any named operations from the cache. Method will ensure any
-     * supplied {@link NamedOperation}s actually exist in the cache and
-     * contain their correct {@link Operation}s.
+     * Resolves any named operations from the cache. What is meant
+     * by 'resolved' is turning the named operations into their respective
+     * OperationChains. Ensures any supplied {@link NamedOperation}s actually
+     * exist in the cache and contain their correct {@link Operation}s.
      * Will also run recursively to a given depth limit to ensure any nested
      * {@link NamedOperation}s are also resolved from the cache.
      *
      * @param operation {@link NamedOperation} or {@link Operations} list to act on.
-     * @param user User for the cache access.
-     * @param depth Current recursive depth, will use limit set in class to continue or not.
-     * @return A list of resolved named operations.
+     * @param user      User for the cache access.
+     * @param depth     Current recursive depth, will use limit set in class to
+     *                  continue or not.
+     * @return A list of resolved operations essentially flattened into plan
+     *         Operations and OperationChains.
      */
     private Collection<Operation> resolveNamedOperations(final Operation operation, final User user, final int depth) {
         final Collection<Operation> updatedOperations = new ArrayList<>();
-        LOGGER.debug("Current resolver depth is: {}", depth);
+        LOGGER.error("Current resolver depth is: {}", depth);
 
         // If a named operation resolve the operations within it
         if (operation instanceof NamedOperation) {
             NamedOperation<?, ?> namedOperation = (NamedOperation<?, ?>) operation;
-            LOGGER.debug("Resolving named operation called: {}", namedOperation.getOperationName());
+            LOGGER.error("Resolving named operation called: {}", namedOperation.getOperationName());
             try {
-                // Get the chain for the named operation
+                // Get the chain for the named operation from the cache
                 final OperationChain<?> namedOperationChain = cache
                         .getNamedOperation(namedOperation.getOperationName(), user)
                         .getOperationChain(namedOperation.getParameters());
                 // Update the operation inputs and add operation chain to the updated list
                 OperationHandlerUtil.updateOperationInput(namedOperationChain, namedOperation.getInput());
-                updatedOperations.add(namedOperationChain);
 
-                // Run again to get resolve any nested operations
-                if (depth < depthLimit) {
-                    updatedOperations.addAll(resolveNamedOperations(namedOperationChain, user, depth + 1));
-                    namedOperationChain.updateOperations(updatedOperations);
-                }
+                // Run again to get resolve any nested operations in the chain before adding
+                namedOperationChain.updateOperations(resolveNamedOperations(namedOperationChain, user, depth + 1));
+                updatedOperations.add(namedOperationChain);
 
             } catch (final CacheOperationException e) {
                 LOGGER.error("Exception resolving NamedOperation within the cache: {}", e.getMessage());
             }
+        // If given a list of operations then resolve them
+        } else if (operation instanceof Operations) {
+            LOGGER.error("Resolving Operation List: {}", ((Operations<?>) operation).getOperations());
+            for (final Operation op : ((Operations<?>) operation).getOperations()) {
+                // If just a plain operation then nothing to resolve
+                if (!(op instanceof NamedOperation) && !(op instanceof Operations)) {
+                    updatedOperations.add(op);
+                    continue;
+                }
 
-        } else if ((operation instanceof Operations) && (depth < depthLimit)) {
-            LOGGER.debug("Resolving Operation List");
-            ((Operations<?>) operation).getOperations()
-                .forEach(op -> updatedOperations.addAll(resolveNamedOperations(op, user, depth + 1)));
+                // Resolve if haven't hit the depth limit for named operations yet
+                // Note only need to check the depth here as when checking for a nested named operation it will always be
+                // passed as an operation chain first
+                if (depth < depthLimit) {
+                    updatedOperations.addAll(resolveNamedOperations(op, user, depth));
+                } else {
+                    LOGGER.warn("Nested depth limit hit resolving NamedOperations, operation maybe unresolved {}", op);
+                    updatedOperations.add(op);
+                }
+
+            }
         }
         return updatedOperations;
     }
