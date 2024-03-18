@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
@@ -35,6 +34,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * A {@link GraphHook} to resolve named operations.
@@ -103,7 +103,7 @@ public class NamedOperationResolver implements GetFromCacheHook {
      * Will also run recursively to a given depth limit to ensure any nested
      * {@link NamedOperation}s are also resolved from the cache.
      *
-     * @param operation {@link NamedOperation} or {@link Operations} list to act on.
+     * @param operation {@link NamedOperation} or {@link OperationChain} to act on.
      * @param user      User for the cache access.
      * @param depth     Current recursive depth, will use limit set in class to
      *                  continue or not.
@@ -126,26 +126,21 @@ public class NamedOperationResolver implements GetFromCacheHook {
                 // Update the operation inputs and add operation chain to the updated list
                 OperationHandlerUtil.updateOperationInput(namedOperationChain, namedOperation.getInput());
 
-                // Run again to get resolve any nested operations in the chain before adding
+                // Run again to resolve any nested operations in the chain before adding
                 namedOperationChain.updateOperations(resolveNamedOperations(namedOperationChain, user, depth + 1));
                 updatedOperations.add(namedOperationChain);
 
             } catch (final CacheOperationException e) {
                 LOGGER.error("Exception resolving NamedOperation within the cache: {}", e.getMessage());
+                return Collections.singletonList(namedOperation);
             }
-        // If given a list of operations then resolve them
-        } else if (operation instanceof Operations) {
-            LOGGER.debug("Resolving Operation List: {}", ((Operations<?>) operation).getOperations());
-            for (final Operation op : ((Operations<?>) operation).getOperations()) {
-                // If just a plain operation then nothing to resolve
-                if (!(op instanceof NamedOperation) && !(op instanceof Operations)) {
-                    updatedOperations.add(op);
-                    continue;
-                }
-
+        // If given an operationChain resolve Operations inside it
+        } else if (operation instanceof OperationChain) {
+            LOGGER.debug("Resolving Operations in Operation Chain: {}", ((OperationChain<?>) operation).getOperations());
+            for (final Operation op : ((OperationChain<?>) operation).getOperations()) {
                 // Resolve if haven't hit the depth limit for named operations yet
                 // Note only need to check the depth here as when checking for a nested named operation it will always be
-                // passed as an operation chain first
+                // recursively passed as an operation chain
                 if (depth < depthLimit) {
                     updatedOperations.addAll(resolveNamedOperations(op, user, depth));
                 } else {
@@ -154,6 +149,9 @@ public class NamedOperationResolver implements GetFromCacheHook {
                 }
 
             }
+        // If just a plain operation then nothing to resolve
+        } else {
+            updatedOperations.add(operation);
         }
         return updatedOperations;
     }
