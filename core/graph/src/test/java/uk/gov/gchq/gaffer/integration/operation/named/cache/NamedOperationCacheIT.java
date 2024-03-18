@@ -16,9 +16,8 @@
 
 package uk.gov.gchq.gaffer.integration.operation.named.cache;
 
-import java.util.Arrays;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -40,6 +39,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHan
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,10 +50,10 @@ import static org.mockito.Mockito.mock;
 
 public class NamedOperationCacheIT {
     private static final String CACHE_NAME = "NamedOperation";
-    public static final String SUFFIX = "suffix";
-    private final Store store = mock(Store.class);
-    private final String adminAuth = "admin auth";
-    private final StoreProperties properties = new StoreProperties();
+    private static final String SUFFIX = "suffix";
+    private static final Store store = mock(Store.class);
+    private static final String adminAuth = "admin auth";
+    private static final StoreProperties properties = new StoreProperties();
 
     private AddNamedOperation add = new AddNamedOperation.Builder()
             .name("op")
@@ -76,10 +76,12 @@ public class NamedOperationCacheIT {
     private DeleteNamedOperationHandler deleteNamedOperationHandler = new DeleteNamedOperationHandler(SUFFIX);
     private GetAllNamedOperations get = new GetAllNamedOperations();
 
-    @BeforeEach
-    public void before() throws CacheOperationException {
+    @BeforeAll
+    public static void before() throws CacheOperationException {
         properties.setAdminAuth(adminAuth);
         given(store.getProperties()).willReturn(properties);
+        CacheServiceLoader.initialise(HashMapCacheService.class.getCanonicalName());
+        CacheServiceLoader.getDefaultService().clearCache(CACHE_NAME);
     }
 
     @AfterEach
@@ -89,33 +91,7 @@ public class NamedOperationCacheIT {
     }
 
     @Test
-    public void shouldWorkUsingHashMapServiceClass() throws OperationException, CacheOperationException {
-        reInitialiseCacheService(HashMapCacheService.class);
-        runTests();
-    }
-
-    private void reInitialiseCacheService(final Class clazz) throws CacheOperationException {
-        CacheServiceLoader.initialise(clazz.getCanonicalName());
-        CacheServiceLoader.getDefaultService().clearCache(CACHE_NAME);
-    }
-
-    @Test
-    private void runTests() throws OperationException, CacheOperationException {
-        shouldAllowUpdatingOfNamedOperations();
-        after();
-        shouldAllowUpdatingOfNamedOperationsWithAllowedUsers();
-        after();
-        shouldAllowReadingOfNamedOperationsUsingAdminAuth();
-        after();
-        shouldAllowUpdatingOfNamedOperationsUsingAdminAuth();
-        after();
-        shouldBeAbleToAddNamedOperationToCache();
-        after();
-        shouldBeAbleToDeleteNamedOperationFromCache();
-    }
-
-    @Test
-    public List<NamedOperationDetail> shouldBeAbleToAddNamedOperationToCache() throws OperationException {
+    public void shouldBeAbleToAddNamedOperationToCache() throws OperationException {
         // given
         GetAllNamedOperations get = new GetAllNamedOperations.Builder().build();
         final Store store = mock(Store.class);
@@ -143,12 +119,10 @@ public class NamedOperationCacheIT {
         assertThat(results)
                 .hasSize(1)
                 .isEqualTo(expected);
-
-        return results;
     }
 
     @Test
-    public List<NamedOperationDetail> shouldBeAbleToDeleteNamedOperationFromCache() throws OperationException {
+    public void shouldBeAbleToDeleteNamedOperationFromCache() throws OperationException {
         // given
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(properties);
@@ -171,12 +145,10 @@ public class NamedOperationCacheIT {
 
         // then
         assertThat(results).isEmpty();
-
-        return results;
     }
 
     @Test
-    public List<NamedOperationDetail> shouldAllowUpdatingOfNamedOperations() throws OperationException {
+    public void shouldAllowUpdatingOfNamedOperations() throws OperationException {
         // given
         final Store store = mock(Store.class);
         final StoreProperties storeProps = mock(StoreProperties.class);
@@ -218,12 +190,10 @@ public class NamedOperationCacheIT {
         assertThat(results)
                 .hasSameSizeAs(expected)
                 .isEqualTo(expected);
-
-        return results;
     }
 
     @Test
-    public List<NamedOperationDetail> shouldAllowUpdatingOfNamedOperationsWithAllowedUsers() throws OperationException {
+    public void shouldAllowUpdatingOfNamedOperationsWithAllowedUsers() throws OperationException {
         // given
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(properties);
@@ -264,12 +234,10 @@ public class NamedOperationCacheIT {
         assertThat(results)
                 .hasSameSizeAs(expected)
                 .isEqualTo(expected);
-
-        return results;
     }
 
     @Test
-    public List<NamedOperationDetail> shouldAllowReadingOfNamedOperationsUsingAdminAuth() throws OperationException {
+    public void shouldAllowReadingOfNamedOperationsUsingAdminAuth() throws OperationException {
         // given
         Context contextWithAuthorisedUser = new Context(authorisedUser);
         Context contextWithAdminUser = new Context(adminAuthUser);
@@ -306,12 +274,10 @@ public class NamedOperationCacheIT {
         assertThat(resultsWithAdminRole)
                 .hasSize(1)
                 .isEqualTo(expected);
-
-        return resultsWithAdminRole;
     }
 
     @Test
-    public List<NamedOperationDetail> shouldAllowUpdatingOfNamedOperationsUsingAdminAuth() throws OperationException {
+    public void shouldAllowUpdatingOfNamedOperationsUsingAdminAuth() throws OperationException {
         // given
         Context contextWithAuthorisedUser = new Context(authorisedUser);
         Context contextWithAdminUser = new Context(adminAuthUser);
@@ -355,7 +321,5 @@ public class NamedOperationCacheIT {
         assertThat(results)
                 .hasSameSizeAs(expected)
                 .isEqualTo(expected);
-
-        return results;
     }
 }
