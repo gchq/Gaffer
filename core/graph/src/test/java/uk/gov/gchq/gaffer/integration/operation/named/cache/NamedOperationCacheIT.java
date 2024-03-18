@@ -39,8 +39,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHan
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,9 +51,9 @@ import static org.mockito.Mockito.mock;
 public class NamedOperationCacheIT {
     private static final String CACHE_NAME = "NamedOperation";
     private static final String SUFFIX = "suffix";
-    private static final Store store = mock(Store.class);
-    private static final String adminAuth = "admin auth";
-    private static final StoreProperties properties = new StoreProperties();
+    private static final Store STORE = mock(Store.class);
+    private static final String ADMIN_AUTH = "admin auth";
+    private static final StoreProperties PROPERTIES = new StoreProperties();
 
     private AddNamedOperation add = new AddNamedOperation.Builder()
             .name("op")
@@ -68,7 +68,7 @@ public class NamedOperationCacheIT {
 
     private User user = new User();
     private User authorisedUser = new User.Builder().userId("authorisedUser").opAuth("authorised").build();
-    private User adminAuthUser = new User.Builder().userId("adminAuthUser").opAuth(adminAuth).build();
+    private User adminAuthUser = new User.Builder().userId("adminAuthUser").opAuth(ADMIN_AUTH).build();
     private Context context = new Context(user);
     private GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler(SUFFIX);
     private AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler(SUFFIX, true);
@@ -78,8 +78,8 @@ public class NamedOperationCacheIT {
 
     @BeforeAll
     public static void before() throws CacheOperationException {
-        properties.setAdminAuth(adminAuth);
-        given(store.getProperties()).willReturn(properties);
+        PROPERTIES.setAdminAuth(ADMIN_AUTH);
+        given(STORE.getProperties()).willReturn(PROPERTIES);
         CacheServiceLoader.initialise(HashMapCacheService.class.getCanonicalName());
         CacheServiceLoader.getDefaultService().clearCache(CACHE_NAME);
     }
@@ -95,7 +95,7 @@ public class NamedOperationCacheIT {
         // given
         GetAllNamedOperations get = new GetAllNamedOperations.Builder().build();
         final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(properties);
+        given(store.getProperties()).willReturn(PROPERTIES);
 
         // when
         addNamedOperationHandler.doOperation(add, context, store);
@@ -123,7 +123,7 @@ public class NamedOperationCacheIT {
     public void shouldBeAbleToDeleteNamedOperationFromCache() throws OperationException {
         // given
         final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(properties);
+        given(store.getProperties()).willReturn(PROPERTIES);
 
         new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, store);
 
@@ -190,7 +190,7 @@ public class NamedOperationCacheIT {
     public void shouldAllowUpdatingOfNamedOperationsWithAllowedUsers() throws OperationException {
         // given
         final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(properties);
+        given(store.getProperties()).willReturn(PROPERTIES);
 
         new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, store);
 
@@ -245,11 +245,11 @@ public class NamedOperationCacheIT {
         List<NamedOperationDetail> expected = new ArrayList<>();
         expected.add(expectedNamedOp);
 
-        addNamedOperationHandler.doOperation(add, contextWithAuthorisedUser, store);
+        addNamedOperationHandler.doOperation(add, contextWithAuthorisedUser, STORE);
 
         // when
         List<NamedOperationDetail> resultsWithNoAdminRole = new ArrayList<>();
-        for (NamedOperationDetail detail : getAllNamedOperationsHandler.doOperation(get, context, store)) {
+        for (NamedOperationDetail detail : getAllNamedOperationsHandler.doOperation(get, context, STORE)) {
             resultsWithNoAdminRole.add(detail);
         }
 
@@ -258,7 +258,7 @@ public class NamedOperationCacheIT {
 
         // when
         List<NamedOperationDetail> resultsWithAdminRole = new ArrayList<>();
-        getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, store).forEach(resultsWithAdminRole::add);
+        getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, STORE).forEach(resultsWithAdminRole::add);
 
         // then
         assertThat(resultsWithAdminRole)
@@ -271,7 +271,7 @@ public class NamedOperationCacheIT {
         // given
         Context contextWithAuthorisedUser = new Context(authorisedUser);
         Context contextWithAdminUser = new Context(adminAuthUser);
-        addNamedOperationHandler.doOperation(add, contextWithAuthorisedUser, store);
+        addNamedOperationHandler.doOperation(add, contextWithAuthorisedUser, STORE);
 
         AddNamedOperation update = new AddNamedOperation.Builder()
                 .name(add.getOperationName())
@@ -295,15 +295,15 @@ public class NamedOperationCacheIT {
 
         // when / then
         assertThatExceptionOfType(OperationException.class)
-                .isThrownBy(() -> addNamedOperationHandler.doOperation(update, context, store))
+                .isThrownBy(() -> addNamedOperationHandler.doOperation(update, context, STORE))
                 .withMessageContaining("User UNKNOWN does not have permission to overwrite");
 
 
         // when
-        addNamedOperationHandler.doOperation(update, contextWithAdminUser, store);
+        addNamedOperationHandler.doOperation(update, contextWithAdminUser, STORE);
 
         List<NamedOperationDetail> results = new ArrayList<>();
-        getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, store).forEach(results::add);
+        getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, STORE).forEach(results::add);
 
         // then
         assertThat(results)
