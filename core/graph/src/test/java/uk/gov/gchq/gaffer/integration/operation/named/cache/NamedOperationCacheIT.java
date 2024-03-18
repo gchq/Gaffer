@@ -92,7 +92,6 @@ public class NamedOperationCacheIT {
     @Test
     public void shouldBeAbleToAddNamedOperationToCache() throws OperationException {
         // given
-        GetAllNamedOperations get = new GetAllNamedOperations.Builder().build();
         given(STORE.getProperties()).willReturn(PROPERTIES);
 
         // when
@@ -128,8 +127,6 @@ public class NamedOperationCacheIT {
                 .name("op")
                 .build();
 
-        GetAllNamedOperations get = new GetAllNamedOperations();
-
         // when
         deleteNamedOperationHandler.doOperation(del, context, STORE);
 
@@ -155,8 +152,6 @@ public class NamedOperationCacheIT {
                 .overwrite()
                 .score(0)
                 .build();
-
-        GetAllNamedOperations get = new GetAllNamedOperations();
 
         // when
         new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, STORE);
@@ -195,8 +190,6 @@ public class NamedOperationCacheIT {
                 .overwrite()
                 .score(0)
                 .build();
-
-        GetAllNamedOperations get = new GetAllNamedOperations();
 
         // when
         new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, STORE);
