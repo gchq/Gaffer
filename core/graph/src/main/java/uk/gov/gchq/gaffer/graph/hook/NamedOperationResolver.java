@@ -82,16 +82,7 @@ public class NamedOperationResolver implements GetFromCacheHook {
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        final Collection<Operation> updatedOperations = new ArrayList<>();
-        opChain.getOperations().forEach(op -> {
-            // If just a plain operation then nothing to resolve
-            if (!(op instanceof NamedOperation) && !(op instanceof Operations)) {
-                updatedOperations.add(op);
-            } else {
-                updatedOperations.addAll(resolveNamedOperations(op, context.getUser(), 0));
-            }
-        });
-        opChain.updateOperations(updatedOperations);
+        opChain.updateOperations(resolveNamedOperations(opChain, context.getUser(), 0));
     }
 
     @Override
