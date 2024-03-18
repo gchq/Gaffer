@@ -111,9 +111,7 @@ public class NamedOperationCacheIT {
 
         List<NamedOperationDetail> expected = Arrays.asList(expectedNamedOp);
         List<NamedOperationDetail> results = new ArrayList<>();
-        for (NamedOperationDetail detail: getAllNamedOperationsHandler.doOperation(get, context, store)) {
-            results.add(detail);
-        }
+        getAllNamedOperationsHandler.doOperation(get, context, store).forEach(results::add);
 
         // then
         assertThat(results)
@@ -139,9 +137,7 @@ public class NamedOperationCacheIT {
         deleteNamedOperationHandler.doOperation(del, context, store);
 
         List<NamedOperationDetail> results = new ArrayList<>();
-        for (NamedOperationDetail detail : getAllNamedOperationsHandler1.doOperation(get, context, store)) {
-            results.add(detail);
-        }
+        getAllNamedOperationsHandler1.doOperation(get, context, store).forEach(results::add);
 
         // then
         assertThat(results).isEmpty();
@@ -170,9 +166,7 @@ public class NamedOperationCacheIT {
         new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, store);
 
         List<NamedOperationDetail> results = new ArrayList<>();
-        for (NamedOperationDetail detail : getAllNamedOperationsHandler.doOperation(get, context, store)) {
-            results.add(detail);
-        }
+        getAllNamedOperationsHandler.doOperation(get, context, store).forEach(results::add);
 
         NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
                 .operationName(update.getOperationName())
@@ -214,9 +208,7 @@ public class NamedOperationCacheIT {
         new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, store);
 
         List<NamedOperationDetail> results = new ArrayList<>();
-        for (NamedOperationDetail detail : getAllNamedOperationsHandler.doOperation(get, context, store)) {
-            results.add(detail);
-        }
+        getAllNamedOperationsHandler.doOperation(get, context, store).forEach(results::add);
 
         NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
                 .operationName(update.getOperationName())
@@ -266,9 +258,7 @@ public class NamedOperationCacheIT {
 
         // when
         List<NamedOperationDetail> resultsWithAdminRole = new ArrayList<>();
-        for (NamedOperationDetail detail : getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, store)) {
-            resultsWithAdminRole.add(detail);
-        }
+        getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, store).forEach(resultsWithAdminRole::add);
 
         // then
         assertThat(resultsWithAdminRole)
@@ -313,9 +303,7 @@ public class NamedOperationCacheIT {
         addNamedOperationHandler.doOperation(update, contextWithAdminUser, store);
 
         List<NamedOperationDetail> results = new ArrayList<>();
-        for (NamedOperationDetail detail : getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, store)) {
-            results.add(detail);
-        }
+        getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, store).forEach(results::add);
 
         // then
         assertThat(results)
