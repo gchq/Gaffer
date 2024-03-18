@@ -61,11 +61,11 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     void shouldResolveNamedOperation(@Mock final User user,
-                                            @Mock final NamedOperationCache cache,
-                                            @Mock final NamedOperationDetail namedOp,
-                                            @Mock final GetAdjacentIds op1,
-                                            @Mock final GetElements op2,
-                                            @Mock final Iterable<? extends EntityId> input)
+                                     @Mock final NamedOperationCache cache,
+                                     @Mock final NamedOperationDetail namedOpDetail,
+                                     @Mock final GetAdjacentIds op1,
+                                     @Mock final GetElements op2,
+                                     @Mock final Iterable<? extends EntityId> input)
             throws CacheOperationException {
         // Given
         final String opName = "opName";
@@ -73,8 +73,8 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
         final List<Operation> expectedResolvedChain = Arrays.asList(new OperationChain(Arrays.asList(op1, op2)));
 
         given(op1.getInput()).willReturn(null);
-        given(cache.getNamedOperation(opName, user)).willReturn(namedOp);
-        given(namedOp.getOperationChain(null)).willReturn(new OperationChain(Arrays.asList(op1, op2)));
+        given(cache.getNamedOperation(opName, user)).willReturn(namedOpDetail);
+        given(namedOpDetail.getOperationChain(null)).willReturn(new OperationChain(Arrays.asList(op1, op2)));
 
         final OperationChain<Object> opChain = new OperationChain.Builder()
             .first(new NamedOperation.Builder<>()
@@ -96,11 +96,11 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     void shouldResolveNestedNamedOperation(@Mock final User user,
-                                                  @Mock final NamedOperationCache cache,
-                                                  @Mock final NamedOperationDetail extendedNamedOperation,
-                                                  @Mock final GetAdjacentIds op1,
-                                                  @Mock final GetElements op2,
-                                                  @Mock final Iterable<? extends EntityId> input)
+                                           @Mock final NamedOperationCache cache,
+                                           @Mock final NamedOperationDetail namedOpDetail,
+                                           @Mock final GetAdjacentIds op1,
+                                           @Mock final GetElements op2,
+                                           @Mock final Iterable<? extends EntityId> input)
             throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
@@ -111,8 +111,8 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
         final Map<String, Object> params = null;
 
         given(op1.getInput()).willReturn(null);
-        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
-        given(extendedNamedOperation.getOperationChain(params)).willReturn(namedOperationOpChain);
+        given(cache.getNamedOperation(opName, user)).willReturn(namedOpDetail);
+        given(namedOpDetail.getOperationChain(params)).willReturn(namedOperationOpChain);
 
         final OperationChain<Object> opChain = new OperationChain.Builder()
                 .first(new OperationChain.Builder()
@@ -176,7 +176,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
                 .name(namedOp4Name)
                 .input(input)
                 .build();
-        // Set up named op returns so theyre nested e.g. 4 is nested in 3, 3 in 2 and so on
+        // Set up named op returns so they're nested e.g. 4 is nested in 3, 3 in 2 and so on
         given(namedOp1Detail.getOperationChain(null)).willReturn(
                 new OperationChain.Builder()
                         .first(op1)
@@ -214,12 +214,12 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     void shouldExecuteNamedOperationWithoutOverridingInput(@Mock final User user,
-                                                                  @Mock final NamedOperationCache cache,
-                                                                  @Mock final NamedOperationDetail extendedNamedOperation,
-                                                                  @Mock final GetAdjacentIds op1,
-                                                                  @Mock final GetElements op2,
-                                                                  @Mock final Iterable<? extends EntityId> input,
-                                                                  @Mock final Iterable mockIterable)
+                                                           @Mock final NamedOperationCache cache,
+                                                           @Mock final NamedOperationDetail namedOpDetail,
+                                                           @Mock final GetAdjacentIds op1,
+                                                           @Mock final GetElements op2,
+                                                           @Mock final Iterable<? extends EntityId> input,
+                                                           @Mock final Iterable mockIterable)
             throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
@@ -229,8 +229,8 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
         final Map<String, Object> params = null;
 
         given(op1.getInput()).willReturn(mockIterable);
-        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
-        given(extendedNamedOperation.getOperationChain(params)).willReturn(namedOpChain);
+        given(cache.getNamedOperation(opName, user)).willReturn(namedOpDetail);
+        given(namedOpDetail.getOperationChain(params)).willReturn(namedOpChain);
 
         // When
         final OperationChain<Object> opChain = new OperationChain.Builder()
@@ -247,6 +247,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
         verify(op2, never()).setInput(input);
     }
 
+    @SuppressWarnings({ "rawtypes" })
     @Test
     void shouldResolveNamedOperationWithParameter(@Mock final User user,
                                                          @Mock final NamedOperationCache cache)
@@ -267,7 +268,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
         paramDetailMap.put("param1", param);
 
         // Make a real NamedOperationDetail with a parameter
-        final NamedOperationDetail extendedNamedOperation = new NamedOperationDetail.Builder()
+        final NamedOperationDetail namedOpDetail = new NamedOperationDetail.Builder()
                 .operationName(opName)
                 .description("standard operation")
                 .operationChain("{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, "
@@ -275,7 +276,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
                 .parameters(paramDetailMap)
                 .build();
 
-        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
+        given(cache.getNamedOperation(opName, user)).willReturn(namedOpDetail);
 
         final OperationChain<Object> opChain = new OperationChain.Builder()
                 .first(new NamedOperation.Builder<>()
@@ -299,7 +300,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
 
     @Test
     void shouldNotExecuteNamedOperationWithParameterOfWrongType(@Mock final User user,
-                                                                       @Mock final NamedOperationCache cache)
+                                                                @Mock final NamedOperationCache cache)
             throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
@@ -317,7 +318,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
         paramDetailMap.put("param1", param);
 
         // Make a real NamedOperationDetail with a parameter
-        final NamedOperationDetail extendedNamedOperation = new NamedOperationDetail.Builder()
+        final NamedOperationDetail namedOpDetail = new NamedOperationDetail.Builder()
                 .operationName(opName)
                 .description("standard operation")
                 .operationChain("{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, "
@@ -325,7 +326,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
                 .parameters(paramDetailMap)
                 .build();
 
-        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
+        given(cache.getNamedOperation(opName, user)).willReturn(namedOpDetail);
 
         // When
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -340,7 +341,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
 
     @Test
     void shouldNotExecuteNamedOperationWithWrongParameterName(@Mock final User user,
-                                                                     @Mock final NamedOperationCache cache)
+                                                              @Mock final NamedOperationCache cache)
             throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
@@ -358,7 +359,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
         paramDetailMap.put("param1", param);
 
         // Make a real NamedOperationDetail with a parameter
-        final NamedOperationDetail extendedNamedOperation = new NamedOperationDetail.Builder()
+        final NamedOperationDetail namedOpDetail = new NamedOperationDetail.Builder()
                 .operationName(opName)
                 .description("standard operation")
                 .operationChain("{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, "
@@ -366,7 +367,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
                 .parameters(paramDetailMap)
                 .build();
 
-        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
+        given(cache.getNamedOperation(opName, user)).willReturn(namedOpDetail);
 
         // When
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -381,7 +382,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
 
     @Test
     void shouldNotExecuteNamedOperationWithMissingRequiredArg(@Mock final User user,
-                                                                     @Mock final NamedOperationCache cache)
+                                                              @Mock final NamedOperationCache cache)
             throws OperationException, CacheOperationException {
         // Given
         final String opName = "opName";
@@ -398,7 +399,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
         paramDetailMap.put("param1", param);
 
         // Make a real NamedOperationDetail with a parameter
-        final NamedOperationDetail extendedNamedOperation = new NamedOperationDetail.Builder()
+        final NamedOperationDetail namedOpDetail = new NamedOperationDetail.Builder()
                 .operationName(opName)
                 .description("standard operation")
                 .operationChain("{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, "
@@ -406,7 +407,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
                 .parameters(paramDetailMap)
                 .build();
 
-        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
+        given(cache.getNamedOperation(opName, user)).willReturn(namedOpDetail);
 
         // When
         assertThatExceptionOfType(IllegalArgumentException.class)
