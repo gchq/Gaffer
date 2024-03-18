@@ -98,8 +98,8 @@ public class NamedOperationResolver implements GetFromCacheHook {
     /**
      * Resolves any named operations from the cache. What is meant
      * by 'resolved' is turning the named operations into their respective
-     * OperationChains. Ensures any supplied {@link NamedOperation}s actually
-     * exist in the cache and contain their correct {@link Operation}s.
+     * {@link OperationChain}s. Ensures any supplied {@link NamedOperation}s
+     * actually exist in the cache and contain their correct {@link Operation}s.
      * Will also run recursively to a given depth limit to ensure any nested
      * {@link NamedOperation}s are also resolved from the cache.
      *
@@ -107,7 +107,7 @@ public class NamedOperationResolver implements GetFromCacheHook {
      * @param user      User for the cache access.
      * @param depth     Current recursive depth, will use limit set in class to
      *                  continue or not.
-     * @return A list of resolved operations essentially flattened into plan
+     * @return A list of resolved operations essentially flattened into plain
      *         Operations and OperationChains.
      */
     private Collection<Operation> resolveNamedOperations(final Operation operation, final User user, final int depth) {
