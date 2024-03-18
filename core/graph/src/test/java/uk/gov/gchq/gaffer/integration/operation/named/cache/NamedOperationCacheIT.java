@@ -177,8 +177,7 @@ public class NamedOperationCacheIT {
                 .parameters(null)
                 .build();
 
-        List<NamedOperationDetail> expected = new ArrayList<>();
-        expected.add(expectedNamedOp);
+        List<NamedOperationDetail> expected = Arrays.asList(expectedNamedOp);
 
         // then
         assertThat(results)
@@ -219,8 +218,7 @@ public class NamedOperationCacheIT {
                 .parameters(null)
                 .build();
 
-        List<NamedOperationDetail> expected = new ArrayList<>();
-        expected.add(expectedNamedOp);
+        List<NamedOperationDetail> expected = Arrays.asList(expectedNamedOp);
 
         // then
         assertThat(results)
@@ -242,8 +240,7 @@ public class NamedOperationCacheIT {
                 .parameters(null)
                 .build();
 
-        List<NamedOperationDetail> expected = new ArrayList<>();
-        expected.add(expectedNamedOp);
+        List<NamedOperationDetail> expected = Arrays.asList(expectedNamedOp);
 
         addNamedOperationHandler.doOperation(add, contextWithAuthorisedUser, STORE);
 
@@ -290,8 +287,7 @@ public class NamedOperationCacheIT {
                 .parameters(null)
                 .build();
 
-        List<NamedOperationDetail> expected = new ArrayList<>();
-        expected.add(expectedNamedOp);
+        List<NamedOperationDetail> expected = Arrays.asList(expectedNamedOp);
 
         // when / then
         assertThatExceptionOfType(OperationException.class)
