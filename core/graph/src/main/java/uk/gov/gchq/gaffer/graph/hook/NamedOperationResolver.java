@@ -112,12 +112,12 @@ public class NamedOperationResolver implements GetFromCacheHook {
      */
     private Collection<Operation> resolveNamedOperations(final Operation operation, final User user, final int depth) {
         final Collection<Operation> updatedOperations = new ArrayList<>();
-        LOGGER.error("Current resolver depth is: {}", depth);
+        LOGGER.debug("Current resolver depth is: {}", depth);
 
         // If a named operation resolve the operations within it
         if (operation instanceof NamedOperation) {
             NamedOperation<?, ?> namedOperation = (NamedOperation<?, ?>) operation;
-            LOGGER.error("Resolving named operation called: {}", namedOperation.getOperationName());
+            LOGGER.debug("Resolving named operation called: {}", namedOperation.getOperationName());
             try {
                 // Get the chain for the named operation from the cache
                 final OperationChain<?> namedOperationChain = cache
@@ -135,7 +135,7 @@ public class NamedOperationResolver implements GetFromCacheHook {
             }
         // If given a list of operations then resolve them
         } else if (operation instanceof Operations) {
-            LOGGER.error("Resolving Operation List: {}", ((Operations<?>) operation).getOperations());
+            LOGGER.debug("Resolving Operation List: {}", ((Operations<?>) operation).getOperations());
             for (final Operation op : ((Operations<?>) operation).getOperations()) {
                 // If just a plain operation then nothing to resolve
                 if (!(op instanceof NamedOperation) && !(op instanceof Operations)) {
