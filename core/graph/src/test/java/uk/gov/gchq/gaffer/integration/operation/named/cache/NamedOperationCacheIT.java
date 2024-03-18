@@ -79,7 +79,6 @@ public class NamedOperationCacheIT {
     @BeforeAll
     public static void before() throws CacheOperationException {
         PROPERTIES.setAdminAuth(ADMIN_AUTH);
-        given(STORE.getProperties()).willReturn(PROPERTIES);
         CacheServiceLoader.initialise(HashMapCacheService.class.getCanonicalName());
         CacheServiceLoader.getDefaultService().clearCache(CACHE_NAME);
     }
@@ -94,11 +93,10 @@ public class NamedOperationCacheIT {
     public void shouldBeAbleToAddNamedOperationToCache() throws OperationException {
         // given
         GetAllNamedOperations get = new GetAllNamedOperations.Builder().build();
-        final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(PROPERTIES);
+        given(STORE.getProperties()).willReturn(PROPERTIES);
 
         // when
-        addNamedOperationHandler.doOperation(add, context, store);
+        addNamedOperationHandler.doOperation(add, context, STORE);
 
         NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
                 .operationName(add.getOperationName())
@@ -111,7 +109,7 @@ public class NamedOperationCacheIT {
 
         List<NamedOperationDetail> expected = Arrays.asList(expectedNamedOp);
         List<NamedOperationDetail> results = new ArrayList<>();
-        getAllNamedOperationsHandler.doOperation(get, context, store).forEach(results::add);
+        getAllNamedOperationsHandler.doOperation(get, context, STORE).forEach(results::add);
 
         // then
         assertThat(results)
@@ -122,10 +120,9 @@ public class NamedOperationCacheIT {
     @Test
     public void shouldBeAbleToDeleteNamedOperationFromCache() throws OperationException {
         // given
-        final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(PROPERTIES);
+        given(STORE.getProperties()).willReturn(PROPERTIES);
 
-        new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, store);
+        new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, STORE);
 
         DeleteNamedOperation del = new DeleteNamedOperation.Builder()
                 .name("op")
@@ -134,10 +131,10 @@ public class NamedOperationCacheIT {
         GetAllNamedOperations get = new GetAllNamedOperations();
 
         // when
-        deleteNamedOperationHandler.doOperation(del, context, store);
+        deleteNamedOperationHandler.doOperation(del, context, STORE);
 
         List<NamedOperationDetail> results = new ArrayList<>();
-        getAllNamedOperationsHandler1.doOperation(get, context, store).forEach(results::add);
+        getAllNamedOperationsHandler1.doOperation(get, context, STORE).forEach(results::add);
 
         // then
         assertThat(results).isEmpty();
@@ -146,11 +143,10 @@ public class NamedOperationCacheIT {
     @Test
     public void shouldAllowUpdatingOfNamedOperations() throws OperationException {
         // given
-        final Store store = mock(Store.class);
         final StoreProperties storeProps = mock(StoreProperties.class);
-        given(store.getProperties()).willReturn(storeProps);
+        given(STORE.getProperties()).willReturn(storeProps);
 
-        new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, store);
+        new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, STORE);
 
         AddNamedOperation update = new AddNamedOperation.Builder()
                 .name(add.getOperationName())
@@ -163,10 +159,10 @@ public class NamedOperationCacheIT {
         GetAllNamedOperations get = new GetAllNamedOperations();
 
         // when
-        new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, store);
+        new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, STORE);
 
         List<NamedOperationDetail> results = new ArrayList<>();
-        getAllNamedOperationsHandler.doOperation(get, context, store).forEach(results::add);
+        getAllNamedOperationsHandler.doOperation(get, context, STORE).forEach(results::add);
 
         NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
                 .operationName(update.getOperationName())
@@ -188,10 +184,9 @@ public class NamedOperationCacheIT {
     @Test
     public void shouldAllowUpdatingOfNamedOperationsWithAllowedUsers() throws OperationException {
         // given
-        final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(PROPERTIES);
+        given(STORE.getProperties()).willReturn(PROPERTIES);
 
-        new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, store);
+        new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, STORE);
 
         AddNamedOperation update = new AddNamedOperation.Builder()
                 .name(add.getOperationName())
@@ -204,10 +199,10 @@ public class NamedOperationCacheIT {
         GetAllNamedOperations get = new GetAllNamedOperations();
 
         // when
-        new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, store);
+        new AddNamedOperationHandler(SUFFIX, true).doOperation(add, context, STORE);
 
         List<NamedOperationDetail> results = new ArrayList<>();
-        getAllNamedOperationsHandler.doOperation(get, context, store).forEach(results::add);
+        getAllNamedOperationsHandler.doOperation(get, context, STORE).forEach(results::add);
 
         NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
                 .operationName(update.getOperationName())
