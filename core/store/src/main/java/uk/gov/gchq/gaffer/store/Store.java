@@ -384,25 +384,17 @@ public abstract class Store {
     }
 
     protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
-        Span span = tracer.spanBuilder(operation.toOverviewString()).startSpan();
-
-        try (Scope scope = span.makeCurrent()) {
+        try {
             addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
-            span.setStatus(StatusCode.OK);
-            span.addEvent("StartedOperation", Instant.now());
 
             final O result = (O) handleOperation(operation, context);
 
             addOrUpdateJobDetail(operation, context, null, JobStatus.FINISHED);
-            span.addEvent("FinishedOperation", Instant.now());
 
             return result;
         } catch (final Throwable t) {
-            span.recordException(t);
             addOrUpdateJobDetail(operation, context, t.getMessage(), JobStatus.FAILED);
             throw t;
-        } finally {
-            span.end();
         }
     }
 
@@ -993,17 +985,27 @@ public abstract class Store {
     }
 
     public Object handleOperation(final Operation operation, final Context context) throws OperationException {
+        Span span = tracer.spanBuilder(operation.getClass().getName()).startSpan();
+        span.setAttribute("gaffer.user", context.getUser().getUserId());
+        if (operation instanceof OperationChain) {
+            span.updateName(((OperationChain<?>) operation).toOverviewString());
+        }
+        span.addEvent("Started Operation", Instant.now());
         final OperationHandler<Operation> handler = getOperationHandler(operation.getClass());
         Object result;
-        try {
+        try (Scope scope = span.makeCurrent()) {
             if (nonNull(handler)) {
                 result = handler.doOperation(operation, context, this);
             } else {
                 result = doUnhandledOperation(operation, context);
             }
+            span.addEvent("Returning Operation Results", Instant.now());
         } catch (final Exception e) {
+            span.recordException(e);
             CloseableUtil.close(operation);
             throw e;
+        } finally {
+            span.end();
         }
 
         if (isNull(result)) {
