@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -42,6 +43,8 @@ public abstract class JSONSerialisationTest<T> {
 
         // Then
         assertNotNull(deserialisedObj);
+        assertEquals(new String(json), new String(toJson(deserialisedObj)));
+        assertEquals(obj, deserialisedObj);
     }
 
     @Test

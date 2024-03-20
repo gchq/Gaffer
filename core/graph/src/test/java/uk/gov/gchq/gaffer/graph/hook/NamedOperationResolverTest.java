@@ -442,6 +442,7 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
 
     @Override
     public NamedOperationResolver getTestObject() {
-        return new NamedOperationResolver(SUFFIX_CACHE_NAME);
+        //Using the @JsonCreator constructor
+        return new NamedOperationResolver(SUFFIX_CACHE_NAME, 20);
     }
 }
