@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -82,6 +83,8 @@ public class NamedOperationResolver implements GetFromCacheHook {
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
+        // Resolve the named operations in the chain
+        // (depth is set to zero as this is first level of recursion when checking for nested named ops)
         opChain.updateOperations(resolveNamedOperations(opChain, context.getUser(), 0));
     }
 
@@ -144,10 +147,13 @@ public class NamedOperationResolver implements GetFromCacheHook {
                 if (depth < depthLimit) {
                     updatedOperations.addAll(resolveNamedOperations(op, user, depth));
                 } else {
-                    LOGGER.warn("Nested depth limit hit resolving NamedOperations, operation maybe unresolved {}", op);
+                    // If a NamedOperation couldn't be resolved then error
+                    if (op instanceof NamedOperation) {
+                        LOGGER.error("Nested depth limit hit resolving NamedOperation: {}", ((NamedOperation<?, ?>) op).getOperationName());
+                        throw new GafferRuntimeException("NamedOperation Resolver hit nested depth limit of " + depthLimit);
+                    }
                     updatedOperations.add(op);
                 }
-
             }
         // If just a plain operation then nothing to resolve
         } else {

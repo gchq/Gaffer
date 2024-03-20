@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
@@ -192,22 +193,15 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
                         .first(op3)
                         .then(namedOp4)
                         .build());
-        // This is the expected list of resolved operation(s), only to a depth of 3 should be returned by default
-        final List<Operation> expectedResolvedChain = Arrays.asList(
-            new OperationChain<>(Arrays.asList(op1,
-                new OperationChain<>(Arrays.asList(op2,
-                    new OperationChain<>(Arrays.asList(op3, namedOp4)))
-                ))));
 
         // Create chain with named op 1 in to see if get resolved to the limit
         final OperationChain<Object> opChain = new OperationChain.Builder()
                 .first(namedOp1)
                 .build();
         // When
-        resolver.preExecute(opChain, new Context(user));
-
-        // Then
-        assertThat(opChain.getOperations()).isEqualTo(expectedResolvedChain);
+        assertThatExceptionOfType(GafferRuntimeException.class)
+            .isThrownBy(() -> resolver.preExecute(opChain, new Context(user)))
+            .withMessageContaining("NamedOperation Resolver hit nested depth limit");
     }
 
 
