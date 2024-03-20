@@ -990,7 +990,7 @@ public abstract class Store {
         if (operation instanceof OperationChain) {
             span.updateName(((OperationChain<?>) operation).toOverviewString());
         }
-        span.addEvent("Started Operation", Instant.now());
+        span.addEvent("Started Operation");
         final OperationHandler<Operation> handler = getOperationHandler(operation.getClass());
         Object result;
         try (Scope scope = span.makeCurrent()) {
@@ -999,8 +999,9 @@ public abstract class Store {
             } else {
                 result = doUnhandledOperation(operation, context);
             }
-            span.addEvent("Returning Operation Results", Instant.now());
+            span.addEvent("Operation Complete");
         } catch (final Exception e) {
+            span.setStatus(StatusCode.ERROR, e.getMessage());
             span.recordException(e);
             CloseableUtil.close(operation);
             throw e;

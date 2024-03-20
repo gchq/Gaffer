@@ -6,7 +6,9 @@ services:
     network_mode: "host"
     depends_on:
       - jaeger
-    #environment:
+    environment:
+    - OTEL_SERVICE_NAME=gaffer-rest
+    - OTEL_METRICS_EXPORTER=none
       # - OTEL_TRACES_EXPORTER=logging
       # - OTEL_METRICS_EXPORTER=logging
       # - OTEL_LOGS_EXPORTER=logging
