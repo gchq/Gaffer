@@ -71,11 +71,12 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
         // Given
         final String opName = "opName";
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
-        final List<Operation> expectedResolvedChain = Arrays.asList(new OperationChain(Arrays.asList(op1, op2)));
+        final OperationChain<?> testChain = new OperationChain(Arrays.asList(op1, op2));
+        final List<Operation> expectedResolvedChain = Arrays.asList(testChain);
 
         given(op1.getInput()).willReturn(null);
         given(cache.getNamedOperation(opName, user)).willReturn(namedOpDetail);
-        given(namedOpDetail.getOperationChain(null)).willReturn(new OperationChain(Arrays.asList(op1, op2)));
+        given(namedOpDetail.getOperationChain(null)).willReturn(testChain);
 
         final OperationChain<Object> opChain = new OperationChain.Builder()
             .first(new NamedOperation.Builder<>()
@@ -138,16 +139,16 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    void shouldResolveNestedNamedOperationsWithLimit(@Mock final User user,
-                                                     @Mock final NamedOperationCache cache,
-                                                     @Mock final NamedOperationDetail namedOp1Detail,
-                                                     @Mock final NamedOperationDetail namedOp2Detail,
-                                                     @Mock final NamedOperationDetail namedOp3Detail,
-                                                     @Mock final GetAdjacentIds op1,
-                                                     @Mock final GetElements op2,
-                                                     @Mock final GetElements op3,
-                                                     @Mock final Iterable<? extends EntityId> input)
-            throws CacheOperationException {
+    void shouldFailToResolveNestedNamedOperationsOverDefaultLimit(
+            @Mock final User user,
+            @Mock final NamedOperationCache cache,
+            @Mock final NamedOperationDetail namedOp1Detail,
+            @Mock final NamedOperationDetail namedOp2Detail,
+            @Mock final NamedOperationDetail namedOp3Detail,
+            @Mock final GetAdjacentIds op1,
+            @Mock final GetElements op2,
+            @Mock final GetElements op3,
+            @Mock final Iterable<? extends EntityId> input) throws CacheOperationException {
         // Given
         final String namedOp1Name = "namedOp1";
         final String namedOp2Name = "namedOp2";
@@ -201,6 +202,66 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
         // When
         assertThatExceptionOfType(GafferRuntimeException.class)
             .isThrownBy(() -> resolver.preExecute(opChain, new Context(user)))
+            .withMessageContaining("NamedOperation Resolver hit nested depth limit");
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Test
+    void shouldAllowConfigurableResolverDepthLimit(
+            @Mock final User user,
+            @Mock final NamedOperationCache cache,
+            @Mock final NamedOperationDetail namedOp1Detail,
+            @Mock final NamedOperationDetail namedOp2Detail,
+            @Mock final GetAdjacentIds op1,
+            @Mock final GetElements op2,
+            @Mock final GetElements op3,
+            @Mock final Iterable<? extends EntityId> input) throws CacheOperationException {
+
+        // Given
+        final String namedOp1Name = "namedOp1";
+        final String namedOp2Name = "namedOp2";
+        final String namedOp3Name = "namedOp3";
+        // Make a resolver with a stricter depth limit
+        final NamedOperationResolver resolverStrict = new NamedOperationResolver(cache, 2);
+
+        // Setup cache returns
+        given(cache.getNamedOperation(namedOp1Name, user)).willReturn(namedOp1Detail);
+        given(cache.getNamedOperation(namedOp2Name, user)).willReturn(namedOp2Detail);
+
+        // Create named ops
+        NamedOperation namedOp1 = new NamedOperation.Builder<>()
+                .name(namedOp1Name)
+                .input(input)
+                .build();
+        NamedOperation namedOp2 = new NamedOperation.Builder<>()
+                .name(namedOp2Name)
+                .input(input)
+                .build();
+        NamedOperation namedOp3 = new NamedOperation.Builder<>()
+                .name(namedOp3Name)
+                .input(input)
+                .build();
+
+        // Set up named op returns so they're nested e.g. 3 in 2, 2 in 1
+        given(namedOp1Detail.getOperationChain(null)).willReturn(
+                new OperationChain.Builder()
+                        .first(op1)
+                        .then(namedOp2)
+                        .build());
+        given(namedOp2Detail.getOperationChain(null)).willReturn(
+                new OperationChain.Builder()
+                        .first(op2)
+                        .then(namedOp3)
+                        .build());
+
+        // Create chains with named op 1 in to see if get resolved to the limit
+        final OperationChain<Object> opChainStrict = new OperationChain.Builder()
+                .first(namedOp1)
+                .build();
+
+        // When resolved using the stricter limit it should fail to resolve the chain
+        assertThatExceptionOfType(GafferRuntimeException.class)
+            .isThrownBy(() -> resolverStrict.preExecute(opChainStrict, new Context(user)))
             .withMessageContaining("NamedOperation Resolver hit nested depth limit");
     }
 
