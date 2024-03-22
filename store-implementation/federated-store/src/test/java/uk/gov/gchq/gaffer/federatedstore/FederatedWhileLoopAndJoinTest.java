@@ -52,7 +52,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.entityBas
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.user.User.UNKNOWN_USER_ID;
 
-public class FederatedWhileHandlerTest {
+public class FederatedWhileLoopAndJoinTest {
     @BeforeEach
     public void before() {
         resetForFederatedTests();
@@ -95,7 +95,7 @@ public class FederatedWhileHandlerTest {
     }
 
     @Test
-    void shouldWhileLoopOperationWithRepeatingConditionalOperation() throws Exception {
+    void shouldWhileLoopOperationWithJoinOperation() throws Exception {
         //given
         final FederatedStoreProperties properties = new FederatedStoreProperties();
         properties.set(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
