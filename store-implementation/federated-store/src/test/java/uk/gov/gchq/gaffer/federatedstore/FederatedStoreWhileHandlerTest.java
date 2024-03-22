@@ -121,27 +121,15 @@ public class FederatedStoreWhileHandlerTest {
                         .isPublic(true)
                         .build()), context);
 
-        federated.execute(new AddElements.Builder()
-                .input(entityBasic(), entityBasic(), entityBasic())
-                .build(), contextTestUser());
-
         final Operation operation = JSONSerialiser.deserialise("{\n" +
                 "  \"class\": \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
                 "  \"operations\": [\n" +
                 "    {\n" +
                 "      \"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\",\n" +
-//                "      \"options\": { \"gaffer.federatedstore.operation.graphIds\": \"dummy_graph\" },\n" +
                 "      \"input\": [\n" +
                 "        {\n" +
                 "          \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",\n" +
                 "          \"vertex\": \"basicVertex\"" +
-//                "          \"vertex\": {\n" +
-//                "            \"uk.gov.gchq.gaffer.types.TypeSubTypeValue\": {\n" +
-//                "              \"type\": \"test\",\n" +
-//                "              \"subType\": \"test\",\n" +
-//                "              \"value\": \"1\"\n" +
-//                "            }\n" +
-//                "          }\n" +
                 "        }\n" +
                 "      ]\n" +
                 "    },\n" +
@@ -156,15 +144,14 @@ public class FederatedStoreWhileHandlerTest {
                 "    },\n" +
                 "    {\n" +
                 "      \"class\": \"uk.gov.gchq.gaffer.operation.impl.While\",\n" +
-//                "      \"options\": { \"gaffer.federatedstore.operation.graphIds\": \"dummy_graph\" },\n" +
-                "      \"maxRepeats\": 2,\n" +
+                //Loop 4 times
+                "      \"maxRepeats\": 4,\n" +
                 "      \"operation\": {\n" +
                 "        \"class\": \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
                 "        \"operations\": [\n" +
                 "          {\n" +
                 "            \"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\",\n" +
                 "            \"options\": {\n" +
-//                "              \"gaffer.federatedstore.operation.graphIds\": \"dummy_graph\"\n" +
                 "            }\n" +
                 "          },\n" +
                 "          {\n" +
@@ -200,7 +187,8 @@ public class FederatedStoreWhileHandlerTest {
                 "              \"class\": \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
                 "              \"operations\": [\n" +
                 "                { \"class\": \"uk.gov.gchq.gaffer.operation.impl.DiscardOutput\" },\n" +
-                "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"input\":[{\"class\":\"uk.gov.gchq.gaffer.data.element.Entity\",\"group\":\"BasicEntity\",\"vertex\":\"basicVertex\",\"properties\":{\"property1\":1}},{\"class\":\"uk.gov.gchq.gaffer.data.element.Entity\",\"group\":\"BasicEntity\",\"vertex\":\"basicVertex\",\"properties\":{\"property1\":1}},{\"class\":\"uk.gov.gchq.gaffer.data.element.Entity\",\"group\":\"BasicEntity\",\"vertex\":\"basicVertex\",\"properties\":{\"property1\":1}}],\"skipInvalidElements\":false,\"validate\":true}" +
+                //Add 3 entities
+                "                { \"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"input\":[{\"class\":\"uk.gov.gchq.gaffer.data.element.Entity\",\"group\":\"BasicEntity\",\"vertex\":\"basicVertex\",\"properties\":{\"property1\":1}},{\"class\":\"uk.gov.gchq.gaffer.data.element.Entity\",\"group\":\"BasicEntity\",\"vertex\":\"basicVertex\",\"properties\":{\"property1\":1}},{\"class\":\"uk.gov.gchq.gaffer.data.element.Entity\",\"group\":\"BasicEntity\",\"vertex\":\"basicVertex\",\"properties\":{\"property1\":1}}],\"skipInvalidElements\":false,\"validate\":true}" +
                 "              ]\n" +
                 "            }\n" +
                 "          },\n" +
@@ -224,7 +212,13 @@ public class FederatedStoreWhileHandlerTest {
 //        federated.execute(new NamedOperation.Builder<>().name("testNamedOp").input("basicVertex").build(), contextTestUser());
 
         //then
-    }
+        assertThat(federated.execute(new GetAllElements(), contextTestUser()))
+                .containsExactly(new Entity.Builder()
+                        .group(GROUP_BASIC_ENTITY)
+                        .vertex(BASIC_VERTEX)
+                        // 3 * 4 = 12
+                        .property(PROPERTY_1, 12)
+                        .build());    }
 
     @Test
     void shouldWhileLoopOperationFromNamedOperation() throws Exception {
