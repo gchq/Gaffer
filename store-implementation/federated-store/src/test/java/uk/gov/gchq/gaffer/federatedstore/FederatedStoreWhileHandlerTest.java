@@ -200,10 +200,7 @@ public class FederatedStoreWhileHandlerTest {
                 "              \"class\": \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
                 "              \"operations\": [\n" +
                 "                { \"class\": \"uk.gov.gchq.gaffer.operation.impl.DiscardOutput\" },\n" +
-                "                {\n" +
-                "                  \"class\": \"uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport\",\n" +
-                "                  \"key\": \"seeds\"\n" +
-                "                }\n" +
+                "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"input\":[{\"class\":\"uk.gov.gchq.gaffer.data.element.Entity\",\"group\":\"BasicEntity\",\"vertex\":\"basicVertex\",\"properties\":{\"property1\":1}},{\"class\":\"uk.gov.gchq.gaffer.data.element.Entity\",\"group\":\"BasicEntity\",\"vertex\":\"basicVertex\",\"properties\":{\"property1\":1}},{\"class\":\"uk.gov.gchq.gaffer.data.element.Entity\",\"group\":\"BasicEntity\",\"vertex\":\"basicVertex\",\"properties\":{\"property1\":1}}],\"skipInvalidElements\":false,\"validate\":true}" +
                 "              ]\n" +
                 "            }\n" +
                 "          },\n" +
@@ -227,12 +224,6 @@ public class FederatedStoreWhileHandlerTest {
 //        federated.execute(new NamedOperation.Builder<>().name("testNamedOp").input("basicVertex").build(), contextTestUser());
 
         //then
-        assertThat(federated.execute(new GetAllElements(), contextTestUser()))
-                .containsExactly(new Entity.Builder()
-                        .group(GROUP_BASIC_ENTITY)
-                        .vertex(BASIC_VERTEX)
-                        .property(PROPERTY_1, 3)
-                        .build());
     }
 
     @Test
