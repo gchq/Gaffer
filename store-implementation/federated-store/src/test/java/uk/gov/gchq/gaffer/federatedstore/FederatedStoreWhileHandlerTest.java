@@ -122,102 +122,103 @@ public class FederatedStoreWhileHandlerTest {
                         .build()), context);
 
         final Operation operation = JSONSerialiser.deserialise("{\n" +
-                "  \"class\": \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
-                "  \"operations\": [\n" +
-                "    {\n" +
-                "      \"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\",\n" +
-                "      \"input\": [\n" +
-                "        {\n" +
-                "          \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",\n" +
-                "          \"vertex\": \"basicVertex\"" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
+                "  \"operations\" : [ {\n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\",\n" +
+                "    \"input\" : [ {\n" +
+                "      \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",\n" +
+                "      \"vertex\" : \"basicVertex\"\n" +
+                "    } ]\n" +
+                "  }, {\n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.output.ToVertices\",\n" +
+                "    \"useMatchedVertex\" : \"OPPOSITE\"\n" +
+                "  }, {\n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds\"\n" +
+                "  }, {\n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet\",\n" +
+                "    \"key\" : \"seeds\"\n" +
+                "  }, {\n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.While\",\n" +
+                "    \"operation\" : {\n" +
+                "      \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
+                "      \"operations\" : [ {\n" +
+                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\"\n" +
+                "      }, {\n" +
+                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.SetVariable\",\n" +
+                "        \"variableName\" : \"current_hop_edges\"\n" +
+                "      }, {\n" +
+                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.GetVariable\",\n" +
+                "        \"variableName\" : \"current_hop_edges\"\n" +
+                "      }, {\n" +
+                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList\"\n" +
+                "      }, {\n" +
+                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.Reduce\",\n" +
+                "        \"aggregateFunction\" : {\n" +
+                "          \"class\" : \"uk.gov.gchq.koryphe.impl.binaryoperator.First\"\n" +
                 "        }\n" +
-                "      ]\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"class\": \"uk.gov.gchq.gaffer.operation.impl.output.ToVertices\",\n" +
-                "      \"useMatchedVertex\": \"OPPOSITE\"\n" +
-                "    },\n" +
-                "    { \"class\": \"uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds\" },\n" +
-                "    {\n" +
-                "      \"class\": \"uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet\",\n" +
-                "      \"key\": \"seeds\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"class\": \"uk.gov.gchq.gaffer.operation.impl.While\",\n" +
-                //Loop 4 times
-                "      \"maxRepeats\": 4,\n" +
-                "      \"operation\": {\n" +
-                "        \"class\": \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
-                "        \"operations\": [\n" +
-                "          {\n" +
-                "            \"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\",\n" +
-                "            \"options\": {\n" +
-                "            }\n" +
-                "          },\n" +
-                "          {\n" +
-                "            \"class\": \"uk.gov.gchq.gaffer.operation.impl.SetVariable\",\n" +
-                "            \"variableName\": \"current_hop_edges\"\n" +
-                "          },\n" +
-                "          {\n" +
-                "            \"class\": \"uk.gov.gchq.gaffer.operation.impl.GetVariable\",\n" +
-                "            \"variableName\": \"current_hop_edges\"\n" +
-                "          },\n" +
-                "          {\n" +
-                "            \"class\": \"uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList\"\n" +
-                "          },\n" +
-                "          {\n" +
-                "            \"class\": \"uk.gov.gchq.gaffer.operation.impl.Reduce\",\n" +
-                "            \"aggregateFunction\": {\n" +
-                "              \"class\": \"uk.gov.gchq.koryphe.impl.binaryoperator.First\"\n" +
-                "            }\n" +
-                "          },\n" +
-                "          {\n" +
-                "            \"class\": \"uk.gov.gchq.gaffer.operation.impl.output.ToVertices\",\n" +
-                "            \"useMatchedVertex\": \"OPPOSITE\"\n" +
-                "          },\n" +
-                "          { \"class\": \"uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds\" },\n" +
-                "          {\n" +
-                "            \"class\": \"uk.gov.gchq.gaffer.operation.impl.join.Join\",\n" +
-                "            \"joinType\": \"OUTER\",\n" +
-                "            \"matchKey\": \"LEFT\",\n" +
-                "            \"matchMethod\": {\n" +
-                "              \"class\": \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\"\n" +
-                "            },\n" +
-                "            \"operation\": {\n" +
-                "              \"class\": \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
-                "              \"operations\": [\n" +
-                "                { \"class\": \"uk.gov.gchq.gaffer.operation.impl.DiscardOutput\" },\n" +
-                //Add 3 entities
-                "                { \"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"input\":[{\"class\":\"uk.gov.gchq.gaffer.data.element.Entity\",\"group\":\"BasicEntity\",\"vertex\":\"basicVertex\",\"properties\":{\"property1\":1}},{\"class\":\"uk.gov.gchq.gaffer.data.element.Entity\",\"group\":\"BasicEntity\",\"vertex\":\"basicVertex\",\"properties\":{\"property1\":1}},{\"class\":\"uk.gov.gchq.gaffer.data.element.Entity\",\"group\":\"BasicEntity\",\"vertex\":\"basicVertex\",\"properties\":{\"property1\":1}}],\"skipInvalidElements\":false,\"validate\":true}" +
-                "              ]\n" +
-                "            }\n" +
-                "          },\n" +
-                "          {\n" +
-                "            \"class\": \"uk.gov.gchq.gaffer.operation.impl.ForEach\",\n" +
-                "            \"operation\": {\n" +
-                "              \"class\": \"uk.gov.gchq.gaffer.operation.impl.Reduce\",\n" +
-                "              \"aggregateFunction\": {\n" +
-                "                \"class\": \"uk.gov.gchq.koryphe.impl.binaryoperator.Last\"\n" +
+                "      }, {\n" +
+                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.output.ToVertices\",\n" +
+                "        \"useMatchedVertex\" : \"OPPOSITE\"\n" +
+                "      }, {\n" +
+                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds\"\n" +
+                "      }, {\n" +
+                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.join.Join\",\n" +
+                "        \"operation\" : {\n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
+                "          \"operations\" : [ {\n" +
+                "            \"class\" : \"uk.gov.gchq.gaffer.operation.impl.DiscardOutput\"\n" +
+                "          }, {\n" +
+                //Add 1 entity
+                "            \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\n" +
+                "            \"input\" : [ {\n" +
+                "              \"class\" : \"uk.gov.gchq.gaffer.data.element.Entity\",\n" +
+                "              \"group\" : \"BasicEntity\",\n" +
+                "              \"vertex\" : \"basicVertex\",\n" +
+                "              \"properties\" : {\n" +
+                "                \"property1\" : 1\n" +
                 "              }\n" +
-                "            }\n" +
+                "            } ],\n" +
+                "            \"skipInvalidElements\" : false,\n" +
+                "            \"validate\" : true\n" +
+                "          } ]\n" +
+                "        },\n" +
+                "        \"matchMethod\" : {\n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
+                "          \"firstKeyFunction\" : {\n" +
+                "            \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"\n" +
+                "          },\n" +
+                "          \"secondKeyFunction\" : {\n" +
+                "            \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"\n" +
                 "          }\n" +
-                "        ]\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}\n", OperationChain.class);
+                "        },\n" +
+                "        \"matchKey\" : \"LEFT\",\n" +
+                "        \"flatten\" : true,\n" +
+                "        \"joinType\" : \"OUTER\"\n" +
+                "      }, {\n" +
+                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.ForEach\",\n" +
+                "        \"operation\" : {\n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.operation.impl.Reduce\",\n" +
+                "          \"aggregateFunction\" : {\n" +
+                "            \"class\" : \"uk.gov.gchq.koryphe.impl.binaryoperator.Last\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      } ]\n" +
+                "    },\n" +
+                // Loop 4 times
+                "    \"maxRepeats\" : 4\n" +
+                "  } ]\n" +
+                "}", OperationChain.class);
 
         //when
         federated.execute(operation, contextTestUser());
-//        federated.execute(new NamedOperation.Builder<>().name("testNamedOp").input("basicVertex").build(), contextTestUser());
 
         //then
         assertThat(federated.execute(new GetAllElements(), contextTestUser()))
                 .containsExactly(new Entity.Builder()
                         .group(GROUP_BASIC_ENTITY)
                         .vertex(BASIC_VERTEX)
-                        // 3 * 4 = 12
-                        .property(PROPERTY_1, 12)
+                        // 1 * 4 = 4
+                        .property(PROPERTY_1, 4)
                         .build());    }
 
     @Test
