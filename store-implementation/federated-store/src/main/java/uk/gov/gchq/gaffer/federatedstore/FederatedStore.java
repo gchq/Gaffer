@@ -42,7 +42,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.IFederationOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraphAndDeleteAllData;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedDelegateToHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedStoreWhileHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedWhileHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphWithHooksHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphAccessHandler;
@@ -55,7 +55,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputH
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphAndDeleteAllDataHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedStoreJoinHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedJoinHandler;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.MergeSchema;
@@ -516,8 +516,8 @@ public class FederatedStore extends Store {
         addOperationHandler(Validate.class, new FederatedDelegateToHandler(new ValidateHandler()));
 
         //override with Federated safe version.
-        addOperationHandler(While.class, new FederatedStoreWhileHandler());
-        addOperationHandler(Join.class, new FederatedStoreJoinHandler());
+        addOperationHandler(While.class, new FederatedWhileHandler());
+        addOperationHandler(Join.class, new FederatedJoinHandler());
 
         //FederationOperations
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());

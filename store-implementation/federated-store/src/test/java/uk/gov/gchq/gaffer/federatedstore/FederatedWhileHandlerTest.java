@@ -52,7 +52,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.entityBas
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.user.User.UNKNOWN_USER_ID;
 
-public class FederatedStoreWhileHandlerTest {
+public class FederatedWhileHandlerTest {
     @BeforeEach
     public void before() {
         resetForFederatedTests();

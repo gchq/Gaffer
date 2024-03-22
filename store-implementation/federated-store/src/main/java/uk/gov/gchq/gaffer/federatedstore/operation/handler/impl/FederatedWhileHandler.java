@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation.handler;
+package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.store.operation.handler.WhileHandler;
-
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.shallowCloneWithDeepOptions;
 
 /**
  * <p>
@@ -28,10 +26,10 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.shallowC
  *
  * @see WhileHandler
  */
-public class FederatedStoreWhileHandler extends WhileHandler {
+public class FederatedWhileHandler extends WhileHandler {
 
     /**
-     * Gets an Operation from a While, but with a deep clone of the options field.
+     * Gets an Operation from a While, but with a clone.
      * This avoids a false looping error being detected by the FederatedStore.
      *
      * @param aWhile The while to get operation from
@@ -39,7 +37,6 @@ public class FederatedStoreWhileHandler extends WhileHandler {
      */
     @Override
     protected Operation getOperationFromWhile(final While aWhile) {
-        //TODO it is likely that other Option changes should be preserved and restored.
         return super.getOperationFromWhile(aWhile).shallowClone();
     }
 
