@@ -9,7 +9,7 @@ public class FederatedStoreJoinHandler<I> extends JoinHandler<I> {
 
     @Override
     protected Operation getOperationFromJoin(final Join<I> join) {
-        //TODO it is likely that other Option changes should be preserved.
-        return FederatedStoreUtil.shallowCloneWithDeepOptions(super.getOperationFromJoin(join));
+        //TODO it is likely that other Option changes should be preserved and restored.
+        return super.getOperationFromJoin(join).shallowClone();
     }
 }

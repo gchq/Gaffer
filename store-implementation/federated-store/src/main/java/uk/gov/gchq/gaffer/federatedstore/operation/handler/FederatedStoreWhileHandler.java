@@ -39,8 +39,8 @@ public class FederatedStoreWhileHandler extends WhileHandler {
      */
     @Override
     protected Operation getOperationFromWhile(final While aWhile) {
-        //TODO it is likely that other Option changes should be preserved.
-        return shallowCloneWithDeepOptions(super.getOperationFromWhile(aWhile));
+        //TODO it is likely that other Option changes should be preserved and restored.
+        return super.getOperationFromWhile(aWhile).shallowClone();
     }
 
 }
