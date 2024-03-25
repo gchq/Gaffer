@@ -55,7 +55,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputI
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphAndDeleteAllDataHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
-import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
+import uk.gov.gchq.gaffer.federatedstore.util.MergeElementFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.MergeSchema;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -160,8 +160,8 @@ public class FederatedStore extends Store {
         this.storeConfiguredMergeFunctions = (null == storeConfiguredMergeFunctions) ? new HashMap<>() : new HashMap<>(storeConfiguredMergeFunctions);
 
         this.storeConfiguredMergeFunctions.putIfAbsent(GetTraits.class.getCanonicalName(), new CollectionIntersect<>());
-        this.storeConfiguredMergeFunctions.putIfAbsent(GetAllElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
-        this.storeConfiguredMergeFunctions.putIfAbsent(GetElements.class.getCanonicalName(), new ApplyViewToElementsFunction());
+        this.storeConfiguredMergeFunctions.putIfAbsent(GetAllElements.class.getCanonicalName(), new MergeElementFunction());
+        this.storeConfiguredMergeFunctions.putIfAbsent(GetElements.class.getCanonicalName(), new MergeElementFunction());
         this.storeConfiguredMergeFunctions.putIfAbsent(GetSchema.class.getCanonicalName(), new MergeSchema());
     }
 

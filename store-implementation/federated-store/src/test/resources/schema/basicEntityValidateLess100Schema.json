@@ -1,0 +1,32 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "vertex.string",
+      "properties": {
+        "property1": "simpleProperty"
+      }
+    }
+  },
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String"
+    },
+    "simpleProperty": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      },
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsLessThan",
+          "value": {
+            "java.lang.Integer": 100
+          }
+        }
+      ],
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+      }
+    }
+  }
+}
