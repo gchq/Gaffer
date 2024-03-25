@@ -298,9 +298,9 @@ public class FederatedGraphStorage {
      */
     private Stream<GraphSerialisable> getUserGraphStream(final Predicate<FederatedAccess> readAccessPredicate) {
         return StreamSupport.stream(federatedStoreCache.getAllGraphIds().spliterator(), false)
-            .map(federatedStoreCache::getFromCache)
-            .filter(pair -> readAccessPredicate.test(pair.getSecond()))
-            .map(Pair::getFirst);
+                .map(federatedStoreCache::getFromCache)
+                .filter(pair -> readAccessPredicate.test(pair.getSecond()))
+                .map(Pair::getFirst);
     }
 
     @SuppressWarnings("PMD.PreserveStackTrace") //Not Required
@@ -338,26 +338,27 @@ public class FederatedGraphStorage {
         this.graphLibrary = graphLibrary;
     }
 
-    protected Map<String, Object> getAllGraphsAndAccess(final User user, final List<String> graphIds) {
-        return getAllGraphsAndAccess(graphIds, access -> access != null && access.hasReadAccess(user));
+    protected Map<String, Object> getAllGraphsAndAccess(final User user, final List<String> graphIds, final List<String> excludedGraphIds) {
+        return getAllGraphsAndAccess(graphIds, excludedGraphIds, access -> access != null && access.hasReadAccess(user));
     }
 
-    protected Map<String, Object> getAllGraphsAndAccess(final User user, final List<String> graphIds, final String adminAuth) {
-        return getAllGraphsAndAccess(graphIds, access -> access != null && access.hasReadAccess(user, adminAuth));
+    protected Map<String, Object> getAllGraphsAndAccess(final User user, final List<String> whiteListGraphIds, final List<String> excludedGraphIds, final String adminAuth) {
+        return getAllGraphsAndAccess(whiteListGraphIds, excludedGraphIds, access -> access != null && access.hasReadAccess(user, adminAuth));
     }
 
-    private Map<String, Object> getAllGraphsAndAccess(final List<String> graphIds, final Predicate<FederatedAccess> accessPredicate) {
+    private Map<String, Object> getAllGraphsAndAccess(final List<String> whiteListGraphIds, final List<String> excludedGraphIds, final Predicate<FederatedAccess> accessPredicate) {
         return StreamSupport.stream(federatedStoreCache.getAllGraphIds().spliterator(), false)
-            .map(federatedStoreCache::getFromCache)
-            // filter on FederatedAccess
-            .filter(pair -> accessPredicate.test(pair.getSecond()))
-            // filter on if graph required?
-            .filter(pair -> {
-                final boolean isGraphIdRequested = nonNull(graphIds) && graphIds.contains(pair.getFirst().getGraphId());
-                final boolean isAllGraphIdsRequired = isNull(graphIds) || graphIds.isEmpty();
-                return isGraphIdRequested || isAllGraphIdsRequired;
-            })
-            .collect(Collectors.toMap(pair -> pair.getFirst().getGraphId(), Pair::getSecond));
+                .map(federatedStoreCache::getFromCache)
+                // filter on FederatedAccess
+                .filter(pair -> accessPredicate.test(pair.getSecond()))
+                // filter on if graph required?
+                .filter(pair -> {
+                    final boolean isGraphIdRequested = nonNull(whiteListGraphIds) && whiteListGraphIds.contains(pair.getFirst().getGraphId());
+                    final boolean isExcluded = excludedGraphIds != null && excludedGraphIds.contains(pair.getFirst().getGraphId());
+                    final boolean isAllGraphIdsRequired = isNull(whiteListGraphIds) || whiteListGraphIds.isEmpty();
+                    return (!isExcluded && isGraphIdRequested) || (!isExcluded && isAllGraphIdsRequired);
+                })
+                .collect(Collectors.toMap(pair -> pair.getFirst().getGraphId(), Pair::getSecond));
     }
 
     public boolean changeGraphAccess(final String graphId, final FederatedAccess newFederatedAccess, final User requestingUser) throws StorageException {

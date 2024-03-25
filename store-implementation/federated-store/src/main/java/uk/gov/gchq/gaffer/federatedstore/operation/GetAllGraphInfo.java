@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,11 +47,18 @@ public class GetAllGraphInfo implements
         IFederatedOperation {
     private Map<String, String> options;
     private List<String> graphIds;
+    private List<String> excludedGraphsIds;
     private boolean userRequestingAdminUsage;
 
     @Override
     public GetAllGraphInfo graphIds(final List<String> graphsIds) {
         this.graphIds = graphsIds == null ? null : Collections.unmodifiableList(graphsIds);
+        return this;
+    }
+
+    @Override
+    public IFederatedOperation excludedGraphIds(final List<String> excludedGraphsIds) {
+        this.excludedGraphsIds = excludedGraphsIds == null ? null : Collections.unmodifiableList(excludedGraphsIds);
         return this;
     }
 
@@ -62,9 +69,21 @@ public class GetAllGraphInfo implements
     }
 
     @Override
+    @JsonIgnore
+    public IFederatedOperation excludedGraphIdsCSV(final String excludedGraphIds) {
+        return excludedGraphIds(FederatedStoreUtil.getCleanStrings(excludedGraphIds));
+    }
+
+    @Override
     @JsonProperty("graphIds")
     public List<String> getGraphIds() {
         return (graphIds == null) ? null : Lists.newArrayList(graphIds);
+    }
+
+    @Override
+    @JsonProperty("excludedGraphsIds")
+    public List<String> getExcludedGraphIds() {
+        return (excludedGraphsIds == null) ? null : Lists.newArrayList(excludedGraphsIds);
     }
 
     @Override
@@ -139,8 +158,17 @@ public class GetAllGraphInfo implements
             return this;
         }
 
+        public Builder excludedGraphIdsCSV(final String excludedGraphIdsCSV) {
+            this._getOp().excludedGraphIdsCSV(excludedGraphIdsCSV);
+            return this;
+        }
         public Builder graphIDs(final List<String> graphIds) {
             this._getOp().graphIds(graphIds);
+            return this;
+        }
+
+        public Builder excludedGraphIds(final List<String> excludedGraphIds) {
+            this._getOp().excludedGraphIds(excludedGraphIds);
             return this;
         }
     }

@@ -468,10 +468,10 @@ public class FederatedStore extends Store {
         return isFedStoreIdPreexisting;
     }
 
-    public Map<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds, final boolean userRequestingAdminUsage) {
+    public Map<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds, final List<String> excludedGraphIds, final boolean userRequestingAdminUsage) {
         return userRequestingAdminUsage
-                ? graphStorage.getAllGraphsAndAccess(user, graphIds, this.getProperties().getAdminAuth())
-                : graphStorage.getAllGraphsAndAccess(user, graphIds);
+                ? graphStorage.getAllGraphsAndAccess(user, graphIds, excludedGraphIds, this.getProperties().getAdminAuth())
+                : graphStorage.getAllGraphsAndAccess(user, graphIds, excludedGraphIds);
     }
 
     /**
