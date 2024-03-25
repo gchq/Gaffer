@@ -173,7 +173,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     @JsonProperty("excludedGraphsIds")
     @Override
-    public List<String> getexcludedGraphIds() {
+    public List<String> getExcludedGraphIds() {
         return (excludedGraphsIds == null) ? null : Lists.newArrayList(excludedGraphsIds);
     }
 

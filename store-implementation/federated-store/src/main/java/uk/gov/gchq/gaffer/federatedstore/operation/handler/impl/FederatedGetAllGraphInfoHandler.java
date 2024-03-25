@@ -33,7 +33,7 @@ public class FederatedGetAllGraphInfoHandler implements OutputOperationHandler<G
     public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store) throws OperationException {
         try {
             final List<String> graphIds = operation.getGraphIds();
-            final List<String> excludedGraphIds = operation.getexcludedGraphIds();
+            final List<String> excludedGraphIds = operation.getExcludedGraphIds();
 
             return ((FederatedStore) store).getAllGraphsAndAuths(context.getUser(), graphIds, excludedGraphIds ,operation.isUserRequestingAdminUsage());
         } catch (final Exception e) {
