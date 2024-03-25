@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
-import java.util.List;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
@@ -170,7 +170,7 @@ public class FederatedStoreGraphIDsTest {
         Iterable results = (Iterable) federatedStore.execute(
                 new FederatedOperation.Builder()
                         .op(new GetAllElements())
-                        .graphIds(List.of(GRAPH_ID_A, GRAPH_ID_B))
+                        .graphIds(Arrays.asList(GRAPH_ID_A, GRAPH_ID_B))
                         .excludedGraphIdsCSV(GRAPH_ID_B)
                         .build(), contextBlankUser());
 
