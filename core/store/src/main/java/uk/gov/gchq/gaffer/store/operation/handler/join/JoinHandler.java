@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.join;
 
 import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
@@ -63,9 +64,9 @@ public class JoinHandler<I> implements OutputOperationHandler<Join<I>, Iterable<
 
         JoinFunction joinFunction = operation.getJoinType().createInstance();
 
-        updateOperationInput(operation.getOperation(), null);
+        updateOperationInput(getOperationFromJoin(operation), null);
         Iterable<I> rightIterable =
-                (Iterable<I>) getResultsOrNull(operation.getOperation(),
+                (Iterable<I>) getResultsOrNull(getOperationFromJoin(operation),
                         context,
                         store);
 
@@ -80,5 +81,9 @@ public class JoinHandler<I> implements OutputOperationHandler<Join<I>, Iterable<
             throw new OperationException("Join exceeded the collectionLimit, a solution is to increasing collectionLimit value in the join operation.", e);
         }
 
+    }
+
+    protected Operation getOperationFromJoin(final Join<I> operation) {
+        return operation.getOperation();
     }
 }
