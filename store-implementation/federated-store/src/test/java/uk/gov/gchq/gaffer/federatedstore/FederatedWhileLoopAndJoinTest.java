@@ -25,19 +25,25 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.join.Join;
+import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
+import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
+
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.BASIC_VERTEX;
@@ -121,96 +127,31 @@ public class FederatedWhileLoopAndJoinTest {
                         .isPublic(true)
                         .build()), context);
 
-        final Operation operation = JSONSerialiser.deserialise("{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
-                "  \"operations\" : [ {\n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\",\n" +
-                "    \"input\" : [ {\n" +
-                "      \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",\n" +
-                "      \"vertex\" : \"basicVertex\"\n" +
-                "    } ]\n" +
-                "  }, {\n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.output.ToVertices\",\n" +
-                "    \"useMatchedVertex\" : \"OPPOSITE\"\n" +
-                "  }, {\n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds\"\n" +
-                "  }, {\n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet\",\n" +
-                "    \"key\" : \"seeds\"\n" +
-                "  }, {\n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.While\",\n" +
-                "    \"operation\" : {\n" +
-                "      \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
-                "      \"operations\" : [ {\n" +
-                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\"\n" +
-                "      }, {\n" +
-                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.SetVariable\",\n" +
-                "        \"variableName\" : \"current_hop_edges\"\n" +
-                "      }, {\n" +
-                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.GetVariable\",\n" +
-                "        \"variableName\" : \"current_hop_edges\"\n" +
-                "      }, {\n" +
-                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList\"\n" +
-                "      }, {\n" +
-                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.Reduce\",\n" +
-                "        \"aggregateFunction\" : {\n" +
-                "          \"class\" : \"uk.gov.gchq.koryphe.impl.binaryoperator.First\"\n" +
-                "        }\n" +
-                "      }, {\n" +
-                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.output.ToVertices\",\n" +
-                "        \"useMatchedVertex\" : \"OPPOSITE\"\n" +
-                "      }, {\n" +
-                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds\"\n" +
-                "      }, {\n" +
-                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.join.Join\",\n" +
-                "        \"operation\" : {\n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
-                "          \"operations\" : [ {\n" +
-                "            \"class\" : \"uk.gov.gchq.gaffer.operation.impl.DiscardOutput\"\n" +
-                "          }, {\n" +
-                //Add 1 entity
-                "            \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\n" +
-                "            \"input\" : [ {\n" +
-                "              \"class\" : \"uk.gov.gchq.gaffer.data.element.Entity\",\n" +
-                "              \"group\" : \"BasicEntity\",\n" +
-                "              \"vertex\" : \"basicVertex\",\n" +
-                "              \"properties\" : {\n" +
-                "                \"property1\" : 1\n" +
-                "              }\n" +
-                "            } ],\n" +
-                "            \"skipInvalidElements\" : false,\n" +
-                "            \"validate\" : true\n" +
-                "          } ]\n" +
-                "        },\n" +
-                "        \"matchMethod\" : {\n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
-                "          \"firstKeyFunction\" : {\n" +
-                "            \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"\n" +
-                "          },\n" +
-                "          \"secondKeyFunction\" : {\n" +
-                "            \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"\n" +
-                "          }\n" +
-                "        },\n" +
-                "        \"matchKey\" : \"LEFT\",\n" +
-                "        \"flatten\" : true,\n" +
-                "        \"joinType\" : \"OUTER\"\n" +
-                "      }, {\n" +
-                "        \"class\" : \"uk.gov.gchq.gaffer.operation.impl.ForEach\",\n" +
-                "        \"operation\" : {\n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.operation.impl.Reduce\",\n" +
-                "          \"aggregateFunction\" : {\n" +
-                "            \"class\" : \"uk.gov.gchq.koryphe.impl.binaryoperator.Last\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      } ]\n" +
-                "    },\n" +
-                // Loop 4 times
-                "    \"maxRepeats\" : 4\n" +
-                "  } ]\n" +
-                "}", OperationChain.class);
+        final While<Object, Object> simplifiedWhileJoinTestOp = new While.Builder<>()
+                .conditional(new Exists(), new GetAllElements())
+                .operation(new Join.Builder<>()
+                        .operation(new OperationChain.Builder()
+                                .first(new DiscardOutput())
+                                //Add 1 element
+                                .then(new AddElements.Builder()
+                                        .input(entityBasic())
+                                        .build())
+                                .build())
+                        .matchKey(MatchKey.LEFT)
+                        .flatten(true)
+                        .matchMethod(new KeyFunctionMatch.Builder()
+                                .firstKeyFunction(Function.identity())
+                                .secondKeyFunction(Function.identity())
+                                .build())
+                        .joinType(JoinType.OUTER)
+                        .build())
+                //loop 4 times
+                .maxRepeats(4)
+                .build();
+
 
         //when
-        federated.execute(operation, contextTestUser());
+        federated.execute(simplifiedWhileJoinTestOp, contextTestUser());
 
         //then
         assertThat(federated.execute(new GetAllElements(), contextTestUser()))
@@ -219,7 +160,8 @@ public class FederatedWhileLoopAndJoinTest {
                         .vertex(BASIC_VERTEX)
                         // 1 * 4 = 4
                         .property(PROPERTY_1, 4)
-                        .build());    }
+                        .build());
+    }
 
     @Test
     void shouldWhileLoopOperationFromNamedOperation() throws Exception {
