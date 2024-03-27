@@ -28,8 +28,11 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreVisibilityTest;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
@@ -46,18 +49,14 @@ import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 import uk.gov.gchq.koryphe.predicate.AdaptedPredicate;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.*;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -71,16 +70,36 @@ public class FederatedAddGraphWithHooksHandlerTest {
     private User authUser;
     private User blankUser;
     private FederatedStore store;
-    private FederatedStoreProperties federatedStoreProperties;
+    private Graph federatedGraph;
 
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedAddGraphWithHooksHandlerTest.class, "properties/singleUseAccumuloStore.properties"));
+
+    public static FederatedStoreProperties createProperties() {
+        FederatedStoreProperties fedProps  = new FederatedStoreProperties();
+        try {
+            Properties props = new Properties();
+            props.load(FederatedStoreVisibilityTest.class.getResourceAsStream("/properties/federatedStore.properties"));
+            fedProps.setProperties(props);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        fedProps .setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        return fedProps;
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
+        FederatedStoreProperties props = createProperties();
+
+        federatedGraph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                        .build())
+                .addStoreProperties(props)
+                .build();
+
         this.store = new FederatedStore();
-        federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         testUser = testUser();
         authUser = authUser();
@@ -94,7 +113,8 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
     @Test
     public void shouldAddGraph() throws Exception {
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, props);
         final Schema expectedSchema = new Schema.Builder().build();
 
         assertThat(store.getGraphs(testUser, null, new AddGraph())).hasSize(0);
@@ -139,7 +159,8 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
     @Test
     public void shouldAddGraphUsingLibrary() throws Exception {
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, props);
 
         final Schema expectedSchema = new Schema.Builder().build();
 
@@ -188,6 +209,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
     @Test
     public void shouldThrowWhenOverwriteGraphIsDifferent() throws Exception {
+        FederatedStoreProperties props = createProperties();
         final Schema expectedSchema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex("string")
@@ -195,7 +217,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 .type("string", String.class)
                 .build();
 
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), props);
 
         assertThat(store.getGraphs(testUser, null, new AddGraph())).hasSize(0);
 
@@ -226,9 +248,10 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
     @Test
     public void shouldThrowWhenOverwriteGraphIsSameAndAccessIsDifferent() throws Exception {
+        FederatedStoreProperties props = createProperties();
         final Schema expectedSchema = new Schema.Builder().build();
 
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), props);
 
         assertThat(store.getGraphs(testUser, null, new AddGraph())).hasSize(0);
 
@@ -257,8 +280,9 @@ public class FederatedAddGraphWithHooksHandlerTest {
     @Test
     public void shouldAddGraphIDOnlyWithAuths() throws Exception {
 
-        federatedStoreProperties.setCustomPropertyAuths("auth1,auth2");
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        props.setCustomPropertyAuths("auth1,auth2");
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, props);
 
         final Schema expectedSchema = new Schema.Builder().build();
 
@@ -299,7 +323,8 @@ public class FederatedAddGraphWithHooksHandlerTest {
      */
     @Test
     public void shouldAddGraphWithAuthsAndOwningUser() throws Exception {
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, props);
 
         final Schema expectedSchema = loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON);
 
@@ -325,7 +350,8 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
     @Test
     public void shouldAddGraphWithHooks() throws Exception {
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, props);
         final Schema expectedSchema = new Schema.Builder().build();
 
         assertThat(store.getGraphs(testUser, null, new AddGraph())).hasSize(0);
@@ -350,7 +376,8 @@ public class FederatedAddGraphWithHooksHandlerTest {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldAddGraphWithCustomReadAccessPredicate() throws Exception {
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, props);
 
         final Schema expectedSchema = new Schema.Builder().build();
 

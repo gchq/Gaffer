@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreVisibilityTest;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedDelegateToHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -43,6 +44,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -50,12 +52,7 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.INTEGER;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadFederatedStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.*;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
@@ -87,13 +84,26 @@ public class FederatedDelegateToAggregateHandlerTest {
         verify(handler).doOperation(op, schema);
     }
 
+    public static FederatedStoreProperties createProperties() {
+        FederatedStoreProperties fedProps  = new FederatedStoreProperties();
+        try {
+            Properties props = new Properties();
+            props.load(FederatedStoreVisibilityTest.class.getResourceAsStream("/properties/federatedStore.properties"));
+            fedProps.setProperties(props);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        fedProps .setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        return fedProps;
+    }
+
     @Test
     public void shouldAggregateDuplicatesFromDiffStores() throws Exception {
-        final FederatedStoreProperties federatedStoreProperties = loadFederatedStoreProperties("predefinedFederatedStore.properties");
+        FederatedStoreProperties props = createProperties();
         final Graph fed = new Graph.Builder()
                 .config(new GraphConfig("fed"))
                 .addSchema(new Schema())
-                .storeProperties(federatedStoreProperties)
+                .storeProperties(props)
                 .build();
 
         final String graphNameA = "a";

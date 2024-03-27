@@ -23,9 +23,14 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import java.io.IOException;
+import java.util.Properties;
 
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,8 +49,8 @@ public class FederatedStorePublicAccessTest {
     private static final Context TEST_USER_CONTEXT = contextTestUser();
     private static final AccumuloProperties PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
     private FederatedStore store;
-    private FederatedStoreProperties federatedStoreProperties;
     private HashMapGraphLibrary library;
+    private Graph federatedGraph;
 
     private static void getAllGraphsIdsIsEmpty(FederatedStore store, final boolean isEmpty) throws uk.gov.gchq.gaffer.operation.OperationException {
         Iterable<String> results = (Iterable<String>) store.execute(new GetAllGraphIds(), BLANK_USER_CONTEXT);
@@ -59,65 +64,90 @@ public class FederatedStorePublicAccessTest {
         }
     }
 
+    public static FederatedStoreProperties createProperties() {
+        FederatedStoreProperties fedProps  = new FederatedStoreProperties();
+        try {
+            Properties props = new Properties();
+            props.load(FederatedStoreVisibilityTest.class.getResourceAsStream("/properties/federatedStore.properties"));
+            fedProps.setProperties(props);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        fedProps .setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        return fedProps;
+    }
+
     @BeforeEach
     public void setUp() throws Exception {
         resetForFederatedTests();
+        FederatedStoreProperties props = createProperties();
 
-        federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedGraph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                        .build())
+                .addStoreProperties(props)
+                .build();
 
         store = new FederatedStore();
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsDefaultedPrivateAndGraphIsDefaultedPrivate() throws Exception {
-        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, props);
         store.execute(addGraph(null), TEST_USER_CONTEXT);
         getAllGraphsIdsIsEmpty(store, true);
     }
 
     @Test
     public void shouldBePublicWhenAllGraphsDefaultedPrivateAndGraphIsSetPublic() throws Exception {
-        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, props);
         store.execute(addGraph(true), TEST_USER_CONTEXT);
         getAllGraphsIdsIsEmpty(store, false);
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsDefaultedPrivateAndGraphIsSetPrivate() throws Exception {
-        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, props);
         store.execute(addGraph(false), TEST_USER_CONTEXT);
         getAllGraphsIdsIsEmpty(store, true);
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsSetPrivateAndGraphIsSetPublic() throws Exception {
-        federatedStoreProperties.setFalseGraphsCanHavePublicAccess();
-        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        props.setFalseGraphsCanHavePublicAccess();
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, props);
         store.execute(addGraph(true), TEST_USER_CONTEXT);
         getAllGraphsIdsIsEmpty(store, true);
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsSetPrivateAndGraphIsSetPrivate() throws Exception {
-        federatedStoreProperties.setFalseGraphsCanHavePublicAccess();
-        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        props.setFalseGraphsCanHavePublicAccess();
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, props);
         store.execute(addGraph(false), TEST_USER_CONTEXT);
         getAllGraphsIdsIsEmpty(store, true);
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsSetPublicAndGraphIsSetPrivate() throws Exception {
-        federatedStoreProperties.setTrueGraphsCanHavePublicAccess();
-        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        props.setTrueGraphsCanHavePublicAccess();
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, props);
         store.execute(addGraph(false), TEST_USER_CONTEXT);
         getAllGraphsIdsIsEmpty(store, true);
     }
 
     @Test
     public void shouldBePublicWhenAllGraphsSetPublicAndGraphIsSetPublic() throws Exception {
-        federatedStoreProperties.setTrueGraphsCanHavePublicAccess();
-        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        props.setTrueGraphsCanHavePublicAccess();
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, props);
         store.execute(addGraph(true), TEST_USER_CONTEXT);
         getAllGraphsIdsIsEmpty(store, false);
     }
