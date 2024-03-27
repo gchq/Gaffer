@@ -53,9 +53,6 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TableUtilsTest {
     private static final String GRAPH_ID = "graph1";
@@ -164,7 +161,7 @@ public class TableUtilsTest {
         assertThat(localityGroups).hasSize(1);
         Set<Text> localityGroup = localityGroups.get(TestGroups.EDGE);
         assertThat(localityGroup).hasSize(1);
-        assertEquals(new Text(TestGroups.EDGE), localityGroup.toArray()[0]);
+        assertThat(localityGroup.toArray()[0]).isEqualTo(new Text(TestGroups.EDGE));
     }
 
     @Test
@@ -195,18 +192,18 @@ public class TableUtilsTest {
         assertThat(itrs).hasSize(1);
 
         final EnumSet<IteratorScope> validator = itrs.get(AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME);
-        assertEquals(EnumSet.allOf(IteratorScope.class), validator);
+        assertThat(validator).isEqualTo(EnumSet.allOf(IteratorScope.class));
         final IteratorSetting validatorSetting = store.getConnection().tableOperations().getIteratorSetting(NO_AGGREGATORS_GRAPH_ID, AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, IteratorScope.majc);
-        assertEquals(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY, validatorSetting.getPriority());
-        assertEquals(ValidatorFilter.class.getName(), validatorSetting.getIteratorClass());
+        assertThat(validatorSetting.getPriority()).isEqualTo(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY);
+        assertThat(validatorSetting.getIteratorClass()).isEqualTo(ValidatorFilter.class.getName());
         final Map<String, String> validatorOptions = validatorSetting.getOptions();
-        assertNotNull(Schema.fromJson(validatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(StandardCharsets.UTF_8)).getEdge(TestGroups.EDGE));
-        assertEquals(ByteEntityAccumuloElementConverter.class.getName(), validatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+        assertThat(Schema.fromJson(validatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(StandardCharsets.UTF_8)).getEdge(TestGroups.EDGE)).isNotNull();
+        assertThat(validatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS)).isEqualTo(ByteEntityAccumuloElementConverter.class.getName());
 
         final EnumSet<IteratorScope> aggregator = itrs.get(AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
-        assertNull(aggregator);
+        assertThat(aggregator).isNull();;
         final IteratorSetting aggregatorSetting = store.getConnection().tableOperations().getIteratorSetting(NO_AGGREGATORS_GRAPH_ID, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, IteratorScope.majc);
-        assertNull(aggregatorSetting);
+        assertThat(aggregatorSetting).isNull();;
 
         final Map<String, String> tableProps = new HashMap<>();
         for (final Map.Entry<String, String> entry : store.getConnection()
@@ -214,7 +211,7 @@ public class TableUtilsTest {
             tableProps.put(entry.getKey(), entry.getValue());
         }
 
-        assertEquals(0, Integer.parseInt(tableProps.get(Property.TABLE_FILE_REPLICATION.getKey())));
+        assertThat(Integer.parseInt(tableProps.get(Property.TABLE_FILE_REPLICATION.getKey()))).isZero();
     }
 
     @Test
