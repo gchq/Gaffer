@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -277,6 +277,47 @@ public final class TableUtils {
         } else {
             return getConnector(accumuloProperties.getInstance(), accumuloProperties.getZookeepers(),
                     accumuloProperties.getUser(), accumuloProperties.getPassword());
+        }
+    }
+
+    /**
+     * Gets the name of an Accumulo table
+     *
+     * @param accumuloProperties An {@link AccumuloProperties} potentially containing namespace information
+     * @param graphId Graph ID
+     * @return Accumulo Table Name derived from the parameters
+     */
+    public static String getTableName(final AccumuloProperties accumuloProperties, final String graphId) {
+        if (StringUtils.isNotBlank(accumuloProperties.getNamespace())) {
+            return String.format("%s.%s", accumuloProperties.getNamespace(), graphId);
+        }
+        return graphId;
+    }
+
+    /**
+     * Renames the Accumulo table (if it exists) that
+     * is associated with the provided parameters.
+     * <p>
+     * This will not modify any table namespace component
+     * of an Accumulo table name.
+     *
+     * @param accumuloProperties {@link AccumuloProperties} for the graph
+     * @param currentGraphId Current graph ID to rename from
+     * @param newGraphId New graph ID to rename to
+     * @throws StoreException failure to rename Accumulo table
+     */
+    public static void renameTable(final AccumuloProperties accumuloProperties, final String currentGraphId, final String newGraphId) throws StoreException {
+        final String currentTableName = getTableName(accumuloProperties, currentGraphId);
+        final String newTableName = getTableName(accumuloProperties, newGraphId);
+        try {
+            final Connector connector = getConnector(accumuloProperties);
+            if (connector.tableOperations().exists(currentTableName)) {
+                connector.tableOperations().offline(currentTableName);
+                connector.tableOperations().rename(currentTableName, newTableName);
+                connector.tableOperations().online(newTableName);
+            }
+        } catch (final AccumuloException | AccumuloSecurityException | TableNotFoundException | TableExistsException e) {
+            throw new StoreException(e.getMessage(), e);
         }
     }
 
