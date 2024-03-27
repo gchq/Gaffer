@@ -633,7 +633,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         for (final Operation operation : opChain.getOperations()) {
             operation.setOptions(opOptions);
 
-            if (LOGGER.isDebugEnabled() && operation instanceof Input) {
+            if (operation instanceof Input) {
                 Object input = ((Input) operation).getInput();
                 if (input != null) {
                    if (input instanceof MappedIterable) {
@@ -648,7 +648,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
 
         try {
-            LOGGER.info("GafferPop operation chain called: {}", opChain);
+            LOGGER.info("GafferPop operation chain called: {}", opChain.toOverviewString());
             return graph.execute(opChain, user);
         } catch (final Exception e) {
             LOGGER.error("Operation chain failed: " + e.getMessage(), e);
