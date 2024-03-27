@@ -24,12 +24,17 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreVisibilityTest;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
+
+import java.io.IOException;
+import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
@@ -43,15 +48,34 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.entityBas
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
 
 public class FederatedUnhandledOperationTest {
-    private FederatedStoreProperties federatedStoreProperties;
+    private Graph federatedGraph;
 
     private static final AccumuloProperties PROPERTIES = FederatedStoreTestUtil.loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
+
+    public static FederatedStoreProperties createProperties() {
+        FederatedStoreProperties fedProps  = new FederatedStoreProperties();
+        try {
+            Properties props = new Properties();
+            props.load(FederatedStoreVisibilityTest.class.getResourceAsStream("/properties/federatedStore.properties"));
+            fedProps.setProperties(props);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        fedProps .setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        return fedProps;
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
         FederatedStoreTestUtil.resetForFederatedTests();
-        federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        FederatedStoreProperties props = createProperties();
+
+        federatedGraph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                        .build())
+                .addStoreProperties(props)
+                .build();
     }
 
     @AfterEach
@@ -85,7 +109,8 @@ public class FederatedUnhandledOperationTest {
                 throw new IllegalStateException(testExceptionMessage);
             }
         };
-        federatedStoreWithNoGetAllElements.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        federatedStoreWithNoGetAllElements.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, props);
 
         //Add graph.
         federatedStoreWithNoGetAllElements.execute(
@@ -123,7 +148,8 @@ public class FederatedUnhandledOperationTest {
                 });
             }
         };
-        federatedStoreWithNoGetAllElements.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        FederatedStoreProperties props = createProperties();
+        federatedStoreWithNoGetAllElements.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, props);
 
         //Add graph
         federatedStoreWithNoGetAllElements.execute(

@@ -26,7 +26,9 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
@@ -51,18 +53,29 @@ public class FederatedStoreMultiCacheTest {
     private static final String USER_SAME_CACHE_SUFFIX = "UseSameCacheSuffix";
     private FederatedStore federatedStore;
     private FederatedStore federatedStore2WithSameCache;
-    private FederatedStoreProperties federatedStoreProperties;
+
+    public static FederatedStoreProperties createProperties() {
+        FederatedStoreProperties fedProps  = new FederatedStoreProperties();
+        try {
+            Properties props = new Properties();
+            props.load(FederatedStoreVisibilityTest.class.getResourceAsStream("/properties/federatedStore.properties"));
+            fedProps.setProperties(props);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        fedProps .setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        fedProps.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
+        fedProps.setCacheServiceNameSuffix(USER_SAME_CACHE_SUFFIX);
+        return fedProps;
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
         resetForFederatedTests();
+        FederatedStoreProperties props = createProperties();
 
-        federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
-        federatedStoreProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
-        federatedStoreProperties.setCacheServiceNameSuffix(USER_SAME_CACHE_SUFFIX);
         federatedStore = new FederatedStore();
-        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
+        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, props);
         federatedStore.execute(new AddGraph.Builder()
                 .graphId(GRAPH_ID_ACCUMULO)
                 .graphAuths(AUTH_1)
@@ -75,7 +88,7 @@ public class FederatedStoreMultiCacheTest {
 
 
         federatedStore2WithSameCache = new FederatedStore();
-        federatedStore2WithSameCache.initialise(GRAPH_ID_TEST_FEDERATED_STORE + 2, null, federatedStoreProperties);
+        federatedStore2WithSameCache.initialise(GRAPH_ID_TEST_FEDERATED_STORE + 2, null, props);
     }
 
     @AfterEach
@@ -128,6 +141,7 @@ public class FederatedStoreMultiCacheTest {
 
     @Test
     public void shouldInitialiseByCacheToContainSamePublicGraphsForBlankUser() throws Exception {
+        FederatedStoreProperties props = createProperties();
         federatedStore.execute(new AddGraph.Builder()
                 .graphId(GRAPH_ID_ACCUMULO + 2)
                 .isPublic(true)
@@ -138,7 +152,7 @@ public class FederatedStoreMultiCacheTest {
                 .build());
 
         federatedStore2WithSameCache = new FederatedStore();
-        federatedStore2WithSameCache.initialise(GRAPH_ID_TEST_FEDERATED_STORE + 2, null, federatedStoreProperties);
+        federatedStore2WithSameCache.initialise(GRAPH_ID_TEST_FEDERATED_STORE + 2, null, props);
 
         assertThat(federatedStore.getAllGraphIds(TEST_USER))
                 .withFailMessage("There should be 2 graphs")

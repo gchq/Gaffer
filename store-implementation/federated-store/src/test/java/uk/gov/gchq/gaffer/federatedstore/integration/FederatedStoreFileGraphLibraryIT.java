@@ -27,6 +27,7 @@ import org.junit.jupiter.api.io.TempDir;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreVisibilityTest;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -40,6 +41,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
@@ -57,6 +59,19 @@ public class FederatedStoreFileGraphLibraryIT {
     private static Path libraryPath;
     private static String schemaPath;
     private static final String EMPTY_SCHEMA = "{\"types\":{}}";
+
+    public static FederatedStoreProperties createProperties() {
+        FederatedStoreProperties fedProps  = new FederatedStoreProperties();
+        try {
+            Properties props = new Properties();
+            props.load(FederatedStoreVisibilityTest.class.getResourceAsStream("/properties/federatedStore.properties"));
+            fedProps.setProperties(props);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        fedProps .setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        return fedProps;
+    }
 
     @BeforeAll
     static void setup() {
@@ -128,16 +143,15 @@ public class FederatedStoreFileGraphLibraryIT {
     }
 
     static Graph getFederatedGraphUsingFileGraphLibrary() {
-        FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
-        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        FederatedStoreProperties props = createProperties();
+        props.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
         FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(libraryPath.toString());
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("federatedGraph")
                         .library(fileGraphLibrary)
                         .build())
-                .storeProperties(federatedStoreProperties)
+                .storeProperties(props)
                 .build();
     }
 }
