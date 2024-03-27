@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
-import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.conf.Property;
@@ -201,9 +200,9 @@ public class TableUtilsTest {
         assertThat(validatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS)).isEqualTo(ByteEntityAccumuloElementConverter.class.getName());
 
         final EnumSet<IteratorScope> aggregator = itrs.get(AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
-        assertThat(aggregator).isNull();;
+        assertThat(aggregator).isNull();
         final IteratorSetting aggregatorSetting = store.getConnection().tableOperations().getIteratorSetting(NO_AGGREGATORS_GRAPH_ID, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, IteratorScope.majc);
-        assertThat(aggregatorSetting).isNull();;
+        assertThat(aggregatorSetting).isNull();
 
         final Map<String, String> tableProps = new HashMap<>();
         for (final Map.Entry<String, String> entry : store.getConnection()
