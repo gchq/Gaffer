@@ -331,7 +331,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     public void addEdge(final GafferPopEdge edge) {
-        // Create the entity and add to graph
+        // Create the edge and add to graph
         execute(new OperationChain.Builder()
             .first(new AddElements.Builder()
                     .input(new GafferEdgeGenerator()._apply(edge))
