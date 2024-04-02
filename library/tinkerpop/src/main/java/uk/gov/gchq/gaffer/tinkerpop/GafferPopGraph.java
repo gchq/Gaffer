@@ -635,14 +635,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
             if (operation instanceof Input) {
                 Object input = ((Input) operation).getInput();
-                if (input != null) {
-                   if (input instanceof MappedIterable) {
-                        ((MappedIterable) input).forEach(item -> {
-                            LOGGER.debug("GafferPop operation input: {}", item);
-                        });
-                    } else {
-                        LOGGER.debug("GafferPop operation input: {}", input);
-                    }
+                if (input instanceof MappedIterable) {
+                    ((MappedIterable) input).forEach(item -> {
+                        LOGGER.debug("GafferPop operation input: {}", item);
+                    });
+                } else {
+                    LOGGER.debug("GafferPop operation input: {}", input);
                 }
             }
         }
