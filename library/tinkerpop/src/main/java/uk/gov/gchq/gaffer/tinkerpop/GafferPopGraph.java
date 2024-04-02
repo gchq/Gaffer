@@ -633,7 +633,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         for (final Operation operation : opChain.getOperations()) {
             operation.setOptions(opOptions);
 
-            if (operation instanceof Input) {
+            if (LOGGER.isDebugEnabled() && operation instanceof Input) {
                 Object input = ((Input) operation).getInput();
                 if (input instanceof MappedIterable) {
                     ((MappedIterable) input).forEach(item -> {
