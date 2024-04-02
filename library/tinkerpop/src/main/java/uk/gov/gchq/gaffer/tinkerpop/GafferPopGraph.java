@@ -851,11 +851,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             } else if (id instanceof Edge) {
                 seeds.add(new EdgeSeed(((Edge) id).outVertex().id(), ((Edge) id).inVertex().id(), true));
             // Extract source and destination from ID list
-            } else if (id instanceof List) {
-                edgeIdList = (List<Object>) id;
+            } else if (id instanceof Iterable) {
+                ((Iterable<?>) id).forEach(edgeIdList::add);
             // Attempt to extract source and destination IDs from a string form of an array/list
             } else if ((id instanceof String) && (((String) id).matches("^\\[.*,.*\\]$"))) {
-                edgeIdList = Arrays.asList(((String) id).replace("[", "").replace("]", "").split(","));
+                edgeIdList = Arrays.asList(((String) id)
+                        .replaceAll("\\s", "")
+                        .replace("[", "")
+                        .replace("]", "")
+                        .split(","));
             // Assume entity ID as fallback
             } else {
                 seeds.add(new EntitySeed(id));
