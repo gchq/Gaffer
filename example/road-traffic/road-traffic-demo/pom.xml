@@ -106,9 +106,11 @@
                                     </properties>
                                 </deployable>
                             </deployables>
-                            <properties>
-                                <cargo.servlet.port>${standalone-port}</cargo.servlet.port>
-                            </properties>
+                            <configuration>
+                                <properties>
+                                    <cargo.servlet.port>${standalone-port}</cargo.servlet.port>
+                                </properties>
+                            </configuration>
                             <container>
                                 <containerId>tomcat9x</containerId>
                                 <dependencies>
