@@ -407,11 +407,12 @@ public class FederatedGraphStorage {
         final GraphSerialisable graphToUpdate = getGraphToUpdate(graphId, accessPredicate);
 
         if (nonNull(graphToUpdate)) {
-            //get access before removing old graphId.
+            // Get access before removing old graphId.
             FederatedAccess access = federatedStoreCache.getAccessFromCache(graphId);
-            //Removed first, to stop a sync issue when sharing the cache with another store.
+            // Remove first, to stop a sync issue when sharing the cache with another store.
             remove(graphId, federatedAccess -> true, false);
-
+            // For Accumulo derived stores the table name must be updated to match the graph's new id. These stores are:
+            // uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore, MiniAccumuloStore, SingleUseMiniAccumuloStore]
             updateTablesWithNewGraphId(newGraphId, graphToUpdate);
 
             updateCacheWithNewGraphId(newGraphId, graphToUpdate, access);
@@ -438,12 +439,6 @@ public class FederatedGraphStorage {
         }
     }
 
-    /* For Accumulo derived stores the table name must
-     * be updated to match the graph's new id.
-     * These stores are:
-     * uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore,
-     * MiniAccumuloStore, SingleUseMiniAccumuloStore]
-     */
     private void updateTablesWithNewGraphId(final String newGraphId, final GraphSerialisable graphToUpdate) throws StorageException {
         String graphId = graphToUpdate.getGraphId();
         String storeClass = graphToUpdate.getStoreProperties().getStoreClass();
