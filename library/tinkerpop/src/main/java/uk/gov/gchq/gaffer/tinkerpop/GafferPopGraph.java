@@ -719,16 +719,14 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
 
         View processedView = view == null ? createAllEntitiesView() : view;
-
         final Iterable<? extends Element> result = execute(new OperationChain.Builder()
                 .first(new GetAdjacentIds.Builder()
                         .input(seeds)
                         .view(processedView)
                         .inOutType(getInOutType(direction))
                         .build())
-                .then(new GetElements.Builder()
-                        .view(processedView)
-                        .build())
+                // GetAdjacentIds provides list of entity seeds so run a GetElements to get the actual Entities
+                .then(new GetElements())
                 .build());
 
         // Translate results to Gafferpop elements
@@ -807,7 +805,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         View view = null;
         if (null != labels && 0 < labels.length) {
             final View.Builder viewBuilder = new View.Builder();
-            final Schema schema = ((Schema) variables().get(GafferPopGraphVariables.SCHEMA).get());
+            final Schema schema = graph.getSchema();
             for (final String label : labels) {
                 if (schema.isEntity(label)) {
                     viewBuilder.entity(label);
@@ -824,8 +822,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private View createAllEntitiesView() {
         final View.Builder viewBuilder = new View.Builder();
-        final Schema schema = ((Schema) variables().get(GafferPopGraphVariables.SCHEMA).get());
-        for (final String group : schema.getEntityGroups()) {
+        for (final String group : graph.getSchema().getEntityGroups()) {
             viewBuilder.entity(group);
         }
         return viewBuilder.build();
