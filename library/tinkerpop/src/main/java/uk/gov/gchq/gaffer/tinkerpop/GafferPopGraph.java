@@ -373,10 +373,14 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final Output<Iterable<? extends Element>> getOperation;
         if (getAll && null != limit) {
-            getOperation = new Builder().first(new GetAllElements.Builder()
-                    .view(new View.Builder().entities(graph.getSchema().getEntityGroups()).build())
-
-                    .build()).then(new Limit<>(limit, true)).build();
+            getOperation = new Builder()
+                    .first(new GetAllElements.Builder()
+                            .view(new View.Builder()
+                                    .entities(graph.getSchema().getEntityGroups())
+                                    .build())
+                            .build())
+                    .then(new Limit<>(limit, true))
+                    .build();
         } else if (getAll) {
             getOperation = new GetAllElements.Builder()
                     .view(new View.Builder()
