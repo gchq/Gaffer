@@ -75,7 +75,8 @@ public class GafferPopGraphIT {
         assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
+        assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2")
+                .containsEntry(GafferPopGraph.OP_OPTIONS_LIMIT_ELEMENTS_KEY, "1").hasSize(3);
         assertThat(variables.size()).isEqualTo(3);
     }
 
@@ -255,6 +256,25 @@ public class GafferPopGraphIT {
                 new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_1, graph),
                 new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_2, graph)
         );
+    }
+
+    @Test
+    public void shouldTruncateGetAllVertices() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_2, gafferGraph);
+
+        // When
+        addSoftwareVertex(graph);
+        graph.addVertex(T.label, PERSON_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
+        final Iterator<Vertex> vertices = graph.vertices();
+
+        // Then
+        final List<Vertex> verticesList = new ArrayList<>();
+        while (vertices.hasNext()) {
+            verticesList.add(vertices.next());
+        }
+        assertThat(verticesList).hasSize(1);
     }
 
     @Test

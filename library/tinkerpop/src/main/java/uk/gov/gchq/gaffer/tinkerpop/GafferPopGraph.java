@@ -42,6 +42,7 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -171,6 +172,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * Each option should in the form: key:value
      */
     public static final String OP_OPTIONS = "gaffer.operation.options";
+
+    /**
+     * Key in OP_OPTIONS for limiting the number of elements returned from
+     * GetAllElements
+     */
+    public static final String OP_OPTIONS_LIMIT_ELEMENTS_KEY = "getAllElementsLimit";
 
     public static final String USER_ID = "gaffer.userId";
 
@@ -361,9 +368,16 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     @Override
     public Iterator<Vertex> vertices(final Object... vertexIds) {
         final boolean getAll = null == vertexIds || 0 == vertexIds.length;
+        final String limitString = opOptions.get(OP_OPTIONS_LIMIT_ELEMENTS_KEY);
+        final Integer limit = null == limitString ? null : Integer.valueOf(limitString);
 
         final Output<Iterable<? extends Element>> getOperation;
-        if (getAll) {
+        if (getAll && null != limit) {
+            getOperation = new Builder().first(new GetAllElements.Builder()
+                    .view(new View.Builder().entities(graph.getSchema().getEntityGroups()).build())
+
+                    .build()).then(new Limit<>(limit, true)).build();
+        } else if (getAll) {
             getOperation = new GetAllElements.Builder()
                     .view(new View.Builder()
                             .entities(graph.getSchema().getEntityGroups())
