@@ -896,7 +896,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         variablesMap.put(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
         variablesMap.put(GafferPopGraphVariables.USER, user);
         variablesMap.put(GafferPopGraphVariables.SCHEMA, graph.getSchema());
-        variablesMap.put(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, getAllElementsLimit);
+        if(null != getAllElementsLimit) {
+            variablesMap.put(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, getAllElementsLimit);
+        }
         return new GafferPopGraphVariables(variablesMap);
     }
 
