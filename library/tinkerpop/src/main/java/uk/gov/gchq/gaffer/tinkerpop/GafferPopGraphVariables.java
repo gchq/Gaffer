@@ -40,6 +40,11 @@ public final class GafferPopGraphVariables implements Graph.Variables {
      */
     public static final String USER = "user";
 
+    /**
+     * The max number of elements that can be returned by GetAllElements
+     */
+    public static final String GET_ALL_ELEMENTS_LIMIT = "getAllElementsLimit";
+
     private final Map<String, Object> variables;
 
     public GafferPopGraphVariables(final ConcurrentHashMap<String, Object> variables) {

@@ -41,17 +41,19 @@ public final class GafferPopTestUtil {
             this.setProperty(GafferPopGraph.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
             this.setProperty(GafferPopGraph.USER_ID, USER_ID);
             this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
+            this.setProperty(GafferPopGraph.GET_ALL_ELEMENTS_LIMIT, 100);
         }
     };
 
     public static final Configuration TEST_CONFIGURATION_2 = new BaseConfiguration() {
         {
             this.setProperty(GafferPopGraph.OP_OPTIONS,
-                    new String[] {"key1:value1", "key2:value2", "getAllElementsLimit:1"});
+                    new String[] {"key1:value1", "key2:value2"});
             this.setProperty(GafferPopGraph.USER_ID, USER_ID);
             this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
             this.setProperty(GafferPopGraph.GRAPH_ID, "Graph1");
             this.setProperty(GafferPopGraph.STORE_PROPERTIES, GafferPopGraphIT.class.getClassLoader().getResource("gaffer/store.properties").getPath());
+            this.setProperty(GafferPopGraph.GET_ALL_ELEMENTS_LIMIT, 1);
         }
     };
 
