@@ -17,6 +17,13 @@
 package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
+
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -309,8 +316,15 @@ public final class Graph {
 
         final Context clonedContext = request.getContext().shallowClone();
         final OperationChain clonedOpChain = request.getOperationChain().shallowClone();
+
+        Span span = GlobalOpenTelemetry
+            .getTracer("Execute on graph: " + this.getGraphId())
+            .spanBuilder(clonedOpChain.toOverviewString())
+            .setAttribute("gaffer.user", clonedContext.getUser().getUserId())
+            .startSpan();
+        clonedContext.setVariable("GRAPHSPAN", io.opentelemetry.context.Context.current().with(span));
         O result = null;
-        try {
+        try (Scope scope = span.makeCurrent()) {
             updateOperationChainView(clonedOpChain);
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, clonedContext);
@@ -333,10 +347,13 @@ public final class Graph {
             for (final UpdateViewHook hook : hookInstances) {
                 hook.preExecute(clonedOpChain, clonedContext);
             }
+            span.addEvent("Finish Pre-execute");
             result = (O) storeExecuter.execute(clonedOpChain, clonedContext);
+            span.addEvent("Operation Chain Complete");
             for (final GraphHook graphHook : config.getHooks()) {
                 result = graphHook.postExecute(result, clonedOpChain, clonedContext);
             }
+            span.addEvent("Finish Post-execute");
         } catch (final Exception e) {
             for (final GraphHook graphHook : config.getHooks()) {
                 try {
@@ -347,7 +364,11 @@ public final class Graph {
             }
             CloseableUtil.close(clonedOpChain);
             CloseableUtil.close(result);
+            span.setStatus(StatusCode.ERROR, e.getMessage());
+            span.recordException(e);
             throw e;
+        } finally {
+            span.end();
         }
         return new GraphResult<>(result, clonedContext);
     }
@@ -814,6 +835,7 @@ public final class Graph {
         }
 
         public Graph build() {
+            AutoConfiguredOpenTelemetrySdk.initialize();
             // Initialise GraphConfig (with default library of NoGraphLibrary)
             final GraphConfig config = configBuilder.build();
 
