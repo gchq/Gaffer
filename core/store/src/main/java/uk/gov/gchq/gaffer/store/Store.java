@@ -17,10 +17,6 @@
 package uk.gov.gchq.gaffer.store;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.opentelemetry.api.GlobalOpenTelemetry;
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.StatusCode;
-import io.opentelemetry.context.Scope;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -974,34 +970,17 @@ public abstract class Store {
     }
 
     public Object handleOperation(final Operation operation, final Context context) throws OperationException {
-        Span span = GlobalOpenTelemetry.getTracer("Store handle operation")
-            .spanBuilder(operation.getClass()
-            .getName())
-            .setParent((io.opentelemetry.context.Context) context.getVariable("GRAPHSPAN"))
-            .startSpan();
-        span.isRecording();
-        // Only create spans for actual operations not chains as the parent chain is in the Graph class
-        if (operation instanceof OperationChain) {
-            span = Span.getInvalid();
-        }
-        //span.setAttribute("gaffer.user", context.getUser().getUserId());
-
         final OperationHandler<Operation> handler = getOperationHandler(operation.getClass());
         Object result;
-        try (Scope scope = span.makeCurrent()) {
+        try {
             if (nonNull(handler)) {
                 result = handler.doOperation(operation, context, this);
             } else {
                 result = doUnhandledOperation(operation, context);
             }
-            span.addEvent("Finished Operation");
         } catch (final Exception e) {
             CloseableUtil.close(operation);
-            span.setStatus(StatusCode.ERROR, e.getMessage());
-            span.recordException(e);
             throw e;
-        } finally {
-            span.end();
         }
 
         if (isNull(result)) {

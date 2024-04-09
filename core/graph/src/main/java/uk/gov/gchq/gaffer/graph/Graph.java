@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
 
-import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Scope;
@@ -33,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.otel.OtelUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
@@ -317,12 +317,14 @@ public final class Graph {
         final Context clonedContext = request.getContext().shallowClone();
         final OperationChain clonedOpChain = request.getOperationChain().shallowClone();
 
-        Span span = GlobalOpenTelemetry
-            .getTracer("Execute on graph: " + this.getGraphId())
-            .spanBuilder(clonedOpChain.toOverviewString())
-            .setAttribute("gaffer.user", clonedContext.getUser().getUserId())
-            .startSpan();
-        clonedContext.setVariable("GRAPHSPAN", io.opentelemetry.context.Context.current().with(span));
+        // OpenTelemetry hooks
+        Span span = OtelUtil.startSpan(
+            this.getClass().getName(),
+            "Graph Request: " + clonedOpChain.toOverviewString());
+        span.setAttribute("gaffer.graphId", getGraphId());
+        span.setAttribute("gaffer.jobId", clonedContext.getJobId());
+        span.setAttribute("gaffer.user", clonedContext.getUser().getUserId());
+
         O result = null;
         try (Scope scope = span.makeCurrent()) {
             updateOperationChainView(clonedOpChain);
@@ -347,13 +349,13 @@ public final class Graph {
             for (final UpdateViewHook hook : hookInstances) {
                 hook.preExecute(clonedOpChain, clonedContext);
             }
-            span.addEvent("Finish Pre-execute");
+            span.addEvent("Finished Pre-execute");
             result = (O) storeExecuter.execute(clonedOpChain, clonedContext);
             span.addEvent("Operation Chain Complete");
             for (final GraphHook graphHook : config.getHooks()) {
                 result = graphHook.postExecute(result, clonedOpChain, clonedContext);
             }
-            span.addEvent("Finish Post-execute");
+            span.addEvent("Finished Post-execute");
         } catch (final Exception e) {
             for (final GraphHook graphHook : config.getHooks()) {
                 try {
@@ -835,9 +837,14 @@ public final class Graph {
         }
 
         public Graph build() {
-            AutoConfiguredOpenTelemetrySdk.initialize();
             // Initialise GraphConfig (with default library of NoGraphLibrary)
             final GraphConfig config = configBuilder.build();
+
+            // Enable opentelemetry if configured to be active
+            if (Boolean.TRUE.equals(config.getOtelActive())) {
+                AutoConfiguredOpenTelemetrySdk.initialize();
+                OtelUtil.setOpenTelemetryActive(true);
+            }
 
             // Make sure parent store properties are applied
             if (parentStorePropertiesId != null) {
