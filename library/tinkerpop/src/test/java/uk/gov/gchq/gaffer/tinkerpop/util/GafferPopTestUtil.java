@@ -47,8 +47,7 @@ public final class GafferPopTestUtil {
 
     public static final Configuration TEST_CONFIGURATION_2 = new BaseConfiguration() {
         {
-            this.setProperty(GafferPopGraph.OP_OPTIONS,
-                    new String[] {"key1:value1", "key2:value2"});
+            this.setProperty(GafferPopGraph.OP_OPTIONS, new String[] {"key1:value1", "key2:value2"});
             this.setProperty(GafferPopGraph.USER_ID, USER_ID);
             this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
             this.setProperty(GafferPopGraph.GRAPH_ID, "Graph1");
