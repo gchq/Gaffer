@@ -31,7 +31,7 @@ public final class OtelUtil {
      * Creates a new span with the given tracer and span names, note will
      * return an 'invalid' span if OpenTelementry is turned off.
      *
-     * @param tracerName Name of the {@link Tracer} to use
+     * @param tracerName Name of the Tracer to use
      * @param spanName Name of the {@link Span} to use.
      * @return new {@link Span}
      */
