@@ -146,7 +146,7 @@ public final class GraphConfig {
      * Set OpenTelemetry logging to be active
      * @param otelActive is active
      */
-    public void setOtelActive(Boolean otelActive) {
+    public void setOtelActive(final Boolean otelActive) {
         this.otelActive = otelActive;
     }
 

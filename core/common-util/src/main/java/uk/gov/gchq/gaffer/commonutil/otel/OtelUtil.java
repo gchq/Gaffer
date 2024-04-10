@@ -18,9 +18,8 @@ package uk.gov.gchq.gaffer.commonutil.otel;
 
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.Tracer;
 
-public class OtelUtil {
+public final class OtelUtil {
 
     private static boolean openTelemetryActive = false;
 
@@ -31,11 +30,12 @@ public class OtelUtil {
     /**
      * Creates a new span with the given tracer and span names, note will
      * return an 'invalid' span if OpenTelementry is turned off.
+     *
      * @param tracerName Name of the {@link Tracer} to use
      * @param spanName Name of the {@link Span} to use.
      * @return new {@link Span}
      */
-    public static Span startSpan(String tracerName, String spanName) {
+    public static Span startSpan(final String tracerName, final String spanName) {
         // If not using opentelementry use dummy spans
         if (!openTelemetryActive) {
             return Span.getInvalid();
@@ -48,11 +48,11 @@ public class OtelUtil {
     }
 
     /**
-     * Set if OpentTelemetry is in use.
+     * Set if OpenTelemetry is in use.
      *
      * @param active Is active
      */
-    public static void setOpenTelemetryActive(boolean active) {
+    public static void setOpenTelemetryActive(final boolean active) {
         openTelemetryActive = active;
     }
 }
