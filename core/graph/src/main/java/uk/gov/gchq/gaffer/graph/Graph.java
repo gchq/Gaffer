@@ -326,6 +326,7 @@ public final class Graph {
         span.setAttribute("gaffer.user", clonedContext.getUser().getUserId());
 
         O result = null;
+        // Sets the span to current so parent child spans are auto linked
         try (Scope scope = span.makeCurrent()) {
             updateOperationChainView(clonedOpChain);
             for (final GraphHook graphHook : config.getHooks()) {

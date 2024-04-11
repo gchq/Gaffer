@@ -48,6 +48,15 @@ public final class OtelUtil {
     }
 
     /**
+     * Get if OpenTelemetry is in use.
+     *
+     * @param active Is active
+     */
+    public static boolean getOpenTelemetryActive() {
+        return openTelemetryActive;
+    }
+
+    /**
      * Set if OpenTelemetry is in use.
      *
      * @param active Is active
