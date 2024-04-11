@@ -250,14 +250,11 @@ public class GafferPopGraphIT {
         final Iterator<Vertex> vertices = graph.vertices();
 
         // Then
-        final List<Vertex> verticesList = new ArrayList<>();
-        while (vertices.hasNext()) {
-            verticesList.add(vertices.next());
-        }
-        assertThat(verticesList).contains(
+        assertThat(vertices)
+            .toIterable()
+            .contains(
                 new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_1, graph),
-                new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_2, graph)
-        );
+                new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_2, graph));
     }
 
     @Test
@@ -272,11 +269,7 @@ public class GafferPopGraphIT {
         final Iterator<Vertex> vertices = graph.vertices();
 
         // Then
-        final List<Vertex> verticesList = new ArrayList<>();
-        while (vertices.hasNext()) {
-            verticesList.add(vertices.next());
-        }
-        assertThat(verticesList).hasSize(1);
+        assertThat(vertices).toIterable().hasSize(1);
     }
 
     @Test
