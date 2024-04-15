@@ -3,6 +3,9 @@ package uk.gov.gchq.gaffer.tinkerpop;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_1;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
@@ -44,7 +47,7 @@ public class GafferPopFederatedIT {
     }
     
     @Test
-    public void shouldGetAllElements() throws Exception {
+    public void shouldGetVertices() throws Exception {
         // Given
         federatedGraph = GafferPopFederatedTestUtil.setUpFederatedGraph(GafferPopFederatedIT.class);
         gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION_1, federatedGraph);
@@ -52,29 +55,10 @@ public class GafferPopFederatedIT {
         // When
         GraphTraversalSource g = gafferPopGraph.traversal();
 
-        GraphTraversal<Vertex, Vertex> elements = g.V();
+        Iterator<Vertex> results = g.V("person2").out("created");
 
-        // Then
-        assertThat(elements)
-            .toIterable()
-            .hasSize(6);
-            // TODO: check return statement matches what you expect
+        assertThat(results).isEqualTo("something");
 
         tearDown();
-    }
-
-    @Test
-    public void shouldGetAllEdges() throws Exception {
-        // Given
-        federatedGraph = GafferPopFederatedTestUtil.setUpFederatedGraph(GafferPopFederatedIT.class);
-        gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION_1, federatedGraph);
-
-        // When
-        GraphTraversalSource g = gafferPopGraph.traversal();
-
-        GraphTraversal<Edge, Edge> results = g.E().hasLabel("software");
-
-        // Then
-        
     }
 }

@@ -60,9 +60,22 @@ public class GafferPopFederatedTestUtil {
         federatedGraph.execute(new FederatedOperation.Builder()
             .op(new AddElements.Builder()
                 .input(
-                    getEntity(PERSON_GROUP, VERTEX_PERSON_1), 
-                    getEntity(SOFTWARE_GROUP, VERTEX_SOFTWARE_1),
-                    getEdge(CREATED_EDGE_GROUP, VERTEX_PERSON_1, VERTEX_SOFTWARE_1))
+                    new Entity.Builder()
+                        .group(PERSON_GROUP)
+                        .vertex(VERTEX_PERSON_1)
+                        .property("name", "person1Name")
+                        .build(),
+                    new Entity.Builder()
+                        .group(SOFTWARE_GROUP)
+                        .vertex(VERTEX_SOFTWARE_1)
+                        .property("name", "software1Name")
+                        .build(),
+                    new Edge.Builder()
+                        .group(CREATED_EDGE_GROUP)
+                        .source(VERTEX_PERSON_1)
+                        .dest(VERTEX_SOFTWARE_1)
+                        .property("weight", 0.4)
+                        .build())
                 .build())
             .graphIdsCSV("graphA")
             .build(), USER);
@@ -70,28 +83,41 @@ public class GafferPopFederatedTestUtil {
         federatedGraph.execute(new FederatedOperation.Builder()
             .op(new AddElements.Builder()
                 .input(
-                    getEntity(PERSON_GROUP, VERTEX_PERSON_2),
-                    getEntity(SOFTWARE_GROUP, VERTEX_SOFTWARE_2),
-                    getEdge(CREATED_EDGE_GROUP, VERTEX_PERSON_2, VERTEX_SOFTWARE_2))
+                    new Entity.Builder()
+                            .group(PERSON_GROUP)
+                            .vertex(VERTEX_PERSON_2)
+                            .property("name", "person2Name")
+                            .build(),
+                    new Entity.Builder()
+                            .group(SOFTWARE_GROUP)
+                            .vertex(VERTEX_SOFTWARE_2)
+                            .property("name", "software2Name")
+                            .build(),
+                    new Edge.Builder()
+                            .group(CREATED_EDGE_GROUP)
+                            .source(VERTEX_PERSON_2)
+                            .dest(VERTEX_SOFTWARE_2)
+                            .property("weight", 0.8)
+                            .build())
                 .build())
             .graphIdsCSV("graphB")
             .build(), USER);
     }
 
-    private static Edge getEdge(final String edgeGroup, final String source, final String dest) {
-        return new Edge.Builder()
-                .group(edgeGroup)
-                .source(source)
-                .dest(dest)
-                .directed(true)
-                .build();
-    }
+    // private static Edge getEdge(final String edgeGroup, final String source, final String dest) {
+    //     return new Edge.Builder()
+    //             .group(edgeGroup)
+    //             .source(source)
+    //             .dest(dest)
+    //             .directed(true)
+    //             .build();
+    // }
 
-    private static Entity getEntity(final String entityGroup, final String vertex) {
-        return new Entity.Builder()
-                .group(entityGroup)
-                .vertex(vertex)
-                .build();
-    }
+    // private static Entity getEntity(final String entityGroup, final String vertex) {
+    //     return new Entity.Builder()
+    //             .group(entityGroup)
+    //             .vertex(vertex)
+    //             .build();
+    // }
 
 }
