@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
+import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategies;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph.OptIn;
@@ -52,6 +53,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEdgeGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.iterable.MappedIterable;
@@ -129,6 +131,15 @@ import java.util.stream.StreamSupport;
     method = "*",
     reason = "Currently a bug with the WriteTest that creates unwanted files")
 public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Graph {
+
+    // Register custom traversal mechanisms
+    static {
+        TraversalStrategies.GlobalCache.registerStrategies(
+            GafferPopGraph.class,
+            TraversalStrategies.GlobalCache.getStrategies(
+                org.apache.tinkerpop.gremlin.structure.Graph.class).clone().addStrategies(GafferPopGraphStepStrategy.instance()));
+    }
+
     public static final String GRAPH_ID = "gaffer.graphId";
 
     /**
@@ -641,9 +652,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             if (LOGGER.isDebugEnabled() && operation instanceof Input) {
                 Object input = ((Input) operation).getInput();
                 if (input instanceof MappedIterable) {
-                    ((MappedIterable) input).forEach(item -> {
-                        LOGGER.debug("GafferPop operation input: {}", item);
-                    });
+                    ((MappedIterable) input).forEach(item -> LOGGER.debug("GafferPop operation input: {}", item));
                 } else {
                     LOGGER.debug("GafferPop operation input: {}", input);
                 }
@@ -652,10 +661,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         try {
             LOGGER.info("GafferPop operation chain called: {}", opChain.toOverviewString());
+            LOGGER.info(opChain.toString());
             return graph.execute(opChain, user);
         } catch (final Exception e) {
             LOGGER.error("Operation chain failed: " + e.getMessage(), e);
-            throw new RuntimeException("Failed to execute GafferPop operation chain", e);
+            throw new RuntimeException("GafferPop operation failed: " + e.getMessage(), e);
         }
     }
 
@@ -785,8 +795,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private View createViewWithEntities(final String... labels) {
         View view = null;
-        if (null != labels && 0 < labels.length) {
-            if (1 == labels.length && labels[0].startsWith("View{")) {
+        if (labels != null && labels.length > 0) {
+            if (labels.length == 1 && labels[0].startsWith("View{")) {
                 // Allows a view to be passed in as a label
                 view = View.fromJson(labels[0].substring(4).getBytes(StandardCharsets.UTF_8));
             } else {
@@ -891,6 +901,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         variablesMap.put(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
         variablesMap.put(GafferPopGraphVariables.USER, user);
         variablesMap.put(GafferPopGraphVariables.SCHEMA, graph.getSchema());
+        variablesMap.put(GafferPopGraphVariables.GRAPH_ID, graph.getGraphId());
         return new GafferPopGraphVariables(variablesMap);
     }
 

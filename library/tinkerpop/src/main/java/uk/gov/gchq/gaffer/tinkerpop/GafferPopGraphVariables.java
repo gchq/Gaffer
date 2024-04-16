@@ -22,7 +22,6 @@ import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class GafferPopGraphVariables implements Graph.Variables {
     /**
@@ -36,13 +35,18 @@ public final class GafferPopGraphVariables implements Graph.Variables {
     public static final String OP_OPTIONS = "operationOptions";
 
     /**
-     * The user who is interacting with the graph.
+     * Variable key for the user who is interacting with the graph.
      */
     public static final String USER = "user";
 
+    /**
+     * Variable key for the Graph ID of the graph to interact with.
+     */
+    public static final String GRAPH_ID = "graphId";
+
     private final Map<String, Object> variables;
 
-    public GafferPopGraphVariables(final ConcurrentHashMap<String, Object> variables) {
+    public GafferPopGraphVariables(final Map<String, Object> variables) {
         this.variables = variables;
     }
 
