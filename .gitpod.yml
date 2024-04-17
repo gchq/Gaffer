@@ -10,11 +10,12 @@ tasks:
     init: mvn install -Pquick -Daether.dependencyCollector.impl=bf -T.5C
   - name: Add upstream GitHub repo
     init: git remote add github https://github.com/gchq/Gaffer.git || true
-    # Ensure only noreply email is set (this is not the default - see gitpod issue #387)
+    # Ensure only a GitHub noreply email is used for commits
     command: |
-      if ! [[ $(git config --global --get user.email) =~ .*@users.noreply.github.com ]]
-      then git config --global --remove-section user; echo;
-      echo "Git user details weren't using noreply email and have been removed"; echo; fi
+      if ! [[ $(git config --global --get user.email) =~ .*@users.noreply.github.com ]]; then git config --global --remove-section user;
+      if ! [[ $(git config --local --get user.email) =~ .*@users.noreply.github.com ]]; then git config --local --remove-section user; clear;
+      echo "Git global/local user details weren't set or weren't using a GitHub noreply email. Specify them with 'git config --local'.";
+      else clear; fi; else clear; fi;
 
 vscode:
   extensions:
