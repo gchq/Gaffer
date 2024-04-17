@@ -72,7 +72,7 @@ public class GafferPopGraphIT {
 
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
-        assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
+        assertThat(variables.get(GafferPopGraphVariables.USER_ID)).isEqualTo(expectedUser.getUserId());
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
@@ -89,7 +89,7 @@ public class GafferPopGraphIT {
 
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
-        assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
+        assertThat(variables.get(GafferPopGraphVariables.USER_ID)).isEqualTo(expectedUser.getUserId());
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").hasSize(1);
@@ -108,7 +108,7 @@ public class GafferPopGraphIT {
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables.get(GafferPopGraphVariables.SCHEMA)).isEqualTo(gafferGraph.getSchema());
-        assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
+        assertThat(variables.get(GafferPopGraphVariables.USER_ID)).isEqualTo(expectedUser.getUserId());
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);

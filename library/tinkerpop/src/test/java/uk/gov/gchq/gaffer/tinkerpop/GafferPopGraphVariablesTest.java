@@ -69,7 +69,7 @@ public class GafferPopGraphVariablesTest {
     private GafferPopGraphVariables createVariables() {
         final ConcurrentHashMap<String, Object> variablesMap = new ConcurrentHashMap<>();
         variablesMap.put(GafferPopGraphVariables.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
-        variablesMap.put(GafferPopGraphVariables.USER, "user");
+        variablesMap.put(GafferPopGraphVariables.USER_ID, "user");
         variablesMap.put(GafferPopGraphVariables.SCHEMA, new Schema());
         return new GafferPopGraphVariables(variablesMap);
     }

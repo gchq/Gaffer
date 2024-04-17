@@ -1,11 +1,25 @@
+/*
+ * Copyright 2024 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.step;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Iterator;
@@ -30,8 +44,6 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraphStep.class);
 
     private final List<HasContainer> hasContainers = new ArrayList<>();
-    private final GafferPopGraph graph;
-    private Map<String, Object> options = new HashMap<>();
 
     public GafferPopGraphStep(final GraphStep<S, E> originalGraphStep) {
         super(originalGraphStep.getTraversal(), originalGraphStep.getReturnClass(), originalGraphStep.isStartStep(), originalGraphStep.getIds());
@@ -39,22 +51,25 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         LOGGER.info("ORIGN LABELS: {}", getLabels());
 
         // Save reference to the graph
-        this.graph = (GafferPopGraph) originalGraphStep.getTraversal().getGraph().get();
+        GafferPopGraph graph = (GafferPopGraph) originalGraphStep.getTraversal().getGraph().get();
         LOGGER.info("Running custom step on Graph: {}", graph.configuration().getString(GafferPopGraph.GRAPH_ID));
 
         // Find any options on the traversal
         Optional<OptionsStrategy> optionsStrategy = originalGraphStep.getTraversal().getStrategies().getStrategy(OptionsStrategy.class);
         if (optionsStrategy.isPresent()) {
-            LOGGER.info("OPTIONS PRESENT");
-            options = optionsStrategy.get().getOptions();
-            options.forEach((k, v) -> LOGGER.info("KEy: " + k + "Val: " + v));
+            optionsStrategy.get().getOptions().forEach((k, v) -> {
+                if(graph.variables().asMap().containsKey(k)) {
+                    graph.variables().set(k, v);
+                }
+            });
         }
 
         // Set the output iterator to the relevant filtered output from the class methods
-        this.setIteratorSupplier(() -> (Iterator<E>) (Vertex.class.isAssignableFrom(this.returnClass) ? this.vertices() : this.edges()));
+        this.setIteratorSupplier(() ->
+            (Iterator<E>) (Vertex.class.isAssignableFrom(this.returnClass) ? this.vertices(graph) : this.edges(graph)));
     }
 
-    private Iterator<? extends Edge> edges() {
+    private Iterator<? extends Edge> edges(final GafferPopGraph graph) {
         // Check for and labels being searched for to construct a View to filter with
         List<String> labels = getRequestedLabels();
 
@@ -68,7 +83,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         return IteratorUtils.filter(graph.edges(Arrays.asList(this.ids)), edge -> HasContainer.testAll(edge, hasContainers));
     }
 
-    private Iterator<? extends Vertex> vertices() {
+    private Iterator<? extends Vertex> vertices(final GafferPopGraph graph) {
         LOGGER.info("IDS ARE {}", this.ids);
 
         // Check for and labels being searched for to construct a View to filter with
