@@ -216,7 +216,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private final Graph graph;
     private final Configuration configuration;
-    private final GafferPopGraphVariables variables;
+    private GafferPopGraphVariables variables;
     private final GafferPopGraphFeatures features;
     private final Map<String, String> opOptions;
     private final User defaultUser;
@@ -671,6 +671,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         } catch (final Exception e) {
             LOGGER.error("Operation chain failed: {}", e.getMessage());
             throw new RuntimeException("GafferPop operation failed: " + e.getMessage(), e);
+        } finally {
+            variables = new GafferPopGraphVariables(getDefaultVariables());
         }
     }
 
