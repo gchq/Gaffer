@@ -19,8 +19,6 @@ package uk.gov.gchq.gaffer.tinkerpop;
 import org.apache.tinkerpop.gremlin.structure.Graph.Variables;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +36,7 @@ public class GafferPopGraphVariablesTest {
         given(graph.variables()).willReturn(variables);
 
         // When
-        graph.variables().remove(GafferPopGraphVariables.SCHEMA);
+        graph.variables().remove(GafferPopGraphVariables.USER_ID);
 
         // Then
         assertThat(graph.variables().asMap()).hasSize(2);
@@ -70,7 +68,7 @@ public class GafferPopGraphVariablesTest {
         final ConcurrentHashMap<String, Object> variablesMap = new ConcurrentHashMap<>();
         variablesMap.put(GafferPopGraphVariables.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
         variablesMap.put(GafferPopGraphVariables.USER_ID, "user");
-        variablesMap.put(GafferPopGraphVariables.SCHEMA, new Schema());
+        variablesMap.put(GafferPopGraphVariables.DATA_AUTHS, "dataauth1,dataauth2");
         return new GafferPopGraphVariables(variablesMap);
     }
 

@@ -33,7 +33,8 @@ import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopGraphStep;
  * gather any {@link HasStep}s so that a Gaffer View can be
  * constructed for the query.
  *
- * @example <pre>
+ *<pre> @example
+ * <p>
  * g.V().hasLabel()    // replaced by GafferPopGraphStep
  * g.E().hasLabel()    // replaced by GafferPopGraphStep
  * </pre>

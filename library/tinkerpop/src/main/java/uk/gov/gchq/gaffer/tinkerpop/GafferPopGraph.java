@@ -246,7 +246,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .build();
 
         // Set the graph variables to current config
-        variables = new GafferPopGraphVariables(getDefaultVariables());
+        variables = new GafferPopGraphVariables();
+        setDefaultVariables(variables);
 
         serviceRegistry = new ServiceRegistry();
         serviceRegistry.registerService(new GafferPopNamedOperationServiceFactory(this));
@@ -648,8 +649,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     public <T> T execute(final OperationChain<T> opChain) {
         for (final Operation operation : opChain.getOperations()) {
+            // Set options on operations
             operation.setOptions(variables.getOperationOptions());
-
+            // Debug logging
             if (LOGGER.isDebugEnabled() && operation instanceof Input) {
                 Object input = ((Input) operation).getInput();
                 if (input instanceof MappedIterable) {
@@ -659,10 +661,10 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 }
             }
         }
-
+        // Use the requested user based on variables
         User user = new User.Builder()
             .userId(variables.getUserId())
-            .dataAuths(configuration().getStringArray(DATA_AUTHS))
+            .dataAuths(variables.getDataAuths())
             .build();
 
         try {
@@ -672,7 +674,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             LOGGER.error("Operation chain failed: {}", e.getMessage());
             throw new RuntimeException("GafferPop operation failed: " + e.getMessage(), e);
         } finally {
-            variables = new GafferPopGraphVariables(getDefaultVariables());
+            // Reset the variables to default after running operation as they may have been updated in the query
+            setDefaultVariables(variables);
         }
     }
 
@@ -904,17 +907,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     /**
-     * Gets a {@Map} of the default graph variables for this graph.
+     * Sets the {@link GafferPopGraphVariables} to default values for this
+     * graph
      *
-     * @return map of variables
+     * @param variables
      */
-    private Map<String, Object> getDefaultVariables() {
-        final ConcurrentHashMap<String, Object> variablesMap = new ConcurrentHashMap<>();
-        variablesMap.put(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
-        variablesMap.put(GafferPopGraphVariables.USER_ID, defaultUser.getUserId());
-        variablesMap.put(GafferPopGraphVariables.SCHEMA, graph.getSchema());
-        variablesMap.put(GafferPopGraphVariables.GRAPH_ID, graph.getGraphId());
-        return variablesMap;
+    private void setDefaultVariables(GafferPopGraphVariables variables) {
+        variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
+        variables.set(GafferPopGraphVariables.USER_ID, defaultUser.getUserId());
+        variables.set(GafferPopGraphVariables.DATA_AUTHS, configuration().getStringArray(DATA_AUTHS));
     }
 
     /**

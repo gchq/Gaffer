@@ -21,8 +21,6 @@ import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,29 +31,28 @@ public final class GafferPopGraphVariables implements Graph.Variables {
     private static final String VAR_UPDATE_ERROR_STRING = "Ignoring update variable: {}, incorrect value type: {}";
 
     /**
-     * Variable key for the {@link uk.gov.gchq.gaffer.store.schema.Schema} object.
-     */
-    public static final String SCHEMA = "schema";
-
-    /**
      * Variable key for the {@link Map} of Gaffer operation options.
      */
     public static final String OP_OPTIONS = "operationOptions";
+
+    /**
+     * Variable key for the list of data auths for the user interacting with the graph.
+     */
+    public static final String DATA_AUTHS = "dataAuths";
 
     /**
      * Variable key for the userId of who is interacting with the graph.
      */
     public static final String USER_ID = "userId";
 
-    /**
-     * Variable key for the Graph ID of the graph to interact with.
-     */
-    public static final String GRAPH_ID = "graphId";
-
     private final Map<String, Object> variables;
 
     public GafferPopGraphVariables(final Map<String, Object> variables) {
         this.variables = variables;
+    }
+
+    public GafferPopGraphVariables() {
+        this.variables = new HashMap<>();
     }
 
     @Override
@@ -75,30 +72,40 @@ public final class GafferPopGraphVariables implements Graph.Variables {
 
     @Override
     public void set(final String key, final Object value) {
+        LOGGER.info("Updating: {} to {}", key, value);
         switch (key) {
             case OP_OPTIONS:
                 if (value instanceof Iterable<?>) {
                     setOperationOptions((Iterable<String>) value);
+                } else if (value instanceof Map) {
+                    variables.put(key, value);
                 } else {
                     LOGGER.error(VAR_UPDATE_ERROR_STRING, OP_OPTIONS, value.getClass());
                 }
                 break;
 
-            case SCHEMA:
-                if (value instanceof Schema) {
+            case DATA_AUTHS:
+                if (value instanceof String[]) {
                     variables.put(key, value);
+                } else if (value instanceof String) {
+                    variables.put(key, ((String) value).split(","));
                 } else {
-                    LOGGER.error(VAR_UPDATE_ERROR_STRING, SCHEMA, value.getClass());
+                    LOGGER.error(VAR_UPDATE_ERROR_STRING, DATA_AUTHS, value.getClass());
                 }
                 break;
 
             default:
-                LOGGER.info("Updating: {} to {}", key, value);
                 variables.put(key, value);
                 break;
         }
     }
 
+    /**
+     * Sets the operation options key, attempts to convert to
+     * a String {@link Map} by spitting each value on ':'.
+     *
+     * @param opOptions List of String key value pairs e.g. <pre> [ "key:value", "key2:value2" ] </pre>
+     */
     public void setOperationOptions(Iterable<String> opOptions) {
         Map<String, String> opOptionsMap = new HashMap<>();
         for (String option : opOptions) {
@@ -107,10 +114,35 @@ public final class GafferPopGraphVariables implements Graph.Variables {
         variables.put(OP_OPTIONS, opOptionsMap);
     }
 
+    /**
+     * Gets the operation options if available.
+     *
+     * @return Operation options map
+     */
     public Map<String, String> getOperationOptions() {
-        return (Map<String, String>) variables.get(OP_OPTIONS);
+        if (variables.containsKey(OP_OPTIONS)){
+            return (Map<String, String>) variables.get(OP_OPTIONS);
+        }
+        return new HashMap<>();
     }
 
+    /**
+     * Gets the list of data auths.
+     *
+     * @return List of data auths.
+     */
+    public String[] getDataAuths() {
+        if (variables.containsKey(DATA_AUTHS)) {
+            return (String[]) variables.get(DATA_AUTHS);
+        }
+        return new String[0];
+    }
+
+    /**
+     * Gets the current user ID.
+     *
+     * @return The user ID
+     */
     public String getUserId() {
         return (String) variables.get(USER_ID);
     }

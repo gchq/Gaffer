@@ -40,6 +40,19 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 
+/**
+ * Custom GafferPop GraphStep provides Gaffer specific optimisations
+ * for the initial GraphStep in a query. Also responsible for parsing
+ * any options passed via a 'with()' call on the query.
+ *
+ * <pre>
+ * @example
+ * <p>
+ * g.with("userId", "user").V()   // userId extracted to be used in the operation executions
+ * g.with("dataAuths", "write-access,read-access").V()   // user access controls to apply on the user
+ * g.with("operationOptions", ["graphId:graph1", "opt1:val1"]).V()   // operation options extracted and applied
+ * </pre>
+ */
 public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> implements HasContainerHolder {
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraphStep.class);
 
@@ -47,12 +60,11 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
     public GafferPopGraphStep(final GraphStep<S, E> originalGraphStep) {
         super(originalGraphStep.getTraversal(), originalGraphStep.getReturnClass(), originalGraphStep.isStartStep(), originalGraphStep.getIds());
+        LOGGER.debug("Running custom GraphStep on GafferPopGraph");
         originalGraphStep.getLabels().forEach(this::addLabel);
-        LOGGER.info("ORIGN LABELS: {}", getLabels());
 
         // Save reference to the graph
         GafferPopGraph graph = (GafferPopGraph) originalGraphStep.getTraversal().getGraph().get();
-        LOGGER.info("Running custom step on Graph: {}", graph.configuration().getString(GafferPopGraph.GRAPH_ID));
 
         // Find any options on the traversal
         Optional<OptionsStrategy> optionsStrategy = originalGraphStep.getTraversal().getStrategies().getStrategy(OptionsStrategy.class);
@@ -74,7 +86,6 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         List<String> labels = getRequestedLabels();
 
         if (!labels.isEmpty()) {
-            LOGGER.info("FOUND LABELS {}", labels);
             // Find using label to filter results
             return graph.edges(Arrays.asList(this.ids), labels.toArray(new String[0]));
         }
@@ -84,22 +95,24 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
     }
 
     private Iterator<? extends Vertex> vertices(final GafferPopGraph graph) {
-        LOGGER.info("IDS ARE {}", this.ids);
-
         // Check for and labels being searched for to construct a View to filter with
         List<String> labels = getRequestedLabels();
 
         if (!labels.isEmpty()) {
-            LOGGER.info("FOUND LABELS {}", labels);
             // Find using label to filter results
             return graph.vertices(Arrays.asList(this.ids), labels.toArray(new String[0]));
         }
 
         // linear scan as fallback
-        LOGGER.info("Liner scan fallback");
         return IteratorUtils.filter(graph.vertices(Arrays.asList(this.ids)), vertex -> HasContainer.testAll(vertex, hasContainers));
     }
 
+    /**
+     * Checks all the HasContainers to see what labels have been
+     * requested for.
+     *
+     * @return List of labels requested in the {@link GraphStep}
+     */
     private List<String> getRequestedLabels() {
         return hasContainers.stream()
             .filter(hc -> hc.getKey() != null && hc.getKey().equals(T.label.getAccessor()))
