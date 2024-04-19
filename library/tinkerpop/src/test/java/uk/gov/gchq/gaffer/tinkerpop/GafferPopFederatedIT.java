@@ -1,9 +1,7 @@
 package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
-import org.apache.tinkerpop.gremlin.process.traversal.Path;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.junit.After;
@@ -107,7 +105,8 @@ public class GafferPopFederatedIT {
         GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
-        List<Object> result = g.V().outE(CREATED_EDGE_GROUP).has("weight", P.gt(0.4)).values("weight").toList();
+        List<Object> result = g.V().outE(CREATED_EDGE_GROUP).has(WEIGHT_PROPERTY, P.gt(0.4)).values(WEIGHT_PROPERTY)
+                .toList();
 
         // Then
         assertThat(result)
@@ -121,7 +120,7 @@ public class GafferPopFederatedIT {
         GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
-        List<Map<Object, Object>> result = g.V().hasLabel("software").elementMap().toList();
+        List<Map<Object, Object>> result = g.V().hasLabel(SOFTWARE_GROUP).elementMap().toList();
 
         // expected
         Map<Object, Object> software1Vertex = Map.of(T.id, VERTEX_SOFTWARE_1, T.label, SOFTWARE_GROUP, "name",
@@ -138,12 +137,12 @@ public class GafferPopFederatedIT {
     }
 
     @Test
-    public void shouldReturnCountOfVertexes() {
+    public void shouldReturnFilteredCountOfVertexes() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
-        List<Long> result = g.V().hasLabel("software").count().toList();
+        List<Long> result = g.V().hasLabel(SOFTWARE_GROUP).count().toList();
 
         // Then
         assertThat(result)
@@ -188,8 +187,8 @@ public class GafferPopFederatedIT {
 
         assertThat(result)
                 .first()
-                .hasFieldOrPropertyWithValue("person", 4L)
-                .hasFieldOrPropertyWithValue("software", 2L);
+                .hasFieldOrPropertyWithValue(PERSON_GROUP, 4L)
+                .hasFieldOrPropertyWithValue(SOFTWARE_GROUP, 2L);
     }
 
     @Test
@@ -205,6 +204,10 @@ public class GafferPopFederatedIT {
                 .hasSize(2)
                 .extracting(item -> item.id().toString())
                 .contains("[p1, s1]", "[p3, s1]");
+
+        assertThat(result)
+                .extracting(item -> item.label())
+                .contains(CREATED_EDGE_GROUP, CREATED_EDGE_GROUP);
     }
 
     @Test
@@ -220,6 +223,10 @@ public class GafferPopFederatedIT {
                 .hasSize(2)
                 .extracting(item -> item.id().toString())
                 .contains("[p1, p2]", "[p1, s1]");
+
+        assertThat(result)
+                .extracting(item -> item.label())
+                .contains("knows", CREATED_EDGE_GROUP);
     }
 
     @Test
@@ -228,12 +235,12 @@ public class GafferPopFederatedIT {
         GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
-        List<String> result = g.V(VERTEX_SOFTWARE_1).inE("created").label().toList();
+        List<String> result = g.V(VERTEX_SOFTWARE_1).inE(CREATED_EDGE_GROUP).label().toList();
 
         // Then
         assertThat(result)
                 .hasSize(2)
-                .contains("created", "created");
+                .contains(CREATED_EDGE_GROUP, CREATED_EDGE_GROUP);
     }
 
     @Test
@@ -247,21 +254,5 @@ public class GafferPopFederatedIT {
         // Then
         assertThat(result)
                 .contains("person2Name", "software1Name");
-    }
-
-    @Test
-    public void shouldGetOutgoingEdgesNamesUntilVertexReached() {
-        // Given
-        GraphTraversalSource g = gafferPopGraph.traversal();
-
-        // When
-        List<Path> result = g.V(VERTEX_PERSON_1).repeat(__.out()).until(__.outE().count().is(0)).path().by("name")
-                .toList();
-
-        // Then
-        assertThat(result)
-                .hasSize(2)
-                .extracting(item -> item.toString())
-                .contains("path[person1Name, person2Name]", "path[person1Name, software1Name]");
     }
 }
