@@ -33,20 +33,20 @@ import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopGraphStep;
  * gather any {@link HasStep}s so that a Gaffer View can be
  * constructed for the query.
  *
- *<pre> @example
+ * <pre> @example
  * <p>
  * g.V().hasLabel()    // replaced by GafferPopGraphStep
  * g.E().hasLabel()    // replaced by GafferPopGraphStep
  * </pre>
  */
-public class GafferPopGraphStepStrategy extends AbstractTraversalStrategy<TraversalStrategy.ProviderOptimizationStrategy> implements TraversalStrategy.ProviderOptimizationStrategy {
+public final class GafferPopGraphStepStrategy extends AbstractTraversalStrategy<TraversalStrategy.ProviderOptimizationStrategy> implements TraversalStrategy.ProviderOptimizationStrategy {
     private static final GafferPopGraphStepStrategy INSTANCE = new GafferPopGraphStepStrategy();
 
     private GafferPopGraphStepStrategy() {
     }
 
     @Override
-    public void apply(Admin<?, ?> traversal) {
+    public void apply(final Admin<?, ?> traversal) {
 
         TraversalHelper.getStepsOfClass(GraphStep.class, traversal).forEach(originalGraphStep -> {
             // Replace the current GraphStep with a GafferPopGraphStep

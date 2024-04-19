@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ public class GafferPopGraphIT {
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables)
-            .containsEntry(GafferPopGraphVariables.DATA_AUTHS, expectedUser.getDataAuths())
+            .containsEntry(GafferPopGraphVariables.DATA_AUTHS, expectedUser.getDataAuths().toArray())
             .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId());
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
@@ -520,7 +520,7 @@ public class GafferPopGraphIT {
         // When / Then
         assertThatExceptionOfType(RuntimeException.class)
             .isThrownBy(() -> graph.execute(invalidOperationChain))
-            .withMessageMatching("Failed to execute GafferPop operation chain");
+            .withMessageContaining("GafferPop operation failed");
     }
 
     private Graph getGafferGraph() {

@@ -16,13 +16,17 @@
 
 package uk.gov.gchq.gaffer.tinkerpop;
 
-import org.apache.tinkerpop.gremlin.structure.Graph.Variables;
 import org.junit.jupiter.api.Test;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -43,15 +47,29 @@ public class GafferPopGraphVariablesTest {
     }
 
     @Test
-    void shouldThrowErrorWhenTryRemoveVariables() {
+    void shouldAllowSettingGafferPopVariables() {
         // Given
         given(graph.variables()).willReturn(variables);
+        final String testUserId = "testUserId";
+        final String testDataAuths = "auth1,auth2";
+        final List<String> testOpOptions = Arrays.asList("graphId:graph1", "other:other");
+        final GafferPopGraphVariables graphVariables = (GafferPopGraphVariables) graph.variables();
+        // Expected format they are returned as
+        final String[] expectedDataAuths = {"auth1", "auth2"};
+        final Map<String, String> expectedOpOptions = Stream.of(
+                new SimpleEntry<>("graphId", "graph1"),
+                new SimpleEntry<>("other", "other"))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        // When
+        graphVariables.set(GafferPopGraphVariables.USER_ID, testUserId);
+        graphVariables.set(GafferPopGraphVariables.DATA_AUTHS, testDataAuths);
+        graphVariables.set(GafferPopGraphVariables.OP_OPTIONS, testOpOptions);
 
         // Then
-        final Variables graphVariables = graph.variables();
-
-        assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> graphVariables.set("key1", "value1"));
+        assertThat(graphVariables.getUserId()).isEqualTo(testUserId);
+        assertThat(graphVariables.getDataAuths()).isEqualTo(expectedDataAuths);
+        assertThat(graphVariables.getOperationOptions()).isEqualTo(expectedOpOptions);
     }
 
     @Test

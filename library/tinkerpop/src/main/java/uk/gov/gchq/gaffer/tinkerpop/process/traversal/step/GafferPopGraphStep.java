@@ -16,20 +16,13 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.step;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.Iterator;
-
 import org.apache.tinkerpop.gremlin.process.traversal.Compare;
 import org.apache.tinkerpop.gremlin.process.traversal.step.HasContainerHolder;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.GraphStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.HasContainer;
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.OptionsStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.util.AndP;
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.T;
@@ -40,13 +33,20 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 /**
  * Custom GafferPop GraphStep provides Gaffer specific optimisations
  * for the initial GraphStep in a query. Also responsible for parsing
  * any options passed via a 'with()' call on the query.
  *
- * <pre>
- * @example
+ * <pre> @example
  * <p>
  * g.with("userId", "user").V()   // userId extracted to be used in the operation executions
  * g.with("dataAuths", "write-access,read-access").V()   // user access controls to apply on the user
@@ -70,7 +70,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         Optional<OptionsStrategy> optionsStrategy = originalGraphStep.getTraversal().getStrategies().getStrategy(OptionsStrategy.class);
         if (optionsStrategy.isPresent()) {
             optionsStrategy.get().getOptions().forEach((k, v) -> {
-                if(graph.variables().asMap().containsKey(k)) {
+                if (graph.variables().asMap().containsKey(k)) {
                     graph.variables().set(k, v);
                 }
             });
@@ -82,12 +82,12 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
     }
 
     private Iterator<? extends Edge> edges(final GafferPopGraph graph) {
-        // Check for and labels being searched for to construct a View to filter with
+        // Check for the labels being searched for to construct a View to filter with
         List<String> labels = getRequestedLabels();
 
         if (!labels.isEmpty()) {
             // Find using label to filter results
-            return graph.edges(Arrays.asList(this.ids), labels.toArray(new String[0]));
+            return graph.edges(Arrays.asList(this.ids), Direction.BOTH, labels.toArray(new String[0]));
         }
 
         // linear scan as fallback
@@ -95,7 +95,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
     }
 
     private Iterator<? extends Vertex> vertices(final GafferPopGraph graph) {
-        // Check for and labels being searched for to construct a View to filter with
+        // Check for the labels being searched for to construct a View to filter with
         List<String> labels = getRequestedLabels();
 
         if (!labels.isEmpty()) {
@@ -128,17 +128,12 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
     }
 
     @Override
-    public void addHasContainer(HasContainer hasContainer) {
+    public void addHasContainer(final HasContainer hasContainer) {
         if (hasContainer.getPredicate() instanceof AndP) {
             ((AndP<?>) hasContainer.getPredicate()).getPredicates().forEach(
                 p -> this.addHasContainer(new HasContainer(hasContainer.getKey(), p)));
-        } else
+        } else {
             this.hasContainers.add(hasContainer);
+        }
     }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode() ^ this.hasContainers.hashCode();
-    }
-
 }

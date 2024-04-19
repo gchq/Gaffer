@@ -69,7 +69,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -131,14 +130,6 @@ import java.util.stream.StreamSupport;
     method = "*",
     reason = "Currently a bug with the WriteTest that creates unwanted files")
 public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Graph {
-
-    // Register custom traversal mechanisms
-    static {
-        TraversalStrategies.GlobalCache.registerStrategies(
-            GafferPopGraph.class,
-            TraversalStrategies.GlobalCache.getStrategies(
-                org.apache.tinkerpop.gremlin.structure.Graph.class).clone().addStrategies(GafferPopGraphStepStrategy.instance()));
-    }
 
     public static final String GRAPH_ID = "gaffer.graphId";
 
@@ -251,6 +242,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         serviceRegistry = new ServiceRegistry();
         serviceRegistry.registerService(new GafferPopNamedOperationServiceFactory(this));
+
+        // Register custom traversals
+        TraversalStrategies.GlobalCache.registerStrategies(
+            this.getClass(),
+            TraversalStrategies.GlobalCache.getStrategies(this.getClass()).addStrategies(
+                GafferPopGraphStepStrategy.instance()));
     }
 
     private static Graph createGraph(final Configuration configuration) {
@@ -831,7 +828,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 } else if (schema.isEdge(label)) {
                     viewBuilder.edge(label);
                 } else if (!ID_LABEL.equals(label)) {
-                    throw new IllegalArgumentException("Label/Group was found in the schema: " + label);
+                    throw new IllegalArgumentException("Label/Group was not found in the schema: " + label);
                 }
             }
             view = viewBuilder.build();
@@ -910,9 +907,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * Sets the {@link GafferPopGraphVariables} to default values for this
      * graph
      *
-     * @param variables
+     * @param variables The variables
      */
-    private void setDefaultVariables(GafferPopGraphVariables variables) {
+    private void setDefaultVariables(final GafferPopGraphVariables variables) {
         variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
         variables.set(GafferPopGraphVariables.USER_ID, defaultUser.getUserId());
         variables.set(GafferPopGraphVariables.DATA_AUTHS, configuration().getStringArray(DATA_AUTHS));

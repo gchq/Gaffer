@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public final class GafferPopGraphVariables implements Graph.Variables {
 
     @Override
     public void set(final String key, final Object value) {
-        LOGGER.info("Updating: {} to {}", key, value);
+        LOGGER.debug("Updating graph variable: {} to {}", key, value);
         switch (key) {
             case OP_OPTIONS:
                 if (value instanceof Iterable<?>) {
@@ -106,9 +106,9 @@ public final class GafferPopGraphVariables implements Graph.Variables {
      *
      * @param opOptions List of String key value pairs e.g. <pre> [ "key:value", "key2:value2" ] </pre>
      */
-    public void setOperationOptions(Iterable<String> opOptions) {
+    public void setOperationOptions(final Iterable<String> opOptions) {
         Map<String, String> opOptionsMap = new HashMap<>();
-        for (String option : opOptions) {
+        for (final String option : opOptions) {
             opOptionsMap.put(option.split(":")[0], option.split(":")[1]);
         }
         variables.put(OP_OPTIONS, opOptionsMap);
@@ -120,7 +120,7 @@ public final class GafferPopGraphVariables implements Graph.Variables {
      * @return Operation options map
      */
     public Map<String, String> getOperationOptions() {
-        if (variables.containsKey(OP_OPTIONS)){
+        if (variables.containsKey(OP_OPTIONS)) {
             return (Map<String, String>) variables.get(OP_OPTIONS);
         }
         return new HashMap<>();
