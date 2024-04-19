@@ -1,3 +1,18 @@
+/*
+ * Copyright 2023-2024 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
@@ -12,6 +27,7 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopFederatedTestUtil;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,10 +83,15 @@ public class GafferPopFederatedIT {
         List<Map<Object, Object>> vertex2 = g.V(VERTEX_SOFTWARE_2).elementMap().toList();
 
         // expected
-        Map<Object, String> expectedVertex1 = Map.of(T.id, VERTEX_PERSON_1, T.label, PERSON_GROUP, "name",
-                "person1Name");
-        Map<Object, String> expectedVertex2 = Map.of(T.id, VERTEX_SOFTWARE_2, T.label, SOFTWARE_GROUP, "name",
-                "software2Name");
+        Map<Object, String> expectedVertex1 = new HashMap<>();
+        expectedVertex1.put(T.id, VERTEX_PERSON_1);
+        expectedVertex1.put(T.label, PERSON_GROUP);
+        expectedVertex1.put("name", "person1Name");
+
+        Map<Object, String> expectedVertex2 = new HashMap<>();
+        expectedVertex1.put(T.id, VERTEX_SOFTWARE_2);
+        expectedVertex1.put(T.label, SOFTWARE_GROUP);
+        expectedVertex1.put("name", "software2Name");
 
         // Then
         assertThat(vertex1)
@@ -123,17 +144,21 @@ public class GafferPopFederatedIT {
         List<Map<Object, Object>> result = g.V().hasLabel(SOFTWARE_GROUP).elementMap().toList();
 
         // expected
-        Map<Object, Object> software1Vertex = Map.of(T.id, VERTEX_SOFTWARE_1, T.label, SOFTWARE_GROUP, "name",
-                "software1Name");
+        Map<Object, Object> expectedVertex1 = new HashMap<>();
+        expectedVertex1.put(T.id, VERTEX_SOFTWARE_1);
+        expectedVertex1.put(T.label, SOFTWARE_GROUP);
+        expectedVertex1.put("name", "person1Name");
 
-        Map<Object, Object> software2Vertex = Map.of(T.id, VERTEX_SOFTWARE_2, T.label, SOFTWARE_GROUP, "name",
-                "software2Name");
+        Map<Object, Object> expectedVertex2 = new HashMap<>();
+        expectedVertex1.put(T.id, VERTEX_SOFTWARE_2);
+        expectedVertex1.put(T.label, SOFTWARE_GROUP);
+        expectedVertex1.put("name", "software2Name");
 
         // Then
         assertThat(result)
                 .hasSize(2)
-                .contains(software1Vertex, atIndex(0))
-                .contains(software2Vertex, atIndex(1));
+                .contains(expectedVertex1, atIndex(0))
+                .contains(expectedVertex2, atIndex(1));
     }
 
     @Test
