@@ -207,7 +207,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private final Graph graph;
     private final Configuration configuration;
-    private GafferPopGraphVariables variables;
+    private final GafferPopGraphVariables variables;
     private final GafferPopGraphFeatures features;
     private final Map<String, String> opOptions;
     private final User defaultUser;

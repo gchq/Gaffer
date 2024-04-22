@@ -96,11 +96,11 @@ class GafferPopGraphStepStrategyTest {
         g.E().hasLabel(edgeGroup).toList();
 
         // Then
-        verify(graph, Mockito.atMostOnce()).vertices(Mockito.any(), Mockito.eq(entityGroup));
-        verify(graph, Mockito.atMostOnce()).verticesWithView(Mockito.any(), Mockito.eq(entityView));
+        verify(graph, Mockito.atLeastOnce()).vertices(Mockito.any(), Mockito.eq(entityGroup));
+        verify(graph, Mockito.atLeastOnce()).verticesWithView(Mockito.any(), Mockito.eq(entityView));
 
-        verify(graph, Mockito.atMostOnce()).edges(Mockito.any(), Mockito.eq(Direction.BOTH), Mockito.eq(edgeGroup));
-        verify(graph, Mockito.atMostOnce()).edgesWithView(Mockito.any(), Mockito.eq(Direction.BOTH), Mockito.eq(edgeView));
+        verify(graph, Mockito.atLeastOnce()).edges(Mockito.any(), Mockito.eq(Direction.BOTH), Mockito.eq(edgeGroup));
+        verify(graph, Mockito.atLeastOnce()).edgesWithView(Mockito.any(), Mockito.eq(Direction.BOTH), Mockito.eq(edgeView));
     }
 
 
