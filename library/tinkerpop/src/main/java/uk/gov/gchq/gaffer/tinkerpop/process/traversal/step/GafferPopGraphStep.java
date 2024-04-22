@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  * for the initial GraphStep in a query. Also responsible for parsing
  * any options passed via a 'with()' call on the query.
  *
- * @example <pre>
+ * <pre>
  * g.with("userId", "user").V()   // userId extracted to be used in the operation executions
  * g.with("dataAuths", "write-access,read-access").V()   // user access controls to apply on the user
  * g.with("operationOptions", ["graphId:graph1", "opt1:val1"]).V()   // operation options extracted and applied
