@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.apache.accumulo.core.client.Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +47,7 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.getConnector;
+import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.renameTable;
 
 public class FederatedGraphStorage {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE = "Error adding graph, GraphId is known within the cache, but %s is different. GraphId: %s";
@@ -408,11 +407,12 @@ public class FederatedGraphStorage {
         final GraphSerialisable graphToUpdate = getGraphToUpdate(graphId, accessPredicate);
 
         if (nonNull(graphToUpdate)) {
-            //get access before removing old graphId.
+            // Get access before removing old graphId.
             FederatedAccess access = federatedStoreCache.getAccessFromCache(graphId);
-            //Removed first, to stop a sync issue when sharing the cache with another store.
+            // Remove first, to stop a sync issue when sharing the cache with another store.
             remove(graphId, federatedAccess -> true, false);
-
+            // For Accumulo derived stores the table name must be updated to match the graph's new id. These stores are:
+            // uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore, MiniAccumuloStore, SingleUseMiniAccumuloStore]
             updateTablesWithNewGraphId(newGraphId, graphToUpdate);
 
             updateCacheWithNewGraphId(newGraphId, graphToUpdate, access);
@@ -440,25 +440,11 @@ public class FederatedGraphStorage {
     }
 
     private void updateTablesWithNewGraphId(final String newGraphId, final GraphSerialisable graphToUpdate) throws StorageException {
-        //Update Tables
         String graphId = graphToUpdate.getGraphId();
         String storeClass = graphToUpdate.getStoreProperties().getStoreClass();
         if (nonNull(storeClass) && storeClass.startsWith(AccumuloStore.class.getPackage().getName())) {
-            /*
-             * This logic is only for Accumulo derived stores Only.
-             * For updating table names to match graphs names.
-             *
-             * uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore,
-             * MiniAccumuloStore, SingleUseMiniAccumuloStore]
-             */
             try {
-                Connector connection = getConnector((AccumuloProperties) graphToUpdate.getStoreProperties());
-
-                if (connection.tableOperations().exists(graphId)) {
-                    connection.tableOperations().offline(graphId);
-                    connection.tableOperations().rename(graphId, newGraphId);
-                    connection.tableOperations().online(newGraphId);
-                }
+                renameTable((AccumuloProperties) graphToUpdate.getStoreProperties(), graphToUpdate.getGraphId(), newGraphId);
             } catch (final Exception e) {
                 LOGGER.error("Error trying to update tables for graphID:{} graphUpdate:{}, Error:{}", graphId, graphToUpdate, e.getMessage());
             }
