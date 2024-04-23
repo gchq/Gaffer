@@ -20,25 +20,27 @@ import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.T;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopFederatedTestUtil;
 
-import java.util.HashMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.atIndex;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_1;
 
 public class GafferPopFederatedIT {
-    private static Graph federatedGraph;
-    private static GafferPopGraph gafferPopGraph;
+    private Graph federatedGraph;
+    private GafferPopGraph gafferPopGraph;
 
     public static final String VERTEX_PERSON_1 = "p1";
     public static final String VERTEX_PERSON_2 = "p2";
@@ -49,20 +51,35 @@ public class GafferPopFederatedIT {
     public static final String CREATED_EDGE_GROUP = "created";
     public static final String NAME_PROPERTY = "name";
     public static final String WEIGHT_PROPERTY = "weight";
+    public static final Map<Object, Object> expectedSoftware1Vertex = Stream.of(
+            new SimpleEntry<>(T.id, VERTEX_SOFTWARE_1),
+            new SimpleEntry<>(T.label, SOFTWARE_GROUP),
+            new SimpleEntry<>("name", "software1Name"))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public static final Map<Object, Object> expectedSoftware2Vertex = Stream.of(
+            new SimpleEntry<>(T.id, VERTEX_SOFTWARE_2),
+            new SimpleEntry<>(T.label, SOFTWARE_GROUP),
+            new SimpleEntry<>("name", "software2Name"))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public static final Map<Object, Object> expectedPerson1Vertex = Stream.of(
+            new SimpleEntry<>(T.id, VERTEX_PERSON_1),
+            new SimpleEntry<>(T.label, PERSON_GROUP),
+            new SimpleEntry<>("name", "person1Name"))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         federatedGraph = GafferPopFederatedTestUtil.setUpFederatedGraph(GafferPopFederatedIT.class);
         gafferPopGraph = GafferPopGraph.open(TEST_CONFIGURATION_1, federatedGraph);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         CacheServiceLoader.shutdown();
     }
 
     @Test
-    public void shouldConstructFederatedGafferPopGraph() {
+    void shouldConstructFederatedGafferPopGraph() {
         // When
         final Map<String, Object> variables = gafferPopGraph.variables().asMap();
 
@@ -75,7 +92,7 @@ public class GafferPopFederatedIT {
     }
 
     @Test
-    public void shouldGetVerticesById() {
+    void shouldGetVerticesById() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
@@ -83,31 +100,16 @@ public class GafferPopFederatedIT {
         List<Map<Object, Object>> vertex1 = g.V(VERTEX_PERSON_1).elementMap().toList();
         List<Map<Object, Object>> vertex2 = g.V(VERTEX_SOFTWARE_2).elementMap().toList();
 
-        // expected
-        Map<Object, String> expectedVertex1 = new HashMap<>();
-        expectedVertex1.put(T.id, VERTEX_PERSON_1);
-        expectedVertex1.put(T.label, PERSON_GROUP);
-        expectedVertex1.put("name", "person1Name");
-
-        Map<Object, String> expectedVertex2 = new HashMap<>();
-        expectedVertex1.put(T.id, VERTEX_SOFTWARE_2);
-        expectedVertex1.put(T.label, SOFTWARE_GROUP);
-        expectedVertex1.put("name", "software2Name");
-
         // Then
         assertThat(vertex1)
-                .hasSize(1)
-                .first()
-                .isEqualTo(expectedVertex1);
+                .containsExactly(expectedPerson1Vertex);
 
         assertThat(vertex2)
-                .hasSize(1)
-                .first()
-                .isEqualTo(expectedVertex2);
+                .containsExactly(expectedSoftware2Vertex);
     }
 
     @Test
-    public void shouldGetVertexPropertyValue() {
+    void shouldGetVertexPropertyValue() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
@@ -116,54 +118,40 @@ public class GafferPopFederatedIT {
 
         // Then
         assertThat(vertex)
-                .hasSize(1)
-                .first()
-                .hasToString("software1Name");
+                .containsExactly(expectedSoftware1Vertex.get("name"));
     }
 
     @Test
-    public void shouldFilterVertexesByPropertyValue() {
+    void shouldFilterVertexesByPropertyValue() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
-        List<Object> result = g.V().outE(CREATED_EDGE_GROUP).has(WEIGHT_PROPERTY, P.gt(0.4)).values(WEIGHT_PROPERTY)
+        List<Object> result = g.V().outE(CREATED_EDGE_GROUP).has(WEIGHT_PROPERTY, P.gt(0.4))
+                .values(WEIGHT_PROPERTY)
                 .toList();
 
         // Then
         assertThat(result)
-                .hasSize(2)
-                .contains(1.0, 0.8);
+                .containsExactly(1.0, 0.8);
     }
 
     @Test
-    public void shouldFilterVertexesByLabel() {
+    void shouldFilterVertexesByLabel() {
         // // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
         List<Map<Object, Object>> result = g.V().hasLabel(SOFTWARE_GROUP).elementMap().toList();
 
-        // expected
-        Map<Object, Object> expectedVertex1 = new HashMap<>();
-        expectedVertex1.put(T.id, VERTEX_SOFTWARE_1);
-        expectedVertex1.put(T.label, SOFTWARE_GROUP);
-        expectedVertex1.put("name", "person1Name");
-
-        Map<Object, Object> expectedVertex2 = new HashMap<>();
-        expectedVertex1.put(T.id, VERTEX_SOFTWARE_2);
-        expectedVertex1.put(T.label, SOFTWARE_GROUP);
-        expectedVertex1.put("name", "software2Name");
-
         // Then
         assertThat(result)
-                .hasSize(2)
-                .contains(expectedVertex1, atIndex(0))
-                .contains(expectedVertex2, atIndex(1));
+                .contains(expectedSoftware1Vertex, atIndex(0))
+                .contains(expectedSoftware2Vertex, atIndex(1));
     }
 
     @Test
-    public void shouldReturnFilteredCountOfVertexes() {
+    void shouldReturnFilteredCountOfVertexes() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
@@ -172,12 +160,11 @@ public class GafferPopFederatedIT {
 
         // Then
         assertThat(result)
-                .first()
-                .isEqualTo(2L);
+                .containsExactly(2L);
     }
 
     @Test
-    public void shouldCountAllOutgoingEdgesFromVertex() {
+    void shouldCountAllOutgoingEdgesFromVertex() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
@@ -186,12 +173,11 @@ public class GafferPopFederatedIT {
 
         // Then
         assertThat(result)
-                .first()
-                .isEqualTo(2L);
+                .containsExactly(2L);
     }
 
     @Test
-    public void shouldGetAdjacentVerticesNameValues() {
+    void shouldGetAdjacentVerticesNameValues() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
@@ -199,12 +185,11 @@ public class GafferPopFederatedIT {
         List<Object> result = g.V(VERTEX_PERSON_1).out().values("name").toList();
 
         assertThat(result)
-                .hasSize(2)
-                .contains("person2Name", "software1Name");
+                .containsOnly("person2Name", "software1Name");
     }
 
     @Test
-    public void shouldGroupVerticesByLabelAndProvideCount() {
+    void shouldGroupVerticesByLabelAndProvideCount() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
@@ -218,7 +203,7 @@ public class GafferPopFederatedIT {
     }
 
     @Test
-    public void shouldGetEdgesById() {
+    void shouldGetEdgesById() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
@@ -227,17 +212,16 @@ public class GafferPopFederatedIT {
 
         // Then
         assertThat(result)
-                .hasSize(2)
                 .extracting(item -> item.id().toString())
-                .contains("[p1, s1]", "[p3, s1]");
+                .containsExactly("[p1, s1]", "[p3, s1]");
 
         assertThat(result)
                 .extracting(item -> item.label())
-                .contains(CREATED_EDGE_GROUP, CREATED_EDGE_GROUP);
+                .containsExactly(CREATED_EDGE_GROUP, CREATED_EDGE_GROUP);
     }
 
     @Test
-    public void shouldGetOutgoingEdges() {
+    void shouldGetOutgoingEdges() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
@@ -246,17 +230,16 @@ public class GafferPopFederatedIT {
 
         // Then
         assertThat(result)
-                .hasSize(2)
                 .extracting(item -> item.id().toString())
-                .contains("[p1, p2]", "[p1, s1]");
+                .containsExactly("[p1, p2]", "[p1, s1]");
 
         assertThat(result)
                 .extracting(item -> item.label())
-                .contains("knows", CREATED_EDGE_GROUP);
+                .containsExactly("knows", CREATED_EDGE_GROUP);
     }
 
     @Test
-    public void shouldGetIncomingEdgesByLabel() {
+    void shouldGetIncomingEdgesByLabel() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
@@ -265,12 +248,11 @@ public class GafferPopFederatedIT {
 
         // Then
         assertThat(result)
-                .hasSize(2)
-                .contains(CREATED_EDGE_GROUP, CREATED_EDGE_GROUP);
+                .containsExactly(CREATED_EDGE_GROUP, CREATED_EDGE_GROUP);
     }
 
     @Test
-    public void shouldTraverseEdgesFromVertexAndReturnNames() {
+    void shouldTraverseEdgesFromVertexAndReturnNames() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
 
@@ -279,6 +261,6 @@ public class GafferPopFederatedIT {
 
         // Then
         assertThat(result)
-                .contains("person2Name", "software1Name");
+                .containsExactly("person2Name", "software1Name");
     }
 }
