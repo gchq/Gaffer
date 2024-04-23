@@ -29,15 +29,12 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.verify;
 
 class GafferPopGraphStepStrategyTest {
@@ -56,13 +53,6 @@ class GafferPopGraphStepStrategyTest {
         final String testDataAuths = "auth1,auth2";
         final List<String> testOpOptions = Arrays.asList("graphId:graph1", "other:other");
 
-        // Expected format variables are returned as once processed
-        final String[] expectedDataAuths = {"auth1", "auth2"};
-        final Map<String, String> expectedOpOptions = Stream.of(
-                new SimpleEntry<>("graphId", "graph1"),
-                new SimpleEntry<>("other", "other"))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
         final GraphTraversalSource g = graph.traversal();
 
         // When
@@ -73,8 +63,10 @@ class GafferPopGraphStepStrategyTest {
 
         // Then
         assertThat(graphVariables.getUserId()).isEqualTo(testUserId);
-        assertThat(graphVariables.getDataAuths()).isEqualTo(expectedDataAuths);
-        assertThat(graphVariables.getOperationOptions()).isEqualTo(expectedOpOptions);
+        assertThat(graphVariables.getDataAuths()).containsExactlyInAnyOrder((testDataAuths.split(",")));
+        assertThat(graphVariables.getOperationOptions()).containsOnly(
+            entry("graphId", "graph1"),
+            entry("other", "other"));
     }
 
     @Test

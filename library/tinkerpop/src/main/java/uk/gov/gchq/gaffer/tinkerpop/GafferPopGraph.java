@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.tinkerpop;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategies;
+import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategies.GlobalCache;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph.OptIn;
@@ -243,11 +244,10 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         serviceRegistry = new ServiceRegistry();
         serviceRegistry.registerService(new GafferPopNamedOperationServiceFactory(this));
 
-        // Register custom traversals
-        TraversalStrategies.GlobalCache.registerStrategies(
-            this.getClass(),
-            TraversalStrategies.GlobalCache.getStrategies(this.getClass()).addStrategies(
-                GafferPopGraphStepStrategy.instance()));
+        // Add and register custom traversals
+        TraversalStrategies traversalStrategies = GlobalCache.getStrategies(this.getClass()).addStrategies(
+                GafferPopGraphStepStrategy.instance());
+        GlobalCache.registerStrategies(this.getClass(), traversalStrategies);
     }
 
     private static Graph createGraph(final Configuration configuration) {
