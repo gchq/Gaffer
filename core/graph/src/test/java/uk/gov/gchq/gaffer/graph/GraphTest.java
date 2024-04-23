@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.otel.OtelUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -1512,25 +1513,25 @@ public class GraphTest {
 
         // When
         final Graph graph = new Graph.Builder()
-                .config(StreamUtil.graphConfig(getClass()))
-                .storeProperties(storeProperties)
-                .addSchemas(StreamUtil.schemas(getClass()))
-                .build();
+            .config(StreamUtil.graphConfig(getClass()))
+            .storeProperties(storeProperties)
+            .addSchemas(StreamUtil.schemas(getClass()))
+            .build();
 
         // Then
-        assertEquals("graphId1", graph.getGraphId());
-        assertEquals(new View.Builder()
-                .globalElements(new GlobalViewElementDefinition.Builder()
-                        .groupBy()
-                        .build())
-                .build(), graph.getView());
-        assertEquals(HashMapGraphLibrary.class, graph.getGraphLibrary().getClass());
-        assertThat(graph.getGraphHooks())
-            .containsExactlyInAnyOrder(
-                NamedViewResolver.class,
-                OperationChainLimiter.class,
-                AddOperationsToChain.class,
-                FunctionAuthoriser.class);
+        assertThat(graph.getGraphId()).isEqualTo("graphId1");
+        assertThat(OtelUtil.getOpenTelemetryActive()).isTrue();
+        assertThat(graph.getView()).isEqualTo(new View.Builder()
+            .globalElements(new GlobalViewElementDefinition.Builder()
+                .groupBy()
+                .build())
+            .build());
+        assertThat(graph.getGraphLibrary().getClass()).isEqualTo(HashMapGraphLibrary.class);
+        assertThat(graph.getGraphHooks()).containsExactlyInAnyOrder(
+            NamedViewResolver.class,
+            OperationChainLimiter.class,
+            AddOperationsToChain.class,
+            FunctionAuthoriser.class);
     }
 
     @Test

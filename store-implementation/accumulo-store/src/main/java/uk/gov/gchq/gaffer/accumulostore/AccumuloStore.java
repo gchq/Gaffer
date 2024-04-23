@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -199,11 +199,13 @@ public class AccumuloStore extends Store {
         return connection;
     }
 
+    /**
+     * Gets the name of the Accumulo table backing this store
+     *
+     * @return Accumulo Table Name
+     */
     public String getTableName() {
-        if (StringUtils.isNotBlank(getProperties().getNamespace())) {
-            return String.format("%s.%s", getProperties().getNamespace(), getGraphId());
-        }
-        return getGraphId();
+        return TableUtils.getTableName(getProperties(), getGraphId());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
