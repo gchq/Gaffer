@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopGraphStep;
 
 /**
  * The {@link GraphStep} strategy for GafferPop, this will replace the default
- * {@link GraphStep} of a query to add Gaffer optimisations such as, gathering
+ * {@link GraphStep} of a query to add Gaffer optimisations. Such as gathering
  * any {@link HasStep}s so that a Gaffer View can be constructed for the query.
  *
  * <pre>
