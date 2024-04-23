@@ -51,20 +51,25 @@ public class GafferPopFederatedIT {
     public static final String CREATED_EDGE_GROUP = "created";
     public static final String NAME_PROPERTY = "name";
     public static final String WEIGHT_PROPERTY = "weight";
-    public static final Map<Object, Object> expectedSoftware1Vertex = Stream.of(
+    public static final Map<Object, Object> EXPECTED_SOFTWARE_1_VERTEX_MAP = Stream.of(
             new SimpleEntry<>(T.id, VERTEX_SOFTWARE_1),
             new SimpleEntry<>(T.label, SOFTWARE_GROUP),
             new SimpleEntry<>("name", "software1Name"))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    public static final Map<Object, Object> expectedSoftware2Vertex = Stream.of(
+    public static final Map<Object, Object> EXPECTED_SOFTWARE_2_VERTEX_MAP = Stream.of(
             new SimpleEntry<>(T.id, VERTEX_SOFTWARE_2),
             new SimpleEntry<>(T.label, SOFTWARE_GROUP),
             new SimpleEntry<>("name", "software2Name"))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    public static final Map<Object, Object> expectedPerson1Vertex = Stream.of(
+    public static final Map<Object, Object> EXPECTED_PERSON_1_VERTEX_MAP = Stream.of(
             new SimpleEntry<>(T.id, VERTEX_PERSON_1),
             new SimpleEntry<>(T.label, PERSON_GROUP),
             new SimpleEntry<>("name", "person1Name"))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public static final Map<Object, Object> EXPECTED_PERSON_2_VERTEX_MAP = Stream.of(
+            new SimpleEntry<>(T.id, VERTEX_PERSON_2),
+            new SimpleEntry<>(T.label, PERSON_GROUP),
+            new SimpleEntry<>("name", "person2Name"))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     @BeforeEach
@@ -102,10 +107,10 @@ public class GafferPopFederatedIT {
 
         // Then
         assertThat(vertex1)
-                .containsExactly(expectedPerson1Vertex);
+                .containsExactly(EXPECTED_PERSON_1_VERTEX_MAP);
 
         assertThat(vertex2)
-                .containsExactly(expectedSoftware2Vertex);
+                .containsExactly(EXPECTED_SOFTWARE_2_VERTEX_MAP);
     }
 
     @Test
@@ -118,7 +123,7 @@ public class GafferPopFederatedIT {
 
         // Then
         assertThat(vertex)
-                .containsExactly(expectedSoftware1Vertex.get("name"));
+                .containsExactly(EXPECTED_SOFTWARE_1_VERTEX_MAP.get("name"));
     }
 
     @Test
@@ -146,8 +151,8 @@ public class GafferPopFederatedIT {
 
         // Then
         assertThat(result)
-                .contains(expectedSoftware1Vertex, atIndex(0))
-                .contains(expectedSoftware2Vertex, atIndex(1));
+                .contains(EXPECTED_SOFTWARE_1_VERTEX_MAP, atIndex(0))
+                .contains(EXPECTED_SOFTWARE_2_VERTEX_MAP, atIndex(1));
     }
 
     @Test
@@ -185,7 +190,8 @@ public class GafferPopFederatedIT {
         List<Object> result = g.V(VERTEX_PERSON_1).out().values("name").toList();
 
         assertThat(result)
-                .containsOnly("person2Name", "software1Name");
+                .containsOnly(EXPECTED_PERSON_2_VERTEX_MAP.get("name"),
+                        EXPECTED_SOFTWARE_1_VERTEX_MAP.get("name"));
     }
 
     @Test
@@ -261,6 +267,7 @@ public class GafferPopFederatedIT {
 
         // Then
         assertThat(result)
-                .containsExactly("person2Name", "software1Name");
+                .containsExactly(EXPECTED_PERSON_2_VERTEX_MAP.get("name"),
+                        EXPECTED_SOFTWARE_1_VERTEX_MAP.get("name"));
     }
 }
