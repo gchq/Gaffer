@@ -72,7 +72,7 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>jcs-cache-service</artifactId>
             <version>${project.parent.version}</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- Test dependencies -->
@@ -99,7 +99,7 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>federated-store</artifactId>
             <version>${project.parent.version}</version>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
         <!-- For standard gremlin test suites -->
         <dependency>
