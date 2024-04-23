@@ -54,22 +54,22 @@ public class GafferPopFederatedIT {
     public static final Map<Object, Object> EXPECTED_SOFTWARE_1_VERTEX_MAP = Stream.of(
             new SimpleEntry<>(T.id, VERTEX_SOFTWARE_1),
             new SimpleEntry<>(T.label, SOFTWARE_GROUP),
-            new SimpleEntry<>("name", "software1Name"))
+            new SimpleEntry<>(NAME_PROPERTY, "software1Name"))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     public static final Map<Object, Object> EXPECTED_SOFTWARE_2_VERTEX_MAP = Stream.of(
             new SimpleEntry<>(T.id, VERTEX_SOFTWARE_2),
             new SimpleEntry<>(T.label, SOFTWARE_GROUP),
-            new SimpleEntry<>("name", "software2Name"))
+            new SimpleEntry<>(NAME_PROPERTY, "software2Name"))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     public static final Map<Object, Object> EXPECTED_PERSON_1_VERTEX_MAP = Stream.of(
             new SimpleEntry<>(T.id, VERTEX_PERSON_1),
             new SimpleEntry<>(T.label, PERSON_GROUP),
-            new SimpleEntry<>("name", "person1Name"))
+            new SimpleEntry<>(NAME_PROPERTY, "person1Name"))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     public static final Map<Object, Object> EXPECTED_PERSON_2_VERTEX_MAP = Stream.of(
             new SimpleEntry<>(T.id, VERTEX_PERSON_2),
             new SimpleEntry<>(T.label, PERSON_GROUP),
-            new SimpleEntry<>("name", "person2Name"))
+            new SimpleEntry<>(NAME_PROPERTY, "person2Name"))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     @BeforeEach
