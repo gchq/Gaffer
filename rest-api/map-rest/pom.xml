@@ -64,6 +64,7 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
+                        <?m2e ignore?>
                         <id>unpack</id>
                         <phase>prepare-package</phase>
                         <goals>
