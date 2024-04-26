@@ -99,7 +99,7 @@
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
         <compiler.plugin.verson>3.9.0</compiler.plugin.verson>
-        <dependency.plugin.version>3.5.0</dependency.plugin.version>
+        <dependency.plugin.version>3.6.1</dependency.plugin.version>
         <depgraph.plugin.version>4.0.2</depgraph.plugin.version>
         <spotbugs.plugin.version>4.7.3.4</spotbugs.plugin.version>
         <pmd.plugin.version>3.20.0</pmd.plugin.version>
