@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.T;
@@ -325,21 +326,18 @@ public class GafferPopGraphIT {
         final GafferPopVertex gafferPopOutVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, VERTEX_1, graph);
         final GafferPopVertex gafferPopInVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, VERTEX_2, graph);
         final GafferPopEdge edgeToAdd = new GafferPopEdge(CREATED_EDGE_GROUP, gafferPopOutVertex, gafferPopInVertex, graph);
+        final GraphTraversalSource g = graph.traversal();
         edgeToAdd.property(WEIGHT_PROPERTY, 1.5);
 
         // When
         graph.addEdge(edgeToAdd);
-        final Iterator<Edge> edges = graph.edges(Arrays.asList(VERTEX_1, VERTEX_2));
+
+        List<Edge> edges = g.E("[" + VERTEX_1 + ", " + VERTEX_2 + "]").toList();
 
         // Then
-        final Edge edge = edges.next();
-        assertThat(edges).isExhausted(); // there is only 1 vertex
-        assertThat(((List) edge.id()).get(0)).isEqualTo(VERTEX_1);
-        assertThat(((List) edge.id()).get(1)).isEqualTo(VERTEX_2);
-        assertThat(edge.label()).isEqualTo(CREATED_EDGE_GROUP);
-        assertThat(edge.inVertex()).isEqualTo(gafferPopInVertex);
-        assertThat(edge.outVertex()).isEqualTo(gafferPopOutVertex);
-        assertThat(edge.property(WEIGHT_PROPERTY).value()).isEqualTo(1.5);
+        assertThat(edges)
+            .extracting(edge -> edge.toString())
+            .containsExactly(edgeToAdd.toString());
     }
 
     @Test

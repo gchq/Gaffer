@@ -90,7 +90,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         }
 
         // linear scan as fallback
-        return IteratorUtils.filter(graph.edges(Arrays.asList(this.ids)), edge -> HasContainer.testAll(edge, hasContainers));
+        return IteratorUtils.filter(graph.edges(this.ids), edge -> HasContainer.testAll(edge, hasContainers));
     }
 
     private Iterator<? extends Vertex> vertices(final GafferPopGraph graph) {
