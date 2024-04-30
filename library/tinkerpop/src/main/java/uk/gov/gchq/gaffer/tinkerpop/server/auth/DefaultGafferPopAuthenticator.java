@@ -16,17 +16,17 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.server.auth;
 
-import java.net.InetAddress;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.tinkerpop.gremlin.server.auth.AuthenticatedUser;
 import org.apache.tinkerpop.gremlin.server.auth.AuthenticationException;
 import org.apache.tinkerpop.gremlin.server.auth.Authenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The default authenticator class for GafferPop, this should not
@@ -43,18 +43,18 @@ public class DefaultGafferPopAuthenticator implements Authenticator {
     }
 
     @Override
-    public void setup(Map<String, Object> config) {
+    public void setup(final Map<String, Object> config) {
         // Nothing to do
     }
 
     @Override
-    public SaslNegotiator newSaslNegotiator(InetAddress remoteAddress) {
+    public SaslNegotiator newSaslNegotiator(final InetAddress remoteAddress) {
         return new PlainTextSaslAuthenticator();
     }
 
 
     @Override
-    public AuthenticatedUser authenticate(Map<String, String> credentials) throws AuthenticationException {
+    public AuthenticatedUser authenticate(final Map<String, String> credentials) throws AuthenticationException {
         // Get the username and password from the credentials set by the SASL negotiator
         final String username = credentials.get("username");
         final String password = credentials.get("password");
@@ -86,8 +86,10 @@ public class DefaultGafferPopAuthenticator implements Authenticator {
 
         @Override
         public AuthenticatedUser getAuthenticatedUser() throws AuthenticationException {
-            if (!complete) throw new AuthenticationException("SASL negotiation not complete");
-            final Map<String,String> credentials = new HashMap<>();
+            if (!complete) {
+                throw new AuthenticationException("SASL negotiation not complete");
+            }
+            final Map<String, String> credentials = new HashMap<>();
             credentials.put("username", username);
             credentials.put("password", password);
             return authenticate(credentials);
@@ -96,24 +98,30 @@ public class DefaultGafferPopAuthenticator implements Authenticator {
         /**
          * SASL PLAIN mechanism specifies that credentials are encoded in a
          * sequence of UTF-8 bytes, delimited by 0 (US-ASCII NUL).
-         * The form is : <pre>authzIdNULauthnIdNULpasswordNUL</pre>
+         * The form is :
+         *
+         * <pre>
+         * authzIdNULauthnIdNULpasswordNUL
+         * </pre>
          *
          * @param bytes encoded credentials string sent by the client
+         * @throws AuthenticationException If issue decoding
          */
-        private void decodeCredentials(byte[] bytes) throws AuthenticationException {
+        private void decodeCredentials(final byte[] bytes) throws AuthenticationException {
             byte[] user = null;
             byte[] pass = null;
             int end = bytes.length;
             // Loop over the byte array to extract the user and password
-            for (int i = bytes.length - 1 ; i >= 0; i--) {
+            for (int i = bytes.length - 1; i >= 0; i--) {
                 if (bytes[i] != NUL) {
                     continue;
                 }
 
-                if (pass == null)
+                if (pass == null) {
                     pass = Arrays.copyOfRange(bytes, i + 1, end);
-                else if (user == null)
+                } else if (user == null) {
                     user = Arrays.copyOfRange(bytes, i + 1, end);
+                }
                 end = i;
             }
 
