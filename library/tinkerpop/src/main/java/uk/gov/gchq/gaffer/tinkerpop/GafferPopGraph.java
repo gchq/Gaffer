@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.tinkerpop;
 
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategies;
@@ -410,7 +411,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(e -> (Vertex) e)
                 .iterator();
 
-        final long resultSize = StreamSupport.stream(translatedResults.spliterator(), false).count();
+        final int resultSize = IterableUtils.size(translatedResults);
         if (getAll && resultSize >= getAllElementsLimit) {
             LOGGER.warn("Result size is equal to  configured limit (" + getAllElementsLimit + "). Results may have been truncated");
         }
@@ -571,7 +572,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(e -> (Edge) e)
                 .iterator();
 
-        final long resultSize = StreamSupport.stream(translatedResults.spliterator(), false).count();
+        final int resultSize = IterableUtils.size(translatedResults);
         if (getAll && resultSize >= getAllElementsLimit) {
             LOGGER.warn("Result size is equal to  configured limit (" + getAllElementsLimit + "). Results may have been truncated");
         }
