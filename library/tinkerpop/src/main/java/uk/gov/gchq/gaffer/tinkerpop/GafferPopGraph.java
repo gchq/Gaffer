@@ -413,7 +413,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final int resultSize = IterableUtils.size(translatedResults);
         if (getAll && resultSize >= getAllElementsLimit) {
-            LOGGER.warn("Result size is equal to  configured limit (" + getAllElementsLimit + "). Results may have been truncated");
+            LOGGER.warn("Result size is equal to configured limit ({}). Results may have been truncated", getAllElementsLimit);
         }
 
 
@@ -574,7 +574,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final int resultSize = IterableUtils.size(translatedResults);
         if (getAll && resultSize >= getAllElementsLimit) {
-            LOGGER.warn("Result size is equal to  configured limit (" + getAllElementsLimit + "). Results may have been truncated");
+            LOGGER.warn("Result size is equal to configured limit ({}). Results may have been truncated", getAllElementsLimit);
         }
 
         return translatedResults.iterator();
