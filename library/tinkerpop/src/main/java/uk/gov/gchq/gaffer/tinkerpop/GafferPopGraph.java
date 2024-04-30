@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
+import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategies;
+import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategies.GlobalCache;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph.OptIn;
@@ -53,6 +55,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEdgeGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.iterable.MappedIterable;
@@ -68,7 +71,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -130,6 +132,7 @@ import java.util.stream.StreamSupport;
     method = "*",
     reason = "Currently a bug with the WriteTest that creates unwanted files")
 public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Graph {
+
     public static final String GRAPH_ID = "gaffer.graphId";
 
     /**
@@ -214,7 +217,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     private final GafferPopGraphVariables variables;
     private final GafferPopGraphFeatures features;
     private final Map<String, String> opOptions;
-    private final User user;
+    private final User defaultUser;
     private final ServiceRegistry serviceRegistry;
     private final Integer getAllElementsLimit;
 
@@ -235,18 +238,25 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 opOptions.put(parts[0], parts[1]);
             }
         }
-
-        user = new User.Builder()
+        // Default user for operations
+        defaultUser = new User.Builder()
                 .userId(configuration().getString(USER_ID, User.UNKNOWN_USER_ID))
                 .dataAuths(configuration().getStringArray(DATA_AUTHS))
                 .build();
 
         getAllElementsLimit = configuration.getInteger(GET_ALL_ELEMENTS_LIMIT, null);
 
-        variables = createVariables();
+        // Set the graph variables to current config
+        variables = new GafferPopGraphVariables();
+        setDefaultVariables(variables);
 
         serviceRegistry = new ServiceRegistry();
         serviceRegistry.registerService(new GafferPopNamedOperationServiceFactory(this));
+
+        // Add and register custom traversals
+        TraversalStrategies traversalStrategies = GlobalCache.getStrategies(this.getClass()).addStrategies(
+                GafferPopGraphStepStrategy.instance());
+        GlobalCache.registerStrategies(this.getClass(), traversalStrategies);
     }
 
     private static Graph createGraph(final Configuration configuration) {
@@ -658,26 +668,33 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     public <T> T execute(final OperationChain<T> opChain) {
         for (final Operation operation : opChain.getOperations()) {
-            operation.setOptions(opOptions);
-
+            // Set options on operations
+            operation.setOptions(variables.getOperationOptions());
+            // Debug logging
             if (LOGGER.isDebugEnabled() && operation instanceof Input) {
                 Object input = ((Input) operation).getInput();
                 if (input instanceof MappedIterable) {
-                    ((MappedIterable) input).forEach(item -> {
-                        LOGGER.debug("GafferPop operation input: {}", item);
-                    });
+                    ((MappedIterable) input).forEach(item -> LOGGER.debug("GafferPop operation input: {}", item));
                 } else {
                     LOGGER.debug("GafferPop operation input: {}", input);
                 }
             }
         }
+        // Use the requested user based on variables
+        User user = new User.Builder()
+            .userId(variables.getUserId())
+            .dataAuths(variables.getDataAuths())
+            .build();
 
         try {
             LOGGER.info("GafferPop operation chain called: {}", opChain.toOverviewString());
             return graph.execute(opChain, user);
         } catch (final Exception e) {
-            LOGGER.error("Operation chain failed: " + e.getMessage(), e);
-            throw new RuntimeException("Failed to execute GafferPop operation chain", e);
+            LOGGER.error("Operation chain failed: {}", e.getMessage());
+            throw new RuntimeException("GafferPop operation failed: " + e.getMessage(), e);
+        } finally {
+            // Reset the variables to default after running operation as they may have been updated in the query
+            setDefaultVariables(variables);
         }
     }
 
@@ -807,8 +824,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private View createViewWithEntities(final String... labels) {
         View view = null;
-        if (null != labels && 0 < labels.length) {
-            if (1 == labels.length && labels[0].startsWith("View{")) {
+        if (labels != null && labels.length > 0) {
+            if (labels.length == 1 && labels[0].startsWith("View{")) {
                 // Allows a view to be passed in as a label
                 view = View.fromJson(labels[0].substring(4).getBytes(StandardCharsets.UTF_8));
             } else {
@@ -833,7 +850,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 } else if (schema.isEdge(label)) {
                     viewBuilder.edge(label);
                 } else if (!ID_LABEL.equals(label)) {
-                    throw new IllegalArgumentException("Label/Group was found in the schema: " + label);
+                    throw new IllegalArgumentException("Label/Group was not found in the schema: " + label);
                 }
             }
             view = viewBuilder.build();
@@ -908,15 +925,17 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         return inOutType;
     }
 
-    private GafferPopGraphVariables createVariables() {
-        final ConcurrentHashMap<String, Object> variablesMap = new ConcurrentHashMap<>();
-        variablesMap.put(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
-        variablesMap.put(GafferPopGraphVariables.USER, user);
-        variablesMap.put(GafferPopGraphVariables.SCHEMA, graph.getSchema());
-        if (null != getAllElementsLimit) {
-            variablesMap.put(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, getAllElementsLimit);
-        }
-        return new GafferPopGraphVariables(variablesMap);
+    /**
+     * Sets the {@link GafferPopGraphVariables} to default values for this
+     * graph
+     *
+     * @param variables The variables
+     */
+    private void setDefaultVariables(final GafferPopGraphVariables variables) {
+        variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
+        variables.set(GafferPopGraphVariables.USER_ID, defaultUser.getUserId());
+        variables.set(GafferPopGraphVariables.DATA_AUTHS, configuration().getStringArray(DATA_AUTHS));
+        variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, getAllElementsLimit);
     }
 
     /**
