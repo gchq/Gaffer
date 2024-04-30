@@ -92,7 +92,7 @@ public class GafferPopGraphIT {
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables.get(GafferPopGraphVariables.USER_ID)).isEqualTo(expectedUser.getUserId());
-        assertThat(variables.get(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT)).isEqualTo(100);
+        assertThat(variables.get(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT)).isEqualTo(GafferPopGraph.DEFAULT_GET_ALL_ELEMENTS_LIMIT);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").hasSize(1);
@@ -113,7 +113,7 @@ public class GafferPopGraphIT {
         assertThat(variables)
             .containsEntry(GafferPopGraphVariables.DATA_AUTHS, expectedUser.getDataAuths().toArray())
             .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId())
-            .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, 100);
+            .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, GafferPopGraph.DEFAULT_GET_ALL_ELEMENTS_LIMIT);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
@@ -272,18 +272,6 @@ public class GafferPopGraphIT {
 
         // Then
         assertThat(vertices).toIterable().hasSize(1);
-    }
-
-    @Test
-    public void shouldThrowIllegalArgumentExceptionWhenNoLimitForGetAllVertices() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_3, gafferGraph);
-
-        //Then
-        assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> graph.vertices())
-            .withMessageMatching("gaffer.elements.getalllimit property is required when using GetAllElements");
     }
 
     @Test
@@ -481,18 +469,6 @@ public class GafferPopGraphIT {
 
         // Then
         assertThat(edges).toIterable().hasSize(1);
-    }
-
-    @Test
-    public void shouldThrowIllegalArgumentExceptionWhenNoLimitForGetAllEdges() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_3, gafferGraph);
-
-        //Then
-        assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> graph.edges())
-            .withMessageMatching("gaffer.elements.getalllimit property is required when using GetAllElements");
     }
 
     @Test

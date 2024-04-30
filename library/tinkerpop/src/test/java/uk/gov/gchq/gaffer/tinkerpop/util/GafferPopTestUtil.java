@@ -41,7 +41,6 @@ public final class GafferPopTestUtil {
             this.setProperty(GafferPopGraph.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
             this.setProperty(GafferPopGraph.USER_ID, USER_ID);
             this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
-            this.setProperty(GafferPopGraph.GET_ALL_ELEMENTS_LIMIT, 100);
         }
     };
 
