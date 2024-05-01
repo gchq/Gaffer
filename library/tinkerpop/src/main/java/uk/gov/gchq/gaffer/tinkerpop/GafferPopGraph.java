@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.tinkerpop;
 
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategies;
@@ -44,6 +45,7 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -170,6 +172,16 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      */
     public static final String OP_OPTIONS = "gaffer.operation.options";
 
+    /**
+     * Configuration key for the max number of elements returned by getAllElements
+     */
+    public static final String GET_ALL_ELEMENTS_LIMIT = "gaffer.elements.getalllimit";
+
+    /**
+     * Default value for the max number of elements returned by getAllElements
+     */
+    public static final int DEFAULT_GET_ALL_ELEMENTS_LIMIT = 5000;
+
     public static final String USER_ID = "gaffer.userId";
 
     public static final String DATA_AUTHS = "gaffer.dataAuths";
@@ -213,6 +225,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     private final Map<String, String> opOptions;
     private final User defaultUser;
     private final ServiceRegistry serviceRegistry;
+    private final int getAllElementsLimit;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraph.class);
 
@@ -236,6 +249,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .userId(configuration().getString(USER_ID, User.UNKNOWN_USER_ID))
                 .dataAuths(configuration().getStringArray(DATA_AUTHS))
                 .build();
+
+        getAllElementsLimit = configuration.getInteger(GET_ALL_ELEMENTS_LIMIT, DEFAULT_GET_ALL_ELEMENTS_LIMIT);
 
         // Set the graph variables to current config
         variables = new GafferPopGraphVariables();
@@ -367,10 +382,13 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final Output<Iterable<? extends Element>> getOperation;
         if (getAll) {
-            getOperation = new GetAllElements.Builder()
-                    .view(new View.Builder()
-                            .entities(graph.getSchema().getEntityGroups())
+            getOperation = new Builder()
+                    .first(new GetAllElements.Builder()
+                            .view(new View.Builder()
+                                    .entities(graph.getSchema().getEntityGroups())
+                                    .build())
                             .build())
+                    .then(new Limit<>(getAllElementsLimit, true))
                     .build();
         } else {
             getOperation = new GetElements.Builder()
@@ -392,6 +410,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .filter(Vertex.class::isInstance)
                 .map(e -> (Vertex) e)
                 .iterator();
+
+        final int resultSize = IterableUtils.size(translatedResults);
+        if (getAll && resultSize >= getAllElementsLimit) {
+            LOGGER.warn("Result size is equal to configured limit ({}). Results may have been truncated", getAllElementsLimit);
+        }
+
 
         return translatedResults.iterator();
     }
@@ -518,11 +542,14 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final Output<Iterable<? extends Element>> getOperation;
         if (getAll) {
-            getOperation = new GetAllElements.Builder()
-                    .view(new View.Builder()
+            getOperation = new Builder()
+                .first(new GetAllElements.Builder()
+                        .view(new View.Builder()
                             .edges(graph.getSchema().getEdgeGroups())
                             .build())
-                    .build();
+                        .build())
+                .then(new Limit<>(getAllElementsLimit, true))
+                .build();
         } else {
             getOperation = new GetElements.Builder()
                     .input(getElementSeeds(Arrays.asList(elementIds)))
@@ -544,6 +571,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .filter(Edge.class::isInstance)
                 .map(e -> (Edge) e)
                 .iterator();
+
+        final int resultSize = IterableUtils.size(translatedResults);
+        if (getAll && resultSize >= getAllElementsLimit) {
+            LOGGER.warn("Result size is equal to configured limit ({}). Results may have been truncated", getAllElementsLimit);
+        }
 
         return translatedResults.iterator();
     }
@@ -913,6 +945,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
         variables.set(GafferPopGraphVariables.USER_ID, defaultUser.getUserId());
         variables.set(GafferPopGraphVariables.DATA_AUTHS, configuration().getStringArray(DATA_AUTHS));
+        variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, getAllElementsLimit);
     }
 
     /**
