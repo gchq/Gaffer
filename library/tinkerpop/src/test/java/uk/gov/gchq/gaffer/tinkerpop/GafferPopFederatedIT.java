@@ -22,7 +22,6 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -30,6 +29,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopFederatedTestUtil;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -76,6 +76,11 @@ public class GafferPopFederatedIT {
             new SimpleEntry<>(T.label, PERSON_GROUP),
             new SimpleEntry<>(NAME_PROPERTY, "person2Name"))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public static final Map<Object, Object> EXPECTED_PERSON_3_VERTEX_MAP = Stream.of(
+            new SimpleEntry<>(T.id, "p3"),
+            new SimpleEntry<>(T.label, PERSON_GROUP),
+            new SimpleEntry<>(NAME_PROPERTY, "person3Name"))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -96,7 +101,7 @@ public class GafferPopFederatedIT {
         // Then
         assertThat(variables).contains(
                 entry("userId", USER_ID),
-                entry("dataAuths", new String[]{AUTH_1, AUTH_2}));
+                entry("dataAuths", new String[] {AUTH_1, AUTH_2}));
     }
 
     @Test
@@ -212,7 +217,6 @@ public class GafferPopFederatedIT {
     }
 
     @Test
-    @Disabled("This does not currently work with federation")
     void shouldGetEdgesById() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
@@ -220,7 +224,6 @@ public class GafferPopFederatedIT {
         // When
         List<Edge> result = g.E("[p1, s1]", "[p3, s1]").toList();
 
-        // Then
         assertThat(result)
                 .extracting(item -> item.id().toString())
                 .containsExactly("[p1, s1]", "[p3, s1]");
@@ -273,5 +276,112 @@ public class GafferPopFederatedIT {
         assertThat(result)
                 .containsExactly(EXPECTED_PERSON_2_VERTEX_MAP.get("name"),
                         EXPECTED_SOFTWARE_1_VERTEX_MAP.get("name"));
+    }
+
+    @Test
+    void shouldReturnVerticesByLabelFromSpecificGraph() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+        final List<String> graphOptions = Arrays.asList("gaffer.federatedstore.operation.graphIds:graphA");
+
+        // When
+        List<Map<Object, Object>> result = g.with(GafferPopGraphVariables.OP_OPTIONS, graphOptions).V()
+                .hasLabel(PERSON_GROUP)
+                .elementMap().toList();
+
+        // Then
+        assertThat(result)
+                .containsExactlyInAnyOrder(EXPECTED_PERSON_1_VERTEX_MAP, EXPECTED_PERSON_2_VERTEX_MAP,
+                        EXPECTED_PERSON_3_VERTEX_MAP);
+    }
+
+    @Test
+    void shouldReturnFilteredVerticesFromSpecificGraph() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+        final List<String> graphOptions = Arrays.asList("gaffer.federatedstore.operation.graphIds:graphA");
+
+        // When
+        List<Object> result = g.with(GafferPopGraphVariables.OP_OPTIONS, graphOptions).V()
+                .outE(CREATED_EDGE_GROUP).has(WEIGHT_PROPERTY, P.gt(0.4))
+                .values(WEIGHT_PROPERTY)
+                .toList();
+
+        // Then
+        assertThat(result)
+                .containsExactly(1.0);
+    }
+
+    @Test
+    void shouldGroupVerticesByLabelAndProvideCountFromSpecificGraph() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+        final List<String> graphOptions = Arrays.asList("gaffer.federatedstore.operation.graphIds:graphB");
+
+        // When
+        List<Map<Object, Long>> result = g.with(GafferPopGraphVariables.OP_OPTIONS, graphOptions).V().groupCount()
+                .by(T.label).toList();
+
+        assertThat(result)
+                .first()
+                .hasFieldOrPropertyWithValue(PERSON_GROUP, 1L)
+                .hasFieldOrPropertyWithValue(SOFTWARE_GROUP, 1L);
+    }
+
+    @Test
+    void shouldGetEdgesByIdFromSpecificGraph() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+        final List<String> graphOptions = Arrays.asList("gaffer.federatedstore.operation.graphIds:graphB");
+
+        // When
+        List<Edge> result = g.with(GafferPopGraphVariables.OP_OPTIONS, graphOptions).E("[p4, s2]").toList();
+
+        assertThat(result)
+                .extracting(item -> item.id().toString())
+                .containsExactly("[p4, s2]");
+
+        assertThat(result)
+                .extracting(item -> item.label())
+                .containsExactly(CREATED_EDGE_GROUP);
+    }
+
+    @Test
+    void shouldGetOutgoingEdgesFromSpecificGraph() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+        final List<String> graphOptions = Arrays.asList("gaffer.federatedstore.operation.graphIds:graphB");
+
+        // When
+        List<Edge> result = g.with(GafferPopGraphVariables.OP_OPTIONS, graphOptions).V("p4").outE().toList();
+
+        // Then
+        assertThat(result)
+                .extracting(item -> item.id().toString())
+                .containsExactly("[p4, s2]");
+
+        assertThat(result)
+                .extracting(item -> item.label())
+                .containsExactly(CREATED_EDGE_GROUP);
+    }
+
+    @Test
+    void shouldGetIncomingEdgesFromSpecificGraph() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+        final List<String> graphOptions = Arrays.asList("gaffer.federatedstore.operation.graphIds:graphA");
+
+        // When
+        List<Edge> result = g.with(GafferPopGraphVariables.OP_OPTIONS, graphOptions).V(VERTEX_PERSON_1).outE()
+                .toList();
+
+        // Then
+        assertThat(result)
+                .extracting(item -> item.id().toString())
+                .containsExactly("[p1, p2]", "[p1, s1]");
+
+        assertThat(result)
+                .extracting(item -> item.label())
+                .containsExactly("knows", CREATED_EDGE_GROUP);
     }
 }
