@@ -35,6 +35,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The {@link Authorizer} for GafferPop, responsible for checking a query from a
+ * gremlin server user is valid and ensuring the current authorised user ID is
+ * passed on to the GafferPop graph. This should be used along side a instance
+ * specific Authenticator to provide user management for gremlin server connections.
+ */
 public class GafferPopAuthoriser implements Authorizer {
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopAuthoriser.class);
     public static final String REJECT_BYTECODE = "User not authorized for bytecode requests on %s";
@@ -106,8 +112,8 @@ public class GafferPopAuthoriser implements Authorizer {
 
     /**
      * Checks whether a user is authorized to have a script request from a gremlin
-     * client answered and raises an
-     * {@link AuthorizationException} if this is not the case.
+     * client answered and raises an {@link AuthorizationException} if this is not
+     * the case.
      *
      * @param user {@link AuthenticatedUser} that needs authorization.
      * @param msg  {@link RequestMessage} in which the
