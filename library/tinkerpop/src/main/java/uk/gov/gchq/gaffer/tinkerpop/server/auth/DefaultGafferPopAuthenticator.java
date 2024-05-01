@@ -19,8 +19,6 @@ package uk.gov.gchq.gaffer.tinkerpop.server.auth;
 import org.apache.tinkerpop.gremlin.server.auth.AuthenticatedUser;
 import org.apache.tinkerpop.gremlin.server.auth.AuthenticationException;
 import org.apache.tinkerpop.gremlin.server.auth.Authenticator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +33,6 @@ import java.util.Map;
  * that hooks into a proper authorisation mechanism such as LDAP etc.
  */
 public class DefaultGafferPopAuthenticator implements Authenticator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultGafferPopAuthenticator.class);
 
     @Override
     public boolean requireAuthentication() {
