@@ -73,7 +73,8 @@ class GafferPopAuthoriserTest {
         // Given
         final GafferPopGraph graph = GafferPopGraph.open(GafferPopTestUtil.TEST_CONFIGURATION_1, getGafferGraph());
         final GraphTraversalSource g = graph.traversal();
-        final Bytecode bytecode = g.withoutStrategies(ReadOnlyStrategy.class).V().addV().asAdmin().getBytecode();
+        final Bytecode bytecode = g.withoutStrategies(ReadOnlyStrategy.class)
+            .V().addV().asAdmin().getBytecode();
 
         // Then
         assertThatExceptionOfType(AuthorizationException.class)
@@ -88,7 +89,8 @@ class GafferPopAuthoriserTest {
         // Given
         final GafferPopGraph graph = GafferPopGraph.open(GafferPopTestUtil.TEST_CONFIGURATION_1, getGafferGraph());
         final GraphTraversalSource g = graph.traversal();
-        final Bytecode bytecode = g.withoutStrategies(VertexProgramRestrictionStrategy.class).withComputer().V().asAdmin().getBytecode();
+        final Bytecode bytecode = g.withoutStrategies(VertexProgramRestrictionStrategy.class)
+            .withComputer().V().asAdmin().getBytecode();
 
         // Then
         assertThatExceptionOfType(AuthorizationException.class)
@@ -103,7 +105,8 @@ class GafferPopAuthoriserTest {
         final GafferPopGraph graph = GafferPopGraph.open(GafferPopTestUtil.TEST_CONFIGURATION_1, getGafferGraph());
         final GraphTraversalSource g = graph.traversal();
         final Bytecode bytecode = g.V().asAdmin().getBytecode();
-        // Add the with() step separately otherwise it will get converted to the OptionsStrategy before we can compare
+        // Add the with() step separately otherwise it's converted to the OptionsStrategy
+        // by the asAdmin() call before we can compare.
         bytecode.addStep("with", GafferPopGraphVariables.USER_ID, "notAllowed");
 
         // Then
@@ -119,11 +122,13 @@ class GafferPopAuthoriserTest {
         final GraphTraversalSource g = graph.traversal();
         final Bytecode bytecode = g.V().asAdmin().getBytecode();
         final Bytecode expectedBytecode = g.V().asAdmin().getBytecode();
-        // Add the with() step separately otherwise it will get converted to the OptionsStrategy before we can compare
+        // Add the with() step separately otherwise it's converted to the OptionsStrategy
+        // by the asAdmin() call before we can compare.
         expectedBytecode.addSource("with", GafferPopGraphVariables.USER_ID, TEST_USERNAME);
 
         // Then
-        assertThat(authoriser.authorize(new AuthenticatedUser(TEST_USERNAME), bytecode, new HashMap<String, String>())).isEqualTo(expectedBytecode);
+        assertThat(authoriser.authorize(new AuthenticatedUser(TEST_USERNAME), bytecode, new HashMap<String, String>()))
+            .isEqualTo(expectedBytecode);
     }
 
     private Graph getGafferGraph() {
