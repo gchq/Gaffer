@@ -116,8 +116,7 @@ public class GafferPopAuthoriser implements Authorizer {
      * the case.
      *
      * @param user {@link AuthenticatedUser} that needs authorization.
-     * @param msg  {@link RequestMessage} in which the
-     *             {@link org.apache.tinkerpop.gremlin.driver.Tokens}.ARGS_GREMLIN
+     * @param msg  {@link RequestMessage} in which the ARGS_GREMLIN
      *             argument can contain an arbitrary succession of script
      *             statements.
      */

@@ -55,10 +55,8 @@ public class DefaultGafferPopAuthenticator implements Authenticator {
 
     @Override
     public AuthenticatedUser authenticate(final Map<String, String> credentials) throws AuthenticationException {
-        // Get the username and password from the credentials set by the SASL negotiator
+        // Get the username from the credentials set by the SASL negotiator
         final String username = credentials.get("username");
-        final String password = credentials.get("password");
-        LOGGER.debug("User: {} Pass: {}", username, password);
         return new AuthenticatedUser(username);
     }
 
