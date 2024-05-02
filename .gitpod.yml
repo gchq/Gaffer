@@ -4,14 +4,18 @@ image: maven:3-eclipse-temurin-8
 
 tasks:
   - name: Fetch Dependencies and Build
+    before: |
+      mkdir /home/gitpod/.m2
+      printf '<settings>\n  <localRepository>/workspace/m2-repository/</localRepository>\n</settings>\n' > /home/gitpod/.m2/settings.xml; clear
     init: mvn install -Pquick -Daether.dependencyCollector.impl=bf -T.5C
   - name: Add upstream GitHub repo
-    init: git remote add upstream https://github.com/gchq/Gaffer.git || true
-    # Ensure only noreply email is set (this is not the default - see gitpod issue #387)
+    init: git remote add github https://github.com/gchq/Gaffer.git || true
+    # Ensure only a GitHub noreply email is used for commits
     command: |
-      if ! [[ $(git config --global --get user.email) =~ .*@users.noreply.github.com ]]
-      then git config --global --remove-section user; echo;
-      echo "Git user details weren't using noreply email and have been removed"; echo; fi
+      if ! [[ $(git config --global --get user.email) =~ .*@users.noreply.github.com ]]; then git config --global --remove-section user;
+      if ! [[ $(git config --local --get user.email) =~ .*@users.noreply.github.com ]]; then git config --local --remove-section user; clear;
+      echo "Git global/local user details weren't set or weren't using a GitHub noreply email. Specify them with 'git config --local'.";
+      else clear; fi; else clear; fi;
 
 vscode:
   extensions:
@@ -21,3 +25,4 @@ vscode:
     - vscjava.vscode-java-debug
     - vscjava.vscode-java-test
     - vscjava.vscode-maven
+

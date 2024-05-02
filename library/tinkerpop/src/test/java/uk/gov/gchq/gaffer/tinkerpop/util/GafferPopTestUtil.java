@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Crown Copyright
+ * Copyright 2023-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ public final class GafferPopTestUtil {
             this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
             this.setProperty(GafferPopGraph.GRAPH_ID, "Graph1");
             this.setProperty(GafferPopGraph.STORE_PROPERTIES, GafferPopGraphIT.class.getClassLoader().getResource("gaffer/store.properties").getPath());
+            this.setProperty(GafferPopGraph.GET_ALL_ELEMENTS_LIMIT, 1);
         }
     };
 
