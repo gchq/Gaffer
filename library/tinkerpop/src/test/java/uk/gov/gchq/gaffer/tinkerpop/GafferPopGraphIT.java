@@ -74,10 +74,11 @@ public class GafferPopGraphIT {
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables.get(GafferPopGraphVariables.USER_ID)).isEqualTo(expectedUser.getUserId());
+        assertThat(variables.get(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT)).isEqualTo(1);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
-        assertThat(variables.size()).isEqualTo(3);
+        assertThat(variables.size()).isEqualTo(4);
     }
 
     @Test
@@ -91,10 +92,11 @@ public class GafferPopGraphIT {
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables.get(GafferPopGraphVariables.USER_ID)).isEqualTo(expectedUser.getUserId());
+        assertThat(variables.get(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT)).isEqualTo(GafferPopGraph.DEFAULT_GET_ALL_ELEMENTS_LIMIT);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").hasSize(1);
-        assertThat(variables.size()).isEqualTo(3);
+        assertThat(variables.size()).isEqualTo(4);
     }
 
     @Test
@@ -110,15 +112,16 @@ public class GafferPopGraphIT {
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables)
             .containsEntry(GafferPopGraphVariables.DATA_AUTHS, expectedUser.getDataAuths().toArray())
-            .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId());
+            .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId())
+            .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, GafferPopGraph.DEFAULT_GET_ALL_ELEMENTS_LIMIT);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
-        assertThat(variables.size()).isEqualTo(3);
+        assertThat(variables.size()).isEqualTo(4);
     }
 
     @Test
-    public void shouldThrowUnsupportedExceptionForNoGraphId() {
+    public void shouldThrowIllegalArgumentExceptionForNoGraphId() {
 
         // Given/Then
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -249,14 +252,26 @@ public class GafferPopGraphIT {
         final Iterator<Vertex> vertices = graph.vertices();
 
         // Then
-        final List<Vertex> verticesList = new ArrayList<>();
-        while (vertices.hasNext()) {
-            verticesList.add(vertices.next());
-        }
-        assertThat(verticesList).contains(
+        assertThat(vertices)
+            .toIterable()
+            .contains(
                 new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_1, graph),
-                new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_2, graph)
-        );
+                new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_2, graph));
+    }
+
+    @Test
+    public void shouldTruncateGetAllVertices() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_2, gafferGraph);
+
+        // When
+        addSoftwareVertex(graph);
+        graph.addVertex(T.label, PERSON_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
+        final Iterator<Vertex> vertices = graph.vertices();
+
+        // Then
+        assertThat(vertices).toIterable().hasSize(1);
     }
 
     @Test
@@ -437,6 +452,23 @@ public class GafferPopGraphIT {
 
         // Then
         assertThat(edges).toIterable().contains(edgeToAdd1, edgeToAdd2);
+    }
+
+    @Test
+    public void shouldTruncateGetAllEdges() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_2, gafferGraph);
+        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
+        final GafferPopEdge edgeToAdd2 = new GafferPopEdge(DEPENDS_ON_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
+        graph.addEdge(edgeToAdd1);
+        graph.addEdge(edgeToAdd2);
+
+        // When
+        final Iterator<Edge> edges = graph.edges();
+
+        // Then
+        assertThat(edges).toIterable().hasSize(1);
     }
 
     @Test
