@@ -27,12 +27,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The default authenticator class for GafferPop, this should not
+ * An example authenticator class for GafferPop, this should not
  * be used in production as it allows all user and password combinations.
- * The class is intended as a template for an instance specific class
+ * The class is intended as a template for an deployment specific class
  * that hooks into a proper authorisation mechanism such as LDAP etc.
  */
-public class DefaultGafferPopAuthenticator implements Authenticator {
+public class ExampleGafferPopAuthenticator implements Authenticator {
 
     @Override
     public boolean requireAuthentication() {

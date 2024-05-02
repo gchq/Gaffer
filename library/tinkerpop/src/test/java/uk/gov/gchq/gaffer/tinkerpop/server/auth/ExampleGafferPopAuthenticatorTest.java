@@ -31,12 +31,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @TestInstance(Lifecycle.PER_CLASS)
-class DefaultGafferPopAuthenticatorTest {
-    private DefaultGafferPopAuthenticator authenticator;
+class ExampleGafferPopAuthenticatorTest {
+    private ExampleGafferPopAuthenticator authenticator;
 
     @BeforeAll
     void setup() {
-        authenticator = new DefaultGafferPopAuthenticator();
+        authenticator = new ExampleGafferPopAuthenticator();
     }
 
     @Test
