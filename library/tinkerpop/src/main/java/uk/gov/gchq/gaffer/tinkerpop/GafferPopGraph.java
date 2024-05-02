@@ -566,8 +566,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     .map(e -> Arrays.asList((String[]) e))
                     .forEach(edgeLables::addAll);
 
-            // Assume everything that isn't a String[] is an element seed
-            List<Object> elements = partitions.get(false);
+            // Assume everything none-null that isn't a String[] is an element seed
+            List<Object> elements = partitions.get(false)
+                .stream()
+                .filter(e -> e != null)
+                .collect(Collectors.toList());
 
             if (edgeLables.isEmpty()) {
                 // Get all edges
@@ -927,16 +930,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             // Extract source and destination from ID list
             } else if (id instanceof Iterable) {
                 ((Iterable<?>) id).forEach(edgeIdList::add);
-            // } else if (id instanceof Object[]) {
-            //     // This is probably a label .. 'knows'
-            //     // how do we turn that into an EdgeSeed??
-
-
-            //     Object[] arr = (Object[]) id;
-            //     for(Object o : arr) {
-            //         EdgeSeed seed = new EdgeSeed();
-            //         edgeIdList.add(o);
-            //     }
             // Attempt to extract source and destination IDs from a string form of an array/list
             } else if ((id instanceof String) && (((String) id).matches("^\\[.*,.*\\]$"))) {
                 edgeIdList = Arrays.asList(((String) id)

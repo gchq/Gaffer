@@ -54,6 +54,7 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.getTestUser;
 public class GafferPopGraphIT {
     public static final String VERTEX_1 = "1";
     public static final String VERTEX_2 = "2";
+    public static final String VERTEX_3 = "3";
     public static final String SOFTWARE_NAME_GROUP = "software";
     public static final String PERSON_GROUP = "person";
     public static final String DEPENDS_ON_EDGE_GROUP = "dependsOn";
@@ -472,7 +473,7 @@ public class GafferPopGraphIT {
     }
 
     @Test
-    public void shouldGetAllEdgesInGroup() {
+    public void shouldGetAllOutEdgesInGroup() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -485,7 +486,56 @@ public class GafferPopGraphIT {
         final Iterator<Edge> edges = graph.edges(null, Direction.OUT, CREATED_EDGE_GROUP);
 
         // Then
-        assertThat(edges).toIterable().contains(edgeToAdd1);
+        assertThat(edges).toIterable()
+            .hasSize(1)
+            .contains(edgeToAdd1);
+    }
+
+    @Test
+    public void shouldGetAllEdgesInGroup() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
+        final GafferPopEdge edgeToAdd2 = new GafferPopEdge(DEPENDS_ON_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
+        final GafferPopEdge edgeToAdd3 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
+        graph.addEdge(edgeToAdd1);
+        graph.addEdge(edgeToAdd2);
+        graph.addEdge(edgeToAdd3);
+
+        String[] group = {CREATED_EDGE_GROUP};
+
+        // When - get all 'created' edges
+        final Iterator<Edge> edges = graph.edges(null, group);
+
+        // Then - edge 2 (dependsOn) filtered out
+        assertThat(edges).toIterable()
+            .hasSize(2)
+            .contains(edgeToAdd1)
+            .contains(edgeToAdd3);
+    }
+
+    @Test
+    public void shouldGetAllVertex2EdgesInGroup() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
+        final GafferPopEdge edgeToAdd2 = new GafferPopEdge(DEPENDS_ON_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
+        final GafferPopEdge edgeToAdd3 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_3, VERTEX_2, graph);
+        graph.addEdge(edgeToAdd1);
+        graph.addEdge(edgeToAdd2);
+        graph.addEdge(edgeToAdd3);
+
+        String[] group = {CREATED_EDGE_GROUP};
+
+        // When - get all of v1's created edges
+        final Iterator<Edge> edges = graph.edges(VERTEX_1, group);
+
+        // Then - edge 3 (v3 'created') and edge 2 ('dependsOn') filtered out
+        assertThat(edges).toIterable()
+            .hasSize(1)
+            .contains(edgeToAdd1);
     }
 
     @Test
