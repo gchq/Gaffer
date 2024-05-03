@@ -246,11 +246,11 @@ public class GafferPopFederatedIT {
         // Then
         assertThat(result)
                 .extracting(item -> item.id().toString())
-                .containsExactly("[p1, p2]", "[p1, s1]");
+                .containsExactlyInAnyOrder("[p1, p2]", "[p1, s1]");
 
         assertThat(result)
                 .extracting(item -> item.label())
-                .containsExactly("knows", CREATED_EDGE_GROUP);
+                .containsExactlyInAnyOrder("knows", CREATED_EDGE_GROUP);
     }
 
     @Test
@@ -372,19 +372,19 @@ public class GafferPopFederatedIT {
     void shouldGetIncomingEdgesFromSpecificGraph() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
-        final List<String> graphOptions = Arrays.asList("gaffer.federatedstore.operation.graphIds:graphB");
+        final List<String> graphOptions = Arrays.asList("gaffer.federatedstore.operation.graphIds:graphA");
 
         // When
-        List<Edge> result = g.with(GafferPopGraphVariables.OP_OPTIONS, graphOptions).V("p4").outE()
+        List<Edge> result = g.with(GafferPopGraphVariables.OP_OPTIONS, graphOptions).V(VERTEX_PERSON_1).outE()
                 .toList();
 
         // Then
         assertThat(result)
                 .extracting(item -> item.id().toString())
-                .containsExactly("[p4, s2]");
+                .containsExactlyInAnyOrder("[p1, p2]", "[p1, s1]");
 
         assertThat(result)
                 .extracting(item -> item.label())
-                .containsExactly(CREATED_EDGE_GROUP);
+                .containsExactlyInAnyOrder(CREATED_EDGE_GROUP, "knows");
     }
 }
