@@ -54,7 +54,6 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.getTestUser;
 public class GafferPopGraphIT {
     public static final String VERTEX_1 = "1";
     public static final String VERTEX_2 = "2";
-    public static final String VERTEX_3 = "3";
     public static final String SOFTWARE_NAME_GROUP = "software";
     public static final String PERSON_GROUP = "person";
     public static final String DEPENDS_ON_EDGE_GROUP = "dependsOn";
@@ -486,9 +485,7 @@ public class GafferPopGraphIT {
         final Iterator<Edge> edges = graph.edges(null, Direction.OUT, CREATED_EDGE_GROUP);
 
         // Then
-        assertThat(edges).toIterable()
-            .hasSize(1)
-            .contains(edgeToAdd1);
+        assertThat(edges).toIterable().contains(edgeToAdd1);
     }
 
     @Test

@@ -554,8 +554,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             getOperation = new GetElements.Builder()
                     .input(getElementSeeds(Arrays.asList(elementIds)))
                     .view(new View.Builder()
-                        .edges(graph.getSchema().getEdgeGroups())
-                        .build())
+                            .edges(graph.getSchema().getEdgeGroups())
+                            .build())
                     .build();
         }
 
