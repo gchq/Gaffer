@@ -473,7 +473,7 @@ public class GafferPopGraphIT {
     }
 
     @Test
-    public void shouldGetAllOutEdgesInGroup() {
+    public void shouldGetAllEdgesInGroup() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -486,53 +486,6 @@ public class GafferPopGraphIT {
         final Iterator<Edge> edges = graph.edges(null, Direction.OUT, CREATED_EDGE_GROUP);
 
         // Then
-        assertThat(edges).toIterable()
-            .hasSize(1)
-            .contains(edgeToAdd1);
-    }
-
-    @Test
-    public void shouldGetAllEdgesInGroup() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
-        final GafferPopEdge edgeToAdd2 = new GafferPopEdge(DEPENDS_ON_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
-        final GafferPopEdge edgeToAdd3 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
-        graph.addEdge(edgeToAdd1);
-        graph.addEdge(edgeToAdd2);
-        graph.addEdge(edgeToAdd3);
-
-        String[] group = {CREATED_EDGE_GROUP};
-
-        // When - get all 'created' edges
-        final Iterator<Edge> edges = graph.edges(null, group);
-
-        // Then - edge 2 (dependsOn) filtered out
-        assertThat(edges).toIterable()
-            .hasSize(2)
-            .contains(edgeToAdd1)
-            .contains(edgeToAdd3);
-    }
-
-    @Test
-    public void shouldGetAllVertex2EdgesInGroup() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
-        final GafferPopEdge edgeToAdd2 = new GafferPopEdge(DEPENDS_ON_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
-        final GafferPopEdge edgeToAdd3 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_3, VERTEX_2, graph);
-        graph.addEdge(edgeToAdd1);
-        graph.addEdge(edgeToAdd2);
-        graph.addEdge(edgeToAdd3);
-
-        String[] group = {CREATED_EDGE_GROUP};
-
-        // When - get all of v1's created edges
-        final Iterator<Edge> edges = graph.edges(VERTEX_1, group);
-
-        // Then - edge 3 (v3 'created') and edge 2 ('dependsOn') filtered out
         assertThat(edges).toIterable()
             .hasSize(1)
             .contains(edgeToAdd1);

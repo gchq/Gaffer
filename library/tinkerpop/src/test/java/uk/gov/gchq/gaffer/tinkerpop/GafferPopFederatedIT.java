@@ -241,11 +241,11 @@ public class GafferPopFederatedIT {
         // Then
         assertThat(result)
                 .extracting(item -> item.id().toString())
-                .containsExactly("[p1, p2]", "[p1, s1]");
+                .containsExactlyInAnyOrder("[p1, p2]", "[p1, s1]");
 
         assertThat(result)
                 .extracting(item -> item.label())
-                .containsExactly("knows", CREATED_EDGE_GROUP);
+                .containsExactlyInAnyOrder("knows", CREATED_EDGE_GROUP);
     }
 
     @Test

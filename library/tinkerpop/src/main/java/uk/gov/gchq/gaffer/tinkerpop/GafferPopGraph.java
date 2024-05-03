@@ -67,15 +67,12 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -554,38 +551,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .then(new Limit<>(getAllElementsLimit, true))
                 .build();
         } else {
-            // Partition elementIds by String[] or Object
-            // The assumption is that the String[] items are edge labels
-            // e.g. elementIds = {"1", ['knows']}
-            Map<Boolean, List<Object>> partitions = Arrays.asList(elementIds).stream()
-                .collect(Collectors.partitioningBy(e -> e instanceof String[]));
-
-            // Flatten arrays into set
-            Set<String> edgeLables = new HashSet<>();
-            partitions.get(true).stream()
-                    .map(e -> Arrays.asList((String[]) e))
-                    .forEach(edgeLables::addAll);
-
-            // Assume everything none-null that isn't a String[] is an element seed
-            List<Object> elements = partitions.get(false)
-                .stream()
-                .filter(e -> e != null)
-                .collect(Collectors.toList());
-
-            if (edgeLables.isEmpty()) {
-                // Get all edges
-                getOperation = new GetElements.Builder()
-                        .input(getElementSeeds(elements))
-                        .view(new View.Builder()
-                            .edges(graph.getSchema().getEdgeGroups())
-                            .build())
-                        .build();
-            } else {
-                // filter edges by label using a view
-                return edgesWithView(elements, Direction.BOTH, new View.Builder()
-                    .edges(edgeLables)
-                    .build());
-            }
+            getOperation = new GetElements.Builder()
+                    .input(getElementSeeds(Arrays.asList(elementIds)))
+                    .view(new View.Builder()
+                        .edges(graph.getSchema().getEdgeGroups())
+                        .build())
+                    .build();
         }
 
         // Run requested chain on the graph

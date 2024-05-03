@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -241,7 +242,10 @@ class GafferPopVertexTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
         final Iterable<Edge> resultEdges = Arrays.asList(((Edge) new GafferPopEdge(GafferPopGraph.ID_LABEL, vertex, vertex, graph)));
-        given(graph.edges(GafferPopGraph.ID_LABEL, new String[]{TestGroups.ENTITY})).willReturn(resultEdges.iterator());
+        given(graph.edgesWithView(GafferPopGraph.ID_LABEL, Direction.IN, new View.Builder()
+                .edges(List.of(TestGroups.ENTITY))
+                .build()))
+            .willReturn(resultEdges.iterator());
 
         // Then
         assertThat(vertex.edges(Direction.IN, TestGroups.ENTITY)).toIterable().containsExactlyElementsOf(resultEdges);
