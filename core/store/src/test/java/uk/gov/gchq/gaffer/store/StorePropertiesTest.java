@@ -236,6 +236,45 @@ public class StorePropertiesTest {
     }
 
     @Test
+    public void shouldGetAndSetNamedViewEnabled() {
+        // Given / When
+        final StoreProperties props = new StoreProperties();
+        // Then
+        assertThat(props.getNamedViewEnabled()).isTrue();
+
+        // Given / When
+        props.setNamedViewEnabled(false);
+        // Then
+        assertThat(props.getNamedViewEnabled()).isFalse();
+    }
+
+    @Test
+    public void shouldGetAndSetNamedOperationEnabled() {
+        // Given / When
+        final StoreProperties props = new StoreProperties();
+        // Then
+        assertThat(props.getNamedOperationEnabled()).isTrue();
+
+        // Given / When
+        props.setNamedOperationEnabled(false);
+        // Then
+        assertThat(props.getNamedOperationEnabled()).isFalse();
+    }
+
+    @Test
+    public void shouldGetAndSetRescheduleJobsOnStart() {
+        // Given / When
+        final StoreProperties props = new StoreProperties();
+        // Then
+        assertThat(props.getRescheduleJobsOnStart()).isFalse();
+
+        // Given / When
+        props.setRescheduleJobsOnStart(true);
+        // Then
+        assertThat(props.getRescheduleJobsOnStart()).isTrue();
+    }
+
+    @Test
     public void shouldGetAndSetSchemaClass() {
         // Given / When
         final StoreProperties props = new StoreProperties();

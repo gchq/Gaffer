@@ -75,6 +75,8 @@ public class StoreProperties implements Cloneable {
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
     public static final String OPERATION_DECLARATIONS_JSON = "gaffer.store.operation.declarations.json";
 
+    public static final String NAMED_VIEW_ENABLED = "gaffer.store.namedview.enabled";
+    public static final String NAMED_OPERATION_ENABLED = "gaffer.store.namedoperation.enabled";
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
     public static final String RESCHEDULE_JOBS_ON_START = "gaffer.store.job.rescheduleOnStart";
 
@@ -313,6 +315,22 @@ public class StoreProperties implements Cloneable {
 
     public void setJobTrackerEnabled(final boolean jobTrackerEnabled) {
         set(JOB_TRACKER_ENABLED, Boolean.toString(jobTrackerEnabled));
+    }
+
+    public boolean getNamedViewEnabled() {
+        return Boolean.valueOf(get(NAMED_VIEW_ENABLED, "true"));
+    }
+
+    public void setNamedViewEnabled(final boolean namedViewEnabled) {
+        set(NAMED_VIEW_ENABLED, Boolean.toString(namedViewEnabled));
+    }
+
+    public boolean getNamedOperationEnabled() {
+        return Boolean.valueOf(get(NAMED_OPERATION_ENABLED, "true"));
+    }
+
+    public void setNamedOperationEnabled(final boolean namedOperationEnabled) {
+        set(NAMED_OPERATION_ENABLED, Boolean.toString(namedOperationEnabled));
     }
 
     public boolean getRescheduleJobsOnStart() {
