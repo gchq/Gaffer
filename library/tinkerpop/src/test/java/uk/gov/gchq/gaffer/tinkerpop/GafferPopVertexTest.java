@@ -33,8 +33,8 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -243,7 +243,7 @@ class GafferPopVertexTest {
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
         final Iterable<Edge> resultEdges = Arrays.asList(((Edge) new GafferPopEdge(GafferPopGraph.ID_LABEL, vertex, vertex, graph)));
         given(graph.edgesWithView(GafferPopGraph.ID_LABEL, Direction.IN, new View.Builder()
-                .edges(List.of(TestGroups.ENTITY))
+                .edges(Collections.singletonList(TestGroups.ENTITY))
                 .build()))
             .willReturn(resultEdges.iterator());
 

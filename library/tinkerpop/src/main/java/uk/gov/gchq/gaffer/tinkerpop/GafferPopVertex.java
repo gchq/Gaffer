@@ -168,7 +168,7 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
             .edges(Arrays.asList(edgeLabels))
             .build();
 
-        return this.edges(direction, view);
+        return edges(direction, view);
     }
 
     public Iterator<Edge> edges(final Direction direction, final View view) {
