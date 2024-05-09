@@ -894,7 +894,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 seeds.add(new EntitySeed(((Vertex) id).id()));
             // Extract Edge ID
             } else if (id instanceof Edge) {
-                seeds.add(new EdgeSeed(((Edge) id).outVertex().id(), ((Edge) id).inVertex().id(), true));
+                seeds.add(new EdgeSeed(((Edge) id).outVertex().id(), ((Edge) id).inVertex().id()));
             // Extract source and destination from ID list
             } else if (id instanceof Iterable) {
                 ((Iterable<?>) id).forEach(edgeIdList::add);
@@ -912,7 +912,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
             // If found a list verify source and destination
             if (edgeIdList.size() == 2) {
-                seeds.add(new EdgeSeed(edgeIdList.get(0), edgeIdList.get(1), true));
+                seeds.add(new EdgeSeed(edgeIdList.get(0), edgeIdList.get(1)));
             }
         });
 
