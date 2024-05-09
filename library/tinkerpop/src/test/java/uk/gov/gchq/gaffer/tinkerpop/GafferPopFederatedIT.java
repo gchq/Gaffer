@@ -22,7 +22,6 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -136,7 +135,6 @@ public class GafferPopFederatedIT {
     }
 
     @Test
-    @Disabled("Filtering by edge label does not work currently")
     void shouldFilterVertexesByPropertyValue() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
@@ -298,7 +296,6 @@ public class GafferPopFederatedIT {
     }
 
     @Test
-    @Disabled("Filtering by edge label does not work currently")
     void shouldReturnFilteredVerticesFromSpecificGraph() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
