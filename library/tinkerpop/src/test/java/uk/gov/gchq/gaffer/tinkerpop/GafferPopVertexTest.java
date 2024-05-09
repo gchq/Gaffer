@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -241,7 +242,10 @@ class GafferPopVertexTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
         final Iterable<Edge> resultEdges = Arrays.asList(((Edge) new GafferPopEdge(GafferPopGraph.ID_LABEL, vertex, vertex, graph)));
-        given(graph.edges(GafferPopGraph.ID_LABEL, new String[]{TestGroups.ENTITY})).willReturn(resultEdges.iterator());
+        given(graph.edgesWithView(GafferPopGraph.ID_LABEL, Direction.IN, new View.Builder()
+                .edges(Collections.singletonList(TestGroups.ENTITY))
+                .build()))
+            .willReturn(resultEdges.iterator());
 
         // Then
         assertThat(vertex.edges(Direction.IN, TestGroups.ENTITY)).toIterable().containsExactlyElementsOf(resultEdges);
