@@ -100,12 +100,14 @@ public final class GafferPopFederatedTestUtil {
                         .group(CREATED_EDGE_GROUP)
                         .source("p1")
                         .dest("s1")
+                        .directed(true)
                         .property("weight", 0.4)
                         .build(),
                     new Edge.Builder()
                         .group(CREATED_EDGE_GROUP)
                         .source("p3")
                         .dest("s1")
+                        .directed(true)
                         .property("weight", 0.2)
                         .build(),
                     new Edge.Builder()
@@ -135,6 +137,7 @@ public final class GafferPopFederatedTestUtil {
                         .group(CREATED_EDGE_GROUP)
                         .source("p4")
                         .dest("s2")
+                        .directed(true)
                         .property("weight", 0.8)
                         .build())
                 .build())

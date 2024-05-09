@@ -507,15 +507,16 @@ public class StoreTest {
         assertThat(result).isSameAs(getElementsResult);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
-    public void shouldReturnAllSupportedOperations(@Mock final StoreProperties properties) throws Exception {
+    public void shouldReturnAllSupportedOperationsWhenJobTrackerIsEnabled(@Mock final StoreProperties properties) throws Exception {
         // Given
         CacheServiceLoader.initialise(HashMapCacheService.class.getName());
 
         final Schema schema = createSchemaMock();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
+        given(properties.getNamedViewEnabled()).willReturn(true);
+        given(properties.getNamedOperationEnabled()).willReturn(true);
         store.initialise("graphId", schema, properties);
 
         // When
@@ -617,7 +618,6 @@ public class StoreTest {
         assertThat(supportedOperations).isEqualTo(expectedOperations);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldReturnAllSupportedOperationsWhenJobTrackerIsDisabled(@Mock final StoreProperties properties) throws Exception {
         // Given
@@ -626,6 +626,8 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(false);
+        given(properties.getNamedViewEnabled()).willReturn(true);
+        given(properties.getNamedOperationEnabled()).willReturn(true);
         store.initialise("graphId", schema, properties);
 
         // When

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,7 +39,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {@link Vertex}.
@@ -163,16 +163,12 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
     @Override
     public Iterator<Edge> edges(final Direction direction, final String... edgeLabels) {
-        // Get edges from the graph then filter direction
-        Iterable<Edge> allEdges = () -> graph().edges(id, edgeLabels);
-        return StreamSupport.stream(allEdges.spliterator(), false)
-            .filter(e -> {
-                // Get all vertexes the edge has in the desired direction see if this vertex is one of them
-                Iterable<Vertex> edgeVertexes = () -> e.vertices(direction);
-                return StreamSupport.stream(edgeVertexes.spliterator(), false)
-                    .anyMatch(v -> ElementHelper.areEqual(v, this));
-            })
-            .iterator();
+        // Get edges with matching labels and direction from the graph
+        View view = new View.Builder()
+            .edges(Arrays.asList(edgeLabels))
+            .build();
+
+        return edges(direction, view);
     }
 
     public Iterator<Edge> edges(final Direction direction, final View view) {

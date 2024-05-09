@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,9 +44,7 @@ class GafferPopGraphStepStrategyTest {
     @Test
     void shouldUpdateGraphVariablesOnGremlinWithStep() {
         // Given
-        final GafferPopGraph graph = Mockito.spy(GafferPopGraph.open(GafferPopTestUtil.TEST_CONFIGURATION_1, getGafferGraph()));
-        // Need to stub the actual execution as it will reset the variables back to defaults after execution
-        Mockito.doReturn(new ArrayList<>()).when(graph).execute(Mockito.any());
+        final GafferPopGraph graph = GafferPopGraph.open(GafferPopTestUtil.TEST_CONFIGURATION_1, getGafferGraph());
         final GafferPopGraphVariables graphVariables = (GafferPopGraphVariables) graph.variables();
         final String testUserId = "testUserId";
         final String testDataAuths = "auth1,auth2";
