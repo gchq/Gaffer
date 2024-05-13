@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.rest.factory.ExamplesFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
@@ -37,9 +38,15 @@ import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.model.OperationDetail;
 import uk.gov.gchq.gaffer.rest.service.v2.AbstractOperationService;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
@@ -149,25 +156,11 @@ public class OperationController extends AbstractOperationService implements IOp
                 final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
                 final Object result = resultAndJobId.getFirst();
                 if (result instanceof Iterable) {
-                    final Iterable itr = (Iterable) result;
-                    try {
-                        for (final Object item : itr) {
-                            final String itemString = mapper.writeValueAsString(item) + "\r\n";
-                            response.write(itemString.getBytes(StandardCharsets.UTF_8));
-                            response.flush();
-                        }
-                    } catch (final IOException ioe) {
-                        throw new GafferRuntimeException("Unable to serialise chunk: ", ioe, Status.INTERNAL_SERVER_ERROR);
-                    } finally {
-                        CloseableUtil.close(itr);
-                    }
+                    response.write(JSONSerialiser.serialise(result));
+                    response.flush();
                 } else {
-                    try {
-                        response.write(mapper.writeValueAsString(result).getBytes(StandardCharsets.UTF_8));
-                        response.flush();
-                    } catch (final IOException ioe) {
-                        throw new GafferRuntimeException("Unable to serialise chunk: ", ioe, Status.INTERNAL_SERVER_ERROR);
-                    }
+                    response.write(mapper.writeValueAsString(result).getBytes(StandardCharsets.UTF_8));
+                    response.flush();
                 }
             } catch (final Exception e) {
                 throw new GafferRuntimeException("Unable to create chunk: ", e, Status.INTERNAL_SERVER_ERROR);
@@ -180,6 +173,26 @@ public class OperationController extends AbstractOperationService implements IOp
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(responseBody);
+    }
+
+    <T> Stream<List<T>> createChunks(Iterable<T> iterable, int size) {
+        Iterator<T> iterator = iterable.iterator();
+        Iterator<List<T>> chunksIterator = new Iterator<List<T>>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public List<T> next() {
+                List<T> result = new ArrayList<>(size);
+                for (int i = 0; i < size && iterator.hasNext(); i++) {
+                    result.add(iterator.next());
+                }
+                return result;
+            }
+        };
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(chunksIterator, Spliterator.IMMUTABLE), false);
     }
 
     @Override

@@ -232,7 +232,7 @@ public class ProxyStore extends Store {
             throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
 
-        final URL url = getProperties().getGafferUrl("graph/operations/execute");
+        final URL url = getProperties().getGafferUrl("graph/operations/execute/chunked");
         try {
             final ResponseDeserialiser<O> responseDeserialiser;
             final Operation lastOp = opChain.getOperations().get(opChain.getOperations().size() - 1);
