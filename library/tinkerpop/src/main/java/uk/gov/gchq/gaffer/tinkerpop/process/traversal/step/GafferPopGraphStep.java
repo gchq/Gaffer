@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.step;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Compare;
+import org.apache.tinkerpop.gremlin.process.traversal.Contains;
 import org.apache.tinkerpop.gremlin.process.traversal.step.HasContainerHolder;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.GraphStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.HasContainer;
@@ -31,14 +32,26 @@ import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View.Builder;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.IsIn;
+import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+import uk.gov.gchq.koryphe.impl.predicate.Not;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -101,10 +114,40 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
     private Iterator<? extends Vertex> vertices(final GafferPopGraph graph) {
         // Check for the labels being searched for to construct a View to filter with
         List<String> labels = getRequestedLabels();
+        Map<String, List<HasContainer>> containersByKey = hasContainers.stream()
+            .filter(hc -> hc.getKey() != null && !hc.getKey().equals(T.label.getAccessor()) && !hc.getKey().equals(T.id.getAccessor()))
+            .filter(hc -> hc.getValue() != null)
+            .collect(Collectors.groupingBy(HasContainer::getKey));
+
+        ElementFilter.Builder b = new ElementFilter.Builder();
+        for (Map.Entry<String, List<HasContainer>> entry : containersByKey.entrySet()) {
+            List<KoryphePredicate<?>> ps = entry.getValue().stream().map(hc -> convert(hc)).collect(Collectors.toList());
+
+            for(KoryphePredicate<?> predicate : ps) {
+                b.select(entry.getKey()).execute(predicate);
+            }
+        }
+        ElementFilter filter = b.build();
+
+        ViewElementDefinition viewElementDefinition = new ViewElementDefinition.Builder().preAggregationFilter(filter).build();
 
         if (!labels.isEmpty()) {
+            Builder vb = new View.Builder();
+            for (String label : labels) {
+                vb.entity(label, viewElementDefinition);
+            }
+                            
             // Find using label to filter results
-            return graph.vertices(Arrays.asList(this.ids), labels.toArray(new String[0]));
+            return graph.verticesWithView(Arrays.asList(this.ids), vb.build());
+
+        } else if (!containersByKey.isEmpty()) {
+            Builder vb = new View.Builder();
+            for (String group : graph.getEntityGroups()) {
+                vb.entity(group, viewElementDefinition);
+            }
+                            
+            // Find using label to filter results
+            return graph.verticesWithView(Arrays.asList(this.ids), vb.build());
         }
 
         // linear scan as fallback
@@ -124,6 +167,46 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
             .filter(hc -> hc.getValue() != null)
             .map(hc -> (String) hc.getValue())
             .collect(Collectors.toList());
+    }
+
+    private KoryphePredicate<?> convert(HasContainer hc) {
+        if (hc.getBiPredicate() instanceof Compare) {
+            return convertCompare((Compare) hc.getBiPredicate(), hc.getValue());
+        } else if (hc.getBiPredicate() instanceof Contains) {
+            return convertContains((Contains) hc.getBiPredicate(), (Collection) hc.getValue());
+        }
+
+        return null;
+    }
+
+    private KoryphePredicate<?> convertCompare(Compare c, Object value) {
+        switch (c) {
+            case eq:
+                return new IsEqual(value);
+            case neq:
+                return new Not(new IsEqual(value));
+            case gt:
+                return new IsMoreThan((Comparable) value);
+            case gte:
+                return new IsMoreThan((Comparable) value, true);
+            case lt:
+                return new IsLessThan((Comparable) value);
+            case lte:
+                return new IsLessThan((Comparable) value, true);
+            default:
+                return null;
+        }
+    }
+
+    private KoryphePredicate<?> convertContains(Contains c, Collection value) {
+        switch (c) {
+            case within:
+                return new IsIn(value);
+            case without:
+                return new Not(new IsIn(value));
+            default:
+                return null;
+        }
     }
 
     @Override

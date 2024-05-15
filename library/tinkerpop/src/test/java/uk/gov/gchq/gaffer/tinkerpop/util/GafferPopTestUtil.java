@@ -63,6 +63,15 @@ public final class GafferPopTestUtil {
         }
     };
 
+    public static final Configuration TEST_CONFIGURATION_4 = new BaseConfiguration() {
+        {
+            this.setProperty(GafferPopGraph.GRAPH, GafferPopGraph.class.getName());
+            this.setProperty(GafferPopGraph.GRAPH_ID, "modern");
+            this.setProperty(GafferPopGraph.USER_ID, USER_ID);
+            this.setProperty(GafferPopGraph.NOT_READ_ONLY_ELEMENTS, true);
+        }
+    };
+
     public static Graph getGafferGraph(Class<?> clazz, StoreProperties properties) {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()

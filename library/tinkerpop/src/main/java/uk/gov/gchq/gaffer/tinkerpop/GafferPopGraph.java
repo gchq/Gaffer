@@ -71,6 +71,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
@@ -943,6 +944,10 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         variables.set(GafferPopGraphVariables.USER_ID, defaultUser.getUserId());
         variables.set(GafferPopGraphVariables.DATA_AUTHS, configuration().getStringArray(DATA_AUTHS));
         variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, getAllElementsLimit);
+    }
+
+    public Set<String> getEntityGroups() {
+        return graph.getSchema().getEntityGroups();
     }
 
     /**
