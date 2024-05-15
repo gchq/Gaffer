@@ -184,7 +184,11 @@ public class OperationChain<OUT> implements Output<OUT>,
 
     @Override
     public void setOptions(final Map<String, String> options) {
-        this.options = options;
+        if (options == null) {
+            this.options = new HashMap<>();
+        } else{
+            this.options = options;
+        }
     }
 
     @Override
