@@ -29,6 +29,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
@@ -51,7 +52,7 @@ public class ValidateOperationChainTest extends OperationTest<ValidateOperationC
         final ValidateOperationChain deserialisedOp = JSONSerialiser.deserialise(json, ValidateOperationChain.class);
 
         // Then
-        assertEquals(validateOperationChain.getOperationChain(), deserialisedOp.getOperationChain());
+        assertThat(deserialisedOp.getOperationChain()).isEqualTo(validateOperationChain.getOperationChain());
     }
 
     @Test

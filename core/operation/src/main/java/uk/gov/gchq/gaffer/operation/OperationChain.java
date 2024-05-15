@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
 public class OperationChain<OUT> implements Output<OUT>,
         Operations<Operation> {
     private List<Operation> operations;
-    private Map<String, String> options;
+    private Map<String, String> options = new HashMap<>();
 
     public OperationChain() {
         this(new ArrayList<>());
@@ -186,7 +186,7 @@ public class OperationChain<OUT> implements Output<OUT>,
     public void setOptions(final Map<String, String> options) {
         if (options == null) {
             this.options = new HashMap<>();
-        } else{
+        } else {
             this.options = options;
         }
     }

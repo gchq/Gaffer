@@ -51,7 +51,7 @@ public class DefaultResponseDeserialiser<O> implements ResponseDeserialiser<O> {
                 } else {
                     return JSONSerialiser.deserialise(encodeString(jsonString), typeReference);
                 }
-            } catch (SerialisationException e) {
+            } catch (final SerialisationException e) {
                 // The input is likely a valid JSON value type, so process using the deserialiser
                 LOGGER.error("Unable to deserialse Iterable<?> as Iterable<Elements> using default deserialisation", e);
                 return JSONSerialiser.deserialise(encodeString(jsonString), typeReference);
