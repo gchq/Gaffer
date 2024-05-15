@@ -17,11 +17,16 @@ package uk.gov.gchq.gaffer.proxystore.response.deserialiser.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.proxystore.response.deserialiser.ResponseDeserialiser;
 
 public class DefaultResponseDeserialiser<O> implements ResponseDeserialiser<O> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultResponseDeserialiser.class);
 
     private final TypeReference<O> typeReference;
 
@@ -36,8 +41,21 @@ public class DefaultResponseDeserialiser<O> implements ResponseDeserialiser<O> {
             // The input is likely a plain java.lang.String object, so return as-is
             return (O) jsonString;
         } else {
-            // The input is likely a valid JSON value type, so process using the deserialiser
-            return JSONSerialiser.deserialise(encodeString(jsonString), typeReference);
+            // For some operations like 'Limit' we may not know the output type up front so it
+            // will be left as a generic '?', this means some objects will not be deserialised correctly.
+            try {
+                // Check if we can deserialise to common outputs like list of elements.
+                // This is a workaround until proxy store has been refactored
+                if (typeReference.getType().getTypeName().equals(Iterable.class.getName() + "<?>")) {
+                    return (O) JSONSerialiser.deserialise(encodeString(jsonString), new TypeReferenceImpl.IterableElement());
+                } else {
+                    return JSONSerialiser.deserialise(encodeString(jsonString), typeReference);
+                }
+            } catch (SerialisationException e) {
+                // The input is likely a valid JSON value type, so process using the deserialiser
+                LOGGER.error("Unable to deserialse Iterable<?> as Iterable<Elements> using default deserialisation", e);
+                return JSONSerialiser.deserialise(encodeString(jsonString), typeReference);
+            }
         }
     }
 }
