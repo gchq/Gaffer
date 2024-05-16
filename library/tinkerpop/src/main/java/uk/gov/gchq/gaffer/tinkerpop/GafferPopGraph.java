@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -64,6 +65,7 @@ import uk.gov.gchq.koryphe.iterable.MappedIterable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -71,7 +73,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
@@ -456,6 +457,37 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      */
     public Iterator<GafferPopVertex> verticesWithView(final Iterable<Object> ids, final View view) {
         return verticesWithSeedsAndView(getElementSeeds(ids), view);
+    }
+
+    /**
+     * This performs getRelatedEntities operation on Gaffer.
+     * At least 1 id must be provided. Gaffer does not support unseeded
+     * queries.
+     * All provided vertex IDs will also be returned as {@link GafferPopVertex}s with
+     * the label 'id', in order to allow Gaffer graphs with no entities to still be traversed.
+     *
+     * @param ids  vertex IDs and edge IDs to be queried for.
+     *             You can use {@link Vertex}s, {@link GafferPopEdge}s,
+     *             EdgeIds or just vertex ID values
+     * @param elementDefinition a Gaffer {@link ViewElementDefinition} to filter entities by
+     * @param labels labels of entities to filter for
+     * @return iterator of {@link GafferPopVertex}s, each vertex represents
+     * an {@link uk.gov.gchq.gaffer.data.element.Entity} in Gaffer
+     * @see #vertices(Iterable, String...)
+     */
+    public Iterator<GafferPopVertex> verticesWithView(final Iterable<Object> ids, final ViewElementDefinition elementDefinition, final List<String> labels) {
+        View.Builder viewBuilder = new View.Builder();
+
+        // If no labels specified, default to all
+        List<String> entityGroups = labels.isEmpty() ?
+            new ArrayList<>(graph.getSchema().getEntityGroups()) :
+            labels;
+
+        // Apply ViewElementDefinition to each group
+        entityGroups.stream()
+            .forEach(g -> viewBuilder.entity(g, elementDefinition));
+
+        return verticesWithView(ids, viewBuilder.build());
     }
 
 
@@ -944,10 +976,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         variables.set(GafferPopGraphVariables.USER_ID, defaultUser.getUserId());
         variables.set(GafferPopGraphVariables.DATA_AUTHS, configuration().getStringArray(DATA_AUTHS));
         variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, getAllElementsLimit);
-    }
-
-    public Set<String> getEntityGroups() {
-        return graph.getSchema().getEntityGroups();
     }
 
     /**

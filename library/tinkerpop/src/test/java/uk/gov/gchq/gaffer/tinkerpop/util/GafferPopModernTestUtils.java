@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.util;
 
+import org.apache.commons.configuration2.BaseConfiguration;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -25,8 +26,9 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopEdge;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 
-public class GafferPopModernTestUtils {
+public final class GafferPopModernTestUtils {
 
+    // Vertices
     public static final Person MARKO = new Person("1", "marko", 29);
     public static final Person VADAS = new Person("2", "vadas", 27);
     public static final Software LOP = new Software("3", "lop", "java");
@@ -34,17 +36,32 @@ public class GafferPopModernTestUtils {
     public static final Software RIPPLE = new Software("5", "ripple", "java");
     public static final Person PETER = new Person("6", "peter", 35);
 
+    // Vertex labels/props
     public static final String PERSON = "person";
     public static final String SOFTWARE = "software";
     public static final String NAME = "name";
     public static final String AGE = "age";
     public static final String LANG = "lang";
 
+    // Edge labels/props
     public static final String KNOWS = "knows";
     public static final String CREATED = "created";
     public static final String WEIGHT = "weight";
 
-    public static GafferPopGraph getModernGraph(Class<?> clazz, StoreProperties properties,
+    public static final Configuration MODERN_CONFIGURATION = new BaseConfiguration() {
+        {
+            this.setProperty(GafferPopGraph.GRAPH, GafferPopGraph.class.getName());
+            this.setProperty(GafferPopGraph.GRAPH_ID, "modern");
+            this.setProperty(GafferPopGraph.USER_ID, "user01");
+            // So we can add vertices for testing
+            this.setProperty(GafferPopGraph.NOT_READ_ONLY_ELEMENTS, true);
+        }
+    };
+
+    private GafferPopModernTestUtils() {
+    }
+
+    public static GafferPopGraph createModernGraph(Class<?> clazz, StoreProperties properties,
             Configuration configuration) {
         Graph g = GafferPopTestUtil.getGafferGraph(clazz, properties);
         GafferPopGraph graph = GafferPopGraph.open(configuration, g);
@@ -92,6 +109,9 @@ public class GafferPopModernTestUtils {
                 software.getLang());
     }
 
+    /**
+     * Inner class to make it easy to reference 'person' vertices in tests
+     */
     public static class Person {
         private final String id;
         private final String name;
@@ -117,6 +137,9 @@ public class GafferPopModernTestUtils {
 
     }
 
+    /**
+     * Inner class to make it easy to reference 'software' vertices in tests
+     */
     public static class Software {
         private final String id;
         private final String name;

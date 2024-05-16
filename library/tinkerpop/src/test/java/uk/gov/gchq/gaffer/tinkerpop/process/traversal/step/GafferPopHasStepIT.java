@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.step;
 
-import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.TextP;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -24,36 +23,36 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
 
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_4;
+import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.AGE;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.JOSH;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.LOP;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MARKO;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MODERN_CONFIGURATION;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.NAME;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.PERSON;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.PETER;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.RIPPLE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.VADAS;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.NAME;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MARKO;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.AGE;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.JOSH;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.LOP;
 
-import java.util.List;
+/**
+ * Verify behaviour against HasStep examples in the Tinkerpop HasStep documentation.
+ * Needed since the HasStep optimisations were added in {@link GafferPopGraphStep}
+ */
+public class GafferPopHasStepIT {
 
-public class GafferPopGraphStepIT {
-
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties
-            .loadStoreProperties(StreamUtil.openStream(GafferPopGraphStepIT.class, "/gaffer/store.properties"));
-    private static GafferPopGraph gafferPopGraph;
+    private static final MapStoreProperties MAP_STORE_PROPERTIES = MapStoreProperties.loadStoreProperties("/tinkerpop/map-store.properties");
     private static GraphTraversalSource g;
 
     @BeforeAll
     public static void beforeAll() {
-        gafferPopGraph = getGafferGraph(TEST_CONFIGURATION_4);
+        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopHasStepIT.class, MAP_STORE_PROPERTIES, MODERN_CONFIGURATION);
         g = gafferPopGraph.traversal();
     }
 
@@ -159,7 +158,67 @@ public class GafferPopGraphStepIT {
                 .containsExactlyInAnyOrder(MARKO.getId());
     }
 
-    private static GafferPopGraph getGafferGraph(Configuration config) {
-        return GafferPopModernTestUtils.getModernGraph(GafferPopGraphStepIT.class, PROPERTIES, config);
+    @Test
+    public void shouldFilterByPropertyNotStartingWith() {
+        final List<Vertex> result = g.V().has(PERSON, NAME, TextP.notStartingWith("m")).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(VADAS.getId(), JOSH.getId(), PETER.getId());
+    }
+
+    @Test
+    public void shouldFilterByPropertyEndingWith() {
+        final List<Vertex> result = g.V().has(PERSON, NAME, TextP.endingWith("o")).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.getId());
+    }
+
+    @Test
+    public void shouldFilterByPropertyNotEndingWith() {
+        final List<Vertex> result = g.V().has(PERSON, NAME, TextP.notEndingWith("o")).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(VADAS.getId(), JOSH.getId(), PETER.getId());
+    }
+
+
+    @Test
+    public void shouldFilterByPropertyContaining() {
+        final List<Vertex> result = g.V().has(PERSON, NAME, TextP.containing("a")).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.getId(), VADAS.getId());
+    }
+
+    @Test
+    public void shouldFilterByPropertyNotContaining() {
+        final List<Vertex> result = g.V().has(PERSON, NAME, TextP.notContaining("a")).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(JOSH.getId(), PETER.getId());
+    }
+
+    @Test
+    public void shouldFilterByPropertyRegex() {
+        final List<Vertex> result = g.V().has(PERSON, NAME, TextP.regex("m.*")).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.getId());
+    }
+
+    @Test
+    public void shouldFilterByPropertyNotRegex() {
+        final List<Vertex> result = g.V().has(PERSON, NAME, TextP.notRegex("m.*")).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(JOSH.getId(), VADAS.getId(), PETER.getId());
     }
 }
