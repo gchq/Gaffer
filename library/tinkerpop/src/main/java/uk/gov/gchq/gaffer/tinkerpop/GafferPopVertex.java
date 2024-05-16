@@ -80,7 +80,7 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
     @Override
     public <V> Iterator<VertexProperty<V>> properties(final String... propertyKeys) {
-        return null == properties ?
+        return properties == null ?
                 Collections.emptyIterator() :
                 (Iterator) properties.entrySet()
                         .stream()
