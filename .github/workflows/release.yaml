@@ -113,7 +113,7 @@ jobs:
         ref: master
 
     - name: Create Release Notes
-      uses: docker://decathlon/release-notes-generator-action:2.1.0
+      uses: docker://decathlon/release-notes-generator-action:3.1.6
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -121,7 +121,7 @@ jobs:
       run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }} | cut -c 2-)" >> $GITHUB_ENV
 
     - name: Upload notes
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
