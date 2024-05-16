@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.tinkerpop.process.traversal.step;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.TextP;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.AGE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.JOSH;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.KNOWS;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.LOP;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MARKO;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MODERN_CONFIGURATION;
@@ -40,6 +42,7 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.PERSON;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.PETER;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.RIPPLE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.VADAS;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.WEIGHT;
 
 /**
  * Verify behaviour against HasStep examples in the Tinkerpop HasStep documentation.
@@ -57,7 +60,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByLabel() {
+    public void shouldFilterVerticesByLabel() {
         final List<Vertex> result = g.V().hasLabel(PERSON).toList();
 
         assertThat(result)
@@ -66,7 +69,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByLabelsOnly() {
+    public void shouldFilterVerticesByLabelsOnly() {
         final List<Vertex> result = g.V().hasLabel(PERSON, NAME, MARKO.getName()).toList();
 
         // Correct behaviour is to treat all args as labels when using hasLabel
@@ -77,7 +80,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByLabelAndProperty() {
+    public void shouldFilterVerticesByLabelAndProperty() {
         final List<Vertex> result = g.V().has(PERSON, NAME, MARKO.getName()).toList();
 
         assertThat(result)
@@ -86,7 +89,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByLabelAndPropertyWithin() {
+    public void shouldFilterVerticesByLabelAndPropertyWithin() {
         final List<Vertex> result = g.V().hasLabel(PERSON).out().has(NAME, P.within(VADAS.getName(), JOSH.getName()))
                 .toList();
 
@@ -96,7 +99,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyInside() {
+    public void shouldFilterVerticesByPropertyInside() {
         final List<Object> result = g.V().has(AGE, P.inside(20, 30)).values(AGE).toList();
 
         assertThat(result)
@@ -105,7 +108,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyOutside() {
+    public void shouldFilterVerticesByPropertyOutside() {
         final List<Object> result = g.V().has(AGE, P.outside(20, 30)).values(AGE).toList();
 
         assertThat(result)
@@ -114,7 +117,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyWithin() {
+    public void shouldFilterVerticesByPropertyWithin() {
         final List<Vertex> result = g.V().has(NAME, P.within(JOSH.getName(), MARKO.getName())).toList();
 
         assertThat(result)
@@ -123,7 +126,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyWithout() {
+    public void shouldFilterVerticesByPropertyWithout() {
         final List<Vertex> result = g.V().has(NAME, P.without(JOSH.getName(), MARKO.getName())).toList();
 
         assertThat(result)
@@ -132,7 +135,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyNotWithin() {
+    public void shouldFilterVerticesByPropertyNotWithin() {
         final List<Vertex> result = g.V().has(NAME, P.not(P.within(JOSH.getName(), MARKO.getName()))).toList();
 
         assertThat(result)
@@ -141,7 +144,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyNot() {
+    public void shouldFilterVerticesByPropertyNot() {
         final List<Vertex> result = g.V().hasNot(AGE).toList();
 
         assertThat(result)
@@ -150,7 +153,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyStartingWith() {
+    public void shouldFilterVerticesByPropertyStartingWith() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.startingWith("m")).toList();
 
         assertThat(result)
@@ -159,7 +162,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyNotStartingWith() {
+    public void shouldFilterVerticesByPropertyNotStartingWith() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.notStartingWith("m")).toList();
 
         assertThat(result)
@@ -168,7 +171,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyEndingWith() {
+    public void shouldFilterVerticesByPropertyEndingWith() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.endingWith("o")).toList();
 
         assertThat(result)
@@ -177,7 +180,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyNotEndingWith() {
+    public void shouldFilterVerticesByPropertyNotEndingWith() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.notEndingWith("o")).toList();
 
         assertThat(result)
@@ -187,7 +190,7 @@ public class GafferPopHasStepIT {
 
 
     @Test
-    public void shouldFilterByPropertyContaining() {
+    public void shouldFilterVerticesByPropertyContaining() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.containing("a")).toList();
 
         assertThat(result)
@@ -196,7 +199,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyNotContaining() {
+    public void shouldFilterVerticesByPropertyNotContaining() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.notContaining("a")).toList();
 
         assertThat(result)
@@ -205,7 +208,7 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyRegex() {
+    public void shouldFilterVerticesByPropertyRegex() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.regex("m.*")).toList();
 
         assertThat(result)
@@ -214,11 +217,49 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterByPropertyNotRegex() {
+    public void shouldFilterVerticesByPropertyNotRegex() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.notRegex("m.*")).toList();
 
         assertThat(result)
                 .extracting(r -> r.id())
                 .containsExactlyInAnyOrder(JOSH.getId(), VADAS.getId(), PETER.getId());
+    }
+
+    @Test
+    public void shouldFilterEdgesByLabel() {
+        final List<Edge> result = g.E().hasLabel(KNOWS).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrderElementsOf(MARKO.knowsEdges());
+    }
+
+    @Test
+    public void shouldFilterEdgesByLabelsOnly() {
+        final List<Edge> result = g.E().hasLabel(KNOWS, WEIGHT).toList();
+
+        // Correct behaviour is to treat all args as labels when using hasLabel
+        // All 'person' Edges returned
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrderElementsOf(MARKO.knowsEdges());
+    }
+
+    @Test
+    public void shouldFilterEdgesByPropertyInside() {
+        final List<Edge> result = g.E().has(KNOWS, WEIGHT, P.inside(0.1, 0.6)).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactly(MARKO.knows(VADAS));
+    }
+
+    @Test
+    public void shouldFilterEdgesByPropertyOutside() {
+        final List<Edge> result = g.E().has(WEIGHT, P.outside(0.0, 0.9)).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.knows(JOSH), JOSH.created(RIPPLE));
     }
 }

@@ -21,10 +21,20 @@ import org.apache.commons.configuration2.Configuration;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopEdge;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class GafferPopModernTestUtils {
 
@@ -35,6 +45,13 @@ public final class GafferPopModernTestUtils {
     public static final Person JOSH = new Person("4", "josh", 32);
     public static final Software RIPPLE = new Software("5", "ripple", "java");
     public static final Person PETER = new Person("6", "peter", 35);
+
+    static {
+        MARKO.setKnows(new Pair<>(JOSH, 1.0), new Pair<>(VADAS, 0.5));
+        MARKO.setCreated(new Pair<>(LOP, 0.4));
+        JOSH.setCreated(new Pair(LOP, 0.4), new Pair(RIPPLE, 1.0));
+        PETER.setCreated(new Pair(LOP, 0.2));
+    }
 
     // Vertex labels/props
     public static final String PERSON = "person";
@@ -66,36 +83,24 @@ public final class GafferPopModernTestUtils {
         Graph g = GafferPopTestUtil.getGafferGraph(clazz, properties);
         GafferPopGraph graph = GafferPopGraph.open(configuration, g);
 
+        Map<Object, Vertex> verticesById = new HashMap<>();
+
         Vertex marko = addVertex(graph, MARKO);
+        verticesById.put(marko.id(), marko);
         Vertex vadas = addVertex(graph, VADAS);
+        verticesById.put(vadas.id(), vadas);
         Vertex lop = addVertex(graph, LOP);
+        verticesById.put(lop.id(), lop);
         Vertex josh = addVertex(graph, JOSH);
+        verticesById.put(josh.id(), josh);
         Vertex ripple = addVertex(graph, RIPPLE);
+        verticesById.put(ripple.id(), ripple);
         Vertex peter = addVertex(graph, PETER);
+        verticesById.put(peter.id(), peter);
 
-        GafferPopEdge markoKnowsVadas = new GafferPopEdge(KNOWS, marko, vadas, graph);
-        markoKnowsVadas.property(WEIGHT, 0.5);
-        graph.addEdge(markoKnowsVadas);
-
-        GafferPopEdge markoKnowsJosh = new GafferPopEdge(KNOWS, marko, josh, graph);
-        markoKnowsVadas.property(WEIGHT, 1.0);
-        graph.addEdge(markoKnowsJosh);
-
-        GafferPopEdge markoCreatedLop = new GafferPopEdge(CREATED, marko, lop, graph);
-        markoCreatedLop.property(WEIGHT, 0.4);
-        graph.addEdge(markoCreatedLop);
-
-        GafferPopEdge joshCreatedRipple = new GafferPopEdge(CREATED, josh, ripple, graph);
-        joshCreatedRipple.property(WEIGHT, 1.0);
-        graph.addEdge(joshCreatedRipple);
-
-        GafferPopEdge joshCreatedLop = new GafferPopEdge(CREATED, josh, lop, graph);
-        joshCreatedLop.property(WEIGHT, 0.4);
-        graph.addEdge(joshCreatedLop);
-
-        GafferPopEdge peterCreatedLop = new GafferPopEdge(CREATED, peter, lop, graph);
-        peterCreatedLop.property(WEIGHT, 0.2);
-        graph.addEdge(peterCreatedLop);
+        addEdges(graph, MARKO, verticesById);
+        addEdges(graph, JOSH, verticesById);
+        addEdges(graph, PETER, verticesById);
 
         return graph;
     }
@@ -109,6 +114,23 @@ public final class GafferPopModernTestUtils {
                 software.getLang());
     }
 
+    private static void addEdges(GafferPopGraph graph, Person person, Map<Object, Vertex> verticesById) {
+        Vertex source = verticesById.get(person.getId());
+        for (Pair<Person, Double> pair : person.getKnows()) {
+            Vertex target = verticesById.get(pair.getFirst().getId());
+            GafferPopEdge edge = new GafferPopEdge(KNOWS, source, target, graph);
+            edge.property(WEIGHT, pair.getSecond());
+            graph.addEdge(edge);
+        }
+
+        for (Pair<Software, Double> pair : person.getCreated()) {
+            Vertex target = verticesById.get(pair.getFirst().getId());
+            GafferPopEdge edge = new GafferPopEdge(CREATED, source, target, graph);
+            edge.property(WEIGHT, pair.getSecond());
+            graph.addEdge(edge);
+        }
+    }
+
     /**
      * Inner class to make it easy to reference 'person' vertices in tests
      */
@@ -116,6 +138,8 @@ public final class GafferPopModernTestUtils {
         private final String id;
         private final String name;
         private final int age;
+        private final Set<Pair<Person, Double>> knows = new HashSet<>();
+        private final Set<Pair<Software, Double>> created = new HashSet<>();
 
         public Person(String id, String name, int age) {
             this.id = id;
@@ -135,6 +159,67 @@ public final class GafferPopModernTestUtils {
             return age;
         }
 
+        public void setKnows(Pair<Person, Double>... people) {
+            Collections.addAll(knows, people);
+        }
+
+        public Set<Pair<Person, Double>> getKnows() {
+            return knows;
+        }
+
+        /**
+         * Gets a list of EdgeIds representing all the 'knows' edges
+         * from this person
+         * Use for test comparisons
+         *
+         * @return Returns a list of EdgeIds
+         */
+        public List<List<String>> knowsEdges() {
+            return knows.stream()
+                .map(e -> Arrays.asList(this.getId(), e.getFirst().getId()))
+                .collect(Collectors.toList());
+        }
+
+        /**
+         * Helper method to create an EdgeId from this person to another
+         * Note. This edge may not exist in the graph
+         * @param otherPerson the target of the edge
+         * @return Returns an EdgeId
+         */
+        public List<String> knows(Person otherPerson) {
+            return Arrays.asList(this.getId(), otherPerson.getId());
+        }
+
+        public void setCreated(Pair<Software, Double> ... software) {
+            Collections.addAll(created, software);
+        }
+
+        public Set<Pair<Software, Double>> getCreated() {
+            return created;
+        }
+
+        /**
+         * Gets a list of EdgeIds representing all the 'created' edges
+         * from this person
+         * Use for test comparisons
+         *
+         * @return Returns a list of EdgeIds
+         */
+        public List<List<String>> createdEdges() {
+            return created.stream()
+                .map(e -> Arrays.asList(this.getId(), e.getFirst().getId()))
+                .collect(Collectors.toList());
+        }
+
+        /**
+         * Helper method to create an EdgeId from this person to the software
+         * Note. This edge may not exist in the graph
+         * @param software the target of the edge
+         * @return Returns an EdgeId
+         */
+        public List<String> created(Software software) {
+            return Arrays.asList(this.getId(), software.getId());
+        }
     }
 
     /**

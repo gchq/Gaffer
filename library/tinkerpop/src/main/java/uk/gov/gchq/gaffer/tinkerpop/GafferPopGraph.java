@@ -662,6 +662,32 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      *                  You can use {@link Vertex}s, {@link GafferPopEdge}s,
      *                  EdgeIds or just vertex ID values.
      * @param direction {@link Direction} of edges to return.
+     * @param elementDefinition a Gaffer {@link ViewElementDefinition} to filter edges by
+     * @param labels labels of edges to filter for
+     * @return iterator of {@link GafferPopEdge}
+     */
+    public Iterator<Edge> edgesWithView(final Iterable<Object> ids, final Direction direction, final ViewElementDefinition elementDefinition, final List<String> labels) {
+        View.Builder viewBuilder = new View.Builder();
+
+        // If no labels specified, default to all
+        List<String> edgeGroups = labels.isEmpty() ?
+            new ArrayList<>(graph.getSchema().getEdgeGroups()) :
+            labels;
+
+        // Apply ViewElementDefinition to each group
+        edgeGroups.stream()
+            .forEach(g -> viewBuilder.edge(g, elementDefinition));
+
+        return edgesWithView(ids, direction, viewBuilder.build());
+    }
+
+    /**
+     * This performs a getRelatedEdges operation on Gaffer.
+     *
+     * @param ids       vertex IDs and edge IDs to be queried for.
+     *                  You can use {@link Vertex}s, {@link GafferPopEdge}s,
+     *                  EdgeIds or just vertex ID values.
+     * @param direction {@link Direction} of edges to return.
      * @param view      a Gaffer {@link View} containing edge groups.
      * @return iterator of {@link GafferPopEdge}
      */

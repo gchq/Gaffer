@@ -17,9 +17,6 @@
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.step;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Compare;
-import org.apache.tinkerpop.gremlin.process.traversal.Contains;
-import org.apache.tinkerpop.gremlin.process.traversal.Text;
-import org.apache.tinkerpop.gremlin.process.traversal.Text.RegexPredicate;
 import org.apache.tinkerpop.gremlin.process.traversal.step.HasContainerHolder;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.GraphStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.HasContainer;
@@ -38,23 +35,14 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
-import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
-import uk.gov.gchq.koryphe.impl.predicate.IsIn;
-import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
-import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
-import uk.gov.gchq.koryphe.impl.predicate.Not;
-import uk.gov.gchq.koryphe.impl.predicate.Regex;
-import uk.gov.gchq.koryphe.impl.predicate.StringContains;
-import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
+import uk.gov.gchq.gaffer.tinkerpop.generator.KoryphePredicateFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 /**
@@ -104,7 +92,12 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         // Check for the labels being searched for to construct a View to filter with
         List<String> labels = getRequestedLabels();
 
-        if (!labels.isEmpty()) {
+        // Get the ViewElementDefinition needed to for the property predicates
+        ViewElementDefinition viewElementDefinition = createViewFromPredicates();
+
+        if (viewElementDefinition != null) {
+            return graph.edgesWithView(Arrays.asList(this.ids), Direction.BOTH, viewElementDefinition, labels);
+        } else if (!labels.isEmpty()) {
             // Find using label to filter results
             return graph.edges(Arrays.asList(this.ids), Direction.BOTH, labels.toArray(new String[0]));
         }
@@ -161,9 +154,11 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         }
 
         ElementFilter.Builder filterBuilder = new ElementFilter.Builder();
+        KoryphePredicateFactory predicateFactory = new KoryphePredicateFactory();
         predicateContainers
             .stream()
-            .forEach(hc -> filterBuilder.select(hc.getKey()).execute(convertHasContainerToPredicate(hc)));
+            .forEach(hc -> filterBuilder.select(hc.getKey())
+                .execute(predicateFactory.getKoryphePredicate(hc.getBiPredicate(), hc.getValue())));
 
         return new ViewElementDefinition.Builder()
             .preAggregationFilter(filterBuilder.build())
@@ -180,84 +175,6 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
             .filter(hc -> hc.getKey() != null && !hc.getKey().equals(T.label.getAccessor()) && !hc.getKey().equals(T.id.getAccessor()))
             .filter(hc -> hc.getValue() != null)
             .collect(Collectors.toList());
-    }
-
-    /**
-     * Converts a HasContainer containing a Tinkerpop Predicate {@link org.apache.tinkerpop.gremlin.process.traversal.P}
-     * to a Koryphe Predicate that can be used in a Gaffer {@link ElementFilter}
-     *
-     * @param hc the HasContainer to convert
-     * @return the KoryphePredicate
-     */
-    private KoryphePredicate<?> convertHasContainerToPredicate(final HasContainer hc) {
-        BiPredicate<?, ?> p = hc.getBiPredicate();
-        Object value = hc.getValue();
-
-        if (p instanceof Compare) {
-            return getComparePredicate((Compare) p, value);
-        } else if (p instanceof Contains) {
-            return getContainsPredicate((Contains) p, (Collection) value);
-        } else if (p instanceof Text) {
-            return getTextPredicate((Text) p, (String) value);
-        } else if (p instanceof RegexPredicate) {
-            return getRegexPredicate((RegexPredicate) p);
-        }
-
-        return null;
-    }
-
-    private KoryphePredicate<?> getComparePredicate(final Compare c, final Object value) {
-        switch (c) {
-            case eq:
-                return new IsEqual(value);
-            case neq:
-                return new Not<Object>(new IsEqual(value));
-            case gt:
-                return new IsMoreThan((Comparable<?>) value);
-            case gte:
-                return new IsMoreThan((Comparable<?>) value, true);
-            case lt:
-                return new IsLessThan((Comparable<?>) value);
-            case lte:
-                return new IsLessThan((Comparable<?>) value, true);
-            default:
-                return null;
-        }
-    }
-
-    private KoryphePredicate<?> getContainsPredicate(final Contains c, final Collection<Object> value) {
-        switch (c) {
-            case within:
-                return new IsIn(value);
-            case without:
-                return new Not<Object>(new IsIn(value));
-            default:
-                return null;
-        }
-    }
-
-    private KoryphePredicate<?> getTextPredicate(final Text t, final String value) {
-        switch (t) {
-            case startingWith:
-                return new Regex("^" + value + ".*");
-            case notStartingWith:
-                return new Regex("^(?!" + value + ").*");
-            case endingWith:
-                return new Regex(".*" + value + "$");
-            case notEndingWith:
-                return new Regex(".*(?<!" + value + ")$");
-            case containing:
-                return new StringContains(value);
-            case notContaining:
-                return new Not<String>(new StringContains(value));
-            default:
-                return null;
-        }
-    }
-
-    private KoryphePredicate<?> getRegexPredicate(final RegexPredicate p) {
-        final Regex r = new Regex(p.getPattern());
-        return p.isNegate() ? new Not<String>(r) : r;
     }
 
     @Override
