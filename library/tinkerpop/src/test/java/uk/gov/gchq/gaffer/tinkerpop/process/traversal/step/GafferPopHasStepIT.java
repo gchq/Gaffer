@@ -293,4 +293,23 @@ public class GafferPopHasStepIT {
                 .extracting(r -> r.id())
                 .containsExactlyInAnyOrder(MARKO.knows(JOSH), JOSH.created(RIPPLE));
     }
+
+    @Test
+    public void shouldFilterEdgesByPropertyLessThan() {
+        final List<Edge> result = g.E().has(WEIGHT, P.lt(0.4))
+                .toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(PETER.created(LOP));
+    }
+
+    @Test
+    public void shouldFilterEdgesByPropertyLessThanWithInvalidProperty() {
+        // Uses fallback method due to Gremlin null error
+        final List<Edge> result = g.E().has("invalid", P.lt(0.4))
+                .toList();
+
+        assertThat(result).isEmpty();
+    }
 }
