@@ -273,7 +273,7 @@ public class GafferPopHasStepIT {
         assertThatRuntimeException()
                 .isThrownBy(() -> g.E().hasLabel(KNOWS, WEIGHT).toList())
                 .withMessageContaining("Label/Group was not found in the schema: weight");
-        // 'should' just return all 'knows' edsges
+        // 'should' just return all 'knows' edges
     }
 
     @Test

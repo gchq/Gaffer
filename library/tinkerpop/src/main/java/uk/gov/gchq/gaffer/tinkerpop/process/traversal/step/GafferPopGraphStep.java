@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
  */
 public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> implements HasContainerHolder {
 
-    private static final String TYPE_ERROR_LOG = "TypeError occured while applying filters in a View. Defaulting to fallback method";
+    private static final String TYPE_ERROR_LOG = "TypeError occurred while applying filters in a View. Defaulting to fallback method";
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraphStep.class);
 
     private final List<HasContainer> hasContainers = new ArrayList<>();
@@ -101,7 +101,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
         try {
             if (viewElementDefinition != null) {
-                // Find using labes and predicates to filter results
+                // Find using labels and predicates to filter results
                 return graph.edgesWithView(Arrays.asList(this.ids), Direction.BOTH, viewElementDefinition, labels);
             } else if (!labels.isEmpty()) {
                 // Find using label to filter results
@@ -130,7 +130,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
         try {
             if (viewElementDefinition != null) {
-                // Find using labes and predicates to filter results
+                // Find using labels and predicates to filter results
                 return graph.verticesWithView(Arrays.asList(this.ids), viewElementDefinition, labels);
             } else if (!labels.isEmpty()) {
                 // Find using label to filter results
