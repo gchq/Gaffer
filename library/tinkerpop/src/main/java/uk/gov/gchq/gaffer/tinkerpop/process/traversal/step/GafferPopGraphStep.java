@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.step;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Compare;
+import org.apache.tinkerpop.gremlin.process.traversal.Contains;
+import org.apache.tinkerpop.gremlin.process.traversal.GremlinTypeErrorException;
 import org.apache.tinkerpop.gremlin.process.traversal.step.HasContainerHolder;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.GraphStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.HasContainer;
@@ -35,10 +37,10 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
-import uk.gov.gchq.gaffer.tinkerpop.generator.KoryphePredicateFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -57,6 +59,8 @@ import java.util.stream.Collectors;
  * </pre>
  */
 public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> implements HasContainerHolder {
+
+    private static final String TYPE_ERROR_LOG = "TypeError occured while applying filters in a View. Defaulting to fallback method";
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraphStep.class);
 
     private final List<HasContainer> hasContainers = new ArrayList<>();
@@ -95,14 +99,25 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         // Get the ViewElementDefinition needed to for the property predicates
         ViewElementDefinition viewElementDefinition = createViewFromPredicates();
 
-        if (viewElementDefinition != null) {
-            return graph.edgesWithView(Arrays.asList(this.ids), Direction.BOTH, viewElementDefinition, labels);
-        } else if (!labels.isEmpty()) {
-            // Find using label to filter results
-            return graph.edges(Arrays.asList(this.ids), Direction.BOTH, labels.toArray(new String[0]));
+        try {
+            if (viewElementDefinition != null) {
+                // Find using labes and predicates to filter results
+                return graph.edgesWithView(Arrays.asList(this.ids), Direction.BOTH, viewElementDefinition, labels);
+            } else if (!labels.isEmpty()) {
+                // Find using label to filter results
+                return graph.edges(Arrays.asList(this.ids), Direction.BOTH, labels.toArray(new String[0]));
+            }
+        } catch (final GremlinTypeErrorException e) {
+            // This can happen when Gremlin doesn't handle 'null' values very well
+            // e.g. g.E().has('length', lt(30))
+            // Gremlin throws rather than returns false when checking the lt() predicate
+            // on edges that are missing the 'length' prop
+            // Use the fallback method instead
+            LOGGER.error(TYPE_ERROR_LOG, e);
         }
 
         // linear scan as fallback
+        LOGGER.debug("Using fallback filter method: {} hasContainers found", hasContainers.size());
         return IteratorUtils.filter(graph.edges(this.ids), edge -> HasContainer.testAll(edge, hasContainers));
     }
 
@@ -113,14 +128,25 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         // Get the ViewElementDefinition needed to for the property predicates
         ViewElementDefinition viewElementDefinition = createViewFromPredicates();
 
-        if (viewElementDefinition != null) {
-            return graph.verticesWithView(Arrays.asList(this.ids), viewElementDefinition, labels);
-        } else if (!labels.isEmpty()) {
-            // Find using label to filter results
-            return graph.vertices(Arrays.asList(this.ids), labels.toArray(new String[0]));
+        try {
+            if (viewElementDefinition != null) {
+                // Find using labes and predicates to filter results
+                return graph.verticesWithView(Arrays.asList(this.ids), viewElementDefinition, labels);
+            } else if (!labels.isEmpty()) {
+                // Find using label to filter results
+                return graph.vertices(Arrays.asList(this.ids), labels.toArray(new String[0]));
+            }
+        } catch (final GremlinTypeErrorException e) {
+            // This can happen when Gremlin doesn't handle 'null' values very well
+            // e.g. g.V().has('age', lt(30))
+            // Gremlin throws rather than returns false when checking the lt() predicate
+            // on vertices that are missing the 'age' prop
+            // Use the fallback method instead
+            LOGGER.error(TYPE_ERROR_LOG, e);
         }
 
         // linear scan as fallback
+        LOGGER.debug("Using fallback filter method: {} hasContainers found", hasContainers.size());
         return IteratorUtils.filter(graph.vertices(Arrays.asList(this.ids)), vertex -> HasContainer.testAll(vertex, hasContainers));
     }
 
@@ -133,9 +159,14 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
     private List<String> getRequestedLabels() {
         return hasContainers.stream()
             .filter(hc -> hc.getKey() != null && hc.getKey().equals(T.label.getAccessor()))
-            .filter(hc -> Compare.eq == hc.getBiPredicate())
+            .filter(hc -> Compare.eq == hc.getBiPredicate() || Contains.within == hc.getBiPredicate())
             .filter(hc -> hc.getValue() != null)
-            .map(hc -> (String) hc.getValue())
+            // Incase of ~label.within([]) predicate
+            // map to value list and then flatten
+            .map(hc -> hc.getValue() instanceof List<?> ?
+                (List<String>) hc.getValue() :
+                Collections.singletonList((String) hc.getValue()))
+            .flatMap(Collection::stream)
             .collect(Collectors.toList());
     }
 
@@ -154,11 +185,11 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         }
 
         ElementFilter.Builder filterBuilder = new ElementFilter.Builder();
-        KoryphePredicateFactory predicateFactory = new KoryphePredicateFactory();
+        // Add each predicate to the filter
         predicateContainers
             .stream()
             .forEach(hc -> filterBuilder.select(hc.getKey())
-                .execute(predicateFactory.getKoryphePredicate(hc.getBiPredicate(), hc.getValue())));
+                                        .execute(hc.getPredicate()));
 
         return new ViewElementDefinition.Builder()
             .preAggregationFilter(filterBuilder.build())
@@ -166,14 +197,16 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
     }
 
     /**
-     * Checks all the HasContainers to see what predicates have been requested
+     * Checks all the HasContainers to see which predicates have been requested
      *
      * @return List of HasContainers with predicates
      */
     private List<HasContainer> getRequestedPredicates() {
+        // Don't filter out null hc.getValue() incase of AndP/OrP
         return hasContainers.stream()
-            .filter(hc -> hc.getKey() != null && !hc.getKey().equals(T.label.getAccessor()) && !hc.getKey().equals(T.id.getAccessor()))
-            .filter(hc -> hc.getValue() != null)
+            .filter(hc -> hc.getKey() != null)
+            .filter(hc -> !hc.getKey().equals(T.label.getAccessor()))
+            .filter(hc -> !hc.getKey().equals(T.id.getAccessor()))
             .collect(Collectors.toList());
     }
 

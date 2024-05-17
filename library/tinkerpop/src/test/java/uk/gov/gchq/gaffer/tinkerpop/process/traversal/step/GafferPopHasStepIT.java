@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatRuntimeException;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.AGE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.JOSH;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.KNOWS;
@@ -41,6 +42,7 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.NAME;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.PERSON;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.PETER;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.RIPPLE;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.SOFTWARE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.VADAS;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.WEIGHT;
 
@@ -70,13 +72,22 @@ public class GafferPopHasStepIT {
 
     @Test
     public void shouldFilterVerticesByLabelsOnly() {
-        final List<Vertex> result = g.V().hasLabel(PERSON, NAME, MARKO.getName()).toList();
+        final List<Vertex> result = g.V().hasLabel(PERSON, SOFTWARE).toList();
 
-        // Correct behaviour is to treat all args as labels when using hasLabel
-        // All 'person' vertices returned
         assertThat(result)
                 .extracting(r -> r.id())
-                .containsExactlyInAnyOrder(MARKO.getId(), VADAS.getId(), JOSH.getId(), PETER.getId());
+                .containsExactlyInAnyOrder(MARKO.getId(), VADAS.getId(), JOSH.getId(), PETER.getId(), RIPPLE.getId(), LOP.getId());
+    }
+
+    @Test
+    public void shouldThrowWhenFilterVerticesByInvalidLabels() {
+        // Included this as it's an example from the docs that won't run due to Gaffer limitation
+        // Gaffer checks labels in the view are valid before querying
+        assertThatRuntimeException()
+                .isThrownBy(() -> g.V().hasLabel(PERSON, NAME, MARKO.getName()).toList())
+                .withMessageContaining("Entity group name does not exist in the schema")
+                .withMessageContaining("Entity group marko does not exist in the schema");
+        // 'should' just return all 'person' vertices
     }
 
     @Test
@@ -89,8 +100,29 @@ public class GafferPopHasStepIT {
     }
 
     @Test
+    public void shouldFilterVerticesByLabelAndPropertyLessThan() {
+        // Uses fallback method due to Gremlin null error
+        final List<Vertex> result = g.V().has(AGE, P.lt(30))
+                .toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(VADAS.getId(), MARKO.getId());
+    }
+
+    @Test
+    public void shouldFilterVerticesByLabelAndPropertyMoreThan() {
+        final List<Vertex> result = g.V().has(PERSON, AGE, P.gt(30))
+                .toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(JOSH.getId(), PETER.getId());
+    }
+
+    @Test
     public void shouldFilterVerticesByLabelAndPropertyWithin() {
-        final List<Vertex> result = g.V().hasLabel(PERSON).out().has(NAME, P.within(VADAS.getName(), JOSH.getName()))
+        final List<Vertex> result = g.V().has(PERSON, NAME, P.within(VADAS.getName(), JOSH.getName()))
                 .toList();
 
         assertThat(result)
@@ -100,7 +132,7 @@ public class GafferPopHasStepIT {
 
     @Test
     public void shouldFilterVerticesByPropertyInside() {
-        final List<Object> result = g.V().has(AGE, P.inside(20, 30)).values(AGE).toList();
+        final List<Object> result = g.V().has(PERSON, AGE, P.inside(20, 30)).values(AGE).toList();
 
         assertThat(result)
                 .extracting(r -> (Integer) r)
@@ -109,7 +141,7 @@ public class GafferPopHasStepIT {
 
     @Test
     public void shouldFilterVerticesByPropertyOutside() {
-        final List<Object> result = g.V().has(AGE, P.outside(20, 30)).values(AGE).toList();
+        final List<Object> result = g.V().has(PERSON, AGE, P.outside(20, 30)).values(AGE).toList();
 
         assertThat(result)
                 .extracting(r -> (Integer) r)
@@ -235,14 +267,13 @@ public class GafferPopHasStepIT {
     }
 
     @Test
-    public void shouldFilterEdgesByLabelsOnly() {
-        final List<Edge> result = g.E().hasLabel(KNOWS, WEIGHT).toList();
-
-        // Correct behaviour is to treat all args as labels when using hasLabel
-        // All 'person' Edges returned
-        assertThat(result)
-                .extracting(r -> r.id())
-                .containsExactlyInAnyOrderElementsOf(MARKO.knowsEdges());
+    public void shouldThrowWhenFilterEdgesByInvalidLabels() {
+        // Included this as it's an example from the docs that won't run due to Gaffer limitation
+        // Gaffer checks labels in the view are valid before querying
+        assertThatRuntimeException()
+                .isThrownBy(() -> g.E().hasLabel(KNOWS, WEIGHT).toList())
+                .withMessageContaining("Label/Group was not found in the schema: weight");
+        // 'should' just return all 'knows' edsges
     }
 
     @Test
