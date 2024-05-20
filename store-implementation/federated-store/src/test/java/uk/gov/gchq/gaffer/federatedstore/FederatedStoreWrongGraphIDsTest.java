@@ -46,8 +46,8 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextBlankUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.entityBasic;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
