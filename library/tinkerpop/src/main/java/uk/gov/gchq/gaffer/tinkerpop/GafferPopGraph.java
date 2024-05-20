@@ -383,6 +383,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         final OperationChain<Iterable<? extends Element>> getOperation;
 
         if (getAll) {
+            LOGGER.debug("Requested a GetAllElements, results will be truncated to: {}.", getAllElementsLimit);
             getOperation = new Builder()
                     .first(new GetAllElements.Builder()
                             .view(new View.Builder()
@@ -412,9 +413,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(e -> (Vertex) e)
                 .iterator();
 
-        if (getAll && IterableUtils.size(translatedResults) > getAllElementsLimit) {
+        if (getAll && IterableUtils.size(translatedResults) == getAllElementsLimit) {
             LOGGER.warn(
-                "Result size is larger than configured limit ({}). Results may have been truncated",
+                "Result size is equal to configured limit ({}). Results may have been truncated",
                  getAllElementsLimit);
         }
         return translatedResults.iterator();
@@ -542,7 +543,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final OperationChain<Iterable<? extends Element>> getOperation;
         if (getAll) {
-            LOGGER.warn("Requested a GetAllElements results will be truncated to: {}.", getAllElementsLimit);
+            LOGGER.debug("Requested a GetAllElements, results will be truncated to: {}.", getAllElementsLimit);
             getOperation = new Builder()
                 .first(new GetAllElements.Builder()
                         .view(new View.Builder()
@@ -574,9 +575,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(e -> (Edge) e)
                 .iterator();
 
-        if (getAll && IterableUtils.size(translatedResults) >= getAllElementsLimit) {
+        if (getAll && IterableUtils.size(translatedResults) == getAllElementsLimit) {
             LOGGER.warn(
-                "Result size is larger than configured limit ({}). Results may have been truncated",
+                "Result size is equal to configured limit ({}). Results may have been truncated",
                 getAllElementsLimit);
         }
         return translatedResults.iterator();
