@@ -1132,6 +1132,7 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>${pmd.plugin.version}</version>
                 <configuration>
+                    <linkXRef>false</linkXRef>
                     <printFailingErrors>true</printFailingErrors>
                     <rulesets>
                         <ruleset>code-style/pmd-ruleset.xml</ruleset>
