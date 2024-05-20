@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ public class BoundedTimestampSet implements TimestampSet {
         if (state.equals(State.NOT_FULL)) {
             return rbmBackedTimestampSet.getNumberOfTimestamps();
         }
-        return reservoirLongsUnion.getResult().getNumSamples();
+        return (long) reservoirLongsUnion.getResult().getNumSamples();
     }
 
     @Override
