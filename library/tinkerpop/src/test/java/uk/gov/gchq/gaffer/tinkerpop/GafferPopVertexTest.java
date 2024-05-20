@@ -165,6 +165,7 @@ class GafferPopVertexTest {
         given(features.vertex()).willReturn(vertexFeatures);
         given(vertexFeatures.properties()).willReturn(vertexPropertyFeatures);
         final String propValue = "propValue";
+        final int intPropValue = 1;
         final String nestedKey = "nestedKey";
         final String nestedValue = "nestedValue";
         // Make new vertex with the mocked bits
@@ -172,6 +173,8 @@ class GafferPopVertexTest {
         // Make some values to compare against
         final GafferPopVertexProperty<Object> equalProp = new GafferPopVertexProperty<>(vertex, TestPropertyNames.STRING, propValue);
         final String notAProp = "notAProp";
+        final GafferPopVertexProperty<Object> notEqualProp = new GafferPopVertexProperty<>(vertex, TestPropertyNames.INT, intPropValue);
+
 
         // When
         // Set and get the property
@@ -185,7 +188,9 @@ class GafferPopVertexTest {
                 .isEqualTo(equalProp)
                 .hasSameHashCodeAs(equalProp)
                 .isNotEqualTo(notAProp)
-                .doesNotHaveSameHashCodeAs(notAProp);
+                .doesNotHaveSameHashCodeAs(notAProp)
+                .isNotEqualTo(notEqualProp)
+                .doesNotHaveSameHashCodeAs(notEqualProp);
         assertThat(prop.element()).isEqualTo(vertex);
         assertThat(prop.isPresent()).isTrue();
         assertThat(prop.keys()).isEmpty();
