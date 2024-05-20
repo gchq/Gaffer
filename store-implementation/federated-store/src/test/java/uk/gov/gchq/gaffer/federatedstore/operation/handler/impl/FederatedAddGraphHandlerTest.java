@@ -60,6 +60,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache;
 import static uk.gov.gchq.gaffer.store.StoreProperties.OPERATION_DECLARATIONS_JSON;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
@@ -82,8 +83,7 @@ public class FederatedAddGraphHandlerTest {
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         this.store = new FederatedStore();
-        federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties = getFederatedStorePropertiesWithHashMapCache();
 
         testUser = testUser();
         authUser = authUser();

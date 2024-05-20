@@ -38,7 +38,6 @@ import uk.gov.gchq.gaffer.user.User;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.BASIC_VERTEX;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_A;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_B;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
@@ -47,6 +46,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.INTEGER;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.store.TestTypes.INTEGER_TYPE;
 import static uk.gov.gchq.gaffer.store.TestTypes.STRING_TYPE;
@@ -68,8 +68,7 @@ public class FederatedStoreVisibilityTest {
     @BeforeEach
     public void setUp() throws Exception {
         resetForFederatedTests();
-        FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        FederatedStoreProperties federatedStoreProperties = getFederatedStorePropertiesWithHashMapCache();
 
         federatedGraph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
