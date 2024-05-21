@@ -30,15 +30,17 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopVertexGenerator;
+import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {@link Edge}.
@@ -135,11 +137,11 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
     public Iterator<Vertex> vertices(final Direction direction) {
         switch (direction) {
             case OUT:
-                return IteratorUtils.of(outVertex);
+                return IteratorUtils.of(outVertex());
             case IN:
-                return IteratorUtils.of(inVertex);
+                return IteratorUtils.of(inVertex());
             default:
-                return IteratorUtils.of(outVertex, inVertex);
+                return IteratorUtils.of(outVertex(), inVertex());
         }
     }
 
@@ -161,12 +163,12 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
 
     @Override
     public Vertex outVertex() {
-        return outVertex;
+        return getVertex(outVertex);
     }
 
     @Override
     public Vertex inVertex() {
-        return inVertex;
+        return getVertex(inVertex);
     }
 
     /**
@@ -197,27 +199,42 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
      */
     private static GafferPopVertex getValidVertex(final Object vertex, final GafferPopGraph graph) {
         if (vertex instanceof Vertex) {
-            OperationChain<Iterable<? extends Element>> findBasedOnID = new OperationChain.Builder()
-                    .first(new GetElements.Builder()
-                            .input(new EntitySeed(vertex))
-                            .build())
-                    .build();
-
-            Iterable<? extends Element> result = graph.execute(findBasedOnID);
-
-            // rename
-            Iterator<? extends Element> result2 = result.iterator();
-
-            if (result2.hasNext()) {
-                Element foundEntity = result2.next();
-                return new GafferPopVertexGenerator(graph)._apply(foundEntity);
-            }
             return (GafferPopVertex) vertex;
         }
 
         // As a fallback assume its the vertex ID object and construct with the ID
         // label.
         return new GafferPopVertex(GafferPopGraph.ID_LABEL, vertex, graph);
+    }
+
+    /**
+     * Finds the Vertex in Gaffer based on vertex ID.
+     *
+     * @param vertex The vertex object or ID
+     * @return A valid Vertex based on the supplied object or ID.
+     */
+    private Vertex getVertex(final GafferPopVertex vertex) {
+        OperationChain<Iterable<? extends Element>> findBasedOnID = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed(vertex.id()))
+                        .build())
+                .build();
+
+        Iterable<? extends Element> result = graph().execute(findBasedOnID);
+
+        final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph());
+
+        Optional<Vertex> foundEntity = StreamSupport.stream(result.spliterator(), false)
+                .map(generator::_apply)
+                .filter(Vertex.class::isInstance)
+                .map(e -> (Vertex) e)
+                .findFirst();
+
+        if (foundEntity.isPresent()) {
+            return foundEntity.get();
+        }
+
+        return vertex;
     }
 
 }

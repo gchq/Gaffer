@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.tinkerpop.generator;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -29,12 +30,16 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
 
 public class GafferPopEdgeGeneratorTest {
     @Test
     public void shouldConvertGafferEdgeToGafferPopReadOnlyEdge() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
+        when(graph.execute(Mockito.any())).thenReturn(new ArrayList<>());
 
         final String source = "source";
         final String dest = "dest";
@@ -62,6 +67,7 @@ public class GafferPopEdgeGeneratorTest {
     public void shouldConvertGafferEdgeToGafferPopReadWriteEdge() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
+        when(graph.execute(Mockito.any())).thenReturn(new ArrayList<>());
 
         final String source = "source";
         final String dest = "dest";

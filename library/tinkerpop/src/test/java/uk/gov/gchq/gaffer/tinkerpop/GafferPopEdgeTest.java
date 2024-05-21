@@ -175,6 +175,7 @@ public class GafferPopEdgeTest {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, SOURCE, DEST, graph);
+        when(graph.execute(Mockito.any())).thenReturn(new ArrayList<>());
 
         // Then
         assertThat(edge).hasToString(StringFactory.edgeString(edge));
