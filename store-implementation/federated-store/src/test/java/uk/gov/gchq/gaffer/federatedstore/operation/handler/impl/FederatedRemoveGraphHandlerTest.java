@@ -42,8 +42,6 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_ENTITY;
@@ -78,7 +76,7 @@ public class FederatedRemoveGraphHandlerTest {
                 .properties(PROPERTIES)
                 .build());
 
-        assertEquals(1, store.getGraphs(testUser, null, new RemoveGraph()).size());
+        assertThat(store.getGraphs(testUser, null, new RemoveGraph())).hasSize(1);
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
@@ -90,7 +88,6 @@ public class FederatedRemoveGraphHandlerTest {
         Collection<GraphSerialisable> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
         assertThat(graphs).isEmpty();
-
     }
 
     @Test
@@ -104,7 +101,7 @@ public class FederatedRemoveGraphHandlerTest {
                 .properties(PROPERTIES)
                 .build());
 
-        assertEquals(1, store.getGraphs(testUser, null, new RemoveGraph()).size());
+        assertThat(store.getGraphs(testUser, null, new RemoveGraph())).hasSize(1);
 
         final Boolean removed = new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
@@ -116,7 +113,7 @@ public class FederatedRemoveGraphHandlerTest {
         Collection<GraphSerialisable> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
         assertThat(graphs).hasSize(1);
-        assertFalse(removed);
+        assertThat(removed).isFalse();
     }
 
     @Test
@@ -124,7 +121,7 @@ public class FederatedRemoveGraphHandlerTest {
         FederatedStore store = new FederatedStore();
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, getFederatedStorePropertiesWithHashMapCache());
 
-        assertEquals(0, store.getGraphs(testUser, null, new RemoveGraph()).size());
+        assertThat(store.getGraphs(testUser, null, new RemoveGraph())).hasSize(0);
 
         final Boolean removed = new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
@@ -136,8 +133,7 @@ public class FederatedRemoveGraphHandlerTest {
         Collection<GraphSerialisable> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
         assertThat(graphs).hasSize(0);
-        assertFalse(removed);
-
+        assertThat(removed).isFalse();
     }
 
     @Test
@@ -159,7 +155,7 @@ public class FederatedRemoveGraphHandlerTest {
                         .properties(PROPERTIES)
                         .build());
 
-        assertEquals(1, store.getGraphs(testUser, null, new RemoveGraph()).size());
+        assertThat(store.getGraphs(testUser, null, new RemoveGraph())).hasSize(1);
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
@@ -270,8 +266,7 @@ public class FederatedRemoveGraphHandlerTest {
     public void shouldRemoveGraphAndCacheWhenUsingMultipleServices() throws Exception {
         // Create and initialise a new Federated Store with the default cache service class store property configured
         FederatedStore store = new FederatedStore();
-        final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        final FederatedStoreProperties federatedStoreProperties = getFederatedStorePropertiesWithHashMapCache();
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
         final String cacheNameSuffix = "removeThisCache";
