@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class GafferPopVertexProperty<V> extends GafferPopElement implements Vert
     private final V value;
 
     public GafferPopVertexProperty(final GafferPopVertex vertex, final String key, final V value, final Object... propertyKeyValues) {
-        super(vertex.label(), vertex.id(), vertex.graph());
+        super(key, String.format("[%s,%s,%s]", vertex.id(), key, value), vertex.graph());
         this.vertex = vertex;
         this.key = key;
         this.value = value;
