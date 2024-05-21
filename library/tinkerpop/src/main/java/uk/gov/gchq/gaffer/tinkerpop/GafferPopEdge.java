@@ -26,6 +26,12 @@ import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopVertexGenerator;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,8 +44,10 @@ import java.util.stream.Collectors;
  * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {@link Edge}.
  * <p>
  * inVertex() and outVertex() methods are not supported as it is possible for a
- * edge to have multiple in vertices and multiple out vertices (due to the mapping
- * to a TinkerPop vertex to Gaffer {@link uk.gov.gchq.gaffer.data.element.Entity}.
+ * edge to have multiple in vertices and multiple out vertices (due to the
+ * mapping
+ * to a TinkerPop vertex to Gaffer
+ * {@link uk.gov.gchq.gaffer.data.element.Entity}.
  * Use vertices(Direction) instead.
  * </p>
  * <p>
@@ -54,7 +62,8 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
     private final GafferPopVertex inVertex;
     private final GafferPopVertex outVertex;
 
-    public GafferPopEdge(final String label, final Object outVertex, final Object inVertex, final GafferPopGraph graph) {
+    public GafferPopEdge(final String label, final Object outVertex, final Object inVertex,
+            final GafferPopGraph graph) {
         super(label, Arrays.asList(getVertexId(outVertex), getVertexId(inVertex)), graph);
         this.outVertex = getValidVertex(outVertex, graph);
         this.inVertex = getValidVertex(inVertex, graph);
@@ -97,7 +106,6 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
         }
     }
 
-
     /**
      * Updates the properties attached to this Edge but without modifying the
      * underlying graph.
@@ -107,8 +115,8 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
      * able to create a representative GafferPopEdge but without modifying the
      * one stored in the graph.
      *
-     * @param <V> Value type
-     * @param key The key
+     * @param <V>   Value type
+     * @param key   The key
      * @param value The value
      * @return The property
      */
@@ -184,39 +192,32 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
      * Determines the GafferPopVertex object to connect this GafferPopEdge on.
      *
      * @param vertex The vertex object or ID
-     * @param graph The graph
+     * @param graph  The graph
      * @return A valid GafferPopVertex based on the supplied object or ID.
      */
     private static GafferPopVertex getValidVertex(final Object vertex, final GafferPopGraph graph) {
-        // Determine if we can cast the vertex object we have been supplied
         if (vertex instanceof Vertex) {
+            OperationChain<Iterable<? extends Element>> findBasedOnID = new OperationChain.Builder()
+                    .first(new GetElements.Builder()
+                            .input(new EntitySeed(vertex))
+                            .build())
+                    .build();
+
+            Iterable<? extends Element> result = graph.execute(findBasedOnID);
+
+            // rename
+            Iterator<? extends Element> result2 = result.iterator();
+
+            if (result2.hasNext()) {
+                Element foundEntity = result2.next();
+                return new GafferPopVertexGenerator(graph)._apply(foundEntity);
+            }
             return (GafferPopVertex) vertex;
         }
 
-        // As a fallback assume its the vertex ID object and construct with the ID label.
+        // As a fallback assume its the vertex ID object and construct with the ID
+        // label.
         return new GafferPopVertex(GafferPopGraph.ID_LABEL, vertex, graph);
-
-        /*
-         * TODO: Review whether a search should be carried out to determine the correct
-         *       Entity to use to construct the GafferPopVertex to add this edge too.
-         *       Currently a default label will be used if a vertex ID is given to this
-         *       method which may result in an incorrect mapping of a GafferPop
-         *       'label' to a Gaffer 'group'.
-         *
-         * A basic example of a search is given below:
-         *
-         * OperationChain<Iterable<? extends Element>> findBasedOnID = new OperationChain.Builder()
-         *     .first(new GetElements.Builder().input(new EntitySeed(vertex)).build())
-         *     .build();
-         *
-         * Iterable<? extends Element> result = graph.execute(findBasedOnID);
-         * Object foundEntity = StreamSupport.stream(result.spliterator(), false)
-         *     .filter(Entity.class::isInstance)
-         *     .findFirst()
-         *     .get();
-         *
-         * return new GafferPopVertexGenerator(graph)._apply((Element) foundEntity);
-         */
     }
 
 }

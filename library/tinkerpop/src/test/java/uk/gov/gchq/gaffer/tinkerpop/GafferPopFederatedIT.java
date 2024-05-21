@@ -101,7 +101,7 @@ public class GafferPopFederatedIT {
         // Then
         assertThat(variables).contains(
                 entry("userId", USER_ID),
-                entry("dataAuths", new String[] {AUTH_1, AUTH_2}));
+                    entry("dataAuths", new String[] {AUTH_1, AUTH_2}));
     }
 
     @Test
@@ -214,6 +214,29 @@ public class GafferPopFederatedIT {
                 .first()
                 .hasFieldOrPropertyWithValue(PERSON_GROUP, 4L)
                 .hasFieldOrPropertyWithValue(SOFTWARE_GROUP, 2L);
+    }
+
+    @Test
+    void shouldGetAllVerticesConnectedToOutGoingEdgeOfGivenVertex() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+
+        // When
+        List<Object> result = g.V(VERTEX_PERSON_1).outE().inV().values("name").toList();
+
+        assertThat(result).containsExactly(EXPECTED_PERSON_2_VERTEX_MAP.get("name"),
+                EXPECTED_SOFTWARE_1_VERTEX_MAP.get("name"));
+    }
+
+    @Test
+    void shouldGetPropertiesOfIncomingVerticesForSpecificVertex() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+
+        // When
+        List<Map<Object, Object>> result = g.V(VERTEX_PERSON_2).inE().outV().elementMap().toList();
+
+        assertThat(result).containsAnyOf(EXPECTED_PERSON_1_VERTEX_MAP);
     }
 
     @Test
