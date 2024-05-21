@@ -23,7 +23,6 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
-import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {@link Vertex}.
@@ -82,26 +80,13 @@ public class GafferPopVertex extends GafferPopElement implements Vertex {
 
     @Override
     public <V> Iterator<VertexProperty<V>> properties(final String... propertyKeys) {
-        if (properties == null) {
-            return Collections.emptyIterator();
-        }
-        if (propertyKeys.length == 1) {
-            final List<VertexProperty> props = properties.getOrDefault(propertyKeys[0], Collections.emptyList());
-            if (props.size() == 1) {
-                return IteratorUtils.of(props.get(0));
-            } else if (props.isEmpty()) {
-                return Collections.emptyIterator();
-            } else {
-                return (Iterator) new ArrayList<>(props).iterator();
-            }
-        } else {
-            return (Iterator) properties.entrySet()
-                    .stream()
-                    .filter(entry -> ElementHelper.keyExists(entry.getKey(), propertyKeys))
-                    .flatMap(entry -> entry.getValue().stream())
-                    .collect(Collectors.toList())
-                    .iterator();
-        }
+        return properties == null ?
+                Collections.emptyIterator() :
+                (Iterator) properties.entrySet()
+                        .stream()
+                        .filter(entry -> ElementHelper.keyExists(entry.getKey(), propertyKeys))
+                        .flatMap(entry -> entry.getValue().stream())
+                        .iterator();
     }
 
     /**
