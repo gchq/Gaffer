@@ -187,7 +187,6 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         ElementFilter.Builder filterBuilder = new ElementFilter.Builder();
         // Add each predicate to the filter
         predicateContainers
-            .stream()
             .forEach(hc -> filterBuilder.select(hc.getKey())
                                         .execute(hc.getPredicate()));
 
