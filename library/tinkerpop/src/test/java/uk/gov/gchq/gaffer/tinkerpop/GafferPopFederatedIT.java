@@ -101,7 +101,7 @@ public class GafferPopFederatedIT {
         // Then
         assertThat(variables).contains(
                 entry("userId", USER_ID),
-                    entry("dataAuths", new String[] {AUTH_1, AUTH_2}));
+                entry("dataAuths", new String[] {AUTH_1, AUTH_2}));
     }
 
     @Test
