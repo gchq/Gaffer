@@ -52,6 +52,7 @@ public final class GafferPopTestUtil {
             this.setProperty(GafferPopGraph.GRAPH_ID, "Graph1");
             this.setProperty(GafferPopGraph.STORE_PROPERTIES, GafferPopGraphIT.class.getClassLoader().getResource("gaffer/store.properties").getPath());
             this.setProperty(GafferPopGraph.GET_ALL_ELEMENTS_LIMIT, 1);
+            this.setProperty(GafferPopGraph.HAS_STEP_FILTER_STAGE, "POST_TRANSFORM");
         }
     };
 

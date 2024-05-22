@@ -199,7 +199,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * Default to pre-aggregation filtering for HasStep predicates
      */
     public static final HasStepFilterStage DEFAULT_HAS_STEP_FILTER_STAGE = HasStepFilterStage.PRE_AGGREGATION;
-    
+
     public static final String USER_ID = "gaffer.userId";
 
     public static final String DATA_AUTHS = "gaffer.dataAuths";

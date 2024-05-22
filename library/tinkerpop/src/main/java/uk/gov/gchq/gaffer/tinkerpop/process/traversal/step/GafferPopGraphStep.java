@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -177,9 +177,10 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
      * Creates a ViewElementDefinition from the predicates in the HasContainers.
      * This can be used in a View to filter entities.
      *
+     * @param filterStage the stage to apply the filters
      * @return ViewElementDefinition containing the filters
      */
-    private ViewElementDefinition createViewFromPredicates(String filterStage) {
+    private ViewElementDefinition createViewFromPredicates(final String filterStage) {
         List<HasContainer> predicateContainers = getRequestedPredicates();
 
         // No predicates found
@@ -199,8 +200,8 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         HasStepFilterStage hasStepFilterStage;
         try {
             hasStepFilterStage = HasStepFilterStage.valueOf(filterStage);
-        } catch (IllegalArgumentException e) {
-            LOGGER.warn("Unknown hasStepFilterStage: {}. Defaulting to {}", 
+        } catch (final IllegalArgumentException e) {
+            LOGGER.warn("Unknown hasStepFilterStage: {}. Defaulting to {}",
                 filterStage, GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE);
             hasStepFilterStage = GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE;
         }
