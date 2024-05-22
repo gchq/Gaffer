@@ -208,8 +208,9 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
     }
 
     /**
-     * Finds the Vertex in Gaffer based on vertex ID.
-     *
+     * Runs a search to determine the correct Entity to use when a vertex ID
+     * is supplied to an edge. Note that this may slow performance.
+     * 
      * @param vertex The vertex object or ID
      * @return A valid Vertex based on the supplied object or ID.
      */
