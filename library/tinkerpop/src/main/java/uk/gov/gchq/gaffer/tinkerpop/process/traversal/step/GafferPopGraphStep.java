@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,8 +97,9 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         // Check for the labels being searched for to construct a View to filter with
         List<String> labels = getRequestedLabels();
 
+        String filterStage = ((GafferPopGraphVariables) graph.variables()).getHasStepFilterStage();
         // Get the ViewElementDefinition needed to for the property predicates
-        ViewElementDefinition viewElementDefinition = createViewFromPredicates();
+        ViewElementDefinition viewElementDefinition = createViewFromPredicates(filterStage);
 
         try {
             if (viewElementDefinition != null) {
@@ -125,8 +127,9 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         // Check for the labels being searched for to construct a View to filter with
         List<String> labels = getRequestedLabels();
 
+        String filterStage = ((GafferPopGraphVariables) graph.variables()).getHasStepFilterStage();
         // Get the ViewElementDefinition needed to for the property predicates
-        ViewElementDefinition viewElementDefinition = createViewFromPredicates();
+        ViewElementDefinition viewElementDefinition = createViewFromPredicates(filterStage);
 
         try {
             if (viewElementDefinition != null) {
@@ -176,7 +179,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
      *
      * @return ViewElementDefinition containing the filters
      */
-    private ViewElementDefinition createViewFromPredicates() {
+    private ViewElementDefinition createViewFromPredicates(String filterStage) {
         List<HasContainer> predicateContainers = getRequestedPredicates();
 
         // No predicates found
@@ -184,15 +187,39 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
             return null;
         }
 
-        ElementFilter.Builder filterBuilder = new ElementFilter.Builder();
         // Add each predicate to the filter
+        ElementFilter.Builder filterBuilder = new ElementFilter.Builder();
         predicateContainers
             .forEach(hc -> filterBuilder.select(hc.getKey())
                                         .execute(hc.getPredicate()));
+        ElementFilter elementFilter = filterBuilder.build();
 
-        return new ViewElementDefinition.Builder()
-            .preAggregationFilter(filterBuilder.build())
-            .build();
+        // Decide when to apply the filter
+        ViewElementDefinition.Builder vBuilder = new ViewElementDefinition.Builder();
+        HasStepFilterStage hasStepFilterStage;
+        try {
+            hasStepFilterStage = HasStepFilterStage.valueOf(filterStage);
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("Unknown hasStepFilterStage: {}. Defaulting to {}", 
+                filterStage, GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE);
+            hasStepFilterStage = GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE;
+        }
+
+        switch (hasStepFilterStage) {
+            case POST_TRANSFORM:
+                vBuilder.postTransformFilter(elementFilter);
+                break;
+            case POST_AGGREGATION:
+                vBuilder.postAggregationFilter(elementFilter);
+                break;
+            case PRE_AGGREGATION:
+                vBuilder.preAggregationFilter(elementFilter);
+                break;
+            default:
+                vBuilder.preAggregationFilter(elementFilter);
+                break;
+        }
+        return vBuilder.build();
     }
 
     /**

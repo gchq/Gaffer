@@ -16,13 +16,16 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.stategy;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
@@ -30,6 +33,7 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,6 +94,116 @@ class GafferPopGraphStepStrategyTest {
 
         verify(graph, Mockito.atLeastOnce()).edges(Mockito.any(), Mockito.eq(Direction.BOTH), Mockito.eq(edgeGroup));
         verify(graph, Mockito.atLeastOnce()).edgesWithView(Mockito.any(), Mockito.eq(Direction.BOTH), Mockito.eq(edgeView));
+    }
+
+    @Test
+    void shouldFilterPostAgg() {
+        // Given
+        final GafferPopGraph graph = Mockito.spy(GafferPopGraph.open(GafferPopTestUtil.TEST_CONFIGURATION_1, getGafferGraph()));
+        final GraphTraversalSource g = graph.traversal();
+        final String entityGroup = "software";
+
+        // When
+        g.with("hasStepFilterStage", "POST_AGGREGATION").V().has(entityGroup, "prop", "value").toList();
+
+        ViewElementDefinition expected = new ViewElementDefinition.Builder()
+            .postAggregationFilter(new ElementFilter.Builder()
+                .select("prop")
+                .execute(P.eq("value"))
+                .build())
+            .build();
+
+        // Then
+        verify(graph, Mockito.atLeastOnce())
+            .verticesWithView(Mockito.any(), Mockito.eq(expected), Mockito.eq(Collections.singletonList(entityGroup)));
+    }
+
+    @Test
+    void shouldFilterPostTransform() {
+        // Given
+        final GafferPopGraph graph = Mockito.spy(GafferPopGraph.open(GafferPopTestUtil.TEST_CONFIGURATION_1, getGafferGraph()));
+        final GraphTraversalSource g = graph.traversal();
+        final String entityGroup = "software";
+
+        // When
+        g.with("hasStepFilterStage", "POST_TRANSFORM").V().has(entityGroup, "prop", "value").toList();
+
+        ViewElementDefinition expected = new ViewElementDefinition.Builder()
+            .postTransformFilter(new ElementFilter.Builder()
+                .select("prop")
+                .execute(P.eq("value"))
+                .build())
+            .build();
+
+        // Then
+        verify(graph, Mockito.atLeastOnce())
+            .verticesWithView(Mockito.any(), Mockito.eq(expected), Mockito.eq(Collections.singletonList(entityGroup)));
+    }
+
+    @Test
+    void shouldFilterPreAggregation() {
+        // Given
+        final GafferPopGraph graph = Mockito.spy(GafferPopGraph.open(GafferPopTestUtil.TEST_CONFIGURATION_1, getGafferGraph()));
+        final GraphTraversalSource g = graph.traversal();
+        final String entityGroup = "software";
+
+        // When
+        g.with("hasStepFilterStage", "PRE_AGGREGATION").V().has(entityGroup, "prop", "value").toList();
+
+        ViewElementDefinition expected = new ViewElementDefinition.Builder()
+            .preAggregationFilter(new ElementFilter.Builder()
+                .select("prop")
+                .execute(P.eq("value"))
+                .build())
+            .build();
+
+        // Then
+        verify(graph, Mockito.atLeastOnce())
+            .verticesWithView(Mockito.any(), Mockito.eq(expected), Mockito.eq(Collections.singletonList(entityGroup)));
+    }
+
+    @Test
+    void shouldFilterPreAggregationWhenValueInvalid() {
+        // Given
+        final GafferPopGraph graph = Mockito.spy(GafferPopGraph.open(GafferPopTestUtil.TEST_CONFIGURATION_1, getGafferGraph()));
+        final GraphTraversalSource g = graph.traversal();
+        final String entityGroup = "software";
+
+        // When
+        g.with("hasStepFilterStage", "invalid").V().has(entityGroup, "prop", "value").toList();
+
+        ViewElementDefinition expected = new ViewElementDefinition.Builder()
+            .preAggregationFilter(new ElementFilter.Builder()
+                .select("prop")
+                .execute(P.eq("value"))
+                .build())
+            .build();
+
+        // Then
+        verify(graph, Mockito.atLeastOnce())
+            .verticesWithView(Mockito.any(), Mockito.eq(expected), Mockito.eq(Collections.singletonList(entityGroup)));
+    }
+
+    @Test
+    void shouldFilterPreAggregationWhenNotSpecified() {
+        // Given
+        final GafferPopGraph graph = Mockito.spy(GafferPopGraph.open(GafferPopTestUtil.TEST_CONFIGURATION_1, getGafferGraph()));
+        final GraphTraversalSource g = graph.traversal();
+        final String entityGroup = "software";
+
+        // When
+        g.V().has(entityGroup, "prop", "value").toList();
+
+        ViewElementDefinition expected = new ViewElementDefinition.Builder()
+            .preAggregationFilter(new ElementFilter.Builder()
+                .select("prop")
+                .execute(P.eq("value"))
+                .build())
+            .build();
+
+        // Then
+        verify(graph, Mockito.atLeastOnce())
+            .verticesWithView(Mockito.any(), Mockito.eq(expected), Mockito.eq(Collections.singletonList(entityGroup)));
     }
 
 

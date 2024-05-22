@@ -184,6 +184,22 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      */
     public static final int DEFAULT_GET_ALL_ELEMENTS_LIMIT = 5000;
 
+    /**
+     * Configuration key for when to apply HasStep filtering
+     */
+    public static final String HAS_STEP_FILTER_STAGE = "gaffer.elements.hasstepfilterstage";
+
+    public enum HasStepFilterStage {
+        PRE_AGGREGATION,
+        POST_AGGREGATION,
+        POST_TRANSFORM
+    }
+
+    /**
+     * Default to pre-aggregation filtering for HasStep predicates
+     */
+    public static final HasStepFilterStage DEFAULT_HAS_STEP_FILTER_STAGE = HasStepFilterStage.PRE_AGGREGATION;
+    
     public static final String USER_ID = "gaffer.userId";
 
     public static final String DATA_AUTHS = "gaffer.dataAuths";
@@ -227,7 +243,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     private final Map<String, String> opOptions;
     private final User defaultUser;
     private final ServiceRegistry serviceRegistry;
-    private final int getAllElementsLimit;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraph.class);
 
@@ -251,8 +266,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .userId(configuration().getString(USER_ID, User.UNKNOWN_USER_ID))
                 .dataAuths(configuration().getStringArray(DATA_AUTHS))
                 .build();
-
-        getAllElementsLimit = configuration.getInteger(GET_ALL_ELEMENTS_LIMIT, DEFAULT_GET_ALL_ELEMENTS_LIMIT);
 
         // Set the graph variables to current config
         variables = new GafferPopGraphVariables();
@@ -380,6 +393,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     @Override
     public Iterator<Vertex> vertices(final Object... vertexIds) {
         final boolean getAll = null == vertexIds || 0 == vertexIds.length;
+        final Integer getAllElementsLimit = variables.getAllElementsLimit();
 
         final Output<Iterable<? extends Element>> getOperation;
         if (getAll) {
@@ -561,6 +575,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     @Override
     public Iterator<Edge> edges(final Object... elementIds) {
         final boolean getAll = null == elementIds || 0 == elementIds.length;
+        final Integer getAllElementsLimit = variables.getAllElementsLimit();
 
         final Output<Iterable<? extends Element>> getOperation;
         if (getAll) {
@@ -992,7 +1007,10 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
         variables.set(GafferPopGraphVariables.USER_ID, defaultUser.getUserId());
         variables.set(GafferPopGraphVariables.DATA_AUTHS, configuration().getStringArray(DATA_AUTHS));
-        variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, getAllElementsLimit);
+        variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT,
+            configuration().getInteger(GET_ALL_ELEMENTS_LIMIT, DEFAULT_GET_ALL_ELEMENTS_LIMIT));
+        variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
+            configuration().getString(HAS_STEP_FILTER_STAGE, DEFAULT_HAS_STEP_FILTER_STAGE.toString()));
     }
 
     /**
