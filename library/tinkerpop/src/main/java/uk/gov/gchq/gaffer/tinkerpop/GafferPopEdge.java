@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -210,6 +211,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
         OperationChain<Iterable<? extends Element>> findBasedOnID = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(vertex.id()))
+                        .view(new View.Builder().allEntities(true).build())
                         .build())
                 .build();
 
