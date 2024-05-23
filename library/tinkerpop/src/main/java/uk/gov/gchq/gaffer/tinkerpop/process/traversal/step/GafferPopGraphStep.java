@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.tinkerpop.process.traversal.step;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Compare;
 import org.apache.tinkerpop.gremlin.process.traversal.Contains;
-import org.apache.tinkerpop.gremlin.process.traversal.GremlinTypeErrorException;
 import org.apache.tinkerpop.gremlin.process.traversal.step.HasContainerHolder;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.GraphStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.HasContainer;
@@ -38,6 +37,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,7 +61,6 @@ import java.util.stream.Collectors;
  */
 public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> implements HasContainerHolder {
 
-    private static final String TYPE_ERROR_LOG = "TypeError occurred while applying filters in a View. Defaulting to fallback method";
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraphStep.class);
 
     private final List<HasContainer> hasContainers = new ArrayList<>();
@@ -101,21 +100,12 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         // Get the ViewElementDefinition needed to for the property predicates
         ViewElementDefinition viewElementDefinition = createViewFromPredicates(filterStage);
 
-        try {
-            if (viewElementDefinition != null) {
-                // Find using labels and predicates to filter results
-                return graph.edgesWithView(Arrays.asList(this.ids), Direction.BOTH, viewElementDefinition, labels);
-            } else if (!labels.isEmpty()) {
-                // Find using label to filter results
-                return graph.edges(Arrays.asList(this.ids), Direction.BOTH, labels.toArray(new String[0]));
-            }
-        } catch (final GremlinTypeErrorException e) {
-            // This can happen when Gremlin doesn't handle 'null' values very well
-            // e.g. g.E().has('length', lt(30))
-            // Gremlin throws rather than returns false when checking the lt() predicate
-            // on edges that are missing the 'length' prop
-            // Use the fallback method instead
-            LOGGER.error(TYPE_ERROR_LOG, e);
+        if (viewElementDefinition != null) {
+            // Find using labels and predicates to filter results
+            return graph.edgesWithView(Arrays.asList(this.ids), Direction.BOTH, viewElementDefinition, labels);
+        } else if (!labels.isEmpty()) {
+            // Find using label to filter results
+            return graph.edges(Arrays.asList(this.ids), Direction.BOTH, labels.toArray(new String[0]));
         }
 
         // linear scan as fallback
@@ -131,21 +121,12 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         // Get the ViewElementDefinition needed to for the property predicates
         ViewElementDefinition viewElementDefinition = createViewFromPredicates(filterStage);
 
-        try {
-            if (viewElementDefinition != null) {
-                // Find using labels and predicates to filter results
-                return graph.verticesWithView(Arrays.asList(this.ids), viewElementDefinition, labels);
-            } else if (!labels.isEmpty()) {
-                // Find using label to filter results
-                return graph.vertices(Arrays.asList(this.ids), labels.toArray(new String[0]));
-            }
-        } catch (final GremlinTypeErrorException e) {
-            // This can happen when Gremlin doesn't handle 'null' values very well
-            // e.g. g.V().has('age', lt(30))
-            // Gremlin throws rather than returns false when checking the lt() predicate
-            // on vertices that are missing the 'age' prop
-            // Use the fallback method instead
-            LOGGER.error(TYPE_ERROR_LOG, e);
+        if (viewElementDefinition != null) {
+            // Find using labels and predicates to filter results
+            return graph.verticesWithView(Arrays.asList(this.ids), viewElementDefinition, labels);
+        } else if (!labels.isEmpty()) {
+            // Find using label to filter results
+            return graph.vertices(Arrays.asList(this.ids), labels.toArray(new String[0]));
         }
 
         // linear scan as fallback
@@ -192,6 +173,9 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         ElementFilter.Builder filterBuilder = new ElementFilter.Builder();
         predicateContainers
             .forEach(hc -> filterBuilder.select(hc.getKey())
+                                        // Only apply the HC predicate to properties that exist
+                                        .execute(new Exists())
+                                        .select(hc.getKey())
                                         .execute(hc.getPredicate()));
         ElementFilter elementFilter = filterBuilder.build();
 

@@ -101,7 +101,6 @@ public class GafferPopHasStepIT {
 
     @Test
     public void shouldFilterVerticesByLabelAndPropertyLessThan() {
-        // Uses fallback method due to Gremlin null error
         final List<Vertex> result = g.V().has(AGE, P.lt(30))
                 .toList();
 
@@ -312,4 +311,11 @@ public class GafferPopHasStepIT {
 
         assertThat(result).isEmpty();
     }
+
+    @Test
+    public void shouldHandleNulls() {
+        final List<Long> result = g.V().has(AGE, P.within(27, null)).count().toList();
+        assertThat(result).containsExactly(1L);
+    }
+
 }

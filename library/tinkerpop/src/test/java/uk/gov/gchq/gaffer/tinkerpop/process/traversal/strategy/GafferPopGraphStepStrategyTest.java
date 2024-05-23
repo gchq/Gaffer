@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -109,6 +110,8 @@ class GafferPopGraphStepStrategyTest {
         ViewElementDefinition expected = new ViewElementDefinition.Builder()
             .postAggregationFilter(new ElementFilter.Builder()
                 .select("prop")
+                .execute(new Exists())
+                .select("prop")
                 .execute(P.eq("value"))
                 .build())
             .build();
@@ -130,6 +133,8 @@ class GafferPopGraphStepStrategyTest {
 
         ViewElementDefinition expected = new ViewElementDefinition.Builder()
             .postTransformFilter(new ElementFilter.Builder()
+                .select("prop")
+                .execute(new Exists())
                 .select("prop")
                 .execute(P.eq("value"))
                 .build())
@@ -153,6 +158,8 @@ class GafferPopGraphStepStrategyTest {
         ViewElementDefinition expected = new ViewElementDefinition.Builder()
             .preAggregationFilter(new ElementFilter.Builder()
                 .select("prop")
+                .execute(new Exists())
+                .select("prop")
                 .execute(P.eq("value"))
                 .build())
             .build();
@@ -175,6 +182,8 @@ class GafferPopGraphStepStrategyTest {
         ViewElementDefinition expected = new ViewElementDefinition.Builder()
             .preAggregationFilter(new ElementFilter.Builder()
                 .select("prop")
+                .execute(new Exists())
+                .select("prop")
                 .execute(P.eq("value"))
                 .build())
             .build();
@@ -196,6 +205,8 @@ class GafferPopGraphStepStrategyTest {
 
         ViewElementDefinition expected = new ViewElementDefinition.Builder()
             .preAggregationFilter(new ElementFilter.Builder()
+                .select("prop")
+                .execute(new Exists())
                 .select("prop")
                 .execute(P.eq("value"))
                 .build())
