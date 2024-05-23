@@ -45,14 +45,6 @@ import java.util.stream.StreamSupport;
 /**
  * A <code>GafferPopEdge</code> is an {@link GafferPopElement} and {@link Edge}.
  * <p>
- * inVertex() and outVertex() methods are not supported as it is possible for a
- * edge to have multiple in vertices and multiple out vertices (due to the
- * mapping
- * to a TinkerPop vertex to Gaffer
- * {@link uk.gov.gchq.gaffer.data.element.Entity}.
- * Use vertices(Direction) instead.
- * </p>
- * <p>
  * An ID is required to be a List which contains the source, group, and
  * destination of an edge.
  * </p>
