@@ -102,7 +102,7 @@
         <dependency.plugin.version>3.6.1</dependency.plugin.version>
         <depgraph.plugin.version>4.0.2</depgraph.plugin.version>
         <spotbugs.plugin.version>4.7.3.4</spotbugs.plugin.version>
-        <pmd.plugin.version>3.20.0</pmd.plugin.version>
+        <pmd.plugin.version>3.21.0</pmd.plugin.version>
         <spotless.plugin.version>2.30.0</spotless.plugin.version>
         <war.plugin.version>3.2.3</war.plugin.version>
         <gpg.plugin.version>3.1.0</gpg.plugin.version>
@@ -1132,6 +1132,8 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>${pmd.plugin.version}</version>
                 <configuration>
+                    <linkXRef>false</linkXRef>
+                    <analysisCache>true</analysisCache>
                     <printFailingErrors>true</printFailingErrors>
                     <rulesets>
                         <ruleset>code-style/pmd-ruleset.xml</ruleset>
