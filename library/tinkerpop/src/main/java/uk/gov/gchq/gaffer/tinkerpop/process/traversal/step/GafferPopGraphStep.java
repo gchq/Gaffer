@@ -108,7 +108,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         }
 
         // linear scan as fallback
-        return IteratorUtils.filter(graph.vertices(Arrays.asList(this.ids)), vertex -> HasContainer.testAll(vertex, hasContainers));
+        return IteratorUtils.filter(graph.vertices(this.ids), vertex -> HasContainer.testAll(vertex, hasContainers));
     }
 
     /**
