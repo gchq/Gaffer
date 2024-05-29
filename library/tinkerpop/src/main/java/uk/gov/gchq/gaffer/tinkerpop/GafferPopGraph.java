@@ -724,15 +724,20 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     .build();
         }
 
-        final Output<Iterable<? extends Element>> getOperation;
+        final OperationChain<Iterable<? extends Element>> getOperation;
         if (getAll) {
-            getOperation = new GetAllElements.Builder()
-                    .view(entitiesView)
+            getOperation = new Builder()
+                    .first(new GetAllElements.Builder()
+                            .view(entitiesView)
+                            .build())
+                    .then(new Limit<>(getAllElementsLimit, true))
                     .build();
         } else {
-            getOperation = new GetElements.Builder()
-                    .input(seeds)
-                    .view(entitiesView)
+            getOperation = new Builder()
+                    .first(new GetElements.Builder()
+                            .input(seeds)
+                            .view(entitiesView)
+                            .build())
                     .build();
 
             if (null == entitiesView || entitiesView.getEntityGroups().contains(ID_LABEL)) {
@@ -745,9 +750,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
 
         // Run operation on graph
-        final Iterable<? extends Element> result = execute(new OperationChain.Builder()
-                .first(getOperation)
-                .build());
+        final Iterable<? extends Element> result = execute(getOperation);
 
         // Translate results to Gafferpop elements
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(this);
@@ -803,23 +806,26 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     .build();
         }
 
-        final Output<Iterable<? extends Element>> getOperation;
+        final OperationChain<Iterable<? extends Element>> getOperation;
         if (getAll) {
-            getOperation = new GetAllElements.Builder()
-                    .view(edgesView)
+            getOperation = new Builder()
+                    .first(new GetAllElements.Builder()
+                            .view(edgesView)
+                            .build())
+                    .then(new Limit<>(getAllElementsLimit, true))
                     .build();
         } else {
-            getOperation = new GetElements.Builder()
-                    .input(seeds)
-                    .view(edgesView)
-                    .inOutType(getInOutType(direction))
+            getOperation = new Builder()
+                    .first(new GetElements.Builder()
+                            .input(seeds)
+                            .view(edgesView)
+                            .inOutType(getInOutType(direction))
+                            .build())
                     .build();
         }
 
         // Run requested chain on the graph
-        final Iterable<? extends Element> result = execute(new Builder()
-                .first(getOperation)
-                .build());
+        final Iterable<? extends Element> result = execute(getOperation);
 
         // Translate results to Gafferpop elements
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(this, true);
