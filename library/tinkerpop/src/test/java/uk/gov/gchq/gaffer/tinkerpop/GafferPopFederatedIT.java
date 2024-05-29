@@ -217,6 +217,29 @@ public class GafferPopFederatedIT {
     }
 
     @Test
+    void shouldGetAllVerticesConnectedToOutGoingEdgeOfGivenVertex() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+
+        // When
+        List<Object> result = g.V(VERTEX_PERSON_1).outE().inV().values("name").toList();
+
+        assertThat(result).containsExactly(EXPECTED_PERSON_2_VERTEX_MAP.get("name"),
+                EXPECTED_SOFTWARE_1_VERTEX_MAP.get("name"));
+    }
+
+    @Test
+    void shouldGetPropertiesOfIncomingVerticesForSpecificVertex() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+
+        // When
+        List<Map<Object, Object>> result = g.V(VERTEX_PERSON_2).inE().outV().elementMap().toList();
+
+        assertThat(result).containsAnyOf(EXPECTED_PERSON_1_VERTEX_MAP);
+    }
+
+    @Test
     void shouldGetEdgesById() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
