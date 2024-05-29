@@ -29,6 +29,8 @@
         <tinkerpop.version>3.7.1</tinkerpop.version>
         <google-guice.version>4.2.3</google-guice.version>
         <cucumber.version>7.15.0</cucumber.version>
+        <!-- To use a later version it requires us to update our scala version to v2.12.x -->
+        <cypher-gremlin.version>1.0.0</cypher-gremlin.version>
 
         <!-- Don't run any of the standard tinkerpop tests by default-->
         <test>!GafferPopGraphStructureStandardTest,!GafferPopFeatureTest,!GafferPopGraphProcessStandardTest</test>
@@ -52,6 +54,12 @@
             <groupId>org.apache.tinkerpop</groupId>
             <artifactId>gremlin-server</artifactId>
             <version>${tinkerpop.version}</version>
+        </dependency>
+        <!-- Cypher translator -->
+        <dependency>
+            <groupId>org.opencypher.gremlin</groupId>
+            <artifactId>translation</artifactId>
+            <version>${cypher-gremlin.version}</version>
         </dependency>
 
         <!-- Runtime dependencies -->
