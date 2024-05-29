@@ -27,11 +27,13 @@ import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -40,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class GafferPopVertexTest {
     // Common mocks for tests
@@ -247,6 +250,7 @@ class GafferPopVertexTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
         final Iterable<Edge> resultEdges = Arrays.asList(((Edge) new GafferPopEdge(GafferPopGraph.ID_LABEL, vertex, vertex, graph)));
+        when(graph.execute(Mockito.any())).thenReturn(new ArrayList<>());
         given(graph.edgesWithView(GafferPopGraph.ID_LABEL, Direction.IN, new View.Builder()
                 .edges(Collections.singletonList(TestGroups.ENTITY))
                 .build()))

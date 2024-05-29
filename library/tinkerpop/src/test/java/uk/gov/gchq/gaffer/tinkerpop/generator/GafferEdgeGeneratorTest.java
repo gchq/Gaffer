@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.tinkerpop.generator;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -26,6 +27,9 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
 
 public class GafferEdgeGeneratorTest {
     @Test
@@ -38,6 +42,7 @@ public class GafferEdgeGeneratorTest {
         final String propValue = "property value";
         final GafferPopEdge gafferPopEdge = new GafferPopEdge(TestGroups.EDGE, source, dest, graph);
         gafferPopEdge.property(TestPropertyNames.STRING, propValue);
+        when(graph.execute(Mockito.any())).thenReturn(new ArrayList<>());
 
         final GafferEdgeGenerator generator = new GafferEdgeGenerator();
 
