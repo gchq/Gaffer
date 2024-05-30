@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -64,6 +65,7 @@ import uk.gov.gchq.koryphe.iterable.MappedIterable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -182,6 +184,22 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      */
     public static final int DEFAULT_GET_ALL_ELEMENTS_LIMIT = 5000;
 
+    /**
+     * Configuration key for when to apply HasStep filtering
+     */
+    public static final String HAS_STEP_FILTER_STAGE = "gaffer.elements.hasstepfilterstage";
+
+    public enum HasStepFilterStage {
+        PRE_AGGREGATION,
+        POST_AGGREGATION,
+        POST_TRANSFORM
+    }
+
+    /**
+     * Default to pre-aggregation filtering for HasStep predicates
+     */
+    public static final HasStepFilterStage DEFAULT_HAS_STEP_FILTER_STAGE = HasStepFilterStage.PRE_AGGREGATION;
+
     public static final String USER_ID = "gaffer.userId";
 
     public static final String DATA_AUTHS = "gaffer.dataAuths";
@@ -225,7 +243,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     private final Map<String, String> opOptions;
     private final User defaultUser;
     private final ServiceRegistry serviceRegistry;
-    private final int getAllElementsLimit;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraph.class);
 
@@ -249,8 +266,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .userId(configuration().getString(USER_ID, User.UNKNOWN_USER_ID))
                 .dataAuths(configuration().getStringArray(DATA_AUTHS))
                 .build();
-
-        getAllElementsLimit = configuration.getInteger(GET_ALL_ELEMENTS_LIMIT, DEFAULT_GET_ALL_ELEMENTS_LIMIT);
 
         // Set the graph variables to current config
         variables = new GafferPopGraphVariables();
@@ -365,13 +380,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     /**
-     * This performs getEntitiesBySeed operation on Gaffer.
-     * At least 1 vertexId must be provided. Gaffer does not support unseeded
-     * queries.
-     * All provided vertexIds will also be returned as {@link GafferPopVertex}s with
-     * the label 'id', in order to allow Gaffer graphs with no entities to still be traversed.
+     * This performs a GetElements operation on Gaffer.
+     * If no vertex ids are provided, it performs a GetAllElements operation instead.
+     * The results of GetAllElements will be truncated to a configured max size.
      *
-     * @param vertexIds vertices ids to query for
+     * @param vertexIds vertex ids to query for.
+     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
      * @return iterator of {@link GafferPopVertex}s, each vertex represents
      * an {@link uk.gov.gchq.gaffer.data.element.Entity} in Gaffer
      * @see org.apache.tinkerpop.gremlin.structure.Graph#vertices(Object...)
@@ -379,6 +393,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     @Override
     public Iterator<Vertex> vertices(final Object... vertexIds) {
         final boolean getAll = null == vertexIds || 0 == vertexIds.length;
+        final Integer getAllElementsLimit = variables.getAllElementsLimit();
 
         final OperationChain<Iterable<? extends Element>> getOperation;
 
@@ -422,45 +437,66 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     /**
-     * This performs getRelatedEntities operation on Gaffer.
-     * At least 1 id must be provided. Gaffer does not support unseeded
-     * queries.
-     * All provided vertex IDs will also be returned as {@link GafferPopVertex}s with
-     * the label 'id', in order to allow Gaffer graphs with no entities to still be traversed.
+     * This performs a GetElements operation on Gaffer filtering vertices by labels.
+     * If no vertex ids are provided, it performs a GetAllElements operation instead.
+     * The results of GetAllElements will be truncated to a configured max size.
      *
-     * @param ids    vertex IDs and edge IDs to be queried for.
-     *               You can use {@link Vertex}s, {@link GafferPopEdge}s,
-     *               EdgeId or just vertex ID values
+     * @param ids vertex ids to query for.
+     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
      * @param labels labels of Entities to filter for.
+     * Alternatively you can supply a Gaffer View serialised into JSON.
      * @return iterator of {@link GafferPopVertex}s, each vertex represents
      * an {@link uk.gov.gchq.gaffer.data.element.Entity} in Gaffer
+     * @see #vertices(Object...)
      */
     public Iterator<GafferPopVertex> vertices(final Iterable<Object> ids, final String... labels) {
         return verticesWithView(ids, createViewWithEntities(labels));
     }
 
     /**
-     * This performs getRelatedEntities operation on Gaffer.
-     * At least 1 id must be provided. Gaffer does not support unseeded
-     * queries.
-     * All provided vertex IDs will also be returned as {@link GafferPopVertex}s with
-     * the label 'id', in order to allow Gaffer graphs with no entities to still be traversed.
+     * This performs a GetElements operation on Gaffer filtering by a {@link View}.
      *
-     * @param ids  vertex IDs and edge IDs to be queried for.
-     *             You can use {@link Vertex}s, {@link GafferPopEdge}s,
-     *             EdgeIds or just vertex ID values
-     * @param view a Gaffer {@link View} to filter the vertices
+     * @param ids vertex ids to query for.
+     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
+     * @param view a Gaffer {@link View} to filter vertices by
      * @return iterator of {@link GafferPopVertex}s, each vertex represents
      * an {@link uk.gov.gchq.gaffer.data.element.Entity} in Gaffer
-     * @see #vertices(Iterable, String...)
+     * @see #vertices(Object...)
      */
     public Iterator<GafferPopVertex> verticesWithView(final Iterable<Object> ids, final View view) {
         return verticesWithSeedsAndView(getElementSeeds(ids), view);
     }
 
+    /**
+     * This performs a GetElements operation on Gaffer filtering vertices by labels and {@link ViewElementDefinition}.
+     * The ViewElementDefinition is applied to each provided label (entity group).
+     * If no labels are specified, the ViewElementDefinition is applied to all entity groups in the graph.
+     *
+     * @param ids vertex ids to query for.
+     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
+     * @param elementDefinition a Gaffer {@link ViewElementDefinition} to filter vertices by
+     * @param labels labels of vertices to filter by
+     * @return iterator of {@link GafferPopVertex}s, each vertex represents
+     * an {@link uk.gov.gchq.gaffer.data.element.Entity} in Gaffer
+     * @see #vertices(Object...)
+     */
+    public Iterator<GafferPopVertex> verticesWithView(final Iterable<Object> ids, final ViewElementDefinition elementDefinition, final List<String> labels) {
+        View.Builder viewBuilder = new View.Builder();
+
+        // If no labels specified, default to all
+        List<String> entityGroups = labels.isEmpty() ?
+            new ArrayList<>(graph.getSchema().getEntityGroups()) :
+            labels;
+
+        // Apply ViewElementDefinition to each group
+        entityGroups.forEach(g -> viewBuilder.entity(g, elementDefinition));
+
+        return verticesWithView(ids, viewBuilder.build());
+    }
+
 
     /**
-     * This performs getAdjacentEntitySeeds then getEntityBySeed operation chain
+     * This performs GetAdjacentIds then GetElements operation chain
      * on Gaffer.
      * Given a vertex id, adjacent vertices will be returned.
      * If you provide any optional labels then you must provide edge labels and
@@ -477,7 +513,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     /**
-     * This performs getAdjacentEntitySeeds then getEntityBySeed operation chain
+     * This performs GetAdjacentIds then GetElements operation chain
      * on Gaffer.
      * Given an iterable of vertex ids, adjacent vertices will be returned.
      * If you provide any optional labels then you must provide edge labels and
@@ -494,7 +530,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     /**
-     * This performs getAdjacentEntitySeeds then getEntityBySeed operation chain
+     * This performs GetAdjacentIds then GetElements operation chain
      * on Gaffer.
      * Given a vertex id, adjacent vertices will be returned. If you provide
      * any optional labels then you must provide edge labels and the vertex
@@ -511,7 +547,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     /**
-     * This performs getAdjacentEntitySeeds then getEntityBySeed operation chain
+     * This performs GetAdjacentIds then GetElements operation chain
      * on Gaffer.
      * Given an iterable of vertex ids, adjacent vertices will be returned.
      * If you provide any optional labels then you must provide edge labels and the vertex
@@ -528,18 +564,19 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     /**
-     * This performs a getEdgesBySeed operation on Gaffer.
-     * At least 1 ID must be provided as Gaffer does not support unseeded
-     * queries. Supports various forms of IDs to enable passing either edge IDs
-     * or Entity/Vertex IDs but will filter to only return edges.
+     * This performs a GetElements operation on Gaffer.
+     * If no element ids are provided, it performs a GetAllElements operation instead.
+     * The results of GetAllElements will be truncated to a configured max size.
      *
-     * @param elementIds EdgeIds, {@link GafferPopEdge}s or Vertex IDs to query for
+     * @param elementIds element ids to query for.
+     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
      * @return iterator of {@link GafferPopEdge}s.
      * @see org.apache.tinkerpop.gremlin.structure.Graph#edges(Object...)
      */
     @Override
     public Iterator<Edge> edges(final Object... elementIds) {
         final boolean getAll = null == elementIds || 0 == elementIds.length;
+        final Integer getAllElementsLimit = variables.getAllElementsLimit();
 
         final OperationChain<Iterable<? extends Element>> getOperation;
         if (getAll) {
@@ -584,59 +621,87 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     /**
-     * This performs a getRelatedEdges operation on Gaffer.
+     * This performs a GetElements operation filtering edges by labels and direction.
      *
-     * @param id        vertex ID or edge ID to be queried for.
-     *                  You can use {@link Vertex}, {@link GafferPopEdge},
-     *                  EdgeId or just a vertex ID value.
+     * @param id vertex ID or edge ID to be queried for.
+     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
      * @param direction {@link Direction} of edges to return.
      * @param labels    labels of edges. Alternatively you can supply a Gaffer View serialised into JSON.
-     * @return iterator of {@link GafferPopEdge}
+     * @return iterator of {@link GafferPopEdge}s.
+     * @see #edges(Object...)
      */
     public Iterator<Edge> edges(final Object id, final Direction direction, final String... labels) {
         return edgesWithView(id, direction, createView(labels));
     }
 
     /**
-     * This performs a getRelatedEdges operation on Gaffer.
+     * This performs a GetElements operation filtering edges by labels and direction.
      *
-     * @param ids       vertex IDs and edge IDs to be queried for.
-     *                  You can use {@link Vertex}s, {@link GafferPopEdge}s,
-     *                  EdgeIds or just vertex ID values.
+     * @param ids vertex IDs or edge IDs to be queried for.
+     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
      * @param direction {@link Direction} of edges to return.
      * @param labels    labels of edges. Alternatively you can supply a Gaffer View serialised into JSON.
-     * @return iterator of {@link GafferPopEdge}
+     * @return iterator of {@link GafferPopEdge}s.
+     * @see #edges(Object...)
      */
     public Iterator<Edge> edges(final Iterable<Object> ids, final Direction direction, final String... labels) {
         return edgesWithView(ids, direction, createView(labels));
     }
 
     /**
-     * This performs a getRelatedEdges operation on Gaffer.
+     * This performs a GetElements operation filtering edges by direction and view.
      *
-     * @param id        vertex ID or edge ID to be queried for.
-     *                  You can use {@link Vertex}, {@link GafferPopEdge},
-     *                  EdgeId or just a vertex ID value.
+     * @param id vertex ID or edge ID to be queried for.
+     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
      * @param direction {@link Direction} of edges to return.
-     * @param view      labels of edges. Alternatively you can supply a Gaffer View serialised into JSON.
-     * @return iterator of {@link GafferPopEdge}
+     * @param view Gaffer {@link View} to filter edges by
+     * @return iterator of {@link GafferPopEdge}s.
+     * @see #edges(Object...)
      */
     public Iterator<Edge> edgesWithView(final Object id, final Direction direction, final View view) {
         return edgesWithView(Collections.singletonList(id), direction, view);
     }
 
     /**
-     * This performs a getRelatedEdges operation on Gaffer.
+     * This performs a GetElements operation filtering edges by direction and view.
      *
-     * @param ids       vertex IDs and edge IDs to be queried for.
-     *                  You can use {@link Vertex}s, {@link GafferPopEdge}s,
-     *                  EdgeIds or just vertex ID values.
+     * @param ids vertex IDs or edge IDs to be queried for.
+     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
      * @param direction {@link Direction} of edges to return.
-     * @param view      a Gaffer {@link View} containing edge groups.
-     * @return iterator of {@link GafferPopEdge}
+     * @param view Gaffer {@link View} to filter edges by
+     * @return iterator of {@link GafferPopEdge}s.
+     * @see #edges(Object...)
      */
     public Iterator<Edge> edgesWithView(final Iterable<Object> ids, final Direction direction, final View view) {
         return edgesWithSeedsAndView(getElementSeeds(ids), direction, view);
+    }
+
+    /**
+     * This performs a GetElements operation filtering edges by direction and {@link ViewElementDefinition} and labels.
+     * The ViewElementDefinition is applied to each of the provided labels.
+     * If no labels are provided, it is applied to all of the edge groups in the graph.
+     *
+     * @param ids vertex IDs or edge IDs to be queried for.
+     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
+     * @param direction {@link Direction} of edges to return.
+     * @param elementDefinition a Gaffer {@link ViewElementDefinition} to filter edges by
+     * @param labels labels of edges to filter for
+     * @return iterator of {@link GafferPopEdge}s.
+     * @see #edges(Object...)
+     */
+    public Iterator<Edge> edgesWithView(final Iterable<Object> ids, final Direction direction, final ViewElementDefinition elementDefinition, final List<String> labels) {
+        View.Builder viewBuilder = new View.Builder();
+
+        // If no labels specified, default to all
+        List<String> edgeGroups = labels.isEmpty() ?
+            new ArrayList<>(graph.getSchema().getEdgeGroups()) :
+            labels;
+
+        // Apply ViewElementDefinition to each group
+        edgeGroups.stream()
+            .forEach(g -> viewBuilder.edge(g, elementDefinition));
+
+        return edgesWithView(ids, direction, viewBuilder.build());
     }
 
     @Override
@@ -951,7 +1016,10 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
         variables.set(GafferPopGraphVariables.USER_ID, defaultUser.getUserId());
         variables.set(GafferPopGraphVariables.DATA_AUTHS, configuration().getStringArray(DATA_AUTHS));
-        variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, getAllElementsLimit);
+        variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT,
+            configuration().getInteger(GET_ALL_ELEMENTS_LIMIT, DEFAULT_GET_ALL_ELEMENTS_LIMIT));
+        variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
+            configuration().getString(HAS_STEP_FILTER_STAGE, DEFAULT_HAS_STEP_FILTER_STAGE.toString()));
     }
 
     /**

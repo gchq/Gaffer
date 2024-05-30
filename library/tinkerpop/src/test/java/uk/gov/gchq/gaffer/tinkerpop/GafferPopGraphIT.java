@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -75,10 +76,12 @@ public class GafferPopGraphIT {
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables.get(GafferPopGraphVariables.USER_ID)).isEqualTo(expectedUser.getUserId());
         assertThat(variables.get(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT)).isEqualTo(1);
+        assertThat(variables.get(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE)).isEqualTo(HasStepFilterStage.POST_TRANSFORM.toString());
+
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
-        assertThat(variables.size()).isEqualTo(4);
+        assertThat(variables.size()).isEqualTo(5);
     }
 
     @Test
@@ -92,11 +95,12 @@ public class GafferPopGraphIT {
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables.get(GafferPopGraphVariables.USER_ID)).isEqualTo(expectedUser.getUserId());
-        assertThat(variables.get(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT)).isEqualTo(GafferPopGraph.DEFAULT_GET_ALL_ELEMENTS_LIMIT);
+        assertThat(variables.get(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT)).isEqualTo(2);
+        assertThat(variables.get(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE)).isEqualTo(HasStepFilterStage.POST_AGGREGATION.toString());
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").hasSize(1);
-        assertThat(variables.size()).isEqualTo(4);
+        assertThat(variables.size()).isEqualTo(5);
     }
 
     @Test
@@ -113,11 +117,13 @@ public class GafferPopGraphIT {
         assertThat(variables)
             .containsEntry(GafferPopGraphVariables.DATA_AUTHS, expectedUser.getDataAuths().toArray())
             .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId())
-            .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, GafferPopGraph.DEFAULT_GET_ALL_ELEMENTS_LIMIT);
+            .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, GafferPopGraph.DEFAULT_GET_ALL_ELEMENTS_LIMIT)
+            .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE, GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE.toString());
+
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
-        assertThat(variables.size()).isEqualTo(4);
+        assertThat(variables.size()).isEqualTo(5);
     }
 
     @Test

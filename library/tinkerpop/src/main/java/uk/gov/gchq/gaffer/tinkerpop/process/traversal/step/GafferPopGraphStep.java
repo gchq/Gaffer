@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.step;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Compare;
+import org.apache.tinkerpop.gremlin.process.traversal.Contains;
 import org.apache.tinkerpop.gremlin.process.traversal.step.HasContainerHolder;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.GraphStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.HasContainer;
@@ -31,11 +32,16 @@ import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +60,7 @@ import java.util.stream.Collectors;
  * </pre>
  */
 public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> implements HasContainerHolder {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraphStep.class);
 
     private final List<HasContainer> hasContainers = new ArrayList<>();
@@ -89,12 +96,20 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         // Check for the labels being searched for to construct a View to filter with
         List<String> labels = getRequestedLabels();
 
-        if (!labels.isEmpty()) {
+        String filterStage = ((GafferPopGraphVariables) graph.variables()).getHasStepFilterStage();
+        // Get the ViewElementDefinition needed to for the property predicates
+        ViewElementDefinition viewElementDefinition = createViewFromPredicates(filterStage);
+
+        if (viewElementDefinition != null) {
+            // Find using labels and predicates to filter results
+            return graph.edgesWithView(Arrays.asList(this.ids), Direction.BOTH, viewElementDefinition, labels);
+        } else if (!labels.isEmpty()) {
             // Find using label to filter results
             return graph.edges(Arrays.asList(this.ids), Direction.BOTH, labels.toArray(new String[0]));
         }
 
         // linear scan as fallback
+        LOGGER.debug("Using fallback filter method: {} hasContainers found", hasContainers.size());
         return IteratorUtils.filter(graph.edges(this.ids), edge -> HasContainer.testAll(edge, hasContainers));
     }
 
@@ -102,12 +117,20 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         // Check for the labels being searched for to construct a View to filter with
         List<String> labels = getRequestedLabels();
 
-        if (!labels.isEmpty()) {
+        String filterStage = ((GafferPopGraphVariables) graph.variables()).getHasStepFilterStage();
+        // Get the ViewElementDefinition needed to for the property predicates
+        ViewElementDefinition viewElementDefinition = createViewFromPredicates(filterStage);
+
+        if (viewElementDefinition != null) {
+            // Find using labels and predicates to filter results
+            return graph.verticesWithView(Arrays.asList(this.ids), viewElementDefinition, labels);
+        } else if (!labels.isEmpty()) {
             // Find using label to filter results
             return graph.vertices(Arrays.asList(this.ids), labels.toArray(new String[0]));
         }
 
         // linear scan as fallback
+        LOGGER.debug("Using fallback filter method: {} hasContainers found", hasContainers.size());
         return IteratorUtils.filter(graph.vertices(this.ids), vertex -> HasContainer.testAll(vertex, hasContainers));
     }
 
@@ -120,9 +143,81 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
     private List<String> getRequestedLabels() {
         return hasContainers.stream()
             .filter(hc -> hc.getKey() != null && hc.getKey().equals(T.label.getAccessor()))
-            .filter(hc -> Compare.eq == hc.getBiPredicate())
+            .filter(hc -> Compare.eq == hc.getBiPredicate() || Contains.within == hc.getBiPredicate())
             .filter(hc -> hc.getValue() != null)
-            .map(hc -> (String) hc.getValue())
+            // Incase of ~label.within([]) predicate
+            // map to value list and then flatten
+            .map(hc -> hc.getValue() instanceof List<?> ?
+                (List<String>) hc.getValue() :
+                Collections.singletonList((String) hc.getValue()))
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Creates a ViewElementDefinition from the predicates in the HasContainers.
+     * This can be used in a View to filter entities.
+     *
+     * @param filterStage the stage to apply the filters
+     * @return ViewElementDefinition containing the filters
+     */
+    private ViewElementDefinition createViewFromPredicates(final String filterStage) {
+        List<HasContainer> predicateContainers = getRequestedPredicates();
+
+        // No predicates found
+        if (predicateContainers.isEmpty()) {
+            return null;
+        }
+
+        // Add each predicate to the filter
+        ElementFilter.Builder filterBuilder = new ElementFilter.Builder();
+        predicateContainers
+            .forEach(hc -> filterBuilder.select(hc.getKey())
+                                        // Only apply the HC predicate to properties that exist
+                                        .execute(new Exists())
+                                        .select(hc.getKey())
+                                        .execute(hc.getPredicate()));
+        ElementFilter elementFilter = filterBuilder.build();
+
+        // Decide when to apply the filter
+        ViewElementDefinition.Builder vBuilder = new ViewElementDefinition.Builder();
+        HasStepFilterStage hasStepFilterStage;
+        try {
+            hasStepFilterStage = HasStepFilterStage.valueOf(filterStage);
+        } catch (final IllegalArgumentException e) {
+            LOGGER.warn("Unknown hasStepFilterStage: {}. Defaulting to {}",
+                filterStage, GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE);
+            hasStepFilterStage = GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE;
+        }
+
+        switch (hasStepFilterStage) {
+            case POST_TRANSFORM:
+                vBuilder.postTransformFilter(elementFilter);
+                break;
+            case POST_AGGREGATION:
+                vBuilder.postAggregationFilter(elementFilter);
+                break;
+            case PRE_AGGREGATION:
+                vBuilder.preAggregationFilter(elementFilter);
+                break;
+            default:
+                vBuilder.preAggregationFilter(elementFilter);
+                break;
+        }
+        return vBuilder.build();
+    }
+
+    /**
+     * Checks all the HasContainers to see which predicates have been requested
+     *
+     * @return List of HasContainers with predicates
+     */
+    private List<HasContainer> getRequestedPredicates() {
+        // Don't filter out null hc.getValue() incase of AndP/OrP
+        return hasContainers.stream()
+            .filter(hc -> hc.getKey() != null)
+            .filter(hc -> !hc.getKey().equals(T.label.getAccessor()))
+            .filter(hc -> !hc.getKey().equals(T.id.getAccessor()))
             .collect(Collectors.toList());
     }
 
