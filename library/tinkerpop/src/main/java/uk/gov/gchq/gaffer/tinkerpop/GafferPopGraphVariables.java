@@ -50,6 +50,12 @@ public final class GafferPopGraphVariables implements Graph.Variables {
      */
     public static final String GET_ALL_ELEMENTS_LIMIT = "getAllElementsLimit";
 
+    /**
+     * When to apply HasStep filtering
+     */
+    public static final String HAS_STEP_FILTER_STAGE = "hasStepFilterStage";
+
+
     private final Map<String, Object> variables;
 
     public GafferPopGraphVariables(final Map<String, Object> variables) {
@@ -150,6 +156,14 @@ public final class GafferPopGraphVariables implements Graph.Variables {
      */
     public String getUserId() {
         return (String) variables.get(USER_ID);
+    }
+
+    public Integer getAllElementsLimit() {
+        return (Integer) variables.get(GET_ALL_ELEMENTS_LIMIT);
+    }
+
+    public String getHasStepFilterStage() {
+        return (String) variables.get(HAS_STEP_FILTER_STAGE);
     }
 
     public String toString() {
