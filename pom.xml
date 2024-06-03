@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2023 Crown Copyright
+  ~ Copyright 2016-2024 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>2.2.1-SNAPSHOT</version>
+    <version>2.2.2-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -94,14 +94,15 @@
         <swagger.version>1.6.6</swagger.version>
         <zookeeper.version>3.4.14</zookeeper.version>
         <mockserver.version>5.15.0</mockserver.version>
+        <opentelemetry.version>1.36.0</opentelemetry.version>
 
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
         <compiler.plugin.verson>3.9.0</compiler.plugin.verson>
-        <dependency.plugin.version>3.5.0</dependency.plugin.version>
+        <dependency.plugin.version>3.6.1</dependency.plugin.version>
         <depgraph.plugin.version>4.0.2</depgraph.plugin.version>
         <spotbugs.plugin.version>4.7.3.4</spotbugs.plugin.version>
-        <pmd.plugin.version>3.20.0</pmd.plugin.version>
+        <pmd.plugin.version>3.21.0</pmd.plugin.version>
         <spotless.plugin.version>2.30.0</spotless.plugin.version>
         <war.plugin.version>3.2.3</war.plugin.version>
         <gpg.plugin.version>3.1.0</gpg.plugin.version>
@@ -773,6 +774,13 @@
                 <artifactId>jersey-core</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1124,6 +1132,8 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>${pmd.plugin.version}</version>
                 <configuration>
+                    <linkXRef>false</linkXRef>
+                    <analysisCache>true</analysisCache>
                     <printFailingErrors>true</printFailingErrors>
                     <rulesets>
                         <ruleset>code-style/pmd-ruleset.xml</ruleset>

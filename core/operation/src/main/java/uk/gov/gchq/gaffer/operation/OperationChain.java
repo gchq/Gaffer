@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
 public class OperationChain<OUT> implements Output<OUT>,
         Operations<Operation> {
     private List<Operation> operations;
-    private Map<String, String> options;
+    private Map<String, String> options = new HashMap<>();
 
     public OperationChain() {
         this(new ArrayList<>());
@@ -184,7 +184,11 @@ public class OperationChain<OUT> implements Output<OUT>,
 
     @Override
     public void setOptions(final Map<String, String> options) {
-        this.options = options;
+        if (options == null) {
+            this.options = new HashMap<>();
+        } else {
+            this.options = options;
+        }
     }
 
     @Override

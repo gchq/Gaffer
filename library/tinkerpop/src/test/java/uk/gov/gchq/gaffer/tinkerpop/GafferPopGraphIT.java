@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.T;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -72,11 +74,14 @@ public class GafferPopGraphIT {
 
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
-        assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
+        assertThat(variables.get(GafferPopGraphVariables.USER_ID)).isEqualTo(expectedUser.getUserId());
+        assertThat(variables.get(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT)).isEqualTo(1);
+        assertThat(variables.get(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE)).isEqualTo(HasStepFilterStage.POST_TRANSFORM.toString());
+
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
-        assertThat(variables.size()).isEqualTo(3);
+        assertThat(variables.size()).isEqualTo(5);
     }
 
     @Test
@@ -89,11 +94,13 @@ public class GafferPopGraphIT {
 
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
-        assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
+        assertThat(variables.get(GafferPopGraphVariables.USER_ID)).isEqualTo(expectedUser.getUserId());
+        assertThat(variables.get(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT)).isEqualTo(2);
+        assertThat(variables.get(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE)).isEqualTo(HasStepFilterStage.POST_AGGREGATION.toString());
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").hasSize(1);
-        assertThat(variables.size()).isEqualTo(3);
+        assertThat(variables.size()).isEqualTo(5);
     }
 
     @Test
@@ -107,16 +114,20 @@ public class GafferPopGraphIT {
 
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
-        assertThat(variables.get(GafferPopGraphVariables.SCHEMA)).isEqualTo(gafferGraph.getSchema());
-        assertThat(variables.get(GafferPopGraphVariables.USER)).isEqualTo(expectedUser);
+        assertThat(variables)
+            .containsEntry(GafferPopGraphVariables.DATA_AUTHS, expectedUser.getDataAuths().toArray())
+            .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId())
+            .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, GafferPopGraph.DEFAULT_GET_ALL_ELEMENTS_LIMIT)
+            .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE, GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE.toString());
+
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
         assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
-        assertThat(variables.size()).isEqualTo(3);
+        assertThat(variables.size()).isEqualTo(5);
     }
 
     @Test
-    public void shouldThrowUnsupportedExceptionForNoGraphId() {
+    public void shouldThrowIllegalArgumentExceptionForNoGraphId() {
 
         // Given/Then
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -247,14 +258,26 @@ public class GafferPopGraphIT {
         final Iterator<Vertex> vertices = graph.vertices();
 
         // Then
-        final List<Vertex> verticesList = new ArrayList<>();
-        while (vertices.hasNext()) {
-            verticesList.add(vertices.next());
-        }
-        assertThat(verticesList).contains(
+        assertThat(vertices)
+            .toIterable()
+            .contains(
                 new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_1, graph),
-                new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_2, graph)
-        );
+                new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_2, graph));
+    }
+
+    @Test
+    public void shouldTruncateGetAllVertices() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_2, gafferGraph);
+
+        // When
+        addSoftwareVertex(graph);
+        graph.addVertex(T.label, PERSON_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
+        final Iterator<Vertex> vertices = graph.vertices();
+
+        // Then
+        assertThat(vertices).toIterable().hasSize(1);
     }
 
     @Test
@@ -324,21 +347,18 @@ public class GafferPopGraphIT {
         final GafferPopVertex gafferPopOutVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, VERTEX_1, graph);
         final GafferPopVertex gafferPopInVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, VERTEX_2, graph);
         final GafferPopEdge edgeToAdd = new GafferPopEdge(CREATED_EDGE_GROUP, gafferPopOutVertex, gafferPopInVertex, graph);
+        final GraphTraversalSource g = graph.traversal();
         edgeToAdd.property(WEIGHT_PROPERTY, 1.5);
 
         // When
         graph.addEdge(edgeToAdd);
-        final Iterator<Edge> edges = graph.edges(Arrays.asList(VERTEX_1, VERTEX_2));
+
+        List<Edge> edges = g.E("[" + VERTEX_1 + ", " + VERTEX_2 + "]").toList();
 
         // Then
-        final Edge edge = edges.next();
-        assertThat(edges).isExhausted(); // there is only 1 vertex
-        assertThat(((List) edge.id()).get(0)).isEqualTo(VERTEX_1);
-        assertThat(((List) edge.id()).get(1)).isEqualTo(VERTEX_2);
-        assertThat(edge.label()).isEqualTo(CREATED_EDGE_GROUP);
-        assertThat(edge.inVertex()).isEqualTo(gafferPopInVertex);
-        assertThat(edge.outVertex()).isEqualTo(gafferPopOutVertex);
-        assertThat(edge.property(WEIGHT_PROPERTY).value()).isEqualTo(1.5);
+        assertThat(edges)
+            .extracting(edge -> edge.toString())
+            .containsExactly(edgeToAdd.toString());
     }
 
     @Test
@@ -441,6 +461,23 @@ public class GafferPopGraphIT {
     }
 
     @Test
+    public void shouldTruncateGetAllEdges() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_2, gafferGraph);
+        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
+        final GafferPopEdge edgeToAdd2 = new GafferPopEdge(DEPENDS_ON_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
+        graph.addEdge(edgeToAdd1);
+        graph.addEdge(edgeToAdd2);
+
+        // When
+        final Iterator<Edge> edges = graph.edges();
+
+        // Then
+        assertThat(edges).toIterable().hasSize(1);
+    }
+
+    @Test
     public void shouldGetAllEdgesInGroup() {
         // Given
         final Graph gafferGraph = getGafferGraph();
@@ -519,7 +556,7 @@ public class GafferPopGraphIT {
         // When / Then
         assertThatExceptionOfType(RuntimeException.class)
             .isThrownBy(() -> graph.execute(invalidOperationChain))
-            .withMessageMatching("Failed to execute GafferPop operation chain");
+            .withMessageContaining("GafferPop operation failed");
     }
 
     private Graph getGafferGraph() {

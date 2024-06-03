@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,18 +27,22 @@ import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class GafferPopVertexTest {
     // Common mocks for tests
@@ -164,6 +168,7 @@ class GafferPopVertexTest {
         given(features.vertex()).willReturn(vertexFeatures);
         given(vertexFeatures.properties()).willReturn(vertexPropertyFeatures);
         final String propValue = "propValue";
+        final int intPropValue = 1;
         final String nestedKey = "nestedKey";
         final String nestedValue = "nestedValue";
         // Make new vertex with the mocked bits
@@ -171,6 +176,8 @@ class GafferPopVertexTest {
         // Make some values to compare against
         final GafferPopVertexProperty<Object> equalProp = new GafferPopVertexProperty<>(vertex, TestPropertyNames.STRING, propValue);
         final String notAProp = "notAProp";
+        final GafferPopVertexProperty<Object> notEqualProp = new GafferPopVertexProperty<>(vertex, TestPropertyNames.INT, intPropValue);
+
 
         // When
         // Set and get the property
@@ -184,7 +191,9 @@ class GafferPopVertexTest {
                 .isEqualTo(equalProp)
                 .hasSameHashCodeAs(equalProp)
                 .isNotEqualTo(notAProp)
-                .doesNotHaveSameHashCodeAs(notAProp);
+                .doesNotHaveSameHashCodeAs(notAProp)
+                .isNotEqualTo(notEqualProp)
+                .doesNotHaveSameHashCodeAs(notEqualProp);
         assertThat(prop.element()).isEqualTo(vertex);
         assertThat(prop.isPresent()).isTrue();
         assertThat(prop.keys()).isEmpty();
@@ -241,7 +250,11 @@ class GafferPopVertexTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex vertex = new GafferPopVertex(TestGroups.ENTITY, GafferPopGraph.ID_LABEL, graph);
         final Iterable<Edge> resultEdges = Arrays.asList(((Edge) new GafferPopEdge(GafferPopGraph.ID_LABEL, vertex, vertex, graph)));
-        given(graph.edges(GafferPopGraph.ID_LABEL, new String[]{TestGroups.ENTITY})).willReturn(resultEdges.iterator());
+        when(graph.execute(Mockito.any())).thenReturn(new ArrayList<>());
+        given(graph.edgesWithView(GafferPopGraph.ID_LABEL, Direction.IN, new View.Builder()
+                .edges(Collections.singletonList(TestGroups.ENTITY))
+                .build()))
+            .willReturn(resultEdges.iterator());
 
         // Then
         assertThat(vertex.edges(Direction.IN, TestGroups.ENTITY)).toIterable().containsExactlyElementsOf(resultEdges);

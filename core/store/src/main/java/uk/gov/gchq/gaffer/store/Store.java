@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -816,15 +817,14 @@ public abstract class Store {
 
     protected void populateCaches() {
         caches = new ArrayList<>();
-        if (properties.getJobTrackerEnabled()) {
+        if (properties.getJobTrackerEnabled() && isCacheServiceAvailable(JOB_TRACKER_CACHE_SERVICE_NAME)) {
             jobTracker = new JobTracker(getProperties().getCacheServiceJobTrackerSuffix(graphId));
             caches.add(jobTracker);
         }
-        if (CacheServiceLoader.isDefaultEnabled() ||
-                (CacheServiceLoader.isEnabled(NAMED_OPERATION_CACHE_SERVICE_NAME) &&
-                 CacheServiceLoader.isEnabled(NAMED_VIEW_CACHE_SERVICE_NAME))
-        ) {
+        if (properties.getNamedOperationEnabled() && isCacheServiceAvailable(NAMED_OPERATION_CACHE_SERVICE_NAME)) {
             caches.add(new NamedOperationCache(getProperties().getCacheServiceNamedOperationSuffix(graphId)));
+        }
+        if (properties.getNamedViewEnabled() && isCacheServiceAvailable(NAMED_VIEW_CACHE_SERVICE_NAME)) {
             caches.add(new NamedViewCache(getProperties().getCacheServiceNamedViewSuffix(graphId)));
         }
     }
@@ -1020,7 +1020,7 @@ public abstract class Store {
         addOperationHandler(GetExports.class, new GetExportsHandler());
 
         // Jobs
-        if (nonNull(getJobTracker())) {
+        if (properties.getJobTrackerEnabled() && isCacheServiceAvailable(JOB_TRACKER_CACHE_SERVICE_NAME)) {
             addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
             addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
             addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
@@ -1037,18 +1037,17 @@ public abstract class Store {
         addOperationHandler(ToStream.class, new ToStreamHandler<>());
         addOperationHandler(ToVertices.class, new ToVerticesHandler());
 
-        if (CacheServiceLoader.isDefaultEnabled() ||
-                (CacheServiceLoader.isEnabled(NAMED_OPERATION_CACHE_SERVICE_NAME) &&
-                 CacheServiceLoader.isEnabled(NAMED_VIEW_CACHE_SERVICE_NAME))
-            ) {
-            // Named operation
+        // Named Operation
+        if (properties.getNamedOperationEnabled() && isCacheServiceAvailable(NAMED_OPERATION_CACHE_SERVICE_NAME)) {
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
             final String suffixNamedOperationCacheName = properties.getCacheServiceNamedOperationSuffix(graphId);
             addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(suffixNamedOperationCacheName, properties.isNestedNamedOperationAllow()));
             addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler(suffixNamedOperationCacheName));
             addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(suffixNamedOperationCacheName));
+        }
 
-            // Named view
+        // Named View
+        if (properties.getNamedViewEnabled() && isCacheServiceAvailable(NAMED_VIEW_CACHE_SERVICE_NAME)) {
             final String suffixNamedViewCacheName = properties.getCacheServiceNamedViewSuffix(graphId);
             addOperationHandler(AddNamedView.class, new AddNamedViewHandler(suffixNamedViewCacheName));
             addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler(suffixNamedViewCacheName));
@@ -1118,22 +1117,32 @@ public abstract class Store {
         }
     }
 
+    private boolean isCacheServiceAvailable(final String serviceName) {
+        return (CacheServiceLoader.isEnabled(serviceName) ||
+                CacheServiceLoader.isDefaultEnabled());
+    }
+
     protected void startCacheServiceLoader(final StoreProperties properties) {
         final String jobTrackerCacheClass = properties.getJobTrackerCacheServiceClass();
         final String namedViewCacheClass = properties.getNamedViewCacheServiceClass();
         final String namedOperationCacheClass = properties.getNamedOperationCacheServiceClass();
         final String defaultCacheClass = properties.getDefaultCacheServiceClass();
+
         final boolean jobTrackerEnabled = properties.getJobTrackerEnabled();
+        final boolean namedViewEnabled = properties.getNamedViewEnabled();
+        final boolean namedOperationEnabled = properties.getNamedOperationEnabled();
+
         final boolean defaultServiceRequired = (jobTrackerEnabled && jobTrackerCacheClass == null) |
-                                               (namedViewCacheClass == null) | (namedOperationCacheClass == null);
+                                               (namedViewEnabled && namedViewCacheClass == null) |
+                                               (namedOperationEnabled && namedOperationCacheClass == null);
 
         if (jobTrackerEnabled && jobTrackerCacheClass != null) {
             CacheServiceLoader.initialise(JOB_TRACKER_CACHE_SERVICE_NAME, jobTrackerCacheClass, properties.getProperties());
         }
-        if (namedViewCacheClass != null) {
+        if (namedViewEnabled && namedViewCacheClass != null) {
             CacheServiceLoader.initialise(NAMED_VIEW_CACHE_SERVICE_NAME, namedViewCacheClass, properties.getProperties());
         }
-        if (namedOperationCacheClass != null) {
+        if (namedOperationEnabled && namedOperationCacheClass != null) {
             CacheServiceLoader.initialise(NAMED_OPERATION_CACHE_SERVICE_NAME, namedOperationCacheClass, properties.getProperties());
         }
         if (defaultServiceRequired && defaultCacheClass != null) {

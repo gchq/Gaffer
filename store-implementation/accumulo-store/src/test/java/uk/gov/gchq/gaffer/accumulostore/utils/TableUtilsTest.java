@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.hadoop.io.Text;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -51,48 +52,17 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TableUtilsTest {
     private static final String GRAPH_ID = "graph1";
+    private static final String GRAPH_ID_2 = "graph2";
     private static final String LOCALITY_GRAPH_ID = "localityTest";
     private static final String NO_AGGREGATORS_GRAPH_ID = "noAggGraph";
 
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
+    private static final AccumuloProperties PROPERTIES_BASIC = new AccumuloProperties();
 
-    @Test
-    public void shouldCreateTableWithAllRequiredIterators() throws Exception {
-        // Given
-        final AccumuloStore store = new SingleUseMiniAccumuloStore();
-        final Schema schema = new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .aggregateFunction(new StringConcat())
-                        .clazz(String.class)
-                        .build())
-                .type(TestTypes.DIRECTED_TRUE, Boolean.class)
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source(TestTypes.ID_STRING)
-                        .destination(TestTypes.ID_STRING)
-                        .directed(TestTypes.DIRECTED_TRUE)
-                        .build())
-                .build();
-
-        store.initialise(GRAPH_ID, schema, PROPERTIES);
-
-        // When
-        TableUtils.createTable(store);
-
-        // Then - this call will check the table is configured properly
-        TableUtils.ensureTableExists(store);
-    }
-
-    @Test
-    public void shouldFailTableValidationWhenMissingValidatorIterator() throws Exception {
-        final AccumuloStore store = new SingleUseMiniAccumuloStore();
-
-        final Schema schema = new Schema.Builder()
+    private static final Schema SCHEMA = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .aggregateFunction(new StringConcat())
                         .validateFunctions(new Exists())
@@ -106,7 +76,29 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        store.initialise(GRAPH_ID, schema, PROPERTIES);
+    @BeforeAll
+    static void setup() {
+        PROPERTIES_BASIC.setStoreClass(PROPERTIES.getStoreClass());
+        PROPERTIES_BASIC.setZookeepers(PROPERTIES.getZookeepers());
+    }
+
+    @Test
+    public void shouldCreateTableWithAllRequiredIterators() throws Exception {
+        // Given
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
+        store.initialise(GRAPH_ID, SCHEMA, PROPERTIES);
+
+        // When
+        TableUtils.createTable(store);
+
+        // Then - this call will check the table is configured properly
+        TableUtils.ensureTableExists(store);
+    }
+
+    @Test
+    public void shouldFailTableValidationWhenMissingValidatorIterator() throws Exception {
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
+        store.initialise(GRAPH_ID, SCHEMA, PROPERTIES);
 
         final Runnable invalidateTable = () -> {
             try {
@@ -122,22 +114,7 @@ public class TableUtilsTest {
     @Test
     public void shouldFailTableValidationWhenMissingAggregatorIterator() throws Exception {
         final AccumuloStore store = new SingleUseMiniAccumuloStore();
-
-        final Schema schema = new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .aggregateFunction(new StringConcat())
-                        .validateFunctions(new Exists())
-                        .clazz(String.class)
-                        .build())
-                .type(TestTypes.DIRECTED_TRUE, Boolean.class)
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source(TestTypes.ID_STRING)
-                        .destination(TestTypes.ID_STRING)
-                        .directed(TestTypes.DIRECTED_TRUE)
-                        .build())
-                .build();
-
-        store.initialise(GRAPH_ID, schema, PROPERTIES);
+        store.initialise(GRAPH_ID, SCHEMA, PROPERTIES);
 
         final Runnable invalidateTable = () -> {
             try {
@@ -152,22 +129,8 @@ public class TableUtilsTest {
 
     public void shouldFailTableValidationWhenTableInvalid(final AccumuloStore store, final Runnable invalidateTable) throws Exception {
         // Given
-        final Schema schema = new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .aggregateFunction(new StringConcat())
-                        .validateFunctions(new Exists())
-                        .clazz(String.class)
-                        .build())
-                .type(TestTypes.DIRECTED_TRUE, Boolean.class)
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source(TestTypes.ID_STRING)
-                        .destination(TestTypes.ID_STRING)
-                        .directed(TestTypes.DIRECTED_TRUE)
-                        .build())
-                .build();
-
         final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
-        store.initialise(GRAPH_ID, schema, props);
+        store.initialise(GRAPH_ID, SCHEMA, props);
 
         invalidateTable.run();
 
@@ -197,7 +160,7 @@ public class TableUtilsTest {
         assertThat(localityGroups).hasSize(1);
         Set<Text> localityGroup = localityGroups.get(TestGroups.EDGE);
         assertThat(localityGroup).hasSize(1);
-        assertEquals(new Text(TestGroups.EDGE), localityGroup.toArray()[0]);
+        assertThat(localityGroup.toArray()[0]).isEqualTo(new Text(TestGroups.EDGE));
     }
 
     @Test
@@ -228,18 +191,18 @@ public class TableUtilsTest {
         assertThat(itrs).hasSize(1);
 
         final EnumSet<IteratorScope> validator = itrs.get(AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME);
-        assertEquals(EnumSet.allOf(IteratorScope.class), validator);
+        assertThat(validator).isEqualTo(EnumSet.allOf(IteratorScope.class));
         final IteratorSetting validatorSetting = store.getConnection().tableOperations().getIteratorSetting(NO_AGGREGATORS_GRAPH_ID, AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, IteratorScope.majc);
-        assertEquals(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY, validatorSetting.getPriority());
-        assertEquals(ValidatorFilter.class.getName(), validatorSetting.getIteratorClass());
+        assertThat(validatorSetting.getPriority()).isEqualTo(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY);
+        assertThat(validatorSetting.getIteratorClass()).isEqualTo(ValidatorFilter.class.getName());
         final Map<String, String> validatorOptions = validatorSetting.getOptions();
-        assertNotNull(Schema.fromJson(validatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(StandardCharsets.UTF_8)).getEdge(TestGroups.EDGE));
-        assertEquals(ByteEntityAccumuloElementConverter.class.getName(), validatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+        assertThat(Schema.fromJson(validatorOptions.get(AccumuloStoreConstants.SCHEMA).getBytes(StandardCharsets.UTF_8)).getEdge(TestGroups.EDGE)).isNotNull();
+        assertThat(validatorOptions.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS)).isEqualTo(ByteEntityAccumuloElementConverter.class.getName());
 
         final EnumSet<IteratorScope> aggregator = itrs.get(AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
-        assertNull(aggregator);
+        assertThat(aggregator).isNull();
         final IteratorSetting aggregatorSetting = store.getConnection().tableOperations().getIteratorSetting(NO_AGGREGATORS_GRAPH_ID, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, IteratorScope.majc);
-        assertNull(aggregatorSetting);
+        assertThat(aggregatorSetting).isNull();
 
         final Map<String, String> tableProps = new HashMap<>();
         for (final Map.Entry<String, String> entry : store.getConnection()
@@ -247,29 +210,14 @@ public class TableUtilsTest {
             tableProps.put(entry.getKey(), entry.getValue());
         }
 
-        assertEquals(0, Integer.parseInt(tableProps.get(Property.TABLE_FILE_REPLICATION.getKey())));
+        assertThat(Integer.parseInt(tableProps.get(Property.TABLE_FILE_REPLICATION.getKey()))).isZero();
     }
 
     @Test
     public void shouldThrowExceptionIfTableNameIsNotSpecified() throws StoreException {
         // Given
-        final Schema schema = new Schema.Builder()
-                .type("int", Integer.class)
-                .type("string", String.class)
-                .type("boolean", Boolean.class)
-                .edge("EDGE", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("boolean")
-                        .build())
-                .build();
-
-        final AccumuloProperties properties = new AccumuloProperties();
-        properties.setStoreClass(PROPERTIES.getStoreClass());
-        properties.setZookeepers(PROPERTIES.getZookeepers());
-
         final AccumuloStore store = new MiniAccumuloStore();
-        assertThatIllegalArgumentException().isThrownBy(() -> store.initialise(null, schema, properties));
+        assertThatIllegalArgumentException().isThrownBy(() -> store.initialise(null, SCHEMA, PROPERTIES_BASIC));
 
         // When
         assertThatExceptionOfType(AccumuloRuntimeException.class).isThrownBy(() -> TableUtils.ensureTableExists(store));
@@ -278,23 +226,8 @@ public class TableUtilsTest {
     @Test
     public void shouldThrowExceptionIfTableNameIsNotSpecifiedWhenCreatingTable() throws StoreException, TableExistsException {
         // Given
-        final Schema schema = new Schema.Builder()
-                .type("int", Integer.class)
-                .type("string", String.class)
-                .type("boolean", Boolean.class)
-                .edge("EDGE", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("boolean")
-                        .build())
-                .build();
-
-        final AccumuloProperties properties = new AccumuloProperties();
-        properties.setStoreClass(PROPERTIES.getStoreClass());
-        properties.setZookeepers((PROPERTIES.getZookeepers()));
-
         final AccumuloStore store = new MiniAccumuloStore();
-        assertThatIllegalArgumentException().isThrownBy(() -> store.initialise(null, schema, properties));
+        assertThatIllegalArgumentException().isThrownBy(() -> store.initialise(null, SCHEMA, PROPERTIES_BASIC));
 
         // When
         assertThatExceptionOfType(AccumuloRuntimeException.class).isThrownBy(() -> TableUtils.createTable(store));
@@ -302,30 +235,39 @@ public class TableUtilsTest {
 
     @Test
     public void shouldThrowExceptionIfTableNameIsNotSpecifiedWhenCreatingAGraph() {
-        // Given
-        final Schema schema = new Schema.Builder()
-                .type("int", Integer.class)
-                .type("string", String.class)
-                .type("boolean", Boolean.class)
-                .edge("EDGE", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("boolean")
-                        .build())
-                .build();
-
-        final AccumuloProperties properties = new AccumuloProperties();
-        properties.setStoreClass(PROPERTIES.getStoreClass());
-        properties.setZookeepers(PROPERTIES.getZookeepers());
-
-        // When
         assertThatIllegalArgumentException().isThrownBy(
                 () -> new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(null)
                         .build())
-                .addSchema(schema)
-                .storeProperties(properties)
+                .addSchema(SCHEMA)
+                .storeProperties(PROPERTIES_BASIC)
                 .build());
+    }
+
+    @Test
+    public void shouldRenameTable() throws Exception {
+        // Given
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
+        store.initialise(GRAPH_ID, SCHEMA, PROPERTIES);
+
+        // When
+        TableUtils.renameTable(PROPERTIES, GRAPH_ID, GRAPH_ID_2);
+
+        // Then
+        boolean tableExists = TableUtils.getConnector(PROPERTIES).tableOperations().exists(GRAPH_ID_2);
+        assertThat(tableExists).isTrue();
+    }
+
+    @Test
+    public void shouldThrowExceptionIfTableRenameFails() throws Exception {
+        // Given
+        final AccumuloStore store1 = new SingleUseMiniAccumuloStore();
+        store1.initialise(GRAPH_ID, SCHEMA, PROPERTIES);
+        final AccumuloStore store2 = new SingleUseMiniAccumuloStore();
+        store2.initialise(GRAPH_ID_2, SCHEMA, PROPERTIES);
+
+        // When / Then
+        assertThatExceptionOfType(StoreException.class).isThrownBy(() -> TableUtils.renameTable(PROPERTIES, GRAPH_ID, GRAPH_ID_2));
     }
 }

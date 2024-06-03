@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -49,6 +50,7 @@ public class GafferPopEdgeTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, SOURCE, graph);
         final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, DEST, graph);
+        when(graph.execute(Mockito.any())).thenReturn(new ArrayList<>());
 
         // When
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
@@ -71,6 +73,7 @@ public class GafferPopEdgeTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex outVertex = new GafferPopVertex("label", SOURCE, graph);
         final GafferPopVertex inVertex = new GafferPopVertex("label", DEST, graph);
+        when(graph.execute(Mockito.any())).thenReturn(new ArrayList<>());
 
         // When
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
@@ -172,6 +175,7 @@ public class GafferPopEdgeTest {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, SOURCE, DEST, graph);
+        when(graph.execute(Mockito.any())).thenReturn(new ArrayList<>());
 
         // Then
         assertThat(edge).hasToString(StringFactory.edgeString(edge));
@@ -183,6 +187,7 @@ public class GafferPopEdgeTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, SOURCE, graph);
         final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, DEST, graph);
+        when(graph.execute(Mockito.any())).thenReturn(new ArrayList<>());
 
         // When
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
@@ -197,6 +202,7 @@ public class GafferPopEdgeTest {
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final GafferPopVertex outVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, SOURCE, graph);
         final GafferPopVertex inVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, DEST, graph);
+        when(graph.execute(Mockito.any())).thenReturn(new ArrayList<>());
 
         // When
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
@@ -213,6 +219,7 @@ public class GafferPopEdgeTest {
         final GafferPopVertex inVertex = mock(GafferPopVertex.class);
         when(inVertex.id()).thenReturn("inVertextId");
         when(outVertex.id()).thenReturn("outVertextId");
+        when(graph.execute(Mockito.any())).thenReturn(new ArrayList<>());
 
         // When
         final GafferPopEdge edge = new GafferPopEdge(TestGroups.EDGE, outVertex, inVertex, graph);
