@@ -28,7 +28,7 @@ public class FederatedJoinHandler<I> extends JoinHandler<I> {
      * This avoids a false looping error being detected by the FederatedStore.
      *
      * @param join The Join to get operation from
-     * @return The Operation with a deep clone of the options field.
+     * @return The Operation with a clone of the options field.
      */
     @Override
     protected Operation getOperationFromJoin(final Join<I> join) {

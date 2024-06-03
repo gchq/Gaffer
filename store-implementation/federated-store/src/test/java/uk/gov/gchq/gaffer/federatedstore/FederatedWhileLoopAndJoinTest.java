@@ -112,8 +112,6 @@ public class FederatedWhileLoopAndJoinTest {
                 .config(new GraphConfig(GRAPH_ID_TEST_FEDERATED_STORE))
                 .storeProperties(properties)
                 .build();
-
-
         final Schema schema = basicEntitySchema();
         final StoreProperties storeProperties = FederatedStoreTestUtil.loadAccumuloStoreProperties(FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
         final Context context = new Context(new User(UNKNOWN_USER_ID));
@@ -148,8 +146,6 @@ public class FederatedWhileLoopAndJoinTest {
                 //loop 4 times
                 .maxRepeats(4)
                 .build();
-
-
         //when
         federated.execute(simplifiedWhileJoinTestOp, contextTestUser());
 

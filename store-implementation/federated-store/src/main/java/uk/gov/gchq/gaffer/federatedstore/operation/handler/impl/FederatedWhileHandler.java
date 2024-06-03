@@ -33,7 +33,7 @@ public class FederatedWhileHandler extends WhileHandler {
      * This avoids a false looping error being detected by the FederatedStore.
      *
      * @param aWhile The while to get operation from
-     * @return The Operation with a deep clone of the options field.
+     * @return The Operation with a clone of the options field.
      */
     @Override
     protected Operation getOperationFromWhile(final While aWhile) {
