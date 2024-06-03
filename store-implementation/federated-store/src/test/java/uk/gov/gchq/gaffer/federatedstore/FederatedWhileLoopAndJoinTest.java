@@ -19,8 +19,6 @@ package uk.gov.gchq.gaffer.federatedstore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -103,8 +101,7 @@ public class FederatedWhileLoopAndJoinTest {
     @Test
     void shouldWhileLoopOperationWithJoinOperation() throws Exception {
         //given
-        final FederatedStoreProperties properties = new FederatedStoreProperties();
-        properties.set(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        final FederatedStoreProperties properties = FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache();
 
         //Use graph due to hooks needed.
         final Graph federated = new Graph.Builder()
@@ -162,8 +159,7 @@ public class FederatedWhileLoopAndJoinTest {
     @Test
     void shouldWhileLoopOperationFromNamedOperation() throws Exception {
         //given
-        final FederatedStoreProperties properties = new FederatedStoreProperties();
-        properties.set(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        final FederatedStoreProperties properties = FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache();
 
         //Use graph due to hooks needed.
         final Graph federated = new Graph.Builder()
