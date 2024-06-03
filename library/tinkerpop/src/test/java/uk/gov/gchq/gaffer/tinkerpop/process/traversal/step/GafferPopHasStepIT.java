@@ -318,4 +318,18 @@ public class GafferPopHasStepIT {
         assertThat(result).containsExactly(1L);
     }
 
+    @Test
+    public void shouldFilterById() {
+        final List<Vertex> result = g.V().hasId(MARKO.getId(), JOSH.getId()).toList();
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.getId(), JOSH.getId());
+    }
+
+    @Test
+    public void shouldFilterByIdMissing() {
+        final List<Vertex> result = g.V().hasId(new String[0]).toList();
+        assertThat(result).isEmpty();
+    }
+
 }
