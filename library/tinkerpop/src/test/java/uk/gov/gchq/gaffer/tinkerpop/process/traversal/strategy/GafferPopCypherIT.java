@@ -32,11 +32,11 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy.CYPHER_KEY;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.JOSH;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MARKO;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MODERN_CONFIGURATION;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.PETER;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.VADAS;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.JOSH;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MARKO;
 
 public class GafferPopCypherIT {
 

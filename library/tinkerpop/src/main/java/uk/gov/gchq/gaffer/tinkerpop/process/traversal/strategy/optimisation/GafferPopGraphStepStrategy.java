@@ -40,10 +40,13 @@ import java.util.Optional;
  * The {@link GraphStep} strategy for GafferPop, this will replace the default
  * {@link GraphStep} of a query to add Gaffer optimisations. Such as gathering
  * any {@link HasStep}s so that a Gaffer View can be constructed for the query.
+ * Will also handle the translation any Cypher queries passed in a with() step
+ * into a Gremlin traversal.
  *
  * <pre>
  * g.V().hasLabel()    // replaced by GafferPopGraphStep
  * g.E().hasLabel()    // replaced by GafferPopGraphStep
+ * g.with("cypher", "query") // translated to Gremlin traversal
  * </pre>
  */
 public final class GafferPopGraphStepStrategy extends AbstractTraversalStrategy<TraversalStrategy.ProviderOptimizationStrategy> implements TraversalStrategy.ProviderOptimizationStrategy {
@@ -60,12 +63,11 @@ public final class GafferPopGraphStepStrategy extends AbstractTraversalStrategy<
 
     @Override
     public void apply(final Admin<?, ?> traversal) {
-        // If cypher has been requested do that instead
+        // Check for any options on the traversal
         Optional<OptionsStrategy> optionsStrategy = traversal.getStrategies().getStrategy(OptionsStrategy.class);
         if (optionsStrategy.isPresent()) {
             Map<String, Object> options = optionsStrategy.get().getOptions();
-            // Parse as cypher if set, this replaces the current traversal with the
-            // translated cypher one
+            // Translate and add a cypher traversal in if that key has been set
             if (options.containsKey(CYPHER_KEY)) {
                 LOGGER.info("Replacing traversal with translated Cypher query");
                 CypherAst ast = CypherAst.parse((String) options.get(CYPHER_KEY));
