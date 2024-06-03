@@ -52,7 +52,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Input;
-import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEdgeGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
@@ -775,6 +774,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private Iterator<GafferPopVertex> verticesWithSeedsAndView(final List<ElementSeed> seeds, final View view) {
         final boolean getAll = null == seeds || seeds.isEmpty();
+        final Integer getAllElementsLimit = variables.getAllElementsLimit();
         final LinkedList<GafferPopVertex> idVertices = new LinkedList<>();
 
         View entitiesView = view;
@@ -858,6 +858,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private Iterator<Edge> edgesWithSeedsAndView(final List<ElementSeed> seeds, final Direction direction, final View view) {
         final boolean getAll = null == seeds || seeds.isEmpty();
+        final Integer getAllElementsLimit = variables.getAllElementsLimit();
 
         View edgesView = view;
         if (null == edgesView) {
