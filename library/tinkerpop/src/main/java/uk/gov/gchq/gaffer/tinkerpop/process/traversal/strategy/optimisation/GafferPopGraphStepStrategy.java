@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopGraphStep;
 
-import java.util.Map;
 import java.util.Optional;
 
 /**
