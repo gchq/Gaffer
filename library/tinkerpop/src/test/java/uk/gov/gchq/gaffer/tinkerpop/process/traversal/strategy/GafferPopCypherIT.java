@@ -16,9 +16,11 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy;
 
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.opencypher.v9_0.util.SyntaxException;
 
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
@@ -31,6 +33,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy.CYPHER_KEY;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.JOSH;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MARKO;
@@ -106,6 +109,22 @@ public class GafferPopCypherIT {
 
         // Then
         assertThat(flattenedResults).containsExactlyInAnyOrder(JOSH.getName(), VADAS.getName());
+    }
+
+    @Test
+    void shouldRejectInvalidCypher() {
+        // Given
+        // Bad query that's missing the WHERE clause
+        final String malformedQuery = "MATCH (p:person) WHERE RETURN p";
+
+        // When
+        GraphTraversal traversal = g
+            .with(CYPHER_KEY, malformedQuery)
+            .call();
+
+        // Then
+        assertThatExceptionOfType(SyntaxException.class)
+            .isThrownBy(() -> traversal.toList());
     }
 
 }
