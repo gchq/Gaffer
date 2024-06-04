@@ -244,6 +244,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     private final ServiceRegistry serviceRegistry;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraph.class);
+    private static final String GET_ALL_DEBUG_MSG = "Requested a GetAllElements, results will be truncated to: {}.";
 
     public GafferPopGraph(final Configuration configuration) {
         this(configuration, createGraph(configuration));
@@ -392,19 +393,17 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     @Override
     public Iterator<Vertex> vertices(final Object... vertexIds) {
         final boolean getAll = null == vertexIds || 0 == vertexIds.length;
-        final Integer getAllElementsLimit = variables.getAllElementsLimit();
-
         final OperationChain<Iterable<? extends Element>> getOperation;
 
         if (getAll) {
-            LOGGER.debug("Requested a GetAllElements, results will be truncated to: {}.", getAllElementsLimit);
+            LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
             getOperation = new Builder()
                     .first(new GetAllElements.Builder()
                             .view(new View.Builder()
                                     .entities(graph.getSchema().getEntityGroups())
                                     .build())
                             .build())
-                    .then(new Limit<Element>(getAllElementsLimit, true))
+                    .then(new Limit<Element>(variables.getAllElementsLimit(), true))
                     .build();
         } else {
             getOperation = new Builder()
@@ -427,10 +426,10 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(e -> (Vertex) e)
                 .iterator();
 
-        if (getAll && IterableUtils.size(translatedResults) == getAllElementsLimit) {
+        if (getAll && IterableUtils.size(translatedResults) == variables.getAllElementsLimit()) {
             LOGGER.warn(
                 "Result size is equal to configured limit ({}). Results may have been truncated",
-                 getAllElementsLimit);
+                variables.getAllElementsLimit());
         }
         return translatedResults.iterator();
     }
@@ -575,18 +574,17 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     @Override
     public Iterator<Edge> edges(final Object... elementIds) {
         final boolean getAll = null == elementIds || 0 == elementIds.length;
-        final Integer getAllElementsLimit = variables.getAllElementsLimit();
-
         final OperationChain<Iterable<? extends Element>> getOperation;
+
         if (getAll) {
-            LOGGER.debug("Requested a GetAllElements, results will be truncated to: {}.", getAllElementsLimit);
+            LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
             getOperation = new Builder()
                 .first(new GetAllElements.Builder()
                         .view(new View.Builder()
                             .edges(graph.getSchema().getEdgeGroups())
                             .build())
                         .build())
-                .then(new Limit<>(getAllElementsLimit, true))
+                .then(new Limit<>(variables.getAllElementsLimit(), true))
                 .build();
         } else {
             getOperation = new Builder()
@@ -611,10 +609,10 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(e -> (Edge) e)
                 .iterator();
 
-        if (getAll && IterableUtils.size(translatedResults) == getAllElementsLimit) {
+        if (getAll && IterableUtils.size(translatedResults) == variables.getAllElementsLimit()) {
             LOGGER.warn(
                 "Result size is equal to configured limit ({}). Results may have been truncated",
-                getAllElementsLimit);
+                variables.getAllElementsLimit());
         }
         return translatedResults.iterator();
     }
@@ -774,7 +772,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private Iterator<GafferPopVertex> verticesWithSeedsAndView(final List<ElementSeed> seeds, final View view) {
         final boolean getAll = null == seeds || seeds.isEmpty();
-        final Integer getAllElementsLimit = variables.getAllElementsLimit();
         final LinkedList<GafferPopVertex> idVertices = new LinkedList<>();
 
         View entitiesView = view;
@@ -791,11 +788,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final OperationChain<Iterable<? extends Element>> getOperation;
         if (getAll) {
+            LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
             getOperation = new Builder()
                     .first(new GetAllElements.Builder()
                             .view(entitiesView)
                             .build())
-                    .then(new Limit<>(getAllElementsLimit, true))
+                    .then(new Limit<>(variables.getAllElementsLimit(), true))
                     .build();
         } else {
             getOperation = new Builder()
@@ -858,7 +856,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private Iterator<Edge> edgesWithSeedsAndView(final List<ElementSeed> seeds, final Direction direction, final View view) {
         final boolean getAll = null == seeds || seeds.isEmpty();
-        final Integer getAllElementsLimit = variables.getAllElementsLimit();
 
         View edgesView = view;
         if (null == edgesView) {
@@ -874,11 +871,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final OperationChain<Iterable<? extends Element>> getOperation;
         if (getAll) {
+            LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
             getOperation = new Builder()
                     .first(new GetAllElements.Builder()
                             .view(edgesView)
                             .build())
-                    .then(new Limit<>(getAllElementsLimit, true))
+                    .then(new Limit<>(variables.getAllElementsLimit(), true))
                     .build();
         } else {
             getOperation = new Builder()

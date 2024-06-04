@@ -65,18 +65,15 @@ public final class GafferPopGraphStepStrategy extends AbstractTraversalStrategy<
     public void apply(final Admin<?, ?> traversal) {
         // Check for any options on the traversal
         Optional<OptionsStrategy> optionsStrategy = traversal.getStrategies().getStrategy(OptionsStrategy.class);
-        if (optionsStrategy.isPresent()) {
-            Map<String, Object> options = optionsStrategy.get().getOptions();
-            // Translate and add a cypher traversal in if that key has been set
-            if (options.containsKey(CYPHER_KEY)) {
-                LOGGER.info("Replacing traversal with translated Cypher query");
-                CypherAst ast = CypherAst.parse((String) options.get(CYPHER_KEY));
-                Admin<?, ?> translatedCypher = ast.buildTranslation(Translator.builder().traversal().build()).asAdmin();
+        // Translate and add a cypher traversal in if that key has been set
+        if (optionsStrategy.isPresent() && optionsStrategy.get().getOptions().containsKey(CYPHER_KEY)) {
+            LOGGER.info("Replacing traversal with translated Cypher query");
+            CypherAst ast = CypherAst.parse((String) optionsStrategy.get().getOptions().get(CYPHER_KEY));
+            Admin<?, ?> translatedCypher = ast.buildTranslation(Translator.builder().traversal().build()).asAdmin();
 
-                // Add the cypher traversal
-                TraversalHelper.insertTraversal(0, translatedCypher, traversal);
-                LOGGER.debug("New traversal is: {}", traversal);
-            }
+            // Add the cypher traversal
+            TraversalHelper.insertTraversal(0, translatedCypher, traversal);
+            LOGGER.debug("New traversal is: {}", traversal);
         }
 
         TraversalHelper.getStepsOfClass(GraphStep.class, traversal).forEach(originalGraphStep -> {
