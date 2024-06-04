@@ -59,7 +59,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
 
     public GafferPopEdge(final String label, final Object outVertex, final Object inVertex,
             final GafferPopGraph graph) {
-        super(label, Arrays.asList(getVertexId(outVertex), getVertexId(inVertex)), graph);
+        super(label, Arrays.asList(getVertexId(outVertex), label, getVertexId(inVertex)), graph);
         this.outVertex = getValidVertex(outVertex, graph);
         this.inVertex = getValidVertex(inVertex, graph);
     }

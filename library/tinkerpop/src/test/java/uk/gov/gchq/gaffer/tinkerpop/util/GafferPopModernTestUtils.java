@@ -176,7 +176,7 @@ public final class GafferPopModernTestUtils {
          */
         public List<List<String>> knowsEdges() {
             return knows.stream()
-                .map(e -> Arrays.asList(this.getId(), e.getFirst().getId()))
+                .map(e -> Arrays.asList(this.getId(), KNOWS, e.getFirst().getId()))
                 .collect(Collectors.toList());
         }
 
@@ -187,7 +187,7 @@ public final class GafferPopModernTestUtils {
          * @return Returns an EdgeId
          */
         public List<String> knows(Person otherPerson) {
-            return Arrays.asList(this.getId(), otherPerson.getId());
+            return Arrays.asList(this.getId(), KNOWS, otherPerson.getId());
         }
 
         public void setCreated(Pair<Software, Double> ... software) {
@@ -218,7 +218,7 @@ public final class GafferPopModernTestUtils {
          * @return Returns an EdgeId
          */
         public List<String> created(Software software) {
-            return Arrays.asList(this.getId(), software.getId());
+            return Arrays.asList(this.getId(), CREATED, software.getId());
         }
     }
 

@@ -362,6 +362,29 @@ public class GafferPopGraphIT {
     }
 
     @Test
+    public void shouldAddAndGetEdgeWithLabelInId() {
+        // Given
+        final Graph gafferGraph = getGafferGraph();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+        final GafferPopVertex gafferPopOutVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, VERTEX_1, graph);
+        final GafferPopVertex gafferPopInVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, VERTEX_2, graph);
+        final GafferPopEdge edgeToAdd = new GafferPopEdge(CREATED_EDGE_GROUP, gafferPopOutVertex, gafferPopInVertex,
+                graph);
+        final GraphTraversalSource g = graph.traversal();
+        edgeToAdd.property(WEIGHT_PROPERTY, 1.5);
+
+        // When
+        graph.addEdge(edgeToAdd);
+
+        List<Edge> edges = g.E("[" + VERTEX_1 + "-" + CREATED_EDGE_GROUP + "->" + VERTEX_2 + "]").toList();
+
+        // Then
+        assertThat(edges)
+                .extracting(edge -> edge.toString())
+                .containsExactly(edgeToAdd.toString());
+    }
+
+    @Test
     public void shouldGetEdgeInGroup() {
         // Given
         final Graph gafferGraph = getGafferGraph();

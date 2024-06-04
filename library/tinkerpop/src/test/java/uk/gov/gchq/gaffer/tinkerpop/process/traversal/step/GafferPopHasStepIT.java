@@ -266,6 +266,24 @@ public class GafferPopHasStepIT {
     }
 
     @Test
+    public void shouldGetEdgesByIdAndLabelThenFilterByLabel() {
+        final List<Edge> result = g.E("[1-knows->2]").hasLabel("knows").toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.knows(VADAS), MARKO.knows(JOSH));
+    }
+
+    @Test
+    public void shouldGetEdgesByIdAndLabelThenFilterById() {
+        final List<Edge> result = g.E("[4-created->3]").outV().outE().hasId("[4, created, 5]").toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactly(JOSH.created(RIPPLE));
+    }
+
+    @Test
     public void shouldThrowWhenFilterEdgesByInvalidLabels() {
         // Included this as it's an example from the docs that won't run due to Gaffer limitation
         // Gaffer checks labels in the view are valid before querying
