@@ -16,17 +16,16 @@
 
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
+import org.apache.accumulo.core.client.Accumulo;
+import org.apache.accumulo.core.client.AccumuloClient;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
-import org.apache.accumulo.core.client.Connector;
-import org.apache.accumulo.core.client.Instance;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.NamespaceExistsException;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
-import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.accumulo.core.client.security.tokens.KerberosToken;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.conf.Property;
@@ -61,7 +60,7 @@ import java.util.concurrent.TimeUnit;
 public final class TableUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
     public static final String COLUMN_FAMILIES_OPTION = "columns";
-    private static Boolean initialKerberosLoginComplete = false;
+    private static boolean initialKerberosLoginComplete = false;
 
     private TableUtils() {
     }
@@ -78,7 +77,7 @@ public final class TableUtils {
         if (null == tableName) {
             throw new AccumuloRuntimeException("Table name is required.");
         }
-        final Connector connector = store.getConnection();
+        final AccumuloClient connector = store.getConnection();
         if (connector.tableOperations().exists(tableName)) {
             validateTable(store, tableName, connector);
         } else {
@@ -108,7 +107,7 @@ public final class TableUtils {
         if (null == tableName) {
             throw new AccumuloRuntimeException("Table name is required.");
         }
-        final Connector connector = store.getConnection();
+        final AccumuloClient connector = store.getConnection();
         if (connector.tableOperations().exists(tableName)) {
             LOGGER.info("Table {} exists, not creating", tableName);
             return;
@@ -211,16 +210,13 @@ public final class TableUtils {
      * @param userName     the user name
      * @param password     the password
      * @return A connection to an accumulo instance
-     * @throws StoreException failure to create an accumulo connection
      */
-    public static Connector getConnector(final String instanceName, final String zookeepers, final String userName,
-                                         final String password) throws StoreException {
-        final Instance instance = new ZooKeeperInstance(instanceName, zookeepers);
-        try {
-            return instance.getConnector(userName, new PasswordToken(password));
-        } catch (final AccumuloException | AccumuloSecurityException e) {
-            throw new StoreException("Failed to create accumulo connection (using password-based authentication)", e);
-        }
+    public static AccumuloClient getConnector(final String instanceName, final String zookeepers, final String userName,
+                                         final String password) {
+        return Accumulo.newClient()
+            .to(instanceName, zookeepers)
+            .as(userName, new PasswordToken(password))
+            .build();
     }
 
     /**
@@ -234,9 +230,8 @@ public final class TableUtils {
      * @return A connection to an accumulo instance
      * @throws StoreException failure to create an accumulo connection
      */
-    public static Connector getConnectorKerberos(final String instanceName, final String zookeepers,
+    public static AccumuloClient getConnectorKerberos(final String instanceName, final String zookeepers,
                                                  final String principal, final String keytabPath) throws StoreException {
-        final Instance instance = new ZooKeeperInstance(instanceName, zookeepers);
         try {
             // Configure Hadoop UGI to use Kerberos (if it's not already)
             if (!UserGroupInformation.isSecurityEnabled()) {
@@ -255,8 +250,11 @@ public final class TableUtils {
                 initialKerberosLoginComplete = true;
             }
             KerberosToken token = new KerberosToken();
-            Connector conn = instance.getConnector(token.getPrincipal(), token);
-            return conn;
+            return Accumulo.newClient()
+                    .to(instanceName, zookeepers)
+                    .as(token.getPrincipal(), token)
+                    .build();
+
         } catch (final Exception e) {
             throw new StoreException("Failed to create accumulo connection (using Kerberos authentication)", e);
         }
@@ -270,7 +268,7 @@ public final class TableUtils {
      * @return A connection to an accumulo instance
      * @throws StoreException failure to create an accumulo connection
      */
-    public static Connector getConnector(final AccumuloProperties accumuloProperties) throws StoreException {
+    public static AccumuloClient getConnector(final AccumuloProperties accumuloProperties) throws StoreException {
         if (accumuloProperties.getEnableKerberos()) {
             return getConnectorKerberos(accumuloProperties.getInstance(), accumuloProperties.getZookeepers(),
                     accumuloProperties.getPrincipal(), accumuloProperties.getKeytabPath());
@@ -310,7 +308,7 @@ public final class TableUtils {
         final String currentTableName = getTableName(accumuloProperties, currentGraphId);
         final String newTableName = getTableName(accumuloProperties, newGraphId);
         try {
-            final Connector connector = getConnector(accumuloProperties);
+            final AccumuloClient connector = getConnector(accumuloProperties);
             if (connector.tableOperations().exists(currentTableName)) {
                 connector.tableOperations().offline(currentTableName);
                 connector.tableOperations().rename(currentTableName, newTableName);
@@ -329,7 +327,7 @@ public final class TableUtils {
      * @return The accumulo Authorisations of the current user specified in the properties file
      * @throws StoreException if the table could not be found or other table/security issues
      */
-    public static Authorizations getCurrentAuthorizations(final Connector connection) throws StoreException {
+    public static Authorizations getCurrentAuthorizations(final AccumuloClient connection) throws StoreException {
         try {
             return connection.securityOperations().getUserAuthorizations(connection.whoami());
         } catch (final Exception e) {
@@ -364,7 +362,7 @@ public final class TableUtils {
         }
     }
 
-    private static void validateTable(final AccumuloStore store, final String tableName, final Connector connector) throws StoreException {
+    private static void validateTable(final AccumuloStore store, final String tableName, final AccumuloClient connector) throws StoreException {
         final IteratorSetting requiredAggItrSetting;
         if (store.getSchema().isAggregationEnabled()) {
             try {

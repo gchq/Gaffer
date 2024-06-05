@@ -16,12 +16,14 @@
 
 package uk.gov.gchq.gaffer.accumulostore.inputformat;
 
-import org.apache.accumulo.core.client.mapreduce.InputFormatBase;
+import org.apache.accumulo.hadoop.mapred.InputFormatBase;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
@@ -42,13 +44,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map.Entry;
 
 /**
  * An {@link InputFormatBase} that allows the data in an Accumulo store to be read as {@link Element},
  * {@link NullWritable} pairs.
  */
-public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
+public class ElementInputFormat extends InputFormat<Element, NullWritable> {
 
     public static final String KEY_PACKAGE = "KEY_PACKAGE";
     public static final String SCHEMA = AccumuloStoreConstants.SCHEMA;
@@ -69,7 +72,7 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
         }
     }
 
-    private static class ElementWithPropertiesRecordReader extends InputFormatBase.RecordReaderBase<Element, NullWritable> {
+    private static class ElementWithPropertiesRecordReader extends RecordReader<Element, NullWritable> {
 
         private final AccumuloElementConverter converter;
         private final View view;
@@ -113,6 +116,36 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
             }
             return false;
         }
+
+        @Override
+        public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'initialize'");
+        }
+
+        @Override
+        public Element getCurrentKey() throws IOException, InterruptedException {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getCurrentKey'");
+        }
+
+        @Override
+        public NullWritable getCurrentValue() throws IOException, InterruptedException {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getCurrentValue'");
+        }
+
+        @Override
+        public float getProgress() throws IOException, InterruptedException {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getProgress'");
+        }
+
+        @Override
+        public void close() throws IOException {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'close'");
+        }
     }
 
     public static boolean doPostFilter(final Element element, final View view) {
@@ -125,6 +158,12 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
 
     public static boolean postFilter(final Element element, final ElementFilter postFilter) {
         return null == postFilter || postFilter.test(element);
+    }
+
+    @Override
+    public List<InputSplit> getSplits(JobContext context) throws IOException, InterruptedException {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getSplits'");
     }
 
 }

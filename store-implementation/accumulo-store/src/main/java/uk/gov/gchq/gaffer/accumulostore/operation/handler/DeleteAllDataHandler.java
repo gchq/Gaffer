@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
-import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.AccumuloClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class DeleteAllDataHandler implements OperationHandler<DeleteAllData> {
         try {
             final String removeId = store.getGraphId();
             try {
-                final Connector connection = getConnector((AccumuloProperties) store.getProperties());
+                final AccumuloClient connection = getConnector((AccumuloProperties) store.getProperties());
                 if (connection.tableOperations().exists(removeId)) {
                     connection.tableOperations().offline(removeId);
                     connection.tableOperations().delete(removeId);

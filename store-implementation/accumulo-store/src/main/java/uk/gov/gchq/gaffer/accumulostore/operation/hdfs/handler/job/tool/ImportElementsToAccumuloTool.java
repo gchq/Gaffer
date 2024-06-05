@@ -75,8 +75,12 @@ public class ImportElementsToAccumuloTool extends Configured implements Tool {
 
         // Import the files
         LOGGER.info("Importing files in {} to table {}", inputPath, store.getTableName());
-        store.getConnection().tableOperations().importDirectory(store.getTableName(), inputPath,
-                failurePath, false);
+        store.getConnection()
+            .tableOperations()
+            .importDirectory(inputPath)
+            .to(store.getTableName())
+            .tableTime(false)
+            .load();
 
         return SUCCESS_RESPONSE;
     }

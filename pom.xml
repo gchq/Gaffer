@@ -62,9 +62,9 @@
         <spark.version>${spark.minor.version}.5</spark.version>
 
         <koryphe.version>2.5.2</koryphe.version>
-        <accumulo.version>2.0.1</accumulo.version>
+        <accumulo.version>3.0.0</accumulo.version>
         <avro.version>1.8.2</avro.version>
-        <hadoop.version>3.3.3</hadoop.version>
+        <hadoop.version>3.3.6</hadoop.version>
         <jackson.version>2.13.5</jackson.version>
 
         <clearspring.version>2.7.0</clearspring.version>
@@ -444,6 +444,14 @@
                     <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-1.2-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

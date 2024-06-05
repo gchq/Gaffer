@@ -18,14 +18,13 @@ package uk.gov.gchq.gaffer.accumulostore;
 
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
+
+import org.apache.accumulo.core.client.AccumuloClient;
 import org.apache.accumulo.core.client.BatchWriter;
-import org.apache.accumulo.core.client.ClientConfiguration;
-import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.hadoopImpl.mapreduce.lib.InputConfigurator;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.MutationsRejectedException;
-import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.security.tokens.PasswordToken;
+import org.apache.accumulo.hadoop.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
@@ -63,7 +62,6 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -104,6 +102,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -153,7 +152,7 @@ public class AccumuloStore extends Store {
     public static final String FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS = "Failed to create an accumulo {} from element of type {} when trying to insert elements";
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
     private AccumuloKeyPackage keyPackage;
-    private Connector connection = null;
+    private AccumuloClient connection = null;
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties)
@@ -192,7 +191,7 @@ public class AccumuloStore extends Store {
      * @return A new {@link Connector}.
      * @throws StoreException If there is a failure to connect to accumulo.
      */
-    public Connector getConnection() throws StoreException {
+    public AccumuloClient getConnection() throws StoreException {
         if (isNull(connection) || getProperties().getEnableKerberos()) {
             connection = TableUtils.getConnector(getProperties());
         }
@@ -245,11 +244,8 @@ public class AccumuloStore extends Store {
 
             // Table name
             LOGGER.info("Updating configuration with table name of {}", getTableName());
-            LegacySupport.InputConfigurator.setInputTableName(AccumuloInputFormat.class,
-                    conf,
-                    getTableName());
-            // User
-            addUserToConfiguration(conf);
+            InputConfigurator.setInputTableName(AccumuloInputFormat.class, conf, getTableName());
+
             // Authorizations
             Authorizations authorisations;
             if (nonNull(user) && nonNull(user.getDataAuths())) {
@@ -257,12 +253,8 @@ public class AccumuloStore extends Store {
             } else {
                 authorisations = new Authorizations();
             }
-            LegacySupport.InputConfigurator.setScanAuthorizations(AccumuloInputFormat.class,
-                    conf,
-                    authorisations);
+            InputConfigurator.setScanAuthorizations(AccumuloInputFormat.class, conf, authorisations);
             LOGGER.info("Updating configuration with authorizations of {}", authorisations);
-            // Zookeeper
-            addZookeeperToConfiguration(conf);
             // Add keypackage, schema and view to conf
             conf.set(ElementInputFormat.KEY_PACKAGE, getProperties().getKeyPackageClass());
             LOGGER.info("Updating configuration with key package of {}", getProperties().getKeyPackageClass());
@@ -273,38 +265,42 @@ public class AccumuloStore extends Store {
 
             if (view.hasGroups()) {
                 // Add the columns to fetch
-                final Collection<org.apache.accumulo.core.util.Pair<Text, Text>> columnFamilyColumnQualifierPairs = Stream
+                final Collection<IteratorSetting.Column> columnFamilyColumnQualifierPairs = Stream
                         .concat(view.getEntityGroups().stream(), view.getEdgeGroups().stream())
-                        .map(g -> new org.apache.accumulo.core.util.Pair<>(new Text(g), (Text) null))
+                        .map(g -> new IteratorSetting.Column(new Text(g)))
                         .collect(Collectors.toSet());
-                LegacySupport.InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf, columnFamilyColumnQualifierPairs);
+                InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf, columnFamilyColumnQualifierPairs);
                 LOGGER.info("Updated configuration with column family/qualifiers of {}",
                         StringUtils.join(columnFamilyColumnQualifierPairs, ','));
 
                 // Add iterators that depend on the view
+                List<IteratorSetting> iterators = new ArrayList<>();
+
                 final IteratorSetting elementPreFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getElementPreAggregationFilterIteratorSetting(view, this);
-                if (nonNull(elementPreFilter)) {
-                    LegacySupport.InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPreFilter);
+                if (elementPreFilter != null) {
+                    iterators.add(elementPreFilter);
                     LOGGER.info("Added pre-aggregation filter iterator of {}", elementPreFilter);
                 }
                 final IteratorSetting elementPostFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getElementPostAggregationFilterIteratorSetting(view, this);
-                if (nonNull(elementPostFilter)) {
-                    LegacySupport.InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPostFilter);
+                if (elementPostFilter != null) {
+                    iterators.add(elementPostFilter);
                     LOGGER.info("Added post-aggregation filter iterator of {}", elementPostFilter);
                 }
                 final IteratorSetting edgeEntityDirFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getEdgeEntityDirectionFilterIteratorSetting(graphFilters);
-                if (nonNull(edgeEntityDirFilter)) {
-                    LegacySupport.InputConfigurator.addIterator(AccumuloInputFormat.class, conf, edgeEntityDirFilter);
+                if (edgeEntityDirFilter != null) {
+                    iterators.add(edgeEntityDirFilter);
                     LOGGER.info("Added edge direction filter iterator of {}", edgeEntityDirFilter);
                 }
+
+                InputConfigurator.writeIteratorsToConf(getClass(), conf, iterators);
             }
-        } catch (final AccumuloSecurityException | IteratorSettingException e) {
+        } catch (IteratorSettingException e) {
             throw new StoreException(e);
         }
     }
@@ -331,22 +327,6 @@ public class AccumuloStore extends Store {
     @SuppressWarnings("rawtypes")
     protected Class<? extends ToBytesSerialiser> getRequiredParentSerialiserClass() {
         return ToBytesSerialiser.class;
-    }
-
-    protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
-        LOGGER.info("Updating configuration with user of {}", getProperties().getUser());
-        LegacySupport.InputConfigurator.setConnectorInfo(AccumuloInputFormat.class,
-                conf,
-                getProperties().getUser(),
-                new PasswordToken(getProperties().getPassword()));
-    }
-
-    protected void addZookeeperToConfiguration(final Configuration conf) {
-        LegacySupport.InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class,
-                conf,
-                ClientConfiguration.create()
-                        .withInstance(getProperties().getInstance())
-                        .withZkHosts(getProperties().getZookeepers()));
     }
 
     /**

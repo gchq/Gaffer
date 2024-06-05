@@ -17,9 +17,10 @@
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import org.apache.accumulo.core.client.AccumuloClient;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -67,7 +68,7 @@ public final class IngestUtils {
      * @return The number of splits in the table
      * @throws IOException for any IO issues reading from the file system. Other accumulo exceptions are caught and wrapped in an IOException.
      */
-    public static int createSplitsFile(final Connector conn, final String table, final FileSystem fs,
+    public static int createSplitsFile(final AccumuloClient conn, final String table, final FileSystem fs,
                                        final Path splitsFile, final int maxSplits) throws IOException {
         LOGGER.info("Creating splits file in location {} from table {} with maximum splits {}", splitsFile,
                 table, maxSplits);
@@ -95,7 +96,7 @@ public final class IngestUtils {
         return splits.size();
     }
 
-    public static int createSplitsFile(final Connector conn, final String table, final FileSystem fs,
+    public static int createSplitsFile(final AccumuloClient conn, final String table, final FileSystem fs,
                                        final Path splitsFile) throws IOException {
         return createSplitsFile(conn, table, fs, splitsFile, Integer.MAX_VALUE);
     }
