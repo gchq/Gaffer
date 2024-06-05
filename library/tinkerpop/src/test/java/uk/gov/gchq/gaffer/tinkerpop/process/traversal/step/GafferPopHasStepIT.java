@@ -24,6 +24,8 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils;
@@ -52,12 +54,13 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.WEIGHT;
  */
 public class GafferPopHasStepIT {
 
-    private static final MapStoreProperties MAP_STORE_PROPERTIES = MapStoreProperties.loadStoreProperties("/tinkerpop/map-store.properties");
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopHasStepIT.class, "/gaffer/store.properties"));
+
     private static GraphTraversalSource g;
 
     @BeforeAll
     public static void beforeAll() {
-        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopHasStepIT.class, MAP_STORE_PROPERTIES, MODERN_CONFIGURATION);
+        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopHasStepIT.class, PROPERTIES, MODERN_CONFIGURATION);
         g = gafferPopGraph.traversal();
     }
 

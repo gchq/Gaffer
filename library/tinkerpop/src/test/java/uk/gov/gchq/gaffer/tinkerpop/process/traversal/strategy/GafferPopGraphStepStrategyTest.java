@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy;
 
-import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.junit.jupiter.api.Test;
@@ -32,6 +31,7 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -112,7 +112,7 @@ class GafferPopGraphStepStrategyTest {
                 .select("prop")
                 .execute(new Exists())
                 .select("prop")
-                .execute(P.eq("value"))
+                .execute(new IsEqual("value"))
                 .build())
             .build();
 
@@ -136,7 +136,7 @@ class GafferPopGraphStepStrategyTest {
                 .select("prop")
                 .execute(new Exists())
                 .select("prop")
-                .execute(P.eq("value"))
+                .execute(new IsEqual("value"))
                 .build())
             .build();
 
@@ -160,7 +160,7 @@ class GafferPopGraphStepStrategyTest {
                 .select("prop")
                 .execute(new Exists())
                 .select("prop")
-                .execute(P.eq("value"))
+                .execute(new IsEqual("value"))
                 .build())
             .build();
 
@@ -184,7 +184,7 @@ class GafferPopGraphStepStrategyTest {
                 .select("prop")
                 .execute(new Exists())
                 .select("prop")
-                .execute(P.eq("value"))
+                .execute(new IsEqual("value"))
                 .build())
             .build();
 
@@ -208,7 +208,7 @@ class GafferPopGraphStepStrategyTest {
                 .select("prop")
                 .execute(new Exists())
                 .select("prop")
-                .execute(P.eq("value"))
+                .execute(new IsEqual("value"))
                 .build())
             .build();
 
