@@ -1002,6 +1002,14 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         return seeds;
     }
 
+    /**
+     * Determines the edge group used in the view based on supplied IDs.
+     * If ID contains a label, this is extracted and used in the view.
+     * If not, all edge groups are used.
+     *
+     * @param ids The iterable of IDs
+     * @return Set of edge labels for the view
+     */
     private Set<String> getEdgeViewGroup(final Iterable<Object> ids) {
         Set<String> labels = new HashSet<>();
 
