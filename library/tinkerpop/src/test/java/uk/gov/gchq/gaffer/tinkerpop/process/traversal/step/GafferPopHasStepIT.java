@@ -268,7 +268,7 @@ public class GafferPopHasStepIT {
 
     @Test
     public void shouldGetEdgesByIdAndLabelThenFilterByLabel() {
-        final List<Edge> result = g.E("[1-knows->2]").hasLabel("knows").toList();
+        final List<Edge> result = g.E("[1, knows, 2]").hasLabel("knows").toList();
 
         assertThat(result)
                 .extracting(r -> r.id())
@@ -277,7 +277,7 @@ public class GafferPopHasStepIT {
 
     @Test
     public void shouldGetEdgesByIdAndLabelThenFilterById() {
-        final List<Edge> result = g.E("[4-created->3]").outV().outE().has(T.id,"[4, created, 5]").toList();
+        final List<Edge> result = g.E("[4, created, 3]").outV().outE().has(T.id, "[4, created, 5]").toList();
 
         assertThat(result)
             .extracting(r -> r.id())

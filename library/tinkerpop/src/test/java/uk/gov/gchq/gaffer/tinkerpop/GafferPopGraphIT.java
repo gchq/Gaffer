@@ -376,7 +376,7 @@ public class GafferPopGraphIT {
         // When
         graph.addEdge(edgeToAdd);
 
-        List<Edge> edges = g.E("[" + VERTEX_1 + "-" + CREATED_EDGE_GROUP + "->" + VERTEX_2 + "]").toList();
+        List<Edge> edges = g.E("[1, created, 2]").toList();
 
         // Then
         assertThat(edges)

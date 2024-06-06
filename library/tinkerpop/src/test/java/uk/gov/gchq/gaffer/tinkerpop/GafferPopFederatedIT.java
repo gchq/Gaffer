@@ -262,7 +262,7 @@ public class GafferPopFederatedIT {
         GraphTraversalSource g = gafferPopGraph.traversal();
 
         // When
-        List<Edge> result = g.E("[p1-created->s1]").toList();
+        List<Edge> result = g.E("[p1, created, s1]").toList();
 
         assertThat(result)
                 .extracting(item -> item.id().toString())
