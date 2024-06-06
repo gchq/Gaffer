@@ -1016,10 +1016,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 List<String> edgeIdList = Arrays.asList(((String) id)
                         .replaceAll("\\s", "")
                         .replace("[", "")
-                        .replace("-", " ")
-                        .replace(">", "")
                         .replace("]", "")
-                        .split(" "));
+                        .split(","));
+                LOGGER.debug("EDDGE ID {}", edgeIdList);
                 labels.add(edgeIdList.get(1));
             } else {
                 labels.addAll(graph.getSchema().getEdgeGroups());
