@@ -75,7 +75,7 @@ public class GafferPopCypherIT {
     void shouldTranslateCypherWithPredicate() {
         // Given
         // Get names of all people older than 30
-        final String cypherQuery = "MATCH (p:person) WHERE p.age > 30 RETURN p.name";
+        final String cypherQuery = "MATCH (p:person) WHERE p.age > toInteger(30) RETURN p.name";
 
         // When
         List<Object> results = g

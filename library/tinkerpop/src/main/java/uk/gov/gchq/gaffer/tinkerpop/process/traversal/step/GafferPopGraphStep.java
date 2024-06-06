@@ -36,8 +36,8 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.KoryphePredicateFactory;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
-import uk.gov.gchq.gaffer.tinkerpop.generator.KoryphePredicateFactory;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.ArrayList;
@@ -176,13 +176,12 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
         // Add each predicate to the filter
         ElementFilter.Builder filterBuilder = new ElementFilter.Builder();
-        KoryphePredicateFactory factory = new KoryphePredicateFactory();
-        predicateContainers
-            .forEach(hc -> filterBuilder.select(hc.getKey())
-                                        // Only apply the HC predicate to properties that exist
-                                        .execute(new Exists())
-                                        .select(hc.getKey())
-                                        .execute(factory.getKoryphePredicate(hc.getPredicate(), hc.getValue())));
+        predicateContainers.forEach(
+            hc -> filterBuilder.select(hc.getKey())
+                // Only apply the HC predicate to properties that exist
+                .execute(new Exists())
+                .select(hc.getKey())
+                .execute(KoryphePredicateFactory.getKoryphePredicate(hc.getPredicate(), hc.getValue())));
         ElementFilter elementFilter = filterBuilder.build();
 
         // Decide when to apply the filter
