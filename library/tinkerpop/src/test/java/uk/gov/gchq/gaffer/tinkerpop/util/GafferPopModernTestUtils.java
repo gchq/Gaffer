@@ -138,6 +138,7 @@ public final class GafferPopModernTestUtils {
         private final String id;
         private final String name;
         private final int age;
+        private final Map<String, Object> propertyMap = new HashMap<>();
         private final Set<Pair<Person, Double>> knows = new HashSet<>();
         private final Set<Pair<Software, Double>> created = new HashSet<>();
 
@@ -145,6 +146,8 @@ public final class GafferPopModernTestUtils {
             this.id = id;
             this.name = name;
             this.age = age;
+            propertyMap.put(NAME, Arrays.asList(name));
+            propertyMap.put(AGE, Arrays.asList(age));
         }
 
         public String getId() {
@@ -219,6 +222,16 @@ public final class GafferPopModernTestUtils {
          */
         public List<String> created(Software software) {
             return Arrays.asList(this.getId(), CREATED, software.getId());
+        }
+
+
+        /**
+         * Gets a Map representation of the Vertex's properties
+         *
+         * @return map of properties
+         */
+        public Map<String, Object> getPropertyMap() {
+            return propertyMap;
         }
     }
 
