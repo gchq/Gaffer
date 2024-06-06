@@ -41,7 +41,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class KoryphePredicateFactory {
+public final class KoryphePredicateFactory {
 
     private KoryphePredicateFactory() {
         // Utility class
@@ -51,7 +51,7 @@ public class KoryphePredicateFactory {
      * Converts a BiPredicate from a HasContainer to a KoryphePredicate
      * that can be used in a Gaffer View
      *
-     * @param biPredicate the predicate to convert
+     * @param p the predicate to convert
      * @param value the value to compare against
      * @return the equivalent KoryphePredicate
      */
