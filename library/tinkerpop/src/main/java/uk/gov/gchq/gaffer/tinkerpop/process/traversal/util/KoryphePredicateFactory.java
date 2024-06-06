@@ -48,7 +48,7 @@ public final class KoryphePredicateFactory {
     }
 
     /**
-     * Converts a BiPredicate from a HasContainer to a KoryphePredicate
+     * Converts a Predicate from a HasContainer to a KoryphePredicate
      * that can be used in a Gaffer View
      *
      * @param p the predicate to convert
