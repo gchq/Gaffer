@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.tinkerpop.process.traversal.util;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.PBiPredicate;
 import org.apache.tinkerpop.gremlin.process.traversal.TextP;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.koryphe.impl.predicate.And;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
