@@ -16,11 +16,6 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
-import java.util.Arrays;
-
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.PBiPredicate;
 import org.apache.tinkerpop.gremlin.process.traversal.TextP;
@@ -35,6 +30,11 @@ import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 import uk.gov.gchq.koryphe.impl.predicate.Regex;
 import uk.gov.gchq.koryphe.impl.predicate.StringContains;
+
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class KoryphePredicateFactoryTest {
 
@@ -168,20 +168,20 @@ public class KoryphePredicateFactoryTest {
     .isThrownBy(() -> KoryphePredicateFactory.getKoryphePredicate(UnknownP.unknown(10)))
     .withMessageContaining("Could not translate Gremlin predicate");
   }
-  
+
 }
 
 // Test classes only
 class UnknownP<V> extends P<V> {
 
-  public UnknownP(PBiPredicate<V, V> biPredicate, V value) {
+  UnknownP(PBiPredicate<V, V> biPredicate, V value) {
     super(biPredicate, value);
   }
 
   public static <V> P<V> unknown(final V value) {
     return new P((PBiPredicate) new UnknownPBiPredicate<V, V>(), value);
   }
-  
+
 }
 
 class UnknownPBiPredicate<T, U> implements PBiPredicate<T, U> {

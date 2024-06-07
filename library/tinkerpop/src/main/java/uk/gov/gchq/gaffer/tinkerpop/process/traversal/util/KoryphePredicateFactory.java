@@ -54,7 +54,6 @@ public final class KoryphePredicateFactory {
      * that can be used in a Gaffer View
      *
      * @param p the predicate to convert
-     * @param value the value to compare against
      * @return the equivalent KoryphePredicate
      */
     public static Predicate<?> getKoryphePredicate(final P<?> p) {
