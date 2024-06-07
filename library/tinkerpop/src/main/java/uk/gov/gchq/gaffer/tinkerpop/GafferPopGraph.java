@@ -58,6 +58,7 @@ import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
+import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.iterable.MappedIterable;
 
@@ -980,16 +981,38 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                         .split(","));
             // Assume entity ID as fallback
             } else {
-                seeds.add(new EntitySeed(id));
+                seeds.add(new EntitySeed((getTSTVFromID(id) != null) ? getTSTVFromID(id) : id));
             }
 
             // If found a list verify source and destination
             if (edgeIdList.size() == 2) {
-                seeds.add(new EdgeSeed(edgeIdList.get(0), edgeIdList.get(1)));
+                Object source = (getTSTVFromID(edgeIdList.get(0)) != null) ?
+                    getTSTVFromID(edgeIdList.get(0)) : edgeIdList.get(0);
+                Object dest = (getTSTVFromID(edgeIdList.get(1)) != null) ?
+                    getTSTVFromID(edgeIdList.get(1)) : edgeIdList.get(1);
+                seeds.add(new EdgeSeed(source, dest));
             }
         });
 
         return seeds;
+    }
+
+    /**
+     * Returns a new {@link TypeSubTypeValue} (TSTV) from the supplied
+     * ID if valid.
+     *
+     * @param id The ID
+     * @return The TSTV or null
+     */
+    private TypeSubTypeValue getTSTVFromID(Object id) {
+        if (id instanceof String) {
+            String[] split = ((String) id).split("\\|");
+            if (split.length == 3) {
+                LOGGER.debug("Parsing ID as a TSTV: {}", id);
+                return new TypeSubTypeValue(split[0], split[1], split[2]);
+            }
+        }
+        return null;
     }
 
     private IncludeIncomingOutgoingType getInOutType(final Direction direction) {
