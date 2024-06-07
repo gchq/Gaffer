@@ -239,7 +239,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
                 // Only apply the HC predicate to properties that exist
                 .execute(new Exists())
                 .select(hc.getKey())
-                .execute(KoryphePredicateFactory.getKoryphePredicate(hc.getPredicate(), hc.getValue())));
+                .execute(KoryphePredicateFactory.getKoryphePredicate(hc.getPredicate())));
         ElementFilter elementFilter = filterBuilder.build();
 
         ViewElementDefinition.BaseBuilder<?> vBuilder = createGlobal ?

@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
 
 public final class KoryphePredicateFactory {
 
+    private static final String COULD_NOT_TRANSLATE_ERROR = "Could not translate Gremlin predicate: ";
+
     private KoryphePredicateFactory() {
         // Utility class
     }
@@ -55,7 +57,11 @@ public final class KoryphePredicateFactory {
      * @param value the value to compare against
      * @return the equivalent KoryphePredicate
      */
-    public static Predicate<?> getKoryphePredicate(final P<?> p, final Object value) {
+    public static Predicate<?> getKoryphePredicate(final P<?> p) {
+        if (p == null) {
+            throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + null);
+        }
+
         // Handle composite predicates
         if (p instanceof OrP) {
             return getOrPredicate((OrP<?>) p);
@@ -64,6 +70,7 @@ public final class KoryphePredicateFactory {
         }
 
         BiPredicate<?, ?> biPredicate = p.getBiPredicate();
+        Object value = p.getValue();
         if (biPredicate instanceof Compare) {
             return getComparePredicate((Compare) biPredicate, value);
         } else if (biPredicate instanceof Contains) {
@@ -74,12 +81,12 @@ public final class KoryphePredicateFactory {
             return getRegexPredicate((RegexPredicate) biPredicate);
         }
 
-        return null;
+        throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + p.getPredicateName());
     }
 
     private static Or<?> getOrPredicate(final OrP<?> orP) {
         List<Predicate> predicates = orP.getPredicates().stream()
-                .map(p -> getKoryphePredicate(p, p.getValue()))
+                .map(p -> getKoryphePredicate(p))
                 .collect(Collectors.toList());
 
         return new Or<>(predicates);
@@ -87,7 +94,7 @@ public final class KoryphePredicateFactory {
 
      private static And<?> getAndPredicate(final AndP<?> andP) {
         List<Predicate> predicates = andP.getPredicates().stream()
-                .map(p -> getKoryphePredicate(p, p.getValue()))
+                .map(p -> getKoryphePredicate(p))
                 .collect(Collectors.toList());
 
         return new And<>(predicates);
@@ -108,7 +115,8 @@ public final class KoryphePredicateFactory {
             case lte:
                 return new IsLessThan((Comparable<?>) value, true);
             default:
-                return null;
+                throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + c.getClass());
+
         }
     }
 
@@ -119,7 +127,8 @@ public final class KoryphePredicateFactory {
             case without:
                 return new Not<>(new IsIn(value));
             default:
-                return null;
+                throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + c.getClass());
+
         }
     }
 
@@ -138,7 +147,7 @@ public final class KoryphePredicateFactory {
             case notContaining:
                 return new Not<>(new StringContains(value));
             default:
-                return null;
+                throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + t.getClass());
         }
     }
 
