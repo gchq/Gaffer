@@ -76,6 +76,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -974,11 +976,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             // array/list
             } else if ((id instanceof String) && (((String) id).matches("^\\[.*,.*\\]$")
                 || ((String) id).matches("^\\[.*,[a-zA-Z0-9]*,.*\\]$"))) {
-                edgeIdList = Arrays.asList(((String) id)
-                        .replaceAll("\\s", "")
-                        .replace("[", "")
-                        .replace("]", "")
-                        .split(","));
+                parseString((String) id).forEach(edgeIdList::add);
             // Assume entity ID as a fallback
             } else {
                 seeds.add(new EntitySeed(id));
@@ -1007,20 +1005,62 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         Set<String> labels = new HashSet<>();
 
         ids.forEach(id -> {
-            if ((id instanceof String) && ((String) id).matches("^\\[.*,[a-zA-Z0-9]*,.*\\]$")) {
-                List<String> edgeIdList = Arrays.asList(((String) id)
-                        .replaceAll("\\s", "")
-                        .replace("[", "")
-                        .replace("]", "")
-                        .split(","));
-                LOGGER.debug("EDDGE ID {}", edgeIdList);
-                labels.add(edgeIdList.get(1));
-            } else {
-                labels.addAll(graph.getSchema().getEdgeGroups());
+            if ((id instanceof String)) {
+                List<String> idElements = parseString((String) id);
+
+                // If contains label, extract to use in View as edge group
+                if(idElements.size() == 3){
+                    labels.add(idElements.get(1));
+                } else {
+                    // Fallback is to use all schema edge groups
+                    labels.addAll(graph.getSchema().getEdgeGroups());
+                }
             }
         });
 
         return labels;
+    }
+
+     /**
+     * Parses the string input of an edge ID.
+     *
+     * @param id The id that is to be parsed
+     * @return The edge ids and any labels
+     */
+    private List<String> parseString(String id) {
+        List<String> idElements = new ArrayList<>();
+
+        String regex1 = "^\\[(?<first>.*),\\s*(?<middle>[a-zA-Z0-9|-]*)?\\s*,\\s*(?<last>.*)\\]$";
+        Pattern pattern1 = Pattern.compile(regex1);
+        Matcher matcher1 = pattern1.matcher(id);
+        String regex2 = "^\\[(?<first>.*),\\s*(?<last>.*)\\]$";
+        Pattern pattern2 = Pattern.compile(regex2);
+        Matcher matcher2 = pattern2.matcher(id);
+
+        if(matcher1.find()){
+            // Add source
+            idElements.add(matcher1.group("first"));
+
+            // Add label
+            if(matcher1.group("middle") != null){
+                idElements.add(matcher1.group("middle"));
+            }
+
+            // Add dest
+            idElements.add(matcher1.group("last"));
+        } else if (matcher2.find()){
+            // Add source
+            idElements.add(matcher2.group("first"));
+
+            // Add dest
+            idElements.add(matcher2.group("last"));
+        } else {
+            // Fall back
+            LOGGER.info("Incorrect edge ID format");
+            idElements.add(id);
+        }
+
+        return idElements;
     }
 
     private IncludeIncomingOutgoingType getInOutType(final Direction direction) {
