@@ -644,7 +644,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @see #edges(Object...)
      */
     public Iterator<Edge> edges(final Iterable<Object> ids, final Direction direction, final String... labels) {
-        return edgesWithView(getElementSeeds(ids), direction, createView(labels));
+        return edgesWithView(ids, direction, createView(labels));
     }
 
     /**

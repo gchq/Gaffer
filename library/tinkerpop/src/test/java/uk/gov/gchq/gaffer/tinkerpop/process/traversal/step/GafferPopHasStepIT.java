@@ -272,7 +272,7 @@ public class GafferPopHasStepIT {
 
         assertThat(result)
                 .extracting(r -> r.id())
-                .containsExactlyInAnyOrder(MARKO.knows(VADAS), MARKO.knows(JOSH));
+                .containsExactlyInAnyOrder(MARKO.knows(VADAS));
     }
 
     @Test
