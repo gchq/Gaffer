@@ -975,7 +975,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             // Attempt to extract source and destination IDs from a string form of an
             // array/list
             } else if ((id instanceof String) && (((String) id).matches("^\\[.*,.*\\]$")
-                || ((String) id).matches("^\\[.*,[a-zA-Z0-9]*,.*\\]$"))) {
+                || ((String) id).matches("^\\[.*,[a-zA-Z0-9|-]*,.*\\]$"))) {
                 parseString((String) id).forEach(edgeIdList::add);
             // Assume entity ID as a fallback
             } else {
