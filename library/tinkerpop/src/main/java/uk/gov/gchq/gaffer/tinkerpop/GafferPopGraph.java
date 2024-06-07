@@ -1009,7 +1009,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 List<String> idElements = parseString((String) id);
 
                 // If contains label, extract to use in View as edge group
-                if(idElements.size() == 3){
+                if (idElements.size() == 3) {
                     labels.add(idElements.get(1));
                 } else {
                     // Fallback is to use all schema edge groups
@@ -1027,7 +1027,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param id The id that is to be parsed
      * @return The edge ids and any labels
      */
-    private List<String> parseString(String id) {
+    private List<String> parseString(final String id) {
         List<String> idElements = new ArrayList<>();
 
         String regex1 = "^\\[(?<first>.*),\\s*(?<middle>[a-zA-Z0-9|-]*)?\\s*,\\s*(?<last>.*)\\]$";
@@ -1037,18 +1037,18 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         Pattern pattern2 = Pattern.compile(regex2);
         Matcher matcher2 = pattern2.matcher(id);
 
-        if(matcher1.find()){
+        if (matcher1.find()) {
             // Add source
             idElements.add(matcher1.group("first"));
 
             // Add label
-            if(matcher1.group("middle") != null){
+            if (matcher1.group("middle") != null) {
                 idElements.add(matcher1.group("middle"));
             }
 
             // Add dest
             idElements.add(matcher1.group("last"));
-        } else if (matcher2.find()){
+        } else if (matcher2.find()) {
             // Add source
             idElements.add(matcher2.group("first"));
 
