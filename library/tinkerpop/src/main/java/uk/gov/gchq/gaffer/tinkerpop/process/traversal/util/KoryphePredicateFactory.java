@@ -114,7 +114,7 @@ public final class KoryphePredicateFactory {
             case lte:
                 return new IsLessThan((Comparable<?>) value, true);
             default:
-                throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + c.getClass());
+                throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + c.getPredicateName());
 
         }
     }
@@ -126,7 +126,7 @@ public final class KoryphePredicateFactory {
             case without:
                 return new Not<>(new IsIn(value));
             default:
-                throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + c.getClass());
+                throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + c.getPredicateName());
 
         }
     }
@@ -146,7 +146,7 @@ public final class KoryphePredicateFactory {
             case notContaining:
                 return new Not<>(new StringContains(value));
             default:
-                throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + t.getClass());
+                throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + t.getPredicateName());
         }
     }
 
