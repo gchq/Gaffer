@@ -318,4 +318,32 @@ public class GafferPopHasStepIT {
         assertThat(result).containsExactly(1L);
     }
 
+    @Test
+    public void shouldFilterVertexById() {
+        final List<Vertex> result = g.V().hasId(MARKO.getId(), JOSH.getId()).toList();
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.getId(), JOSH.getId());
+    }
+
+    @Test
+    public void shouldFilterVertexByIdMissing() {
+        final List<Vertex> result = g.V().hasId(new String[0]).toList();
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void shouldFilterEdgeById() {
+        final List<Edge> result = g.E().hasId("[1,2]").toList();
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.knows(VADAS));
+    }
+
+    @Test
+    public void shouldFilterEdgeByIdMissing() {
+        final List<Edge> result = g.E().hasId(new String[0]).toList();
+        assertThat(result).isEmpty();
+    }
+
 }

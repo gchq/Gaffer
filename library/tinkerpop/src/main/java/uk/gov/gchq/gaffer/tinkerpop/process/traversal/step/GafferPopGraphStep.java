@@ -106,6 +106,8 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         } else if (!labels.isEmpty()) {
             // Find using label to filter results
             return graph.edges(Arrays.asList(this.ids), Direction.BOTH, labels.toArray(new String[0]));
+        } else if (this.ids == null) {
+            return Collections.emptyIterator();
         }
 
         // linear scan as fallback
@@ -127,6 +129,8 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         } else if (!labels.isEmpty()) {
             // Find using label to filter results
             return graph.vertices(Arrays.asList(this.ids), labels.toArray(new String[0]));
+        } else if (this.ids == null) {
+            return Collections.emptyIterator();
         }
 
         // linear scan as fallback
