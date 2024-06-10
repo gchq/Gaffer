@@ -249,6 +249,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraph.class);
     private static final String GET_ALL_DEBUG_MSG = "Requested a GetAllElements, results will be truncated to: {}.";
+    private static final Pattern EDGE_ID_REGEX = Pattern.compile("^\\[(?<src>[a-zA-Z0-9|-]*)(,\\s*(?<label>[a-zA-Z0-9|-]*))?\\s*,\\s*(?<dest>[a-zA-Z0-9|-]*)\\]$");
 
     public GafferPopGraph(final Configuration configuration) {
         this(configuration, createGraph(configuration));
@@ -974,19 +975,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 ((Iterable<?>) id).forEach(edgeIdList::add);
             // Attempt to extract source and destination IDs from a string form of an
             // array/list
-            } else if ((id instanceof String) && (((String) id).matches("^\\[.*,.*\\]$")
-                || ((String) id).matches("^\\[.*,[a-zA-Z0-9|-]*,.*\\]$"))) {
-                parseString((String) id).forEach(edgeIdList::add);
+            } else if ((id instanceof String) && (EDGE_ID_REGEX.matcher((String) id).matches())) {
+                Matcher edgeIDMatcher = EDGE_ID_REGEX.matcher((String) id);
+
+                if (edgeIDMatcher.matches()) {
+                    seeds.add(new EdgeSeed(edgeIDMatcher.group("src"), edgeIDMatcher.group("dest")));
+                }
             // Assume entity ID as a fallback
             } else {
                 seeds.add(new EntitySeed(id));
-            }
-
-            // If found a list verify source and destination
-            if (edgeIdList.size() == 2) {
-                seeds.add(new EdgeSeed(edgeIdList.get(0), edgeIdList.get(1)));
-            } else if (edgeIdList.size() == 3) {
-                seeds.add(new EdgeSeed(edgeIdList.get(0), edgeIdList.get(2)));
             }
         });
 
@@ -1005,62 +1002,20 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         Set<String> labels = new HashSet<>();
 
         ids.forEach(id -> {
-            if ((id instanceof String)) {
-                List<String> idElements = parseString((String) id);
+            if ((id instanceof String) && (EDGE_ID_REGEX.matcher((String) id).matches())) {
+                Matcher edgeIdWithLabelMatcher = EDGE_ID_REGEX.matcher((String) id);
 
                 // If contains label, extract to use in View as edge group
-                if (idElements.size() == 3) {
-                    labels.add(idElements.get(1));
-                } else {
-                    // Fallback is to use all schema edge groups
-                    labels.addAll(graph.getSchema().getEdgeGroups());
+                if (edgeIdWithLabelMatcher.matches() && edgeIdWithLabelMatcher.group("label") != null) {
+                    labels.add(edgeIdWithLabelMatcher.group("label"));
                 }
+            } else {
+                // Fallback is to use all schema edge groups
+                labels.addAll(graph.getSchema().getEdgeGroups());
             }
         });
 
         return labels;
-    }
-
-     /**
-     * Parses the string input of an edge ID.
-     *
-     * @param id The id that is to be parsed
-     * @return The edge ids and any labels
-     */
-    private List<String> parseString(final String id) {
-        List<String> idElements = new ArrayList<>();
-
-        String regex1 = "^\\[(?<first>.*),\\s*(?<middle>[a-zA-Z0-9|-]*)?\\s*,\\s*(?<last>.*)\\]$";
-        Pattern pattern1 = Pattern.compile(regex1);
-        Matcher matcher1 = pattern1.matcher(id);
-        String regex2 = "^\\[(?<first>.*),\\s*(?<last>.*)\\]$";
-        Pattern pattern2 = Pattern.compile(regex2);
-        Matcher matcher2 = pattern2.matcher(id);
-
-        if (matcher1.find()) {
-            // Add source
-            idElements.add(matcher1.group("first"));
-
-            // Add label
-            if (matcher1.group("middle") != null) {
-                idElements.add(matcher1.group("middle"));
-            }
-
-            // Add dest
-            idElements.add(matcher1.group("last"));
-        } else if (matcher2.find()) {
-            // Add source
-            idElements.add(matcher2.group("first"));
-
-            // Add dest
-            idElements.add(matcher2.group("last"));
-        } else {
-            // Fall back
-            LOGGER.info("Incorrect edge ID format");
-            idElements.add(id);
-        }
-
-        return idElements;
     }
 
     private IncludeIncomingOutgoingType getInOutType(final Direction direction) {
