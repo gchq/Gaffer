@@ -33,7 +33,7 @@ cd Gaffer
 
 The rest api will be deployed to localhost:8080/rest.
 
-The sample data used is taken from the Department for Transport [GB Road Traffic Counts](http://data.dft.gov.uk/gb-traffic-matrix/Raw_count_data_major_roads.zip), which is licensed under the [Open Government Licence](http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
+The sample data used is taken from the Department for Transport [GB Road Traffic Counts](https://roadtraffic.dft.gov.uk/downloads) (`https://data.dft.gov.uk/gb-traffic-matrix/Raw_count_data_major_roads.zip`), which is licensed under the [Open Government Licence](http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
 
 This data contains information about UK roads, their locations and hourly traffic flow between adjacent road junctions.
 

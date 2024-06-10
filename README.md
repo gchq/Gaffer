@@ -24,7 +24,7 @@ Gaffer offers:
  - Retrieval of graph data into Apache Spark for fast and flexible analysis
  - A fully-featured REST API
 
-To get going with Gaffer, visit our getting started pages ([1.x](https://gchq.github.io/gaffer-doc/v1docs/summaries/getting-started.html), [2.x](https://gchq.github.io/gaffer-doc/latest/getting-started/quickstart/)).
+To get going with Gaffer, visit our getting started pages ([1.x](https://gchq.github.io/gaffer-doc/v1docs/summaries/getting-started.html), [2.x](https://gchq.github.io/gaffer-doc/latest/administration-guide/gaffer-deployment/quickstart)).
 We also have a demo available to try that is based around a small uk road use dataset. See the example/road-traffic [README](https://github.com/gchq/Gaffer/blob/master/example/road-traffic/README.md) to try it out.
 
 Gaffer is under active development. Version 1.0 of Gaffer was released in October 2017, version 2.0 was released in May 2023.
@@ -51,7 +51,7 @@ To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This
 
 ### Contribution Process
 
-Detailed information on our ways of working can be found [in our developer docs](https://gchq.github.io/gaffer-doc/latest/dev/ways-of-working/). In brief:
+Detailed information on our ways of working can be found [in our developer docs](https://gchq.github.io/gaffer-doc/latest/development-guide/ways-of-working). In brief:
 
 - Sign the [GCHQ Contributor Licence Agreement](https://cla-assistant.io/gchq/Gaffer)
 - Push your changes to a fork
