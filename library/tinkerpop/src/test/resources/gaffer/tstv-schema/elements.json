@@ -1,0 +1,17 @@
+{
+    "entities": {
+        "tstv": {
+            "vertex": "tstv"
+        }
+    },
+    "edges": {
+        "test": {
+            "source": "tstv",
+            "destination": "tstv",
+            "directed": "true",
+            "properties": {
+                "weight": "weight.double"
+            }
+        }
+    }
+}

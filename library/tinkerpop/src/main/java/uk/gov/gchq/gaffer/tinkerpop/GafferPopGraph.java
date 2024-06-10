@@ -1003,7 +1003,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param id The ID.
      * @return The ID as its relevant type.
      */
-    private Object getIDAsRelevantType(Object id) {
+    private Object getIDAsRelevantType(final Object id) {
         if (id instanceof String) {
             // See if can split into a TSTV
             String[] split = ((String) id).split("\\|");
