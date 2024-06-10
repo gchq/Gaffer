@@ -981,15 +981,13 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                         .split(","));
             // Assume entity ID as fallback
             } else {
-                seeds.add(new EntitySeed((getTSTVFromID(id) != null) ? getTSTVFromID(id) : id));
+                seeds.add(new EntitySeed(getIDAsRelevantType(id)));
             }
 
             // If found a list verify source and destination
             if (edgeIdList.size() == 2) {
-                Object source = (getTSTVFromID(edgeIdList.get(0)) != null) ?
-                    getTSTVFromID(edgeIdList.get(0)) : edgeIdList.get(0);
-                Object dest = (getTSTVFromID(edgeIdList.get(1)) != null) ?
-                    getTSTVFromID(edgeIdList.get(1)) : edgeIdList.get(1);
+                Object source = getIDAsRelevantType(edgeIdList.get(0));
+                Object dest = getIDAsRelevantType(edgeIdList.get(1));
                 seeds.add(new EdgeSeed(source, dest));
             }
         });
@@ -998,21 +996,23 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     /**
-     * Returns a new {@link TypeSubTypeValue} (TSTV) from the supplied
-     * ID if valid.
+     * Returns a the relevant Object e.g. {@link TypeSubTypeValue} from the
+     * supplied ID. As a fallback will give back the original ID if no
+     * relevant type was found.
      *
-     * @param id The ID
-     * @return The TSTV or null
+     * @param id The ID.
+     * @return The ID as its relevant type.
      */
-    private TypeSubTypeValue getTSTVFromID(Object id) {
+    private Object getIDAsRelevantType(Object id) {
         if (id instanceof String) {
+            // See if can split into a TSTV
             String[] split = ((String) id).split("\\|");
             if (split.length == 3) {
                 LOGGER.debug("Parsing ID as a TSTV: {}", id);
                 return new TypeSubTypeValue(split[0], split[1], split[2]);
             }
         }
-        return null;
+        return id;
     }
 
     private IncludeIncomingOutgoingType getInOutType(final Direction direction) {
