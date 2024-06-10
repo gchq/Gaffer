@@ -310,7 +310,7 @@ public class GafferPopGraphIT {
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
         final TypeSubTypeValue testId = new TypeSubTypeValue("test", "test", "test");
         final GraphTraversalSource g = graph.traversal();
-        
+
         // When
         // Add a vertex then do a seeded query for it
         graph.addVertex(T.label, TSTV_GROUP, T.id, testId);
