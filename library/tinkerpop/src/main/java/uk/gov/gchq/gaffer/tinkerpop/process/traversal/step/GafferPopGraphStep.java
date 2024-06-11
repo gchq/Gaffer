@@ -182,8 +182,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
             viewBuilder.globalElements((GlobalViewElementDefinition) viewElementDefinition);
         } else {
             // Apply filters to each of the labels
-            labels.stream()
-                .forEach(l -> viewBuilder.entity(l, viewElementDefinition));
+            labels.forEach(l -> viewBuilder.entity(l, viewElementDefinition));
         }
         return viewBuilder.build();
     }
@@ -208,8 +207,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
             viewBuilder.globalEdges((GlobalViewElementDefinition) viewElementDefinition);
         } else {
             // Apply filters to each of the labels
-            labels.stream()
-                .forEach(l -> viewBuilder.edge(l, viewElementDefinition));
+            labels.forEach(l -> viewBuilder.edge(l, viewElementDefinition));
         }
         return viewBuilder.build();
     }
