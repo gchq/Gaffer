@@ -314,7 +314,7 @@ public class GafferPopGraphIT {
         // When
         // Add a vertex then do a seeded query for it
         graph.addVertex(T.label, TSTV_GROUP, T.id, testId);
-        List<Vertex> result = g.V("tstv:test|test|test")
+        List<Vertex> result = g.V("t:test|st:test|v:test")
             .toList();
 
         // Then

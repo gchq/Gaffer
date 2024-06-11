@@ -248,7 +248,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraph.class);
     private static final String GET_ALL_DEBUG_MSG = "Requested a GetAllElements, results will be truncated to: {}.";
-    private static final Pattern TSTV_REGEX =  Pattern.compile("^tstv:(?<type>[A-Za-z0-9-]*)\\|(?<stype>[A-Za-z0-9-]*)\\|(?<val>[A-Za-z0-9-]*)$");
+    private static final Pattern TSTV_REGEX =  Pattern.compile("^t:(?<type>.*)\\|st:(?<stype>.*)\\|v:(?<val>.*)$");
 
     public GafferPopGraph(final Configuration configuration) {
         this(configuration, createGraph(configuration));
