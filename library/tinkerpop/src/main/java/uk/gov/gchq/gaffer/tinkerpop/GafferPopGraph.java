@@ -75,6 +75,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -246,6 +248,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraph.class);
     private static final String GET_ALL_DEBUG_MSG = "Requested a GetAllElements, results will be truncated to: {}.";
+    private static final Pattern TSTV_REGEX =  Pattern.compile("^tstv:(?<type>[A-Za-z0-9-]*)\\|(?<stype>[A-Za-z0-9-]*)\\|(?<val>[A-Za-z0-9-]*)$");
 
     public GafferPopGraph(final Configuration configuration) {
         this(configuration, createGraph(configuration));
@@ -981,13 +984,13 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                         .split(","));
             // Assume entity ID as fallback
             } else {
-                seeds.add(new EntitySeed(getIDAsRelevantType(id)));
+                seeds.add(new EntitySeed(getValueAsRelevantType(id)));
             }
 
             // If found a list verify source and destination
             if (edgeIdList.size() == 2) {
-                Object source = getIDAsRelevantType(edgeIdList.get(0));
-                Object dest = getIDAsRelevantType(edgeIdList.get(1));
+                Object source = getValueAsRelevantType(edgeIdList.get(0));
+                Object dest = getValueAsRelevantType(edgeIdList.get(1));
                 seeds.add(new EdgeSeed(source, dest));
             }
         });
@@ -997,22 +1000,26 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     /**
      * Returns a the relevant Object e.g. {@link TypeSubTypeValue} from the
-     * supplied ID. As a fallback will give back the original ID if no
-     * relevant type was found.
+     * supplied value or ID, usually by parsing a specifically formatted string.
+     * As a fallback will give back the original value if no relevant type
+     * was found.
      *
-     * @param id The ID.
-     * @return The ID as its relevant type.
+     * @param value The value.
+     * @return The value as its relevant type.
      */
-    private Object getIDAsRelevantType(final Object id) {
-        if (id instanceof String) {
-            // See if can split into a TSTV
-            String[] split = ((String) id).split("\\|");
-            if (split.length == 3) {
-                LOGGER.debug("Parsing ID as a TSTV: {}", id);
-                return new TypeSubTypeValue(split[0], split[1], split[2]);
+    public Object getValueAsRelevantType(final Object value) {
+        if (value instanceof String) {
+            Matcher tstvMatcher = TSTV_REGEX.matcher((String) value);
+            if (tstvMatcher.matches()) {
+                // Split into a TSTV via matcher
+                LOGGER.debug("Parsing ID as a TSTV: {}", value);
+                return new TypeSubTypeValue(
+                    tstvMatcher.group("type"),
+                    tstvMatcher.group("stype"),
+                    tstvMatcher.group("val"));
             }
         }
-        return id;
+        return value;
     }
 
     private IncludeIncomingOutgoingType getInOutType(final Direction direction) {
