@@ -973,7 +973,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             // Extract source and destination from ID list
             } else if (id instanceof Iterable) {
                 ((Iterable<?>) id).forEach(edgeIdList::add);
-            // Attempt to extract source and destination IDs from a string form of an
+            // Attempt to extract source and destination IDs from a string from of an
             // array/list
             } else if ((id instanceof String) && (EDGE_ID_REGEX.matcher((String) id).matches())) {
                 Matcher edgeIDMatcher = EDGE_ID_REGEX.matcher((String) id);
