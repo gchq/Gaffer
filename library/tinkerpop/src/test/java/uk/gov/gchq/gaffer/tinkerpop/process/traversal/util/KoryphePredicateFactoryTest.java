@@ -36,136 +36,137 @@ import java.util.Arrays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class KoryphePredicateFactoryTest {
+class KoryphePredicateFactoryTest {
 
   @Test
-  public void shouldReturnIsEqual() {
+  void shouldReturnIsEqual() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(P.eq(20)))
       .isEqualTo(new IsEqual(20));
   }
 
   @Test
-  public void shouldReturnNotIsEqual() {
+  void shouldReturnNotIsEqual() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(P.neq(20)))
       .isEqualTo(new Not<Object>(new IsEqual(20)));
   }
 
   @Test
-  public void shouldReturnIsMoreThan() {
+  void shouldReturnIsMoreThan() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(P.gt(20)))
       .isEqualTo(new IsMoreThan(20, false));
   }
 
   @Test
-  public void shouldReturnIsMoreThanOrEqualTo() {
+  void shouldReturnIsMoreThanOrEqualTo() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(P.gte(20)))
       .isEqualTo(new IsMoreThan(20, true));
   }
 
   @Test
-  public void shouldReturnIsLessThan() {
+  void shouldReturnIsLessThan() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(P.lt(20)))
       .isEqualTo(new IsLessThan(20, false));
   }
 
   @Test
-  public void shouldReturnIsLessThanOrEqualTo() {
+  void shouldReturnIsLessThanOrEqualTo() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(P.lte(20)))
       .isEqualTo(new IsLessThan(20, true));
   }
 
   @Test
-  public void shouldReturnAndInside() {
+  void shouldReturnAndInside() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(P.inside(20, 30)))
       .isEqualTo(new And<>(Arrays.asList(new IsMoreThan(20, false),
                                          new IsLessThan(30, false))));
   }
 
   @Test
-  public void shouldReturnAndBetween() {
+  void shouldReturnAndBetween() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(P.between(20, 30)))
       .isEqualTo(new And<>(Arrays.asList(new IsMoreThan(20, true),
                                          new IsLessThan(30, false))));
   }
 
   @Test
-  public void shouldReturnOrOutside() {
+  void shouldReturnOrOutside() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(P.outside(20, 30)))
       .isEqualTo(new Or<>(Arrays.asList(new IsLessThan(20, false),
                                          new IsMoreThan(30, false))));
   }
 
   @Test
-  public void shouldReturnIsIn() {
+  void shouldReturnIsIn() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(P.within("marko", "josh")))
       .isEqualTo(new IsIn("marko", "josh"));
   }
 
   @Test
-  public void shouldReturnIsNotIn() {
+  void shouldReturnIsNotIn() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(P.without("marko", "josh")))
       .isEqualTo(new Not<Object>(new IsIn("marko", "josh")));
   }
 
   @Test
-  public void shouldReturnRegexStartingWith() {
+  void shouldReturnRegexStartingWith() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.startingWith("m")))
       .isEqualTo(new Regex("^m.*"));
   }
 
   @Test
-  public void shouldReturnRegexNotStartingWith() {
+  void shouldReturnRegexNotStartingWith() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.notStartingWith("m")))
       .isEqualTo(new Regex("^(?!m).*"));
   }
 
   @Test
-  public void shouldReturnRegexEndingWith() {
+  void shouldReturnRegexEndingWith() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.endingWith("o")))
       .isEqualTo(new Regex(".*o$"));
   }
 
   @Test
-  public void shouldReturnRegexNotEndingWith() {
+  void shouldReturnRegexNotEndingWith() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.notEndingWith("o")))
       .isEqualTo(new Regex(".*(?<!o)$"));
   }
 
   @Test
-  public void shouldReturnStringContains() {
+  void shouldReturnStringContains() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.containing("m")))
       .isEqualTo(new StringContains("m"));
   }
 
   @Test
-  public void shouldReturnNotStringContains() {
+  void shouldReturnNotStringContains() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.notContaining("m")))
       .isEqualTo(new Not<>(new StringContains("m")));
   }
 
   @Test
-  public void shouldReturnRegex() {
+  void shouldReturnRegex() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.regex("(m|j).*")))
       .isEqualTo(new Regex("(m|j).*"));
   }
 
   @Test
-  public void shouldReturnNotRegex() {
+  void shouldReturnNotRegex() {
     assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.notRegex("(m|j).*")))
       .isEqualTo(new Not<>(new Regex("(m|j).*")));
   }
 
   @Test
-  public void shouldThrowWhenPredicateIsNull() {
+  void shouldThrowWhenPredicateIsNull() {
     assertThatExceptionOfType(IllegalArgumentException.class)
     .isThrownBy(() -> KoryphePredicateFactory.getKoryphePredicate(null))
     .withMessage("Could not translate Gremlin predicate: null");
   }
 
   @Test
-  public void shouldThrowWhenPredicateIsUnknown() {
+  void shouldThrowWhenPredicateIsUnknown() {
+    P<?> unknownPredicate = UnknownP.unknown(10);
     assertThatExceptionOfType(IllegalArgumentException.class)
-    .isThrownBy(() -> KoryphePredicateFactory.getKoryphePredicate(UnknownP.unknown(10)))
+    .isThrownBy(() -> KoryphePredicateFactory.getKoryphePredicate(unknownPredicate))
     .withMessageContaining("Could not translate Gremlin predicate");
   }
 
@@ -179,7 +180,7 @@ class UnknownP<V> extends P<V> {
   }
 
   public static <V> P<V> unknown(final V value) {
-    return new P((PBiPredicate) new UnknownPBiPredicate<V, V>(), value);
+    return new P<V>((PBiPredicate<V, V>) new UnknownPBiPredicate<V, V>(), value);
   }
 
 }
