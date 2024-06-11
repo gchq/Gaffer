@@ -436,6 +436,7 @@ public class GafferPopGraphIT {
         // Then
         assertThat(edges).toIterable().contains(edgeToAdd1, edgeToAdd2);
     }
+
     @Test
     public void shouldGetEdgeInGroupWithNullView() {
         // Given

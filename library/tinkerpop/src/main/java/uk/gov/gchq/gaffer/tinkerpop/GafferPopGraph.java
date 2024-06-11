@@ -249,7 +249,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraph.class);
     private static final String GET_ALL_DEBUG_MSG = "Requested a GetAllElements, results will be truncated to: {}.";
-    private static final Pattern EDGE_ID_REGEX = Pattern.compile("^\\[(?<src>[a-zA-Z0-9|-]*)(,\\s*(?<label>[a-zA-Z0-9|-]*))?\\s*,\\s*(?<dest>[a-zA-Z0-9|-]*)\\]$");
+    private static final Pattern EDGE_ID_REGEX = Pattern.compile("^\\[\\s*(?<src>[a-zA-Z0-9|-]*)\\s*(,\\s*(?<label>[a-zA-Z0-9|-]*))?\\s*,\\s*(?<dest>[a-zA-Z0-9|-]*)\\s*\\]$");
 
     public GafferPopGraph(final Configuration configuration) {
         this(configuration, createGraph(configuration));
@@ -975,7 +975,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 ((Iterable<?>) id).forEach(edgeIdList::add);
             // Attempt to extract source and destination IDs from a string from of an
             // array/list
-            } else if ((id instanceof String) && (EDGE_ID_REGEX.matcher((String) id).matches())) {
+            } else if ((id instanceof String) && EDGE_ID_REGEX.matcher((String) id).matches()) {
                 Matcher edgeIDMatcher = EDGE_ID_REGEX.matcher((String) id);
 
                 if (edgeIDMatcher.matches()) {

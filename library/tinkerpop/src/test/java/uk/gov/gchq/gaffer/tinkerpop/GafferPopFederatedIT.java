@@ -270,6 +270,37 @@ public class GafferPopFederatedIT {
     }
 
     @Test
+    void shouldGetEdgesByIdNoWhitespace() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+
+        // When
+        List<Edge> result = g.E("[p1,s1]", "[p3,created,s1]").toList();
+
+        assertThat(result)
+                .extracting(item -> item.id().toString())
+                .containsExactly("[p1, created, s1]", "[p3, created, s1]");
+    }
+
+    @Test
+    void shouldGetEdgesByIdRandomWhitespace() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+
+        // When
+        List<Edge> result1 = g.E("[ p1  , s1 ]", "[p3 ,created, s1]").toList();
+        List<Edge> result2 = g.E("[ p1,s1 ]", "[ p3 ,created, s1]").toList();
+
+        assertThat(result1)
+                .extracting(item -> item.id().toString())
+                .containsExactly("[p1, created, s1]", "[p3, created, s1]");
+
+        assertThat(result2)
+                .extracting(item -> item.id().toString())
+                .containsExactly("[p1, created, s1]", "[p3, created, s1]");
+    }
+
+    @Test
     void shouldGetOutgoingEdges() {
         // Given
         GraphTraversalSource g = gafferPopGraph.traversal();
