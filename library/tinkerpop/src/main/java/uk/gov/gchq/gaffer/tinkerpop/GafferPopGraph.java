@@ -57,6 +57,7 @@ import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
+import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.iterable.MappedIterable;
 
@@ -72,6 +73,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -243,6 +246,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraph.class);
     private static final String GET_ALL_DEBUG_MSG = "Requested a GetAllElements, results will be truncated to: {}.";
+    private static final Pattern TSTV_REGEX =  Pattern.compile("^t:(?<type>.*)\\|st:(?<stype>.*)\\|v:(?<val>.*)$");
 
     public GafferPopGraph(final Configuration configuration) {
         this(configuration, createGraph(configuration));
@@ -922,16 +926,42 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                         .split(","));
             // Assume entity ID as fallback
             } else {
-                seeds.add(new EntitySeed(id));
+                seeds.add(new EntitySeed(getValueAsRelevantType(id)));
             }
 
             // If found a list verify source and destination
             if (edgeIdList.size() == 2) {
-                seeds.add(new EdgeSeed(edgeIdList.get(0), edgeIdList.get(1)));
+                Object source = getValueAsRelevantType(edgeIdList.get(0));
+                Object dest = getValueAsRelevantType(edgeIdList.get(1));
+                seeds.add(new EdgeSeed(source, dest));
             }
         });
 
         return seeds;
+    }
+
+    /**
+     * Returns a the relevant Object e.g. {@link TypeSubTypeValue} from the
+     * supplied value or ID, usually by parsing a specifically formatted string.
+     * As a fallback will give back the original value if no relevant type
+     * was found.
+     *
+     * @param value The value.
+     * @return The value as its relevant type.
+     */
+    public Object getValueAsRelevantType(final Object value) {
+        if (value instanceof String) {
+            Matcher tstvMatcher = TSTV_REGEX.matcher((String) value);
+            if (tstvMatcher.matches()) {
+                // Split into a TSTV via matcher
+                LOGGER.debug("Parsing ID as a TSTV: {}", value);
+                return new TypeSubTypeValue(
+                    tstvMatcher.group("type"),
+                    tstvMatcher.group("stype"),
+                    tstvMatcher.group("val"));
+            }
+        }
+        return value;
     }
 
     private IncludeIncomingOutgoingType getInOutType(final Direction direction) {

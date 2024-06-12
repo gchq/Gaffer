@@ -28,11 +28,13 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
+import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -57,6 +59,7 @@ public class GafferPopGraphIT {
     public static final String VERTEX_2 = "2";
     public static final String SOFTWARE_NAME_GROUP = "software";
     public static final String PERSON_GROUP = "person";
+    public static final String TSTV_GROUP = "tstv";
     public static final String DEPENDS_ON_EDGE_GROUP = "dependsOn";
     public static final String CREATED_EDGE_GROUP = "created";
     public static final String NAME_PROPERTY = "name";
@@ -292,6 +295,31 @@ public class GafferPopGraphIT {
 
         // Then
         testSoftwareVertex(vertices);
+    }
+
+    @Test
+    void shouldGetVerticesWithTSTV() {
+        // Given
+        final Graph gafferGraph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("tstvGraph")
+                        .build())
+                .storeProperties(PROPERTIES)
+                .addSchemas(StreamUtil.openStreams(this.getClass(), "/gaffer/tstv-schema"))
+                .build();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+        final TypeSubTypeValue testId = new TypeSubTypeValue("test", "test", "test");
+        final GraphTraversalSource g = graph.traversal();
+
+        // When
+        // Add a vertex then do a seeded query for it
+        graph.addVertex(T.label, TSTV_GROUP, T.id, testId);
+        List<Vertex> result = g.V("t:test|st:test|v:test")
+            .toList();
+
+        // Then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).extracting(vertex -> vertex.id()).isEqualTo(testId);
     }
 
     @Test
