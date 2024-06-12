@@ -69,13 +69,20 @@ public final class KoryphePredicateFactory {
         }
 
         BiPredicate<?, ?> biPredicate = p.getBiPredicate();
-        Object value = p.getValue();
         if (biPredicate instanceof Compare) {
+            Object value = p.getValue();
+            if (value instanceof String) {
+                value = TypeSubTypeValueFactory.parseStringAsTstvIfValid((String) value);
+            }
             return getComparePredicate((Compare) biPredicate, value);
         } else if (biPredicate instanceof Contains) {
-            return getContainsPredicate((Contains) biPredicate, (Collection) value);
+            Collection<?> value = (Collection<?>) p.getValue();
+            Collection<Object> mappedValues = value.stream()
+                    .map(v -> (v instanceof String) ? TypeSubTypeValueFactory.parseStringAsTstvIfValid((String) v) : v)
+                    .collect(Collectors.toList());
+            return getContainsPredicate((Contains) biPredicate, mappedValues);
         } else if (biPredicate instanceof Text) {
-            return getTextPredicate((Text) biPredicate, (String) value);
+            return getTextPredicate((Text) biPredicate, (String) p.getValue());
         } else if (biPredicate instanceof RegexPredicate) {
             return getRegexPredicate((RegexPredicate) biPredicate);
         }

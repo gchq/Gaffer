@@ -27,8 +27,11 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils;
+import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 
 import java.util.List;
 
@@ -55,13 +58,40 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.WEIGHT;
 public class GafferPopHasStepIT {
 
     private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopHasStepIT.class, "/gaffer/store.properties"));
-
+    private static final String TSTV = "tstv";
     private static GraphTraversalSource g;
+    private static GraphTraversalSource tstvG;
+
+    private static final TypeSubTypeValue TSTV_ID = new TypeSubTypeValue("alpha", "beta", "gamma");
+    private static final TypeSubTypeValue OTHER_TSTV_ID = new TypeSubTypeValue("delta", "epsilon", "zeta");
+    private static final TypeSubTypeValue TSTV_PROPERTY = new TypeSubTypeValue("eta", "theta", "iota");
+    private static final String TSTV_PROPERTY_STRING = "t:eta|st:theta|v:iota";
+    private static final TypeSubTypeValue OTHER_TSTV_PROPERTY = new TypeSubTypeValue("kappa", "lambda", "mu");
+    private static final String OTHER_TSTV_PROPERTY_STRING = "t:kappa|st:lambda|v:mu";
+
 
     @BeforeAll
     public static void beforeAll() {
         GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopHasStepIT.class, ACCUMULO_PROPERTIES, MODERN_CONFIGURATION);
         g = gafferPopGraph.traversal();
+
+        initialiseTstvGraph();
+    }
+
+    private static void initialiseTstvGraph() {
+        final Graph gafferGraph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("tstvGraph")
+                        .build())
+                .storeProperties(ACCUMULO_PROPERTIES)
+                .addSchemas(StreamUtil.openStreams(GafferPopHasStepIT.class, "/gaffer/tstv-schema"))
+                .build();
+        final GafferPopGraph tstvGraph = GafferPopGraph.open(MODERN_CONFIGURATION, gafferGraph);
+
+        tstvGraph.addVertex(T.label, TSTV, T.id, TSTV_ID, NAME, TSTV_PROPERTY);
+        tstvGraph.addVertex(T.label, TSTV, T.id, OTHER_TSTV_ID, NAME, OTHER_TSTV_PROPERTY);
+
+        tstvG = tstvGraph.traversal();
     }
 
     @Test
@@ -103,6 +133,15 @@ public class GafferPopHasStepIT {
     }
 
     @Test
+    public void shouldFilterVerticesByLabelAndTstvProperty() {
+        final List<Vertex> result = tstvG.V().has(TSTV, NAME, TSTV_PROPERTY_STRING).toList();
+
+        assertThat(result)
+                .extracting(r -> r.value(NAME))
+                .containsExactlyInAnyOrder(TSTV_PROPERTY);
+    }
+
+    @Test
     public void shouldFilterVerticesByLabelAndPropertyLessThan() {
         final List<Vertex> result = g.V().has(AGE, P.lt(30))
                 .toList();
@@ -110,6 +149,16 @@ public class GafferPopHasStepIT {
         assertThat(result)
                 .extracting(r -> r.id())
                 .containsExactlyInAnyOrder(VADAS.getId(), MARKO.getId());
+    }
+
+    @Test
+    public void shouldFilterVerticesByLabelAndTstvPropertyLessThan() {
+        final List<Vertex> result = tstvG.V().has(NAME, P.lt(OTHER_TSTV_PROPERTY_STRING))
+                .toList();
+
+        assertThat(result)
+                .extracting(r -> r.value(NAME))
+                .containsExactlyInAnyOrder(TSTV_PROPERTY);
     }
 
     @Test
@@ -123,6 +172,16 @@ public class GafferPopHasStepIT {
     }
 
     @Test
+    public void shouldFilterVerticesByLabelAndTstvPropertyMoreThan() {
+        final List<Vertex> result = tstvG.V().has(NAME, P.gt(TSTV_PROPERTY_STRING))
+                .toList();
+
+        assertThat(result)
+                .extracting(r -> r.value(NAME))
+                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY);
+    }
+
+    @Test
     public void shouldFilterVerticesByLabelAndPropertyWithin() {
         final List<Vertex> result = g.V().has(PERSON, NAME, P.within(VADAS.getName(), JOSH.getName()))
                 .toList();
@@ -130,6 +189,16 @@ public class GafferPopHasStepIT {
         assertThat(result)
                 .extracting(r -> r.id())
                 .containsExactlyInAnyOrder(VADAS.getId(), JOSH.getId());
+    }
+
+    @Test
+    public void shouldFilterVerticesByLabelAndTstvPropertyWithin() {
+        final List<Vertex> result = tstvG.V().has(TSTV, NAME, P.within(TSTV_PROPERTY_STRING, OTHER_TSTV_PROPERTY_STRING))
+                .toList();
+
+        assertThat(result)
+                .extracting(r -> r.value(NAME))
+                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY, TSTV_PROPERTY);
     }
 
     @Test
@@ -160,6 +229,16 @@ public class GafferPopHasStepIT {
     }
 
     @Test
+    public void shouldFilterVerticesByTstvPropertyWithin() {
+        final List<Vertex> result = tstvG.V().has(NAME, P.within(TSTV_PROPERTY_STRING, OTHER_TSTV_PROPERTY_STRING))
+                .toList();
+
+        assertThat(result)
+                .extracting(r -> r.value(NAME))
+                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY, TSTV_PROPERTY);
+    }
+
+    @Test
     public void shouldFilterVerticesByPropertyWithout() {
         final List<Vertex> result = g.V().has(NAME, P.without(JOSH.getName(), MARKO.getName())).toList();
 
@@ -169,12 +248,28 @@ public class GafferPopHasStepIT {
     }
 
     @Test
+    public void shouldFilterVerticesByTstvPropertyWithout() {
+        final List<Vertex> result = tstvG.V().has(NAME, P.without(TSTV_PROPERTY_STRING, OTHER_TSTV_PROPERTY_STRING))
+                .toList();
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
     public void shouldFilterVerticesByPropertyNotWithin() {
         final List<Vertex> result = g.V().has(NAME, P.not(P.within(JOSH.getName(), MARKO.getName()))).toList();
 
         assertThat(result)
                 .extracting(r -> r.id())
                 .containsExactlyInAnyOrder(VADAS.getId(), PETER.getId(), RIPPLE.getId(), LOP.getId());
+    }
+
+    @Test
+    public void shouldFilterVerticesByTstvPropertyNotWithin() {
+        final List<Vertex> result = tstvG.V().has(NAME, P.not(P.within(TSTV_PROPERTY_STRING, OTHER_TSTV_PROPERTY_STRING)))
+                .toList();
+
+        assertThat(result).isEmpty();
     }
 
     @Test

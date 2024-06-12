@@ -1,7 +1,10 @@
 {
     "entities": {
         "tstv": {
-            "vertex": "tstv"
+            "vertex": "tstv",
+            "properties": {
+                "name": "tstv"
+            }
         }
     },
     "edges": {
