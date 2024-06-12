@@ -249,11 +249,55 @@ public class GafferPopFederatedIT {
 
         assertThat(result)
                 .extracting(item -> item.id().toString())
-                .containsExactly("[p1, s1]", "[p3, s1]");
+                .containsExactly("[p1, created, s1]", "[p3, created, s1]");
 
         assertThat(result)
                 .extracting(item -> item.label())
                 .containsExactly(CREATED_EDGE_GROUP, CREATED_EDGE_GROUP);
+    }
+
+    @Test
+    void shouldGetEdgesByIdAndLabel() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+
+        // When
+        List<Edge> result = g.E("[p1, created, s1]").toList();
+
+        assertThat(result)
+                .extracting(item -> item.id().toString())
+                .containsExactly("[p1, created, s1]");
+    }
+
+    @Test
+    void shouldGetEdgesByIdNoWhitespace() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+
+        // When
+        List<Edge> result = g.E("[p1,s1]", "[p3,created,s1]").toList();
+
+        assertThat(result)
+                .extracting(item -> item.id().toString())
+                .containsExactly("[p1, created, s1]", "[p3, created, s1]");
+    }
+
+    @Test
+    void shouldGetEdgesByIdRandomWhitespace() {
+        // Given
+        GraphTraversalSource g = gafferPopGraph.traversal();
+
+        // When
+        List<Edge> result1 = g.E("[ p1  , s1 ]", "[p3 ,created, s1]").toList();
+        List<Edge> result2 = g.E("[ p1,s1 ]", "[ p3 ,created, s1]").toList();
+
+        assertThat(result1)
+                .extracting(item -> item.id().toString())
+                .containsExactly("[p1, created, s1]", "[p3, created, s1]");
+
+        assertThat(result2)
+                .extracting(item -> item.id().toString())
+                .containsExactly("[p1, created, s1]", "[p3, created, s1]");
     }
 
     @Test
@@ -267,7 +311,7 @@ public class GafferPopFederatedIT {
         // Then
         assertThat(result)
                 .extracting(item -> item.id().toString())
-                .containsExactlyInAnyOrder("[p1, p2]", "[p1, s1]");
+                .containsExactlyInAnyOrder("[p1, knows, p2]", "[p1, created, s1]");
 
         assertThat(result)
                 .extracting(item -> item.label())
@@ -362,7 +406,7 @@ public class GafferPopFederatedIT {
 
         assertThat(result)
                 .extracting(item -> item.id().toString())
-                .containsExactly("[p4, s2]");
+                .containsExactly("[p4, created, s2]");
 
         assertThat(result)
                 .extracting(item -> item.label())
@@ -381,7 +425,7 @@ public class GafferPopFederatedIT {
         // Then
         assertThat(result)
                 .extracting(item -> item.id().toString())
-                .containsExactly("[p4, s2]");
+                .containsExactly("[p4, created, s2]");
 
         assertThat(result)
                 .extracting(item -> item.label())
@@ -401,7 +445,7 @@ public class GafferPopFederatedIT {
         // Then
         assertThat(result)
                 .extracting(item -> item.id().toString())
-                .containsExactlyInAnyOrder("[p1, p2]", "[p1, s1]");
+                .containsExactlyInAnyOrder("[p1, created, s1]", "[p1, knows, p2]");
 
         assertThat(result)
                 .extracting(item -> item.label())
