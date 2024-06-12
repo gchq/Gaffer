@@ -20,6 +20,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.TextP;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -263,6 +264,24 @@ public class GafferPopHasStepIT {
         assertThat(result)
                 .extracting(r -> r.id())
                 .containsExactlyInAnyOrderElementsOf(MARKO.knowsEdges());
+    }
+
+    @Test
+    public void shouldGetEdgesByIdAndLabelThenFilterByLabel() {
+        final List<Edge> result = g.E("[1, knows, 2]").hasLabel("knows").toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.knows(VADAS));
+    }
+
+    @Test
+    public void shouldGetEdgesByIdAndLabelThenFilterById() {
+        final List<Edge> result = g.E("[4, created, 3]").outV().outE().has(T.id, "[4, created, 5]").toList();
+
+        assertThat(result)
+            .extracting(r -> r.id())
+            .containsExactly(JOSH.created(RIPPLE));
     }
 
     @Test
