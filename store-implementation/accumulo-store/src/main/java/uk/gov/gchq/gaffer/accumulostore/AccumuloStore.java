@@ -19,15 +19,12 @@ package uk.gov.gchq.gaffer.accumulostore;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.MutationsRejectedException;
-import org.apache.accumulo.core.client.TableNotFoundException;
-import org.apache.accumulo.core.client.admin.CompactionConfig;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Key;
@@ -525,14 +522,14 @@ public class AccumuloStore extends Store {
                     continue;
                 }
 
-                for(final Key key : Arrays.asList(keys.getFirst(), keys.getSecond())) {
+                for (final Key key : Arrays.asList(keys.getFirst(), keys.getSecond())) {
                     if (nonNull(key)) {
                         final Mutation m = new Mutation(key.getRow());
                         m.putDelete(key.getColumnFamily(), key.getColumnQualifier(), key.getTimestamp());
 
                         try {
                             writer.addMutation(m);
-                        } catch(final MutationsRejectedException e) {
+                        } catch (final MutationsRejectedException e) {
                             LOGGER.error("Failed to create an accumulo key mutation");
                             continue;
                         }
