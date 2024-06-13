@@ -105,14 +105,14 @@ public class DeleteElementsHandler implements OperationHandler<DeleteElements> {
   private Element deleteElement(final Element element, final Schema schema, final MapImpl mapImpl) {
     final Element elementForIndexing;
     if (mapImpl.isAggregationEnabled(element)) {
-      elementForIndexing = deleteAggElement(element, schema, mapImpl);
+      elementForIndexing = deleteAggElement(element, mapImpl);
     } else {
       elementForIndexing = deleteNonAggElement(element, schema, mapImpl);
     }
     return elementForIndexing;
   }
 
-  private Element deleteAggElement(final Element element, final Schema schema, final MapImpl mapImpl) {
+  private Element deleteAggElement(final Element element, final MapImpl mapImpl) {
     final String group = element.getGroup();
     final Element elementWithGroupByProperties = element.emptyClone();
     final GroupedProperties properties = new GroupedProperties(element.getGroup());
