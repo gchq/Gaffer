@@ -41,23 +41,29 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.Entity.Builder;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
@@ -82,7 +88,9 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -485,5 +493,89 @@ public class AccumuloStoreTest {
         assertThatExceptionOfType(SchemaException.class)
                 .isThrownBy(() -> store.initialise("graphId", schema, PROPERTIES))
                 .withMessageContaining(expectedMessage);
+    }
+
+        @Test
+    public void shouldDelete() throws Exception {
+        // Given
+        final AccumuloStore accStore = (AccumuloStore) AccumuloStore.createStore(
+                "graph1",
+                new Schema.Builder()
+                        .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                                .vertex(TestTypes.ID_STRING)
+                                .build())
+                        .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                                .source(TestTypes.ID_STRING)
+                                .destination(TestTypes.ID_STRING)
+                                .directed(TestTypes.DIRECTED_EITHER)
+                                .build())
+                        .type(TestTypes.ID_STRING, String.class)
+                        .type(TestTypes.DIRECTED_EITHER, Boolean.class)
+                        .build(),
+                PROPERTIES
+        );
+
+        final Graph graph = new Graph.Builder()
+                .store(accStore)
+                .build();
+
+        final Entity entityToDelete = new Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("1")
+                .build();
+        final Edge edgeToDelete = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("1")
+                .dest("2")
+                .directed(true)
+                .build();
+        final Entity entityToKeep = new Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("2")
+                .build();
+        final Edge edgeToKeep = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("2")
+                .dest("3")
+                .directed(true)
+                .build();
+        final List<Element> elements = Arrays.asList(
+                entityToDelete,
+                entityToKeep,
+                edgeToDelete,
+                edgeToKeep);
+
+        graph.execute(new AddElements.Builder()
+                .input(elements)
+                .build(), new User());
+
+        final Iterable<? extends Element> resultBefore = graph.execute(new GetAllElements.Builder().build(), new User());
+        assertThat(resultBefore).hasSize(4);
+
+        // When
+
+                // Delete Vertex A
+        final OperationChain<Void> chain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed("1"))
+                        .build())
+                .then(new DeleteElements())
+                .build();
+
+        graph.execute(chain, new User());
+
+        // Then
+        final Iterable<? extends Element> resultsAfter = graph.execute(new GetAllElements.Builder().build(), new User());
+        assertThat(resultsAfter)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .hasSize(2)
+                .containsExactlyInAnyOrder(entityToKeep, edgeToKeep);
+
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("1"))
+                .build();
+        final Iterable<? extends Element> getElementResults = graph.execute(getElements, new User());
+
+        assertThat(getElementResults).isEmpty();
     }
 }

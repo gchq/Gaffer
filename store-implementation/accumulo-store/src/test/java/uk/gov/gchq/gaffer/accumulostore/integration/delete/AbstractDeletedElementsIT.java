@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.TestTypes;
