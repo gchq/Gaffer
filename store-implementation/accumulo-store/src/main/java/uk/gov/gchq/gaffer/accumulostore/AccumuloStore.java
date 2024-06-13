@@ -505,11 +505,6 @@ public class AccumuloStore extends Store {
      */
     public void deleteElements(final Iterable<? extends Element> elements) throws StoreException {
         deleteGraphElements(elements);
-        // try {
-        //     connection.tableOperations().compact(getGraphId(), new CompactionConfig());
-        // } catch (AccumuloSecurityException | TableNotFoundException | AccumuloException e) {
-        //     LOGGER.error("Halp", e);
-        // }
     }
 
     protected void deleteGraphElements(final Iterable<? extends Element> elements) throws StoreException {
