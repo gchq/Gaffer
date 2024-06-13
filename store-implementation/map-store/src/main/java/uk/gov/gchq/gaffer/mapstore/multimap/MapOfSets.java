@@ -62,6 +62,12 @@ public class MapOfSets<K, V> implements MultiMap<K, V> {
     }
 
     @Override
+    public boolean remove(final K key, final V valueToDelete) {
+        final Set<V> existingValues = multiMap.get(key);
+        return existingValues.remove(valueToDelete);
+    }
+
+    @Override
     public Collection<V> get(final K key) {
         return multiMap.get(key);
     }

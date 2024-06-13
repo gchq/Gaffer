@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -64,5 +65,10 @@ public class TestAddToGraphLibraryImpl extends Store {
     @Override
     protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
         return ToBytesSerialiser.class;
+    }
+
+    @Override
+    protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        return null;
     }
 }

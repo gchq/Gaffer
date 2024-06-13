@@ -46,6 +46,15 @@ public interface MultiMap<K, V> {
     void put(final K key, final Collection<V> values);
 
     /**
+     * Remove value for the specified key.
+     *
+     * @param key the key for the value to be removed
+     * @param value the value to be removed
+     * @return true if the operation was successful, otherwise false
+     */
+    boolean remove(final K key, final V value);
+
+    /**
      * Get all of the values associated with the specified key.
      *
      * @param key the key to lookup

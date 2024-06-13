@@ -137,6 +137,15 @@ public class MapImpl {
         }
     }
 
+    void deleteAggElement(final Element elementWithGroupByProperties) {
+        aggElements.get(elementWithGroupByProperties.getGroup())
+            .remove(elementWithGroupByProperties);
+    }
+
+    void deleteNonAggElement(final Element element) {
+        nonAggElements.get(element.getGroup()).remove(element);
+    }
+
     Collection<Element> lookup(final EntityId entitId) {
         Collection<Element> results = entityIdToElements.get(entitId);
         if (null == results) {
@@ -210,6 +219,14 @@ public class MapImpl {
 
     void addIndex(final EdgeSeed edgeSeed, final Element element) {
         edgeIdToElements.put(edgeSeed, element);
+    }
+
+    void removeIndex(final EntitySeed entitySeed, final Element element) {
+        entityIdToElements.remove(entitySeed, element);
+    }
+
+    void removeIndex(final EdgeSeed edgeSeed, final Element element) {
+        edgeIdToElements.remove(edgeSeed, element);
     }
 
     boolean isMaintainIndex() {

@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -80,6 +81,11 @@ public class TestStore extends Store {
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
+        return null;
+    }
+
+    @Override
+    protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
         return null;
     }
 
