@@ -58,7 +58,7 @@ public class DeleteElementsTest extends OperationTest<DeleteElements> {
     }
 
     @Test
-    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
+    void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final DeleteElements deleteElements = getTestObject();
 
@@ -80,7 +80,7 @@ public class DeleteElementsTest extends OperationTest<DeleteElements> {
     }
 
     @Test
-    public void shouldSerialiseDeleteElementsOperation() throws IOException {
+    void shouldSerialiseDeleteElementsOperation() throws IOException {
         // Given
          final DeleteElements deleteElements = new DeleteElements.Builder().build();
 
@@ -105,6 +105,15 @@ public class DeleteElementsTest extends OperationTest<DeleteElements> {
         assertThat(deleteElements.getOption("testOption")).isEqualTo("true");
         assertThat(deleteElements.isSkipInvalidElements()).isTrue();
         assertThat(deleteElements.isValidate()).isFalse();
+    }
+
+    @Test
+    void shouldGetDeleteElementsObjectToString() {
+        // Given
+        final DeleteElements deleteElements = getTestObject();
+
+        // When/Then
+        assertThat(deleteElements).hasToString("DeleteElements[validate=true,skipInvalidElements=false]");
     }
 
     @Override

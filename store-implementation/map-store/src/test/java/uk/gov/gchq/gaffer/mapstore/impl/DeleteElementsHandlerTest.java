@@ -54,7 +54,7 @@ public class DeleteElementsHandlerTest {
     static final String COUNT = "count";
 
     @Test
-    public void shouldDeleteEntityOnlyForAggregatedGraph() throws OperationException {
+    void shouldDeleteEntityOnlyForAggregatedGraph() throws OperationException {
         // Given
 
         // Aggregated graph
@@ -96,7 +96,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteEntityOnlyForNonAggregatedGraph() throws OperationException {
+    void shouldDeleteEntityOnlyForNonAggregatedGraph() throws OperationException {
         // Given
 
         // Non aggregated graph
@@ -138,7 +138,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteEntityAndEdgeForAggregatedGraph() throws OperationException {
+    void shouldDeleteEntityAndEdgeForAggregatedGraph() throws OperationException {
         // Given
 
         // Aggregated graph
@@ -177,7 +177,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteEntityAndEdgeForNonAggregatedGraph() throws OperationException {
+    void shouldDeleteEntityAndEdgeForNonAggregatedGraph() throws OperationException {
         // Given
 
         // Non Aggregated graph
@@ -216,7 +216,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteEntityAndAllEdgesForAggregatedGraph() throws OperationException {
+    void shouldDeleteEntityAndAllEdgesForAggregatedGraph() throws OperationException {
         // Given
 
         // Aggregated graph
@@ -255,7 +255,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteEntityAndAllEdgesForNonAggregatedGraph() throws OperationException {
+    void shouldDeleteEntityAndAllEdgesForNonAggregatedGraph() throws OperationException {
         // Given
 
         // Non Aggregated graph
@@ -294,7 +294,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteAll() throws OperationException {
+    void shouldDeleteAll() throws OperationException {
         // Given
 
         // Aggregated graph
@@ -324,7 +324,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteElementsInBatches() throws StoreException, OperationException {
+    void shouldDeleteElementsInBatches() throws StoreException, OperationException {
         // Given
         // Map Store with larger ingest buffer size
         final MapStore store = new SingleUseMapStore();
