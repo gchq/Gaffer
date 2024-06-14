@@ -25,7 +25,9 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.mapstore.SingleUseMapStore;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -52,7 +54,7 @@ public class DeleteElementsHandlerTest {
     static final String COUNT = "count";
 
     @Test
-    public void shouldDeleteEntityOnlyForAggregatedGraph() throws StoreException, OperationException {
+    public void shouldDeleteEntityOnlyForAggregatedGraph() throws OperationException {
         // Given
 
         // Aggregated graph
@@ -94,7 +96,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteEntityOnlyForNonAggregatedGraph() throws StoreException, OperationException {
+    public void shouldDeleteEntityOnlyForNonAggregatedGraph() throws OperationException {
         // Given
 
         // Non aggregated graph
@@ -136,7 +138,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteEntityAndEdgeForAggregatedGraph() throws StoreException, OperationException {
+    public void shouldDeleteEntityAndEdgeForAggregatedGraph() throws OperationException {
         // Given
 
         // Aggregated graph
@@ -175,7 +177,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteEntityAndEdgeForNonAggregatedGraph() throws StoreException, OperationException {
+    public void shouldDeleteEntityAndEdgeForNonAggregatedGraph() throws OperationException {
         // Given
 
         // Non Aggregated graph
@@ -214,7 +216,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteEntityAndAllEdgesForAggregatedGraph() throws StoreException, OperationException {
+    public void shouldDeleteEntityAndAllEdgesForAggregatedGraph() throws OperationException {
         // Given
 
         // Aggregated graph
@@ -253,7 +255,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteEntityAndAllEdgesForNonAggregatedGraph() throws StoreException, OperationException {
+    public void shouldDeleteEntityAndAllEdgesForNonAggregatedGraph() throws OperationException {
         // Given
 
         // Non Aggregated graph
@@ -292,7 +294,7 @@ public class DeleteElementsHandlerTest {
     }
 
     @Test
-    public void shouldDeleteAll() throws StoreException, OperationException {
+    public void shouldDeleteAll() throws OperationException {
         // Given
 
         // Aggregated graph
@@ -318,7 +320,47 @@ public class DeleteElementsHandlerTest {
         // All deleted
         final GetAllElements getAllElements = new GetAllElements.Builder().build();
         final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
-        assertThat(results).hasSize(0);
+        assertThat(results).isEmpty();
+    }
+
+    @Test
+    public void shouldDeleteElementsInBatches() throws StoreException, OperationException {
+        // Given
+        // Map Store with larger ingest buffer size
+        final MapStore store = new SingleUseMapStore();
+        store.initialise("graphId1", getSchema(), new MapStoreProperties());
+        store.getProperties().setIngestBufferSize(4);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .build())
+                .addSchema(getSchema())
+                .storeProperties(store.getProperties())
+                .build();
+
+        final AddElements addElements = new AddElements.Builder()
+                .input(getElements())
+                .build();
+        graph.execute(addElements, new User());
+
+        // When
+
+        // Delete all
+        final OperationChain<Void> chain = new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .build())
+                .then(new DeleteElements())
+                .build();
+
+        graph.execute(chain, new User());
+
+        // Then
+
+        // All deleted
+        final GetAllElements getAllElements = new GetAllElements.Builder().build();
+        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
+        assertThat(results).isEmpty();
     }
 
 
