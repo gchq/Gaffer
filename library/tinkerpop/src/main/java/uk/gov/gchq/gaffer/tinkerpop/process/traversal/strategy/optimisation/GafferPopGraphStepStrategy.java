@@ -68,7 +68,7 @@ public final class GafferPopGraphStepStrategy extends AbstractTraversalStrategy<
         if (optionsStrategy.isPresent() && optionsStrategy.get().getOptions().containsKey(CYPHER_KEY)) {
             LOGGER.info("Replacing traversal with translated Cypher query");
             CypherAst ast = CypherAst.parse((String) optionsStrategy.get().getOptions().get(CYPHER_KEY));
-            Admin<?, ?> translatedCypher = ast.buildTranslation(Translator.builder().traversal().build()).asAdmin();
+            Admin<?, ?> translatedCypher = ast.buildTranslation(Translator.builder().traversal().enableCypherExtensions().build()).asAdmin();
 
             // Add the cypher traversal
             TraversalHelper.insertTraversal(0, translatedCypher, traversal);

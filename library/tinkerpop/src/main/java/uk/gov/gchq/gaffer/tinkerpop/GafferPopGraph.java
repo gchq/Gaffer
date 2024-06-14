@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -65,7 +64,6 @@ import uk.gov.gchq.koryphe.iterable.MappedIterable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -473,33 +471,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     /**
-     * This performs a GetElements operation on Gaffer filtering vertices by labels and {@link ViewElementDefinition}.
-     * The ViewElementDefinition is applied to each provided label (entity group).
-     * If no labels are specified, the ViewElementDefinition is applied to all entity groups in the graph.
-     *
-     * @param ids vertex ids to query for.
-     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
-     * @param elementDefinition a Gaffer {@link ViewElementDefinition} to filter vertices by
-     * @param labels labels of vertices to filter by
-     * @return iterator of {@link GafferPopVertex}s, each vertex represents
-     * an {@link uk.gov.gchq.gaffer.data.element.Entity} in Gaffer
-     * @see #vertices(Object...)
-     */
-    public Iterator<GafferPopVertex> verticesWithView(final Iterable<Object> ids, final ViewElementDefinition elementDefinition, final List<String> labels) {
-        View.Builder viewBuilder = new View.Builder();
-
-        // If no labels specified, default to all
-        List<String> entityGroups = labels.isEmpty() ?
-            new ArrayList<>(graph.getSchema().getEntityGroups()) :
-            labels;
-
-        // Apply ViewElementDefinition to each group
-        entityGroups.forEach(g -> viewBuilder.entity(g, elementDefinition));
-
-        return verticesWithView(ids, viewBuilder.build());
-    }
-
-    /**
      * This performs GetAdjacentIds then GetElements operation chain
      * on Gaffer.
      * Given a vertex id, adjacent vertices will be returned.
@@ -676,33 +647,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      */
     public Iterator<Edge> edgesWithView(final Iterable<Object> ids, final Direction direction, final View view) {
         return edgesWithSeedsAndView(getElementSeeds(ids), direction, view);
-    }
-
-    /**
-     * This performs a GetElements operation filtering edges by direction and {@link ViewElementDefinition} and labels.
-     * The ViewElementDefinition is applied to each of the provided labels.
-     * If no labels are provided, it is applied to all of the edge groups in the graph.
-     *
-     * @param ids vertex IDs or edge IDs to be queried for.
-     * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
-     * @param direction {@link Direction} of edges to return.
-     * @param elementDefinition a Gaffer {@link ViewElementDefinition} to filter edges by
-     * @param labels labels of edges to filter for
-     * @return iterator of {@link GafferPopEdge}s.
-     * @see #edges(Object...)
-     */
-    public Iterator<Edge> edgesWithView(final Iterable<Object> ids, final Direction direction, final ViewElementDefinition elementDefinition, final List<String> labels) {
-        View.Builder viewBuilder = new View.Builder();
-
-        // If no labels specified, default to all
-        List<String> edgeGroups = labels.isEmpty() ?
-            new ArrayList<>(graph.getSchema().getEdgeGroups()) :
-            labels;
-
-        // Apply ViewElementDefinition to each group
-        edgeGroups.stream().forEach(g -> viewBuilder.edge(g, elementDefinition));
-
-        return edgesWithView(ids, direction, viewBuilder.build());
     }
 
     @Override

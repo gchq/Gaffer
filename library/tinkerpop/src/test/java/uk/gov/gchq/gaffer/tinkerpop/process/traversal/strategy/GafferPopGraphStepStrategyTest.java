@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy;
 
-import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.junit.jupiter.api.Test;
@@ -32,9 +31,9 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -107,18 +106,20 @@ class GafferPopGraphStepStrategyTest {
         // When
         g.with("hasStepFilterStage", "POST_AGGREGATION").V().has(entityGroup, "prop", "value").toList();
 
-        ViewElementDefinition expected = new ViewElementDefinition.Builder()
-            .postAggregationFilter(new ElementFilter.Builder()
-                .select("prop")
-                .execute(new Exists())
-                .select("prop")
-                .execute(P.eq("value"))
+        View expected = new View.Builder()
+            .entity(entityGroup, new ViewElementDefinition.Builder()
+                .postAggregationFilter(new ElementFilter.Builder()
+                    .select("prop")
+                    .execute(new Exists())
+                    .select("prop")
+                    .execute(new IsEqual("value"))
+                    .build())
                 .build())
             .build();
 
         // Then
         verify(graph, Mockito.atLeastOnce())
-            .verticesWithView(Mockito.any(), Mockito.eq(expected), Mockito.eq(Collections.singletonList(entityGroup)));
+            .verticesWithView(Mockito.any(), Mockito.eq(expected));
     }
 
     @Test
@@ -131,18 +132,20 @@ class GafferPopGraphStepStrategyTest {
         // When
         g.with("hasStepFilterStage", "POST_TRANSFORM").V().has(entityGroup, "prop", "value").toList();
 
-        ViewElementDefinition expected = new ViewElementDefinition.Builder()
-            .postTransformFilter(new ElementFilter.Builder()
-                .select("prop")
-                .execute(new Exists())
-                .select("prop")
-                .execute(P.eq("value"))
+        View expected = new View.Builder()
+            .entity(entityGroup, new ViewElementDefinition.Builder()
+                .postTransformFilter(new ElementFilter.Builder()
+                    .select("prop")
+                    .execute(new Exists())
+                    .select("prop")
+                    .execute(new IsEqual("value"))
+                    .build())
                 .build())
             .build();
 
         // Then
         verify(graph, Mockito.atLeastOnce())
-            .verticesWithView(Mockito.any(), Mockito.eq(expected), Mockito.eq(Collections.singletonList(entityGroup)));
+            .verticesWithView(Mockito.any(), Mockito.eq(expected));
     }
 
     @Test
@@ -155,18 +158,20 @@ class GafferPopGraphStepStrategyTest {
         // When
         g.with("hasStepFilterStage", "PRE_AGGREGATION").V().has(entityGroup, "prop", "value").toList();
 
-        ViewElementDefinition expected = new ViewElementDefinition.Builder()
-            .preAggregationFilter(new ElementFilter.Builder()
-                .select("prop")
-                .execute(new Exists())
-                .select("prop")
-                .execute(P.eq("value"))
+        View expected = new View.Builder()
+            .entity(entityGroup, new ViewElementDefinition.Builder()
+                .preAggregationFilter(new ElementFilter.Builder()
+                    .select("prop")
+                    .execute(new Exists())
+                    .select("prop")
+                    .execute(new IsEqual("value"))
+                    .build())
                 .build())
             .build();
 
         // Then
         verify(graph, Mockito.atLeastOnce())
-            .verticesWithView(Mockito.any(), Mockito.eq(expected), Mockito.eq(Collections.singletonList(entityGroup)));
+            .verticesWithView(Mockito.any(), Mockito.eq(expected));
     }
 
     @Test
@@ -179,18 +184,20 @@ class GafferPopGraphStepStrategyTest {
         // When
         g.with("hasStepFilterStage", "invalid").V().has(entityGroup, "prop", "value").toList();
 
-        ViewElementDefinition expected = new ViewElementDefinition.Builder()
-            .preAggregationFilter(new ElementFilter.Builder()
-                .select("prop")
-                .execute(new Exists())
-                .select("prop")
-                .execute(P.eq("value"))
+        View expected = new View.Builder()
+            .entity(entityGroup, new ViewElementDefinition.Builder()
+                .preAggregationFilter(new ElementFilter.Builder()
+                    .select("prop")
+                    .execute(new Exists())
+                    .select("prop")
+                    .execute(new IsEqual("value"))
+                    .build())
                 .build())
             .build();
 
         // Then
         verify(graph, Mockito.atLeastOnce())
-            .verticesWithView(Mockito.any(), Mockito.eq(expected), Mockito.eq(Collections.singletonList(entityGroup)));
+            .verticesWithView(Mockito.any(), Mockito.eq(expected));
     }
 
     @Test
@@ -203,18 +210,20 @@ class GafferPopGraphStepStrategyTest {
         // When
         g.V().has(entityGroup, "prop", "value").toList();
 
-        ViewElementDefinition expected = new ViewElementDefinition.Builder()
-            .preAggregationFilter(new ElementFilter.Builder()
-                .select("prop")
-                .execute(new Exists())
-                .select("prop")
-                .execute(P.eq("value"))
+        View expected = new View.Builder()
+            .entity(entityGroup, new ViewElementDefinition.Builder()
+                .preAggregationFilter(new ElementFilter.Builder()
+                    .select("prop")
+                    .execute(new Exists())
+                    .select("prop")
+                    .execute(new IsEqual("value"))
+                    .build())
                 .build())
             .build();
 
         // Then
         verify(graph, Mockito.atLeastOnce())
-            .verticesWithView(Mockito.any(), Mockito.eq(expected), Mockito.eq(Collections.singletonList(entityGroup)));
+            .verticesWithView(Mockito.any(), Mockito.eq(expected));
     }
 
 
