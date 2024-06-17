@@ -55,9 +55,9 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.WEIGHT;
  * Verify behaviour against HasStep examples in the Tinkerpop HasStep documentation.
  * Needed since the HasStep optimisations were added in {@link GafferPopGraphStep}
  */
-public class GafferPopHasStepIT {
+public class GafferPopGraphStepIT {
 
-    private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopHasStepIT.class, "/gaffer/store.properties"));
+    private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphStepIT.class, "/gaffer/store.properties"));
     private static final String TSTV = "tstv";
     private static GraphTraversalSource g;
     private static GraphTraversalSource tstvG;
@@ -72,7 +72,7 @@ public class GafferPopHasStepIT {
 
     @BeforeAll
     public static void beforeAll() {
-        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopHasStepIT.class, ACCUMULO_PROPERTIES, MODERN_CONFIGURATION);
+        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopGraphStepIT.class, ACCUMULO_PROPERTIES, MODERN_CONFIGURATION);
         g = gafferPopGraph.traversal();
 
         initialiseTstvGraph();
@@ -84,7 +84,7 @@ public class GafferPopHasStepIT {
                         .graphId("tstvGraph")
                         .build())
                 .storeProperties(ACCUMULO_PROPERTIES)
-                .addSchemas(StreamUtil.openStreams(GafferPopHasStepIT.class, "/gaffer/tstv-schema"))
+                .addSchemas(StreamUtil.openStreams(GafferPopGraphStepIT.class, "/gaffer/tstv-schema"))
                 .build();
         final GafferPopGraph tstvGraph = GafferPopGraph.open(MODERN_CONFIGURATION, gafferGraph);
 

@@ -41,22 +41,28 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public final class KoryphePredicateFactory {
+public final class GafferPredicateFactory {
 
     private static final String COULD_NOT_TRANSLATE_ERROR = "Could not translate Gremlin predicate: ";
 
-    private KoryphePredicateFactory() {
+    private GafferPredicateFactory() {
         // Utility class
     }
 
     /**
-     * Converts a Predicate from a HasContainer to a KoryphePredicate
-     * that can be used in a Gaffer View
+     * Converts a Gremlin Predicate into to a KoryphePredicate
+     * that can be used to filter elements in a Gaffer
+     * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View View}.
      *
-     * @param p the predicate to convert
-     * @return the equivalent KoryphePredicate
+     * Also converts TSTV Strings to {@link uk.gov.gchq.gaffer.types.TypeSubTypeValue TypeSubTypeValue}
+     * objects to allow querying of TSTV properties via Gremlin.
+     *
+     * @param p the Gremlin predicate to convert
+     * @return the equivalent {@link KoryphePredicate}
+     *
+     * @see TypeSubTypeValueFactory#parseStringAsTstvIfValid(String)
      */
-    public static Predicate<?> getKoryphePredicate(final P<?> p) {
+    public static Predicate<?> convertGremlinPredicate(final P<?> p) {
         if (p == null) {
             throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + null);
         }
@@ -92,7 +98,7 @@ public final class KoryphePredicateFactory {
 
     private static Or<?> getOrPredicate(final OrP<?> orP) {
         List<Predicate> predicates = orP.getPredicates().stream()
-                .map(p -> getKoryphePredicate(p))
+                .map(p -> convertGremlinPredicate(p))
                 .collect(Collectors.toList());
 
         return new Or<>(predicates);
@@ -100,7 +106,7 @@ public final class KoryphePredicateFactory {
 
      private static And<?> getAndPredicate(final AndP<?> andP) {
         List<Predicate> predicates = andP.getPredicates().stream()
-                .map(p -> getKoryphePredicate(p))
+                .map(p -> convertGremlinPredicate(p))
                 .collect(Collectors.toList());
 
         return new And<>(predicates);

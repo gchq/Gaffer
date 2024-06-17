@@ -40,125 +40,125 @@ class KoryphePredicateFactoryTest {
 
   @Test
   void shouldReturnIsEqual() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(P.eq(20)))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(P.eq(20)))
       .isEqualTo(new IsEqual(20));
   }
 
   @Test
   void shouldReturnNotIsEqual() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(P.neq(20)))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(P.neq(20)))
       .isEqualTo(new Not<Object>(new IsEqual(20)));
   }
 
   @Test
   void shouldReturnIsMoreThan() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(P.gt(20)))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(P.gt(20)))
       .isEqualTo(new IsMoreThan(20, false));
   }
 
   @Test
   void shouldReturnIsMoreThanOrEqualTo() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(P.gte(20)))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(P.gte(20)))
       .isEqualTo(new IsMoreThan(20, true));
   }
 
   @Test
   void shouldReturnIsLessThan() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(P.lt(20)))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(P.lt(20)))
       .isEqualTo(new IsLessThan(20, false));
   }
 
   @Test
   void shouldReturnIsLessThanOrEqualTo() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(P.lte(20)))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(P.lte(20)))
       .isEqualTo(new IsLessThan(20, true));
   }
 
   @Test
   void shouldReturnAndInside() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(P.inside(20, 30)))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(P.inside(20, 30)))
       .isEqualTo(new And<>(Arrays.asList(new IsMoreThan(20, false),
                                          new IsLessThan(30, false))));
   }
 
   @Test
   void shouldReturnAndBetween() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(P.between(20, 30)))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(P.between(20, 30)))
       .isEqualTo(new And<>(Arrays.asList(new IsMoreThan(20, true),
                                          new IsLessThan(30, false))));
   }
 
   @Test
   void shouldReturnOrOutside() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(P.outside(20, 30)))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(P.outside(20, 30)))
       .isEqualTo(new Or<>(Arrays.asList(new IsLessThan(20, false),
                                          new IsMoreThan(30, false))));
   }
 
   @Test
   void shouldReturnIsIn() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(P.within("marko", "josh")))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(P.within("marko", "josh")))
       .isEqualTo(new IsIn("marko", "josh"));
   }
 
   @Test
   void shouldReturnIsNotIn() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(P.without("marko", "josh")))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(P.without("marko", "josh")))
       .isEqualTo(new Not<Object>(new IsIn("marko", "josh")));
   }
 
   @Test
   void shouldReturnRegexStartingWith() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.startingWith("m")))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(TextP.startingWith("m")))
       .isEqualTo(new Regex("^m.*"));
   }
 
   @Test
   void shouldReturnRegexNotStartingWith() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.notStartingWith("m")))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(TextP.notStartingWith("m")))
       .isEqualTo(new Regex("^(?!m).*"));
   }
 
   @Test
   void shouldReturnRegexEndingWith() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.endingWith("o")))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(TextP.endingWith("o")))
       .isEqualTo(new Regex(".*o$"));
   }
 
   @Test
   void shouldReturnRegexNotEndingWith() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.notEndingWith("o")))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(TextP.notEndingWith("o")))
       .isEqualTo(new Regex(".*(?<!o)$"));
   }
 
   @Test
   void shouldReturnStringContains() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.containing("m")))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(TextP.containing("m")))
       .isEqualTo(new StringContains("m"));
   }
 
   @Test
   void shouldReturnNotStringContains() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.notContaining("m")))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(TextP.notContaining("m")))
       .isEqualTo(new Not<>(new StringContains("m")));
   }
 
   @Test
   void shouldReturnRegex() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.regex("(m|j).*")))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(TextP.regex("(m|j).*")))
       .isEqualTo(new Regex("(m|j).*"));
   }
 
   @Test
   void shouldReturnNotRegex() {
-    assertThat(KoryphePredicateFactory.getKoryphePredicate(TextP.notRegex("(m|j).*")))
+    assertThat(GafferPredicateFactory.convertGremlinPredicate(TextP.notRegex("(m|j).*")))
       .isEqualTo(new Not<>(new Regex("(m|j).*")));
   }
 
   @Test
   void shouldThrowWhenPredicateIsNull() {
     assertThatExceptionOfType(IllegalArgumentException.class)
-    .isThrownBy(() -> KoryphePredicateFactory.getKoryphePredicate(null))
+    .isThrownBy(() -> GafferPredicateFactory.convertGremlinPredicate(null))
     .withMessage("Could not translate Gremlin predicate: null");
   }
 
@@ -166,7 +166,7 @@ class KoryphePredicateFactoryTest {
   void shouldThrowWhenPredicateIsUnknown() {
     P<?> unknownPredicate = UnknownP.unknown(10);
     assertThatExceptionOfType(IllegalArgumentException.class)
-    .isThrownBy(() -> KoryphePredicateFactory.getKoryphePredicate(unknownPredicate))
+    .isThrownBy(() -> GafferPredicateFactory.convertGremlinPredicate(unknownPredicate))
     .withMessageContaining("Could not translate Gremlin predicate");
   }
 

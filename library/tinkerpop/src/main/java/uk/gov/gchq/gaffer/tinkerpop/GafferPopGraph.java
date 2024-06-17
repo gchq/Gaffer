@@ -56,6 +56,7 @@ import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEdgeGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopHasStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.TypeSubTypeValueFactory;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.user.User;
@@ -280,7 +281,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         // Add and register custom traversals
         TraversalStrategies traversalStrategies = GlobalCache.getStrategies(this.getClass()).addStrategies(
-                GafferPopGraphStepStrategy.instance());
+                GafferPopGraphStepStrategy.instance(),
+                GafferPopHasStepStrategy.instance());
         GlobalCache.registerStrategies(this.getClass(), traversalStrategies);
     }
 

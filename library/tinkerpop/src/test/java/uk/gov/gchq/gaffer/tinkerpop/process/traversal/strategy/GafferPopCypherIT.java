@@ -24,7 +24,6 @@ import org.opencypher.v9_0.util.SyntaxException;
 
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopHasStepIT;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils;
 
 import java.util.LinkedHashMap;
@@ -48,7 +47,7 @@ public class GafferPopCypherIT {
 
     @BeforeAll
     public static void beforeAll() {
-        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopHasStepIT.class, MAP_STORE_PROPERTIES, MODERN_CONFIGURATION);
+        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopCypherIT.class, MAP_STORE_PROPERTIES, MODERN_CONFIGURATION);
         g = gafferPopGraph.traversal();
     }
 

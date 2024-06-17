@@ -39,6 +39,11 @@ public final class TypeSubTypeValueFactory {
      * As a fallback will give back the original value if no relevant type
      * was found.
      *
+     * <pre>
+     * "t:type|st:subtype|v:value" // returns TypeSubTypeValue object
+     * "notATstv" // returns itself
+     * </pre>
+     *
      * @param value The value.
      * @return The value as its relevant type.
      */
