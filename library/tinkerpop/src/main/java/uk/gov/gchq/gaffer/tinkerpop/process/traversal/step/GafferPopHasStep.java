@@ -35,15 +35,15 @@ public class GafferPopHasStep<S extends Element> extends HasStep<S> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopHasStep.class);
 
     public GafferPopHasStep(final HasStep<S> originalHasStep) {
-        super(originalHasStep.getTraversal(), new HasContainer[0]);
+        super(originalHasStep.getTraversal());
         LOGGER.debug("Running custom HasStep on GafferPopGraph");
 
-        // Convert Gremlin HasContainers to GafferPopHasContainers
         originalHasStep.getHasContainers().forEach(this::addHasContainer);
     }
 
     @Override
     public void addHasContainer(final HasContainer hasContainer) {
+        // Convert Gremlin HasContainers to GafferPopHasContainers
         super.addHasContainer(new GafferPopHasContainer(hasContainer));
     }
 }

@@ -36,7 +36,7 @@ import java.util.Arrays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-class KoryphePredicateFactoryTest {
+class GafferPredicateFactoryTest {
 
   @Test
   void shouldReturnIsEqual() {

@@ -27,11 +27,9 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils;
-import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
+import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils;
 
 import java.util.List;
 
@@ -50,52 +48,40 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.RIPPLE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.SOFTWARE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.VADAS;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.WEIGHT;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.OTHER_TSTV_PROPERTY;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.OTHER_TSTV_PROPERTY_STRING;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY_STRING;
 
 /**
  * Verify behaviour against HasStep examples in the Tinkerpop HasStep documentation.
  * Needed since the HasStep optimisations were added in {@link GafferPopGraphStep}
+ *
+ * Tests filtering that has been incorporated into a GafferPopGraphStep
+ * e.g.
+ * <code>g.V().has(...)</code>
+ * not
+ * <code>g.V().out().has(...)</code>
  */
-public class GafferPopGraphStepIT {
+class GafferPopGraphStepIT {
 
     private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphStepIT.class, "/gaffer/store.properties"));
-    private static final String TSTV = "tstv";
     private static GraphTraversalSource g;
     private static GraphTraversalSource tstvG;
 
-    private static final TypeSubTypeValue TSTV_ID = new TypeSubTypeValue("alpha", "beta", "gamma");
-    private static final TypeSubTypeValue OTHER_TSTV_ID = new TypeSubTypeValue("delta", "epsilon", "zeta");
-    private static final TypeSubTypeValue TSTV_PROPERTY = new TypeSubTypeValue("eta", "theta", "iota");
-    private static final String TSTV_PROPERTY_STRING = "t:eta|st:theta|v:iota";
-    private static final TypeSubTypeValue OTHER_TSTV_PROPERTY = new TypeSubTypeValue("kappa", "lambda", "mu");
-    private static final String OTHER_TSTV_PROPERTY_STRING = "t:kappa|st:lambda|v:mu";
-
-
     @BeforeAll
     public static void beforeAll() {
-        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopGraphStepIT.class, ACCUMULO_PROPERTIES, MODERN_CONFIGURATION);
-        g = gafferPopGraph.traversal();
+        GafferPopGraph modern = GafferPopModernTestUtils.createModernGraph(GafferPopGraphStepIT.class, ACCUMULO_PROPERTIES, MODERN_CONFIGURATION);
+        g = modern.traversal();
 
-        initialiseTstvGraph();
+        GafferPopGraph tstv = GafferPopTstvTestUtils.createTstvGraph();
+        tstvG = tstv.traversal();
     }
 
-    private static void initialiseTstvGraph() {
-        final Graph gafferGraph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("tstvGraph")
-                        .build())
-                .storeProperties(ACCUMULO_PROPERTIES)
-                .addSchemas(StreamUtil.openStreams(GafferPopGraphStepIT.class, "/gaffer/tstv-schema"))
-                .build();
-        final GafferPopGraph tstvGraph = GafferPopGraph.open(MODERN_CONFIGURATION, gafferGraph);
-
-        tstvGraph.addVertex(T.label, TSTV, T.id, TSTV_ID, NAME, TSTV_PROPERTY);
-        tstvGraph.addVertex(T.label, TSTV, T.id, OTHER_TSTV_ID, NAME, OTHER_TSTV_PROPERTY);
-
-        tstvG = tstvGraph.traversal();
-    }
 
     @Test
-    public void shouldFilterVerticesByLabel() {
+    void shouldFilterVerticesByLabel() {
         final List<Vertex> result = g.V().hasLabel(PERSON).toList();
 
         assertThat(result)
@@ -104,7 +90,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByLabelsOnly() {
+    void shouldFilterVerticesByLabelsOnly() {
         final List<Vertex> result = g.V().hasLabel(PERSON, SOFTWARE).toList();
 
         assertThat(result)
@@ -113,7 +99,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldThrowWhenFilterVerticesByInvalidLabels() {
+    void shouldThrowWhenFilterVerticesByInvalidLabels() {
         // Included this as it's an example from the docs that won't run due to Gaffer limitation
         // Gaffer checks labels in the view are valid before querying
         assertThatRuntimeException()
@@ -124,7 +110,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByLabelAndProperty() {
+    void shouldFilterVerticesByLabelAndProperty() {
         final List<Vertex> result = g.V().has(PERSON, NAME, MARKO.getName()).toList();
 
         assertThat(result)
@@ -133,7 +119,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByLabelAndTstvProperty() {
+    void shouldFilterVerticesByLabelAndTstvProperty() {
         final List<Vertex> result = tstvG.V().has(TSTV, NAME, TSTV_PROPERTY_STRING).toList();
 
         assertThat(result)
@@ -142,7 +128,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByLabelAndPropertyLessThan() {
+    void shouldFilterVerticesByLabelAndPropertyLessThan() {
         final List<Vertex> result = g.V().has(AGE, P.lt(30))
                 .toList();
 
@@ -152,7 +138,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByLabelAndTstvPropertyLessThan() {
+    void shouldFilterVerticesByLabelAndTstvPropertyLessThan() {
         final List<Vertex> result = tstvG.V().has(NAME, P.lt(OTHER_TSTV_PROPERTY_STRING))
                 .toList();
 
@@ -162,7 +148,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByLabelAndPropertyMoreThan() {
+    void shouldFilterVerticesByLabelAndPropertyMoreThan() {
         final List<Vertex> result = g.V().has(PERSON, AGE, P.gt(30))
                 .toList();
 
@@ -172,7 +158,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByLabelAndTstvPropertyMoreThan() {
+    void shouldFilterVerticesByLabelAndTstvPropertyMoreThan() {
         final List<Vertex> result = tstvG.V().has(NAME, P.gt(TSTV_PROPERTY_STRING))
                 .toList();
 
@@ -182,7 +168,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByLabelAndPropertyWithin() {
+    void shouldFilterVerticesByLabelAndPropertyWithin() {
         final List<Vertex> result = g.V().has(PERSON, NAME, P.within(VADAS.getName(), JOSH.getName()))
                 .toList();
 
@@ -192,7 +178,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByLabelAndTstvPropertyWithin() {
+    void shouldFilterVerticesByLabelAndTstvPropertyWithin() {
         final List<Vertex> result = tstvG.V().has(TSTV, NAME, P.within(TSTV_PROPERTY_STRING, OTHER_TSTV_PROPERTY_STRING))
                 .toList();
 
@@ -202,7 +188,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyInside() {
+    void shouldFilterVerticesByPropertyInside() {
         final List<Object> result = g.V().has(PERSON, AGE, P.inside(20, 30)).values(AGE).toList();
 
         assertThat(result)
@@ -211,7 +197,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyOutside() {
+    void shouldFilterVerticesByPropertyOutside() {
         final List<Object> result = g.V().has(PERSON, AGE, P.outside(20, 30)).values(AGE).toList();
 
         assertThat(result)
@@ -220,7 +206,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyWithin() {
+    void shouldFilterVerticesByPropertyWithin() {
         final List<Vertex> result = g.V().has(NAME, P.within(JOSH.getName(), MARKO.getName())).toList();
 
         assertThat(result)
@@ -229,7 +215,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByTstvPropertyWithin() {
+    void shouldFilterVerticesByTstvPropertyWithin() {
         final List<Vertex> result = tstvG.V().has(NAME, P.within(TSTV_PROPERTY_STRING, OTHER_TSTV_PROPERTY_STRING))
                 .toList();
 
@@ -239,7 +225,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyWithout() {
+    void shouldFilterVerticesByPropertyWithout() {
         final List<Vertex> result = g.V().has(NAME, P.without(JOSH.getName(), MARKO.getName())).toList();
 
         assertThat(result)
@@ -248,7 +234,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByTstvPropertyWithout() {
+    void shouldFilterVerticesByTstvPropertyWithout() {
         final List<Vertex> result = tstvG.V().has(NAME, P.without(TSTV_PROPERTY_STRING, OTHER_TSTV_PROPERTY_STRING))
                 .toList();
 
@@ -256,7 +242,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyNotWithin() {
+    void shouldFilterVerticesByPropertyNotWithin() {
         final List<Vertex> result = g.V().has(NAME, P.not(P.within(JOSH.getName(), MARKO.getName()))).toList();
 
         assertThat(result)
@@ -265,7 +251,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByTstvPropertyNotWithin() {
+    void shouldFilterVerticesByTstvPropertyNotWithin() {
         final List<Vertex> result = tstvG.V().has(NAME, P.not(P.within(TSTV_PROPERTY_STRING, OTHER_TSTV_PROPERTY_STRING)))
                 .toList();
 
@@ -273,7 +259,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyNot() {
+    void shouldFilterVerticesByPropertyNot() {
         final List<Vertex> result = g.V().hasNot(AGE).toList();
 
         assertThat(result)
@@ -282,7 +268,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyStartingWith() {
+    void shouldFilterVerticesByPropertyStartingWith() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.startingWith("m")).toList();
 
         assertThat(result)
@@ -291,7 +277,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyNotStartingWith() {
+    void shouldFilterVerticesByPropertyNotStartingWith() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.notStartingWith("m")).toList();
 
         assertThat(result)
@@ -300,7 +286,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyEndingWith() {
+    void shouldFilterVerticesByPropertyEndingWith() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.endingWith("o")).toList();
 
         assertThat(result)
@@ -309,7 +295,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyNotEndingWith() {
+    void shouldFilterVerticesByPropertyNotEndingWith() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.notEndingWith("o")).toList();
 
         assertThat(result)
@@ -319,7 +305,7 @@ public class GafferPopGraphStepIT {
 
 
     @Test
-    public void shouldFilterVerticesByPropertyContaining() {
+    void shouldFilterVerticesByPropertyContaining() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.containing("a")).toList();
 
         assertThat(result)
@@ -328,7 +314,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyNotContaining() {
+    void shouldFilterVerticesByPropertyNotContaining() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.notContaining("a")).toList();
 
         assertThat(result)
@@ -337,7 +323,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyRegex() {
+    void shouldFilterVerticesByPropertyRegex() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.regex("m.*")).toList();
 
         assertThat(result)
@@ -346,7 +332,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVerticesByPropertyNotRegex() {
+    void shouldFilterVerticesByPropertyNotRegex() {
         final List<Vertex> result = g.V().has(PERSON, NAME, TextP.notRegex("m.*")).toList();
 
         assertThat(result)
@@ -355,7 +341,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterEdgesByLabel() {
+    void shouldFilterEdgesByLabel() {
         final List<Edge> result = g.E().hasLabel(KNOWS).toList();
 
         assertThat(result)
@@ -364,7 +350,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldGetEdgesByIdAndLabelThenFilterByLabel() {
+    void shouldGetEdgesByIdAndLabelThenFilterByLabel() {
         final List<Edge> result = g.E("[1, knows, 2]").hasLabel("knows").toList();
 
         assertThat(result)
@@ -373,7 +359,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldGetEdgesByIdAndLabelThenFilterById() {
+    void shouldGetEdgesByIdAndLabelThenFilterById() {
         final List<Edge> result = g.E("[4, created, 3]").outV().outE().has(T.id, "[4, created, 5]").toList();
 
         assertThat(result)
@@ -382,7 +368,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldThrowWhenFilterEdgesByInvalidLabels() {
+    void shouldThrowWhenFilterEdgesByInvalidLabels() {
         // Included this as it's an example from the docs that won't run due to Gaffer limitation
         // Gaffer checks labels in the view are valid before querying
         assertThatRuntimeException()
@@ -392,7 +378,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterEdgesByPropertyInside() {
+    void shouldFilterEdgesByPropertyInside() {
         final List<Edge> result = g.E().has(KNOWS, WEIGHT, P.inside(0.1, 0.6)).toList();
 
         assertThat(result)
@@ -401,7 +387,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterEdgesByPropertyOutside() {
+    void shouldFilterEdgesByPropertyOutside() {
         final List<Edge> result = g.E().has(WEIGHT, P.outside(0.0, 0.9)).toList();
 
         assertThat(result)
@@ -410,7 +396,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterEdgesByPropertyLessThan() {
+    void shouldFilterEdgesByPropertyLessThan() {
         final List<Edge> result = g.E().has(WEIGHT, P.lt(0.4))
                 .toList();
 
@@ -420,7 +406,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterEdgesByPropertyLessThanWithInvalidProperty() {
+    void shouldFilterEdgesByPropertyLessThanWithInvalidProperty() {
         // Uses fallback method due to Gremlin null error
         final List<Edge> result = g.E().has("invalid", P.lt(0.4))
                 .toList();
@@ -429,13 +415,13 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldHandleNulls() {
+    void shouldHandleNulls() {
         final List<Long> result = g.V().has(AGE, P.within(27, null)).count().toList();
         assertThat(result).containsExactly(1L);
     }
 
     @Test
-    public void shouldFilterVertexById() {
+    void shouldFilterVertexById() {
         final List<Vertex> result = g.V().hasId(MARKO.getId(), JOSH.getId()).toList();
         assertThat(result)
                 .extracting(r -> r.id())
@@ -443,13 +429,13 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterVertexByIdMissing() {
+    void shouldFilterVertexByIdMissing() {
         final List<Vertex> result = g.V().hasId(new String[0]).toList();
         assertThat(result).isEmpty();
     }
 
     @Test
-    public void shouldFilterEdgeById() {
+    void shouldFilterEdgeById() {
         final List<Edge> result = g.E().hasId("[1,2]").toList();
         assertThat(result)
                 .extracting(r -> r.id())
@@ -457,7 +443,7 @@ public class GafferPopGraphStepIT {
     }
 
     @Test
-    public void shouldFilterEdgeByIdMissing() {
+    void shouldFilterEdgeByIdMissing() {
         final List<Edge> result = g.E().hasId(new String[0]).toList();
         assertThat(result).isEmpty();
     }
