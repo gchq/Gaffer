@@ -25,21 +25,21 @@ import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferPredicateFactor
 import java.util.function.Predicate;
 
 /**
- * Wrapper class for Gremlin {@Link HasContainer}.
+ * Wrapper class for Gremlin {@link HasContainer}.
  *
  * Uses Predicates that have been converted for use in Gaffer.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class GafferPopHasContainer extends HasContainer {
 
-    final Predicate gafferPredicate;
+    final transient Predicate gafferPredicate;
 
     public GafferPopHasContainer(final HasContainer original) {
         super(original.getKey(), original.getPredicate());
         gafferPredicate = GafferPredicateFactory.convertGremlinPredicate(getPredicate());
     }
 
-    public Predicate<?> getGafferPredicate() {
+    public Predicate getGafferPredicate() {
         return gafferPredicate;
     }
 

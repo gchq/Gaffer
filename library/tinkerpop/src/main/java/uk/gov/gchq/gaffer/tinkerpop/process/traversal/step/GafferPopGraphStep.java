@@ -114,7 +114,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
         // linear scan as fallback
         LOGGER.debug("Using fallback filter method: {} hasContainers found", hasContainers.size());
-        return IteratorUtils.filter(graph.edges(this.ids), edge -> GafferPopHasContainer.testAll(edge, (List) hasContainers));
+        return IteratorUtils.filter(graph.edges(this.ids), edge -> HasContainer.testAll(edge, (List) hasContainers));
     }
 
     private Iterator<? extends Vertex> vertices(final GafferPopGraph graph) {
@@ -137,7 +137,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
         // linear scan as fallback
         LOGGER.debug("Using fallback filter method: {} hasContainers found", hasContainers.size());
-        return IteratorUtils.filter(graph.vertices(this.ids), vertex -> GafferPopHasContainer.testAll(vertex, (List) hasContainers));
+        return IteratorUtils.filter(graph.vertices(this.ids), vertex -> HasContainer.testAll(vertex, (List) hasContainers));
     }
 
     /**
