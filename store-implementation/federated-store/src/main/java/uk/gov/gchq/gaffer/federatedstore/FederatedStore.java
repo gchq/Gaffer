@@ -550,7 +550,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
-        return null;
+        return new FederatedNoOutputHandler<>();
     }
 
     @Override
