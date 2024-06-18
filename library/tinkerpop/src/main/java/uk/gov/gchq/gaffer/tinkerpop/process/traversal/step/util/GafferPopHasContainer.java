@@ -32,7 +32,7 @@ import java.util.function.Predicate;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class GafferPopHasContainer extends HasContainer {
 
-    final transient Predicate gafferPredicate;
+    final Predicate gafferPredicate;
 
     public GafferPopHasContainer(final HasContainer original) {
         super(original.getKey(), original.getPredicate());
