@@ -131,7 +131,7 @@ public class DeleteElementsHandlerTest {
                     .input(new EdgeSeed("B", "C"))
                     .view(new View.Builder().edge(BASIC_EDGE1).build())
                     .build();
-        final Iterable<? extends Element> getElementResults = aggregatedGraph.execute(getElements,USER);
+        final Iterable<? extends Element> getElementResults = aggregatedGraph.execute(getElements, USER);
 
         assertThat(getElementResults).isEmpty();
     }
