@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.mapstore.impl;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -53,10 +54,6 @@ public class DeleteElementsHandlerTest {
 
     static final String BASIC_ENTITY = "BasicEntity";
     static final String BASIC_EDGE1 = "BasicEdge";
-    static final String BASIC_EDGE2 = "BasicEdge2";
-    static final String PROPERTY1 = "property1";
-    static final String PROPERTY2 = "property2";
-    static final String COUNT = "count";
     static final User USER = new User();
 
     @BeforeEach
@@ -92,7 +89,10 @@ public class DeleteElementsHandlerTest {
         // Vertex A deleted
         // Vertices B and C and Edges A->B and B->C remaining
         final Iterable<? extends Element> results = aggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
-        assertThat(results).hasSize(4);
+        assertThat(results)
+            .hasSize(4)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("A"));
 
         // Check Vertex A cannot be retrieved from Graph
         final GetElements getElements = new GetElements.Builder()
@@ -124,7 +124,10 @@ public class DeleteElementsHandlerTest {
         // Edge B->C deleted
         // All vertices remain but only edge A->B remains
         final Iterable<? extends Element> results = aggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
-        assertThat(results).hasSize(4);
+        assertThat(results)
+            .hasSize(4)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEdge("B", "C"));
 
         // Check Vertex A cannot be retrieved from Graph
         final GetElements getElements = new GetElements.Builder()
@@ -156,7 +159,10 @@ public class DeleteElementsHandlerTest {
         // Vertex A deleted
         // Vertices B and C and Edges A->B and B->C remaining
         final Iterable<? extends Element> results = nonAggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
-        assertThat(results).hasSize(4);
+        assertThat(results)
+            .hasSize(4)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("A"));
 
         // Check Vertex A cannot be retrieved from Graph
         final GetElements getElements = new GetElements.Builder()
@@ -189,7 +195,10 @@ public class DeleteElementsHandlerTest {
         // Edge B->C deleted
         // All vertices remain but only edge A->B remains
         final Iterable<? extends Element> results = nonAggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
-        assertThat(results).hasSize(4);
+        assertThat(results)
+            .hasSize(4)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEdge("B", "C"));
 
         // Check Vertex A cannot be retrieved from Graph
         final GetElements getElements = new GetElements.Builder()
@@ -220,7 +229,10 @@ public class DeleteElementsHandlerTest {
         // Vertex A Deleted and Edge A->B
         // Vertices B and C and Edge B->C remaining
         final Iterable<? extends Element> results = aggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
-        assertThat(results).hasSize(3);
+        assertThat(results)
+            .hasSize(3)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("A"), getEdge("A", "B"));
 
         // Check Vertex A and it's edges can no longer be retrieved from graph
         final GetElements getElements = new GetElements.Builder()
@@ -249,7 +261,10 @@ public class DeleteElementsHandlerTest {
         // Vertex A Deleted and Edge A->B
         // Vertices B and C and Edge B->C remaining
         final Iterable<? extends Element> results = nonAggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
-        assertThat(results).hasSize(3);
+        assertThat(results)
+            .hasSize(3)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("A"), getEdge("A", "B"));
 
         // Check Vertex A and it's edges can no longer be retrieved from graph
         final GetElements getElements = new GetElements.Builder()
@@ -278,7 +293,10 @@ public class DeleteElementsHandlerTest {
         // Vertex B Deleted and Edge A->B and Edge B->C
         // Vertices A and C remaining
         final Iterable<? extends Element> results = aggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
-        assertThat(results).hasSize(2);
+        assertThat(results)
+            .hasSize(2)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("B"), getEdge("A", "B"), getEdge("B", "C"));
 
         // Check Vetex B and it's edges can no longer be retrieved from graph
         final GetElements getElements = new GetElements.Builder()
@@ -307,7 +325,10 @@ public class DeleteElementsHandlerTest {
         // Vertex B Deleted and Edge A->B and Edge B->C
         // Vertices A and C remaining
         final Iterable<? extends Element> results = nonAggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
-        assertThat(results).hasSize(2);
+        assertThat(results)
+            .hasSize(2)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("B"), getEdge("A", "B"), getEdge("B", "C"));
 
         // Check Vetex B and it's edges can no longer be retrieved from graph
         final GetElements getElements = new GetElements.Builder()
@@ -383,22 +404,16 @@ public class DeleteElementsHandlerTest {
         elements.add(new Entity.Builder()
                 .group(BASIC_ENTITY)
                 .vertex("A")
-                .property(PROPERTY1, "p")
-                .property(COUNT, 1)
                 .build());
 
         elements.add(new Entity.Builder()
                 .group(BASIC_ENTITY)
                 .vertex("B")
-                .property(PROPERTY1, "p")
-                .property(COUNT, 1)
                 .build());
 
         elements.add(new Entity.Builder()
                 .group(BASIC_ENTITY)
                 .vertex("C")
-                .property(PROPERTY1, "p")
-                .property(COUNT, 1)
                 .build());
 
         elements.add(new Edge.Builder()
@@ -406,8 +421,6 @@ public class DeleteElementsHandlerTest {
                 .source("A")
                 .dest("B")
                 .directed(true)
-                .property(PROPERTY1, "q")
-                .property(COUNT, 1)
                 .build());
 
         elements.add(new Edge.Builder()
@@ -415,11 +428,25 @@ public class DeleteElementsHandlerTest {
                 .source("B")
                 .dest("C")
                 .directed(true)
-                .property(PROPERTY1, "q")
-                .property(COUNT, 1)
                 .build());
 
         return elements;
+    }
+
+    private static Edge getEdge(final String source, final String dest) {
+        return new Edge.Builder()
+                .group(BASIC_EDGE1)
+                .source(source)
+                .dest(dest)
+                .directed(true)
+                .build();
+    }
+
+    private static Entity getEntity(final String vertex) {
+        return new Entity.Builder()
+                .group(BASIC_ENTITY)
+                .vertex(vertex)
+                .build();
     }
 
     public static Schema getSchema() {
