@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TypeSubTypeValueFactoryTest {
+class TypeSubTypeValueFactoryTest {
 
   @Test
   void shouldParseStringAsTstv() {
