@@ -65,7 +65,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraphStep.class);
 
-    private final List<GafferPopHasContainer> hasContainers = new ArrayList<>();
+    private final List<HasContainer> hasContainers = new ArrayList<>();
 
     public GafferPopGraphStep(final GraphStep<S, E> originalGraphStep) {
         super(originalGraphStep.getTraversal(), originalGraphStep.getReturnClass(), originalGraphStep.isStartStep(), originalGraphStep.getIds());
@@ -114,7 +114,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
         // linear scan as fallback
         LOGGER.debug("Using fallback filter method: {} hasContainers found", hasContainers.size());
-        return IteratorUtils.filter(graph.edges(this.ids), edge -> HasContainer.testAll(edge, (List) hasContainers));
+        return IteratorUtils.filter(graph.edges(this.ids), edge -> HasContainer.testAll(edge, hasContainers));
     }
 
     private Iterator<? extends Vertex> vertices(final GafferPopGraph graph) {
@@ -137,7 +137,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
         // linear scan as fallback
         LOGGER.debug("Using fallback filter method: {} hasContainers found", hasContainers.size());
-        return IteratorUtils.filter(graph.vertices(this.ids), vertex -> HasContainer.testAll(vertex, (List) hasContainers));
+        return IteratorUtils.filter(graph.vertices(this.ids), vertex -> HasContainer.testAll(vertex, hasContainers));
     }
 
     /**
@@ -282,17 +282,17 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
             .filter(hc -> hc.getKey() != null)
             .filter(hc -> !hc.getKey().equals(T.label.getAccessor()))
             .filter(hc -> !hc.getKey().equals(T.id.getAccessor()))
+            .map(hc -> (GafferPopHasContainer) hc)
             .collect(Collectors.toList());
     }
 
     @Override
     public List<HasContainer> getHasContainers() {
-        return Collections.unmodifiableList(this.hasContainers);
+        return Collections.unmodifiableList(hasContainers);
     }
 
     @Override
     public void addHasContainer(final HasContainer original) {
-        GafferPopHasContainer hasContainer = new GafferPopHasContainer(original);
-        this.hasContainers.add(hasContainer);
+        hasContainers.add(new GafferPopHasContainer(original));
     }
 }

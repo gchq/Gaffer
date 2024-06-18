@@ -45,26 +45,26 @@ public class GafferPopHasContainer extends HasContainer {
 
     @Override
     protected boolean testId(final Element element) {
-        return this.gafferPredicate.test(element.id());
+        return gafferPredicate.test(element.id());
     }
 
     @Override
     protected boolean testIdAsString(final Element element) {
-        return this.gafferPredicate.test(element.id().toString());
+        return gafferPredicate.test(element.id().toString());
     }
 
     @Override
     protected boolean testLabel(final Element element) {
-        return this.gafferPredicate.test(element.label());
+        return gafferPredicate.test(element.label());
     }
 
     @Override
     protected boolean testValue(final Property property) {
-        return this.gafferPredicate.test(property.value());
+        return gafferPredicate.test(property.value());
     }
 
     @Override
     protected boolean testKey(final Property property) {
-        return this.gafferPredicate.test(property.key());
+        return gafferPredicate.test(property.key());
     }
 }

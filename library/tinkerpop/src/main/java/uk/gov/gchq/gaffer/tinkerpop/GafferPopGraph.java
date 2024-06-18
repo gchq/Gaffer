@@ -929,7 +929,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     seeds.add(new EdgeSeed(edgeIDMatcher.group("src"), edgeIDMatcher.group("dest")));
                 } else {
                 // If not then check if a TSTV ID
-                    seeds.add(new EntitySeed(TypeSubTypeValueFactory.parseStringAsTstvIfValid((String) id)));
+                    seeds.add(new EntitySeed(TypeSubTypeValueFactory.parseAsTstvIfValid(id)));
                 }
             // Assume entity ID as a fallback
             } else {

@@ -47,15 +47,17 @@ public final class TypeSubTypeValueFactory {
      * @param value The value.
      * @return The value as its relevant type.
      */
-    public static Object parseStringAsTstvIfValid(final String value) {
-        Matcher tstvMatcher = TSTV_REGEX.matcher(value);
-        if (tstvMatcher.matches()) {
-            // Split into a TSTV via matcher
-            LOGGER.debug("Parsing string as a TSTV: {}", value);
-            return new TypeSubTypeValue(
-                    tstvMatcher.group("type"),
-                    tstvMatcher.group("stype"),
-                    tstvMatcher.group("val"));
+    public static Object parseAsTstvIfValid(final Object value) {
+        if (value instanceof String) {
+            Matcher tstvMatcher = TSTV_REGEX.matcher((String) value);
+            if (tstvMatcher.matches()) {
+                // Split into a TSTV via matcher
+                LOGGER.debug("Parsing string as a TSTV: {}", value);
+                return new TypeSubTypeValue(
+                        tstvMatcher.group("type"),
+                        tstvMatcher.group("stype"),
+                        tstvMatcher.group("val"));
+            }
         }
 
         return value;

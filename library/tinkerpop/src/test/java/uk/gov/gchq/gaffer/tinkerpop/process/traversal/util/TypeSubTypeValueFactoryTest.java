@@ -24,34 +24,43 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class TypeSubTypeValueFactoryTest {
 
-  @Test
-  void shouldParseStringAsTstv() {
-    String tstv = "t:one|st:two|v:three";
-    Object result = TypeSubTypeValueFactory.parseStringAsTstvIfValid(tstv);
-    assertThat(result)
-      .isInstanceOf(TypeSubTypeValue.class)
-      .extracting(r -> (TypeSubTypeValue) r)
-      .isEqualTo(new TypeSubTypeValue("one", "two", "three"));
-  }
+    @Test
+    void shouldParseStringAsTstv() {
+        String tstv = "t:one|st:two|v:three";
+        Object result = TypeSubTypeValueFactory.parseAsTstvIfValid(tstv);
+        assertThat(result)
+                .isInstanceOf(TypeSubTypeValue.class)
+                .extracting(r -> (TypeSubTypeValue) r)
+                .isEqualTo(new TypeSubTypeValue("one", "two", "three"));
+    }
 
-  @Test
-  void shouldParseComplexStringAsTstv() {
-    String tstv = "t:one|one|st:two|two|v:three|three";
-    Object result = TypeSubTypeValueFactory.parseStringAsTstvIfValid(tstv);
-    assertThat(result)
-      .isInstanceOf(TypeSubTypeValue.class)
-      .extracting(r -> (TypeSubTypeValue) r)
-      .isEqualTo(new TypeSubTypeValue("one|one", "two|two", "three|three"));
-  }
+    @Test
+    void shouldParseComplexStringAsTstv() {
+        String tstv = "t:one|one|st:two|two|v:three|three";
+        Object result = TypeSubTypeValueFactory.parseAsTstvIfValid(tstv);
+        assertThat(result)
+                .isInstanceOf(TypeSubTypeValue.class)
+                .extracting(r -> (TypeSubTypeValue) r)
+                .isEqualTo(new TypeSubTypeValue("one|one", "two|two", "three|three"));
+    }
 
+    @Test
+    void shouldNotParseStringAsTstv() {
+        String notATstv = "not|a|tstv";
+        Object result = TypeSubTypeValueFactory.parseAsTstvIfValid(notATstv);
+        assertThat(result)
+                .isInstanceOf(String.class)
+                .extracting(r -> (String) r)
+                .isEqualTo("not|a|tstv");
+    }
 
-  @Test
-  void shouldNotParseStringAsTstv() {
-    String notATstv = "not|a|tstv";
-    Object result = TypeSubTypeValueFactory.parseStringAsTstvIfValid(notATstv);
-    assertThat(result)
-      .isInstanceOf(String.class)
-      .extracting(r -> (String) r)
-      .isEqualTo("not|a|tstv");
-  }
+    @Test
+    void shouldNotParseObjectAsTstv() {
+        Object notATstv = 1;
+        Object result = TypeSubTypeValueFactory.parseAsTstvIfValid(notATstv);
+        assertThat(result)
+                .isInstanceOf(Integer.class)
+                .extracting(r -> (Integer) r)
+                .isEqualTo(1);
+    }
 }

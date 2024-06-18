@@ -60,7 +60,7 @@ public final class GafferPredicateFactory {
      * @param p the Gremlin predicate to convert
      * @return the equivalent {@link KoryphePredicate}
      *
-     * @see TypeSubTypeValueFactory#parseStringAsTstvIfValid(String)
+     * @see TypeSubTypeValueFactory#parseAsTstvIfValid(Object)
      */
     public static Predicate<?> convertGremlinPredicate(final P<?> p) {
         if (p == null) {
@@ -76,15 +76,12 @@ public final class GafferPredicateFactory {
 
         BiPredicate<?, ?> biPredicate = p.getBiPredicate();
         if (biPredicate instanceof Compare) {
-            Object value = p.getValue();
-            if (value instanceof String) {
-                value = TypeSubTypeValueFactory.parseStringAsTstvIfValid((String) value);
-            }
+            Object value = TypeSubTypeValueFactory.parseAsTstvIfValid(p.getValue());
             return getComparePredicate((Compare) biPredicate, value);
         } else if (biPredicate instanceof Contains) {
             Collection<?> value = (Collection<?>) p.getValue();
             Collection<Object> mappedValues = value.stream()
-                    .map(v -> (v instanceof String) ? TypeSubTypeValueFactory.parseStringAsTstvIfValid((String) v) : v)
+                    .map(v -> TypeSubTypeValueFactory.parseAsTstvIfValid(v))
                     .collect(Collectors.toList());
             return getContainsPredicate((Contains) biPredicate, mappedValues);
         } else if (biPredicate instanceof Text) {
