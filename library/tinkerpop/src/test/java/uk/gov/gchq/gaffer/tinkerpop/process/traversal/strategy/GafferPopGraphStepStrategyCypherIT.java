@@ -40,14 +40,14 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MODERN_
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.PETER;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.VADAS;
 
-public class GafferPopCypherIT {
+public class GafferPopGraphStepStrategyCypherIT {
 
     private static final MapStoreProperties MAP_STORE_PROPERTIES = MapStoreProperties.loadStoreProperties("/tinkerpop/map-store.properties");
     private static GraphTraversalSource g;
 
     @BeforeAll
     public static void beforeAll() {
-        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopCypherIT.class, MAP_STORE_PROPERTIES, MODERN_CONFIGURATION);
+        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopGraphStepStrategyCypherIT.class, MAP_STORE_PROPERTIES, MODERN_CONFIGURATION);
         g = gafferPopGraph.traversal();
     }
 
