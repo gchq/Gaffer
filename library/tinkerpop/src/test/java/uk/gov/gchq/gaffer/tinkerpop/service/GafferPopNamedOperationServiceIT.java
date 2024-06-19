@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphIT;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -47,7 +46,7 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURA
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.USER_ID;
 
 public class GafferPopNamedOperationServiceIT {
-    private static final MapStoreProperties PROPERTIES = MapStoreProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphIT.class, "/gaffer/map-store.properties"));
+    private static final MapStoreProperties PROPERTIES = MapStoreProperties.loadStoreProperties(StreamUtil.openStream(GafferPopNamedOperationServiceIT.class, "/gaffer/map-store.properties"));
 
     @Test
     void shouldHaveNamedOperationService() {

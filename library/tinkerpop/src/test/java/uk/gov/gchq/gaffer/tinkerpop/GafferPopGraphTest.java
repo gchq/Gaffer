@@ -62,11 +62,11 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.SOFTWAR
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.VADAS;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.WEIGHT;
 
-public class GafferPopGraphIT {
+public class GafferPopGraphTest {
     public static final String TSTV_GROUP = "tstv";
 
     private static final AccumuloProperties PROPERTIES = AccumuloProperties
-            .loadStoreProperties(StreamUtil.openStream(GafferPopGraphIT.class, "/gaffer/store.properties"));
+            .loadStoreProperties(StreamUtil.openStream(GafferPopGraphTest.class, "/gaffer/store.properties"));
 
     @Test
     public void shouldConstructGafferPopGraphWithOnlyConfig() {
@@ -95,7 +95,7 @@ public class GafferPopGraphIT {
 
         // when
         final GafferPopGraph graph = GafferPopGraph
-                .open(GafferPopGraphIT.class.getClassLoader().getResource("gafferpop-test.properties").getPath());
+                .open(GafferPopGraphTest.class.getClassLoader().getResource("gafferpop-test.properties").getPath());
 
         // Then
         final Map<String, Object> variables = graph.variables().asMap();

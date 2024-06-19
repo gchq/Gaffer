@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphIT;
 import uk.gov.gchq.gaffer.user.User;
 
 public final class GafferPopTestUtil {
@@ -50,7 +49,7 @@ public final class GafferPopTestUtil {
             this.setProperty(GafferPopGraph.USER_ID, USER_ID);
             this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
             this.setProperty(GafferPopGraph.GRAPH_ID, "Graph1");
-            this.setProperty(GafferPopGraph.STORE_PROPERTIES, GafferPopGraphIT.class.getClassLoader().getResource("gaffer/store.properties").getPath());
+            this.setProperty(GafferPopGraph.STORE_PROPERTIES, GafferPopTestUtil.class.getClassLoader().getResource("gaffer/store.properties").getPath());
             this.setProperty(GafferPopGraph.GET_ALL_ELEMENTS_LIMIT, 1);
             this.setProperty(GafferPopGraph.HAS_STEP_FILTER_STAGE, "POST_TRANSFORM");
         }
