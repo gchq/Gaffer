@@ -41,7 +41,7 @@ import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
     * {@link MapStore}.
 */
 public class DeleteElementsHandler implements OperationHandler<DeleteElements> {
-private static final Logger LOGGER = LoggerFactory.getLogger(DeleteElementsHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteElementsHandler.class);
 
     @Override
     public Void doOperation(final DeleteElements deleteElements, final Context context, final Store store)
