@@ -41,22 +41,28 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public final class KoryphePredicateFactory {
+public final class GafferPredicateFactory {
 
     private static final String COULD_NOT_TRANSLATE_ERROR = "Could not translate Gremlin predicate: ";
 
-    private KoryphePredicateFactory() {
+    private GafferPredicateFactory() {
         // Utility class
     }
 
     /**
-     * Converts a Predicate from a HasContainer to a KoryphePredicate
-     * that can be used in a Gaffer View
+     * Converts a Gremlin Predicate into to a KoryphePredicate
+     * that can be used to filter elements in a Gaffer
+     * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View View}.
      *
-     * @param p the predicate to convert
-     * @return the equivalent KoryphePredicate
+     * Also converts TSTV Strings to {@link uk.gov.gchq.gaffer.types.TypeSubTypeValue TypeSubTypeValue}
+     * objects to allow querying of TSTV properties via Gremlin.
+     *
+     * @param p the Gremlin predicate to convert
+     * @return the equivalent {@link KoryphePredicate}
+     *
+     * @see TypeSubTypeValueFactory#parseAsTstvIfValid(Object)
      */
-    public static Predicate<?> getKoryphePredicate(final P<?> p) {
+    public static Predicate<?> convertGremlinPredicate(final P<?> p) {
         if (p == null) {
             throw new IllegalArgumentException(COULD_NOT_TRANSLATE_ERROR + null);
         }
@@ -69,13 +75,17 @@ public final class KoryphePredicateFactory {
         }
 
         BiPredicate<?, ?> biPredicate = p.getBiPredicate();
-        Object value = p.getValue();
         if (biPredicate instanceof Compare) {
+            Object value = TypeSubTypeValueFactory.parseAsTstvIfValid(p.getValue());
             return getComparePredicate((Compare) biPredicate, value);
         } else if (biPredicate instanceof Contains) {
-            return getContainsPredicate((Contains) biPredicate, (Collection) value);
+            Collection<?> value = (Collection<?>) p.getValue();
+            Collection<Object> mappedValues = value.stream()
+                    .map(v -> TypeSubTypeValueFactory.parseAsTstvIfValid(v))
+                    .collect(Collectors.toList());
+            return getContainsPredicate((Contains) biPredicate, mappedValues);
         } else if (biPredicate instanceof Text) {
-            return getTextPredicate((Text) biPredicate, (String) value);
+            return getTextPredicate((Text) biPredicate, (String) p.getValue());
         } else if (biPredicate instanceof RegexPredicate) {
             return getRegexPredicate((RegexPredicate) biPredicate);
         }
@@ -85,7 +95,7 @@ public final class KoryphePredicateFactory {
 
     private static Or<?> getOrPredicate(final OrP<?> orP) {
         List<Predicate> predicates = orP.getPredicates().stream()
-                .map(p -> getKoryphePredicate(p))
+                .map(p -> convertGremlinPredicate(p))
                 .collect(Collectors.toList());
 
         return new Or<>(predicates);
@@ -93,7 +103,7 @@ public final class KoryphePredicateFactory {
 
      private static And<?> getAndPredicate(final AndP<?> andP) {
         List<Predicate> predicates = andP.getPredicates().stream()
-                .map(p -> getKoryphePredicate(p))
+                .map(p -> convertGremlinPredicate(p))
                 .collect(Collectors.toList());
 
         return new And<>(predicates);

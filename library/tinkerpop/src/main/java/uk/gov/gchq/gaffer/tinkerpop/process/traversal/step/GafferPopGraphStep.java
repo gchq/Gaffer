@@ -22,7 +22,6 @@ import org.apache.tinkerpop.gremlin.process.traversal.step.HasContainerHolder;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.GraphStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.HasContainer;
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.OptionsStrategy;
-import org.apache.tinkerpop.gremlin.process.traversal.util.AndP;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
@@ -39,7 +38,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
-import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.KoryphePredicateFactory;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.util.GafferPopHasContainer;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.ArrayList;
@@ -223,7 +222,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
      * @return ViewElementDefinition containing the filters
      */
     private ViewElementDefinition createElementDefFromPredicates(final String filterStage, final boolean createGlobal) {
-        List<HasContainer> predicateContainers = getRequestedPredicates();
+        List<GafferPopHasContainer> predicateContainers = getRequestedPredicates();
 
         // No predicates found
         if (predicateContainers.isEmpty()) {
@@ -237,7 +236,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
                 // Only apply the HC predicate to properties that exist
                 .execute(new Exists())
                 .select(hc.getKey())
-                .execute(KoryphePredicateFactory.getKoryphePredicate(hc.getPredicate())));
+                .execute(hc.getGafferPredicate()));
         ElementFilter elementFilter = filterBuilder.build();
 
         ViewElementDefinition.BaseBuilder<?> vBuilder = createGlobal ?
@@ -277,27 +276,23 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
      *
      * @return List of HasContainers with predicates
      */
-    private List<HasContainer> getRequestedPredicates() {
+    private List<GafferPopHasContainer> getRequestedPredicates() {
         // Don't filter out null hc.getValue() incase of AndP/OrP
         return hasContainers.stream()
             .filter(hc -> hc.getKey() != null)
             .filter(hc -> !hc.getKey().equals(T.label.getAccessor()))
             .filter(hc -> !hc.getKey().equals(T.id.getAccessor()))
+            .map(hc -> (GafferPopHasContainer) hc)
             .collect(Collectors.toList());
     }
 
     @Override
     public List<HasContainer> getHasContainers() {
-        return Collections.unmodifiableList(this.hasContainers);
+        return Collections.unmodifiableList(hasContainers);
     }
 
     @Override
-    public void addHasContainer(final HasContainer hasContainer) {
-        if (hasContainer.getPredicate() instanceof AndP) {
-            ((AndP<?>) hasContainer.getPredicate()).getPredicates().forEach(
-                p -> this.addHasContainer(new HasContainer(hasContainer.getKey(), p)));
-        } else {
-            this.hasContainers.add(hasContainer);
-        }
+    public void addHasContainer(final HasContainer original) {
+        hasContainers.add(new GafferPopHasContainer(original));
     }
 }

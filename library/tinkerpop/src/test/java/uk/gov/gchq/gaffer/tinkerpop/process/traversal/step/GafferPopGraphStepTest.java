@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy;
+package uk.gov.gchq.gaffer.tinkerpop.process.traversal.step;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Direction;
@@ -40,10 +40,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.verify;
 
-class GafferPopGraphStepStrategyTest {
+class GafferPopGraphStepTest {
 
     private static final MapStoreProperties PROPERTIES = MapStoreProperties.loadStoreProperties(StreamUtil.openStream(
-            GafferPopGraphStepStrategyTest.class, "/gaffer/map-store.properties"));
+            GafferPopGraphStepTest.class, "/gaffer/map-store.properties"));
 
     @Test
     void shouldUpdateGraphVariablesOnGremlinWithStep() {

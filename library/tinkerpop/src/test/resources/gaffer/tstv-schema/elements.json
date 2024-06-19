@@ -1,7 +1,10 @@
 {
     "entities": {
         "tstv": {
-            "vertex": "tstv"
+            "vertex": "tstv",
+            "properties": {
+                "name": "tstv"
+            }
         }
     },
     "edges": {
@@ -10,7 +13,8 @@
             "destination": "tstv",
             "directed": "true",
             "properties": {
-                "weight": "weight.double"
+                "weight": "weight.double",
+                "name": "tstv"
             }
         }
     }
