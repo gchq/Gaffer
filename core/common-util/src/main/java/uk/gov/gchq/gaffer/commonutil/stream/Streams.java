@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,10 +131,10 @@ public final class Streams {
      *
      * @param iterable the input iterable
      * @param size the size of the batch
-     * @param <List<T>>  the type of object stored in the stream
+     * @param <T>  the type of object stored in the stream
      * @return a stream containing the contents of the iterable in a list
      */
-    public static <T> Stream<List<T>> toBatches(Iterable<T> iterable, int size) {
+    public static <T> Stream<List<T>> toBatches(final Iterable<T> iterable, final int size) {
         Iterator<T> iterator = iterable.iterator();
         Iterator<List<T>> chunksIterator = new Iterator<List<T>>() {
             @Override
