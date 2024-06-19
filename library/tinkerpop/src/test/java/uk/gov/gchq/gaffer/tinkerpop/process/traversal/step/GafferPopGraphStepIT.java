@@ -51,6 +51,8 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.WEIGHT;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.OTHER_TSTV_PROPERTY;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.OTHER_TSTV_PROPERTY_STRING;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_ID;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_ID_STRING;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY_STRING;
 
@@ -77,6 +79,24 @@ class GafferPopGraphStepIT {
 
         GafferPopGraph tstv = GafferPopTstvTestUtils.createTstvGraph();
         tstvG = tstv.traversal();
+    }
+
+    @Test
+    void shouldGetVertexBySeed() {
+        final List<Vertex> result = g.V(MARKO.getId()).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.getId());
+    }
+
+    @Test
+    void shouldGetVertexByTSTVSeed() {
+        final List<Vertex> result = tstvG.V(TSTV_ID_STRING).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(TSTV_ID);
     }
 
 
