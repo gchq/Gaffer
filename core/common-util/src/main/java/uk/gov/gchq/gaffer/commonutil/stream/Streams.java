@@ -20,7 +20,10 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterator;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -120,6 +123,35 @@ public final class Streams {
      */
     public static <T> Stream<T> toParallelStream(final T... array) {
         return StreamSupport.stream(Spliterators.spliterator(array, 0), true);
+    }
+
+    /**
+     * Convert an iterable to a {@link java.util.stream.Stream}
+     * of {@link java.util.List}.
+     *
+     * @param iterable the input iterable
+     * @param size the size of the batch
+     * @param <List<T>>  the type of object stored in the stream
+     * @return a stream containing the contents of the iterable in a list
+     */
+    public static <T> Stream<List<T>> toBatches(Iterable<T> iterable, int size) {
+        Iterator<T> iterator = iterable.iterator();
+        Iterator<List<T>> chunksIterator = new Iterator<List<T>>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public List<T> next() {
+                List<T> result = new ArrayList<>(size);
+                for (int i = 0; i < size && iterator.hasNext(); i++) {
+                    result.add(iterator.next());
+                }
+                return result;
+            }
+        };
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(chunksIterator, Spliterator.IMMUTABLE), false);
     }
 
     private Streams() {
