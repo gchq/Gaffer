@@ -308,18 +308,51 @@ public class GafferPopGraphIT {
                 .addSchemas(StreamUtil.openStreams(this.getClass(), "/gaffer/tstv-schema"))
                 .build();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final TypeSubTypeValue testId = new TypeSubTypeValue("test", "test", "test");
+        final TypeSubTypeValue testId = new TypeSubTypeValue("one", "two", "three");
+        final TypeSubTypeValue otherTestId = new TypeSubTypeValue("four", "five", "six");
+
         final GraphTraversalSource g = graph.traversal();
 
         // When
         // Add a vertex then do a seeded query for it
         graph.addVertex(T.label, TSTV_GROUP, T.id, testId);
-        List<Vertex> result = g.V("t:test|st:test|v:test")
+        graph.addVertex(T.label, TSTV_GROUP, T.id, otherTestId);
+        List<Vertex> result = g.V("t:one|st:two|v:three")
             .toList();
 
         // Then
         assertThat(result).hasSize(1);
         assertThat(result.get(0)).extracting(vertex -> vertex.id()).isEqualTo(testId);
+    }
+
+    @Test
+    void shouldGetVerticesWithTSTVProperty() {
+        // Given
+        final Graph gafferGraph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("tstvGraph")
+                        .build())
+                .storeProperties(PROPERTIES)
+                .addSchemas(StreamUtil.openStreams(this.getClass(), "/gaffer/tstv-schema"))
+                .build();
+        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
+        final TypeSubTypeValue testId = new TypeSubTypeValue("one", "two", "three");
+        final TypeSubTypeValue otherTestId = new TypeSubTypeValue("four", "five", "six");
+        final TypeSubTypeValue tstv = new TypeSubTypeValue("1", "2", "3");
+
+
+        final GraphTraversalSource g = graph.traversal();
+
+        // When
+        // Add a vertex then do a seeded query for it
+        graph.addVertex(T.label, TSTV_GROUP, T.id, testId, NAME_PROPERTY, tstv);
+        graph.addVertex(T.label, TSTV_GROUP, T.id, otherTestId);
+        List<Vertex> result = g.V().has(NAME_PROPERTY, "t:1|st:2|v:3")
+            .toList();
+
+        // Then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).extracting(vertex -> vertex.value(NAME_PROPERTY)).isEqualTo(tstv);
     }
 
     @Test
