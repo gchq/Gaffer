@@ -113,7 +113,7 @@ jobs:
         ref: master
 
     - name: Create Release Notes
-      uses: docker://decathlon/release-notes-generator-action:3.1.6
+      uses: docker://decathlon/release-notes-generator-action:3.1.5
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
