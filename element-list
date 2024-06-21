@@ -252,7 +252,9 @@ uk.gov.gchq.gaffer.tinkerpop
 uk.gov.gchq.gaffer.tinkerpop.generator
 uk.gov.gchq.gaffer.tinkerpop.gremlinplugin
 uk.gov.gchq.gaffer.tinkerpop.process.traversal.step
+uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.util
 uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation
+uk.gov.gchq.gaffer.tinkerpop.process.traversal.util
 uk.gov.gchq.gaffer.tinkerpop.server.auth
 uk.gov.gchq.gaffer.tinkerpop.service
 uk.gov.gchq.gaffer.traffic
