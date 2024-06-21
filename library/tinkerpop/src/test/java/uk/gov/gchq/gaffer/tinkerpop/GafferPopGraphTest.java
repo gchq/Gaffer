@@ -63,8 +63,6 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.WEIGHT;
 
 public class GafferPopGraphTest {
-    public static final String TSTV_GROUP = "tstv";
-
     private static final AccumuloProperties PROPERTIES = AccumuloProperties
             .loadStoreProperties(StreamUtil.openStream(GafferPopGraphTest.class, "/gaffer/store.properties"));
 

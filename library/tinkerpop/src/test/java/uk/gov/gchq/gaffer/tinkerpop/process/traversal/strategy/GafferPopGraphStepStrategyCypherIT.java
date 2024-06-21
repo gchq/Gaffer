@@ -65,7 +65,7 @@ public class GafferPopGraphStepStrategyCypherIT {
         // The cypher translator will return a property map of the matched node so get that
         Map<Object, Object> resultMap = (LinkedHashMap<Object, Object>) results.get("p");
 
-        assertThat(resultMap).containsAllEntriesOf(MARKO.getPropertyMap());
+        assertThat(resultMap).containsAllEntriesOf(MARKO.getCypherPropertyMap());
     }
 
     @Test

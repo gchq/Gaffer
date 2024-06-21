@@ -249,7 +249,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraph.class);
     private static final String GET_ALL_DEBUG_MSG = "Requested a GetAllElements, results will be truncated to: {}.";
-    private static final Pattern EDGE_ID_REGEX = Pattern.compile("^\\[\\s*(?<src>[a-zA-Z0-9|-]*)\\s*(,\\s*(?<label>[a-zA-Z0-9|-]*))?\\s*,\\s*(?<dest>[a-zA-Z0-9|-]*)\\s*\\]$");
+    private static final Pattern EDGE_ID_REGEX = Pattern.compile("^\\s*\\[\\s*(?<src>[a-zA-Z0-9|-]*)\\s*(,\\s*(?<label>[a-zA-Z0-9|-]*))?\\s*,\\s*(?<dest>[a-zA-Z0-9|-]*)\\s*\\]\\s*$");
 
     public GafferPopGraph(final Configuration configuration) {
         this(configuration, createGraph(configuration));

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.util.modern;
 
+import org.apache.tinkerpop.gremlin.structure.T;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Entity;
 
@@ -39,7 +41,9 @@ public class Person {
     private final String id;
     private final String name;
     private final int age;
-    private final Map<String, Object> propertyMap = new HashMap<>();
+    private final Map<Object, Object> propertyMap = new HashMap<>();
+    private final Map<Object, Object> cypherMap = new HashMap<>();
+
     private final Set<Pair<Person, Double>> knows = new HashSet<>();
     private final Set<Pair<Software, Double>> created = new HashSet<>();
 
@@ -47,8 +51,15 @@ public class Person {
         this.id = id;
         this.name = name;
         this.age = age;
-        propertyMap.put(GafferPopModernTestUtils.NAME, Arrays.asList(name));
-        propertyMap.put(GafferPopModernTestUtils.AGE, Arrays.asList(age));
+        propertyMap.put(T.id, id);
+        propertyMap.put(T.label, PERSON);
+        propertyMap.put(GafferPopModernTestUtils.NAME, name);
+        propertyMap.put(GafferPopModernTestUtils.AGE, age);
+        cypherMap.put(T.id, id);
+        cypherMap.put(T.label, PERSON);
+        cypherMap.put(GafferPopModernTestUtils.NAME, Arrays.asList(name));
+        cypherMap.put(GafferPopModernTestUtils.AGE, Arrays.asList(age));
+
     }
 
     public String getId() {
@@ -131,8 +142,17 @@ public class Person {
      *
      * @return map of properties
      */
-    public Map<String, Object> getPropertyMap() {
+    public Map<Object, Object> getPropertyMap() {
         return propertyMap;
+    }
+
+    /**
+     * Gets a Cypher Map representation of the Vertex's properties
+     *
+     * @return map of properties
+     */
+    public Map<Object, Object> getCypherPropertyMap() {
+        return cypherMap;
     }
 
     public Entity toEntity() {

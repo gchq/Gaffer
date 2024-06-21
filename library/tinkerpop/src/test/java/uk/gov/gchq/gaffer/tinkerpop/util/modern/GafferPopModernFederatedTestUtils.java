@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.util.modern;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -50,9 +51,9 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 
 public final class GafferPopModernFederatedTestUtils {
 
-    private static final String FEDERATED_GRAPH = "federatedGraph";
-    private static final String CREATED_GRAPH = "createdGraph";
-    private static final String KNOWS_GRAPH = "knowsGraph";
+    public static final String FEDERATED_GRAPH_ID = "federatedGraph";
+    public static final String CREATED_GRAPH_ID = "createdGraph";
+    public static final String KNOWS_GRAPH_ID = "knowsGraph";
     private static final User USER = new User("user01");
 
     private GafferPopModernFederatedTestUtils() {
@@ -63,7 +64,7 @@ public final class GafferPopModernFederatedTestUtils {
      * One graph contains all the 'knows' edges, the other the 'created' edges
      */
     public static GafferPopGraph createModernGraph(Class<?> clazz, StoreType storeType) throws OperationException {
-
+        CacheServiceLoader.shutdown();
         Graph g = setUpFederatedGraph(clazz, GafferPopTestUtil.getStoreProperties(storeType));
         GafferPopGraph graph = GafferPopGraph.open(MODERN_CONFIGURATION, g);
 
@@ -73,19 +74,19 @@ public final class GafferPopModernFederatedTestUtils {
     private static Graph setUpFederatedGraph(Class<?> clazz, StoreProperties properties) throws OperationException {
         final Graph federatedGraph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId(FEDERATED_GRAPH)
+                        .graphId(FEDERATED_GRAPH_ID)
                         .build())
                 .addStoreProperties(GafferPopTestUtil.getStoreProperties(StoreType.FEDERATED))
                 .build();
 
         federatedGraph.execute(new AddGraph.Builder()
-                .graphId(KNOWS_GRAPH)
+                .graphId(KNOWS_GRAPH_ID)
                 .storeProperties(properties)
                 .schema(Schema.fromJson(StreamUtil.openStreams(clazz, "/gaffer/schema")))
                 .build(), USER);
 
         federatedGraph.execute(new AddGraph.Builder()
-                .graphId(CREATED_GRAPH)
+                .graphId(CREATED_GRAPH_ID)
                 .storeProperties(properties)
                 .schema(Schema.fromJson(StreamUtil.openStreams(clazz, "/gaffer/schema")))
                 .build(), USER);
@@ -114,7 +115,7 @@ public final class GafferPopModernFederatedTestUtils {
                 .op(new AddElements.Builder()
                         .input(knowsGraphElements.toArray(new Element[0]))
                         .build())
-                .graphIdsCSV(KNOWS_GRAPH)
+                .graphIdsCSV(KNOWS_GRAPH_ID)
                 .build(), USER);
     }
 
@@ -139,7 +140,7 @@ public final class GafferPopModernFederatedTestUtils {
                 .op(new AddElements.Builder()
                         .input(createdGraphElements.toArray(new Element[0]))
                         .build())
-                .graphIdsCSV(CREATED_GRAPH)
+                .graphIdsCSV(CREATED_GRAPH_ID)
                 .build(), USER);
     }
 

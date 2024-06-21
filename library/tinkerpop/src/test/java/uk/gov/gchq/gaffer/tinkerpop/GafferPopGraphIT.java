@@ -33,9 +33,12 @@ import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernFederatedTestUtil
 import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.CREATED;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.KNOWS;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.LOP;
@@ -44,6 +47,7 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.PERSON;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.PETER;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.RIPPLE;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.SOFTWARE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 
 public class GafferPopGraphIT {
@@ -113,12 +117,110 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldGetVertex(String graph, GraphTraversalSource g) {
-        final List<Vertex> result = g.V(MARKO.getId()).toList();
+    public void shouldGetVertexPropertyValues(String graph, GraphTraversalSource g) {
+        final List<Object> result = g.V(MARKO.getId()).values(NAME).toList();
+
+        assertThat(result)
+                .hasSize(1)
+                .first()
+                .isInstanceOf(String.class)
+                .isEqualTo(MARKO.getName());
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    public void shouldGetVerticesByLabel(String graph, GraphTraversalSource g) {
+        final List<Vertex> result = g.V().hasLabel(PERSON).toList();
 
         assertThat(result)
                 .extracting(r -> r.id())
-                .containsExactlyInAnyOrder(MARKO.getId());
+                .containsExactlyInAnyOrder(
+                    MARKO.getId(),
+                    VADAS.getId(),
+                    JOSH.getId(),
+                    PETER.getId()
+                );
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    public void shouldGetAllOutgoingEdgesFromVertex(String graph, GraphTraversalSource g) {
+        final List<Edge> result = g.V(MARKO.getId()).outE().toList();
+
+        assertThat(result)
+            .extracting(r -> r.id())
+            .containsExactlyInAnyOrder(
+                MARKO.knows(VADAS),
+                MARKO.knows(JOSH),
+                MARKO.created(LOP)
+            );
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    public void shouldCountAllOutgoingEdgesFromVertex(String graph, GraphTraversalSource g) {
+        final List<Long> result = g.V(MARKO.getId()).outE().count().toList();
+
+        assertThat(result).containsExactlyInAnyOrder(3L);
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    public void shouldGetAllIncomingEdgesFromVertex(String graph, GraphTraversalSource g) {
+        final List<String> result = g.V(LOP.getId()).inE().label().toList();
+
+        assertThat(result)
+            .containsExactlyInAnyOrder(
+                CREATED,
+                CREATED,
+                CREATED
+            );
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    public void shouldGetAdjacentVerticesNameValues(String graph, GraphTraversalSource g) {
+        final List<Object> result = g.V(MARKO.getId()).out().values(NAME).toList();
+
+        assertThat(result)
+                .extracting(r -> (String) r)
+                .containsExactlyInAnyOrder(
+                    LOP.getName(),
+                    VADAS.getName(),
+                    JOSH.getName()
+                );
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    public void shouldGroupVerticesByLabelAndProvideCount(String graph, GraphTraversalSource g) {
+        List<Map<Object, Long>> result = g.V().groupCount().by(T.label).toList();
+
+        assertThat(result)
+                .first()
+                .hasFieldOrPropertyWithValue(PERSON, 4L)
+                .hasFieldOrPropertyWithValue(SOFTWARE, 2L);
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetAllVerticesConnectedToOutGoingEdgeOfGivenVertex(String graph, GraphTraversalSource g) {
+        List<Object> result = g.V(MARKO.getId()).outE().inV().values(NAME).toList();
+
+        assertThat(result)
+        .containsExactlyInAnyOrder(
+            JOSH.getName(),
+            LOP.getName(),
+            VADAS.getName()
+        );
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetPropertiesOfIncomingVerticesForSpecificVertex(String graph, GraphTraversalSource g) {
+        List<Map<Object, Object>> result = g.V(JOSH.getId()).inE().outV().elementMap().toList();
+
+        assertThat(result).containsExactly(MARKO.getPropertyMap());
     }
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
@@ -156,22 +258,23 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldGetEdgesById(String graph, GraphTraversalSource g) {
-        final List<Edge> result = g.E("[1,2]", "[4,3]").toList();
+    public void shouldGetEdgeById(String graph, GraphTraversalSource g) {
+        List<String> edgeIds = Stream.of(
+            "[1,2]",
+            "   [ 1  , 2   ]  ",
+            "[1,knows,2]",
+            "[1, knows, 2]",
+            " [  1   ,knows  ,    2] "
+        ).collect(Collectors.toList());
 
-        assertThat(result)
-                .extracting(r -> r.id())
-                .containsExactlyInAnyOrder(MARKO.knows(VADAS), JOSH.created(LOP));
-    }
+        edgeIds.forEach(id -> {
+            final List<Edge> result = g.E(id).toList();
 
-    @ParameterizedTest(name = TEST_NAME_FORMAT)
-    @MethodSource("provideTraversals")
-    public void shouldGetEdge(String graph, GraphTraversalSource g) {
-        final List<Edge> result = g.E("[1,2]").toList();
-
-        assertThat(result)
+            assertThat(result)
+                .withFailMessage("(%s) Edge ID: %s returned %s", graph, id, result)
                 .extracting(r -> r.id())
                 .containsExactlyInAnyOrder(MARKO.knows(VADAS));
+        });
     }
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
