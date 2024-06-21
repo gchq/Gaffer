@@ -54,7 +54,7 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
  * Runs general gremlin queries
  * Each test runs against multiple graphs to ensure each store gets the same results
  */
-public class GafferPopGraphIT {
+class GafferPopGraphIT {
     private static final String TEST_NAME_FORMAT = "({0}) {displayName}";
     private static GafferPopGraph mapStore;
     private static GafferPopGraph accumuloStore;
@@ -78,7 +78,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldGetAllVertices(String graph, GraphTraversalSource g) {
+    void shouldGetAllVertices(String graph, GraphTraversalSource g) {
         final List<Vertex> result = g.V().toList();
 
         assertThat(result)
@@ -94,7 +94,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldTruncateGetAllVertices(String graph, GraphTraversalSource g) {
+    void shouldTruncateGetAllVertices(String graph, GraphTraversalSource g) {
         final List<Vertex> result = g.with("getAllElementsLimit", 2).V().toList();
 
         assertThat(result)
@@ -111,7 +111,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldGetVerticesById(String graph, GraphTraversalSource g) {
+    void shouldGetVerticesById(String graph, GraphTraversalSource g) {
         final List<Vertex> result = g.V(MARKO.getId(), RIPPLE.getId()).toList();
 
         assertThat(result)
@@ -121,7 +121,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldGetVertexPropertyValues(String graph, GraphTraversalSource g) {
+    void shouldGetVertexPropertyValues(String graph, GraphTraversalSource g) {
         final List<Object> result = g.V(MARKO.getId()).values(NAME).toList();
 
         assertThat(result)
@@ -133,7 +133,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldGetVerticesByLabel(String graph, GraphTraversalSource g) {
+    void shouldGetVerticesByLabel(String graph, GraphTraversalSource g) {
         final List<Vertex> result = g.V().hasLabel(PERSON).toList();
 
         assertThat(result)
@@ -148,7 +148,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldGetAllOutgoingEdgesFromVertex(String graph, GraphTraversalSource g) {
+    void shouldGetAllOutgoingEdgesFromVertex(String graph, GraphTraversalSource g) {
         final List<Edge> result = g.V(MARKO.getId()).outE().toList();
 
         assertThat(result)
@@ -162,7 +162,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldCountAllOutgoingEdgesFromVertex(String graph, GraphTraversalSource g) {
+    void shouldCountAllOutgoingEdgesFromVertex(String graph, GraphTraversalSource g) {
         final List<Long> result = g.V(MARKO.getId()).outE().count().toList();
 
         assertThat(result).containsExactlyInAnyOrder(3L);
@@ -170,7 +170,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldGetAllIncomingEdgesFromVertex(String graph, GraphTraversalSource g) {
+    void shouldGetAllIncomingEdgesFromVertex(String graph, GraphTraversalSource g) {
         final List<String> result = g.V(LOP.getId()).inE().label().toList();
 
         assertThat(result)
@@ -183,7 +183,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldGetAdjacentVerticesNameValues(String graph, GraphTraversalSource g) {
+    void shouldGetAdjacentVerticesNameValues(String graph, GraphTraversalSource g) {
         final List<Object> result = g.V(MARKO.getId()).out().values(NAME).toList();
 
         assertThat(result)
@@ -197,7 +197,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldGroupVerticesByLabelAndProvideCount(String graph, GraphTraversalSource g) {
+    void shouldGroupVerticesByLabelAndProvideCount(String graph, GraphTraversalSource g) {
         List<Map<Object, Long>> result = g.V().groupCount().by(T.label).toList();
 
         assertThat(result)
@@ -229,7 +229,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldGetAllEdges(String graph, GraphTraversalSource g) {
+    void shouldGetAllEdges(String graph, GraphTraversalSource g) {
         final List<Edge> result = g.E().toList();
 
         assertThat(result)
@@ -245,7 +245,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldTruncateGetAllEdges(String graph, GraphTraversalSource g) {
+    void shouldTruncateGetAllEdges(String graph, GraphTraversalSource g) {
         final List<Edge> result = g.with("getAllElementsLimit", 2).E().toList();
 
         assertThat(result)
@@ -262,7 +262,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldGetEdgeById(String graph, GraphTraversalSource g) {
+    void shouldGetEdgeById(String graph, GraphTraversalSource g) {
         List<String> edgeIds = Stream.of(
             "[1,2]",
             "   [ 1  , 2   ]  ",
@@ -283,7 +283,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldAddV(String graph, GraphTraversalSource g) throws OperationException {
+    void shouldAddV(String graph, GraphTraversalSource g) throws OperationException {
         g.addV(PERSON).property(NAME, "stephen").property(T.id, "test").iterate();
 
         final List<Vertex> result = g.V().toList();
@@ -295,7 +295,7 @@ public class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    public void shouldAddE(String graph, GraphTraversalSource g) throws OperationException {
+    void shouldAddE(String graph, GraphTraversalSource g) throws OperationException {
         g.addE(KNOWS).from(__.V(VADAS.getId())).to(__.V(PETER.getId())).iterate();
 
         final List<Edge> result = g.E().toList();
@@ -305,7 +305,7 @@ public class GafferPopGraphIT {
         reset();
     }
 
-    public void reset() throws OperationException  {
+    void reset() throws OperationException  {
         // reset cache for federation
         CacheServiceLoader.shutdown();
         // recreate the graphs

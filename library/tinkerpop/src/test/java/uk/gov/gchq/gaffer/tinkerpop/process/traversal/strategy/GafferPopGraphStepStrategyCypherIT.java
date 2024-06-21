@@ -39,7 +39,7 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.PETER;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 
-public class GafferPopGraphStepStrategyCypherIT {
+class GafferPopGraphStepStrategyCypherIT {
 
     private static GraphTraversalSource g;
 

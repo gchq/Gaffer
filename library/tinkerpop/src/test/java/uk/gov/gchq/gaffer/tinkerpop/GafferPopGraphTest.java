@@ -62,12 +62,12 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.WEIGHT;
 
-public class GafferPopGraphTest {
+class GafferPopGraphTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties
             .loadStoreProperties(StreamUtil.openStream(GafferPopGraphTest.class, "/gaffer/store.properties"));
 
     @Test
-    public void shouldConstructGafferPopGraphWithOnlyConfig() {
+    void shouldConstructGafferPopGraphWithOnlyConfig() {
         // Given
         final User expectedUser = getTestUser(AUTH_1, AUTH_2);
 
@@ -87,7 +87,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldConstructGafferPopGraphWithConfigFile() {
+    void shouldConstructGafferPopGraphWithConfigFile() {
         // Given
         final User expectedUser = getTestUser();
 
@@ -108,7 +108,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldConstructGafferPopGraph() {
+    void shouldConstructGafferPopGraph() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final User expectedUser = getTestUser(AUTH_1, AUTH_2);
@@ -132,7 +132,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionForNoGraphId() {
+    void shouldThrowIllegalArgumentExceptionForNoGraphId() {
 
         // Given/Then
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -141,7 +141,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldThrowUnsupportedExceptionForCompute() {
+    void shouldThrowUnsupportedExceptionForCompute() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -151,7 +151,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldThrowUnsupportedExceptionForComputeWithClass() {
+    void shouldThrowUnsupportedExceptionForComputeWithClass() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -162,7 +162,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldThrowUnsupportedExceptionForTx() {
+    void shouldThrowUnsupportedExceptionForTx() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -172,7 +172,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldAssignDefaultLabelWhenNoVertexLabel() {
+    void shouldAssignDefaultLabelWhenNoVertexLabel() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -182,7 +182,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionForNoVertexId() {
+    void shouldThrowIllegalArgumentExceptionForNoVertexId() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -194,7 +194,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldAddAndGetVertex() {
+    void shouldAddAndGetVertex() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -208,7 +208,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldAddAndGetVertexWithNullViewAndVertexList() {
+    void shouldAddAndGetVertexWithNullViewAndVertexList() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -222,7 +222,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldAddAndGetVertexWithNullView() {
+    void shouldAddAndGetVertexWithNullView() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -236,7 +236,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldAddAndGetVertexWithViewWithEdges() {
+    void shouldAddAndGetVertexWithViewWithEdges() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -253,7 +253,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetAllVertices() {
+    void shouldGetAllVertices() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -272,7 +272,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldTruncateGetAllVertices() {
+    void shouldTruncateGetAllVertices() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_2, gafferGraph);
@@ -287,7 +287,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetVerticesById() {
+    void shouldGetVerticesById() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -314,7 +314,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetAllVerticesInGroup() {
+    void shouldGetAllVerticesInGroup() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -330,7 +330,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetVertexWithJsonView() {
+    void shouldGetVertexWithJsonView() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -355,7 +355,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldAddAndGetEdge() {
+    void shouldAddAndGetEdge() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -375,7 +375,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldAddAndGetEdgeWithLabelInId() {
+    void shouldAddAndGetEdgeWithLabelInId() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -395,7 +395,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetEdgeInGroup() {
+    void shouldGetEdgeInGroup() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -410,7 +410,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetEdgeInGroupWithViewWithEntity() {
+    void shouldGetEdgeInGroupWithViewWithEntity() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -428,7 +428,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetEdgesWithEdgeIdsPassedIn() {
+    void shouldGetEdgesWithEdgeIdsPassedIn() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -449,7 +449,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetEdgeWithDirectionAndNullView() {
+    void shouldGetEdgeWithDirectionAndNullView() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -466,7 +466,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetEdgeWithDirectionAndNullViewAndEdgeList() {
+    void shouldGetEdgeWithDirectionAndNullViewAndEdgeList() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -483,7 +483,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetAllEdges() {
+    void shouldGetAllEdges() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -500,7 +500,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldTruncateGetAllEdges() {
+    void shouldTruncateGetAllEdges() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_2, gafferGraph);
@@ -517,7 +517,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetAllEdgesInGroup() {
+    void shouldGetAllEdgesInGroup() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -534,7 +534,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetAdjacentVertices() {
+    void shouldGetAdjacentVertices() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -556,7 +556,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldGetAdjacentVerticesWithList() {
+    void shouldGetAdjacentVerticesWithList() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
@@ -575,7 +575,7 @@ public class GafferPopGraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfGetAdjacentVerticesWithNoSeeds() {
+    void shouldThrowExceptionIfGetAdjacentVerticesWithNoSeeds() {
         // Given
         final Graph gafferGraph = getGafferGraph();
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);

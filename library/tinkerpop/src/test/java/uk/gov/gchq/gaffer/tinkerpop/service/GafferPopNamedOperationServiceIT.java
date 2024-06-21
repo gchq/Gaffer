@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Crown Copyright
+ * Copyright 2023-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_1;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.USER_ID;
 
-public class GafferPopNamedOperationServiceIT {
+class GafferPopNamedOperationServiceIT {
     private static final MapStoreProperties PROPERTIES = MapStoreProperties.loadStoreProperties(StreamUtil.openStream(GafferPopNamedOperationServiceIT.class, "/gaffer/map-store.properties"));
 
     @Test

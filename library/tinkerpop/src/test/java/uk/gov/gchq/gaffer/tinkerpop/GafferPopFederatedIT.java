@@ -46,7 +46,7 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
  * Test specific Federated features with Gremlin
  * General tests run against a federated graph should go in GafferPopGraphIT
  */
-public class GafferPopFederatedIT {
+class GafferPopFederatedIT {
     private static GafferPopGraph gafferPopGraph;
     private final String graphIdOption = "gaffer.federatedstore.operation.graphIds:";
     private final List<String> knowsGraphOptions = Arrays.asList(graphIdOption + KNOWS_GRAPH_ID);
