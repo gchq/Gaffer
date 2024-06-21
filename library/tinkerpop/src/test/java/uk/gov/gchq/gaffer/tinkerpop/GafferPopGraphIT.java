@@ -50,6 +50,10 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.SOFTWARE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 
+/**
+ * Runs general gremlin queries
+ * Each test runs against multiple graphs to ensure each store gets the same results
+ */
 public class GafferPopGraphIT {
     private static final String TEST_NAME_FORMAT = "({0}) {displayName}";
     private static GafferPopGraph mapStore;
@@ -60,11 +64,11 @@ public class GafferPopGraphIT {
     public static void createGraphs() throws OperationException {
         mapStore = GafferPopModernTestUtils.createModernGraph(GafferPopGraphIT.class, StoreType.MAP);
         accumuloStore = GafferPopModernTestUtils.createModernGraph(GafferPopGraphIT.class, StoreType.ACCUMULO);
+        // Federated store with subgraphs using a map store
         federated = GafferPopModernFederatedTestUtils.createModernGraph(GafferPopGraphIT.class, StoreType.MAP);
     }
 
     private static Stream<Arguments> provideTraversals() {
-
         return Stream.of(
                 Arguments.of("Map Store", mapStore.traversal()),
                 Arguments.of("Accumulo Store", accumuloStore.traversal()),

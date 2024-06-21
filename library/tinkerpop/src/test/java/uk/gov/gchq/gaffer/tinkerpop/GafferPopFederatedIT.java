@@ -42,6 +42,10 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.WEIGHT;
 
+/**
+ * Test specific Federated features with Gremlin
+ * General tests run against a federated graph should go in GafferPopGraphIT
+ */
 public class GafferPopFederatedIT {
     private static GafferPopGraph gafferPopGraph;
     private final String graphIdOption = "gaffer.federatedstore.operation.graphIds:";
