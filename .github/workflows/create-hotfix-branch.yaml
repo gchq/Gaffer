@@ -53,7 +53,7 @@ jobs:
 
     - name: Update versions
       run: |
-        mvn versions:set -DnewVersion=$RELEASE_VERSION -DgenerateBackupPoms=false
+        mvn versions:set-property -Dproperty=revision -DnewVersion=${RELEASE_VERSION} -DgenerateBackupPoms=false
         sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$RELEASE_VERSION/" rest-api/common-rest/src/main/resources/version.properties
 
     - name: Push to hotfix branch
