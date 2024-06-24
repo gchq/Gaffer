@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -595,8 +596,9 @@ class GafferPopGraphTest {
         final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
 
         // When / Then
+        List<Object> emptyList = Collections.emptyList();
         assertThatExceptionOfType(UnsupportedOperationException.class)
-                .isThrownBy(() -> graph.adjVertices(Collections.emptyList(), Direction.BOTH));
+                .isThrownBy(() -> graph.adjVertices(emptyList, Direction.BOTH));
     }
 
     @Test
