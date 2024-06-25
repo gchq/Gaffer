@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.mapstore.impl;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -25,9 +27,12 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.mapstore.SingleUseMapStore;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
@@ -43,26 +48,30 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DeleteElementsHandlerTest {
+    private static final GetAllElements GET_ALL_ELEMENTS = new GetAllElements.Builder().build();
+    private static Graph aggregatedGraph;
+    private static Graph nonAggregatedGraph;
 
     static final String BASIC_ENTITY = "BasicEntity";
     static final String BASIC_EDGE1 = "BasicEdge";
-    static final String BASIC_EDGE2 = "BasicEdge2";
-    static final String PROPERTY1 = "property1";
-    static final String PROPERTY2 = "property2";
-    static final String COUNT = "count";
+    static final User USER = new User();
 
-    @Test
-    public void shouldDeleteEntityOnlyForAggregatedGraph() throws StoreException, OperationException {
-        // Given
-
-        // Aggregated graph
-        final Graph graph = getGraph();
+    @BeforeEach
+    public void setUp() throws Exception {
         final AddElements addElements = new AddElements.Builder()
                 .input(getElements())
                 .build();
-        graph.execute(addElements, new User());
 
-        // When
+        aggregatedGraph = getGraph();
+        aggregatedGraph.execute(addElements, USER);
+
+        nonAggregatedGraph = getGraphNoAggregation();
+        nonAggregatedGraph.execute(addElements, USER);
+    }
+
+    @Test
+    void shouldDeleteEntityOnlyForAggregatedGraph() throws OperationException {
+        // Given/When
 
         // Delete Vertex A
         final OperationChain<Void> chain = new OperationChain.Builder()
@@ -73,38 +82,66 @@ public class DeleteElementsHandlerTest {
                 .then(new DeleteElements())
                 .build();
 
-        graph.execute(chain, new User());
+        aggregatedGraph.execute(chain, USER);
 
         // Then
 
         // Vertex A deleted
         // Vertices B and C and Edges A->B and B->C remaining
-        final GetAllElements getAllElements = new GetAllElements.Builder().build();
-        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
-        assertThat(results).hasSize(4);
+        final Iterable<? extends Element> results = aggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
+        assertThat(results)
+            .hasSize(4)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("A"));
 
         // Check Vertex A cannot be retrieved from Graph
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .view(new View.Builder().entity(BASIC_ENTITY).build())
                 .build();
-        final Iterable<? extends Element> getElementResults = graph.execute(getElements, new User());
+        final Iterable<? extends Element> getElementResults = aggregatedGraph.execute(getElements, USER);
 
         assertThat(getElementResults).isEmpty();
     }
 
     @Test
-    public void shouldDeleteEntityOnlyForNonAggregatedGraph() throws StoreException, OperationException {
-        // Given
+    void shouldDeleteEdgeOnlyForAggregatedGraph() throws OperationException {
+        // Given/When
 
-        // Non aggregated graph
-        final Graph graph = getGraphNoAggregation();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
+        // Delete Edge B->C
+        final OperationChain<Void> chain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EdgeSeed("B", "C"))
+                        .view(new View.Builder().edge(BASIC_EDGE1).build())
+                        .build())
+                .then(new DeleteElements())
                 .build();
-        graph.execute(addElements, new User());
 
-        // When
+        aggregatedGraph.execute(chain, USER);
+
+        // Then
+
+        // Edge B->C deleted
+        // All vertices remain but only edge A->B remains
+        final Iterable<? extends Element> results = aggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
+        assertThat(results)
+            .hasSize(4)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEdge("B", "C"));
+
+        // Check Vertex A cannot be retrieved from Graph
+        final GetElements getElements = new GetElements.Builder()
+                    .input(new EdgeSeed("B", "C"))
+                    .view(new View.Builder().edge(BASIC_EDGE1).build())
+                    .build();
+        final Iterable<? extends Element> getElementResults = aggregatedGraph.execute(getElements, USER);
+
+        assertThat(getElementResults).isEmpty();
+    }
+
+    @Test
+    void shouldDeleteEntityOnlyForNonAggregatedGraph() throws OperationException {
+        // Given/When
 
         // Delete Vertex A
         final OperationChain<Void> chain = new OperationChain.Builder()
@@ -115,38 +152,67 @@ public class DeleteElementsHandlerTest {
                 .then(new DeleteElements())
                 .build();
 
-        graph.execute(chain, new User());
+        nonAggregatedGraph.execute(chain, USER);
 
         // Then
 
         // Vertex A deleted
         // Vertices B and C and Edges A->B and B->C remaining
-        final GetAllElements getAllElements = new GetAllElements.Builder().build();
-        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
-        assertThat(results).hasSize(4);
+        final Iterable<? extends Element> results = nonAggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
+        assertThat(results)
+            .hasSize(4)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("A"));
 
         // Check Vertex A cannot be retrieved from Graph
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .view(new View.Builder().entity(BASIC_ENTITY).build())
                 .build();
-        final Iterable<? extends Element> getElementResults = graph.execute(getElements, new User());
+        final Iterable<? extends Element> getElementResults = nonAggregatedGraph.execute(getElements, USER);
 
         assertThat(getElementResults).isEmpty();
     }
 
     @Test
-    public void shouldDeleteEntityAndEdgeForAggregatedGraph() throws StoreException, OperationException {
+    void shouldDeleteEdgeOnlyForNonAggregatedGraph() throws OperationException {
         // Given
-
-        // Aggregated graph
-        final Graph graph = getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
-        graph.execute(addElements, new User());
-
         // When
+
+        // Delete Edge B->C
+        final OperationChain<Void> chain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EdgeSeed("B", "C"))
+                        .view(new View.Builder().edge(BASIC_EDGE1).build())
+                        .build())
+                .then(new DeleteElements())
+                .build();
+
+        nonAggregatedGraph.execute(chain, USER);
+
+        // Then
+
+        // Edge B->C deleted
+        // All vertices remain but only edge A->B remains
+        final Iterable<? extends Element> results = nonAggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
+        assertThat(results)
+            .hasSize(4)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEdge("B", "C"));
+
+        // Check Vertex A cannot be retrieved from Graph
+        final GetElements getElements = new GetElements.Builder()
+                    .input(new EdgeSeed("B", "C"))
+                    .view(new View.Builder().edge(BASIC_EDGE1).build())
+                    .build();
+        final Iterable<? extends Element> getElementResults = nonAggregatedGraph.execute(getElements, USER);
+
+        assertThat(getElementResults).isEmpty();
+    }
+
+    @Test
+    void shouldDeleteEntityAndEdgeForAggregatedGraph() throws OperationException {
+        // Given/When
 
         // Delete Vertex A and its edges
         final OperationChain<Void> chain = new OperationChain.Builder()
@@ -156,36 +222,29 @@ public class DeleteElementsHandlerTest {
                 .then(new DeleteElements())
                 .build();
 
-        graph.execute(chain, new User());
+        aggregatedGraph.execute(chain, USER);
 
         // Then
 
         // Vertex A Deleted and Edge A->B
         // Vertices B and C and Edge B->C remaining
-        final GetAllElements getAllElements = new GetAllElements.Builder().build();
-        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
-        assertThat(results).hasSize(3);
+        final Iterable<? extends Element> results = aggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
+        assertThat(results)
+            .hasSize(3)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("A"), getEdge("A", "B"));
 
-        // Check Vetex A and it's edges can no longer be retrieved from graph
+        // Check Vertex A and it's edges can no longer be retrieved from graph
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .build();
-        final Iterable<? extends Element> getElementResults = graph.execute(getElements, new User());
+        final Iterable<? extends Element> getElementResults = aggregatedGraph.execute(getElements, USER);
         assertThat(getElementResults).isEmpty();
     }
 
     @Test
-    public void shouldDeleteEntityAndEdgeForNonAggregatedGraph() throws StoreException, OperationException {
-        // Given
-
-        // Non Aggregated graph
-        final Graph graph = getGraphNoAggregation();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
-        graph.execute(addElements, new User());
-
-        // When
+    void shouldDeleteEntityAndEdgeForNonAggregatedGraph() throws OperationException {
+        // Given/When
 
         // Delete Vertex A and its edges
         final OperationChain<Void> chain = new OperationChain.Builder()
@@ -195,36 +254,29 @@ public class DeleteElementsHandlerTest {
                 .then(new DeleteElements())
                 .build();
 
-        graph.execute(chain, new User());
+        nonAggregatedGraph.execute(chain, USER);
 
         // Then
 
         // Vertex A Deleted and Edge A->B
         // Vertices B and C and Edge B->C remaining
-        final GetAllElements getAllElements = new GetAllElements.Builder().build();
-        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
-        assertThat(results).hasSize(3);
+        final Iterable<? extends Element> results = nonAggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
+        assertThat(results)
+            .hasSize(3)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("A"), getEdge("A", "B"));
 
-        // Check Vetex A and it's edges can no longer be retrieved from graph
+        // Check Vertex A and it's edges can no longer be retrieved from graph
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .build();
-        final Iterable<? extends Element> getElementResults = graph.execute(getElements, new User());
+        final Iterable<? extends Element> getElementResults = nonAggregatedGraph.execute(getElements, USER);
         assertThat(getElementResults).isEmpty();
     }
 
     @Test
-    public void shouldDeleteEntityAndAllEdgesForAggregatedGraph() throws StoreException, OperationException {
-        // Given
-
-        // Aggregated graph
-        final Graph graph = getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
-        graph.execute(addElements, new User());
-
-        // When
+    void shouldDeleteEntityAndAllEdgesForAggregatedGraph() throws OperationException {
+        // Given/When
 
         // Delete Vertex B and its edges
         final OperationChain<Void> chain = new OperationChain.Builder()
@@ -234,36 +286,29 @@ public class DeleteElementsHandlerTest {
                 .then(new DeleteElements())
                 .build();
 
-        graph.execute(chain, new User());
+        aggregatedGraph.execute(chain, USER);
 
         // Then
 
         // Vertex B Deleted and Edge A->B and Edge B->C
         // Vertices A and C remaining
-        final GetAllElements getAllElements = new GetAllElements.Builder().build();
-        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
-        assertThat(results).hasSize(2);
+        final Iterable<? extends Element> results = aggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
+        assertThat(results)
+            .hasSize(2)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("B"), getEdge("A", "B"), getEdge("B", "C"));
 
         // Check Vetex B and it's edges can no longer be retrieved from graph
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("B"))
                 .build();
-        final Iterable<? extends Element> getElementResults = graph.execute(getElements, new User());
+        final Iterable<? extends Element> getElementResults = aggregatedGraph.execute(getElements, USER);
         assertThat(getElementResults).isEmpty();
     }
 
     @Test
-    public void shouldDeleteEntityAndAllEdgesForNonAggregatedGraph() throws StoreException, OperationException {
-        // Given
-
-        // Non Aggregated graph
-        final Graph graph = getGraphNoAggregation();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
-        graph.execute(addElements, new User());
-
-        // When
+    void shouldDeleteEntityAndAllEdgesForNonAggregatedGraph() throws OperationException {
+        // Given/When
 
         // Delete Vertex B and its edges
         final OperationChain<Void> chain = new OperationChain.Builder()
@@ -273,34 +318,66 @@ public class DeleteElementsHandlerTest {
                 .then(new DeleteElements())
                 .build();
 
-        graph.execute(chain, new User());
+        nonAggregatedGraph.execute(chain, USER);
 
         // Then
 
         // Vertex B Deleted and Edge A->B and Edge B->C
         // Vertices A and C remaining
-        final GetAllElements getAllElements = new GetAllElements.Builder().build();
-        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
-        assertThat(results).hasSize(2);
+        final Iterable<? extends Element> results = nonAggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
+        assertThat(results)
+            .hasSize(2)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("B"), getEdge("A", "B"), getEdge("B", "C"));
 
         // Check Vetex B and it's edges can no longer be retrieved from graph
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("B"))
                 .build();
-        final Iterable<? extends Element> getElementResults = graph.execute(getElements, new User());
+        final Iterable<? extends Element> getElementResults = nonAggregatedGraph.execute(getElements, USER);
         assertThat(getElementResults).isEmpty();
     }
 
     @Test
-    public void shouldDeleteAll() throws StoreException, OperationException {
-        // Given
+    void shouldDeleteAll() throws OperationException {
+        // Given/When
 
-        // Aggregated graph
-        final Graph graph = getGraph();
+        // Delete all
+        final OperationChain<Void> chain = new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .build())
+                .then(new DeleteElements())
+                .build();
+
+        aggregatedGraph.execute(chain, USER);
+
+        // Then
+
+        // All deleted
+        final Iterable<? extends Element> results = aggregatedGraph.execute(GET_ALL_ELEMENTS, USER);
+        assertThat(results).isEmpty();
+    }
+
+    @Test
+    void shouldDeleteElementsInBatches() throws StoreException, OperationException {
+        // Given
+        // Map Store with larger ingest buffer size
+        final MapStore store = new SingleUseMapStore();
+        store.initialise("graphId1", getSchema(), new MapStoreProperties());
+        store.getProperties().setIngestBufferSize(4);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .build())
+                .addSchema(getSchema())
+                .storeProperties(store.getProperties())
+                .build();
+
         final AddElements addElements = new AddElements.Builder()
                 .input(getElements())
                 .build();
-        graph.execute(addElements, new User());
+        graph.execute(addElements, USER);
 
         // When
 
@@ -311,14 +388,13 @@ public class DeleteElementsHandlerTest {
                 .then(new DeleteElements())
                 .build();
 
-        graph.execute(chain, new User());
+        graph.execute(chain, USER);
 
         // Then
 
         // All deleted
-        final GetAllElements getAllElements = new GetAllElements.Builder().build();
-        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
-        assertThat(results).hasSize(0);
+        final Iterable<? extends Element> results = graph.execute(GET_ALL_ELEMENTS, USER);
+        assertThat(results).isEmpty();
     }
 
 
@@ -328,22 +404,16 @@ public class DeleteElementsHandlerTest {
         elements.add(new Entity.Builder()
                 .group(BASIC_ENTITY)
                 .vertex("A")
-                .property(PROPERTY1, "p")
-                .property(COUNT, 1)
                 .build());
 
         elements.add(new Entity.Builder()
                 .group(BASIC_ENTITY)
                 .vertex("B")
-                .property(PROPERTY1, "p")
-                .property(COUNT, 1)
                 .build());
 
         elements.add(new Entity.Builder()
                 .group(BASIC_ENTITY)
                 .vertex("C")
-                .property(PROPERTY1, "p")
-                .property(COUNT, 1)
                 .build());
 
         elements.add(new Edge.Builder()
@@ -351,8 +421,6 @@ public class DeleteElementsHandlerTest {
                 .source("A")
                 .dest("B")
                 .directed(true)
-                .property(PROPERTY1, "q")
-                .property(COUNT, 1)
                 .build());
 
         elements.add(new Edge.Builder()
@@ -360,11 +428,25 @@ public class DeleteElementsHandlerTest {
                 .source("B")
                 .dest("C")
                 .directed(true)
-                .property(PROPERTY1, "q")
-                .property(COUNT, 1)
                 .build());
 
         return elements;
+    }
+
+    private static Edge getEdge(final String source, final String dest) {
+        return new Edge.Builder()
+                .group(BASIC_EDGE1)
+                .source(source)
+                .dest(dest)
+                .directed(true)
+                .build();
+    }
+
+    private static Entity getEntity(final String vertex) {
+        return new Entity.Builder()
+                .group(BASIC_ENTITY)
+                .vertex(vertex)
+                .build();
     }
 
     public static Schema getSchema() {
