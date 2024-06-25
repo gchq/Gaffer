@@ -415,9 +415,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             getOperation = new Builder()
                 .first(new GetElements.Builder()
                     .input(getElementSeeds(Arrays.asList(vertexIds)))
-                    .view(new View.Builder()
-                            .entities(graph.getSchema().getEntityGroups())
-                            .build())
+                    .view(createAllEntitiesView())
                     .build())
                 .build();
         }
@@ -565,12 +563,21 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .then(new Limit<>(variables.getAllElementsLimit(), true))
                 .build();
         } else {
+
+            View.Builder builder = new View.Builder();
+            Set<String> edgeLabels = getEdgeLabelsFromIds(Arrays.asList(elementIds));
+            if (edgeLabels.isEmpty()) {
+                // Default to all edges
+                builder.allEdges(true);
+            } else {
+                // Get requested edges
+                builder.edges(edgeLabels);
+            }
+
             getOperation = new Builder()
                 .first(new GetElements.Builder()
                     .input(getElementSeeds(Arrays.asList(elementIds)))
-                    .view(new View.Builder()
-                        .edges(getEdgeViewGroup(Arrays.asList(elementIds)))
-                        .build())
+                    .view(builder.build())
                     .build())
                 .build();
         }
@@ -726,7 +733,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         View entitiesView = view;
         if (null == entitiesView) {
             entitiesView = new View.Builder()
-                    .entities(graph.getSchema().getEntityGroups())
+                    .allEntities(true)
                     .build();
         } else if (entitiesView.hasEdges()) {
             entitiesView = new View.Builder()
@@ -781,15 +788,16 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             throw new UnsupportedOperationException("There could be a lot of vertices, so please add some seeds");
         }
 
-        View processedView = view == null ? createAllEntitiesView() : view;
         final Iterable<? extends Element> result = execute(new OperationChain.Builder()
                 .first(new GetAdjacentIds.Builder()
                         .input(seeds)
-                        .view(processedView)
+                        .view(view)
                         .inOutType(getInOutType(direction))
                         .build())
                 // GetAdjacentIds provides list of entity seeds so run a GetElements to get the actual Entities
-                .then(new GetElements())
+                .then(new GetElements.Builder()
+                        .view(createAllEntitiesView())
+                        .build())
                 .build());
 
         // Translate results to Gafferpop elements
@@ -808,9 +816,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         View edgesView = view;
         if (null == edgesView) {
-            edgesView = new View.Builder()
-                    .edges(graph.getSchema().getEdgeGroups())
-                    .build();
+            edgesView = createAllEdgesView();
         } else if (edgesView.hasEntities()) {
             edgesView = new View.Builder()
                     .merge(edgesView)
@@ -888,11 +894,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     private View createAllEntitiesView() {
-        final View.Builder viewBuilder = new View.Builder();
-        for (final String group : graph.getSchema().getEntityGroups()) {
-            viewBuilder.entity(group);
-        }
-        return viewBuilder.build();
+        return new View.Builder().allEntities(true).build();
+    }
+
+    private View createAllEdgesView() {
+        return new View.Builder().allEdges(true).build();
     }
 
     /**
@@ -941,17 +947,17 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     /**
-     * Determines the edge group used in the view based on supplied IDs.
-     * If ID contains a label, this is extracted and used in the view.
-     * If not, all edge groups are used.
+     * Extracts edge labels from edge IDs if found.
+     * All ids must be of the [src, label, dest] format.
+     * Otherwise, returns an empty set.
      *
      * @param ids The iterable of IDs
      * @return Set of edge labels for the view
      */
-    private Set<String> getEdgeViewGroup(final Iterable<Object> ids) {
+    private Set<String> getEdgeLabelsFromIds(final Iterable<Object> ids) {
         Set<String> labels = new HashSet<>();
 
-        ids.forEach(id -> {
+        for (final Object id: ids) {
             if ((id instanceof String) && (EDGE_ID_REGEX.matcher((String) id).matches())) {
                 Matcher edgeIdWithLabelMatcher = EDGE_ID_REGEX.matcher((String) id);
 
@@ -960,10 +966,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     labels.add(edgeIdWithLabelMatcher.group("label"));
                 }
             } else {
-                // Fallback is to use all schema edge groups
-                labels.addAll(graph.getSchema().getEdgeGroups());
+                // If a single ID isn't of the format [src, label, dest]
+                // Then all edge labels must be used
+                return Collections.emptySet();
             }
-        });
+        }
 
         return labels;
     }
