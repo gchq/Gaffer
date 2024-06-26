@@ -405,9 +405,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
             getOperation = new Builder()
                     .first(new GetAllElements.Builder()
-                            .view(new View.Builder()
-                                    .allEntities(true)
-                                    .build())
+                            .view(createAllEntitiesView())
                             .build())
                     .then(new Limit<Element>(variables.getAllElementsLimit(), true))
                     .build();
@@ -556,9 +554,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
             getOperation = new Builder()
                 .first(new GetAllElements.Builder()
-                        .view(new View.Builder()
-                            .allEdges(true)
-                            .build())
+                        .view(createAllEdgesView())
                         .build())
                 .then(new Limit<>(variables.getAllElementsLimit(), true))
                 .build();
@@ -732,9 +728,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         View entitiesView = view;
         if (null == entitiesView) {
-            entitiesView = new View.Builder()
-                    .allEntities(true)
-                    .build();
+            entitiesView = createAllEntitiesView();
         } else if (entitiesView.hasEdges()) {
             entitiesView = new View.Builder()
                     .merge(entitiesView)
