@@ -55,6 +55,11 @@
             <artifactId>gremlin-server</artifactId>
             <version>${tinkerpop.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.tinkerpop</groupId>
+            <artifactId>gremlin-groovy</artifactId>
+            <version>${tinkerpop.version}</version>
+        </dependency>
         <!-- Cypher translator -->
         <dependency>
             <groupId>org.opencypher.gremlin</groupId>

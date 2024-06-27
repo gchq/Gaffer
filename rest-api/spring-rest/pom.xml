@@ -60,6 +60,11 @@
             <artifactId>jcs-cache-service</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>tinkerpop</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- store dependencies -->
         <dependency>
