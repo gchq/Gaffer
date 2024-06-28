@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
@@ -44,8 +43,7 @@ public class DeleteElementsHandler implements OperationHandler<DeleteElements> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteElementsHandler.class);
 
     @Override
-    public Void doOperation(final DeleteElements deleteElements, final Context context, final Store store)
-        throws OperationException {
+    public Object doOperation(final DeleteElements deleteElements, final Context context, final Store store) {
         Iterable<? extends Element> elements = deleteElements.getInput();
         if (deleteElements.isValidate()) {
             elements = new ValidatedElements(elements, store.getSchema(), deleteElements.isSkipInvalidElements());
@@ -123,20 +121,23 @@ public class DeleteElementsHandler implements OperationHandler<DeleteElements> {
         if (element instanceof Entity) {
             final Entity entity = (Entity) element;
             final EntitySeed entitySeed = new EntitySeed(entity.getVertex());
-            mapImpl.removeIndex(entitySeed, element);
+            mapImpl.removeEntityIndex(entitySeed, element);
         } else {
             final Edge edge = (Edge) element;
             edge.setIdentifiers(edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeSeed.MatchedVertex.SOURCE);
             final EntitySeed sourceEntitySeed = new EntitySeed(edge.getSource());
-            mapImpl.removeIndex(sourceEntitySeed, edge);
+            // remove the source seed index
+            mapImpl.removeEntityIndex(sourceEntitySeed, edge);
 
             final Edge destMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(),
                 EdgeSeed.MatchedVertex.DESTINATION, edge.getProperties());
             final EntitySeed destinationEntitySeed = new EntitySeed(edge.getDestination());
-            mapImpl.removeIndex(destinationEntitySeed, destMatchedEdge);
+            // remove the dest seed index
+            mapImpl.removeEntityIndex(destinationEntitySeed, destMatchedEdge);
 
             final EdgeSeed edgeSeed = new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
-            mapImpl.removeIndex(edgeSeed, edge);
+            // remove the edges index
+            mapImpl.removeEdgeIndex(edgeSeed, edge);
         }
     }
 }
