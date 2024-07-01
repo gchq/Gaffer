@@ -21,6 +21,8 @@ import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.operation.OperationChain;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -54,6 +56,16 @@ public final class GafferPopGraphVariables implements Graph.Variables {
      * When to apply HasStep filtering
      */
     public static final String HAS_STEP_FILTER_STAGE = "hasStepFilterStage";
+
+    /**
+     * Flag to set if doing a dry run e.g. don't actually execute on the Gaffer graph
+     */
+    public static final String DRY_RUN = "dryRun";
+
+    /**
+     * The variable with the last Gaffer operation chain that was ran from the Gremlin query
+     */
+    public static final String LAST_OPERATION_CHAIN = "lastOperation";
 
 
     private final Map<String, Object> variables;
@@ -164,6 +176,10 @@ public final class GafferPopGraphVariables implements Graph.Variables {
 
     public String getHasStepFilterStage() {
         return (String) variables.get(HAS_STEP_FILTER_STAGE);
+    }
+
+    public OperationChain<?> getLastOperationChain() {
+        return (OperationChain) variables.get(LAST_OPERATION_CHAIN);
     }
 
     public String toString() {

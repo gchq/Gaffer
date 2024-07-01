@@ -716,8 +716,14 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             .dataAuths(variables.getDataAuths())
             .build();
 
+        List<Operation> currentChain = variables.getLastOperationChain().getOperations();
+        currentChain.add(opChain);
+        variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain<>(currentChain));
+
         try {
             LOGGER.info("GafferPop operation chain called: {}", opChain.toOverviewString());
+            LOGGER.info("----------------");
+            LOGGER.info("{}", variables.getLastOperationChain().toString());
             return graph.execute(opChain, user);
         } catch (final Exception e) {
             LOGGER.error("Operation chain failed: {}", e.getMessage());
@@ -1001,6 +1007,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             configuration().getInteger(GET_ALL_ELEMENTS_LIMIT, DEFAULT_GET_ALL_ELEMENTS_LIMIT));
         variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
             configuration().getString(HAS_STEP_FILTER_STAGE, DEFAULT_HAS_STEP_FILTER_STAGE.toString()));
+        variables.set(GafferPopGraphVariables.DRY_RUN, false);
+        variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain());
     }
 
     /**
