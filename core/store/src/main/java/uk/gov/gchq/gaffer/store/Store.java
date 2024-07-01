@@ -66,6 +66,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
@@ -856,7 +857,7 @@ public abstract class Store {
     protected abstract void addAdditionalOperationHandlers();
 
     /**
-     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}. All Stores must
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}. All Stores must
      * implement this.
      *
      * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}
@@ -864,7 +865,7 @@ public abstract class Store {
     protected abstract OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}. All Stores must
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}. All Stores must
      * implement this.
      *
      * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
@@ -872,7 +873,7 @@ public abstract class Store {
     protected abstract OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link GetAdjacentIds}.
+     * Get this Store's implementation of the handler for {@link GetAdjacentIds}.
      * All Stores must implement this.
      *
      * @return the implementation of the handler for {@link GetAdjacentIds}
@@ -880,7 +881,7 @@ public abstract class Store {
     protected abstract OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}.
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}.
      * All Stores must implement this.
      *
      * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}
@@ -888,7 +889,15 @@ public abstract class Store {
     protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.store.operation.GetTraits}.
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements}.
+     * All Stores must implement this.
+     *
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements}
+     */
+    protected abstract OperationHandler<? extends DeleteElements> getDeleteElementsHandler();
+
+    /**
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.store.operation.GetTraits}.
      * All Stores must implement this.
      *
      * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.store.operation.GetTraits}
@@ -1004,6 +1013,9 @@ public abstract class Store {
     private void addCoreOpHandlers() {
         // Add elements
         addOperationHandler(AddElements.class, getAddElementsHandler());
+
+        // Delete elements
+        addOperationHandler(DeleteElements.class, getDeleteElementsHandler());
 
         // Get Elements
         addOperationHandler(GetElements.class, getGetElementsHandler());
