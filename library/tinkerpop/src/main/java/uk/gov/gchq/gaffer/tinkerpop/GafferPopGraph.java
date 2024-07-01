@@ -216,6 +216,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public static final String NOT_READ_ONLY_ELEMENTS = "gaffer.elements.notreadonly";
 
     /**
+     * Key for use in the store properties to allow setting the file location of
+     * the GafferPop properties file from a store properties file.
+     */
+    public static final String GAFFERPOP_PROPERTIES = "gaffer.gafferpop.properties";
+
+    /**
      * The vertex label for vertex IDs. These are {@link GafferPopVertex}s that
      * don't have any properties, just an ID value and a label of 'id'.
      */
