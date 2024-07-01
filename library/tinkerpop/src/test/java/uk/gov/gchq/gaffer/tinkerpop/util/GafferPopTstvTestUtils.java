@@ -30,6 +30,7 @@ public final class GafferPopTstvTestUtils {
     public static final String EDGE = "test";
 
     public static final TypeSubTypeValue TSTV_ID = new TypeSubTypeValue("alpha", "beta", "gamma");
+    public static final String TSTV_ID_STRING = "t:alpha|st:beta|v:gamma";
     public static final TypeSubTypeValue OTHER_TSTV_ID = new TypeSubTypeValue("delta", "epsilon", "zeta");
     public static final TypeSubTypeValue TSTV_PROPERTY = new TypeSubTypeValue("eta", "theta", "iota");
     public static final String TSTV_PROPERTY_STRING = "t:eta|st:theta|v:iota";

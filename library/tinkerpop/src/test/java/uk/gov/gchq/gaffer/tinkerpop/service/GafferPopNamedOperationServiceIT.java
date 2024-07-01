@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Crown Copyright
+ * Copyright 2023-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphIT;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -46,8 +45,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_1;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.USER_ID;
 
-public class GafferPopNamedOperationServiceIT {
-    private static final MapStoreProperties PROPERTIES = MapStoreProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphIT.class, "/gaffer/map-store.properties"));
+class GafferPopNamedOperationServiceIT {
+    private static final MapStoreProperties PROPERTIES = MapStoreProperties.loadStoreProperties(StreamUtil.openStream(GafferPopNamedOperationServiceIT.class, "/gaffer/map-store.properties"));
 
     @Test
     void shouldHaveNamedOperationService() {

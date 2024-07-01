@@ -25,34 +25,34 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils;
+import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils;
+import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.AGE;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.JOSH;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.KNOWS;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.LOP;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MARKO;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MODERN_CONFIGURATION;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.NAME;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.PERSON;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.PETER;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.RIPPLE;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.SOFTWARE;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.VADAS;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.WEIGHT;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.OTHER_TSTV_PROPERTY;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.OTHER_TSTV_PROPERTY_STRING;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_ID;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_ID_STRING;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY_STRING;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.AGE;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.KNOWS;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.LOP;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.MARKO;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.NAME;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.PERSON;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.PETER;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.RIPPLE;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.SOFTWARE;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.WEIGHT;
 
 /**
  * Verify behaviour against HasStep examples in the Tinkerpop HasStep documentation.
@@ -66,17 +66,34 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROP
  */
 class GafferPopGraphStepIT {
 
-    private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphStepIT.class, "/gaffer/store.properties"));
     private static GraphTraversalSource g;
     private static GraphTraversalSource tstvG;
 
     @BeforeAll
     public static void beforeAll() {
-        GafferPopGraph modern = GafferPopModernTestUtils.createModernGraph(GafferPopGraphStepIT.class, ACCUMULO_PROPERTIES, MODERN_CONFIGURATION);
+        GafferPopGraph modern = GafferPopModernTestUtils.createModernGraph(GafferPopGraphStepIT.class, StoreType.ACCUMULO);
         g = modern.traversal();
 
         GafferPopGraph tstv = GafferPopTstvTestUtils.createTstvGraph();
         tstvG = tstv.traversal();
+    }
+
+    @Test
+    void shouldGetVertexBySeed() {
+        final List<Vertex> result = g.V(MARKO.getId()).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.getId());
+    }
+
+    @Test
+    void shouldGetVertexByTSTVSeed() {
+        final List<Vertex> result = tstvG.V(TSTV_ID_STRING).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(TSTV_ID);
     }
 
 
