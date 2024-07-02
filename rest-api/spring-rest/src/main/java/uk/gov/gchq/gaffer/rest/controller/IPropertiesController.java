@@ -27,7 +27,7 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @Tag(name = "properties")
-@RequestMapping("/properties")
+@RequestMapping("/rest/properties")
 public interface IPropertiesController {
 
     @RequestMapping(

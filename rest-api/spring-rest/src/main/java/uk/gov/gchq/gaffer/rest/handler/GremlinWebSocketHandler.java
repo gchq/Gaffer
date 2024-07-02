@@ -13,6 +13,7 @@ import org.apache.tinkerpop.gremlin.groovy.engine.GremlinExecutor;
 import org.apache.tinkerpop.gremlin.jsr223.ConcurrentBindings;
 import org.apache.tinkerpop.gremlin.process.remote.traversal.DefaultRemoteTraverser;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.util.MessageSerializer;
 import org.apache.tinkerpop.gremlin.util.Tokens;
 import org.apache.tinkerpop.gremlin.util.function.FunctionUtils;
@@ -34,7 +35,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 
 /**
  * Websocket handler for accepting and responding to Gremlin queries.
@@ -147,11 +147,21 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        } catch (IllegalArgumentException e) {
+            responseMessage = ResponseMessage.build(requestId)
+                .code(ResponseStatusCode.REQUEST_ERROR_MALFORMED_REQUEST)
+                .statusMessage(e.getMessage())
+                .create();
         } catch (Exception e) {
-            throw new GafferRuntimeException("Failed to execute Gremlin query: " + e.getMessage(), e);
+            responseMessage = ResponseMessage.build(requestId)
+                .code(ResponseStatusCode.SERVER_ERROR)
+                .statusMessage(e.getMessage())
+                .create();
         }
 
         return responseMessage;
     }
+
+
 
 }

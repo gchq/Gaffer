@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Tag(name = "job")
-@RequestMapping("/graph/jobs")
+@RequestMapping("/rest/graph/jobs")
 public interface IJobController {
 
     @PostMapping(

@@ -58,11 +58,6 @@ public final class GafferPopGraphVariables implements Graph.Variables {
     public static final String HAS_STEP_FILTER_STAGE = "hasStepFilterStage";
 
     /**
-     * Flag to set if doing a dry run e.g. don't actually execute on the Gaffer graph
-     */
-    public static final String DRY_RUN = "dryRun";
-
-    /**
      * The variable with the last Gaffer operation chain that was ran from the Gremlin query
      */
     public static final String LAST_OPERATION_CHAIN = "lastOperation";
@@ -103,7 +98,7 @@ public final class GafferPopGraphVariables implements Graph.Variables {
                 } else if (value instanceof Map) {
                     variables.put(key, value);
                 } else {
-                    LOGGER.error(VAR_UPDATE_ERROR_STRING, OP_OPTIONS, value.getClass());
+                    LOGGER.error(VAR_UPDATE_ERROR_STRING, key, value.getClass());
                 }
                 break;
 
@@ -113,7 +108,7 @@ public final class GafferPopGraphVariables implements Graph.Variables {
                 } else if (value instanceof String) {
                     variables.put(key, ((String) value).split(","));
                 } else {
-                    LOGGER.error(VAR_UPDATE_ERROR_STRING, DATA_AUTHS, value.getClass());
+                    LOGGER.error(VAR_UPDATE_ERROR_STRING, key, value.getClass());
                 }
                 break;
 

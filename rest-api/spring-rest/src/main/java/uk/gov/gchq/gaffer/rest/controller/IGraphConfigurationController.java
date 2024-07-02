@@ -32,7 +32,7 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @Tag(name = "config")
-@RequestMapping("/graph/config")
+@RequestMapping("/rest/graph/config")
 public interface IGraphConfigurationController {
 
     @RequestMapping(

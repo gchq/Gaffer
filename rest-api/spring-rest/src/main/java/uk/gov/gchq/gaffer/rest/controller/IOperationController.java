@@ -31,7 +31,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Tag(name = "operations")
-@RequestMapping("/graph/operations")
+@RequestMapping("/rest/graph/operations")
 public interface IOperationController {
 
     @RequestMapping(

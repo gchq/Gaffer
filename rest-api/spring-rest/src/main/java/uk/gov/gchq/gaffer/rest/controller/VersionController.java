@@ -35,7 +35,7 @@ public class VersionController {
      *
      * @return Version of the graph
      */
-    @GetMapping(path = "/graph/version", produces = TEXT_PLAIN_VALUE)
+    @GetMapping(path = "/rest/graph/version", produces = TEXT_PLAIN_VALUE)
     @Operation(summary = "Retrieves the version of the Gaffer Graph")
     public String getGafferVersion() {
         // Return the preloaded version string from the common-rest library
