@@ -415,6 +415,7 @@ public class AccumuloStore extends Store {
 
     @Override
     protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        // TODO: implement accumulo delete handler logic
         return null;
     }
 
