@@ -1,6 +1,24 @@
+/*
+ * Copyright 2020-2023 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.rest.handler;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -12,8 +30,8 @@ import java.util.stream.Stream;
 import org.apache.tinkerpop.gremlin.groovy.engine.GremlinExecutor;
 import org.apache.tinkerpop.gremlin.jsr223.ConcurrentBindings;
 import org.apache.tinkerpop.gremlin.process.remote.traversal.DefaultRemoteTraverser;
+import org.apache.tinkerpop.gremlin.process.traversal.Bytecode;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.util.MessageSerializer;
 import org.apache.tinkerpop.gremlin.util.Tokens;
 import org.apache.tinkerpop.gremlin.util.function.FunctionUtils;
@@ -25,6 +43,7 @@ import org.apache.tinkerpop.gremlin.util.ser.GraphBinaryMessageSerializerV1;
 import org.apache.tinkerpop.gremlin.util.ser.GraphSONMessageSerializerV3;
 import org.apache.tinkerpop.gremlin.util.ser.MessageTextSerializer;
 import org.apache.tinkerpop.gremlin.util.ser.SerTokens;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.BinaryMessage;
@@ -34,6 +53,13 @@ import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.context.Context;
+import uk.gov.gchq.gaffer.commonutil.otel.OtelUtil;
+import uk.gov.gchq.gaffer.rest.controller.GremlinController;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 
 
 /**
@@ -56,10 +82,13 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
                 new SimpleEntry<>(SerTokens.MIME_JSON, new GraphSONMessageSerializerV3()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
+    private ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(8));
     private ConcurrentBindings bindings = new ConcurrentBindings();
+    private GafferPopGraph gafferPopGraph;
 
     public GremlinWebSocketHandler(GraphTraversalSource g) {
         bindings.putIfAbsent("g", g);
+        gafferPopGraph = (GafferPopGraph) g.getGraph();
     }
 
     @Override
@@ -119,13 +148,20 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      * @return The response message containing the result.
      */
     private ResponseMessage handleGremlinRequest(RequestMessage requestMessage) {
+        ResponseMessage responseMessage;
         final UUID requestId = requestMessage.getRequestId();
 
-        // Default to an error response
-        ResponseMessage responseMessage = ResponseMessage.build(requestId).code(ResponseStatusCode.SERVER_ERROR).create();
+        // OpenTelemetry hooks
+        Span span = OtelUtil.startSpan(this.getClass().getName(), "Gremlin Request: " + requestId.toString());
+        span.setAttribute("gaffer.gremlin.query", ((Bytecode) requestMessage.getArg(Tokens.ARGS_GREMLIN)).toString());
 
         // Execute the query
-        try (GremlinExecutor gremlinExecutor = GremlinExecutor.build().globalBindings(bindings).create()) {
+        try (Scope scope = span.makeCurrent();
+            GremlinExecutor gremlinExecutor = GremlinExecutor.build()
+                .globalBindings(bindings)
+                .executorService(executorService)
+                .create()) {
+            // Run the query using the gremlin executor service
             Object result = gremlinExecutor.eval(
                     requestMessage.getArg(Tokens.ARGS_GREMLIN),
                     requestMessage.getArg(Tokens.ARGS_LANGUAGE),
@@ -140,6 +176,12 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
                                 IteratorUtils.asList(output)))
                     .get();
 
+            // Provide an debug explanation for the query that just ran
+            span.addEvent("Request complete");
+            JSONObject gafferOperationChain = GremlinController.getGafferPopExplanation(gafferPopGraph);
+            span.setAttribute("gaffer.gremlin.explain", gafferOperationChain.toString());
+            LOGGER.debug("{}", gafferOperationChain);
+
             // Build the response
             responseMessage = ResponseMessage.build(requestId)
                     .code(ResponseStatusCode.SUCCESS)
@@ -147,16 +189,21 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        } catch (IllegalArgumentException e) {
             responseMessage = ResponseMessage.build(requestId)
-                .code(ResponseStatusCode.REQUEST_ERROR_MALFORMED_REQUEST)
+                .code(ResponseStatusCode.SERVER_ERROR)
                 .statusMessage(e.getMessage())
                 .create();
+                span.setStatus(StatusCode.ERROR, e.getMessage());
+                span.recordException(e);
         } catch (Exception e) {
             responseMessage = ResponseMessage.build(requestId)
                 .code(ResponseStatusCode.SERVER_ERROR)
                 .statusMessage(e.getMessage())
                 .create();
+                span.setStatus(StatusCode.ERROR, e.getMessage());
+                span.recordException(e);
+        } finally {
+            span.end();
         }
 
         return responseMessage;

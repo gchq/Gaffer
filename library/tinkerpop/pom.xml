@@ -113,7 +113,7 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>federated-store</artifactId>
             <version>${project.parent.version}</version>

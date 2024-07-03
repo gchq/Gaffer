@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020-2023 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.rest.controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -5,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -24,8 +41,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
-@RestController("gremlin")
-@RequestMapping(path = "/rest/gremlin")
+@RestController
+@Tag(name = "gremlin")
+@RequestMapping("/rest/gremlin")
 public class GremlinController {
 
     private ConcurrentBindings bindings = new ConcurrentBindings();
@@ -43,7 +61,7 @@ public class GremlinController {
         produces = APPLICATION_JSON_VALUE)
     @io.swagger.v3.oas.annotations.Operation(
         summary = "Explain a Gremlin Query",
-        description = "Provides an explanation of what Gaffer operations are performed for given Gremlin query")
+        description = "Runs a Gremlin query on the graph and outputs an explanation of what Gaffer operations were performed")
     public String explain(@RequestBody String gremlinQuery) {
 
         JSONObject response =  new JSONObject();
