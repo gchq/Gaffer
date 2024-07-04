@@ -23,6 +23,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.rest.handler.GremlinWebSocketHandler;
 
 @Configuration
@@ -30,15 +31,17 @@ import uk.gov.gchq.gaffer.rest.handler.GremlinWebSocketHandler;
 public class GremlinWebSocketConfig implements WebSocketConfigurer {
 
     private GraphTraversalSource g;
+    private AbstractUserFactory userFactory;
 
     @Autowired
-    public GremlinWebSocketConfig(GraphTraversalSource g) {
+    public GremlinWebSocketConfig(GraphTraversalSource g, AbstractUserFactory userFactory) {
         this.g = g;
+        this.userFactory = userFactory;
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new GremlinWebSocketHandler(g), "/gremlin");
+        registry.addHandler(new GremlinWebSocketHandler(g, userFactory), "/gremlin");
     }
 
 }

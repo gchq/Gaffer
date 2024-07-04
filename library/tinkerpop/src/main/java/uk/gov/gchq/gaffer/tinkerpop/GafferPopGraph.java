@@ -710,11 +710,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 }
             }
         }
-        // Use the requested user based on variables
-        User user = new User.Builder()
-            .userId(variables.getUserId())
-            .dataAuths(variables.getDataAuths())
-            .build();
 
         // Add the current chain to the list of chains ran so far for this query (it is reset by the graph step)
         List<Operation> currentChain = variables.getLastOperationChain().getOperations();
@@ -723,7 +718,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         try {
             LOGGER.info("GafferPop operation chain called: {}", opChain.toOverviewString());
-            return graph.execute(opChain, user);
+            return graph.execute(opChain, variables.getUser());
         } catch (final Exception e) {
             LOGGER.error("Operation chain failed: {}", e.getMessage());
             throw new RuntimeException("GafferPop operation failed: " + e.getMessage(), e);
@@ -1000,8 +995,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      */
     public void setDefaultVariables(final GafferPopGraphVariables variables) {
         variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
-        variables.set(GafferPopGraphVariables.USER_ID, defaultUser.getUserId());
-        variables.set(GafferPopGraphVariables.DATA_AUTHS, configuration().getStringArray(DATA_AUTHS));
+        variables.set(GafferPopGraphVariables.USER, defaultUser);
         variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT,
             configuration().getInteger(GET_ALL_ELEMENTS_LIMIT, DEFAULT_GET_ALL_ELEMENTS_LIMIT));
         variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,

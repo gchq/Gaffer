@@ -63,8 +63,8 @@ class GafferPopGraphStepTest {
             .V().toList();
 
         // Then
-        assertThat(graphVariables.getUserId()).isEqualTo(testUserId);
-        assertThat(graphVariables.getDataAuths()).containsExactlyInAnyOrder((testDataAuths.split(",")));
+        assertThat(graphVariables.getUser().getUserId()).isEqualTo(testUserId);
+        assertThat(graphVariables.getUser().getDataAuths()).containsExactlyInAnyOrder((testDataAuths.split(",")));
         assertThat(graphVariables.getOperationOptions()).containsOnly(
             entry("graphId", "graph1"),
             entry("other", "other"));

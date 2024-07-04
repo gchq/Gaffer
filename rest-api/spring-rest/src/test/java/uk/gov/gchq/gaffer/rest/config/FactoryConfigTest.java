@@ -26,7 +26,7 @@ import org.springframework.mock.env.MockPropertySource;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.MockGraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.MockUserFactory;
-import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
+import uk.gov.gchq.gaffer.rest.factory.spring.UnknownUserFactory;
 
 import java.util.Properties;
 
