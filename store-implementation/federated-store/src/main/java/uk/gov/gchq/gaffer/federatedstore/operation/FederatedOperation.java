@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @Override
     @JsonIgnore
     public Collection<Operation> getOperations() {
-        return OperationChain.wrap(payloadOperation).getOperations();
+        return OperationChain.wrap(getPayloadOperation()).getOperations();
     }
 
     public FederatedOperation<INPUT, OUTPUT> mergeFunction(final BiFunction mergeFunction) {
