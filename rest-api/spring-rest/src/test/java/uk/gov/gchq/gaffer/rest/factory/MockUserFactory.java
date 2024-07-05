@@ -15,12 +15,13 @@
  */
 package uk.gov.gchq.gaffer.rest.factory;
 
+import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.mockito.Mockito.mock;
 
-public class MockUserFactory implements UserFactory {
+public class MockUserFactory extends AbstractUserFactory {
 
     final User user = mock(User.class);
 

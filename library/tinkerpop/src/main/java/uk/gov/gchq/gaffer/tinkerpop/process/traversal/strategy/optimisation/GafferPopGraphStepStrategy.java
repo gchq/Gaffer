@@ -24,16 +24,9 @@ import org.apache.tinkerpop.gremlin.process.traversal.step.filter.HasStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.GraphStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.NoOpBarrierStep;
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.AbstractTraversalStrategy;
-import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.OptionsStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalHelper;
-import org.opencypher.gremlin.translation.CypherAst;
-import org.opencypher.gremlin.translation.translator.Translator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopGraphStep;
-
-import java.util.Optional;
 
 /**
  * The {@link GraphStep} strategy for GafferPop, this will replace the default
@@ -45,11 +38,9 @@ import java.util.Optional;
  * <pre>
  * g.V().hasLabel()    // replaced by GafferPopGraphStep
  * g.E().hasLabel()    // replaced by GafferPopGraphStep
- * g.with("cypher", "query") // translated to Gremlin traversal
  * </pre>
  */
 public final class GafferPopGraphStepStrategy extends AbstractTraversalStrategy<TraversalStrategy.ProviderOptimizationStrategy> implements TraversalStrategy.ProviderOptimizationStrategy {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraphStepStrategy.class);
     private static final GafferPopGraphStepStrategy INSTANCE = new GafferPopGraphStepStrategy();
 
     private GafferPopGraphStepStrategy() {

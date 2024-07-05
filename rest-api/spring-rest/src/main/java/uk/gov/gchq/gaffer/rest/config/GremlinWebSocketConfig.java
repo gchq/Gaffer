@@ -30,17 +30,17 @@ import uk.gov.gchq.gaffer.rest.handler.GremlinWebSocketHandler;
 @EnableWebSocket
 public class GremlinWebSocketConfig implements WebSocketConfigurer {
 
-    private GraphTraversalSource g;
-    private AbstractUserFactory userFactory;
+    private final GraphTraversalSource g;
+    private final AbstractUserFactory userFactory;
 
     @Autowired
-    public GremlinWebSocketConfig(GraphTraversalSource g, AbstractUserFactory userFactory) {
+    public GremlinWebSocketConfig(final GraphTraversalSource g, final AbstractUserFactory userFactory) {
         this.g = g;
         this.userFactory = userFactory;
     }
 
     @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+    public void registerWebSocketHandlers(final WebSocketHandlerRegistry registry) {
         registry.addHandler(new GremlinWebSocketHandler(g, userFactory), "/gremlin");
     }
 

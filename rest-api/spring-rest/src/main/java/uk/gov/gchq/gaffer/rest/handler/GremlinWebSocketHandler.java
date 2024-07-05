@@ -16,19 +16,13 @@
 
 package uk.gov.gchq.gaffer.rest.handler;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 
 import org.apache.commons.configuration2.MapConfiguration;
 import org.apache.tinkerpop.gremlin.groovy.engine.GremlinExecutor;
@@ -42,6 +36,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.strategy.TraversalStrategy
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.verification.ReadOnlyStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.util.BytecodeHelper;
 import org.apache.tinkerpop.gremlin.server.authz.AuthorizationException;
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.util.MessageSerializer;
 import org.apache.tinkerpop.gremlin.util.Tokens;
 import org.apache.tinkerpop.gremlin.util.function.FunctionUtils;
@@ -62,19 +57,26 @@ import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.Unpooled;
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.StatusCode;
-import io.opentelemetry.context.Scope;
-import io.opentelemetry.context.Context;
 import uk.gov.gchq.gaffer.commonutil.otel.OtelUtil;
 import uk.gov.gchq.gaffer.rest.controller.GremlinController;
 import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.gaffer.user.User;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -98,25 +100,25 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
     public static final String REJECT_STRING = "User not authorized for string-based requests.";
 
     // Mappings of mime types and serialisers
-    private Map<String, MessageSerializer<?>> serialisers = Stream.of(
-                new SimpleEntry<>(SerTokens.MIME_GRAPHBINARY_V1, new GraphBinaryMessageSerializerV1()),
-                new SimpleEntry<>(SerTokens.MIME_GRAPHSON_V3, new GraphSONMessageSerializerV3()),
-                new SimpleEntry<>(SerTokens.MIME_JSON, new GraphSONMessageSerializerV3()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    private final Map<String, MessageSerializer<?>> serialisers = Stream.of(
+            new SimpleEntry<>(SerTokens.MIME_GRAPHBINARY_V1, new GraphBinaryMessageSerializerV1()),
+            new SimpleEntry<>(SerTokens.MIME_GRAPHSON_V3, new GraphSONMessageSerializerV3()),
+            new SimpleEntry<>(SerTokens.MIME_JSON, new GraphSONMessageSerializerV3()))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    private ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(8));
-    private ConcurrentBindings bindings = new ConcurrentBindings();
-    private AbstractUserFactory userFactory;
-    private GafferPopGraph gafferPopGraph;
+    private final ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(8));
+    private final ConcurrentBindings bindings = new ConcurrentBindings();
+    private final AbstractUserFactory userFactory;
+    private final Graph graph;
 
-    public GremlinWebSocketHandler(GraphTraversalSource g, AbstractUserFactory userFactory) {
+    public GremlinWebSocketHandler(final GraphTraversalSource g, final AbstractUserFactory userFactory) {
         bindings.putIfAbsent("g", g);
-        gafferPopGraph = (GafferPopGraph) g.getGraph();
+        graph = g.getGraph();
         this.userFactory = userFactory;
     }
 
     @Override
-    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
+    protected void handleBinaryMessage(final WebSocketSession session, final BinaryMessage message) throws Exception {
         ByteBuf byteBuf = convertToByteBuf(message);
 
         // Read the start bytes to find the type to correctly deserialise
@@ -133,7 +135,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
         // Handle and respond
         sendBinaryResponse(session, serialiser, handleGremlinRequest(session, request));
-	}
+    }
 
     /**
      * Extracts the relevant information from a {@link RequestMessage} to execute a
@@ -142,10 +144,11 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      * client.
      * Will default to {@link ResponseStatusCode}.SERVER_ERROR if request fails.
      *
+     * @param session The current websocket session.
      * @param request The Gremlin request.
      * @return The response message containing the result.
      */
-    private ResponseMessage handleGremlinRequest(WebSocketSession session, RequestMessage request) {
+    private ResponseMessage handleGremlinRequest(final WebSocketSession session, final RequestMessage request) {
         final UUID requestId = request.getRequestId();
         ResponseMessage responseMessage;
         Bytecode bytecode = (Bytecode) request.getArgs().get(Tokens.ARGS_GREMLIN);
@@ -153,8 +156,8 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
         // Authorise the bytecode and get the user
         try {
             User user = authoriseRequest(session, bytecode);
-            gafferPopGraph.variables().set(GafferPopGraphVariables.USER, user);
-        } catch (AuthorizationException e) {
+            graph.variables().set(GafferPopGraphVariables.USER, user);
+        } catch (final AuthorizationException e) {
             return ResponseMessage.build(requestId)
                 .code(ResponseStatusCode.UNAUTHORIZED)
                 .statusMessage(e.getMessage()).create();
@@ -190,23 +193,25 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
             // Provide an debug explanation for the query that just ran
             span.addEvent("Request complete");
-            JSONObject gafferOperationChain = GremlinController.getGafferPopExplanation(gafferPopGraph);
-            span.setAttribute("gaffer.gremlin.explain", gafferOperationChain.toString());
-            LOGGER.debug("{}", gafferOperationChain);
+            if (graph instanceof GafferPopGraph) {
+                JSONObject gafferOperationChain = GremlinController.getGafferPopExplanation((GafferPopGraph) graph);
+                span.setAttribute("gaffer.gremlin.explain", gafferOperationChain.toString());
+                LOGGER.debug("{}", gafferOperationChain);
+            }
 
             // Build the response
             responseMessage = ResponseMessage.build(requestId)
                     .code(ResponseStatusCode.SUCCESS)
                     .result(result).create();
 
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             responseMessage = ResponseMessage.build(requestId)
                 .code(ResponseStatusCode.SERVER_ERROR)
                 .statusMessage(e.getMessage()).create();
             span.setStatus(StatusCode.ERROR, e.getMessage());
             span.recordException(e);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             responseMessage = ResponseMessage.build(requestId)
                 .code(ResponseStatusCode.SERVER_ERROR)
                 .statusMessage(e.getMessage()).create();
@@ -219,7 +224,6 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
         return responseMessage;
     }
 
-
     /**
      * Authorises the request and gets the {@link User} for this request from the
      * user factory.
@@ -229,7 +233,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      * @return Gaffer user.
      * @throws AuthorizationException If request is invalid.
      */
-    private User authoriseRequest(WebSocketSession session, Bytecode bytecode) throws AuthorizationException {
+    private User authoriseRequest(final WebSocketSession session, final Bytecode bytecode) throws AuthorizationException {
 
         final boolean runsLambda = BytecodeHelper.getLambdaLanguage(bytecode).isPresent();
         final boolean touchesReadOnlyStrategy = bytecode.toString().contains(ReadOnlyStrategy.class.getSimpleName());
@@ -262,7 +266,6 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
     }
 
-
     /**
      * Checks the byte code for a cypher traversal request if found it
      * will return the translated bytecode otherwise it will simply return
@@ -271,7 +274,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      * @param bytecode The bytecode to check.
      * @return The translated bytecode if cypher is present.
      */
-    private Bytecode translateCypherIfPresent(Bytecode bytecode) {
+    private Bytecode translateCypherIfPresent(final Bytecode bytecode) {
         for (final Instruction i : bytecode.getInstructions()) {
             if (!i.getOperator().equals("withStrategies")) {
                 continue;
@@ -280,7 +283,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
             if (i.getArguments()[0] instanceof TraversalStrategyProxy) {
                 Map<String, Object> options = ((MapConfiguration) ((TraversalStrategyProxy<?>) i.getArguments()[0]).getConfiguration()).getMap();
                 LOGGER.debug("Found options from traversal: {}", options);
-                if(options.containsKey(GafferPopGraphVariables.CYPHER_KEY)) {
+                if (options.containsKey(GafferPopGraphVariables.CYPHER_KEY)) {
                     // Found cypher
                     String cypherString = (String) options.get(GafferPopGraphVariables.CYPHER_KEY);
                     LOGGER.info("Translating cypher query: {}", cypherString);
@@ -306,7 +309,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      * @param message the binary web socket message.
      * @return A netty byte buffer for the message.
      */
-    private ByteBuf convertToByteBuf(BinaryMessage message) {
+    private ByteBuf convertToByteBuf(final BinaryMessage message) {
         ByteBuffer byteBuffer = message.getPayload();
 
         if (byteBuffer.hasArray()) {
@@ -326,7 +329,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      * @param response The response message
      * @throws IOException If fail to serialise or send
      */
-    private void sendBinaryResponse(WebSocketSession session, MessageSerializer<?> serialiser, ResponseMessage response) throws IOException {
+    private void sendBinaryResponse(final WebSocketSession session, final MessageSerializer<?> serialiser, final ResponseMessage response) throws IOException {
         // Serialise response and read the bytes into a byte array
         ByteBuf responseByteBuf = serialiser.serializeResponseAsBinary(response, PooledByteBufAllocator.DEFAULT);
         byte[] responseBytes = new byte[responseByteBuf.readableBytes()];

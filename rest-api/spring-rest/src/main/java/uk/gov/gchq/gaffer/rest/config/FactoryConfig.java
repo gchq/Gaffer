@@ -29,8 +29,8 @@ import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.DefaultExamplesFactory;
 import uk.gov.gchq.gaffer.rest.factory.ExamplesFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
-import uk.gov.gchq.gaffer.rest.factory.spring.UnknownUserFactory;
 import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
+import uk.gov.gchq.gaffer.rest.factory.spring.UnknownUserFactory;
 
 import javax.annotation.PostConstruct;
 

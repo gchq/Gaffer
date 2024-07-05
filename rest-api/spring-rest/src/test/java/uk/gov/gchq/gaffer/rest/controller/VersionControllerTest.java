@@ -48,7 +48,7 @@ class VersionControllerTest {
 
         // Perform mock request to the endpoint
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-            .get("/graph/version")
+            .get("/rest/graph/version")
             .accept(TEXT_PLAIN_VALUE);
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 

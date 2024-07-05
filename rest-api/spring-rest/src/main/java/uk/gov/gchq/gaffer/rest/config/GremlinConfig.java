@@ -50,7 +50,7 @@ public class GremlinConfig {
         // Obtain the graph traversal
         try (Graph graph = GafferPopGraph.open(new Configurations().properties(gafferPopProperties), graphFactory.getGraph())) {
             return graph.traversal();
-        } catch (ConfigurationException e) {
+        } catch (final ConfigurationException e) {
             LOGGER.error("Error loading GafferPop config, Gremlin will be unavailable: {}", e.getMessage());
             return EmptyGraph.instance().traversal();
         }

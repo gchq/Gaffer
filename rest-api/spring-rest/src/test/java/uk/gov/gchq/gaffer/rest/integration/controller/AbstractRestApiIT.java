@@ -82,11 +82,12 @@ public abstract class AbstractRestApiIT {
     }
 
     protected String getContextPath() {
-        return contextPath;
+        // All the rest endpoints are under /rest context
+        return contextPath + "rest";
     }
 
     protected String getBaseURl() {
-        return "http://localhost:" + port + "/" + contextPath;
+        return "http://localhost:" + port + "/" + getContextPath();
     }
 
     protected <T> ResponseEntity<T> get(final String path, final Class<T> responseBodyClass) {

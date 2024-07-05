@@ -40,7 +40,7 @@ public class AbstractUserFactory implements UserFactory {
      *
      * @param httpHeaders the headers
      */
-    public void setHttpHeaders(HttpHeaders httpHeaders) {
+    public void setHttpHeaders(final HttpHeaders httpHeaders) {
         this.httpHeaders = httpHeaders;
     }
 
