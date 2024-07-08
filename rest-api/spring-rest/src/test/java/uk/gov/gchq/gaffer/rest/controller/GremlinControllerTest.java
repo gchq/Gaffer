@@ -36,6 +36,8 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
+import uk.gov.gchq.gaffer.rest.factory.spring.UnknownUserFactory;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils;
 
 import java.util.Arrays;
@@ -58,6 +60,11 @@ class GremlinControllerTest {
         public GraphTraversalSource g() {
             Graph graph = GafferPopModernTestUtils.createModernGraph(TestConfig.class, MAP_STORE_PROPERTIES, MODERN_CONFIGURATION);
             return graph.traversal();
+        }
+
+        @Bean
+        public AbstractUserFactory userFactory() {
+            return new UnknownUserFactory();
         }
     }
 
@@ -87,8 +94,8 @@ class GremlinControllerTest {
 
         // Get and check response
         JSONObject jsonResponse = new JSONObject(result.getResponse().getContentAsString());
-        assertThat(jsonResponse.has("overview")).isTrue();
-        assertThat(jsonResponse.has("chain")).isTrue();
+        assertThat(jsonResponse.has(GremlinController.EXPLAIN_OVERVIEW_KEY)).isTrue();
+        assertThat(jsonResponse.has(GremlinController.EXPLAIN_OP_CHAIN_KEY)).isTrue();
 
         // Check the operations that ran are as expected
         JSONArray operations = jsonResponse.getJSONObject("chain").getJSONArray("operations");
@@ -135,9 +142,9 @@ class GremlinControllerTest {
 
         // Get and check response
         JSONObject jsonResponse = new JSONObject(result.getResponse().getContentAsString());
-        assertThat(jsonResponse.has("overview")).isTrue();
-        assertThat(jsonResponse.has("chain")).isTrue();
-        assertThat(jsonResponse.has("gremlin")).isTrue();
+        assertThat(jsonResponse.has(GremlinController.EXPLAIN_OVERVIEW_KEY)).isTrue();
+        assertThat(jsonResponse.has(GremlinController.EXPLAIN_OP_CHAIN_KEY)).isTrue();
+        assertThat(jsonResponse.has(GremlinController.EXPLAIN_GREMLIN_KEY)).isTrue();
 
         // Check the operations that ran are as expected
         JSONArray operations = jsonResponse.getJSONObject("chain").getJSONArray("operations");
