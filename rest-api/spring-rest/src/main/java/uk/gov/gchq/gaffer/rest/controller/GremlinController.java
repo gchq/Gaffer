@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.rest.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import org.apache.tinkerpop.gremlin.groovy.engine.GremlinExecutor;
 import org.apache.tinkerpop.gremlin.jsr223.ConcurrentBindings;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -27,8 +26,10 @@ import org.json.JSONObject;
 import org.opencypher.gremlin.translation.CypherAst;
 import org.opencypher.gremlin.translation.translator.Translator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 
@@ -51,18 +53,26 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 @RequestMapping("/rest/gremlin")
 public class GremlinController {
 
+    // Keys for response JSON
+    public static final String EXPLAIN_OVERVIEW_KEY = "overview";
+    public static final String EXPLAIN_OP_CHAIN_KEY = "chain";
+    public static final String EXPLAIN_GREMLIN_KEY = "gremlin";
+
     private final ConcurrentBindings bindings = new ConcurrentBindings();
+    private final AbstractUserFactory userFactory;
     private final Graph graph;
 
     @Autowired
-    public GremlinController(final GraphTraversalSource g) {
+    public GremlinController(final GraphTraversalSource g, final AbstractUserFactory userFactory) {
         bindings.putIfAbsent("g", g);
         graph = g.getGraph();
+        this.userFactory = userFactory;
     }
 
     /**
      * Explains what Gaffer operations are ran for a given gremlin query.
      *
+     * @param httpHeaders The request headers.
      * @param gremlinQuery The gremlin groovy query.
      * @return Json response with explanation in.
      */
@@ -70,14 +80,15 @@ public class GremlinController {
     @io.swagger.v3.oas.annotations.Operation(
         summary = "Explain a Gremlin Query",
         description = "Runs a Gremlin query and outputs an explanation of what Gaffer operations were executed on the graph")
-    public String explain(@RequestBody final String gremlinQuery) {
-        return runGremlinAndGetExplain(gremlinQuery).toString();
+    public String explain(@RequestHeader final HttpHeaders httpHeaders, @RequestBody final String gremlinQuery) {
+        return runGremlinAndGetExplain(gremlinQuery, httpHeaders).toString();
     }
 
     /**
      * Explains what Gaffer operations are ran for a given cypher query,
      * will translate to Gremlin using {@link CypherAst} before executing.
      *
+     * @param httpHeaders The request headers.
      * @param cypherQuery Opencypher query.
      * @return Json response with explanation in.
      */
@@ -85,14 +96,14 @@ public class GremlinController {
     @io.swagger.v3.oas.annotations.Operation(
         summary = "Explain a Cypher Query Executed via Gremlin",
         description = "Translates a Cypher query to Gremlin and outputs an explanation of what Gaffer operations were executed on the graph")
-    public String cypherExplain(@RequestBody final String cypherQuery) {
+    public String cypherExplain(@RequestHeader final HttpHeaders httpHeaders, @RequestBody final String cypherQuery) {
 
         final CypherAst ast = CypherAst.parse(cypherQuery);
         // Translate the cypher to gremlin, always add a .toList() otherwise Gremlin wont execute it as its lazy
         final String translation = ast.buildTranslation(Translator.builder().gremlinGroovy().enableCypherExtensions().build()) + ".toList()";
 
-        JSONObject response = runGremlinAndGetExplain(translation);
-        response.put("gremlin", translation);
+        JSONObject response = runGremlinAndGetExplain(translation, httpHeaders);
+        response.put(EXPLAIN_GREMLIN_KEY, translation);
         return response.toString();
     }
 
@@ -121,11 +132,11 @@ public class GremlinController {
         OperationChain<?> flattenedChain = new OperationChain<>(operations);
         String overview = flattenedChain.toOverviewString();
 
-        result.put("overview", overview);
+        result.put(EXPLAIN_OVERVIEW_KEY, overview);
         try {
-            result.put("chain", new JSONObject(new String(JSONSerialiser.serialise(flattenedChain), StandardCharsets.UTF_8)));
+            result.put(EXPLAIN_OP_CHAIN_KEY, new JSONObject(new String(JSONSerialiser.serialise(flattenedChain), StandardCharsets.UTF_8)));
         } catch (final SerialisationException e) {
-            result.put("chain", "FAILED TO SERIALISE OPERATION CHAIN");
+            result.put(EXPLAIN_OP_CHAIN_KEY, "FAILED TO SERIALISE OPERATION CHAIN");
         }
 
         return result;
@@ -138,9 +149,10 @@ public class GremlinController {
      * the explain as it may have been done in the Tinkerpop framework instead.
      *
      * @param gremlinQuery The Gremlin groovy query.
+     * @param httpHeaders The headers for the request.
      * @return JSON explanation.
      */
-    private JSONObject runGremlinAndGetExplain(final String gremlinQuery) {
+    private JSONObject runGremlinAndGetExplain(final String gremlinQuery, final HttpHeaders httpHeaders) {
         // Check we actually have a graph instance to use
         GafferPopGraph gafferPopGraph;
         if (graph instanceof EmptyGraph) {
@@ -148,6 +160,10 @@ public class GremlinController {
         } else {
             gafferPopGraph = (GafferPopGraph) graph;
         }
+        // Hooks for user auth
+        userFactory.setHttpHeaders(httpHeaders);
+        graph.variables().set(GafferPopGraphVariables.USER, userFactory.createUser());
+
         JSONObject explain = new JSONObject();
         try (GremlinExecutor gremlinExecutor = GremlinExecutor.build().globalBindings(bindings).create()) {
             gafferPopGraph.setDefaultVariables((GafferPopGraphVariables) gafferPopGraph.variables());

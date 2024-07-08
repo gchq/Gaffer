@@ -26,7 +26,6 @@
     <artifactId>tinkerpop</artifactId>
 
     <properties>
-        <tinkerpop.version>3.7.1</tinkerpop.version>
         <google-guice.version>4.2.3</google-guice.version>
         <cucumber.version>7.15.0</cucumber.version>
         <!-- Note later versions require scala version 2.12.x -->
