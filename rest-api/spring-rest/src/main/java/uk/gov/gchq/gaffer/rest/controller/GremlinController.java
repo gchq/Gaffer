@@ -109,7 +109,11 @@ public class GremlinController {
 
     /**
      * Gets an explanation of the last chain of operations ran on a GafferPop graph.
-     * This essentially shows how a Gremlin query mapped to a Gaffer operation chain.
+     * This essentially shows how a Gremlin query mapped to a Gaffer operation
+     * chain.
+     * Note due to how Gaffer maps to Tinkerpop some filtering steps in the Gremlin
+     * query may be absent from the operation chains in the explain as it may have
+     * been done in the Tinkerpop framework instead.
      *
      * @param graph The GafferPop graph
      * @return A JSON payload with an overview and full JSON representation of the
@@ -144,9 +148,7 @@ public class GremlinController {
 
     /**
      * Executes a given Gremlin query on the graph then formats a JSON response with
-     * the executed Gaffer operations in. Note due to how Gaffer maps to Tinkerpop some
-     * filtering steps in the Gremlin query may be absent from the operation chains in
-     * the explain as it may have been done in the Tinkerpop framework instead.
+     * the executed Gaffer operations in.
      *
      * @param gremlinQuery The Gremlin groovy query.
      * @param httpHeaders The headers for the request.

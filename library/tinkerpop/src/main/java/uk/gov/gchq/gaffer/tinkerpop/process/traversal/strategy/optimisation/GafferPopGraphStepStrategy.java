@@ -24,16 +24,24 @@ import org.apache.tinkerpop.gremlin.process.traversal.step.filter.HasStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.GraphStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.NoOpBarrierStep;
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.AbstractTraversalStrategy;
+import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.OptionsStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalHelper;
+import org.opencypher.gremlin.translation.CypherAst;
+import org.opencypher.gremlin.translation.translator.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopGraphStep;
-import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GremlinQueryUtils;
+
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * The {@link GraphStep} strategy for GafferPop, this will replace the default
  * {@link GraphStep} of a query to add Gaffer optimisations. Such as gathering
  * any {@link HasStep}s so that a Gaffer View can be constructed for the query.
- * Will also handle the translation of options or Cypher queries passed via a with()
+ * Will also handle the translation of Cypher queries passed via a with()
  * step in the Gremlin traversal.
  *
  * <pre>
@@ -43,6 +51,7 @@ import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GremlinQueryUtils;
  * </pre>
  */
 public final class GafferPopGraphStepStrategy extends AbstractTraversalStrategy<TraversalStrategy.ProviderOptimizationStrategy> implements TraversalStrategy.ProviderOptimizationStrategy {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraphStepStrategy.class);
     private static final GafferPopGraphStepStrategy INSTANCE = new GafferPopGraphStepStrategy();
 
     private GafferPopGraphStepStrategy() {
@@ -51,7 +60,20 @@ public final class GafferPopGraphStepStrategy extends AbstractTraversalStrategy<
     @Override
     public void apply(final Admin<?, ?> traversal) {
         // Parse any options on the traversal
-        GremlinQueryUtils.parseOptionsAndUpdateTraversal(traversal);
+        Optional<OptionsStrategy> optionsStrategy = traversal.getStrategies().getStrategy(OptionsStrategy.class);
+        if (optionsStrategy.isPresent()) {
+            Map<String, Object> options = optionsStrategy.get().getOptions();
+            // Translate and add a cypher traversal in if that key has been set
+            if (options.containsKey(GafferPopGraphVariables.CYPHER_KEY)) {
+                LOGGER.info("Replacing traversal with translated Cypher query");
+                CypherAst ast = CypherAst.parse((String) options.get(GafferPopGraphVariables.CYPHER_KEY));
+                Admin<?, ?> translatedCypher = ast.buildTranslation(Translator.builder().traversal().enableCypherExtensions().build()).asAdmin();
+
+                // Add the cypher traversal
+                TraversalHelper.insertTraversal(0, translatedCypher, traversal);
+                LOGGER.debug("New traversal is: {}", traversal);
+            }
+        }
 
         TraversalHelper.getStepsOfClass(GraphStep.class, traversal).forEach(originalGraphStep -> {
             // Replace the current GraphStep with a GafferPopGraphStep

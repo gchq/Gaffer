@@ -35,8 +35,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.rest.factory.spring.UnknownUserFactory;
-import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
+import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 
 import java.util.Arrays;
 import java.util.List;

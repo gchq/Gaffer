@@ -42,15 +42,23 @@ import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables.CYPHER_KEY;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.MARKO;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.PETER;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+/**
+ * Integration testing for the Gremlin websocket. Testing is fairly simple as
+ * GafferPop is more heavily tested in its own module this is checking the
+ * websocket can at least accept Gremlin and GafferPop related queries via a
+ * standard tinkerpop client connection.
+ */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(GremlinWebSocketIT.TestConfig.class)
@@ -115,10 +123,26 @@ class GremlinWebSocketIT {
         // Given
         String query = "g.V().thisStepDoesNotExist().toList()";
 
-        // When
+        // When/Then
         assertThatExceptionOfType(ExecutionException.class)
             .isThrownBy(() -> client.submit(query).all().get())
             .withMessageContaining("groovy.lang.MissingMethodException");
+    }
+
+    @Test
+    void shouldAcceptQueryWithCypher() {
+        // Given
+        String cypherQuery = "MATCH (p:person) WHERE ID(p) = '" + MARKO.getId() + "' RETURN p.name";
+        String gremlinQuery = "g.with(\"" + CYPHER_KEY + "\", " + "\"" + cypherQuery + "\").call().toList()";
+
+        // When
+        List<Result> results = client.submit(gremlinQuery).stream().collect(Collectors.toList());
+
+        // Then
+        // Cypher returns each result under the project name e.g. 'p' so we need to extract
+        assertThat(results)
+            .flatMap(result -> ((LinkedHashMap<Object, Object>) result.getObject()).values())
+            .containsExactly(MARKO.getName());
     }
 
 }

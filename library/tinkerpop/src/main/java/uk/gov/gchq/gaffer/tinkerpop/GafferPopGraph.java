@@ -995,6 +995,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param variables The variables
      */
     public void setDefaultVariables(final GafferPopGraphVariables variables) {
+        LOGGER.info("Resetting graph variables to defaults");
         variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
         variables.set(GafferPopGraphVariables.USER, defaultUser);
         variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT,

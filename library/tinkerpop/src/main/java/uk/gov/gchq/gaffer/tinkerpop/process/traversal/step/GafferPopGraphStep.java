@@ -21,6 +21,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.Contains;
 import org.apache.tinkerpop.gremlin.process.traversal.step.HasContainerHolder;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.GraphStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.HasContainer;
+import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.OptionsStrategy;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
@@ -46,11 +47,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * Custom GafferPop GraphStep provides Gaffer specific optimisations
- * for the initial GraphStep in a query. 
+ * for the initial GraphStep in a query.
  */
 public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> implements HasContainerHolder {
 
@@ -65,6 +67,20 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
         // Save reference to the graph
         GafferPopGraph graph = (GafferPopGraph) originalGraphStep.getTraversal().getGraph().get();
+
+        // Restore variables to defaults before parsing options
+        graph.setDefaultVariables((GafferPopGraphVariables) graph.variables());
+
+        // Find any options on the traversal
+        Optional<OptionsStrategy> optionsStrategy = originalGraphStep.getTraversal().getStrategies().getStrategy(OptionsStrategy.class);
+        if (optionsStrategy.isPresent()) {
+            LOGGER.debug("Found options on requested traversal");
+            optionsStrategy.get().getOptions().forEach((k, v) -> {
+                if (graph.variables().asMap().containsKey(k)) {
+                    graph.variables().set(k, v);
+                }
+            });
+        }
 
         // Set the output iterator to the relevant filtered output from the class methods
         this.setIteratorSupplier(() ->

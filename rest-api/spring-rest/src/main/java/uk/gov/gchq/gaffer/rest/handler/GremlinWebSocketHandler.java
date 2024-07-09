@@ -27,7 +27,6 @@ import org.apache.tinkerpop.gremlin.groovy.engine.GremlinExecutor;
 import org.apache.tinkerpop.gremlin.jsr223.ConcurrentBindings;
 import org.apache.tinkerpop.gremlin.process.remote.traversal.DefaultRemoteTraverser;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.server.authz.AuthorizationException;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.util.MessageSerializer;
 import org.apache.tinkerpop.gremlin.util.Tokens;
@@ -90,6 +89,12 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
     private final AbstractUserFactory userFactory;
     private final Graph graph;
 
+    /**
+     * Constructor
+     *
+     * @param g The graph traversal source
+     * @param userFactory The user factory
+     */
     public GremlinWebSocketHandler(final GraphTraversalSource g, final AbstractUserFactory userFactory) {
         bindings.putIfAbsent("g", g);
         graph = g.getGraph();
