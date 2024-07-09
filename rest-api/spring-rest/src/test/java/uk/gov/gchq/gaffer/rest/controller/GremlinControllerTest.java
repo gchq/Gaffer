@@ -32,33 +32,29 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
-import uk.gov.gchq.gaffer.operation.impl.Limit;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.rest.factory.spring.UnknownUserFactory;
-import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils;
+import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
+import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MODERN_CONFIGURATION;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.MARKO;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = GremlinController.class)
 @Import(GremlinControllerTest.TestConfig.class)
 class GremlinControllerTest {
 
-    private static final MapStoreProperties MAP_STORE_PROPERTIES = MapStoreProperties.loadStoreProperties("/tinkerpop/map-store.properties");
-
     @TestConfiguration
     static class TestConfig {
         @Bean
         public GraphTraversalSource g() {
-            Graph graph = GafferPopModernTestUtils.createModernGraph(TestConfig.class, MAP_STORE_PROPERTIES, MODERN_CONFIGURATION);
+            Graph graph = GafferPopModernTestUtils.createModernGraph(TestConfig.class, StoreType.MAP);
             return graph.traversal();
         }
 
@@ -77,8 +73,8 @@ class GremlinControllerTest {
     @Test
     void shouldReturnExplainOfValidGremlinQuery() throws Exception {
         // Given
-        String gremlinString = "g.V().toList()";
-        List<String> expectedOperations = Arrays.asList(GetAllElements.class.getName(), Limit.class.getName());
+        String gremlinString = "g.V('" + MARKO.getId() + "').toList()";
+        List<String> expectedOperations = Arrays.asList(GetElements.class.getName());
 
         // When
         MvcResult result = mockMvc
@@ -125,7 +121,7 @@ class GremlinControllerTest {
     @Test
     void shouldReturnExplainOfValidCypherQuery() throws Exception {
         // Given
-        String cypherString = "MATCH (p:person) WHERE ID(p) = '1' RETURN p";
+        String cypherString = "MATCH (p:person) WHERE ID(p) = '" + MARKO.getId() + "' RETURN p";
         List<String> expectedOperations = Arrays.asList(GetElements.class.getName());
 
         // When

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.rest.integration.handler;
 
 import org.apache.tinkerpop.gremlin.driver.Client;
@@ -19,13 +35,16 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.rest.factory.spring.UnknownUserFactory;
-import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils;
+import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
+import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MODERN_CONFIGURATION;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.MARKO;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.PETER;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,8 +54,6 @@ import java.util.stream.Collectors;
 @Import(GremlinWebSocketIT.TestConfig.class)
 @ActiveProfiles("test")
 class GremlinWebSocketIT {
-    private static final MapStoreProperties MAP_STORE_PROPERTIES = MapStoreProperties
-            .loadStoreProperties("/tinkerpop/map-store.properties");
 
     @TestConfiguration
     static class TestConfig {
@@ -44,7 +61,7 @@ class GremlinWebSocketIT {
         @Bean
         @Profile("test")
         public GraphTraversalSource g() {
-            Graph graph = GafferPopModernTestUtils.createModernGraph(TestConfig.class, MAP_STORE_PROPERTIES, MODERN_CONFIGURATION);
+            Graph graph = GafferPopModernTestUtils.createModernGraph(TestConfig.class, StoreType.MAP);
             return graph.traversal();
         }
 
@@ -65,6 +82,7 @@ class GremlinWebSocketIT {
 
     @BeforeEach
     void setup() {
+        // Set up a client connection to the server
         Cluster cluster = Cluster.build()
             .addContactPoint("localhost")
             .port(port)
@@ -73,13 +91,21 @@ class GremlinWebSocketIT {
     }
 
     @Test
-    void shouldAcceptBasicQueries() {
-        String query = "g.V().outE()";
+    void shouldAcceptBasicGremlinQueries() {
+        // Given
+        String query = "g.V().hasLabel('person').toList()";
 
+        // When
         List<Result> results = client.submit(query).stream().collect(Collectors.toList());
 
-        results.forEach(result -> assertThat(result.toString()).isEqualTo("null"));
-
+        // Then
+        assertThat(results)
+            .map(result -> result.getElement().id())
+            .containsExactlyInAnyOrder(
+                MARKO.getId(),
+                VADAS.getId(),
+                PETER.getId(),
+                JOSH.getId());
     }
 
 }

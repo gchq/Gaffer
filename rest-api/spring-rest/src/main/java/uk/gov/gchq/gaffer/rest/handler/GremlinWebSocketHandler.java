@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.rest.handler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Context;
@@ -25,7 +26,6 @@ import io.opentelemetry.context.Scope;
 import org.apache.tinkerpop.gremlin.groovy.engine.GremlinExecutor;
 import org.apache.tinkerpop.gremlin.jsr223.ConcurrentBindings;
 import org.apache.tinkerpop.gremlin.process.remote.traversal.DefaultRemoteTraverser;
-import org.apache.tinkerpop.gremlin.process.traversal.Bytecode;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.server.authz.AuthorizationException;
 import org.apache.tinkerpop.gremlin.structure.Graph;
@@ -50,13 +50,11 @@ import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 import uk.gov.gchq.gaffer.commonutil.otel.OtelUtil;
 import uk.gov.gchq.gaffer.rest.controller.GremlinController;
 import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
-import uk.gov.gchq.gaffer.rest.handler.util.GremlinHandlerUtils;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 
-import javax.script.ScriptException;
-
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
@@ -100,7 +98,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
     @Override
     protected void handleBinaryMessage(final WebSocketSession session, final BinaryMessage message) throws Exception {
-        ByteBuf byteBuf = GremlinHandlerUtils.convertToByteBuf(message);
+        ByteBuf byteBuf = convertToByteBuf(message);
 
         // Read the start bytes to find the type to correctly deserialise
         byte[] bytes = new byte[byteBuf.readByte()];
@@ -129,54 +127,12 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      */
     private ResponseMessage handleGremlinRequest(final WebSocketSession session, final RequestMessage request) {
         final UUID requestId = request.getRequestId();
-        LOGGER.info("QUERY IS: {} ", request.getArgs().get(Tokens.ARGS_GREMLIN));
-        try {
-            Bytecode bytecode;
-            // Check if we need to convert
-            if (request.getArgs().get(Tokens.ARGS_GREMLIN) instanceof String) {
-                bytecode = GremlinHandlerUtils.convertToBytecode((String) request.getArgs().get(Tokens.ARGS_GREMLIN));
-            } else {
-                bytecode = (Bytecode) request.getArgs().get(Tokens.ARGS_GREMLIN);
-            }
-            // Check the request for restricted steps
-            GremlinHandlerUtils.authoriseBytecode(bytecode);
-
-            // Set current headers for potential authorisation then set the user
-            userFactory.setHttpHeaders(session.getHandshakeHeaders());
-            graph.variables().set(GafferPopGraphVariables.USER, userFactory.createUser());
-
-            // Translate a cypher query if required
-            bytecode = GremlinHandlerUtils.translateCypherIfPresent(bytecode);
-
-            // Execute
-            return executeRequestWithBytecode(request, bytecode);
-
-        } catch (final AuthorizationException e) {
-            return ResponseMessage.build(requestId)
-                    .code(ResponseStatusCode.UNAUTHORIZED)
-                    .statusMessage(e.getMessage()).create();
-        } catch (final ScriptException e) {
-            return ResponseMessage.build(requestId)
-                    .code(ResponseStatusCode.REQUEST_ERROR_MALFORMED_REQUEST)
-                    .statusMessage(e.getMessage()).create();
-        }
-    }
-
-    /**
-     * Executes a Gremlin request on the graph using a specified bytecode traversal.
-     * This allows a modified version of the original request's Gremlin query as
-     * {@link Bytecode} to be ran with the same args as the {@link RequestMessage}.
-     *
-     * @param request The gremlin request.
-     * @param bytecode The bytecode traversal to run.
-     * @return A response message.
-     */
-    private ResponseMessage executeRequestWithBytecode(final RequestMessage request, final Bytecode bytecode) {
-        final UUID requestId = request.getRequestId();
         ResponseMessage responseMessage;
+        LOGGER.info("QUERY IS: {} ", request.getArgs().get(Tokens.ARGS_GREMLIN));
+
         // OpenTelemetry hooks
         Span span = OtelUtil.startSpan(this.getClass().getName(), "Gremlin Request: " + requestId.toString());
-        span.setAttribute("gaffer.gremlin.query", bytecode.toString());
+        span.setAttribute("gaffer.gremlin.query", request.getArgs().get(Tokens.ARGS_GREMLIN).toString());
 
         // Execute the query
         try (Scope scope = span.makeCurrent();
@@ -184,9 +140,13 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
                         .globalBindings(bindings)
                         .executorService(executorService)
                         .create()) {
+            // Set current headers for potential authorisation then set the user
+            userFactory.setHttpHeaders(session.getHandshakeHeaders());
+            graph.variables().set(GafferPopGraphVariables.USER, userFactory.createUser());
+
             // Run the query using the gremlin executor service
             Object result = gremlinExecutor.eval(
-                    bytecode,
+                    request.getArgs().get(Tokens.ARGS_GREMLIN),
                     request.getArg(Tokens.ARGS_LANGUAGE),
                     request.getArgOrDefault(Tokens.ARGS_BINDINGS, Collections.emptyMap()),
                     request.getArgOrDefault(Tokens.ARGS_EVAL_TIMEOUT, null),
@@ -195,7 +155,8 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
                     // results to Traverser so that GLVs can handle the results. Don't quite get the same
                     // benefit here because the bulk has to be 1 since we've already resolved the result
                     request.getOp().equals(Tokens.OPS_BYTECODE)
-                            ? IteratorUtils.asList(output).stream().map(r -> new DefaultRemoteTraverser<Object>(r, 1)).collect(Collectors.toList())
+                            ? IteratorUtils.asList(output).stream().map(r -> new DefaultRemoteTraverser<Object>(r, 1))
+                                    .collect(Collectors.toList())
                             : IteratorUtils.asList(output)))
                 .get();
 
@@ -219,6 +180,10 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
                     .statusMessage(e.getMessage()).create();
             span.setStatus(StatusCode.ERROR, e.getMessage());
             span.recordException(e);
+        } catch (final AuthorizationException e) {
+            return ResponseMessage.build(requestId)
+                    .code(ResponseStatusCode.UNAUTHORIZED)
+                    .statusMessage(e.getMessage()).create();
         } catch (final Exception e) {
             responseMessage = ResponseMessage.build(requestId)
                     .code(ResponseStatusCode.SERVER_ERROR)
@@ -230,6 +195,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
         }
 
         return responseMessage;
+
     }
 
     /**
@@ -247,6 +213,25 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
         responseByteBuf.readBytes(responseBytes);
         // Send response
         session.sendMessage(new BinaryMessage(responseBytes));
+    }
+
+    /**
+     * Simple method to help the conversion between {@link BinaryMessage}
+     * and {@link ByteBuf} type.
+     *
+     * @param message the binary web socket message.
+     * @return A netty byte buffer for the message.
+     */
+    private ByteBuf convertToByteBuf(final BinaryMessage message) {
+        ByteBuffer byteBuffer = message.getPayload();
+
+        if (byteBuffer.hasArray()) {
+            return Unpooled.wrappedBuffer(byteBuffer.array(), byteBuffer.position(), byteBuffer.remaining());
+        } else {
+            byte[] byteArray = new byte[byteBuffer.remaining()];
+            byteBuffer.get(byteArray);
+            return Unpooled.wrappedBuffer(byteArray);
+        }
     }
 
 }

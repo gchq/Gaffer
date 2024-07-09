@@ -27,6 +27,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.strategy.AbstractTraversal
 import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalHelper;
 
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopGraphStep;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GremlinQueryUtils;
 
 /**
  * The {@link GraphStep} strategy for GafferPop, this will replace the default
@@ -38,6 +39,7 @@ import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopGraphStep;
  * <pre>
  * g.V().hasLabel()    // replaced by GafferPopGraphStep
  * g.E().hasLabel()    // replaced by GafferPopGraphStep
+ * g.with("cypher", "query") // translated to Gremlin traversal
  * </pre>
  */
 public final class GafferPopGraphStepStrategy extends AbstractTraversalStrategy<TraversalStrategy.ProviderOptimizationStrategy> implements TraversalStrategy.ProviderOptimizationStrategy {
@@ -48,6 +50,9 @@ public final class GafferPopGraphStepStrategy extends AbstractTraversalStrategy<
 
     @Override
     public void apply(final Admin<?, ?> traversal) {
+        // Parse any options on the traversal
+        GremlinQueryUtils.parseOptionsAndUpdateTraversal(traversal);
+
         TraversalHelper.getStepsOfClass(GraphStep.class, traversal).forEach(originalGraphStep -> {
             // Replace the current GraphStep with a GafferPopGraphStep
             final GafferPopGraphStep<?, ?> gafferPopGraphStep = new GafferPopGraphStep<>(originalGraphStep);
