@@ -41,12 +41,14 @@ import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
 import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.MARKO;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.PETER;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @ExtendWith(SpringExtension.class)
@@ -106,6 +108,17 @@ class GremlinWebSocketIT {
                 VADAS.getId(),
                 PETER.getId(),
                 JOSH.getId());
+    }
+
+    @Test
+    void shouldRejectMalformedGremlinQueries() {
+        // Given
+        String query = "g.V().thisStepDoesNotExist().toList()";
+
+        // When
+        assertThatExceptionOfType(ExecutionException.class)
+            .isThrownBy(() -> client.submit(query).all().get())
+            .withMessageContaining("groovy.lang.MissingMethodException");
     }
 
 }

@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.tinkerpop;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.user.User;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,18 +50,22 @@ public class GafferPopGraphVariablesTest {
         // Given
         given(graph.variables()).willReturn(variables);
         final String testUserId = "testUserId";
-        final String testDataAuths = "auth1,auth2";
+        final String[] testDataAuths = {"auth1", "auth2"};
+        final User testUser = new User.Builder()
+                .userId(testUserId)
+                .dataAuths(testDataAuths)
+                .build();
         final List<String> testOpOptions = Arrays.asList("graphId:graph1", "other:other");
         final GafferPopGraphVariables graphVariables = (GafferPopGraphVariables) graph.variables();
 
         // When
-        graphVariables.set(GafferPopGraphVariables.USER_ID, testUserId);
+        graphVariables.set(GafferPopGraphVariables.USER, testUser);
         graphVariables.set(GafferPopGraphVariables.DATA_AUTHS, testDataAuths);
         graphVariables.set(GafferPopGraphVariables.OP_OPTIONS, testOpOptions);
 
         // Then
         assertThat(graphVariables.getUser().getUserId()).isEqualTo(testUserId);
-        assertThat(graphVariables.getUser().getDataAuths()).containsExactlyInAnyOrder((testDataAuths.split(",")));
+        assertThat(graphVariables.getUser().getDataAuths()).containsExactlyInAnyOrder(testDataAuths);
         assertThat(graphVariables.getOperationOptions()).containsOnly(
             entry("graphId", "graph1"),
             entry("other", "other"));

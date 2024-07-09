@@ -50,21 +50,14 @@ class GafferPopGraphStepTest {
         // Given
         final GafferPopGraph graph = GafferPopGraph.open(GafferPopTestUtil.TEST_CONFIGURATION_1, getGafferGraph());
         final GafferPopGraphVariables graphVariables = (GafferPopGraphVariables) graph.variables();
-        final String testUserId = "testUserId";
-        final String testDataAuths = "auth1,auth2";
         final List<String> testOpOptions = Arrays.asList("graphId:graph1", "other:other");
 
         final GraphTraversalSource g = graph.traversal();
 
         // When
-        g.with(GafferPopGraphVariables.USER_ID, testUserId)
-            .with(GafferPopGraphVariables.DATA_AUTHS, testDataAuths)
-            .with(GafferPopGraphVariables.OP_OPTIONS, testOpOptions)
-            .V().toList();
+        g.with(GafferPopGraphVariables.OP_OPTIONS, testOpOptions).V().toList();
 
         // Then
-        assertThat(graphVariables.getUser().getUserId()).isEqualTo(testUserId);
-        assertThat(graphVariables.getUser().getDataAuths()).containsExactlyInAnyOrder((testDataAuths.split(",")));
         assertThat(graphVariables.getOperationOptions()).containsOnly(
             entry("graphId", "graph1"),
             entry("other", "other"));

@@ -33,8 +33,8 @@ import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GremlinQueryUtils;
  * The {@link GraphStep} strategy for GafferPop, this will replace the default
  * {@link GraphStep} of a query to add Gaffer optimisations. Such as gathering
  * any {@link HasStep}s so that a Gaffer View can be constructed for the query.
- * Will also handle the translation any Cypher queries passed in a with() step
- * into a Gremlin traversal.
+ * Will also handle the translation of options or Cypher queries passed via a with()
+ * step in the Gremlin traversal.
  *
  * <pre>
  * g.V().hasLabel()    // replaced by GafferPopGraphStep

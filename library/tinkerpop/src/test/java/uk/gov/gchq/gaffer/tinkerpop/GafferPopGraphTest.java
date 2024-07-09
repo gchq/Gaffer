@@ -79,10 +79,9 @@ class GafferPopGraphTest {
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables)
             .hasSize(5)
-            .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId())
+            .containsEntry(GafferPopGraphVariables.USER, expectedUser)
             .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, 1)
             .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE, HasStepFilterStage.POST_TRANSFORM.toString())
-            .containsEntry(GafferPopGraphVariables.DATA_AUTHS, new String[]{"auth1", "auth2"})
             .containsKey(GafferPopGraphVariables.OP_OPTIONS);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
@@ -105,10 +104,9 @@ class GafferPopGraphTest {
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables)
             .hasSize(5)
-            .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId())
+            .containsEntry(GafferPopGraphVariables.USER, expectedUser)
             .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, 2)
             .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE, HasStepFilterStage.POST_AGGREGATION.toString())
-            .containsEntry(GafferPopGraphVariables.DATA_AUTHS, new String[]{})
             .containsKey(GafferPopGraphVariables.OP_OPTIONS);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
@@ -130,8 +128,7 @@ class GafferPopGraphTest {
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables)
             .hasSize(5)
-            .containsEntry(GafferPopGraphVariables.DATA_AUTHS, expectedUser.getDataAuths().toArray())
-            .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId())
+            .containsEntry(GafferPopGraphVariables.USER, expectedUser)
             .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT,
                     GafferPopGraph.DEFAULT_GET_ALL_ELEMENTS_LIMIT)
             .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,

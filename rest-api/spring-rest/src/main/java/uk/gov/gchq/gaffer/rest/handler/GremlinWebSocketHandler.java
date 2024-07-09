@@ -180,10 +180,6 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
                     .statusMessage(e.getMessage()).create();
             span.setStatus(StatusCode.ERROR, e.getMessage());
             span.recordException(e);
-        } catch (final AuthorizationException e) {
-            return ResponseMessage.build(requestId)
-                    .code(ResponseStatusCode.UNAUTHORIZED)
-                    .statusMessage(e.getMessage()).create();
         } catch (final Exception e) {
             responseMessage = ResponseMessage.build(requestId)
                     .code(ResponseStatusCode.SERVER_ERROR)
