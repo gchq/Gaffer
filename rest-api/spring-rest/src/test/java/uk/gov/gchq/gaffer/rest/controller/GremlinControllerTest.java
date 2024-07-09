@@ -50,6 +50,9 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 @Import(GremlinControllerTest.TestConfig.class)
 class GremlinControllerTest {
 
+    private static final String GREMLIN_EXPLAIN_ENDPOINT = "/rest/gremlin/explain";
+    private static final String CYPHER_EXPLAIN_ENDPOINT = "/rest/gremlin/cypher/explain";
+
     @TestConfiguration
     static class TestConfig {
         @Bean
@@ -79,7 +82,7 @@ class GremlinControllerTest {
         // When
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders
-                .post("/rest/gremlin/explain")
+                .post(GREMLIN_EXPLAIN_ENDPOINT)
                 .content(gremlinString)
                 .contentType(TEXT_PLAIN_VALUE))
             .andReturn();
@@ -108,7 +111,7 @@ class GremlinControllerTest {
         // When
         MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders
-                        .post("/rest/gremlin/explain")
+                        .post(GREMLIN_EXPLAIN_ENDPOINT)
                         .content(gremlinString)
                         .contentType(TEXT_PLAIN_VALUE))
                 .andReturn();
@@ -127,7 +130,7 @@ class GremlinControllerTest {
         // When
         MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders
-                        .post("/rest/gremlin/cypher/explain")
+                        .post(CYPHER_EXPLAIN_ENDPOINT)
                         .content(cypherString)
                         .contentType(TEXT_PLAIN_VALUE))
                 .andReturn();
@@ -157,7 +160,7 @@ class GremlinControllerTest {
         // When
         MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders
-                        .post("/rest/gremlin/cypher/explain")
+                        .post(CYPHER_EXPLAIN_ENDPOINT)
                         .content(cypherString)
                         .contentType(TEXT_PLAIN_VALUE))
                 .andReturn();

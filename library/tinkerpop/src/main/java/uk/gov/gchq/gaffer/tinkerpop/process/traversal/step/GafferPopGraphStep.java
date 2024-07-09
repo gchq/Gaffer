@@ -53,6 +53,12 @@ import java.util.stream.Collectors;
 /**
  * Custom GafferPop GraphStep provides Gaffer specific optimisations
  * for the initial GraphStep in a query.
+ * Also responsible for parsing any options passed via a 'with()' step
+ * on the query.
+ *
+ * <pre>
+ * g.with("operationOptions", ["graphId:graph1", "opt1:val1"]).V()   // operation options extracted and applied
+ * </pre>
  */
 public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> implements HasContainerHolder {
 

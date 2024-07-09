@@ -70,9 +70,9 @@ class GafferPopGraphIT {
 
     private static Stream<Arguments> provideTraversals() {
         return Stream.of(
-                Arguments.of("Map Store", mapStore.traversal())
-                //Arguments.of("Accumulo Store", accumuloStore.traversal())
-                //Arguments.of("Federated (Map Store)", federated.traversal())
+                Arguments.of("Map Store", mapStore.traversal()),
+                Arguments.of("Accumulo Store", accumuloStore.traversal()),
+                Arguments.of("Federated (Map Store)", federated.traversal())
         );
     }
 

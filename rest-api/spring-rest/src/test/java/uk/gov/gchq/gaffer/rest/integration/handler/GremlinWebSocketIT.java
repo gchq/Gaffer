@@ -55,9 +55,9 @@ import java.util.stream.Collectors;
 
 /**
  * Integration testing for the Gremlin websocket. Testing is fairly simple as
- * GafferPop is more heavily tested in its own module this is checking the
- * websocket can at least accept Gremlin and GafferPop related queries via a
- * standard tinkerpop client connection.
+ * GafferPop is more heavily tested in its own module, focus of testing here is
+ * ensuring the websocket can at least accept Gremlin and GafferPop related
+ * queries via a standard tinkerpop client connection.
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

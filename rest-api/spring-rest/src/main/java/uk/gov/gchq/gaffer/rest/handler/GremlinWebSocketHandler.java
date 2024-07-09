@@ -156,9 +156,9 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
                     request.getArgOrDefault(Tokens.ARGS_BINDINGS, Collections.emptyMap()),
                     request.getArgOrDefault(Tokens.ARGS_EVAL_TIMEOUT, null),
                     FunctionUtils.wrapFunction(output ->
-                    // Need to replicate what TraversalOpProcessor does with the bytecode op. it converts
+                    // Need to replicate what TraversalOpProcessor does with a bytecode op, it converts
                     // results to Traverser so that GLVs can handle the results. Don't quite get the same
-                    // benefit here because the bulk has to be 1 since we've already resolved the result
+                    // benefit here as the bulk has to be 1 since we've already resolved the result
                     request.getOp().equals(Tokens.OPS_BYTECODE)
                             ? IteratorUtils.asList(output).stream().map(r -> new DefaultRemoteTraverser<Object>(r, 1))
                                     .collect(Collectors.toList())
