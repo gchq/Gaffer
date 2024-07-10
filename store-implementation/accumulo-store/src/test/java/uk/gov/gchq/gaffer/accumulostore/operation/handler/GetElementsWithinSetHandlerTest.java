@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -69,18 +71,21 @@ public class GetElementsWithinSetHandlerTest {
             .source("A0")
             .dest("A23")
             .directed(true)
+            .matchedVertex(EdgeId.MatchedVertex.SOURCE)
             .build();
     private static Edge expectedEdge2 = new Edge.Builder()
             .group(TestGroups.EDGE)
             .source("A0")
             .dest("A23")
             .directed(true)
+            .matchedVertex(EdgeId.MatchedVertex.SOURCE)
             .build();
     private static Edge expectedEdge3 = new Edge.Builder()
             .group(TestGroups.EDGE)
             .source("A0")
             .dest("A23")
             .directed(true)
+            .matchedVertex(EdgeId.MatchedVertex.SOURCE)
             .build();
     private static Entity expectedEntity1 = new Entity.Builder()
             .group(TestGroups.ENTITY)
@@ -101,12 +106,14 @@ public class GetElementsWithinSetHandlerTest {
             .source("A0")
             .dest("A23")
             .directed(true)
+            .matchedVertex(EdgeId.MatchedVertex.SOURCE)
             .build();
     private static Edge expectedSummarisedEdgePropertiesFiltered = new Edge.Builder()
             .group(TestGroups.EDGE)
             .source("A0")
             .dest("A23")
             .directed(true)
+            .matchedVertex(EdgeId.MatchedVertex.SOURCE)
             .property(AccumuloPropertyNames.COUNT, 23 * 3)
             .build();
 
@@ -160,12 +167,12 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     @Test
-    public void shouldReturnElementsNoSummarisationByteEntityStore() throws OperationException {
+    void shouldReturnElementsNoSummarisationByteEntityStore() throws OperationException {
         shouldReturnElementsNoSummarisation(BYTE_ENTITY_STORE);
     }
 
     @Test
-    public void shouldReturnElementsNoSummarisationGaffer1Store() throws OperationException {
+    void shouldReturnElementsNoSummarisationGaffer1Store() throws OperationException {
         shouldReturnElementsNoSummarisation(GAFFER_1_KEY_STORE);
     }
 
@@ -187,7 +194,7 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     @Test
-    public void shouldSummariseByteEntityStore() throws OperationException {
+    void shouldSummariseByteEntityStore() throws OperationException {
         final View view = new View.Builder(defaultView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy()
@@ -200,11 +207,11 @@ public class GetElementsWithinSetHandlerTest {
                         .build())
                 .build();
 
-        runTest(BYTE_ENTITY_STORE, view, expectedSummarisedEdge, expectedEntity1, expectedEntity2);
+        runTest(BYTE_ENTITY_STORE, view, IncludeIncomingOutgoingType.OUTGOING, expectedSummarisedEdge, expectedEntity1, expectedEntity2);
     }
 
     @Test
-    public void shouldSummariseGaffer1Store() throws OperationException {
+    void shouldSummariseGaffer1Store() throws OperationException {
         final View view = new View.Builder(defaultView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy()
@@ -217,11 +224,11 @@ public class GetElementsWithinSetHandlerTest {
                         .build())
                 .build();
 
-        runTest(GAFFER_1_KEY_STORE, view, expectedSummarisedEdge, expectedEntity1, expectedEntity2);
+        runTest(GAFFER_1_KEY_STORE, view, IncludeIncomingOutgoingType.OUTGOING, expectedSummarisedEdge, expectedEntity1, expectedEntity2);
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesByteEntityStore() throws OperationException {
+    void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesByteEntityStore() throws OperationException {
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .groupBy()
@@ -231,11 +238,11 @@ public class GetElementsWithinSetHandlerTest {
                         .build())
                 .build();
 
-        runTest(BYTE_ENTITY_STORE, view, expectedSummarisedEdge);
+        runTest(BYTE_ENTITY_STORE, view, IncludeIncomingOutgoingType.OUTGOING, expectedSummarisedEdge);
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesGaffer1Store() throws OperationException {
+    void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesGaffer1Store() throws OperationException {
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .groupBy()
@@ -245,27 +252,11 @@ public class GetElementsWithinSetHandlerTest {
                         .build())
                 .build();
 
-        runTest(GAFFER_1_KEY_STORE, view, expectedSummarisedEdge);
+        runTest(GAFFER_1_KEY_STORE, view, IncludeIncomingOutgoingType.OUTGOING, expectedSummarisedEdge);
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesPropertiesFilteredByteEntityStore() throws OperationException {
-        final View view = new View.Builder()
-                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                        .properties(Collections.singleton(AccumuloPropertyNames.COUNT))
-                        .groupBy()
-                        .build())
-                .edge(TestGroups.EDGE_2, new ViewElementDefinition.Builder()
-                        .properties(Collections.singleton(AccumuloPropertyNames.COUNT))
-                        .groupBy()
-                        .build())
-                .build();
-
-        runTest(BYTE_ENTITY_STORE, view, expectedSummarisedEdgePropertiesFiltered);
-    }
-
-    @Test
-    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesPropertiesFilteredGaffer1Store() throws OperationException {
+    void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesPropertiesFilteredByteEntityStore() throws OperationException {
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .properties(Collections.singleton(AccumuloPropertyNames.COUNT))
@@ -277,11 +268,27 @@ public class GetElementsWithinSetHandlerTest {
                         .build())
                 .build();
 
-        runTest(GAFFER_1_KEY_STORE, view, expectedSummarisedEdgePropertiesFiltered);
+        runTest(BYTE_ENTITY_STORE, view, IncludeIncomingOutgoingType.OUTGOING, expectedSummarisedEdgePropertiesFiltered);
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesPropertiesEmptySetByteEntityStore() throws OperationException {
+    void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesPropertiesFilteredGaffer1Store() throws OperationException {
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .properties(Collections.singleton(AccumuloPropertyNames.COUNT))
+                        .groupBy()
+                        .build())
+                .edge(TestGroups.EDGE_2, new ViewElementDefinition.Builder()
+                        .properties(Collections.singleton(AccumuloPropertyNames.COUNT))
+                        .groupBy()
+                        .build())
+                .build();
+
+        runTest(GAFFER_1_KEY_STORE, view, IncludeIncomingOutgoingType.OUTGOING, expectedSummarisedEdgePropertiesFiltered);
+    }
+
+    @Test
+    void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesPropertiesEmptySetByteEntityStore() throws OperationException {
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .properties(Collections.emptySet())
@@ -293,11 +300,11 @@ public class GetElementsWithinSetHandlerTest {
                         .build())
                 .build();
 
-        runTest(BYTE_ENTITY_STORE, view, expectedSummarisedEdgePropertiesEmptySet);
+        runTest(BYTE_ENTITY_STORE, view, IncludeIncomingOutgoingType.OUTGOING, expectedSummarisedEdgePropertiesEmptySet);
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesPropertiesEmptySetGaffer1Store() throws OperationException {
+    void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesPropertiesEmptySetGaffer1Store() throws OperationException {
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .properties(Collections.emptySet())
@@ -309,33 +316,154 @@ public class GetElementsWithinSetHandlerTest {
                         .build())
                 .build();
 
-        runTest(GAFFER_1_KEY_STORE, view, expectedSummarisedEdgePropertiesEmptySet);
+        runTest(GAFFER_1_KEY_STORE, view, IncludeIncomingOutgoingType.OUTGOING, expectedSummarisedEdgePropertiesEmptySet);
     }
 
     @Test
-    public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesByteEntityStore() throws OperationException {
+    void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesByteEntityStore() throws OperationException {
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy()
                         .build())
                 .build();
 
-        runTest(BYTE_ENTITY_STORE, view, expectedEntity1, expectedEntity2);
+        runTest(BYTE_ENTITY_STORE, view, IncludeIncomingOutgoingType.OUTGOING, expectedEntity1, expectedEntity2);
     }
 
     @Test
-    public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesGaffer1Store() throws OperationException {
+    void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesGaffer1Store() throws OperationException {
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy()
                         .build())
                 .build();
 
-        runTest(GAFFER_1_KEY_STORE, view, expectedEntity1, expectedEntity2);
+        runTest(GAFFER_1_KEY_STORE, view, IncludeIncomingOutgoingType.OUTGOING, expectedEntity1, expectedEntity2);
     }
 
-    private void runTest(final AccumuloStore store, final View view, final Element... expectedElements) throws OperationException {
+    @Test
+    void shouldGetIncomingEdgesOnlyGaffer1Store() throws OperationException {
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .properties(Collections.emptySet())
+                        .groupBy()
+                        .build())
+                .build();
+
+        // Incoming edge should have matched vertex DESTINATION
+        final Edge expectedEdge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("A0")
+                .dest("A23")
+                .directed(true)
+                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                .build();
+
+        runTest(GAFFER_1_KEY_STORE, view, IncludeIncomingOutgoingType.INCOMING, expectedEdge);
+    }
+
+    @Test
+    void shouldGetIncomingEdgesOnlyByteEntityStore() throws OperationException {
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .properties(Collections.emptySet())
+                        .groupBy()
+                        .build())
+                .build();
+
+        // Incoming edge should have matched vertex DESTINATION
+        final Edge expectedEdge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("A0")
+                .dest("A23")
+                .directed(true)
+                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                .build();
+
+        runTest(BYTE_ENTITY_STORE, view, IncludeIncomingOutgoingType.INCOMING, expectedEdge);
+    }
+
+    @Test
+    void shouldGetEdgesWhenDestAndSourceAreInDifferentBatchesGaffer1Store() throws OperationException {
+        // Given
+        // Set batch scanner entries to 20 - so edge A99 -> A1 will have its src in the final batch but its
+        // dest in the first
+        GAFFER_1_KEY_STORE.getProperties().setMaxEntriesForBatchScanner("20");
+        final Set<EntityId> seedSet = new HashSet<>();
+        for (int i = 1; i < 100 ; i++) {
+            seedSet.add(new EntitySeed("A" + i));
+        }
+
+        // When
+        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
+                .view(new View.Builder()
+                    .edge(TestGroups.EDGE,  new ViewElementDefinition.Builder()
+                        .properties(Collections.emptySet())
+                        .groupBy()
+                        .build())
+                .build())
+                .input(seedSet)
+                .build();
+        final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
+
+        final Iterable<? extends Element> results = handler.doOperation(op, user, GAFFER_1_KEY_STORE);
+
+        // Then
+        final Edge expectedEdge = new Edge.Builder()
+            .group(TestGroups.EDGE)
+            .source("A99")
+            .dest("A1")
+            .directed(true)
+            .build();
+
+        assertThat(results)
+            .hasSize(11)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .contains(expectedEdge);
+    }
+
+    @Test
+    void shouldGetEdgesWhenDestAndSourceAreInDifferentBatchesByteEntityStore() throws OperationException {
+        // Given
+        // Set batch scanner entries to 20 - so edge A99 -> A1 will have its src in the final batch but its
+        // dest in the first
+        BYTE_ENTITY_STORE.getProperties().setMaxEntriesForBatchScanner("20");
+        final Set<EntityId> seedSet = new HashSet<>();
+        for (int i = 1; i < 100 ; i++) {
+            seedSet.add(new EntitySeed("A" + i));
+        }
+
+        // When
+        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
+                .view(new View.Builder()
+                    .edge(TestGroups.EDGE,  new ViewElementDefinition.Builder()
+                        .properties(Collections.emptySet())
+                        .groupBy()
+                        .build())
+                .build())
+                .input(seedSet)
+                .build();
+        final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
+
+        final Iterable<? extends Element> results = handler.doOperation(op, user, GAFFER_1_KEY_STORE);
+
+        // Then
+        final Edge expectedEdge = new Edge.Builder()
+            .group(TestGroups.EDGE)
+            .source("A99")
+            .dest("A1")
+            .directed(true)
+            .build();
+
+        assertThat(results)
+            .hasSize(11)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .contains(expectedEdge);
+    }
+
+    private void runTest(final AccumuloStore store, final View view, final IncludeIncomingOutgoingType type, final Element... expectedElements) throws OperationException {
         final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
+        operation.setIncludeIncomingOutGoing(type);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
 
         final Iterable<? extends Element> elements = handler.doOperation(operation, user, store);
@@ -396,6 +524,14 @@ public class GetElementsWithinSetHandlerTest {
                     .property(AccumuloPropertyNames.PROP_2, 0)
                     .property(AccumuloPropertyNames.PROP_3, 0)
                     .property(AccumuloPropertyNames.PROP_4, 0)
+                    .build());
+
+            data.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("A99")
+                    .dest("A1")
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
                     .build());
 
             data.add(new Entity.Builder()

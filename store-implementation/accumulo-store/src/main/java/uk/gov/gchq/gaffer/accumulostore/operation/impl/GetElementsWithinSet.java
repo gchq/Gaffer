@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -44,11 +45,12 @@ import java.util.Map;
 public class GetElementsWithinSet implements
         InputOutput<Iterable<? extends EntityId>, Iterable<? extends Element>>,
         MultiEntityIdInput,
-        GraphFilters {
+        SeededGraphFilters {
     private View view;
     private DirectedType directedType;
     private Iterable<? extends EntityId> input;
     private Map<String, String> options;
+    private IncludeIncomingOutgoingType includeIncomingOutGoing;
 
     @Override
     public View getView() {
@@ -96,9 +98,20 @@ public class GetElementsWithinSet implements
     }
 
     @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return includeIncomingOutGoing;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.includeIncomingOutGoing = inOutType;
+    }
+
+    @Override
     public GetElementsWithinSet shallowClone() {
         return new GetElementsWithinSet.Builder()
                 .view(view)
+                // .inOutType(includeIncomingOutGoing)
                 .directedType(directedType)
                 .input(input)
                 .options(options)
@@ -108,7 +121,7 @@ public class GetElementsWithinSet implements
     public static class Builder extends Operation.BaseBuilder<GetElementsWithinSet, Builder> implements
             InputOutput.Builder<GetElementsWithinSet, Iterable<? extends EntityId>, Iterable<? extends Element>, Builder>,
             MultiEntityIdInput.Builder<GetElementsWithinSet, Builder>,
-            GraphFilters.Builder<GetElementsWithinSet, Builder> {
+            SeededGraphFilters.Builder<GetElementsWithinSet, Builder> {
         public Builder() {
             super(new GetElementsWithinSet());
         }
