@@ -506,14 +506,12 @@ public class AccumuloStore extends Store {
 
     protected void deleteGraphElements(final Iterable<? extends Element> elements) throws StoreException {
         // Create BatchWriter
-        final BatchWriter writer = TableUtils.createBatchWriter(this);
-        // Loop through elements, convert to mutations, and add to
-        // BatchWriter.as
+        // Loop through elements, convert to mutations, and add to BatchWriter
         // The BatchWriter takes care of batching them up, sending them without
         // too high a latency, etc.
         if (nonNull(elements)) {
+            final BatchWriter writer = TableUtils.createBatchWriter(this);
             for (final Element element : elements) {
-
                 final Pair<Key, Key> keys;
                 try {
                     keys = keyPackage.getKeyConverter().getKeysFromElement(element);
@@ -536,13 +534,13 @@ public class AccumuloStore extends Store {
                     }
                 }
             }
+            try {
+                writer.close();
+            } catch (final MutationsRejectedException e) {
+                LOGGER.warn("Accumulo batch writer failed to close", e);
+            }
         } else {
             throw new GafferRuntimeException("Could not find any elements to delete from graph.", Status.BAD_REQUEST);
-        }
-        try {
-            writer.close();
-        } catch (final MutationsRejectedException e) {
-            LOGGER.warn("Accumulo batch writer failed to close", e);
         }
     }
 

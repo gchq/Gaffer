@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public class DeleteElementsHandler implements OperationHandler<DeleteElements> {
 
     @Override
-    public Void doOperation(final DeleteElements operation,
+    public Object doOperation(final DeleteElements operation,
             final Context context, final Store store)
             throws OperationException {
         deleteElements(operation, (AccumuloStore) store);
