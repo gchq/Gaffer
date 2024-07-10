@@ -143,6 +143,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  */
 public class AccumuloStore extends Store {
 
+    private static final String MUTATION_ERROR = "Failed to create an accumulo key mutation";
     public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(Sets.newHashSet(
             ORDERED,
             VISIBILITY,
@@ -464,7 +465,7 @@ public class AccumuloStore extends Store {
                 try {
                     writer.addMutation(m);
                 } catch (final MutationsRejectedException e) {
-                    LOGGER.error("Failed to create an accumulo key mutation");
+                    LOGGER.error(MUTATION_ERROR);
                     continue;
                 }
                 // If the GraphElement is a Vertex then there will only be 1 key,
@@ -480,7 +481,7 @@ public class AccumuloStore extends Store {
                     try {
                         writer.addMutation(m2);
                     } catch (final MutationsRejectedException e) {
-                        LOGGER.error("Failed to create an accumulo key mutation");
+                        LOGGER.error(MUTATION_ERROR);
                     }
                 }
             }
@@ -509,8 +510,11 @@ public class AccumuloStore extends Store {
         // Loop through elements, convert to mutations, and add to BatchWriter
         // The BatchWriter takes care of batching them up, sending them without
         // too high a latency, etc.
-        if (nonNull(elements)) {
-            final BatchWriter writer = TableUtils.createBatchWriter(this);
+        if (elements == null) {
+            throw new GafferRuntimeException("Could not find any elements to delete from graph.", Status.BAD_REQUEST);
+        }
+
+        try(BatchWriter writer = TableUtils.createBatchWriter(this)) {
             for (final Element element : elements) {
                 final Pair<Key, Key> keys;
                 try {
@@ -519,29 +523,24 @@ public class AccumuloStore extends Store {
                     LOGGER.error(FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS, "key", element.getGroup());
                     continue;
                 }
-
+    
                 for (final Key key : Arrays.asList(keys.getFirst(), keys.getSecond())) {
                     if (nonNull(key)) {
                         final Mutation m = new Mutation(key.getRow());
                         m.putDelete(key.getColumnFamily(), key.getColumnQualifier(), key.getTimestamp());
-
+    
                         try {
                             writer.addMutation(m);
                         } catch (final MutationsRejectedException e) {
-                            LOGGER.error("Failed to create an accumulo key mutation");
-                            continue;
+                            LOGGER.error(MUTATION_ERROR);
                         }
                     }
                 }
             }
-            try {
-                writer.close();
-            } catch (final MutationsRejectedException e) {
-                LOGGER.warn("Accumulo batch writer failed to close", e);
-            }
-        } else {
-            throw new GafferRuntimeException("Could not find any elements to delete from graph.", Status.BAD_REQUEST);
+        } catch (final MutationsRejectedException e) {
+            LOGGER.warn("Accumulo batch writer failed to close", e);
         }
+        
     }
 
     /**
