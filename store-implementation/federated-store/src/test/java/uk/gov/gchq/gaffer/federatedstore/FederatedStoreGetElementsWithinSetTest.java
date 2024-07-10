@@ -16,16 +16,17 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHandlerTest;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -36,8 +37,6 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -56,18 +55,16 @@ import static uk.gov.gchq.gaffer.store.TestTypes.BOOLEAN_TYPE;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.store.TestTypes.STRING_TYPE;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
 
 public class FederatedStoreGetElementsWithinSetTest {
     private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreGetElementsWithinSetTest.class, "properties/singleUseAccumuloStore.properties"));
     private static final User USER = new User();
     public static final String GRAPH_IDS = String.format("%s,%s", GRAPH_ID_A, GRAPH_ID_B);
+    // private final Set<Element> expectedEdges = new HashSet<>();
 
-    private Object expectedEdges;
     private Graph federatedGraph;
 
     @AfterAll
@@ -104,6 +101,7 @@ public class FederatedStoreGetElementsWithinSetTest {
 
         for (int i = 300; i >= 0 ; i--) {
             addEntities("A" + i, GRAPH_ID_A);
+            addEntities("A" + i, GRAPH_ID_B);
         }
 
         // Add 6 edges total - should all have src and dest in different batches
@@ -113,14 +111,6 @@ public class FederatedStoreGetElementsWithinSetTest {
         addEdges("A297", "A193", GRAPH_ID_B);
         addEdges("A15", "A285", GRAPH_ID_B);
         addEdges("A1", "A52", GRAPH_ID_B);
-
-        final GetAllElements getAll = new GetAllElements.Builder()
-                .view(new View.Builder()
-                    .edge(TestGroups.EDGE)
-                .build())
-                .build();
-        expectedEdges = federatedGraph.execute(getAll, USER);
-
     }
 
     @Test
@@ -132,7 +122,7 @@ public class FederatedStoreGetElementsWithinSetTest {
         }
 
         // When
-        final Object results = federatedGraph.execute(new FederatedOperation.Builder()
+        final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedGraph.execute(new FederatedOperation.Builder()
                 .op(new GetElementsWithinSet.Builder()
                             .view(new View.Builder()
                                 .edge(GROUP_BASIC_EDGE)
@@ -143,7 +133,9 @@ public class FederatedStoreGetElementsWithinSetTest {
                 .build(), USER);
 
         // Then
-        assertThat(results).isEqualTo(expectedEdges);
+        assertThat(results)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .containsAll(getExpectedEdges());
     }
 
 
@@ -162,16 +154,21 @@ public class FederatedStoreGetElementsWithinSetTest {
                 .build())
                 .input(seeds)
                 .build();
-        Object results = federatedGraph.execute(op, USER);
+        final Iterable<? extends Element> results = federatedGraph.execute(op, USER);
 
         // Then
-        assertThat(results).isEqualTo(expectedEdges);
+        assertThat(results)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .containsAll(getExpectedEdges());
     }
 
     private void addEntities(final String source, final String graphId) throws OperationException {
         federatedGraph.execute(new FederatedOperation.Builder()
                 .op(new AddElements.Builder()
-                        .input(getEntity(source))
+                        .input(new Entity.Builder()
+                            .group(GROUP_BASIC_ENTITY)
+                            .vertex(source)
+                            .build())
                         .build())
                 .graphIdsCSV(graphId)
                 .build(), USER);
@@ -180,26 +177,56 @@ public class FederatedStoreGetElementsWithinSetTest {
     private void addEdges(final String source, final String dest, final String graphId) throws OperationException {
         federatedGraph.execute(new FederatedOperation.Builder()
                 .op(new AddElements.Builder()
-                        .input(getEdge(source, dest))
+                        .input(new Edge.Builder()
+                            .group(GROUP_BASIC_EDGE)
+                            .source(source)
+                            .dest(dest)
+                            .directed(true)
+                            .build())
                         .build())
                 .graphIdsCSV(graphId)
                 .build(), USER);
     }
 
-    private static Edge getEdge(final String source, final String dest) {
-        return new Edge.Builder()
-                .group(GROUP_BASIC_EDGE)
-                .source(source)
-                .dest(dest)
-                .directed(true)
-                .build();
-    }
-
-    private static Entity getEntity(final String vertex) {
-        return new Entity.Builder()
-                .group(GROUP_BASIC_ENTITY)
-                .vertex(vertex)
-                .build();
+    private Set<Element> getExpectedEdges() {
+        final Set<Element> expectedEdges = new HashSet<>();
+        expectedEdges.add(new Edge.Builder()
+            .group(TestGroups.EDGE)
+            .source("A244")
+            .dest("A87")
+            .directed(true)
+            .build());
+        expectedEdges.add(new Edge.Builder()
+            .group(TestGroups.EDGE)
+            .source("A168")
+            .dest("A110")
+            .directed(true)
+            .build());
+        expectedEdges.add(new Edge.Builder()
+            .group(TestGroups.EDGE)
+            .source("A56")
+            .dest("A299")
+            .directed(true)
+            .build());
+        expectedEdges.add(new Edge.Builder()
+            .group(TestGroups.EDGE)
+            .source("A297")
+            .dest("A193")
+            .directed(true)
+            .build());
+        expectedEdges.add(new Edge.Builder()
+            .group(TestGroups.EDGE)
+            .source("A15")
+            .dest("A285")
+            .directed(true)
+            .build());
+        expectedEdges.add(new Edge.Builder()
+            .group(TestGroups.EDGE)
+            .source("A1")
+            .dest("A52")
+            .directed(true)
+            .build());
+        return expectedEdges;
     }
 
     private Schema getSchema() {

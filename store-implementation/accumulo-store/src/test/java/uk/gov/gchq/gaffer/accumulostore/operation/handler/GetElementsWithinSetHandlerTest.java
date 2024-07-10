@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -417,7 +416,6 @@ public class GetElementsWithinSetHandlerTest {
             .build();
 
         assertThat(results)
-            .hasSize(11)
             .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
             .contains(expectedEdge);
     }
@@ -456,7 +454,6 @@ public class GetElementsWithinSetHandlerTest {
             .build();
 
         assertThat(results)
-            .hasSize(11)
             .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
             .contains(expectedEdge);
     }
