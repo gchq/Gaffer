@@ -540,7 +540,7 @@ public class AccumuloStore extends Store {
         } catch (final MutationsRejectedException e) {
             LOGGER.warn("Accumulo batch writer failed to close", e);
         }
-        
+
     }
 
     /**
