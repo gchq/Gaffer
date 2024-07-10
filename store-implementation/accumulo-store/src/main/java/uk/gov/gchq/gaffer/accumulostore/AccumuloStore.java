@@ -81,6 +81,7 @@ import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -410,6 +411,12 @@ public class AccumuloStore extends Store {
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
         return new GetTraitsHandler(TRAITS);
+    }
+
+    @Override
+    protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        // TODO: implement accumulo delete handler logic
+        return null;
     }
 
     /**
