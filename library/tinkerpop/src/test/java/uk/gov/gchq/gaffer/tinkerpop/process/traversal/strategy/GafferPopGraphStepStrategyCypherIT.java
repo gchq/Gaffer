@@ -22,10 +22,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opencypher.v9_0.util.SyntaxException;
 
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopHasStepIT;
-import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils;
+import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
+import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,20 +34,18 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy.CYPHER_KEY;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.JOSH;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MARKO;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MODERN_CONFIGURATION;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.PETER;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.VADAS;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.MARKO;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.PETER;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 
-public class GafferPopCypherIT {
+class GafferPopGraphStepStrategyCypherIT {
 
-    private static final MapStoreProperties MAP_STORE_PROPERTIES = MapStoreProperties.loadStoreProperties("/tinkerpop/map-store.properties");
     private static GraphTraversalSource g;
 
     @BeforeAll
     public static void beforeAll() {
-        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopHasStepIT.class, MAP_STORE_PROPERTIES, MODERN_CONFIGURATION);
+        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopGraphStepStrategyCypherIT.class, StoreType.MAP);
         g = gafferPopGraph.traversal();
     }
 
@@ -68,14 +65,14 @@ public class GafferPopCypherIT {
         // The cypher translator will return a property map of the matched node so get that
         Map<Object, Object> resultMap = (LinkedHashMap<Object, Object>) results.get("p");
 
-        assertThat(resultMap).containsAllEntriesOf(MARKO.getPropertyMap());
+        assertThat(resultMap).containsAllEntriesOf(MARKO.getCypherPropertyMap());
     }
 
     @Test
     void shouldTranslateCypherWithPredicate() {
         // Given
         // Get names of all people older than 30
-        final String cypherQuery = "MATCH (p:person) WHERE p.age > 30 RETURN p.name";
+        final String cypherQuery = "MATCH (p:person) WHERE p.age > toInteger(30) RETURN p.name";
 
         // When
         List<Object> results = g

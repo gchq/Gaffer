@@ -49,11 +49,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DeleteElementsHandlerTest {
     private static final GetAllElements GET_ALL_ELEMENTS = new GetAllElements.Builder().build();
+    private static final String BASIC_ENTITY = "BasicEntity";
+    private static final String BASIC_EDGE1 = "BasicEdge";
+    private static final View EDGE_VIEW = new View.Builder().edge(BASIC_EDGE1).build();
+    private static final View ENTITY_VIEW = new View.Builder().entity(BASIC_ENTITY).build();
     private static Graph aggregatedGraph;
     private static Graph nonAggregatedGraph;
 
-    static final String BASIC_ENTITY = "BasicEntity";
-    static final String BASIC_EDGE1 = "BasicEdge";
     static final User USER = new User();
 
     @BeforeEach
@@ -77,7 +79,7 @@ public class DeleteElementsHandlerTest {
         final OperationChain<Void> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("A"))
-                        .view(new View.Builder().entity(BASIC_ENTITY).build())
+                        .view(ENTITY_VIEW)
                         .build())
                 .then(new DeleteElements())
                 .build();
@@ -97,7 +99,7 @@ public class DeleteElementsHandlerTest {
         // Check Vertex A cannot be retrieved from Graph
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"))
-                .view(new View.Builder().entity(BASIC_ENTITY).build())
+                .view(ENTITY_VIEW)
                 .build();
         final Iterable<? extends Element> getElementResults = aggregatedGraph.execute(getElements, USER);
 
@@ -112,7 +114,7 @@ public class DeleteElementsHandlerTest {
         final OperationChain<Void> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EdgeSeed("B", "C"))
-                        .view(new View.Builder().edge(BASIC_EDGE1).build())
+                        .view(EDGE_VIEW)
                         .build())
                 .then(new DeleteElements())
                 .build();
@@ -132,7 +134,7 @@ public class DeleteElementsHandlerTest {
         // Check Vertex A cannot be retrieved from Graph
         final GetElements getElements = new GetElements.Builder()
                     .input(new EdgeSeed("B", "C"))
-                    .view(new View.Builder().edge(BASIC_EDGE1).build())
+                    .view(EDGE_VIEW)
                     .build();
         final Iterable<? extends Element> getElementResults = aggregatedGraph.execute(getElements, USER);
 
@@ -147,7 +149,7 @@ public class DeleteElementsHandlerTest {
         final OperationChain<Void> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("A"))
-                        .view(new View.Builder().entity(BASIC_ENTITY).build())
+                        .view(ENTITY_VIEW)
                         .build())
                 .then(new DeleteElements())
                 .build();
@@ -167,7 +169,7 @@ public class DeleteElementsHandlerTest {
         // Check Vertex A cannot be retrieved from Graph
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"))
-                .view(new View.Builder().entity(BASIC_ENTITY).build())
+                .view(ENTITY_VIEW)
                 .build();
         final Iterable<? extends Element> getElementResults = nonAggregatedGraph.execute(getElements, USER);
 
@@ -183,7 +185,7 @@ public class DeleteElementsHandlerTest {
         final OperationChain<Void> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EdgeSeed("B", "C"))
-                        .view(new View.Builder().edge(BASIC_EDGE1).build())
+                        .view(EDGE_VIEW)
                         .build())
                 .then(new DeleteElements())
                 .build();
@@ -203,7 +205,7 @@ public class DeleteElementsHandlerTest {
         // Check Vertex A cannot be retrieved from Graph
         final GetElements getElements = new GetElements.Builder()
                     .input(new EdgeSeed("B", "C"))
-                    .view(new View.Builder().edge(BASIC_EDGE1).build())
+                    .view(EDGE_VIEW)
                     .build();
         final Iterable<? extends Element> getElementResults = nonAggregatedGraph.execute(getElements, USER);
 

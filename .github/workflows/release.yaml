@@ -95,7 +95,10 @@ jobs:
     - name: Update develop branch
       run: |
         git checkout develop
-        mvn release:update-versions -B
+        mvn versions:set-property -Dproperty=revision -DnewVersion=$(echo ${{ github.event.milestone.title }} | cut -c 2-)-SNAPSHOT
+        mvn build-helper:parse-version versions:set-property \
+            -Dproperty=revision \
+            -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT
         NEW_GAFFER_VERSION=$(mvn -q help:evaluate -DforceStdout -Dexpression=pom.version)
         sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$NEW_GAFFER_VERSION/" rest-api/common-rest/src/main/resources/version.properties
         git commit -a -m "prepare for next development iteration"
@@ -113,7 +116,7 @@ jobs:
         ref: master
 
     - name: Create Release Notes
-      uses: docker://decathlon/release-notes-generator-action:3.1.6
+      uses: docker://decathlon/release-notes-generator-action:3.1.5
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -181,12 +184,12 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: '8'
-    
+
     - name: Checkout release
       uses: actions/checkout@v4
       with:
         ref: ${{ needs.create-release-tag.outputs.branch_name }}
-    
+
     - name: Decode CodeSigning key
       env:
         CODE_SIGNING_KEY: ${{ secrets.CODE_SIGNING_KEY }}

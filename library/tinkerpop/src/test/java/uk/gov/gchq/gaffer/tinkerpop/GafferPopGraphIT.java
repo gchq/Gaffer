@@ -16,617 +16,300 @@
 
 package uk.gov.gchq.gaffer.tinkerpop;
 
-import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.structure.Direction;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
-import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
-import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
+import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernFederatedTestUtils;
+import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.CREATED;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.KNOWS;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.LOP;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.MARKO;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.NAME;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.PERSON;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.PETER;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.RIPPLE;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.SOFTWARE;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.AUTH_1;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.AUTH_2;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_1;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_2;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_3;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.getTestUser;
+/**
+ * Runs general gremlin queries
+ * Each test runs against multiple graphs to ensure each store gets the same results
+ */
+class GafferPopGraphIT {
+    private static final String TEST_NAME_FORMAT = "({0}) {displayName}";
+    private static GafferPopGraph mapStore;
+    private static GafferPopGraph accumuloStore;
+    private static GafferPopGraph federated;
 
-public class GafferPopGraphIT {
-    public static final String VERTEX_1 = "1";
-    public static final String VERTEX_2 = "2";
-    public static final String SOFTWARE_NAME_GROUP = "software";
-    public static final String PERSON_GROUP = "person";
-    public static final String TSTV_GROUP = "tstv";
-    public static final String DEPENDS_ON_EDGE_GROUP = "dependsOn";
-    public static final String CREATED_EDGE_GROUP = "created";
-    public static final String NAME_PROPERTY = "name";
-    public static final String WEIGHT_PROPERTY = "weight";
-
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopGraphIT.class, "/gaffer/store.properties"));
-
-    @Test
-    public void shouldConstructGafferPopGraphWithOnlyConfig() {
-        // Given
-        final User expectedUser = getTestUser(AUTH_1, AUTH_2);
-
-        // When
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_2);
-
-        // Then
-        final Map<String, Object> variables = graph.variables().asMap();
-        assertThat(variables.get(GafferPopGraphVariables.USER_ID)).isEqualTo(expectedUser.getUserId());
-        assertThat(variables.get(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT)).isEqualTo(1);
-        assertThat(variables.get(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE)).isEqualTo(HasStepFilterStage.POST_TRANSFORM.toString());
-
-
-        final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
-        assertThat(variables.size()).isEqualTo(5);
+    @BeforeAll
+    public static void createGraphs() throws OperationException {
+        mapStore = GafferPopModernTestUtils.createModernGraph(GafferPopGraphIT.class, StoreType.MAP);
+        accumuloStore = GafferPopModernTestUtils.createModernGraph(GafferPopGraphIT.class, StoreType.ACCUMULO);
+        // Federated store with subgraphs using a map store
+        federated = GafferPopModernFederatedTestUtils.createModernGraph(GafferPopGraphIT.class, StoreType.MAP);
     }
 
-    @Test
-    public void shouldConstructGafferPopGraphWithConfigFile() {
-        // Given
-        final User expectedUser = getTestUser();
-
-        // when
-        final GafferPopGraph graph = GafferPopGraph.open(GafferPopGraphIT.class.getClassLoader().getResource("gafferpop-test.properties").getPath());
-
-        // Then
-        final Map<String, Object> variables = graph.variables().asMap();
-        assertThat(variables.get(GafferPopGraphVariables.USER_ID)).isEqualTo(expectedUser.getUserId());
-        assertThat(variables.get(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT)).isEqualTo(2);
-        assertThat(variables.get(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE)).isEqualTo(HasStepFilterStage.POST_AGGREGATION.toString());
-
-        final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertThat(opOptions).containsEntry("key1", "value1").hasSize(1);
-        assertThat(variables.size()).isEqualTo(5);
-    }
-
-    @Test
-    public void shouldConstructGafferPopGraph() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final User expectedUser = getTestUser(AUTH_1, AUTH_2);
-
-        // When
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        // Then
-        final Map<String, Object> variables = graph.variables().asMap();
-        assertThat(variables)
-            .containsEntry(GafferPopGraphVariables.DATA_AUTHS, expectedUser.getDataAuths().toArray())
-            .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId())
-            .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, GafferPopGraph.DEFAULT_GET_ALL_ELEMENTS_LIMIT)
-            .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE, GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE.toString());
-
-
-        final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
-        assertThat(opOptions).containsEntry("key1", "value1").containsEntry("key2", "value2").hasSize(2);
-        assertThat(variables.size()).isEqualTo(5);
-    }
-
-    @Test
-    public void shouldThrowIllegalArgumentExceptionForNoGraphId() {
-
-        // Given/Then
-        assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> new GafferPopGraph(TEST_CONFIGURATION_3))
-            .withMessageMatching("gaffer.graphId property is required");
-    }
-
-    @Test
-    public void shouldThrowUnsupportedExceptionForCompute() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        // When / Then
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> graph.compute());
-    }
-
-    @Test
-    public void shouldThrowUnsupportedExceptionForComputeWithClass() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        // When / Then
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> graph.compute(GraphComputer.class));
-    }
-
-    @Test
-    public void shouldThrowUnsupportedExceptionForTx() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        // When / Then
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> graph.tx());
-    }
-
-    @Test
-    public void shouldAssignDefaultLabelWhenNoVertexLabel() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        //Then
-        assertThat(graph.addVertex(T.id, VERTEX_1).label()).isEqualTo(Vertex.DEFAULT_LABEL);
-    }
-
-    @Test
-    public void shouldThrowIllegalArgumentExceptionForNoVertexId() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        //Then
-        assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> graph.addVertex(T.label, SOFTWARE_NAME_GROUP))
-            .withMessageMatching("ID is required");
-    }
-
-    @Test
-    public void shouldAddAndGetVertex() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        // When
-        addSoftwareVertex(graph);
-        final Iterator<GafferPopVertex> vertices = graph.vertices(Arrays.asList(VERTEX_1, VERTEX_2), SOFTWARE_NAME_GROUP);
-
-        // Then
-        testSoftwareVertex(vertices);
-    }
-
-    @Test
-    public void shouldAddAndGetVertexWithNullViewAndVertexList() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final Vertex vertex1 = addSoftwareVertex(graph);
-
-        // When
-        final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(vertex1), null);
-
-        // Then
-        testSoftwareVertex(vertices);
-    }
-
-    @Test
-    public void shouldAddAndGetVertexWithNullView() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        // When
-        addSoftwareVertex(graph);
-        final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(VERTEX_1), null);
-
-        // Then
-        testSoftwareVertex(vertices);
-    }
-
-    @Test
-    public void shouldAddAndGetVertexWithViewWithEdges() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final View view = new View.Builder()
-                .edge(SOFTWARE_NAME_GROUP)
-                .build();
-
-        // When
-        addSoftwareVertex(graph);
-        final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(), view);
-
-        // Then
-        testSoftwareVertex(vertices);
-    }
-
-    @Test
-    public void shouldGetAllVertices() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        // When
-        addSoftwareVertex(graph);
-        graph.addVertex(T.label, PERSON_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
-        final Iterator<Vertex> vertices = graph.vertices();
-
-        // Then
-        assertThat(vertices)
-            .toIterable()
-            .contains(
-                new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_1, graph),
-                new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_2, graph));
-    }
-
-    @Test
-    public void shouldTruncateGetAllVertices() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_2, gafferGraph);
-
-        // When
-        addSoftwareVertex(graph);
-        graph.addVertex(T.label, PERSON_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
-        final Iterator<Vertex> vertices = graph.vertices();
-
-        // Then
-        assertThat(vertices).toIterable().hasSize(1);
-    }
-
-    @Test
-    public void shouldGetVerticesById() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        // When
-        addSoftwareVertex(graph);
-        final Iterator<Vertex> vertices = graph.vertices(VERTEX_1);
-
-        // Then
-        testSoftwareVertex(vertices);
-    }
-
-    @Test
-    void shouldGetVerticesWithTSTV() {
-        // Given
-        final Graph gafferGraph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("tstvGraph")
-                        .build())
-                .storeProperties(PROPERTIES)
-                .addSchemas(StreamUtil.openStreams(this.getClass(), "/gaffer/tstv-schema"))
-                .build();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final TypeSubTypeValue testId = new TypeSubTypeValue("test", "test", "test");
-        final GraphTraversalSource g = graph.traversal();
-
-        // When
-        // Add a vertex then do a seeded query for it
-        graph.addVertex(T.label, TSTV_GROUP, T.id, testId);
-        List<Vertex> result = g.V("t:test|st:test|v:test")
-            .toList();
-
-        // Then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0)).extracting(vertex -> vertex.id()).isEqualTo(testId);
-    }
-
-    @Test
-    public void shouldGetAllVerticesInGroup() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        // When
-        addSoftwareVertex(graph);
-        graph.addVertex(T.label, PERSON_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
-        final Iterator<GafferPopVertex> vertices = graph.vertices(null, SOFTWARE_NAME_GROUP);
-
-        // Then
-        final List<GafferPopVertex> verticesList = new ArrayList<>();
-        while (vertices.hasNext()) {
-            verticesList.add(vertices.next());
-        }
-        assertThat(verticesList).contains(
-                    new GafferPopVertex(SOFTWARE_NAME_GROUP, VERTEX_1, graph)
+    private static Stream<Arguments> provideTraversals() {
+        return Stream.of(
+                Arguments.of("Map Store", mapStore.traversal()),
+                Arguments.of("Accumulo Store", accumuloStore.traversal()),
+                Arguments.of("Federated (Map Store)", federated.traversal())
         );
     }
 
-    @Test
-    public void shouldGetVertexWithJsonView() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final View view = new View.Builder()
-                .entity(SOFTWARE_NAME_GROUP)
-                .build();
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetAllVertices(String graph, GraphTraversalSource g) {
+        final List<Vertex> result = g.V().toList();
 
-        // When
-        graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1);
-        graph.addVertex(T.label, PERSON_GROUP, T.id, VERTEX_2);
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(
+                        MARKO.getId(),
+                        VADAS.getId(),
+                        JOSH.getId(),
+                        PETER.getId(),
+                        LOP.getId(),
+                        RIPPLE.getId());
+    }
 
-        final Iterator<GafferPopVertex> vertices = graph.verticesWithView(Arrays.asList(VERTEX_1, VERTEX_2), view);
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldTruncateGetAllVertices(String graph, GraphTraversalSource g) {
+        final List<Vertex> result = g.with("getAllElementsLimit", 2).V().toList();
 
-        // Then
-        assertThat(vertices)
-                .toIterable()
+        assertThat(result)
+                .hasSize(2)
+                .extracting(r -> r.id())
+                .containsAnyOf(
+                        MARKO.getId(),
+                        VADAS.getId(),
+                        JOSH.getId(),
+                        PETER.getId(),
+                        LOP.getId(),
+                        RIPPLE.getId());
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetVerticesById(String graph, GraphTraversalSource g) {
+        final List<Vertex> result = g.V(MARKO.getId(), RIPPLE.getId()).toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.getId(), RIPPLE.getId());
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetVertexPropertyValues(String graph, GraphTraversalSource g) {
+        final List<Object> result = g.V(MARKO.getId()).values(NAME).toList();
+
+        assertThat(result)
                 .hasSize(1)
                 .first()
-                .hasFieldOrPropertyWithValue("id", VERTEX_1)
-                .hasFieldOrPropertyWithValue("label", SOFTWARE_NAME_GROUP);
+                .isInstanceOf(String.class)
+                .isEqualTo(MARKO.getName());
     }
 
-    @Test
-    public void shouldAddAndGetEdge() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final GafferPopVertex gafferPopOutVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, VERTEX_1, graph);
-        final GafferPopVertex gafferPopInVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, VERTEX_2, graph);
-        final GafferPopEdge edgeToAdd = new GafferPopEdge(CREATED_EDGE_GROUP, gafferPopOutVertex, gafferPopInVertex, graph);
-        final GraphTraversalSource g = graph.traversal();
-        edgeToAdd.property(WEIGHT_PROPERTY, 1.5);
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetVerticesByLabel(String graph, GraphTraversalSource g) {
+        final List<Vertex> result = g.V().hasLabel(PERSON).toList();
 
-        // When
-        graph.addEdge(edgeToAdd);
-
-        List<Edge> edges = g.E("[" + VERTEX_1 + ", " + VERTEX_2 + "]").toList();
-
-        // Then
-        assertThat(edges)
-            .extracting(edge -> edge.toString())
-            .containsExactly(edgeToAdd.toString());
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(
+                    MARKO.getId(),
+                    VADAS.getId(),
+                    JOSH.getId(),
+                    PETER.getId()
+                );
     }
 
-    @Test
-    public void shouldAddAndGetEdgeWithLabelInId() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final GafferPopVertex gafferPopOutVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, VERTEX_1, graph);
-        final GafferPopVertex gafferPopInVertex = new GafferPopVertex(GafferPopGraph.ID_LABEL, VERTEX_2, graph);
-        final GafferPopEdge edgeToAdd = new GafferPopEdge(CREATED_EDGE_GROUP, gafferPopOutVertex, gafferPopInVertex,
-                graph);
-        final GraphTraversalSource g = graph.traversal();
-        edgeToAdd.property(WEIGHT_PROPERTY, 1.5);
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetAllOutgoingEdgesFromVertex(String graph, GraphTraversalSource g) {
+        final List<Edge> result = g.V(MARKO.getId()).outE().toList();
 
-        // When
-        graph.addEdge(edgeToAdd);
-
-        List<Edge> edges = g.E("[" + VERTEX_1 + "," + CREATED_EDGE_GROUP + "," + VERTEX_2 + "]").toList();
-
-        // Then
-        assertThat(edges)
-                .extracting(edge -> edge.toString())
-                .containsExactly(edgeToAdd.toString());
+        assertThat(result)
+            .extracting(r -> r.id())
+            .containsExactlyInAnyOrder(
+                MARKO.knows(VADAS),
+                MARKO.knows(JOSH),
+                MARKO.created(LOP)
+            );
     }
 
-    @Test
-    public void shouldGetEdgeInGroup() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
-        graph.addEdge(edgeToAdd1);
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldCountAllOutgoingEdgesFromVertex(String graph, GraphTraversalSource g) {
+        final List<Long> result = g.V(MARKO.getId()).outE().count().toList();
 
-        // When
-        final Iterator<Edge> edges = graph.edges(VERTEX_1, Direction.OUT, CREATED_EDGE_GROUP);
-
-        // Then
-        assertThat(edges).toIterable().contains(edgeToAdd1);
+        assertThat(result).containsExactlyInAnyOrder(3L);
     }
 
-    @Test
-    public void shouldGetEdgeInGroupWithViewWithEntity() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
-        graph.addEdge(edgeToAdd1);
-        final View view = new View.Builder()
-                .entity(CREATED_EDGE_GROUP)
-                .build();
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetAllIncomingEdgesFromVertex(String graph, GraphTraversalSource g) {
+        final List<String> result = g.V(LOP.getId()).inE().label().toList();
 
-        // When
-        final Iterator<Edge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, view);
-
-        // Then
-        assertThat(edges).toIterable().contains(edgeToAdd1);
+        assertThat(result)
+            .containsExactlyInAnyOrder(
+                CREATED,
+                CREATED,
+                CREATED
+            );
     }
 
-    @Test
-    public void shouldGetEdgesWithEdgeIdsPassedIn() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
-        final GafferPopEdge edgeToAdd2 = new GafferPopEdge(DEPENDS_ON_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
-        graph.addEdge(edgeToAdd1);
-        graph.addEdge(edgeToAdd2);
-        final View view = new View.Builder()
-                .entity(CREATED_EDGE_GROUP)
-                .build();
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetAdjacentVerticesNameValues(String graph, GraphTraversalSource g) {
+        final List<Object> result = g.V(MARKO.getId()).out().values(NAME).toList();
 
-        // When
-        final Iterator<Edge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1.id(), edgeToAdd2.id()), Direction.OUT, view);
-
-        // Then
-        assertThat(edges).toIterable().contains(edgeToAdd1, edgeToAdd2);
+        assertThat(result)
+                .extracting(r -> (String) r)
+                .containsExactlyInAnyOrder(
+                    LOP.getName(),
+                    VADAS.getName(),
+                    JOSH.getName()
+                );
     }
 
-    @Test
-    public void shouldGetEdgeInGroupWithNullView() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
-        graph.addEdge(edgeToAdd1);
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGroupVerticesByLabelAndProvideCount(String graph, GraphTraversalSource g) {
+        List<Map<Object, Long>> result = g.V().groupCount().by(T.label).toList();
 
-        // When
-        final Iterator<Edge> edges = graph.edgesWithView(VERTEX_1, Direction.OUT, null);
-
-        // Then
-        assertThat(edges).toIterable().contains(edgeToAdd1);
-    }
-
-    @Test
-    public void shouldGetEdgeInGroupWithNullViewAndEdgeList() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
-        graph.addEdge(edgeToAdd1);
-
-        // When
-        final Iterator<Edge> edges = graph.edgesWithView(Arrays.asList(edgeToAdd1), Direction.OUT, null);
-
-        // Then
-        assertThat(edges).toIterable().contains(edgeToAdd1);
-    }
-
-    @Test
-    public void shouldGetAllEdges() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
-        final GafferPopEdge edgeToAdd2 = new GafferPopEdge(DEPENDS_ON_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
-        graph.addEdge(edgeToAdd1);
-        graph.addEdge(edgeToAdd2);
-
-        // When
-        final Iterator<Edge> edges = graph.edges();
-
-        // Then
-        assertThat(edges).toIterable().contains(edgeToAdd1, edgeToAdd2);
-    }
-
-    @Test
-    public void shouldTruncateGetAllEdges() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_2, gafferGraph);
-        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
-        final GafferPopEdge edgeToAdd2 = new GafferPopEdge(DEPENDS_ON_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
-        graph.addEdge(edgeToAdd1);
-        graph.addEdge(edgeToAdd2);
-
-        // When
-        final Iterator<Edge> edges = graph.edges();
-
-        // Then
-        assertThat(edges).toIterable().hasSize(1);
-    }
-
-    @Test
-    public void shouldGetAllEdgesInGroup() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final GafferPopEdge edgeToAdd1 = new GafferPopEdge(CREATED_EDGE_GROUP, VERTEX_1, VERTEX_2, graph);
-        final GafferPopEdge edgeToAdd2 = new GafferPopEdge(DEPENDS_ON_EDGE_GROUP, VERTEX_2, VERTEX_1, graph);
-        graph.addEdge(edgeToAdd1);
-        graph.addEdge(edgeToAdd2);
-
-        // When
-        final Iterator<Edge> edges = graph.edges(null, Direction.OUT, CREATED_EDGE_GROUP);
-
-        // Then
-        assertThat(edges).toIterable().contains(edgeToAdd1);
-    }
-
-    @Test
-    public void shouldGetAdjacentVertices() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final Vertex vertex1 = addSoftwareVertex(graph);
-        final Vertex vertex2 = graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
-        vertex1.addEdge(DEPENDS_ON_EDGE_GROUP, vertex2);
-
-        // When
-        final Iterator<Vertex> vertices = graph.adjVertices(VERTEX_1, Direction.BOTH);
-
-        // Then
-        final GafferPopVertex vertex = (GafferPopVertex) vertices.next();
-        assertThat(vertices).isExhausted(); // there is only 1 vertex
-        assertThat(vertex.id()).isEqualTo(VERTEX_2);
-        assertThat(vertex.label()).isEqualTo(SOFTWARE_NAME_GROUP);
-        assertThat(vertex.property(NAME_PROPERTY).value()).isEqualTo("Gaffer");
-    }
-
-    @Test
-    public void shouldGetAdjacentVerticesWithList() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final GafferPopVertex vertex1 = (GafferPopVertex) addSoftwareVertex(graph);
-        final GafferPopVertex vertex2 = (GafferPopVertex) graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_2, NAME_PROPERTY, "Gaffer");
-        vertex1.addEdge(DEPENDS_ON_EDGE_GROUP, vertex2);
-
-        // When
-        final Iterator<Vertex> vertices = graph.adjVertices(Arrays.asList(VERTEX_1, VERTEX_2), Direction.BOTH);
-
-        // Then
-        assertThat(vertices).toIterable()
-                .contains(vertex1)
-                .contains(vertex2);
-    }
-
-    @Test
-    public void shouldThrowExceptionIfGetAdjacentVerticesWithNoSeeds() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-
-        // When / Then
-        assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> graph.adjVertices(Collections.emptyList(), Direction.BOTH));
-    }
-
-    @Test
-    void shouldThrowExceptionWhenPassedInvalidOpChain() {
-        // Given
-        final Graph gafferGraph = getGafferGraph();
-        final GafferPopGraph graph = GafferPopGraph.open(TEST_CONFIGURATION_1, gafferGraph);
-        final OperationChain<?> invalidOperationChain = new OperationChain.Builder()
-                .first(new AddElementsFromSocket())
-                .then(new GetElements())
-                .build();
-
-        // When / Then
-        assertThatExceptionOfType(RuntimeException.class)
-            .isThrownBy(() -> graph.execute(invalidOperationChain))
-            .withMessageContaining("GafferPop operation failed");
-    }
-
-    private Graph getGafferGraph() {
-        return GafferPopTestUtil.getGafferGraph(this.getClass(), PROPERTIES);
-    }
-
-    private static Vertex addSoftwareVertex(GafferPopGraph graph) {
-        return graph.addVertex(T.label, SOFTWARE_NAME_GROUP, T.id, VERTEX_1, NAME_PROPERTY, "GafferPop");
-    }
-
-    private static void testSoftwareVertex(Iterator<? extends Vertex> vertices) {
-        assertThat(vertices)
-                .toIterable()
-                .hasSize(1)
+        assertThat(result)
                 .first()
-                .hasFieldOrPropertyWithValue("id", VERTEX_1)
-                .hasFieldOrPropertyWithValue("label", SOFTWARE_NAME_GROUP)
-                .extracting(v -> v.property(NAME_PROPERTY).value())
-                .isEqualTo("GafferPop");
+                .hasFieldOrPropertyWithValue(PERSON, 4L)
+                .hasFieldOrPropertyWithValue(SOFTWARE, 2L);
     }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetAllVerticesConnectedToOutGoingEdgeOfGivenVertex(String graph, GraphTraversalSource g) {
+        List<Object> result = g.V(MARKO.getId()).outE().inV().values(NAME).toList();
+
+        assertThat(result)
+        .containsExactlyInAnyOrder(
+            JOSH.getName(),
+            LOP.getName(),
+            VADAS.getName()
+        );
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetPropertiesOfIncomingVerticesForSpecificVertex(String graph, GraphTraversalSource g) {
+        List<Map<Object, Object>> result = g.V(JOSH.getId()).inE().outV().elementMap().toList();
+
+        assertThat(result).containsExactly(MARKO.getPropertyMap());
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetAllEdges(String graph, GraphTraversalSource g) {
+        final List<Edge> result = g.E().toList();
+
+        assertThat(result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(
+                        MARKO.knows(JOSH),
+                        MARKO.knows(VADAS),
+                        MARKO.created(LOP),
+                        JOSH.created(LOP),
+                        JOSH.created(RIPPLE),
+                        PETER.created(LOP));
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldTruncateGetAllEdges(String graph, GraphTraversalSource g) {
+        final List<Edge> result = g.with("getAllElementsLimit", 2).E().toList();
+
+        assertThat(result)
+                .hasSize(2)
+                .extracting(r -> r.id())
+                .containsAnyOf(
+                        MARKO.knows(JOSH),
+                        MARKO.knows(VADAS),
+                        MARKO.created(LOP),
+                        JOSH.created(LOP),
+                        JOSH.created(RIPPLE),
+                        PETER.created(LOP));
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldGetEdgeById(String graph, GraphTraversalSource g) {
+        List<String> edgeIds = Stream.of(
+            "[1,2]",
+            "   [ 1  , 2   ]  ",
+            "[1,knows,2]",
+            "[1, knows, 2]",
+            " [  1   ,knows  ,    2] "
+        ).collect(Collectors.toList());
+
+        edgeIds.forEach(id -> {
+            final List<Edge> result = g.E(id).toList();
+
+            assertThat(result)
+                .withFailMessage("(%s) Edge ID: %s returned %s", graph, id, result)
+                .extracting(r -> r.id())
+                .containsExactlyInAnyOrder(MARKO.knows(VADAS));
+        });
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldAddV(String graph, GraphTraversalSource g) throws OperationException {
+        g.addV(PERSON).property(NAME, "stephen").property(T.id, "test").iterate();
+
+        final List<Vertex> result = g.V().toList();
+        assertThat(result)
+                .extracting(r -> r.value(NAME))
+                .contains("stephen");
+        reset();
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldAddE(String graph, GraphTraversalSource g) throws OperationException {
+        g.addE(KNOWS).from(__.V(VADAS.getId())).to(__.V(PETER.getId())).iterate();
+
+        final List<Edge> result = g.E().toList();
+        assertThat(result)
+                .extracting(r -> r.id())
+                .contains(VADAS.knows(PETER));
+        reset();
+    }
+
+    void reset() throws OperationException  {
+        // reset cache for federation
+        CacheServiceLoader.shutdown();
+        // recreate the graphs
+        createGraphs();
+    }
+
 }

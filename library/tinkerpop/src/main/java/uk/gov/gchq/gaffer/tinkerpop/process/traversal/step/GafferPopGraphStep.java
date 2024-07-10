@@ -22,7 +22,6 @@ import org.apache.tinkerpop.gremlin.process.traversal.step.HasContainerHolder;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.GraphStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.HasContainer;
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.OptionsStrategy;
-import org.apache.tinkerpop.gremlin.process.traversal.util.AndP;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
@@ -33,10 +32,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.util.GafferPopHasContainer;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.ArrayList;
@@ -96,15 +98,15 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         // Check for the labels being searched for to construct a View to filter with
         List<String> labels = getRequestedLabels();
 
+        // Get the View needed to for the property predicates
         String filterStage = ((GafferPopGraphVariables) graph.variables()).getHasStepFilterStage();
-        // Get the ViewElementDefinition needed to for the property predicates
-        ViewElementDefinition viewElementDefinition = createViewFromPredicates(filterStage);
+        View view = createEdgeViewFromPredicates(filterStage, labels);
 
-        if (viewElementDefinition != null) {
-            // Find using labels and predicates to filter results
-            return graph.edgesWithView(Arrays.asList(this.ids), Direction.BOTH, viewElementDefinition, labels);
+        if (view != null) {
+            // Find using view to filter results
+            return graph.edgesWithView(Arrays.asList(this.ids), Direction.BOTH, view);
         } else if (!labels.isEmpty()) {
-            // Find using label to filter results
+            // Find using labels to filter results
             return graph.edges(Arrays.asList(this.ids), Direction.BOTH, labels.toArray(new String[0]));
         } else if (this.ids == null) {
             return Collections.emptyIterator();
@@ -119,15 +121,15 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
         // Check for the labels being searched for to construct a View to filter with
         List<String> labels = getRequestedLabels();
 
+        // Get the View needed to for the property predicates
         String filterStage = ((GafferPopGraphVariables) graph.variables()).getHasStepFilterStage();
-        // Get the ViewElementDefinition needed to for the property predicates
-        ViewElementDefinition viewElementDefinition = createViewFromPredicates(filterStage);
+        View view = createVertexViewFromPredicates(filterStage, labels);
 
-        if (viewElementDefinition != null) {
-            // Find using labels and predicates to filter results
-            return graph.verticesWithView(Arrays.asList(this.ids), viewElementDefinition, labels);
+        if (view != null) {
+            // Find using view to filter results
+            return graph.verticesWithView(Arrays.asList(this.ids), view);
         } else if (!labels.isEmpty()) {
-            // Find using label to filter results
+            // Find using labels to filter results
             return graph.vertices(Arrays.asList(this.ids), labels.toArray(new String[0]));
         } else if (this.ids == null) {
             return Collections.emptyIterator();
@@ -158,15 +160,69 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
             .collect(Collectors.toList());
     }
 
+
+    /**
+     * Creates a View from the predicates in the HasContainers.
+     * This can be used to filter vertices.
+     *
+     * @param filterStage the stage to apply the filters
+     * @param labels      the vertex labels to apply the filters to
+     * @return View containing the filters
+     */
+    private View createVertexViewFromPredicates(final String filterStage, final List<String> labels) {
+        ViewElementDefinition viewElementDefinition = createElementDefFromPredicates(filterStage, labels.isEmpty());
+        if (viewElementDefinition == null) {
+            return null;
+        }
+
+        View.Builder viewBuilder = new View.Builder();
+        if (viewElementDefinition instanceof GlobalViewElementDefinition) {
+            // Apply filters to all vertices
+            viewBuilder.globalElements((GlobalViewElementDefinition) viewElementDefinition);
+        } else {
+            // Apply filters to each of the labels
+            labels.forEach(l -> viewBuilder.entity(l, viewElementDefinition));
+        }
+        return viewBuilder.build();
+    }
+
+    /**
+     * Creates a View from the predicates in the HasContainers.
+     * This can be used to filter edges.
+     *
+     * @param filterStage the stage to apply the filters
+     * @param labels      the edge labels to apply the filters to
+     * @return View containing the filters
+     */
+    private View createEdgeViewFromPredicates(final String filterStage, final List<String> labels) {
+        ViewElementDefinition viewElementDefinition = createElementDefFromPredicates(filterStage, labels.isEmpty());
+        if (viewElementDefinition == null) {
+            return null;
+        }
+
+        View.Builder viewBuilder = new View.Builder();
+        if (viewElementDefinition instanceof GlobalViewElementDefinition) {
+            // Apply filters to all edges
+            viewBuilder.globalEdges((GlobalViewElementDefinition) viewElementDefinition);
+        } else {
+            // Apply filters to each of the labels
+            labels.forEach(l -> viewBuilder.edge(l, viewElementDefinition));
+        }
+        return viewBuilder.build();
+    }
+
     /**
      * Creates a ViewElementDefinition from the predicates in the HasContainers.
      * This can be used in a View to filter entities.
      *
-     * @param filterStage the stage to apply the filters
+     * @param filterStage  the stage to apply the filters
+     * @param createGlobal whether to return a GlobalViewElementDefinition
+     *                     or a ViewElementDefinition
+
      * @return ViewElementDefinition containing the filters
      */
-    private ViewElementDefinition createViewFromPredicates(final String filterStage) {
-        List<HasContainer> predicateContainers = getRequestedPredicates();
+    private ViewElementDefinition createElementDefFromPredicates(final String filterStage, final boolean createGlobal) {
+        List<GafferPopHasContainer> predicateContainers = getRequestedPredicates();
 
         // No predicates found
         if (predicateContainers.isEmpty()) {
@@ -175,16 +231,19 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
         // Add each predicate to the filter
         ElementFilter.Builder filterBuilder = new ElementFilter.Builder();
-        predicateContainers
-            .forEach(hc -> filterBuilder.select(hc.getKey())
-                                        // Only apply the HC predicate to properties that exist
-                                        .execute(new Exists())
-                                        .select(hc.getKey())
-                                        .execute(hc.getPredicate()));
+        predicateContainers.forEach(
+            hc -> filterBuilder.select(hc.getKey())
+                // Only apply the HC predicate to properties that exist
+                .execute(new Exists())
+                .select(hc.getKey())
+                .execute(hc.getGafferPredicate()));
         ElementFilter elementFilter = filterBuilder.build();
 
+        ViewElementDefinition.BaseBuilder<?> vBuilder = createGlobal ?
+                new GlobalViewElementDefinition.Builder() :
+                new ViewElementDefinition.Builder();
+
         // Decide when to apply the filter
-        ViewElementDefinition.Builder vBuilder = new ViewElementDefinition.Builder();
         HasStepFilterStage hasStepFilterStage;
         try {
             hasStepFilterStage = HasStepFilterStage.valueOf(filterStage);
@@ -208,6 +267,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
                 vBuilder.preAggregationFilter(elementFilter);
                 break;
         }
+
         return vBuilder.build();
     }
 
@@ -216,27 +276,23 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
      *
      * @return List of HasContainers with predicates
      */
-    private List<HasContainer> getRequestedPredicates() {
+    private List<GafferPopHasContainer> getRequestedPredicates() {
         // Don't filter out null hc.getValue() incase of AndP/OrP
         return hasContainers.stream()
             .filter(hc -> hc.getKey() != null)
             .filter(hc -> !hc.getKey().equals(T.label.getAccessor()))
             .filter(hc -> !hc.getKey().equals(T.id.getAccessor()))
+            .map(hc -> (GafferPopHasContainer) hc)
             .collect(Collectors.toList());
     }
 
     @Override
     public List<HasContainer> getHasContainers() {
-        return Collections.unmodifiableList(this.hasContainers);
+        return Collections.unmodifiableList(hasContainers);
     }
 
     @Override
-    public void addHasContainer(final HasContainer hasContainer) {
-        if (hasContainer.getPredicate() instanceof AndP) {
-            ((AndP<?>) hasContainer.getPredicate()).getPredicates().forEach(
-                p -> this.addHasContainer(new HasContainer(hasContainer.getKey(), p)));
-        } else {
-            this.hasContainers.add(hasContainer);
-        }
+    public void addHasContainer(final HasContainer original) {
+        hasContainers.add(new GafferPopHasContainer(original));
     }
 }

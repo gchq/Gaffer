@@ -222,11 +222,11 @@ public class MapImpl {
         edgeIdToElements.put(edgeSeed, element);
     }
 
-    void removeIndex(final EntitySeed entitySeed, final Element element) {
+    void removeEntityIndex(final EntitySeed entitySeed, final Element element) {
         entityIdToElements.remove(entitySeed, element);
     }
 
-    void removeIndex(final EdgeSeed edgeSeed, final Element element) {
+    void removeEdgeIndex(final EdgeSeed edgeSeed, final Element element) {
         edgeIdToElements.remove(edgeSeed, element);
     }
 

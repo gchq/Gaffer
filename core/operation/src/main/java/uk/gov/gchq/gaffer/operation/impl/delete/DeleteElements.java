@@ -46,7 +46,7 @@ import java.util.Map;
  * @see DeleteElements.Builder
  */
 @JsonPropertyOrder(value = { "class", "elements" }, alphabetic = true)
-@Since("2.2.2")
+@Since("2.3.0")
 @Summary("Deletes elements")
 public class DeleteElements implements
         Validatable,
