@@ -514,7 +514,7 @@ public class AccumuloStore extends Store {
             throw new GafferRuntimeException("Could not find any elements to delete from graph.", Status.BAD_REQUEST);
         }
 
-        try(BatchWriter writer = TableUtils.createBatchWriter(this)) {
+        try (BatchWriter writer = TableUtils.createBatchWriter(this)) {
             for (final Element element : elements) {
                 final Pair<Key, Key> keys;
                 try {
@@ -523,12 +523,12 @@ public class AccumuloStore extends Store {
                     LOGGER.error(FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS, "key", element.getGroup());
                     continue;
                 }
-    
+
                 for (final Key key : Arrays.asList(keys.getFirst(), keys.getSecond())) {
                     if (nonNull(key)) {
                         final Mutation m = new Mutation(key.getRow());
                         m.putDelete(key.getColumnFamily(), key.getColumnQualifier(), key.getTimestamp());
-    
+
                         try {
                             writer.addMutation(m);
                         } catch (final MutationsRejectedException e) {
