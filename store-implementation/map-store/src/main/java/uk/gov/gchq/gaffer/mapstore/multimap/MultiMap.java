@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,15 @@ public interface MultiMap<K, V> {
      * @param values the values to add
      */
     void put(final K key, final Collection<V> values);
+
+    /**
+     * Remove value for the specified key.
+     *
+     * @param key the key for the value to be removed
+     * @param value the value to be removed
+     * @return true if the operation was successful, otherwise false
+     */
+    boolean remove(final K key, final V value);
 
     /**
      * Get all of the values associated with the specified key.
