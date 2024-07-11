@@ -16,14 +16,24 @@
 
 package uk.gov.gchq.gaffer.accumulostore;
 
+import org.apache.accumulo.core.client.AccumuloClient;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
+import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
+import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
+import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
+import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
+import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsPairsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
@@ -38,9 +48,11 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
+import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -82,10 +94,17 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -498,4 +517,59 @@ public class AccumuloStoreTest {
                 .isThrownBy(() -> store.initialise("graphId", schema, PROPERTIES))
                 .withMessageContaining(expectedMessage);
     }
+
+     @Test
+     void shouldThrowWhenDeletingNull() {
+        final AccumuloStore store = new MiniAccumuloStore();
+        assertThatExceptionOfType(GafferRuntimeException.class)
+                .isThrownBy(() -> store.deleteElements(null))
+                .withMessageContaining("Could not find any elements to delete");
+     }
+
+     @Test
+     void shouldDoNothingWhenCannotConvert() throws Exception {
+        AccumuloElementConverter converter = Mockito.mock(ByteEntityAccumuloElementConverter.class);
+        when(converter.getKeysFromElement(any())).thenThrow(new AccumuloElementConversionException("intentional"));
+
+        AccumuloKeyPackage keyPackage = Mockito.spy(new ByteEntityKeyPackage(SCHEMA));
+        doReturn(converter).when(keyPackage).getKeyConverter();
+
+        final AccumuloStore store = Mockito.spy(new MiniAccumuloStore());
+        doReturn("table").when(store).getTableName();
+        doReturn(keyPackage).when(store).getKeyPackage();
+        store.initialise("graphId", SCHEMA, PROPERTIES);
+
+        assertThatNoException().isThrownBy(() -> store.deleteElements(Arrays.asList(new Entity("blah", 1))));
+     }
+
+     @Test
+     void shouldDoNothingWhenCannotMutate() throws Exception {
+        try (MockedStatic<TableUtils> utils = Mockito.mockStatic(TableUtils.class)) {
+                BatchWriter writer = Mockito.mock(BatchWriter.class);
+                MutationsRejectedException e = new MutationsRejectedException((AccumuloClient) null, Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), 0, null);
+                doThrow(e).when(writer).addMutation(any());
+                utils.when(() -> TableUtils.createBatchWriter(any())).thenReturn(writer);
+
+                final AccumuloStore store = new MiniAccumuloStore();
+                store.initialise("graphId", SCHEMA, PROPERTIES);
+
+                assertThatNoException().isThrownBy(() -> store.deleteElements(Arrays.asList(new Entity("blah", 1))));
+        }
+     }
+
+     @Test
+     void shouldDoNothingWhenCannotClose() throws Exception {
+        try (MockedStatic<TableUtils> utils = Mockito.mockStatic(TableUtils.class)) {
+                BatchWriter writer = Mockito.mock(BatchWriter.class);
+                MutationsRejectedException e = new MutationsRejectedException((AccumuloClient) null, Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), 0, null);
+                doThrow(e).when(writer).close();
+                utils.when(() -> TableUtils.createBatchWriter(any())).thenReturn(writer);
+
+                final AccumuloStore store = new MiniAccumuloStore();
+                store.initialise("graphId", SCHEMA, PROPERTIES);
+
+                assertThatNoException().isThrownBy(() -> store.deleteElements(Arrays.asList(new Entity("blah", 1))));
+        }
+     }
+
 }

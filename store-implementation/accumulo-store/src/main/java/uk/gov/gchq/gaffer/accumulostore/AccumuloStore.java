@@ -518,7 +518,7 @@ public class AccumuloStore extends Store {
             for (final Element element : elements) {
                 final Pair<Key, Key> keys;
                 try {
-                    keys = keyPackage.getKeyConverter().getKeysFromElement(element);
+                    keys = getKeyPackage().getKeyConverter().getKeysFromElement(element);
                 } catch (final AccumuloElementConversionException e) {
                     LOGGER.error(FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS, "key", element.getGroup());
                     continue;
@@ -540,7 +540,6 @@ public class AccumuloStore extends Store {
         } catch (final MutationsRejectedException e) {
             LOGGER.warn("Accumulo batch writer failed to close", e);
         }
-
     }
 
     /**
