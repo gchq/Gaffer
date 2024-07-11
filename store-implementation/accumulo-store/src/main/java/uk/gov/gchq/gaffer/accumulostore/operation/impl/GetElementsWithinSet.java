@@ -110,7 +110,7 @@ public class GetElementsWithinSet implements
     public GetElementsWithinSet shallowClone() {
         return new GetElementsWithinSet.Builder()
                 .view(view)
-                // .inOutType(includeIncomingOutGoing)
+                .inOutType(includeIncomingOutGoing)
                 .directedType(directedType)
                 .input(input)
                 .options(options)

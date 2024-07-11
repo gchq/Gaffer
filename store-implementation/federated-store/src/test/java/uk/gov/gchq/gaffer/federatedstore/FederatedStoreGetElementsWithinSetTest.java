@@ -63,7 +63,6 @@ public class FederatedStoreGetElementsWithinSetTest {
     private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreGetElementsWithinSetTest.class, "properties/singleUseAccumuloStore.properties"));
     private static final User USER = new User();
     public static final String GRAPH_IDS = String.format("%s,%s", GRAPH_ID_A, GRAPH_ID_B);
-    // private final Set<Element> expectedEdges = new HashSet<>();
 
     private Graph federatedGraph;
 
