@@ -16,11 +16,11 @@
 
 package uk.gov.gchq.gaffer.accumulostore;
 
-import org.apache.accumulo.core.client.AccumuloClient;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.Instance;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -546,7 +546,7 @@ public class AccumuloStoreTest {
      void shouldDoNothingWhenCannotMutate() throws Exception {
         try (MockedStatic<TableUtils> utils = Mockito.mockStatic(TableUtils.class)) {
                 BatchWriter writer = Mockito.mock(BatchWriter.class);
-                MutationsRejectedException e = new MutationsRejectedException((AccumuloClient) null, Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), 0, null);
+                MutationsRejectedException e = new MutationsRejectedException((Instance) null, Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), 0, null);
                 doThrow(e).when(writer).addMutation(any());
                 utils.when(() -> TableUtils.createBatchWriter(any())).thenReturn(writer);
 
@@ -561,7 +561,7 @@ public class AccumuloStoreTest {
      void shouldDoNothingWhenCannotClose() throws Exception {
         try (MockedStatic<TableUtils> utils = Mockito.mockStatic(TableUtils.class)) {
                 BatchWriter writer = Mockito.mock(BatchWriter.class);
-                MutationsRejectedException e = new MutationsRejectedException((AccumuloClient) null, Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), 0, null);
+                MutationsRejectedException e = new MutationsRejectedException((Instance) null, Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), 0, null);
                 doThrow(e).when(writer).close();
                 utils.when(() -> TableUtils.createBatchWriter(any())).thenReturn(writer);
 
