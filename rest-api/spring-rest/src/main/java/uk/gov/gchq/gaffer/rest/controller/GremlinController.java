@@ -70,11 +70,11 @@ public class GremlinController {
     }
 
     /**
-     * Explains what Gaffer operations are ran for a given gremlin query.
+     * Explains what Gaffer operations are run for a given gremlin query.
      *
      * @param httpHeaders The request headers.
      * @param gremlinQuery The gremlin groovy query.
-     * @return Json response with explanation in.
+     * @return JSON response with explanation in.
      */
     @PostMapping(path = "/explain", consumes = TEXT_PLAIN_VALUE, produces = APPLICATION_JSON_VALUE)
     @io.swagger.v3.oas.annotations.Operation(
@@ -90,12 +90,13 @@ public class GremlinController {
      *
      * @param httpHeaders The request headers.
      * @param cypherQuery Opencypher query.
-     * @return Json response with explanation in.
+     * @return JSON response with explanation in.
      */
     @PostMapping(path = "/cypher/explain", consumes = TEXT_PLAIN_VALUE, produces = APPLICATION_JSON_VALUE)
     @io.swagger.v3.oas.annotations.Operation(
         summary = "Explain a Cypher Query Executed via Gremlin",
-        description = "Translates a Cypher query to Gremlin and outputs an explanation of what Gaffer operations were executed on the graph")
+        description = "Translates a Cypher query to Gremlin and outputs an explanation of what Gaffer operations" +
+                      "were executed on the graph, note will always append a '.toList()' to the translation")
     public String cypherExplain(@RequestHeader final HttpHeaders httpHeaders, @RequestBody final String cypherQuery) {
 
         final CypherAst ast = CypherAst.parse(cypherQuery);
@@ -121,7 +122,7 @@ public class GremlinController {
      */
     public static JSONObject getGafferPopExplanation(final GafferPopGraph graph) {
         JSONObject result = new JSONObject();
-        // Get the last operation chain rain
+        // Get the last operation chain that ran
         LinkedList<Operation> operations = new LinkedList<>();
         ((GafferPopGraphVariables) graph.variables())
                 .getLastOperationChain()
