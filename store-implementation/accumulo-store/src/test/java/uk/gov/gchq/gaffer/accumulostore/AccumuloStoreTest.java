@@ -528,15 +528,7 @@ public class AccumuloStoreTest {
 
      @Test
      void shouldDoNothingWhenCannotConvert() throws Exception {
-        AccumuloElementConverter converter = Mockito.mock(ByteEntityAccumuloElementConverter.class);
-        when(converter.getKeysFromElement(any())).thenThrow(new AccumuloElementConversionException("intentional"));
-
-        AccumuloKeyPackage keyPackage = Mockito.spy(new ByteEntityKeyPackage(SCHEMA));
-        doReturn(converter).when(keyPackage).getKeyConverter();
-
-        final AccumuloStore store = Mockito.spy(new MiniAccumuloStore());
-        doReturn("table").when(store).getTableName();
-        doReturn(keyPackage).when(store).getKeyPackage();
+        final AccumuloStore store = new MiniAccumuloStore();
         store.initialise("graphId", SCHEMA, PROPERTIES);
 
         assertThatNoException().isThrownBy(() -> store.deleteElements(Arrays.asList(new Entity("blah", 1))));
@@ -545,30 +537,30 @@ public class AccumuloStoreTest {
      @Test
      void shouldDoNothingWhenCannotMutate() throws Exception {
         try (MockedStatic<TableUtils> utils = Mockito.mockStatic(TableUtils.class)) {
-                BatchWriter writer = Mockito.mock(BatchWriter.class);
-                MutationsRejectedException e = new MutationsRejectedException((Instance) null, Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), 0, null);
-                doThrow(e).when(writer).addMutation(any());
-                utils.when(() -> TableUtils.createBatchWriter(any())).thenReturn(writer);
+            BatchWriter writer = Mockito.mock(BatchWriter.class);
+            MutationsRejectedException e = new MutationsRejectedException((Instance) null, Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), 0, null);
+            doThrow(e).when(writer).addMutation(any());
+            utils.when(() -> TableUtils.createBatchWriter(any())).thenReturn(writer);
 
-                final AccumuloStore store = new MiniAccumuloStore();
-                store.initialise("graphId", SCHEMA, PROPERTIES);
+            final AccumuloStore store = new MiniAccumuloStore();
+            store.initialise("graphId", SCHEMA, PROPERTIES);
 
-                assertThatNoException().isThrownBy(() -> store.deleteElements(Arrays.asList(new Entity("blah", 1))));
+            assertThatNoException().isThrownBy(() -> store.deleteElements(Arrays.asList(new Entity("BasicEntity", "1"))));
         }
      }
 
      @Test
      void shouldDoNothingWhenCannotClose() throws Exception {
         try (MockedStatic<TableUtils> utils = Mockito.mockStatic(TableUtils.class)) {
-                BatchWriter writer = Mockito.mock(BatchWriter.class);
-                MutationsRejectedException e = new MutationsRejectedException((Instance) null, Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), 0, null);
-                doThrow(e).when(writer).close();
-                utils.when(() -> TableUtils.createBatchWriter(any())).thenReturn(writer);
+            BatchWriter writer = Mockito.mock(BatchWriter.class);
+            MutationsRejectedException e = new MutationsRejectedException((Instance) null, Collections.emptyList(), Collections.emptyMap(), Collections.emptyList(), 0, null);
+            doThrow(e).when(writer).close();
+            utils.when(() -> TableUtils.createBatchWriter(any())).thenReturn(writer);
 
-                final AccumuloStore store = new MiniAccumuloStore();
-                store.initialise("graphId", SCHEMA, PROPERTIES);
+            final AccumuloStore store = new MiniAccumuloStore();
+            store.initialise("graphId", SCHEMA, PROPERTIES);
 
-                assertThatNoException().isThrownBy(() -> store.deleteElements(Arrays.asList(new Entity("blah", 1))));
+            assertThatNoException().isThrownBy(() -> store.deleteElements(Arrays.asList(new Entity("BasicEntity", "1"))));
         }
      }
 
