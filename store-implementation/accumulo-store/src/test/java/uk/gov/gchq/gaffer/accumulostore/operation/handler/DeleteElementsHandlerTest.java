@@ -33,51 +33,51 @@ import static org.mockito.ArgumentMatchers.anyIterable;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
-public class DeleteElementsHandlerTest {
+class DeleteElementsHandlerTest {
 
-  @Test
-  public void shouldDoOperationValidated() throws Exception {
-    // Given
-    final DeleteElementsHandler handler = new DeleteElementsHandler();
-    final DeleteElements op = new DeleteElements.Builder()
-        .input(new Entity("entity"))
-        .validate(true)
-        .build();
-
-    AccumuloStore store = Mockito.mock(AccumuloStore.class);
-    handler.doOperation(op, new Context(), store);
-
-    verify(store).deleteElements(any(ValidatedElements.class));
-  }
-
-  @Test
-  public void shouldDoOperationNotValidated() throws Exception {
-    // Given
-    final DeleteElementsHandler handler = new DeleteElementsHandler();
-    final DeleteElements op = new DeleteElements.Builder()
-        .input(new Entity("entity"))
-        .validate(false)
-        .build();
-
-    AccumuloStore store = Mockito.mock(AccumuloStore.class);
-    handler.doOperation(op, new Context(), store);
-
-    verify(store).deleteElements(anyIterable());
-  }
-
-  @Test
-  public void shouldThrow() throws Exception {
+    @Test
+    void shouldDoOperationValidated() throws Exception {
         // Given
         final DeleteElementsHandler handler = new DeleteElementsHandler();
         final DeleteElements op = new DeleteElements.Builder()
-            .input(new Entity("entity"))
-            .build();
+                .input(new Entity("entity"))
+                .validate(true)
+                .build();
+
+        AccumuloStore store = Mockito.mock(AccumuloStore.class);
+        handler.doOperation(op, new Context(), store);
+
+        verify(store).deleteElements(any(ValidatedElements.class));
+    }
+
+    @Test
+    void shouldDoOperationNotValidated() throws Exception {
+        // Given
+        final DeleteElementsHandler handler = new DeleteElementsHandler();
+        final DeleteElements op = new DeleteElements.Builder()
+                .input(new Entity("entity"))
+                .validate(false)
+                .build();
+
+        AccumuloStore store = Mockito.mock(AccumuloStore.class);
+        handler.doOperation(op, new Context(), store);
+
+        verify(store).deleteElements(anyIterable());
+    }
+
+    @Test
+    void shouldThrow() throws Exception {
+        // Given
+        final DeleteElementsHandler handler = new DeleteElementsHandler();
+        final DeleteElements op = new DeleteElements.Builder()
+                .input(new Entity("entity"))
+                .build();
 
         AccumuloStore store = Mockito.mock(AccumuloStore.class);
         doThrow(new StoreException("Intentional Error")).when(store).deleteElements(anyIterable());
 
         assertThatExceptionOfType(OperationException.class)
-            .isThrownBy(() -> handler.doOperation(op, new Context(), store))
-            .withMessageContaining("Failed to delete");
-  }
+                .isThrownBy(() -> handler.doOperation(op, new Context(), store))
+                .withMessageContaining("Failed to delete");
+    }
 }
