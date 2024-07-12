@@ -98,6 +98,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -121,13 +124,13 @@ public class AccumuloStoreTest {
     private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
 
     @BeforeEach
-    public void beforeMethod() throws StoreException {
+    void beforeMethod() throws StoreException {
         BYTE_ENTITY_STORE.initialise(BYTE_ENTITY_GRAPH, SCHEMA, PROPERTIES);
         GAFFER_1_KEY_STORE.initialise(GAFFER_1_GRAPH, SCHEMA, CLASSIC_PROPERTIES);
     }
 
     @Test
-    public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod()
+    void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod()
             throws StoreException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
         Connector connector = BYTE_ENTITY_STORE.getConnection();
 
@@ -144,7 +147,7 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldCreateAStoreUsingGraphId() throws Exception {
+    void shouldCreateAStoreUsingGraphId() throws Exception {
         // Given
         final AccumuloProperties properties = PROPERTIES.clone();
         final AccumuloStore store = new MiniAccumuloStore();
@@ -158,7 +161,7 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldCreateAStoreUsingGraphIdWithNamespace() throws Exception {
+    void shouldCreateAStoreUsingGraphIdWithNamespace() throws Exception {
         // Given
         final AccumuloProperties properties = PROPERTIES.clone();
         properties.setNamespace("namespaceName");
@@ -174,7 +177,7 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldBeAnOrderedStore() throws OperationException {
+    void shouldBeAnOrderedStore() throws OperationException {
         assertThat(BYTE_ENTITY_STORE
                 .execute(new HasTrait.Builder().trait(StoreTrait.ORDERED).currentTraits(false).build(), new Context()))
                 .isTrue();
@@ -184,7 +187,7 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesPreserveObjectOrdering() throws StoreException {
+    void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesPreserveObjectOrdering() throws StoreException {
         // Given
         final AccumuloStore store = new AccumuloStore();
         final Serialiser<?, ?> serialiser = new StringSerialiser();
@@ -204,7 +207,7 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldNotAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering()
+    void shouldNotAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering()
             throws StoreException {
         // Given
         final AccumuloStore store = new AccumuloStore();
@@ -226,12 +229,12 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedGaffer1() throws OperationException {
+    void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedGaffer1() throws OperationException {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(GAFFER_1_KEY_STORE);
     }
 
     @Test
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedByteEntity() throws OperationException {
+    void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedByteEntity() throws OperationException {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(BYTE_ENTITY_STORE);
     }
 
@@ -294,16 +297,16 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void testStoreReturnsHandlersForRegisteredOperationsGaffer1() {
+    void testStoreReturnsHandlersForRegisteredOperationsGaffer1() {
         testStoreReturnsHandlersForRegisteredOperations(GAFFER_1_KEY_STORE);
     }
 
     @Test
-    public void testStoreReturnsHandlersForRegisteredOperationsByteEntity() {
+    void testStoreReturnsHandlersForRegisteredOperationsByteEntity() {
         testStoreReturnsHandlersForRegisteredOperations(BYTE_ENTITY_STORE);
     }
 
-    public void testStoreReturnsHandlersForRegisteredOperations(final AccumuloStore store) {
+    void testStoreReturnsHandlersForRegisteredOperations(final AccumuloStore store) {
         OperationHandler<?> op;
         // Then
         assertThat(store.getOperationHandler(Validate.class)).isNotNull();
@@ -331,22 +334,22 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void testRequestForNullHandlerManagedGaffer1() {
+    void testRequestForNullHandlerManagedGaffer1() {
         testRequestForNullHandlerManaged(GAFFER_1_KEY_STORE);
     }
 
     @Test
-    public void testRequestForNullHandlerManagedByteEntity() {
+    void testRequestForNullHandlerManagedByteEntity() {
         testRequestForNullHandlerManaged(BYTE_ENTITY_STORE);
     }
 
-    public void testRequestForNullHandlerManaged(final AccumuloStore store) {
+    void testRequestForNullHandlerManaged(final AccumuloStore store) {
         final OperationHandler<?> returnedHandler = store.getOperationHandler(null);
         assertThat(returnedHandler).isNull();
     }
 
     @Test
-    public void shouldHaveSupportedStoreTraits() {
+    void shouldHaveSupportedStoreTraits() {
         final Collection<StoreTrait> traits = AccumuloStore.TRAITS;
         assertThat(traits).isNotNull();
         assertThat(traits).withFailMessage("Collection size should be 10").hasSize(10);
@@ -367,7 +370,7 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldFindInconsistentVertexSerialiser() throws StoreException {
+    void shouldFindInconsistentVertexSerialiser() throws StoreException {
         final Schema inconsistentSchema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("string")
@@ -406,7 +409,7 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldValidateTimestampPropertyHasMaxAggregator() throws Exception {
+    void shouldValidateTimestampPropertyHasMaxAggregator() throws Exception {
         // Given
         final AccumuloStore store = new MiniAccumuloStore();
         final Schema schema = new Schema.Builder()
@@ -442,7 +445,7 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldPassSchemaValidationWhenTimestampPropertyDoesNotHaveAnAggregator() throws Exception {
+    void shouldPassSchemaValidationWhenTimestampPropertyDoesNotHaveAnAggregator() throws Exception {
         // Given
         final AccumuloStore store = new MiniAccumuloStore();
         final Schema schema = new Schema.Builder()
@@ -478,7 +481,7 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldFailSchemaValidationWhenTimestampPropertyDoesNotHaveMaxAggregator() throws StoreException {
+    void shouldFailSchemaValidationWhenTimestampPropertyDoesNotHaveMaxAggregator() throws StoreException {
         // Given
         final AccumuloStore store = new MiniAccumuloStore();
         final Schema schema = new Schema.Builder()
@@ -520,11 +523,31 @@ public class AccumuloStoreTest {
      }
 
      @Test
-     void shouldDoNothingWhenCannotConvert() throws Exception {
-        final AccumuloStore store = new MiniAccumuloStore();
-        store.initialise("graphId", SCHEMA, PROPERTIES);
+     void shouldDeleteElements() throws Exception {
+        try (MockedStatic<TableUtils> utils = Mockito.mockStatic(TableUtils.class)) {
+            BatchWriter writer = Mockito.mock(BatchWriter.class);
+            utils.when(() -> TableUtils.createBatchWriter(any())).thenReturn(writer);
 
-        assertThatNoException().isThrownBy(() -> store.deleteElements(Arrays.asList(new Entity("blah", 1))));
+            final AccumuloStore store = new MiniAccumuloStore();
+            store.initialise("graphId", SCHEMA, PROPERTIES);
+
+            store.deleteElements(Arrays.asList(new Entity("BasicEntity", "1")));
+            verify(writer, times(1)).addMutation(any());
+        }
+     }
+
+     @Test
+     void shouldDoNothingWhenCannotConvert() throws Exception {
+        try (MockedStatic<TableUtils> utils = Mockito.mockStatic(TableUtils.class)) {
+            BatchWriter writer = Mockito.mock(BatchWriter.class);
+            utils.when(() -> TableUtils.createBatchWriter(any())).thenReturn(writer);
+
+            final AccumuloStore store = new MiniAccumuloStore();
+            store.initialise("graphId", SCHEMA, PROPERTIES);
+
+            store.deleteElements(Arrays.asList(new Entity("blah", 1)));
+            verify(writer, never()).addMutation(any());
+        }
      }
 
      @Test
