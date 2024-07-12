@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -62,7 +61,10 @@ import java.util.Set;
 public class FederatedStoreGetElementsWithinSetTest {
     private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreGetElementsWithinSetTest.class, "properties/singleUseAccumuloStore.properties"));
     private static final User USER = new User();
-    public static final String GRAPH_IDS = String.format("%s,%s", GRAPH_ID_A, GRAPH_ID_B);
+    private static final Set<EntityId> SEEDS = new LinkedHashSet<>();
+    private static final String GRAPH_IDS = String.format("%s,%s", GRAPH_ID_A, GRAPH_ID_B);
+    private static final View EDGE_VIEW = new View.Builder().edge(GROUP_BASIC_EDGE).build();
+    private static final View ENTITY_VIEW = new View.Builder().entity(GROUP_BASIC_ENTITY).build();
 
     private Graph federatedGraph;
 
@@ -75,9 +77,9 @@ public class FederatedStoreGetElementsWithinSetTest {
     public void setUp() throws Exception {
         resetForFederatedTests();
         FederatedStoreProperties federatedStoreProperties = getFederatedStorePropertiesWithHashMapCache();
-        // Set batch scanner entries to 50 - so some edges will have its src in the final batch but its
-        // dest in the first - should all still be retrieved
-        ACCUMULO_PROPERTIES.setMaxEntriesForBatchScanner("50");
+        for (int i = 0; i < 300; i++) {
+            SEEDS.add(new EntitySeed("A" + i));
+        }
 
         federatedGraph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -98,7 +100,7 @@ public class FederatedStoreGetElementsWithinSetTest {
                 .schema(getSchema())
                 .build(), USER);
 
-        for (int i = 300; i >= 0 ; i--) {
+        for (int i = 300; i >= 0; i--) {
             addEntities("A" + i, GRAPH_ID_A);
             addEntities("A" + i, GRAPH_ID_B);
         }
@@ -113,20 +115,12 @@ public class FederatedStoreGetElementsWithinSetTest {
     }
 
     @Test
-    public void shouldGetElementsWithinSetAcrossSubGraphsWithFederatedOperation() throws Exception {
-        // Given
-        final Set<EntityId> seeds = new LinkedHashSet<>();
-        for (int i = 0; i < 300; i++) {
-            seeds.add(new EntitySeed("A" + i));
-        }
-
-        // When
+    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesFromSubGraphsWithFederatedOperation() throws Exception {
+        // Given/When
         final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedGraph.execute(new FederatedOperation.Builder()
                 .op(new GetElementsWithinSet.Builder()
-                            .view(new View.Builder()
-                                .edge(GROUP_BASIC_EDGE)
-                                .build())
-                            .input(seeds)
+                            .view(EDGE_VIEW)
+                            .input(SEEDS)
                         .build())
                 .graphIdsCSV(GRAPH_IDS)
                 .build(), USER);
@@ -137,21 +131,86 @@ public class FederatedStoreGetElementsWithinSetTest {
             .containsAll(getExpectedEdges());
     }
 
+    @Test
+    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesAcrossSubgraphs() throws Exception {
+        // Given
+        // When
+        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
+                .view(EDGE_VIEW)
+                .input(SEEDS)
+                .build();
+        final Iterable<? extends Element> results = federatedGraph.execute(op, USER);
+
+        // Then
+        assertThat(results)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .containsAll(getExpectedEdges());
+    }
 
     @Test
-    public void shouldGetElementsWithinSetAcrossSubGraphs() throws Exception {
+    public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesFromSubGraphsWithFederatedOperation() throws Exception {
+        // Given/When
+        final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedGraph.execute(new FederatedOperation.Builder()
+                .op(new GetElementsWithinSet.Builder()
+                            .view(ENTITY_VIEW)
+                            .input(SEEDS)
+                        .build())
+                .graphIdsCSV(GRAPH_IDS)
+                .build(), USER);
+
+        // Then
+        assertThat(results).hasSize(600);
+        assertThat(results).extracting(r -> r.getGroup()).contains(GROUP_BASIC_ENTITY);
+    }
+
+    @Test
+    public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesAcrossSubgraphs() throws Exception {
         // Given
-        final Set<EntityId> seeds = new LinkedHashSet<>();
-        for (int i = 0; i < 300; i++) {
-            seeds.add(new EntitySeed("A" + i));
-        }
+        // When
+        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
+                .view(ENTITY_VIEW)
+                .input(SEEDS)
+                .build();
+        final Iterable<? extends Element> results = federatedGraph.execute(op, USER);
+
+        // Then
+        assertThat(results).hasSize(600);
+        assertThat(results).extracting(r -> r.getGroup()).contains(GROUP_BASIC_ENTITY);
+    }
+
+    @Test
+    public void shouldGetAllEdgesAcrossSubGraphsWithFederatedOperationWithSmallerBatchSize() throws Exception {
+        // Given
+        // Set batch scanner entries to 50 - so some edges will have its src in the final batch but its
+        // dest in the first - should all still be retrieved
+        ACCUMULO_PROPERTIES.setMaxEntriesForBatchScanner("50");
+
+        // When
+        final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedGraph.execute(new FederatedOperation.Builder()
+                .op(new GetElementsWithinSet.Builder()
+                            .view(EDGE_VIEW)
+                            .input(SEEDS)
+                        .build())
+                .graphIdsCSV(GRAPH_IDS)
+                .build(), USER);
+
+        // Then
+        assertThat(results)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .containsAll(getExpectedEdges());
+    }
+
+    @Test
+    public void shouldGetAllEdgesAcrossSubGraphsWithSmallerBatchSize() throws Exception {
+        // Given
+        // Set batch scanner entries to 50 - so some edges will have its src in the final batch but its
+        // dest in the first - should all still be retrieved
+        ACCUMULO_PROPERTIES.setMaxEntriesForBatchScanner("50");
 
         // When
         final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
-                .view(new View.Builder()
-                    .edge(TestGroups.EDGE)
-                .build())
-                .input(seeds)
+                .view(EDGE_VIEW)
+                .input(SEEDS)
                 .build();
         final Iterable<? extends Element> results = federatedGraph.execute(op, USER);
 
@@ -190,37 +249,37 @@ public class FederatedStoreGetElementsWithinSetTest {
     private Set<Element> getExpectedEdges() {
         final Set<Element> expectedEdges = new HashSet<>();
         expectedEdges.add(new Edge.Builder()
-            .group(TestGroups.EDGE)
+            .group(GROUP_BASIC_EDGE)
             .source("A244")
             .dest("A87")
             .directed(true)
             .build());
         expectedEdges.add(new Edge.Builder()
-            .group(TestGroups.EDGE)
+            .group(GROUP_BASIC_EDGE)
             .source("A168")
             .dest("A110")
             .directed(true)
             .build());
         expectedEdges.add(new Edge.Builder()
-            .group(TestGroups.EDGE)
+            .group(GROUP_BASIC_EDGE)
             .source("A56")
             .dest("A299")
             .directed(true)
             .build());
         expectedEdges.add(new Edge.Builder()
-            .group(TestGroups.EDGE)
+            .group(GROUP_BASIC_EDGE)
             .source("A297")
             .dest("A193")
             .directed(true)
             .build());
         expectedEdges.add(new Edge.Builder()
-            .group(TestGroups.EDGE)
+            .group(GROUP_BASIC_EDGE)
             .source("A15")
             .dest("A285")
             .directed(true)
             .build());
         expectedEdges.add(new Edge.Builder()
-            .group(TestGroups.EDGE)
+            .group(GROUP_BASIC_EDGE)
             .source("A1")
             .dest("A52")
             .directed(true)
