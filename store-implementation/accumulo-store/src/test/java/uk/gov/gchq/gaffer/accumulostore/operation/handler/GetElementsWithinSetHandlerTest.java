@@ -389,7 +389,7 @@ public class GetElementsWithinSetHandlerTest {
         // dest in the first
         GAFFER_1_KEY_STORE.getProperties().setMaxEntriesForBatchScanner("20");
         final Set<EntityId> seedSet = new HashSet<>();
-        for (int i = 1; i < 100 ; i++) {
+        for (int i = 1; i < 100; i++) {
             seedSet.add(new EntitySeed("A" + i));
         }
 
@@ -427,7 +427,7 @@ public class GetElementsWithinSetHandlerTest {
         // dest in the first
         BYTE_ENTITY_STORE.getProperties().setMaxEntriesForBatchScanner("20");
         final Set<EntityId> seedSet = new HashSet<>();
-        for (int i = 1; i < 100 ; i++) {
+        for (int i = 1; i < 100; i++) {
             seedSet.add(new EntitySeed("A" + i));
         }
 
