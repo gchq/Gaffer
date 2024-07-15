@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.integration.delete;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
 public class GetElementsWithinSetDeletedElementsIT extends AbstractDeletedElementsIT<GetElementsWithinSet, Iterable<? extends Element>> {
 
@@ -25,6 +26,7 @@ public class GetElementsWithinSetDeletedElementsIT extends AbstractDeletedElemen
     protected GetElementsWithinSet createGetOperation() {
         return new GetElementsWithinSet.Builder()
                 .input((Object[]) VERTICES)
+                .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .build();
     }
 }
