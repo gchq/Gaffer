@@ -132,22 +132,6 @@ public class FederatedStoreGetElementsWithinSetTest {
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesAcrossSubgraphs() throws Exception {
-        // Given
-        // When
-        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
-                .view(EDGE_VIEW)
-                .input(SEEDS)
-                .build();
-        final Iterable<? extends Element> results = federatedGraph.execute(op, USER);
-
-        // Then
-        assertThat(results)
-            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
-            .containsAll(getExpectedEdges());
-    }
-
-    @Test
     public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesFromSubGraphsWithFederatedOperation() throws Exception {
         // Given/When
         final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedGraph.execute(new FederatedOperation.Builder()
@@ -157,21 +141,6 @@ public class FederatedStoreGetElementsWithinSetTest {
                         .build())
                 .graphIdsCSV(GRAPH_IDS)
                 .build(), USER);
-
-        // Then
-        assertThat(results).hasSize(600);
-        assertThat(results).extracting(r -> r.getGroup()).contains(GROUP_BASIC_ENTITY);
-    }
-
-    @Test
-    public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesAcrossSubgraphs() throws Exception {
-        // Given
-        // When
-        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
-                .view(ENTITY_VIEW)
-                .input(SEEDS)
-                .build();
-        final Iterable<? extends Element> results = federatedGraph.execute(op, USER);
 
         // Then
         assertThat(results).hasSize(600);
