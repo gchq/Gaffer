@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,12 @@
 
 package uk.gov.gchq.gaffer.accumulostore.integration.delete;
 
-import org.apache.accumulo.core.client.BatchWriter;
-import org.apache.accumulo.core.client.BatchWriterConfig;
-import org.apache.accumulo.core.client.MutationsRejectedException;
-import org.apache.accumulo.core.client.Scanner;
-import org.apache.accumulo.core.client.TableNotFoundException;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Mutation;
-import org.apache.accumulo.core.data.Range;
-import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.security.Authorizations;
-import org.apache.hadoop.io.Text;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -42,21 +29,20 @@ import uk.gov.gchq.gaffer.data.element.Entity.Builder;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map.Entry;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
     protected static final String[] VERTICES = {"1", "2", "3"};
@@ -128,52 +114,16 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
         assertElements((Iterable) elements, resultBefore);
 
         // When
-        deleteElement(entityToDelete, accStore);
-        deleteElement(edgeToDelete, accStore);
+        final OperationChain<Void> chain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed("1"))
+                        .build())
+                .then(new DeleteElements())
+                .build();
+        graph.execute(chain, new User());
 
         // Then
         final O resultAfter = graph.execute(createGetOperation(), new User());
         assertElements(Arrays.asList(entityToKeep, edgeToKeep), resultAfter);
-    }
-
-    private void deleteElement(final Element element, AccumuloStore accStore) throws Exception {
-        final AccumuloElementConverter converter = accStore.getKeyPackage().getKeyConverter();
-        final Pair<Key, Key> keys = converter.getKeysFromElement(element);
-        for (final Key key : Arrays.asList(keys.getFirst(), keys.getSecond())) {
-            if (null != key) {
-                final SimpleEntry<Key, Value> expectedElement = new SimpleEntry<>(
-                        key,
-                        converter.getValueFromElement(element)
-                );
-
-                // Check the element exists.
-                Scanner scanner = getRow(accStore, expectedElement.getKey().getRow());
-                assertThat(scanner).hasSize(1);
-
-                delete(accStore, scanner);
-
-                // Check the element has been deleted.
-                assertThat(scanner).isEmpty();
-            }
-        }
-    }
-
-    private void delete(final AccumuloStore accStore, final Scanner scanner) throws TableNotFoundException, StoreException, MutationsRejectedException {
-        Mutation deleter = null;
-        for (final Entry<Key, Value> entry : scanner) {
-            if (deleter == null) {
-                deleter = new Mutation(entry.getKey().getRow());
-            }
-            deleter.putDelete(entry.getKey().getColumnFamily(), entry.getKey().getColumnQualifier(), entry.getKey().getTimestamp());
-        }
-        final BatchWriter batchWriter = accStore.getConnection().createBatchWriter(accStore.getTableName(), new BatchWriterConfig());
-        batchWriter.addMutation(deleter);
-        batchWriter.flush();
-    }
-
-    private Scanner getRow(AccumuloStore accStore, Text row) throws Exception {
-        final Scanner scanner = accStore.getConnection().createScanner(accStore.getTableName(), Authorizations.EMPTY);
-        scanner.setRange(new Range(row));
-        return scanner;
     }
 }
