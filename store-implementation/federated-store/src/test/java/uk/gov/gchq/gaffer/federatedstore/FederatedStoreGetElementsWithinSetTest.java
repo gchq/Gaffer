@@ -58,7 +58,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class FederatedStoreGetElementsWithinSetTest {
+class FederatedStoreGetElementsWithinSetTest {
     private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreGetElementsWithinSetTest.class, "properties/singleUseAccumuloStore.properties"));
     private static final User USER = new User();
     private static final Set<EntityId> SEEDS = new LinkedHashSet<>();
@@ -69,12 +69,12 @@ public class FederatedStoreGetElementsWithinSetTest {
     private Graph federatedGraph;
 
     @AfterAll
-    public static void tearDownCache() {
+    static void tearDownCache() {
         resetForFederatedTests();
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         resetForFederatedTests();
         FederatedStoreProperties federatedStoreProperties = getFederatedStorePropertiesWithHashMapCache();
         for (int i = 0; i < 300; i++) {
@@ -115,7 +115,7 @@ public class FederatedStoreGetElementsWithinSetTest {
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesFromSubGraphsWithFederatedOperation() throws Exception {
+    void shouldReturnOnlyEdgesWhenViewContainsNoEntities() throws Exception {
         // Given/When
         final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedGraph.execute(new FederatedOperation.Builder()
                 .op(new GetElementsWithinSet.Builder()
@@ -132,7 +132,7 @@ public class FederatedStoreGetElementsWithinSetTest {
     }
 
     @Test
-    public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesFromSubGraphsWithFederatedOperation() throws Exception {
+    void shouldReturnOnlyEntitiesWhenViewContainsNoEdges() throws Exception {
         // Given/When
         final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedGraph.execute(new FederatedOperation.Builder()
                 .op(new GetElementsWithinSet.Builder()
@@ -148,7 +148,7 @@ public class FederatedStoreGetElementsWithinSetTest {
     }
 
     @Test
-    public void shouldGetAllEdgesAcrossSubGraphsWithFederatedOperationWithSmallerBatchSize() throws Exception {
+    void shouldGetAllEdgesWithSmallerBatchSizeInAFederatedOperation() throws Exception {
         // Given
         // Set batch scanner entries to 50 - so some edges will have its src in the final batch but its
         // dest in the first - should all still be retrieved
@@ -170,7 +170,7 @@ public class FederatedStoreGetElementsWithinSetTest {
     }
 
     @Test
-    public void shouldGetAllEdgesAcrossSubGraphsWithSmallerBatchSize() throws Exception {
+    void shouldGetAllEdgesWithSmallerBatchSizeStandardOperation() throws Exception {
         // Given
         // Set batch scanner entries to 50 - so some edges will have its src in the final batch but its
         // dest in the first - should all still be retrieved

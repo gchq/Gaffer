@@ -31,7 +31,7 @@ import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet> {
+class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet> {
 
     @Test
     void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
