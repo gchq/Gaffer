@@ -23,7 +23,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @OpenAPIDefinition(servers = {
-    @Server(url = "/rest", description = "Default Server URL") })
+    @Server(url = "/", description = "Default Server URL") })
 @SpringBootApplication
 public class GafferWebApplication extends SpringBootServletInitializer {
 

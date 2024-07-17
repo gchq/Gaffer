@@ -216,6 +216,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public static final String NOT_READ_ONLY_ELEMENTS = "gaffer.elements.notreadonly";
 
     /**
+     * Key for use in the store properties to allow setting the file location of
+     * the GafferPop properties file from a store properties file.
+     */
+    public static final String GAFFERPOP_PROPERTIES = "gaffer.gafferpop.properties";
+
+    /**
      * The vertex label for vertex IDs. These are {@link GafferPopVertex}s that
      * don't have any properties, just an ID value and a label of 'id'.
      */
@@ -707,15 +713,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 }
             }
         }
-        // Use the requested user based on variables
-        User user = new User.Builder()
-            .userId(variables.getUserId())
-            .dataAuths(variables.getDataAuths())
-            .build();
+
+        // Add the current chain to the list of chains ran so far for this query (it is reset by the graph step)
+        List<Operation> currentChain = variables.getLastOperationChain().getOperations();
+        currentChain.add(opChain);
+        variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain<>(currentChain));
 
         try {
             LOGGER.info("GafferPop operation chain called: {}", opChain.toOverviewString());
-            return graph.execute(opChain, user);
+            return graph.execute(opChain, variables.getUser());
         } catch (final Exception e) {
             LOGGER.error("Operation chain failed: {}", e.getMessage());
             throw new RuntimeException("GafferPop operation failed: " + e.getMessage(), e);
@@ -989,13 +995,14 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param variables The variables
      */
     public void setDefaultVariables(final GafferPopGraphVariables variables) {
+        LOGGER.info("Resetting graph variables to defaults");
         variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
-        variables.set(GafferPopGraphVariables.USER_ID, defaultUser.getUserId());
-        variables.set(GafferPopGraphVariables.DATA_AUTHS, configuration().getStringArray(DATA_AUTHS));
+        variables.set(GafferPopGraphVariables.USER, defaultUser);
         variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT,
             configuration().getInteger(GET_ALL_ELEMENTS_LIMIT, DEFAULT_GET_ALL_ELEMENTS_LIMIT));
         variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
             configuration().getString(HAS_STEP_FILTER_STAGE, DEFAULT_HAS_STEP_FILTER_STAGE.toString()));
+        variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain());
     }
 
     /**

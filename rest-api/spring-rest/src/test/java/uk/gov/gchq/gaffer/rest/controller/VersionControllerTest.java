@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Crown Copyright
+ * Copyright 2023-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ class VersionControllerTest {
 
         // Perform mock request to the endpoint
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-            .get("/graph/version")
+            .get("/rest/graph/version")
             .accept(TEXT_PLAIN_VALUE);
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 

@@ -31,16 +31,18 @@ import org.opencypher.gremlin.translation.translator.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopGraphStep;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * The {@link GraphStep} strategy for GafferPop, this will replace the default
  * {@link GraphStep} of a query to add Gaffer optimisations. Such as gathering
  * any {@link HasStep}s so that a Gaffer View can be constructed for the query.
- * Will also handle the translation any Cypher queries passed in a with() step
- * into a Gremlin traversal.
+ * Will also handle the translation of Cypher queries passed via a with()
+ * step in the Gremlin traversal.
  *
  * <pre>
  * g.V().hasLabel()    // replaced by GafferPopGraphStep
@@ -52,27 +54,25 @@ public final class GafferPopGraphStepStrategy extends AbstractTraversalStrategy<
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraphStepStrategy.class);
     private static final GafferPopGraphStepStrategy INSTANCE = new GafferPopGraphStepStrategy();
 
-    /**
-     * Key used in a with step to include a opencypher query traversal
-     */
-    public static final String CYPHER_KEY = "cypher";
-
     private GafferPopGraphStepStrategy() {
     }
 
     @Override
     public void apply(final Admin<?, ?> traversal) {
-        // Check for any options on the traversal
+        // Parse any options on the traversal
         Optional<OptionsStrategy> optionsStrategy = traversal.getStrategies().getStrategy(OptionsStrategy.class);
-        // Translate and add a cypher traversal in if that key has been set
-        if (optionsStrategy.isPresent() && optionsStrategy.get().getOptions().containsKey(CYPHER_KEY)) {
-            LOGGER.info("Replacing traversal with translated Cypher query");
-            CypherAst ast = CypherAst.parse((String) optionsStrategy.get().getOptions().get(CYPHER_KEY));
-            Admin<?, ?> translatedCypher = ast.buildTranslation(Translator.builder().traversal().enableCypherExtensions().build()).asAdmin();
+        if (optionsStrategy.isPresent()) {
+            Map<String, Object> options = optionsStrategy.get().getOptions();
+            // Translate and add a cypher traversal in if that key has been set
+            if (options.containsKey(GafferPopGraphVariables.CYPHER_KEY)) {
+                LOGGER.info("Replacing traversal with translated Cypher query");
+                CypherAst ast = CypherAst.parse((String) options.get(GafferPopGraphVariables.CYPHER_KEY));
+                Admin<?, ?> translatedCypher = ast.buildTranslation(Translator.builder().traversal().enableCypherExtensions().build()).asAdmin();
 
-            // Add the cypher traversal
-            TraversalHelper.insertTraversal(0, translatedCypher, traversal);
-            LOGGER.debug("New traversal is: {}", traversal);
+                // Add the cypher traversal
+                TraversalHelper.insertTraversal(0, translatedCypher, traversal);
+                LOGGER.debug("New traversal is: {}", traversal);
+            }
         }
 
         TraversalHelper.getStepsOfClass(GraphStep.class, traversal).forEach(originalGraphStep -> {

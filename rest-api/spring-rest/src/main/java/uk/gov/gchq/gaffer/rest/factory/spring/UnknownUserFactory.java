@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Crown Copyright
+ * Copyright 2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.factory;
+package uk.gov.gchq.gaffer.rest.factory.spring;
 
-import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.user.User.UNKNOWN_USER_ID;
 
-public class MockUserFactory extends AbstractUserFactory {
-
-    final User user = mock(User.class);
+/**
+ * Default implementation of the {@link AbstractUserFactory}.
+ * Always returns an empty {@link User} object (representing an unknown user).
+ */
+public class UnknownUserFactory extends AbstractUserFactory {
 
     @Override
     public User createUser() {
-        return user;
-    }
-
-    @Override
-    public Context createContext() {
-        return new Context(user);
+        return new User.Builder()
+                .userId(UNKNOWN_USER_ID)
+                .opAuth("user")
+                .build();
     }
 }
