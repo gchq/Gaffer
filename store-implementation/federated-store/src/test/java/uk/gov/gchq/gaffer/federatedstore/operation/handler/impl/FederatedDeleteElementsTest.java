@@ -46,9 +46,9 @@ import uk.gov.gchq.gaffer.user.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.commonutil.TestPropertyNames.STRING;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_A;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_B;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_EDGE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_ENTITY;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.MAP_STORE_SINGLE_USE_PROPERTIES;
@@ -62,11 +62,14 @@ import static uk.gov.gchq.gaffer.store.TestTypes.STRING_TYPE;
 
 public class FederatedDeleteElementsTest {
     private static final StoreProperties PROPERTIES_MAP_STORE = loadStoreProperties(MAP_STORE_SINGLE_USE_PROPERTIES);
+    private static final StoreProperties PROPERTIES_ACCUMULO_STORE = loadStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
     private static final GetAllElements GET_ALL_ELEMENTS = new GetAllElements.Builder().build();
+    private static final String GRAPH_ID_C = "graphC";
+    private static final String GRAPH_ID_D = "graphD";
     private static final User USER = new User();
     private static Graph federatedGraph;
     private static Graph federatedGraphMapStore;
-
+    private static Graph federatedGraphAccumuloStore;
 
     @AfterAll
     public static void tearDownCache() {
@@ -76,7 +79,8 @@ public class FederatedDeleteElementsTest {
     @BeforeEach
     public void setUp() throws Exception {
         resetForFederatedTests();
-        federatedGraphMapStore = getFederatedGraph(PROPERTIES_MAP_STORE);
+        federatedGraphMapStore = getFederatedGraph("fedGraphMap", PROPERTIES_MAP_STORE, GRAPH_ID_A, GRAPH_ID_B);
+        federatedGraphAccumuloStore = getFederatedGraph("fedGraphAcc", PROPERTIES_ACCUMULO_STORE, GRAPH_ID_C, GRAPH_ID_D);
     }
 
     @Test
@@ -89,11 +93,12 @@ public class FederatedDeleteElementsTest {
                         .build())
                 .then(new DeleteElements())
                 .build();
-        federatedGraphMapStore.execute(getFederatedOperation(chain).graphIdsCSV("graphA"), USER);
+        federatedGraphMapStore.execute(getFederatedOperation(chain).graphIdsCSV(GRAPH_ID_A), USER);
 
         // Then
         // Vertex 1 deleted - edge 1->2 remains
         final Iterable<? extends Element> results = federatedGraphMapStore.execute(GET_ALL_ELEMENTS, USER);
+
         assertThat(results)
             .hasSize(8)
             .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
@@ -110,11 +115,12 @@ public class FederatedDeleteElementsTest {
                         .build())
                 .then(new DeleteElements())
                 .build();
-        federatedGraphMapStore.execute(getFederatedOperation(chain).graphIdsCSV("graphA"), USER);
+        federatedGraphMapStore.execute(getFederatedOperation(chain).graphIdsCSV(GRAPH_ID_A), USER);
 
         // Then
         // Edge 1->2 deleted
         final Iterable<? extends Element> results = federatedGraphMapStore.execute(GET_ALL_ELEMENTS, USER);
+
         assertThat(results)
             .hasSize(8)
             .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
@@ -130,14 +136,15 @@ public class FederatedDeleteElementsTest {
                         .build())
                 .then(new DeleteElements())
                 .build();
-        federatedGraphMapStore.execute(getFederatedOperation(chain).graphIdsCSV("graphA"), USER);
+        federatedGraphMapStore.execute(getFederatedOperation(chain).graphIdsCSV(GRAPH_ID_A), USER);
 
         // Then
         // Vertex 2 deleted from graph A - removing 1->2 as well
         final Iterable<? extends Element> results = federatedGraphMapStore.execute(
-            getFederatedOperation(GET_ALL_ELEMENTS).graphIdsCSV("graphA"), USER);
+            getFederatedOperation(GET_ALL_ELEMENTS), USER);
+
         assertThat(results)
-            .hasSize(2)
+            .hasSize(6)
             .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
             .doesNotContain(getEntity("2"), getEdge("1", "2"));
     }
@@ -157,6 +164,7 @@ public class FederatedDeleteElementsTest {
         // Then
         // Vertex 1 deleted, edge 1->2 remains
         final Iterable<? extends Element> results = federatedGraphMapStore.execute(GET_ALL_ELEMENTS, USER);
+
         assertThat(results)
             .hasSize(8)
             .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
@@ -178,6 +186,7 @@ public class FederatedDeleteElementsTest {
         // Then
         // Edge 1->2 deleted - Both vertices should remain
         final Iterable<? extends Element> results = federatedGraphMapStore.execute(GET_ALL_ELEMENTS, USER);
+
         assertThat(results)
             .hasSize(8)
             .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
@@ -198,42 +207,174 @@ public class FederatedDeleteElementsTest {
         // Then
         // Vertex 3 deleted from both graphs - will remove 2->3 and 3->4
         final Iterable<? extends Element> results = federatedGraphMapStore.execute(GET_ALL_ELEMENTS, USER);
+
         assertThat(results)
             .hasSize(6)
             .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
             .doesNotContain(getEdge("2", "3"), getEdge("3", "4"), getEntity("3"));
     }
 
-    static Graph getFederatedGraph(StoreProperties storeProperties) throws OperationException {
+    @Test
+    void shouldDeleteEntityFromSingleGraphWithAccumuloStore() throws Exception {
+        // When
+        final OperationChain<Void> chain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed("1"))
+                        .view(new View.Builder().entity(GROUP_BASIC_ENTITY).build())
+                        .build())
+                .then(new DeleteElements())
+                .build();
+        federatedGraphAccumuloStore.execute(getFederatedOperation(chain).graphIdsCSV(GRAPH_ID_C), USER);
+
+        // Then
+        // Vertex 1 deleted - edge 1->2 remains
+        final Iterable<? extends Element> results = federatedGraphAccumuloStore.execute(GET_ALL_ELEMENTS, USER);
+
+        assertThat(results)
+            .hasSize(8)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("1"));
+    }
+
+    @Test
+    void shouldDeleteEdgeFromSingleGraphWithAccumuloStore() throws Exception {
+        // When
+        final OperationChain<Void> chain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EdgeSeed("1", "2"))
+                        .view(new View.Builder().edge(GROUP_BASIC_EDGE).build())
+                        .build())
+                .then(new DeleteElements())
+                .build();
+        federatedGraphAccumuloStore.execute(getFederatedOperation(chain).graphIdsCSV(GRAPH_ID_C), USER);
+
+        // Then
+        // Edge 1->2 deleted
+        final Iterable<? extends Element> results = federatedGraphAccumuloStore.execute(GET_ALL_ELEMENTS, USER);
+
+        assertThat(results)
+            .hasSize(8)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEdge("1", "2"));
+    }
+
+    @Test
+    void shouldDeleteEntityAndEdgesFromSingleGraphhWithAccumuloStore() throws Exception {
+        // Given/When
+        final OperationChain<Void> chain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed("2"))
+                        .build())
+                .then(new DeleteElements())
+                .build();
+        federatedGraphAccumuloStore.execute(getFederatedOperation(chain).graphIdsCSV(GRAPH_ID_C), USER);
+
+        // Then
+        // Vertex 2 deleted from graph A - removing 1->2 as well
+        final Iterable<? extends Element> results = federatedGraphAccumuloStore.execute(
+            getFederatedOperation(GET_ALL_ELEMENTS), USER);
+
+        assertThat(results)
+            .hasSize(6)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("2"), getEdge("1", "2"));
+    }
+
+    @Test
+    void shouldDeleteEntityFromBothGraphsWithAccumuloStore() throws Exception {
+        // When
+        final OperationChain<Void> chain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed("1"))
+                        .view(new View.Builder().entity(GROUP_BASIC_ENTITY).build())
+                        .build())
+                .then(new DeleteElements())
+                .build();
+        federatedGraphAccumuloStore.execute(getFederatedOperation(chain), USER);
+
+        // Then
+        // Vertex 1 deleted, edge 1->2 remains
+        final Iterable<? extends Element> results = federatedGraphAccumuloStore.execute(GET_ALL_ELEMENTS, USER);
+
+        assertThat(results)
+            .hasSize(8)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEntity("1"));
+    }
+
+    @Test
+    void shouldDeleteEdgeFromBothGraphsWithAccumuloStore() throws Exception {
+        // When
+        final OperationChain<Void> chain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EdgeSeed("1", "2"))
+                        .view(new View.Builder().edge(GROUP_BASIC_EDGE).build())
+                        .build())
+                .then(new DeleteElements())
+                .build();
+        federatedGraphAccumuloStore.execute(getFederatedOperation(chain), USER);
+
+        // Then
+        // Edge 1->2 deleted - Both vertices should remain
+        final Iterable<? extends Element> results = federatedGraphAccumuloStore.execute(GET_ALL_ELEMENTS, USER);
+
+        assertThat(results)
+            .hasSize(8)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEdge("1", "2"));
+    }
+
+    @Test
+    void shouldDeleteEntityAndEdgesFromBothGraphshWithAccumuloStore() throws Exception {
+        // Given/When
+        final OperationChain<Void> chain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed("3"))
+                        .build())
+                .then(new DeleteElements())
+                .build();
+        federatedGraphAccumuloStore.execute(getFederatedOperation(chain), USER);
+
+        // Then
+        // Vertex 3 deleted from both graphs - will remove 2->3 and 3->4
+        final Iterable<? extends Element> results = federatedGraphAccumuloStore.execute(GET_ALL_ELEMENTS, USER);
+
+        assertThat(results)
+            .hasSize(6)
+            .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+            .doesNotContain(getEdge("2", "3"), getEdge("3", "4"), getEntity("3"));
+    }
+
+    static Graph getFederatedGraph(String fedGraphId, StoreProperties properties, String graphId1, String graphId2) throws OperationException {
         FederatedStoreProperties federatedStoreProperties = getFederatedStorePropertiesWithHashMapCache();
 
         federatedGraph = new Graph.Builder()
             .config(new GraphConfig.Builder()
-                    .graphId(GRAPH_ID_TEST_FEDERATED_STORE)
+                    .graphId(fedGraphId)
                     .build())
             .addStoreProperties(federatedStoreProperties)
             .build();
 
         federatedGraph.execute(new AddGraph.Builder()
-            .graphId(GRAPH_ID_A)
-            .storeProperties(storeProperties)
+            .graphId(graphId1)
+            .storeProperties(properties)
             .schema(getSchema())
             .build(), USER);
 
         federatedGraph.execute(new AddGraph.Builder()
-            .graphId(GRAPH_ID_B)
-            .storeProperties(storeProperties)
+            .graphId(graphId2)
+            .storeProperties(properties)
             .schema(getSchema())
             .build(), USER);
 
         // 1 -> 2 in Graph A
         // 2 -> 3 in Graph A
-        addElements("1", "2", GRAPH_ID_A);
-        addElements("2", "3", GRAPH_ID_A);
+        addElements("1", "2", graphId1);
+        addElements("2", "3", graphId1);
         // 3 -> 4 in Graph B
         // 4 -> 5 in Graph B
-        addElements("3", "4", GRAPH_ID_B);
-        addElements("4", "5", GRAPH_ID_B);
+        addElements("3", "4", graphId2);
+        addElements("4", "5", graphId2);
 
         return federatedGraph;
     }
