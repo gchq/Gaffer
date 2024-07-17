@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -139,6 +140,11 @@ public class StoreIT {
 
         @Override
         protected OperationHandler<? extends AddElements> getAddElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
             return null;
         }
 

@@ -78,6 +78,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
@@ -1168,6 +1169,12 @@ public class StoreTest {
             return addElementsHandler;
         }
 
+
+        @Override
+        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
+        }
+
         @Override
         protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
             return new GetTraitsHandler(traits);
@@ -1256,6 +1263,12 @@ public class StoreTest {
         @Override
         protected OperationHandler<AddElements> getAddElementsHandler() {
             return addElementsHandler;
+        }
+
+
+        @Override
+        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
         }
 
         @Override
@@ -1356,6 +1369,11 @@ public class StoreTest {
         @Override
         protected OperationHandler<AddElements> getAddElementsHandler() {
             return addElementsHandler;
+        }
+
+        @Override
+        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
         }
 
         @Override

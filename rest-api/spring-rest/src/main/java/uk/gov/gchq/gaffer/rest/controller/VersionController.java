@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Crown Copyright
+ * Copyright 2023-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class VersionController {
      *
      * @return Version of the graph
      */
-    @GetMapping(path = "/graph/version", produces = TEXT_PLAIN_VALUE)
+    @GetMapping(path = "/rest/graph/version", produces = TEXT_PLAIN_VALUE)
     @Operation(summary = "Retrieves the version of the Gaffer Graph")
     public String getGafferVersion() {
         // Return the preloaded version string from the common-rest library

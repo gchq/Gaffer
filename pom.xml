@@ -98,6 +98,7 @@
         <zookeeper.version>3.4.14</zookeeper.version>
         <mockserver.version>5.15.0</mockserver.version>
         <opentelemetry.version>1.36.0</opentelemetry.version>
+        <tinkerpop.version>3.7.1</tinkerpop.version>
 
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
