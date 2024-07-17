@@ -1721,5 +1721,70 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>java17</id>
+            <activation>
+                <jdk>17</jdk>
+            </activation>
+            <properties>
+                <java.version>17</java.version>
+                <spark.minor.version>3.0</spark.minor.version>
+                <spark.version>${spark.minor.version}.3</spark.version>
+                <scala.minor.version>2.12</scala.minor.version>
+                <scala.version>${scala.minor.version}.15</scala.version>
+            </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <version>${compiler.plugin.verson}</version>
+                            <configuration>
+                                <release>${java.version}</release>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${javadoc.plugin.version}</version>
+                        <configuration>
+                            <additionalOptions>
+                                <additionalOption>--frames</additionalOption>
+                            </additionalOptions>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>${enforcer.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-compatible-hadoop</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <bannedDependencies>
+                                            <excludes>
+                                                <exclude>org.apache.hadoop:*:(,2.9.9]</exclude>
+                                            </excludes>
+                                            <message>
+                                                Hadoop versions below 3.3.0 are incompatible with
+                                                JDK 17, JDK 8 must be used with the legacy profile
+                                            </message>
+                                        </bannedDependencies>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>

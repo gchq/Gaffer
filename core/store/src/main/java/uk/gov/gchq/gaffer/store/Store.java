@@ -697,15 +697,15 @@ public abstract class Store {
     }
 
     public void optimiseSchema() {
-        Boolean isOrdered;
-        try {
-            isOrdered = execute(new HasTrait.Builder()
-                    .trait(StoreTrait.ORDERED)
-                    .currentTraits(false)
-                    .build(), new Context());
-        } catch (final OperationException e) {
-            throw new GafferRuntimeException("Error performing HasTrait Operation while optimising schema.", e);
-        }
+        Boolean isOrdered = false;
+        // try {
+        //     isOrdered = execute(new HasTrait.Builder()
+        //             .trait(StoreTrait.ORDERED)
+        //             .currentTraits(false)
+        //             .build(), new Context());
+        // } catch (final OperationException e) {
+        //     throw new GafferRuntimeException("Error performing HasTrait Operation while optimising schema.", e);
+        // }
         schema = schemaOptimiser.optimise(schema, isOrdered != null && isOrdered);
     }
 
