@@ -110,7 +110,11 @@ public final class GafferCustomTypeFactory {
      * @param value The value to parse.
      * @return The value in compatible format.
      */
-    public static Object parseForGraphSONv3(Object value) {
+    public static Object parseForGraphSONv3(final Object value) {
+        if (value == null) {
+            return value;
+        }
+
         // If value is collection e.g. list or set then check the values inside it
         if (value instanceof Collection<?>) {
             List<Object> converted = new ArrayList<>();

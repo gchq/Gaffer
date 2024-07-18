@@ -23,8 +23,6 @@ import org.apache.tinkerpop.gremlin.process.traversal.Text;
 import org.apache.tinkerpop.gremlin.process.traversal.Text.RegexPredicate;
 import org.apache.tinkerpop.gremlin.process.traversal.util.AndP;
 import org.apache.tinkerpop.gremlin.process.traversal.util.OrP;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.koryphe.impl.predicate.And;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
@@ -44,8 +42,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class GafferPredicateFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GafferPredicateFactory.class);
-
     private static final String COULD_NOT_TRANSLATE_ERROR = "Could not translate Gremlin predicate: ";
 
     private GafferPredicateFactory() {
