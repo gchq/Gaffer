@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferCustomTypeFactory;
 
-import java.util.Map.Entry;
 
 public class GafferPopVertexGenerator implements OneToOneObjectGenerator<GafferPopVertex> {
     private final GafferPopGraph graph;
@@ -49,12 +49,18 @@ public class GafferPopVertexGenerator implements OneToOneObjectGenerator<GafferP
         }
 
         final Entity entity = ((Entity) element);
-        final GafferPopVertex vertex = new GafferPopVertex(entity.getGroup(), entity.getVertex(), graph);
-        for (final Entry<String, Object> entry : entity.getProperties().entrySet()) {
-            if (null != entry.getValue()) {
-                vertex.propertyWithoutUpdate(Cardinality.list, entry.getKey(), entry.getValue());
+        final GafferPopVertex vertex = new GafferPopVertex(
+            entity.getGroup(),
+            GafferCustomTypeFactory.parseForGraphSONv3(entity.getVertex()),
+            graph);
+
+        // Add the properties
+        entity.getProperties().forEach((k, v) -> {
+            if (v != null) {
+                vertex.propertyWithoutUpdate(Cardinality.list, k, GafferCustomTypeFactory.parseForGraphSONv3(v));
             }
-        }
+        });
+
         if (gafferPopReadOnly) {
             vertex.setReadOnly();
         }

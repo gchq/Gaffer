@@ -322,7 +322,7 @@ class GafferPopGraphTest {
         assertThat(result).toIterable()
                 .hasSize(1)
                 .extracting(r -> r.id())
-                .containsExactly(TSTV_ID);
+                .containsExactly(TSTV_ID_STRING);
     }
 
     @Test

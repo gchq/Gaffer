@@ -57,7 +57,7 @@ import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopHasStepStrategy;
-import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.TypeSubTypeValueFactory;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferCustomTypeFactory;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.iterable.MappedIterable;
@@ -728,6 +728,32 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
     }
 
+    /**
+     * Sets the {@link GafferPopGraphVariables} to default values for this
+     * graph
+     *
+     * @param variables The variables
+     */
+    public void setDefaultVariables(final GafferPopGraphVariables variables) {
+        LOGGER.info("Resetting graph variables to defaults");
+        variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
+        variables.set(GafferPopGraphVariables.USER, defaultUser);
+        variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT,
+                configuration().getInteger(GET_ALL_ELEMENTS_LIMIT, DEFAULT_GET_ALL_ELEMENTS_LIMIT));
+        variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
+                configuration().getString(HAS_STEP_FILTER_STAGE, DEFAULT_HAS_STEP_FILTER_STAGE.toString()));
+        variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain());
+    }
+
+    /**
+     * Get the underlying Gaffer graph this GafferPop graph is connected to.
+     *
+     * @return The Gaffer Graph.
+     */
+    public Graph getGafferGraph() {
+        return graph;
+    }
+
     private Iterator<GafferPopVertex> verticesWithSeedsAndView(final List<ElementSeed> seeds, final View view) {
         final boolean getAll = null == seeds || seeds.isEmpty();
         final LinkedList<GafferPopVertex> idVertices = new LinkedList<>();
@@ -933,9 +959,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 // Check if contains label in edge ID
                 if (edgeIDMatcher.matches()) {
                     seeds.add(new EdgeSeed(edgeIDMatcher.group("src"), edgeIDMatcher.group("dest")));
+                // If not then check if a custom type e.g. TSTV
                 } else {
-                // If not then check if a TSTV ID
-                    seeds.add(new EntitySeed(TypeSubTypeValueFactory.parseAsTstvIfValid(id)));
+                    seeds.add(new EntitySeed(GafferCustomTypeFactory.parseAsCustomTypeIfValid(id)));
                 }
             // Assume entity ID as a fallback
             } else {
@@ -986,23 +1012,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
 
         return inOutType;
-    }
-
-    /**
-     * Sets the {@link GafferPopGraphVariables} to default values for this
-     * graph
-     *
-     * @param variables The variables
-     */
-    public void setDefaultVariables(final GafferPopGraphVariables variables) {
-        LOGGER.info("Resetting graph variables to defaults");
-        variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
-        variables.set(GafferPopGraphVariables.USER, defaultUser);
-        variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT,
-            configuration().getInteger(GET_ALL_ELEMENTS_LIMIT, DEFAULT_GET_ALL_ELEMENTS_LIMIT));
-        variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
-            configuration().getString(HAS_STEP_FILTER_STAGE, DEFAULT_HAS_STEP_FILTER_STAGE.toString()));
-        variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain());
     }
 
     /**

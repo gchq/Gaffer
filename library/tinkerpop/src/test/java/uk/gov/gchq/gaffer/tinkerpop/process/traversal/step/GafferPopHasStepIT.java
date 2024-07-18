@@ -31,10 +31,8 @@ import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.OTHER_TSTV_PROPERTY;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.OTHER_TSTV_PROPERTY_STRING;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY_STRING;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.AGE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
@@ -80,7 +78,7 @@ class GafferPopHasStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(TSTV_PROPERTY_STRING);
     }
 
     @Test
@@ -100,7 +98,7 @@ class GafferPopHasStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(TSTV_PROPERTY_STRING);
     }
 
     @Test
@@ -120,7 +118,7 @@ class GafferPopHasStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY_STRING);
     }
 
     @Test
@@ -141,7 +139,7 @@ class GafferPopHasStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY, TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY_STRING, TSTV_PROPERTY_STRING);
     }
 
     @Test
@@ -179,7 +177,7 @@ class GafferPopHasStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY, TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY_STRING, TSTV_PROPERTY_STRING);
     }
 
     @Test
