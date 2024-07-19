@@ -59,7 +59,7 @@ public final class GafferPredicateFactory {
      * @param p the Gremlin predicate to convert
      * @return the equivalent {@link KoryphePredicate}
      *
-     * @see GafferCustomTypeFactory#parseAsTstvIfValid(Object)
+     * @see GafferCustomTypeFactory#parseAsCustomTypeIfValid(Object)
      */
     public static Predicate<?> convertGremlinPredicate(final P<?> p) {
         if (p == null) {
