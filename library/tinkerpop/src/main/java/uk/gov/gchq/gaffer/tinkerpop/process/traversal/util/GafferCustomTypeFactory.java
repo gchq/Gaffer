@@ -90,12 +90,23 @@ public final class GafferCustomTypeFactory {
             Matcher tstvMatcher = TSTV_REGEX.matcher((String) value);
             if (tstvMatcher.matches()) {
                 // Split into a TSTV via matcher
-                LOGGER.info("Parsing string as a TSTV: {}", value);
+                LOGGER.debug("Parsing string as a TSTV: {}", value);
                 return new TypeSubTypeValue(
                         tstvMatcher.group("type"),
                         tstvMatcher.group("stype"),
                         tstvMatcher.group("val"));
             }
+        }
+
+        // If value is collection e.g. list or set then check the values inside it
+        if (value instanceof Collection<?>) {
+            List<Object> converted = new ArrayList<>();
+            ((Collection<?>) value).forEach(v -> converted.add(parseAsCustomTypeIfValid(v)));
+            // Return a set if needed
+            if (value instanceof Set<?>) {
+                return new HashSet<>(converted);
+            }
+            return converted;
         }
 
         return value;
@@ -118,7 +129,7 @@ public final class GafferCustomTypeFactory {
         // If value is collection e.g. list or set then check the values inside it
         if (value instanceof Collection<?>) {
             List<Object> converted = new ArrayList<>();
-            ((Collection<?>) value).forEach(v -> converted.add(parseForGraphSONv3(value)));
+            ((Collection<?>) value).forEach(v -> converted.add(parseForGraphSONv3(v)));
             // Return a set if needed
             if (value instanceof Set<?>) {
                 return new HashSet<>(converted);
@@ -128,7 +139,7 @@ public final class GafferCustomTypeFactory {
 
         // Check if the value can be used with GraphSON v3
         if (!GRAPHSONV3_TYPES.contains(value.getClass())) {
-            LOGGER.info("Converting value to string {}", value);
+            LOGGER.debug("Converting value to string {}", value);
             return value.toString();
         }
 

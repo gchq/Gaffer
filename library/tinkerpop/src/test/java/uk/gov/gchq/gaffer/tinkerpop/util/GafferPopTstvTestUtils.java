@@ -24,6 +24,10 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopEdge;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 public final class GafferPopTstvTestUtils {
     public static final String TSTV = "tstv";
     public static final String NAME = "name";
@@ -39,6 +43,8 @@ public final class GafferPopTstvTestUtils {
     public static final String COMPLEX_TSTV_ID_STRING = "TypeSubTypeValue[type=de|lt-a,subType=eps|i|l|o=n,value=zet|09!//a]";
     public static final String TSTV_PROPERTY_STRING = "TypeSubTypeValue[type=eta,subType=theta,value=iota]";
     public static final String OTHER_TSTV_PROPERTY_STRING = "TypeSubTypeValue[type=kappa,subType=lambda,value=mu]";
+    public static final Set<TypeSubTypeValue> TSTV_PROPERTY_SET = new HashSet<>(Arrays.asList(TSTV_PROPERTY, OTHER_TSTV_PROPERTY));
+    public static final Set<String> TSTV_PROPERTY_SET_STRING = new HashSet<>(Arrays.asList(TSTV_PROPERTY_STRING, OTHER_TSTV_PROPERTY_STRING));
 
     public static final Configuration TSTV_CONFIGURATION = new BaseConfiguration() {
         {

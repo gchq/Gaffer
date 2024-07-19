@@ -735,14 +735,14 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * @param variables The variables
      */
     public void setDefaultVariables(final GafferPopGraphVariables variables) {
-        LOGGER.info("Resetting graph variables to defaults");
+        LOGGER.debug("Resetting graph variables to defaults");
         variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
         variables.set(GafferPopGraphVariables.USER, defaultUser);
         variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT,
                 configuration().getInteger(GET_ALL_ELEMENTS_LIMIT, DEFAULT_GET_ALL_ELEMENTS_LIMIT));
         variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
                 configuration().getString(HAS_STEP_FILTER_STAGE, DEFAULT_HAS_STEP_FILTER_STAGE.toString()));
-        variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain());
+        variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain<Object>());
     }
 
     /**

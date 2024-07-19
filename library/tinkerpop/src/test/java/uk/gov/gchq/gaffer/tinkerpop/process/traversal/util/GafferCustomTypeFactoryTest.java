@@ -16,15 +16,20 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.util;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
+
+import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.COMPLEX_TSTV_ID;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.COMPLEX_TSTV_ID_STRING;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_ID;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_ID_STRING;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY_SET;
+import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY_SET_STRING;
 
 class GafferCustomTypeFactoryTest {
 
@@ -62,6 +67,23 @@ class GafferCustomTypeFactoryTest {
                 .isInstanceOf(String.class)
                 .extracting(r -> (String) r)
                 .isEqualTo(COMPLEX_TSTV_ID_STRING);
+    }
+
+    @Test
+    void shouldParseSetOfTypeSubTypeValues() {
+        Object stringParsed = GafferCustomTypeFactory.parseAsCustomTypeIfValid(TSTV_PROPERTY_SET_STRING);
+        Object tstvParsed = GafferCustomTypeFactory.parseForGraphSONv3(TSTV_PROPERTY_SET);
+
+        // Then
+        assertThat(stringParsed)
+                .isInstanceOf(Collection.class)
+                .asInstanceOf(InstanceOfAssertFactories.COLLECTION)
+                .containsExactlyInAnyOrderElementsOf(TSTV_PROPERTY_SET);
+
+        assertThat(tstvParsed)
+                .isInstanceOf(Collection.class)
+                .asInstanceOf(InstanceOfAssertFactories.COLLECTION)
+                .containsExactlyInAnyOrderElementsOf(TSTV_PROPERTY_SET_STRING);
     }
 
     @Test
