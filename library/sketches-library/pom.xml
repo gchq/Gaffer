@@ -39,7 +39,6 @@
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
-            <classifier>jdk8</classifier>
         </dependency>
         <dependency>
             <groupId>com.clearspring.analytics</groupId>
@@ -64,7 +63,6 @@
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
-            <classifier>tests-jdk8</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
