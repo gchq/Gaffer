@@ -527,9 +527,7 @@ public class StoreTest {
         assertThat(supportedOperations).isNotNull();
 
         final List<Class<? extends Operation>> expectedOperations =
-                Lists.newArrayList(AddElements.class,
-                        GetElements.class,
-                        GetAdjacentIds.class,
+                Lists.newArrayList(
                         GetAllElements.class,
 
                         mock(AddElements.class).getClass(),
@@ -639,9 +637,7 @@ public class StoreTest {
         assertThat(supportedOperations).isNotNull();
 
         final List<Class<? extends Operation>> expectedOperations =
-                Lists.newArrayList(AddElements.class,
-                        GetElements.class,
-                        GetAdjacentIds.class,
+                Lists.newArrayList(
                         GetAllElements.class,
 
                         mock(AddElements.class).getClass(),

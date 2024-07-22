@@ -50,28 +50,28 @@
         <war.classifier />
         <append.shaded.classifier />
 
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
 
         <!-- Dependency version properties -->
-        <junit.version>5.9.3</junit.version>
-        <junit-suite.version>1.9.3</junit-suite.version>
-        <assertj.version>3.24.2</assertj.version>
-        <mockito.version>4.11.0</mockito.version>
+        <junit.version>5.11.0-M2</junit.version>
+        <junit-suite.version>1.11.0-M2</junit-suite.version>
+        <assertj.version>3.26.3</assertj.version>
+        <mockito.version>5.12.0</mockito.version>
         <slf4j.api.version>1.7.36</slf4j.api.version>
 
-        <scala.minor.version>2.11</scala.minor.version>
-        <scala.version>${scala.minor.version}.12</scala.version>
-        <spark.minor.version>2.4</spark.minor.version>
-        <spark.version>${spark.minor.version}.5</spark.version>
+        <spark.minor.version>3.0</spark.minor.version>
+        <spark.version>${spark.minor.version}.3</spark.version>
+        <scala.minor.version>2.12</scala.minor.version>
+        <scala.version>${scala.minor.version}.15</scala.version>
 
         <koryphe.version>2.5.2</koryphe.version>
         <accumulo.version>2.0.1</accumulo.version>
         <avro.version>1.8.2</avro.version>
         <hadoop.version>3.3.3</hadoop.version>
-        <jackson.version>2.13.5</jackson.version>
+        <jackson.version>2.17.2</jackson.version>
 
-        <clearspring.version>2.7.0</clearspring.version>
-        <datasketches.version>4.0.0</datasketches.version>
+        <clearspring.version>2.9.8</clearspring.version>
+        <datasketches.version>6.0.0</datasketches.version>
         <commons-codec.version>1.15</commons-codec.version>
         <commons-io.version>2.11.0</commons-io.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
@@ -82,7 +82,7 @@
         <commons-collections.version>4.4</commons-collections.version>
         <commons-text.version>1.10.0</commons-text.version>
         <curator.version>2.13.0</curator.version>
-        <guava.version>30.1.1-jre</guava.version>
+        <guava.version>33.2.1-jre</guava.version>
         <javassist.version>3.29.2-GA</javassist.version>
         <javax-activation.version>1.1.1</javax-activation.version>
         <javax-annotation.version>1.3.2</javax-annotation.version>
@@ -120,9 +120,9 @@
         <nexus.plugin.version>1.6.8</nexus.plugin.version>
         <release.plugin.version>3.0.0-M5</release.plugin.version>
         <scm.plugin.version>3.1.0</scm.plugin.version>
-        <shade.plugin.version>3.2.4</shade.plugin.version>
+        <shade.plugin.version>3.6.0</shade.plugin.version>
         <source.plugin.version>3.2.1</source.plugin.version>
-        <surefire.plugin.version>3.1.2</surefire.plugin.version>
+        <surefire.plugin.version>3.3.1</surefire.plugin.version>
         <failsafe.plugin.version>3.1.2</failsafe.plugin.version>
         <cargo.plugin.version>1.9.10</cargo.plugin.version>
         <enforcer.plugin.version>3.1.0</enforcer.plugin.version>
@@ -199,6 +199,13 @@
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-annotations</artifactId>
+    <version>2.17.2</version>
+</dependency>
+
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
@@ -837,6 +844,11 @@
     <build>
         <pluginManagement>
             <plugins>
+            <plugin>
+          <groupId>org.owasp</groupId>
+          <artifactId>dependency-check-maven</artifactId>
+          <version>10.0.3</version>
+        </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
@@ -1117,6 +1129,31 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>${enforcer.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-compatible-hadoop</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <bannedDependencies>
+                                            <excludes>
+                                                <exclude>org.apache.hadoop:*:(,2.9.9]</exclude>
+                                            </excludes>
+                                            <message>
+                                                Hadoop versions below 3.3.0 are incompatible with JDK 11, JDK 8 must be used with the legacy profile
+                                            </message>
+                                        </bannedDependencies>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -1559,6 +1596,31 @@
                         <configuration>
                             <argLine>${failsafeArgLine}</argLine>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>${enforcer.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-compatible-hadoop</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <bannedDependencies>
+                                            <excludes>
+                                                <exclude>org.apache.hadoop:*:(,2.9.9]</exclude>
+                                            </excludes>
+                                            <message>
+                                                Hadoop versions below 3.3.0 are incompatible with JDK 11, JDK 8 must be used with the legacy profile
+                                            </message>
+                                        </bannedDependencies>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.jacoco</groupId>
