@@ -55,8 +55,8 @@
         <java.version>11</java.version>
 
         <!-- Dependency version properties -->
-        <junit.version>5.11.0-M2</junit.version>
-        <junit-suite.version>1.11.0-M2</junit-suite.version>
+        <junit.version>5.10.3</junit.version>
+        <junit-suite.version>1.10.3</junit-suite.version>
         <assertj.version>3.26.3</assertj.version>
         <mockito.version>5.12.0</mockito.version>
         <slf4j.api.version>1.7.36</slf4j.api.version>

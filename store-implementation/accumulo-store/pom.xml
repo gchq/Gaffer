@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>accumulo-store</artifactId>
+    <version>${revision}</version>
 
     <dependencies>
         <!-- Gaffer dependencies -->

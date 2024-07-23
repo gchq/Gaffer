@@ -24,29 +24,35 @@
     </parent>
 
     <artifactId>time-library</artifactId>
+    <version>${revision}</version>
 
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>bitmap-library</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>sketches-library</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.roaringbitmap</groupId>
+            <artifactId>RoaringBitmap</artifactId>
+            <version>0.5.11</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>serialisation</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-util</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

@@ -24,6 +24,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>bitmap-library</artifactId>
+    <version>${revision}</version>
 
     <dependencies>
         <dependency>

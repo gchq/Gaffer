@@ -24,6 +24,7 @@
     </parent>
 
     <artifactId>sketches-library</artifactId>
+    <version>${revision}</version>
 
     <dependencies>
         <dependency>
