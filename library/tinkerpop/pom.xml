@@ -28,7 +28,6 @@
     <properties>
         <google-guice.version>4.2.3</google-guice.version>
         <cucumber.version>7.15.0</cucumber.version>
-        <cypher-gremlin.version>1.0.4</cypher-gremlin.version>
 
         <!-- Don't run any of the standard tinkerpop tests by default-->
         <test>!GafferPopGraphStructureStandardTest,!GafferPopFeatureTest,!GafferPopGraphProcessStandardTest</test>

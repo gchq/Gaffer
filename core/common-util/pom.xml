@@ -46,6 +46,7 @@
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
+            <classifier>${koryphe.classifer}</classifier>
         </dependency>
         <!-- Opentelementry libraries -->
         <dependency>

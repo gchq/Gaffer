@@ -39,6 +39,7 @@
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
+            <classifier>${koryphe.classifer}</classifier>
         </dependency>
         <dependency>
             <groupId>com.clearspring.analytics</groupId>
@@ -55,6 +56,7 @@
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
+            <classifier>${koryphe.test.classifer}</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
