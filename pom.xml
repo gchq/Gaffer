@@ -1657,6 +1657,7 @@
                 <accumulo.version>1.9.3</accumulo.version>
                 <hadoop.version>2.6.5</hadoop.version>
                 <guava.version>13.0.1</guava.version>
+                <jackson.version>2.13.5</jackson.version>
                 <clearspring.version>2.7.0</clearspring.version>
                 <datasketches.version>4.0.0</datasketches.version>
                 <cypher-gremlin.version>1.0.0</cypher-gremlin.version>
