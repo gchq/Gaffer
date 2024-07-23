@@ -529,10 +529,10 @@ public class StoreTest {
         final List<Class<? extends Operation>> expectedOperations =
                 Lists.newArrayList(
                         GetAllElements.class,
+                        GetElements.class,
+                        GetAdjacentIds.class,
 
-                        mock(AddElements.class).getClass(),
-                        mock(GetElements.class).getClass(),
-                        mock(GetAdjacentIds.class).getClass(),
+                        AddElements.class,
 
                         // Export
                         ExportToSet.class,
@@ -639,10 +639,11 @@ public class StoreTest {
         final List<Class<? extends Operation>> expectedOperations =
                 Lists.newArrayList(
                         GetAllElements.class,
+                        GetElements.class,
+                        GetAdjacentIds.class,
 
-                        mock(AddElements.class).getClass(),
-                        mock(GetElements.class).getClass(),
-                        mock(GetAdjacentIds.class).getClass(),
+                        AddElements.class,
+
 
                         // Export
                         ExportToSet.class,
