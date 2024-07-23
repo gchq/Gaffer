@@ -43,6 +43,11 @@
             <version>0.5.11</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.datasketches</groupId>
+            <artifactId>datasketches-java</artifactId>
+            <version>${datasketches.version}</version>
+        </dependency>
+        <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>serialisation</artifactId>
             <version>${project.version}</version>
