@@ -614,7 +614,7 @@ public class StoreTest {
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
         supportedOperations.sort(Comparator.comparing(Class::getName));
-        assertThat(supportedOperations).isEqualTo(expectedOperations);
+        assertThat(supportedOperations).containsExactlyElementsOf(expectedOperations);
     }
 
     @Test
@@ -721,7 +721,7 @@ public class StoreTest {
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
         supportedOperations.sort(Comparator.comparing(Class::getName));
-        assertThat(supportedOperations).isEqualTo(expectedOperations);
+        assertThat(supportedOperations).containsExactlyElementsOf(expectedOperations);
     }
 
     @Test
