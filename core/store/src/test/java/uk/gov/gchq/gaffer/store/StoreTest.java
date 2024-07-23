@@ -527,12 +527,10 @@ public class StoreTest {
         assertThat(supportedOperations).isNotNull();
 
         final List<Class<? extends Operation>> expectedOperations =
-                Lists.newArrayList(
-                        GetAllElements.class,
-                        GetElements.class,
-                        GetAdjacentIds.class,
-
-                        AddElements.class,
+                Lists.newArrayList(AddElements.class,
+                        mock(GetAllElements.class).getClass(),
+                        mock(GetElements.class).getClass(),
+                        mock(GetAdjacentIds.class).getClass(),
 
                         // Export
                         ExportToSet.class,
@@ -637,13 +635,10 @@ public class StoreTest {
         assertThat(supportedOperations).isNotNull();
 
         final List<Class<? extends Operation>> expectedOperations =
-                Lists.newArrayList(
-                        GetAllElements.class,
-                        GetElements.class,
-                        GetAdjacentIds.class,
-
-                        AddElements.class,
-
+                Lists.newArrayList(AddElements.class,
+                        mock(GetAllElements.class).getClass(),
+                        mock(GetElements.class).getClass(),
+                        mock(GetAdjacentIds.class).getClass(),
 
                         // Export
                         ExportToSet.class,
