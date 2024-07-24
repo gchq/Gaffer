@@ -56,7 +56,7 @@
 
         <!-- Dependency version properties -->
         <junit.version>5.10.3</junit.version>
-        <junit-suite.version>1.10.3</junit-suite.version>
+        <junit-platform.version>1.10.3</junit-platform.version>
         <assertj.version>3.26.3</assertj.version>
         <mockito.version>5.12.0</mockito.version>
         <slf4j.api.version>1.7.36</slf4j.api.version>
@@ -751,7 +751,17 @@
             <dependency>
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-suite</artifactId>
-                <version>${junit-suite.version}</version>
+                <version>${junit-platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-suite-api</artifactId>
+                <version>${junit-platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-commons</artifactId>
+                <version>${junit-platform.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
@@ -1668,7 +1678,7 @@
                 <scala.version>${scala.minor.version}.12</scala.version>
 
                 <junit.version>5.9.3</junit.version>
-                <junit-suite.version>1.9.3</junit-suite.version>
+                <junit-platform.version>1.9.3</junit-platform.version>
                 <assertj.version>3.24.2</assertj.version>
                 <mockito.version>4.11.0</mockito.version>
 
@@ -1697,70 +1707,6 @@
                         </plugin>
                     </plugins>
                 </pluginManagement>
-            </build>
-        </profile>
-        <profile>
-            <id>java11</id>
-            <activation>
-                <jdk>11</jdk>
-            </activation>
-            <properties>
-                <java.version>11</java.version>
-                <spark.minor.version>3.0</spark.minor.version>
-                <spark.version>${spark.minor.version}.3</spark.version>
-                <scala.minor.version>2.12</scala.minor.version>
-                <scala.version>${scala.minor.version}.15</scala.version>
-            </properties>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-compiler-plugin</artifactId>
-                            <version>${compiler.plugin.verson}</version>
-                            <configuration>
-                                <release>${java.version}</release>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${javadoc.plugin.version}</version>
-                        <configuration>
-                            <additionalOptions>
-                                <additionalOption>--frames</additionalOption>
-                            </additionalOptions>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>${enforcer.plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>enforce-compatible-hadoop</id>
-                                <goals>
-                                    <goal>enforce</goal>
-                                </goals>
-                                <configuration>
-                                    <rules>
-                                        <bannedDependencies>
-                                            <excludes>
-                                                <exclude>org.apache.hadoop:*:(,2.9.9]</exclude>
-                                            </excludes>
-                                            <message>
-                                                Hadoop versions below 3.3.0 are incompatible with JDK 11, JDK 8 must be used with the legacy profile
-                                            </message>
-                                        </bannedDependencies>
-                                    </rules>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
             </build>
         </profile>
     </profiles>
