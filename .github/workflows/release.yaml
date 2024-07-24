@@ -1,6 +1,6 @@
 name: Full Release
 
-on: workflow_dispatch
+on: [ workflow_dispatch ]
 
 env:
   artifactId: gaffer2
