@@ -21,7 +21,7 @@ gaffer:
   schemas: rest-api/spring-rest/src/main/resources/schemas
 
 server:
-  servlet.context-path: /rest
+  servlet.context-path: /
 
 # Configuration to replicate previous Swagger UI style
 springdoc:

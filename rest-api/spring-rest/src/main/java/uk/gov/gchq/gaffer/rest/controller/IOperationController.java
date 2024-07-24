@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Tag(name = "operations")
-@RequestMapping("/graph/operations")
+@RequestMapping("/rest/graph/operations")
 public interface IOperationController {
 
     @RequestMapping(

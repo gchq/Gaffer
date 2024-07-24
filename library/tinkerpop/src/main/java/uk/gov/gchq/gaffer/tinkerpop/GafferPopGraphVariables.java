@@ -21,6 +21,9 @@ import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.user.User;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,14 +39,19 @@ public final class GafferPopGraphVariables implements Graph.Variables {
     public static final String OP_OPTIONS = "operationOptions";
 
     /**
-     * Variable key for the list of data auths for the user interacting with the graph.
+     * Variable key for the list of data auths for the default user.
      */
     public static final String DATA_AUTHS = "dataAuths";
 
     /**
-     * Variable key for the userId of who is interacting with the graph.
+     * Variable key for the userId used for constructing a default user.
      */
     public static final String USER_ID = "userId";
+
+    /**
+     * Variable key for the user who is interacting with the graph.
+     */
+    public static final String USER = "user";
 
     /**
      * The max number of elements that can be returned by GetAllElements
@@ -54,6 +62,16 @@ public final class GafferPopGraphVariables implements Graph.Variables {
      * When to apply HasStep filtering
      */
     public static final String HAS_STEP_FILTER_STAGE = "hasStepFilterStage";
+
+    /**
+     * Key used in a with step to include a opencypher query traversal
+     */
+    public static final String CYPHER_KEY = "cypher";
+
+    /**
+     * The variable with the last Gaffer operation chain that was ran from the Gremlin query
+     */
+    public static final String LAST_OPERATION_CHAIN = "lastOperation";
 
 
     private final Map<String, Object> variables;
@@ -91,17 +109,15 @@ public final class GafferPopGraphVariables implements Graph.Variables {
                 } else if (value instanceof Map) {
                     variables.put(key, value);
                 } else {
-                    LOGGER.error(VAR_UPDATE_ERROR_STRING, OP_OPTIONS, value.getClass());
+                    LOGGER.error(VAR_UPDATE_ERROR_STRING, key, value.getClass());
                 }
                 break;
 
-            case DATA_AUTHS:
-                if (value instanceof String[]) {
+            case USER:
+                if (value instanceof User) {
                     variables.put(key, value);
-                } else if (value instanceof String) {
-                    variables.put(key, ((String) value).split(","));
                 } else {
-                    LOGGER.error(VAR_UPDATE_ERROR_STRING, DATA_AUTHS, value.getClass());
+                    LOGGER.error(VAR_UPDATE_ERROR_STRING, key, value.getClass());
                 }
                 break;
 
@@ -137,25 +153,8 @@ public final class GafferPopGraphVariables implements Graph.Variables {
         return new HashMap<>();
     }
 
-    /**
-     * Gets the list of data auths.
-     *
-     * @return List of data auths.
-     */
-    public String[] getDataAuths() {
-        if (variables.containsKey(DATA_AUTHS)) {
-            return (String[]) variables.get(DATA_AUTHS);
-        }
-        return new String[0];
-    }
-
-    /**
-     * Gets the current user ID.
-     *
-     * @return The user ID
-     */
-    public String getUserId() {
-        return (String) variables.get(USER_ID);
+    public User getUser() {
+        return (User) variables.get(USER);
     }
 
     public Integer getAllElementsLimit() {
@@ -164,6 +163,10 @@ public final class GafferPopGraphVariables implements Graph.Variables {
 
     public String getHasStepFilterStage() {
         return (String) variables.get(HAS_STEP_FILTER_STAGE);
+    }
+
+    public OperationChain<?> getLastOperationChain() {
+        return (OperationChain) variables.get(LAST_OPERATION_CHAIN);
     }
 
     public String toString() {

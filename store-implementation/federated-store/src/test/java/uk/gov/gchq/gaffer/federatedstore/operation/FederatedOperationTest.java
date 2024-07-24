@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,23 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singleton;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 
 public class FederatedOperationTest extends FederationOperationTest<FederatedOperation> {
-    private static final List<String> EXPECTED_GRAPH_IDS = asList("testGraphID1", "testGraphID2");
+    private static final List<String> EXPECTED_GRAPH_IDS = Arrays.asList("testGraphID1", "testGraphID2");
     public static final String JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation\",%n" +
             "  \"operation\" : {%n" +
@@ -46,7 +50,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
 
     @Override
     protected Set<String> getRequiredFields() {
-        return singleton("payloadOperation");
+        return Collections.singleton("payloadOperation");
     }
 
     @Test
@@ -91,7 +95,6 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
     @Test
     @Override
     public void shouldShallowCloneOperation() {
-
         FederatedOperation a = new FederatedOperation.Builder()
                 .op(new GetAdjacentIds.Builder()
                         .build())
@@ -102,6 +105,23 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
                 .build();
         final FederatedOperation b = a.shallowClone();
         assertEquals(a, b);
+    }
+
+    @Test
+    public void shouldNotExposePayloadOperation() {
+        Operation originalOperation = new GetElements();
+        FederatedOperation federatedOperation = new FederatedOperation.Builder()
+                .op(originalOperation)
+                .mergeFunction(getDefaultMergeFunction())
+                .graphIds(EXPECTED_GRAPH_IDS)
+                .build();
+
+        Collection<Operation> result = federatedOperation.getOperations();
+        assertThat(result)
+            .hasSize(1)
+            .first()
+            .isEqualTo(originalOperation)
+            .isNotSameAs(originalOperation);
     }
 
     @Override
