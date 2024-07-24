@@ -16,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      release_branch: ${{ steps.release-branch.outputs.release_branch }}
       release_version: ${{ steps.release-version.outputs.release_version }}
 
     steps:
@@ -46,15 +45,6 @@ jobs:
       id: release-version
       run: |
         echo "release_version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
-
-    - name: Get release branch
-      run: |
-        echo "BRANCH_NAME=$(echo release/"${{ env.RELEASE_VERSION }}")" >> $GITHUB_ENV
-
-    - name: Output release branch name
-      id: release-branch
-      run: |
-        echo "release_branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
   generate-javadoc:
     runs-on: ubuntu-latest
@@ -112,7 +102,7 @@ jobs:
     - name: Checkout release
       uses: actions/checkout@v4
       with:
-        ref: ${{ needs.deploy-release.outputs.release_branch }}
+        ref: master
 
     # - name: Decode CodeSigning key
     #   env:
@@ -187,9 +177,7 @@ jobs:
 
     - name: Merge release into develop
       run: |
-        git checkout ${{ needs.deploy-release.outputs.release_branch }}
-        git checkout develop
-        git merge ${{ needs.deploy-release.outputs.release_branch }} --strategy-option theirs
+        git merge origin/master
 
     - name: Update develop branch
       run: |
@@ -198,7 +186,5 @@ jobs:
         mvn build-helper:parse-version versions:set-property \
             -Dproperty=revision \
             -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT
-        NEW_GAFFER_VERSION=$(mvn -q help:evaluate -DforceStdout -Dexpression=pom.version)
-        sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$NEW_GAFFER_VERSION/"
         git commit -a -m "prepare for next development iteration"
         git push
