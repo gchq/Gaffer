@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,19 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
-public class GroupUtilTest {
+class GroupUtilTest {
     private static final String INVALID_STRING = "inv@l1dStr|ng&^";
     private static final String VALID_STRING = "vAl1d-Str|ng";
 
     @Test
-    public void shouldThrowExceptionWithInvalidStringName() {
+    void shouldThrowExceptionWithInvalidStringName() {
        assertThatIllegalArgumentException()
                .isThrownBy(() -> GroupUtil.validateName(INVALID_STRING))
                .withMessage("Group is invalid: inv@l1dStr|ng&^, it must match regex: [a-zA-Z0-9|-]*");
     }
 
     @Test
-    public void shouldPassValidationWithValidStringName() {
+    void shouldPassValidationWithValidStringName() {
         assertThatNoException().isThrownBy(() -> GroupUtil.validateName(VALID_STRING));
     }
 }

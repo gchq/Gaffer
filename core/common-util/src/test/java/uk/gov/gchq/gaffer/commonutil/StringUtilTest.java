@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,64 +25,64 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class StringUtilTest {
+class StringUtilTest {
 
     @Test
-    public void unescapeCommaShouldReplaceBackslashesWithComma() {
+    void unescapeCommaShouldReplaceBackslashesWithComma() {
         assertEquals("replaceBackslashesWith,Comma", StringUtil.unescapeComma("replaceBackslashesWith\\\\Comma"));
     }
 
     @Test
-    public void unescapeCommaShouldNotRemoveSemicolon() {
+    void unescapeCommaShouldNotRemoveSemicolon() {
         assertEquals("don'tRemove;SemiColon", StringUtil.unescapeComma("don'tRemove;SemiColon"));
     }
 
     @Test
-    public void unescapeCommaShouldNotRemoveComma() {
+    void unescapeCommaShouldNotRemoveComma() {
         assertEquals("don'tRemove,Comma", StringUtil.unescapeComma("don'tRemove,Comma"));
     }
 
     @Test
-    public void unescapeCommaShouldRemoveBackslash() {
+    void unescapeCommaShouldRemoveBackslash() {
         assertEquals("removeBackslash", StringUtil.unescapeComma("remove\\Backslash"));
     }
 
     @Test
-    public void escapeCommaShouldReplaceBackslashWithSemiColon() {
+    void escapeCommaShouldReplaceBackslashWithSemiColon() {
         assertEquals("replaceWith\\;semicolon", StringUtil.escapeComma("replaceWith\\semicolon"));
     }
 
     @Test
-    public void escapeCommaShouldReplaceCommaWith2Backslashes() {
+    void escapeCommaShouldReplaceCommaWith2Backslashes() {
         assertEquals("replaceWith\\\\comma", StringUtil.escapeComma("replaceWith,comma"));
     }
 
     @Test
-    public void toBytesWhenStringIsValid() {
+    void toBytesWhenStringIsValid() {
         assertArrayEquals("isValid".getBytes(), StringUtil.toBytes("isValid"));
     }
 
     @Test
-    public void toBytesWhenStringIsNull() {
+    void toBytesWhenStringIsNull() {
         assertArrayEquals(new byte[0], StringUtil.toBytes(null));
     }
 
     @Test
-    public void toStringWhenBytesAreValid() {
+    void toStringWhenBytesAreValid() {
         final byte[] validBytes = "isValid".getBytes();
 
         assertEquals("isValid", StringUtil.toString(validBytes));
     }
 
     @Test
-    public void ifEmptyStringTestReturnNull() {
+    void ifEmptyStringTestReturnNull() {
         assertNull(StringUtil.nullIfEmpty(""));
     }
 
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {" ", "String", " string "})
-    public void shouldReturnValueWhenNotEmptyString(String input) {
+    void shouldReturnValueWhenNotEmptyString(String input) {
         assertEquals(input, StringUtil.nullIfEmpty(input));
     }
 }
