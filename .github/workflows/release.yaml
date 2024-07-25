@@ -134,8 +134,8 @@ jobs:
       with:
         ref: master
 
-    # - name: Set version
-    #   run: echo "RELEASE_VERSION=$(echo ${{ needs.deploy-release.outputs.release_version }})" >> $GITHUB_ENV
+    - name: Set version
+      run: echo "RELEASE_VERSION=$(echo ${{ needs.deploy-release.outputs.release_version }})" >> $GITHUB_ENV
 
     # - name: Create Release Notes
     #   uses: docker://decathlon/release-notes-generator-action:3.1.5
