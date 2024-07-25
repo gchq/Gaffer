@@ -26,7 +26,7 @@
     <artifactId>spring-rest</artifactId>
 
     <properties>
-        <spring.boot.version>2.7.12</spring.boot.version>
+        <spring.boot.version>2.7.18</spring.boot.version>
         <springdoc.version>1.6.15</springdoc.version>
         <store.type>map</store.type>
     </properties>
@@ -36,6 +36,11 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-rest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>serialisation</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -142,12 +147,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>tinkerpop</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.tinkerpop</groupId>
             <artifactId>gremlin-driver</artifactId>
