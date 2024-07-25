@@ -109,8 +109,6 @@ public class GremlinController {
         // Translate the cypher to gremlin, always add a .toList() otherwise Gremlin wont execute it as its lazy
         final String translation = ast.buildTranslation(Translator.builder().gremlinGroovy().enableCypherExtensions().build()) + ".toList()";
 
-        System.out.println(translation);
-
         JSONObject response = runGremlinAndGetExplain(translation, httpHeaders);
         response.put(EXPLAIN_GREMLIN_KEY, translation);
         return response.toString();
