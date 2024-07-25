@@ -59,10 +59,10 @@ jobs:
     - create-release-branch
 
     steps:
-    - name: Checkout Master
+    - name: Checkout Develop
       uses: actions/checkout@v4
-    #   with:
-    #     ref: master
+      with:
+        ref: develop
 
     - name: Set version
       run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }})" >> $GITHUB_ENV
