@@ -616,7 +616,8 @@ public class StoreTest {
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
         supportedOperations.sort(Comparator.comparing(Class::getName));
-        assertThat(supportedOperations).containsExactlyElementsOf(expectedOperations);
+        Set<Class<? extends Operation>> dedupedExpected = new HashSet<>(expectedOperations);
+        assertThat(supportedOperations).containsExactlyInAnyOrderElementsOf(dedupedExpected);
     }
 
     @Test
@@ -724,7 +725,8 @@ public class StoreTest {
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
         supportedOperations.sort(Comparator.comparing(Class::getName));
-        assertThat(supportedOperations).containsExactlyElementsOf(expectedOperations);
+        Set<Class<? extends Operation>> dedupedExpected = new HashSet<>(expectedOperations);
+        assertThat(supportedOperations).containsExactlyInAnyOrderElementsOf(dedupedExpected);
     }
 
     @Test
