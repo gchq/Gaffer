@@ -99,6 +99,8 @@
         <mockserver.version>5.15.0</mockserver.version>
         <opentelemetry.version>1.36.0</opentelemetry.version>
         <tinkerpop.version>3.7.1</tinkerpop.version>
+        <!-- Note later versions require scala version 2.12.x -->
+        <cypher-gremlin.version>1.0.0</cypher-gremlin.version>
 
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>

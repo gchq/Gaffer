@@ -23,6 +23,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.util.empty.EmptyGraph;
 import org.json.JSONObject;
+import org.opencypher.gremlin.server.jsr223.CypherPlugin;
 import org.opencypher.gremlin.translation.CypherAst;
 import org.opencypher.gremlin.translation.translator.Translator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,9 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
@@ -61,12 +64,15 @@ public class GremlinController {
     private final ConcurrentBindings bindings = new ConcurrentBindings();
     private final AbstractUserFactory userFactory;
     private final Graph graph;
+    private final Map<String, Map<String, Object>> plugins = new HashMap<>();
 
     @Autowired
     public GremlinController(final GraphTraversalSource g, final AbstractUserFactory userFactory) {
         bindings.putIfAbsent("g", g);
         graph = g.getGraph();
         this.userFactory = userFactory;
+        // Add cypher plugin so cypher functions can be used in queries
+        plugins.put(CypherPlugin.class.getName(), new HashMap<>());
     }
 
     /**
@@ -102,6 +108,8 @@ public class GremlinController {
         final CypherAst ast = CypherAst.parse(cypherQuery);
         // Translate the cypher to gremlin, always add a .toList() otherwise Gremlin wont execute it as its lazy
         final String translation = ast.buildTranslation(Translator.builder().gremlinGroovy().enableCypherExtensions().build()) + ".toList()";
+
+        System.out.println(translation);
 
         JSONObject response = runGremlinAndGetExplain(translation, httpHeaders);
         response.put(EXPLAIN_GREMLIN_KEY, translation);
@@ -163,13 +171,15 @@ public class GremlinController {
         } else {
             gafferPopGraph = (GafferPopGraph) graph;
         }
+        gafferPopGraph.setDefaultVariables((GafferPopGraphVariables) gafferPopGraph.variables());
         // Hooks for user auth
         userFactory.setHttpHeaders(httpHeaders);
         graph.variables().set(GafferPopGraphVariables.USER, userFactory.createUser());
 
         JSONObject explain = new JSONObject();
-        try (GremlinExecutor gremlinExecutor = GremlinExecutor.build().globalBindings(bindings).create()) {
-            gafferPopGraph.setDefaultVariables((GafferPopGraphVariables) gafferPopGraph.variables());
+        try (GremlinExecutor gremlinExecutor = GremlinExecutor.build()
+                .addPlugins("gremlin-groovy", plugins)
+                .globalBindings(bindings).create()) {
             // Execute the query note this will actually run the query which we need
             // as Gremlin will skip steps if there is no input from the previous ones
             gremlinExecutor.eval(gremlinQuery).join();
