@@ -59,6 +59,7 @@
         <junit-platform.version>1.10.3</junit-platform.version>
         <assertj.version>3.26.3</assertj.version>
         <mockito.version>5.12.0</mockito.version>
+        <mockito-inline.version>5.2.0</mockito-inline.version>
         <slf4j.api.version>1.7.36</slf4j.api.version>
 
         <scala.minor.version>2.12</scala.minor.version>
@@ -1681,6 +1682,7 @@
                 <junit-platform.version>1.9.3</junit-platform.version>
                 <assertj.version>3.24.2</assertj.version>
                 <mockito.version>4.11.0</mockito.version>
+                <mockito-inline.version>4.11.0</mockito-inline.version>
 
                 <!-- Required due to Maven install plugin Bug (MINSTALL-151) -->
                 <install.plugin.version>2.5.2</install.plugin.version>
