@@ -528,7 +528,11 @@ public class StoreTest {
 
         final List<Class<? extends Operation>> expectedOperations =
                 Lists.newArrayList(AddElements.class,
-                        mock(GetAllElements.class).getClass(),
+                        GetElements.class,
+                        GetAdjacentIds.class,
+                        GetAllElements.class,
+
+                        mock(AddElements.class).getClass(),
                         mock(GetElements.class).getClass(),
                         mock(GetAdjacentIds.class).getClass(),
 
@@ -636,7 +640,11 @@ public class StoreTest {
 
         final List<Class<? extends Operation>> expectedOperations =
                 Lists.newArrayList(AddElements.class,
-                        mock(GetAllElements.class).getClass(),
+                        GetElements.class,
+                        GetAdjacentIds.class,
+                        GetAllElements.class,
+
+                        mock(AddElements.class).getClass(),
                         mock(GetElements.class).getClass(),
                         mock(GetAdjacentIds.class).getClass(),
 
