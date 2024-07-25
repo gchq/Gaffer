@@ -37,14 +37,10 @@ jobs:
         git config user.name github-actions[bot]
         git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
-    - name: Get release version
-      run: |
-        echo "RELEASE_VERSION=$(mvn -q help:evaluate -DforceStdout -Dexpression=pom.version)" >> $GITHUB_ENV
-
     - name: Output release version
       id: release-version
       run: |
-        echo "release_version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+        echo "release_version=$(mvn -q help:evaluate -DforceStdout -Dexpression=pom.version)" >> $GITHUB_OUTPUT
 
   generate-javadoc:
     runs-on: ubuntu-latest
@@ -113,14 +109,14 @@ jobs:
     # - name: Import CodeSigning key
     #   run: gpg --batch --fast-import cd/codesigning.asc
 
-    - name: Release to Nexus
+    # - name: Release to Nexus
     #   env:
     #     GPG_KEY_NAME: ${{ secrets.GPG_KEY_NAME }}
     #     GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
     #     OSS_NEXUS_USERNAME: ${{ secrets.OSS_NEXUS_USERNAME }}
     #     OSS_NEXUS_PASSWORD: ${{ secrets.OSS_NEXUS_PASSWORD }}
-      run:
-        echo "$(would deploy here)"
+    #   run:
+    #     echo "$(would deploy here)"
         # mvn deploy -P quick,ossrh-release --settings cd/mvnsettings.xml -B
 
   update-github-releases:
@@ -136,11 +132,6 @@ jobs:
 
     - name: Set version
       run: echo "RELEASE_VERSION=$(echo ${{ needs.deploy-release.outputs.release_version }})" >> $GITHUB_ENV
-
-    # - name: Create Release Notes
-    #   uses: docker://decathlon/release-notes-generator-action:3.1.5
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload notes
       uses: softprops/action-gh-release@v2
