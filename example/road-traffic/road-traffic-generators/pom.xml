@@ -99,12 +99,6 @@
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.clearspring.analytics</groupId>
-            <artifactId>stream</artifactId>
-            <version>${clearspring.version}</version>
-            <scope>test</scope>
-        </dependency>
 
     </dependencies>
 

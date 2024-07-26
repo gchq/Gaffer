@@ -44,18 +44,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.clearspring.analytics</groupId>
-      <artifactId>stream</artifactId>
-      <version>${clearspring.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.datasketches</groupId>
-      <artifactId>datasketches-java</artifactId>
-      <version>${datasketches.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>uk.gov.gchq.koryphe</groupId>
       <artifactId>core</artifactId>
       <classifier>${koryphe.test.classifer}</classifier>

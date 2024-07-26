@@ -89,10 +89,9 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <shadedArtifactAttached>true
-                            </shadedArtifactAttached>
-                            <shadedClassifierName>deploy
-                            </shadedClassifierName>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>deploy</shadedClassifierName>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <artifactSet>
                                 <includes>
                                     <include>com.clearspring.analytics:stream</include>
