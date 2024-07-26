@@ -32,6 +32,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import uk.gov.gchq.gaffer.operation.impl.Limit;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.rest.factory.spring.UnknownUserFactory;
@@ -125,7 +127,40 @@ class GremlinControllerTest {
     void shouldReturnExplainOfValidCypherQuery() throws Exception {
         // Given
         String cypherString = "MATCH (p:person) WHERE ID(p) = '" + MARKO.getId() + "' RETURN p";
+
         List<String> expectedOperations = Arrays.asList(GetElements.class.getName());
+
+        // When
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post(CYPHER_EXPLAIN_ENDPOINT)
+                        .content(cypherString)
+                        .contentType(TEXT_PLAIN_VALUE))
+                .andReturn();
+
+        // Then
+        // Ensure OK response
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+
+        // Get and check response
+        JSONObject jsonResponse = new JSONObject(result.getResponse().getContentAsString());
+        assertThat(jsonResponse.has(GremlinController.EXPLAIN_OVERVIEW_KEY)).isTrue();
+        assertThat(jsonResponse.has(GremlinController.EXPLAIN_OP_CHAIN_KEY)).isTrue();
+        assertThat(jsonResponse.has(GremlinController.EXPLAIN_GREMLIN_KEY)).isTrue();
+
+        // Check the operations that ran are as expected
+        JSONArray operations = jsonResponse.getJSONObject("chain").getJSONArray("operations");
+        assertThat(operations)
+                .map(json -> ((JSONObject) json).getString("class"))
+                .containsExactlyElementsOf(expectedOperations);
+    }
+
+    @Test
+    void shouldReturnExplainOfCypherQueryWithExtensions() throws Exception {
+        // Given (uses the toInteger custom function)
+        String cypherString = "MATCH (p:person) WHERE p.age > toInteger(22) RETURN p";
+
+        List<String> expectedOperations = Arrays.asList(GetAllElements.class.getName(), Limit.class.getName());
 
         // When
         MvcResult result = mockMvc

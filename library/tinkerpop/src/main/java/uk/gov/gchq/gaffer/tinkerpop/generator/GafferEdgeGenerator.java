@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,27 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.generator;
 
-import org.apache.tinkerpop.gremlin.structure.Property;
-
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopEdge;
-
-import java.util.Iterator;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferCustomTypeFactory;
 
 public class GafferEdgeGenerator implements OneToOneElementGenerator<GafferPopEdge> {
     @Override
     public Edge _apply(final GafferPopEdge gafferPopEdge) {
-        final Edge edge = new Edge(gafferPopEdge.label(), gafferPopEdge.outVertex().id(),
-                gafferPopEdge.inVertex().id(), true);
-        final Iterator<Property<Object>> propItr = gafferPopEdge.properties();
-        while (propItr.hasNext()) {
-            final Property<Object> prop = propItr.next();
-            if (null != prop.key()) {
-                edge.putProperty(prop.key(), prop.value());
+        // Add edge
+        final Edge edge = new Edge(
+            gafferPopEdge.label(),
+            GafferCustomTypeFactory.parseAsCustomTypeIfValid(gafferPopEdge.outVertex().id()),
+            GafferCustomTypeFactory.parseAsCustomTypeIfValid(gafferPopEdge.inVertex().id()),
+            true);
+
+        // Add properties
+        gafferPopEdge.properties().forEachRemaining(prop -> {
+            if (prop.key() != null) {
+                edge.putProperty(prop.key(), GafferCustomTypeFactory.parseAsCustomTypeIfValid(prop.value()));
             }
-        }
+        });
         return edge;
     }
 }

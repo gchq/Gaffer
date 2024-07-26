@@ -28,8 +28,6 @@
     <properties>
         <google-guice.version>4.2.3</google-guice.version>
         <cucumber.version>7.15.0</cucumber.version>
-        <!-- Note later versions require scala version 2.12.x -->
-        <cypher-gremlin.version>1.0.0</cypher-gremlin.version>
 
         <!-- Don't run any of the standard tinkerpop tests by default-->
         <test>!GafferPopGraphStructureStandardTest,!GafferPopFeatureTest,!GafferPopGraphProcessStandardTest</test>

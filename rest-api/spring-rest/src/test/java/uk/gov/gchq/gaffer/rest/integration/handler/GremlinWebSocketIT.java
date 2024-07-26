@@ -145,4 +145,22 @@ class GremlinWebSocketIT {
             .containsExactly(MARKO.getName());
     }
 
+    @Test
+    void shouldAcceptGremlinQueryUsingCustomCypherFunctions() {
+        // Given
+        String query = "g.V().hasLabel('person').values('age').map(cypherToString()).toList()";
+
+        // When
+        List<Result> results = client.submit(query).stream().collect(Collectors.toList());
+
+        // Then
+        assertThat(results)
+            .map(result -> result.getObject())
+            .containsExactlyInAnyOrder(
+                String.valueOf(MARKO.getAge()),
+                String.valueOf(VADAS.getAge()),
+                String.valueOf(PETER.getAge()),
+                String.valueOf(JOSH.getAge()));
+    }
+
 }
