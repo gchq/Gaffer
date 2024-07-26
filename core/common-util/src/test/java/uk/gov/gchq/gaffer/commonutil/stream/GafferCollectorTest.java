@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toLimitedInMemorySortedIterable;
 import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toLinkedHashSet;
 
-public class GafferCollectorTest {
+class GafferCollectorTest {
 
     @Test
-    public void shouldCollectToLinkedHashSet() {
+    void shouldCollectToLinkedHashSet() {
         final IntStream stream = IntStream.range(0, 100);
 
         final Iterable<Integer> iterable = stream.boxed()
@@ -41,7 +41,7 @@ public class GafferCollectorTest {
     }
 
     @Test
-    public void shouldCollectToLimitedSortedSet() {
+    void shouldCollectToLimitedSortedSet() {
         final IntStream stream = IntStream.range(0, 100);
         final int limit = 50;
         final boolean deduplicate = true;

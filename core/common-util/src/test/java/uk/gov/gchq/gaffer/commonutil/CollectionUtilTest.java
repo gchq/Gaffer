@@ -157,7 +157,7 @@ class CollectionUtilTest {
         final Collection<Integer> collection = Sets.newHashSet(10, 20, 30);
 
         // When
-        final boolean result = CollectionUtil.containsAny(collection, (Object) null);
+        final boolean result = CollectionUtil.containsAny(collection, null);
 
         // Then
         assertThat(result).isFalse();
@@ -191,7 +191,7 @@ class CollectionUtilTest {
         final Collection<Integer> collection = Sets.newHashSet(10, 20, 30);
 
         // When
-        final boolean result = CollectionUtil.anyMissing(collection, (Object) null);
+        final boolean result = CollectionUtil.anyMissing(collection, null);
 
         // Then
         assertThat(result).isFalse();
@@ -225,7 +225,7 @@ class CollectionUtilTest {
     @Test
     void shouldReturnFalseWhenAnyMissingCalledWithNullCollectionAndValues() {
         // When
-        final boolean result = CollectionUtil.anyMissing(null, (Object) null);
+        final boolean result = CollectionUtil.anyMissing(null, null);
 
         // Then
         assertThat(result).isFalse();

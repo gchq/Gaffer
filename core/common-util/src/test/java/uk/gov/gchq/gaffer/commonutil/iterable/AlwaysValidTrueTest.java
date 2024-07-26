@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,29 +22,29 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import uk.gov.gchq.koryphe.ValidationResult;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class AlwaysValidTrue {
+class AlwaysValidTrueTest {
 
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"test"})
-    public void shouldReturnTrueForNullAndString(final String input) {
+    void shouldReturnTrueForNullAndString(final String input) {
         final AlwaysValid<String> validator = new AlwaysValid<>();
 
         final boolean result = validator.validate(input);
 
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"test"})
-    public void shouldReturnValidationResultForNullAndString(final String input) {
+    void shouldReturnValidationResultForNullAndString(final String input) {
         final AlwaysValid<String> validator = new AlwaysValid<>();
 
         final ValidationResult result = validator.validateWithValidationResult(input);
 
-        assertTrue(result.isValid());
+        assertThat(result.isValid()).isTrue();
     }
 }

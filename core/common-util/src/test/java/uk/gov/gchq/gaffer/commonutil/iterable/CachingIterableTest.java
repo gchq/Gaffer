@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2023 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,13 +37,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class CachingIterableTest {
+class CachingIterableTest {
 
     private static final List<Integer> SMALL_LIST = Arrays.asList(0, 1, 2, 3, 4);
     private static final List<Integer> LARGE_LIST = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     @Test
-    public void shouldCacheSmallIterable(@Mock final Iterable<Integer> mockIterable) {
+    void shouldCacheSmallIterable(@Mock final Iterable<Integer> mockIterable) {
         when(mockIterable.iterator())
                 .thenReturn(SMALL_LIST.iterator())
                 .thenReturn(SMALL_LIST.iterator());
@@ -57,7 +57,7 @@ public class CachingIterableTest {
     }
 
     @Test
-    public void shouldNotCacheALargeIterable(@Mock final Iterable<Integer> mockIterable) {
+    void shouldNotCacheALargeIterable(@Mock final Iterable<Integer> mockIterable) {
         when(mockIterable.iterator())
                 .thenReturn(LARGE_LIST.iterator())
                 .thenReturn(LARGE_LIST.iterator());
@@ -71,14 +71,14 @@ public class CachingIterableTest {
     }
 
     @Test
-    public void shouldHandleNullIterable() {
+    void shouldHandleNullIterable() {
         Iterable<Integer> cachingIterable = new CachingIterable<>(null);
 
         assertThat(cachingIterable).isEmpty();
     }
 
     @Test
-    public void shouldCloseTheIterable() throws IOException {
+    void shouldCloseTheIterable() throws IOException {
         @SuppressWarnings("unchecked")
         final Iterable<Integer> iterable = Mockito.mock(Iterable.class,
                 Mockito.withSettings().extraInterfaces(Closeable.class));
@@ -90,7 +90,7 @@ public class CachingIterableTest {
     }
 
     @Test
-    public void shouldCloseTheIterableWhenFullyCached() throws IOException {
+    void shouldCloseTheIterableWhenFullyCached() throws IOException {
         @SuppressWarnings("unchecked")
         final Iterable<Integer> iterable = Mockito.mock(Iterable.class,
                 Mockito.withSettings().extraInterfaces(Closeable.class));
@@ -104,7 +104,7 @@ public class CachingIterableTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void shouldHandleMultipleIterators() throws IOException {
+    void shouldHandleMultipleIterators() throws IOException {
         // Given
         final Iterable<Integer> iterable = Mockito.mock(Iterable.class,
                 Mockito.withSettings().extraInterfaces(Closeable.class));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LimitedInMemorySortedIterableTest {
+class LimitedInMemorySortedIterableTest {
 
     @Test
-    public void shouldLimitEntries() {
+    void shouldLimitEntries() {
         final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 100);
         final List<Integer> expectedItems = new ArrayList<>();
         IntStream.rangeClosed(1, 100).forEach(expectedItems::add);
@@ -43,7 +43,7 @@ public class LimitedInMemorySortedIterableTest {
     }
 
     @Test
-    public void shouldLimitAndDeduplicateEntries() {
+    void shouldLimitAndDeduplicateEntries() {
         final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 2, true);
 
         list.add(1);
@@ -57,7 +57,7 @@ public class LimitedInMemorySortedIterableTest {
     }
 
     @Test
-    public void shouldDeduplicateEntries() {
+    void shouldDeduplicateEntries() {
         final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 100, true);
 
         list.add(1);
@@ -67,7 +67,7 @@ public class LimitedInMemorySortedIterableTest {
     }
 
     @Test
-    public void shouldNotDeduplicateEntries() {
+    void shouldNotDeduplicateEntries() {
         final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 100, false);
 
         list.add(1);
@@ -77,7 +77,7 @@ public class LimitedInMemorySortedIterableTest {
     }
 
     @Test
-    public void shouldLimitAndNotDeduplicateEntries() {
+    void shouldLimitAndNotDeduplicateEntries() {
         final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 4, false);
 
         list.add(1);
@@ -89,7 +89,7 @@ public class LimitedInMemorySortedIterableTest {
     }
 
     @Test
-    public void shouldAddAll() {
+    void shouldAddAll() {
         final LimitedInMemorySortedIterable<Integer> itr = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 100);
 
         // When/Then
@@ -122,7 +122,7 @@ public class LimitedInMemorySortedIterableTest {
     }
 
     @Test
-    public void shouldLimitEntriesOnAddAll() {
+    void shouldLimitEntriesOnAddAll() {
         // Given
         final LimitedInMemorySortedIterable<Integer> itr = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 10);
 
@@ -156,7 +156,7 @@ public class LimitedInMemorySortedIterableTest {
     }
 
     @Test
-    public void shouldSortLargeNumberOfItems() {
+    void shouldSortLargeNumberOfItems() {
         // Given
         final int streamSize = 1000000;
         final int resultLimit = 10000;

@@ -25,13 +25,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ConsumableBlockingQueueTest {
+class ConsumableBlockingQueueTest {
 
     @Test
-    public void shouldConsumeResultsWhenIterating() {
+    void shouldConsumeResultsWhenIterating() {
         // Given
         final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
 
@@ -57,7 +55,7 @@ public class ConsumableBlockingQueueTest {
     }
 
     @Test
-    public void shouldBlockOnAdditionWhenQueueIsFull() throws InterruptedException {
+    void shouldBlockOnAdditionWhenQueueIsFull() throws InterruptedException {
         // Given
         final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
 
@@ -76,7 +74,7 @@ public class ConsumableBlockingQueueTest {
 
         // Wait for some items to be added, but there isn't room for all of them
         Thread.sleep(1000L);
-        assertFalse(finishedAdding[0]);
+        assertThat(finishedAdding[0]).isFalse();
 
         // Consume some results
         final Iterator<Integer> consumer = queue.iterator();
@@ -88,7 +86,7 @@ public class ConsumableBlockingQueueTest {
 
         // Now the queue has space some items should be added, but there still isn't room for all of them
         Thread.sleep(1000L);
-        assertFalse(finishedAdding[0]);
+        assertThat(finishedAdding[0]).isFalse();
 
         // Consume some more results
         for (int i = 0; i < 4; i++) {
@@ -98,7 +96,7 @@ public class ConsumableBlockingQueueTest {
 
         // Now the queue has space some items should be added and this time there is room for the rest of them
         Thread.sleep(1000L);
-        assertTrue(finishedAdding[0]);
+        assertThat(finishedAdding[0]).isTrue();
 
         // Consume some rest of the results
         while (consumer.hasNext()) {
@@ -110,7 +108,7 @@ public class ConsumableBlockingQueueTest {
     }
 
     @Test
-    public void shouldNotBlockWhenConsumingWhenQueueIsEmpty() {
+    void shouldNotBlockWhenConsumingWhenQueueIsEmpty() {
         final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
 
         final Iterator<Integer> iterator = queue.iterator();
