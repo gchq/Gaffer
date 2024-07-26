@@ -20,6 +20,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.step.util.HasContainer;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Property;
 
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferCustomTypeFactory;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferPredicateFactory;
 
 import java.util.function.Predicate;
@@ -45,7 +46,7 @@ public class GafferPopHasContainer extends HasContainer {
 
     @Override
     protected boolean testId(final Element element) {
-        return gafferPredicate.test(element.id());
+        return gafferPredicate.test(GafferCustomTypeFactory.parseAsCustomTypeIfValid(element.id()));
     }
 
     @Override
@@ -60,7 +61,7 @@ public class GafferPopHasContainer extends HasContainer {
 
     @Override
     protected boolean testValue(final Property property) {
-        return gafferPredicate.test(property.value());
+        return gafferPredicate.test(GafferCustomTypeFactory.parseAsCustomTypeIfValid(property.value()));
     }
 
     @Override
