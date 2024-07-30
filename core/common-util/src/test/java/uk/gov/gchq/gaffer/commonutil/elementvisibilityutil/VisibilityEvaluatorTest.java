@@ -95,14 +95,14 @@ class VisibilityEvaluatorTest {
     @Test
     void testQuotedExpressions() throws VisibilityParseException {
         final Authorisations auths = new Authorisations("A#C", "A\"C", "A\\C", "AC");
-        final VisibilityEvaluator ve = new VisibilityEvaluator(auths);
+        final VisibilityEvaluator visEv = new VisibilityEvaluator(auths);
 
-        assertThat(ve.evaluate(new ElementVisibility(quote("A#C") + "|" + quote("A?C")))).isTrue();
+        assertThat(visEv.evaluate(new ElementVisibility(quote("A#C") + "|" + quote("A?C")))).isTrue();
 
-        assertThat(ve.evaluate(new ElementVisibility(quote("A#C") + "&B"))).isFalse();
+        assertThat(visEv.evaluate(new ElementVisibility(quote("A#C") + "&B"))).isFalse();
 
-        assertThat(ve.evaluate(new ElementVisibility(quote("A#C")))).isTrue();
-        assertThat(ve.evaluate(new ElementVisibility("(" + quote("A#C") + ")"))).isTrue();
+        assertThat(visEv.evaluate(new ElementVisibility(quote("A#C")))).isTrue();
+        assertThat(visEv.evaluate(new ElementVisibility("(" + quote("A#C") + ")"))).isTrue();
     }
 
     @Test
@@ -117,13 +117,13 @@ class VisibilityEvaluatorTest {
 
     @Test
     void testNonAscii() throws VisibilityParseException {
-        final VisibilityEvaluator ve = new VisibilityEvaluator(new Authorisations("五", "六", "八", "九", "五十"));
+        final VisibilityEvaluator visEv = new VisibilityEvaluator(new Authorisations("五", "六", "八", "九", "五十"));
 
-        assertThat(ve.evaluate(new ElementVisibility(quote("五") + "|" + quote("四")))).isTrue();
-        assertThat(ve.evaluate(new ElementVisibility(quote("五") + "&" + quote("四")))).isFalse();
-        assertThat(ve.evaluate(new ElementVisibility(quote("五") + "&(" + quote("四") + "|" + quote("九") + ")"))).isTrue();
-        assertThat(ve.evaluate(new ElementVisibility("\"五\"&(\"四\"|\"五十\")"))).isTrue();
-        assertThat(ve.evaluate(new ElementVisibility(quote("五") + "&(" + quote("四") + "|" + quote("三") + ")"))).isFalse();
-        assertThat(ve.evaluate(new ElementVisibility("\"五\"&(\"四\"|\"三\")"))).isFalse();
+        assertThat(visEv.evaluate(new ElementVisibility(quote("五") + "|" + quote("四")))).isTrue();
+        assertThat(visEv.evaluate(new ElementVisibility(quote("五") + "&" + quote("四")))).isFalse();
+        assertThat(visEv.evaluate(new ElementVisibility(quote("五") + "&(" + quote("四") + "|" + quote("九") + ")"))).isTrue();
+        assertThat(visEv.evaluate(new ElementVisibility("\"五\"&(\"四\"|\"五十\")"))).isTrue();
+        assertThat(visEv.evaluate(new ElementVisibility(quote("五") + "&(" + quote("四") + "|" + quote("三") + ")"))).isFalse();
+        assertThat(visEv.evaluate(new ElementVisibility("\"五\"&(\"四\"|\"三\")"))).isFalse();
     }
 }

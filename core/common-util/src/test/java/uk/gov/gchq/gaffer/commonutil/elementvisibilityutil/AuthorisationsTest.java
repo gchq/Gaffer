@@ -107,4 +107,11 @@ class AuthorisationsTest {
                 actual.getAuthorisationsBB().add(ByteBuffer.wrap(new byte[] {'a'}));
             });
     }
+
+    @Test
+    void testToString() {
+        final Authorisations a = new Authorisations("a", "abcdefg", "hijklmno");
+
+        assertThat(a).hasToString("a,hijklmno,abcdefg");
+    }
 }
