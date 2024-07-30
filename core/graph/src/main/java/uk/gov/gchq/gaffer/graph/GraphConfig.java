@@ -50,6 +50,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.time.LocalDateTime;
+
 
 /**
  * {@code GraphConfig} contains configuration for Graphs. This configuration
@@ -76,6 +78,7 @@ public final class GraphConfig {
     private String description;
     private final List<GraphHook> hooks = new ArrayList<>();
     private Boolean otelActive;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     public GraphConfig() {
     }
@@ -115,6 +118,14 @@ public final class GraphConfig {
 
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     /**
@@ -295,6 +306,7 @@ public final class GraphConfig {
                 .append("library", library)
                 .append("hooks", hooks)
                 .append("otelActive", otelActive)
+                .append("createdAt", createdAt)
                 .toString();
     }
 
@@ -361,6 +373,9 @@ public final class GraphConfig {
             if (config.getOtelActive() != null) {
                 this.config.setOtelActive(config.getOtelActive());
             }
+            if (config.getCreatedAt() != null) {
+                this.config.setCreatedAt(config.getCreatedAt());
+            }
             this.config.getHooks().addAll(config.getHooks());
 
             return this;
@@ -383,6 +398,11 @@ public final class GraphConfig {
 
         public Builder otelActive(final Boolean active) {
             this.config.setOtelActive(active);
+            return this;
+        }
+
+        public Builder createdAt(final LocalDateTime createdAt) {
+            this.config.setCreatedAt(createdAt);
             return this;
         }
 
