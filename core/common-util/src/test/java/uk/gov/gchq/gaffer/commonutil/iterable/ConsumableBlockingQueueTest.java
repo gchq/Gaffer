@@ -21,10 +21,12 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class ConsumableBlockingQueueTest {
 
@@ -114,5 +116,32 @@ class ConsumableBlockingQueueTest {
         final Iterator<Integer> iterator = queue.iterator();
 
         assertThat(iterator).isExhausted();
+    }
+
+    @Test
+    void shouldThrowExceptionWhenQueueIsEmpty() {
+        final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
+
+        final Iterator<Integer> iterator = queue.iterator();
+
+        assertThatExceptionOfType(NoSuchElementException.class)
+            .isThrownBy(() -> iterator.next())
+            .withMessage("No more items");
+    }
+
+    @Test
+    void shouldReturnToString() {
+        final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
+
+         IntStream.range(0, 4)
+                .forEach(i -> {
+                    try {
+                        queue.put(i);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+        assertThat(queue).hasToString("ConsumableBlockingQueue[items={0,1,2,3}]");
     }
 }

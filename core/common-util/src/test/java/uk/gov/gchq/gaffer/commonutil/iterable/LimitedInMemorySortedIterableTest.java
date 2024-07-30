@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class LimitedInMemorySortedIterableTest {
 
@@ -176,5 +177,28 @@ class LimitedInMemorySortedIterableTest {
         // Then
         final List<Integer> expected = Lists.newArrayList(list);
         assertThat(sortedElements).isEqualTo(expected);
+    }
+
+    @Test
+    void shouldThrowExceptionWithNoComparator() {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> new LimitedInMemorySortedIterable<Integer>(null, 100))
+            .withMessage("Comparator is required");
+    }
+
+    @Test
+    void shouldThrowExceptionWithInvalidLimit() {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 0))
+            .withMessage("Limit cannot be less than or equal to 0");
+    }
+
+    @Test
+    void shouldReturnToString() {
+        final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 1);
+        list.add(1);
+
+        assertThat(list)
+            .hasToString("LimitedInMemorySortedIterable[size=1,limit=1,deduplicate=false,backingMap={1=OneOrMore[deduplicate=false,singleItem=1]}]");
     }
 }

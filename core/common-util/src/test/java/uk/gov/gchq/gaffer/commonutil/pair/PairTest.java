@@ -56,4 +56,11 @@ class PairTest {
         assertThat(pair.getFirst()).isNull();
         assertThat(pair.getSecond()).isEqualTo("2nd");
     }
+
+    @Test
+    void shouldReturnToString() {
+        final Pair<String, String> pair = new Pair<>("foo", "bar");
+
+        assertThat(pair).hasToString("Pair[first=foo,second=bar]");
+    }
 }

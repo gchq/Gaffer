@@ -188,6 +188,37 @@ class TransformIterableTest {
         }
     }
 
+    @Test
+    void shouldThrowExceptionWithNullInput() {
+        // Given
+        final boolean autoClose = true;
+        final AlwaysValid<String> valid = new AlwaysValid<>();
+
+        // When/then
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> new TransformIterableImpl(null, valid, false, autoClose))
+            .withMessage("Input iterable is required");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void shouldGetValidator() {
+        // Given
+        final boolean autoClose = true;
+        final Iterable<String> items = mock(Iterable.class, Mockito.withSettings().extraInterfaces(Closeable.class));
+
+        TransformIterable<String, String> iterable = null;
+        try {
+            iterable = new TransformIterableImpl(items, new AlwaysValid<>(), false, autoClose);
+
+            // Then
+            assertThat(iterable.getValidator())
+                .isInstanceOf(AlwaysValid.class);
+        } finally {
+            CloseableUtil.close(iterable);
+        }
+    }
+
     private class TransformIterableImpl extends TransformIterable<String, String> {
 
         TransformIterableImpl(final Iterable<String> input, final Validator<String> validator) {
