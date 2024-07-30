@@ -125,6 +125,7 @@ public final class GraphConfig {
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
+        assert createdAt != null : "createdAt should not be null";
         this.createdAt = createdAt;
     }
 
