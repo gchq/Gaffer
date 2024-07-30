@@ -37,14 +37,17 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
 
@@ -122,6 +125,35 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
         // Then
         assertEquals(view, config.getView());
         assertNotSame(view, config.getView());
+    }
+
+    @Test
+    public void shouldSetCreatedAt() throws Exception {
+        // Given
+        final String graphId = "graphId";
+
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId(graphId)
+                .build();
+        // Then
+        assertNotNull(config.getCreatedAt());
+        assertInstanceOf(LocalDateTime.class, config.getCreatedAt());
+    }
+    @Test
+    public void shouldThrowAssertNotNullSetCreatedAtArg() throws Exception {
+        // Given
+        final String graphId = "graphId";
+
+        // When
+
+        // Then
+        Throwable exception = assertThrows(AssertionError.class, () -> new GraphConfig.Builder()
+        .graphId(graphId)
+        .createdAt(null)
+        .build());
+
+        assertEquals("createdAt should not be null", exception.getMessage());
     }
 
     @Override
