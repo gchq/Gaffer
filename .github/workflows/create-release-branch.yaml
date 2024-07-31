@@ -52,15 +52,3 @@ jobs:
         gh pr create -B master -H $BRANCH_NAME --title 'Merge release into master branch' --body 'Created by GH Action'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  create-release-notes:
-    runs-on: ubuntu-latest
-    needs:
-    - create-release-branch
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Create release notes
-        uses: docker://decathlon/release-notes-generator-action:2.1.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
