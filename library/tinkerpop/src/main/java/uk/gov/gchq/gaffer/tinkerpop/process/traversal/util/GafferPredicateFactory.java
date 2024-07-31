@@ -42,7 +42,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class GafferPredicateFactory {
-
     private static final String COULD_NOT_TRANSLATE_ERROR = "Could not translate Gremlin predicate: ";
 
     private GafferPredicateFactory() {
@@ -60,7 +59,7 @@ public final class GafferPredicateFactory {
      * @param p the Gremlin predicate to convert
      * @return the equivalent {@link KoryphePredicate}
      *
-     * @see TypeSubTypeValueFactory#parseAsTstvIfValid(Object)
+     * @see GafferCustomTypeFactory#parseAsCustomTypeIfValid(Object)
      */
     public static Predicate<?> convertGremlinPredicate(final P<?> p) {
         if (p == null) {
@@ -76,12 +75,12 @@ public final class GafferPredicateFactory {
 
         BiPredicate<?, ?> biPredicate = p.getBiPredicate();
         if (biPredicate instanceof Compare) {
-            Object value = TypeSubTypeValueFactory.parseAsTstvIfValid(p.getValue());
+            Object value = GafferCustomTypeFactory.parseAsCustomTypeIfValid(p.getValue());
             return getComparePredicate((Compare) biPredicate, value);
         } else if (biPredicate instanceof Contains) {
             Collection<?> value = (Collection<?>) p.getValue();
             Collection<Object> mappedValues = value.stream()
-                    .map(v -> TypeSubTypeValueFactory.parseAsTstvIfValid(v))
+                    .map(GafferCustomTypeFactory::parseAsCustomTypeIfValid)
                     .collect(Collectors.toList());
             return getContainsPredicate((Contains) biPredicate, mappedValues);
         } else if (biPredicate instanceof Text) {

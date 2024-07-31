@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.tinkerpop.generator;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferCustomTypeFactory;
 
 public class GafferEntityGenerator implements OneToOneElementGenerator<GafferPopVertex> {
     @Override
@@ -27,12 +28,13 @@ public class GafferEntityGenerator implements OneToOneElementGenerator<GafferPop
             throw new IllegalArgumentException("Unable to convert a null GafferPopVertex Object");
         }
 
-        final Entity entity = new Entity(vertex.label(), vertex.id());
+        final Entity entity = new Entity(vertex.label(), GafferCustomTypeFactory.parseAsCustomTypeIfValid(vertex.id()));
 
         // Tinkerpop allows nested properties under a key for Gaffer we need to flatten these so only one property per key
         vertex.properties().forEachRemaining(vertProp -> {
-            entity.putProperty(vertProp.key(), vertProp.value());
-            vertProp.properties().forEachRemaining(prop -> entity.putProperty(prop.key(), prop.value()));
+            entity.putProperty(vertProp.key(), GafferCustomTypeFactory.parseAsCustomTypeIfValid(vertProp.value()));
+            vertProp.properties().forEachRemaining(
+                prop -> entity.putProperty(prop.key(), GafferCustomTypeFactory.parseAsCustomTypeIfValid(prop.value())));
         });
 
         return entity;

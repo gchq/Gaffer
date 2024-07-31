@@ -50,7 +50,6 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURA
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_2;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_3;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.getTestUser;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_ID;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_ID_STRING;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.CREATED;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
@@ -322,7 +321,7 @@ class GafferPopGraphTest {
         assertThat(result).toIterable()
                 .hasSize(1)
                 .extracting(r -> r.id())
-                .containsExactly(TSTV_ID);
+                .containsExactly(TSTV_ID_STRING);
     }
 
     @Test
