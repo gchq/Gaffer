@@ -11,7 +11,7 @@ Gaffer is a graph database framework. It allows the storage of very large graphs
 
 It is designed to be as flexible, scalable and extensible as possible, allowing for rapid prototyping and transition to production systems.
 
-Gaffer offers:
+
 
  - Rapid query across very large numbers of nodes and edges
  - Continual ingest of data at very high data rates, and batch bulk ingest of data via MapReduce or Spark
