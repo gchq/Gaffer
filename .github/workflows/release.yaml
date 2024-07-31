@@ -119,7 +119,7 @@ jobs:
     #     echo "$(would deploy here)"
         # mvn deploy -P quick,ossrh-release --settings cd/mvnsettings.xml -B
 
-  create-release-notes:
+  publish-github-release:
     runs-on: ubuntu-latest
     needs:
     - deploy-release
