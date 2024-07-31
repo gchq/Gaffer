@@ -40,6 +40,7 @@ import org.apache.tinkerpop.gremlin.util.ser.GraphSONMessageSerializerV3;
 import org.apache.tinkerpop.gremlin.util.ser.MessageTextSerializer;
 import org.apache.tinkerpop.gremlin.util.ser.SerTokens;
 import org.json.JSONObject;
+import org.opencypher.gremlin.server.jsr223.CypherPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.BinaryMessage;
@@ -57,6 +58,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -88,6 +90,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
     private final ConcurrentBindings bindings = new ConcurrentBindings();
     private final AbstractUserFactory userFactory;
     private final Graph graph;
+    private final Map<String, Map<String, Object>> plugins = new HashMap<>();
 
     /**
      * Constructor
@@ -99,6 +102,8 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
         bindings.putIfAbsent("g", g);
         graph = g.getGraph();
         this.userFactory = userFactory;
+        // Add cypher plugin so cypher functions can be used in queries
+        plugins.put(CypherPlugin.class.getName(), new HashMap<>());
     }
 
     @Override
@@ -143,6 +148,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
         try (Scope scope = span.makeCurrent();
                 GremlinExecutor gremlinExecutor = GremlinExecutor.build()
                         .globalBindings(bindings)
+                        .addPlugins("gremlin-groovy", plugins)
                         .executorService(executorService)
                         .create()) {
             // Set current headers for potential authorisation then set the user

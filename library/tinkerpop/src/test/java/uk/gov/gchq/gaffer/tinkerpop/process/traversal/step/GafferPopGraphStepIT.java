@@ -34,12 +34,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.OTHER_TSTV_PROPERTY;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.OTHER_TSTV_PROPERTY_STRING;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_ID;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_ID_STRING;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY_STRING;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.AGE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
@@ -93,7 +90,7 @@ class GafferPopGraphStepIT {
 
         assertThat(result)
                 .extracting(r -> r.id())
-                .containsExactlyInAnyOrder(TSTV_ID);
+                .containsExactlyInAnyOrder(TSTV_ID_STRING);
     }
 
 
@@ -141,7 +138,7 @@ class GafferPopGraphStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(TSTV_PROPERTY_STRING);
     }
 
     @Test
@@ -161,7 +158,7 @@ class GafferPopGraphStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(TSTV_PROPERTY_STRING);
     }
 
     @Test
@@ -181,7 +178,7 @@ class GafferPopGraphStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY_STRING);
     }
 
     @Test
@@ -201,7 +198,7 @@ class GafferPopGraphStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY, TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY_STRING, TSTV_PROPERTY_STRING);
     }
 
     @Test
@@ -238,7 +235,7 @@ class GafferPopGraphStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY, TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY_STRING, TSTV_PROPERTY_STRING);
     }
 
     @Test

@@ -121,6 +121,11 @@
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>${springdoc.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.opencypher.gremlin</groupId>
+            <artifactId>cypher-gremlin-server-plugin</artifactId>
+            <version>${cypher-gremlin.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
