@@ -133,14 +133,13 @@ jobs:
     - name: Set version
       run: echo "RELEASE_VERSION=$(echo ${{ needs.deploy-release.outputs.release_version }})" >> $GITHUB_ENV
 
-    - name: Upload notes
+    - name: Release notes
       uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ env.artifactId }}-${{ env.RELEASE_VERSION }}
         name: Gaffer ${{ env.RELEASE_VERSION }}
-        body_path: release_file.md
 
   update-develop:
     runs-on: ubuntu-latest
