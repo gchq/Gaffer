@@ -116,7 +116,6 @@ jobs:
         OSS_NEXUS_USERNAME: ${{ secrets.OSS_NEXUS_USERNAME }}
         OSS_NEXUS_PASSWORD: ${{ secrets.OSS_NEXUS_PASSWORD }}
       run:
-        echo "$(would deploy here)"
         mvn deploy -P quick,ossrh-release --settings cd/mvnsettings.xml -B
 
   update-github-releases:
@@ -133,7 +132,7 @@ jobs:
     - name: Set version
       run: echo "RELEASE_VERSION=$(echo ${{ needs.deploy-release.outputs.release_version }})" >> $GITHUB_ENV
 
-    - name: Release notes
+    - name: Create github release
       uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -165,7 +164,7 @@ jobs:
         distribution: 'zulu'
         java-version: '8'
 
-    - name: Merge release into develop
+    - name: Merge master into develop
       run: |
         git merge origin/master
 
