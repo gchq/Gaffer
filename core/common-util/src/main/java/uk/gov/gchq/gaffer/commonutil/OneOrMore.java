@@ -116,6 +116,13 @@ public class OneOrMore<T> implements Iterable<T> {
         }
     }
 
+    // public int size() {
+    //     if (null != collection) {
+    //         return collection.size();
+    //     }
+    //     return (singleItem != null) ? 1 : 0;
+    // }
+
     public int size() {
         if (null == collection) {
             if (null != singleItem) {
@@ -126,6 +133,7 @@ public class OneOrMore<T> implements Iterable<T> {
 
         return collection.size();
     }
+
 
     public boolean isEmpty() {
         if (null == collection) {
