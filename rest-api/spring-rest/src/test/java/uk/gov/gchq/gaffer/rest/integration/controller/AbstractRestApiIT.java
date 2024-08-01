@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,11 +82,12 @@ public abstract class AbstractRestApiIT {
     }
 
     protected String getContextPath() {
-        return contextPath;
+        // All the rest endpoints are under /rest context
+        return contextPath + "rest";
     }
 
     protected String getBaseURl() {
-        return "http://localhost:" + port + "/" + contextPath;
+        return "http://localhost:" + port + "/" + getContextPath();
     }
 
     protected <T> ResponseEntity<T> get(final String path, final Class<T> responseBodyClass) {

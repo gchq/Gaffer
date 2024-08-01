@@ -50,7 +50,6 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURA
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_2;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.TEST_CONFIGURATION_3;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.getTestUser;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_ID;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_ID_STRING;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.CREATED;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
@@ -79,10 +78,9 @@ class GafferPopGraphTest {
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables)
             .hasSize(5)
-            .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId())
+            .containsEntry(GafferPopGraphVariables.USER, expectedUser)
             .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, 1)
             .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE, HasStepFilterStage.POST_TRANSFORM.toString())
-            .containsEntry(GafferPopGraphVariables.DATA_AUTHS, new String[]{"auth1", "auth2"})
             .containsKey(GafferPopGraphVariables.OP_OPTIONS);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
@@ -105,10 +103,9 @@ class GafferPopGraphTest {
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables)
             .hasSize(5)
-            .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId())
+            .containsEntry(GafferPopGraphVariables.USER, expectedUser)
             .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, 2)
             .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE, HasStepFilterStage.POST_AGGREGATION.toString())
-            .containsEntry(GafferPopGraphVariables.DATA_AUTHS, new String[]{})
             .containsKey(GafferPopGraphVariables.OP_OPTIONS);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
@@ -130,8 +127,7 @@ class GafferPopGraphTest {
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables)
             .hasSize(5)
-            .containsEntry(GafferPopGraphVariables.DATA_AUTHS, expectedUser.getDataAuths().toArray())
-            .containsEntry(GafferPopGraphVariables.USER_ID, expectedUser.getUserId())
+            .containsEntry(GafferPopGraphVariables.USER, expectedUser)
             .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT,
                     GafferPopGraph.DEFAULT_GET_ALL_ELEMENTS_LIMIT)
             .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
@@ -325,7 +321,7 @@ class GafferPopGraphTest {
         assertThat(result).toIterable()
                 .hasSize(1)
                 .extracting(r -> r.id())
-                .containsExactly(TSTV_ID);
+                .containsExactly(TSTV_ID_STRING);
     }
 
     @Test
