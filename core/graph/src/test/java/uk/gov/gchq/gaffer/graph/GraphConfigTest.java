@@ -127,35 +127,6 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
         assertNotSame(view, config.getView());
     }
 
-    @Test
-    public void shouldSetCreatedAt() throws Exception {
-        // Given
-        final String graphId = "graphId";
-
-        // When
-        final GraphConfig config = new GraphConfig.Builder()
-                .graphId(graphId)
-                .build();
-        // Then
-        assertNotNull(config.getCreatedAt());
-        assertInstanceOf(LocalDateTime.class, config.getCreatedAt());
-    }
-    @Test
-    public void shouldThrowAssertNotNullSetCreatedAtArg() throws Exception {
-        // Given
-        final String graphId = "graphId";
-
-        // When
-
-        // Then
-        Throwable exception = assertThrows(AssertionError.class, () -> new GraphConfig.Builder()
-        .graphId(graphId)
-        .createdAt(null)
-        .build());
-
-        assertEquals("createdAt should not be null", exception.getMessage());
-    }
-
     @Override
     protected GraphConfig getTestObject() {
         final String graphId = "graphId";

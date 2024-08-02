@@ -173,6 +173,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -212,6 +213,7 @@ public abstract class Store {
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
     private final Boolean addCoreOpHandlers;
+    private LocalDateTime creationTimestamp = LocalDateTime.now();
 
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
@@ -311,6 +313,19 @@ public abstract class Store {
                 jobsRescheduled = true;
             }
         }
+    }
+
+    public String getCreationTimestamp(final String graphId) {
+        if (this.graphId != graphId) {
+            throw new RuntimeException("Graph Id doesn't exist.");
+        }
+        return creationTimestamp.toString();
+    }
+    public void setCreationTimestamp(final String graphId, final LocalDateTime creationTimestamp) {
+        if (this.graphId != graphId) {
+            throw new RuntimeException("Graph Id doesn't exist.");
+        }
+        this.creationTimestamp = creationTimestamp;
     }
 
     private void rescheduleJob(final JobDetail jobDetail) {

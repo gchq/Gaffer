@@ -19,12 +19,14 @@ package uk.gov.gchq.gaffer.accumulostore;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.MutationsRejectedException;
+import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Key;
@@ -167,6 +169,23 @@ public class AccumuloStore extends Store {
         TableUtils.ensureTableExists(this);
     }
 
+    @Override
+    public String getCreationTimestamp(final String graphId) {
+
+        String tableName = TableUtils.getTableName(getProperties(), graphId);
+        Iterable<Entry<String, String>> properties;
+        try {
+            properties = TableUtils.getConnector(getProperties()).tableOperations().getProperties(tableName);
+            for(Entry<String, String> entry : properties) {
+                if(entry.getKey() == TableUtils.TABLE_CREATION_TIMESTAMP) {
+                    return entry.getValue();
+                }
+            }
+        } catch (StoreException | AccumuloException | TableNotFoundException e) {
+            throw new RuntimeException("Error getting timestamp.", e);
+        }
+        throw new RuntimeException("Timestamp not found on table");
+    }
     /**
      * Performs general initialisation without creating the table.
      *
@@ -541,6 +560,8 @@ public class AccumuloStore extends Store {
             LOGGER.warn("Accumulo batch writer failed to close", e);
         }
     }
+
+    
 
     /**
      * Gets the {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage} in use by

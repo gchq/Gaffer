@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,6 +63,7 @@ public final class TableUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
     public static final String COLUMN_FAMILIES_OPTION = "columns";
     private static Boolean initialKerberosLoginComplete = false;
+    public static final String TABLE_CREATION_TIMESTAMP = "gaffer.creationTimestamp";
 
     private TableUtils() {
     }
@@ -138,6 +140,9 @@ public final class TableUtils {
             connector.tableOperations().setProperty(tableName, Property.TABLE_BLOOM_ENABLED.getKey(), "true");
             connector.tableOperations().setProperty(tableName, Property.TABLE_BLOOM_KEY_FUNCTOR.getKey(),
                     store.getKeyPackage().getKeyFunctor().getClass().getName());
+
+            connector.tableOperations().setProperty(tableName, TABLE_CREATION_TIMESTAMP, LocalDateTime.now().toString());
+
 
             // Remove versioning iterator from table for all scopes
             LOGGER.info("Removing versioning iterator from table {}", tableName);
