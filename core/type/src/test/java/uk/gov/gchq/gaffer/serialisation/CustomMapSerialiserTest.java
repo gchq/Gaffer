@@ -40,7 +40,7 @@ class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap> {
         final CustomMap deserialise = serialiser.deserialise(serialiser.serialise(expected));
 
         // Then
-        if(deserialise.equals(expected)){
+        if (deserialise.equals(expected)) {
             return;
         }
         detailedEquals(expected, deserialise, String.class, Integer.class, new StringSerialiser(), new OrderedIntegerSerialiser());
