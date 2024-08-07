@@ -107,9 +107,7 @@ class AuthorisationsTest {
         final List<ByteBuffer> getAuthBB = actual.getAuthorisationsBB();
 
         assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> {
-                getAuthBB.add(byteBuffer);
-            });
+            .isThrownBy(() -> getAuthBB.add(byteBuffer));
     }
 
     @Test
