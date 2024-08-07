@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -102,9 +103,12 @@ class AuthorisationsTest {
 
         assertThat(actual.getAuthorisationsArray()).isEqualTo(expected.getAuthorisationsArray());
 
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[] {'a'});
+        final List<ByteBuffer> getAuthBB = actual.getAuthorisationsBB();
+
         assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> {
-                actual.getAuthorisationsBB().add(ByteBuffer.wrap(new byte[] {'a'}));
+                getAuthBB.add(byteBuffer);
             });
     }
 

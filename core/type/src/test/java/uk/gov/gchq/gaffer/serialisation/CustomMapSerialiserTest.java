@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSer
 import uk.gov.gchq.gaffer.types.CustomMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 
 class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap> {
 
@@ -41,6 +40,9 @@ class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap> {
         final CustomMap deserialise = serialiser.deserialise(serialiser.serialise(expected));
 
         // Then
+        if(deserialise.equals(expected)){
+            return;
+        }
         detailedEquals(expected, deserialise, String.class, Integer.class, new StringSerialiser(), new OrderedIntegerSerialiser());
     }
 
@@ -50,38 +52,35 @@ class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap> {
                                 final Class<Integer> expectedVClass,
                                 final ToBytesSerialiser<String> kS,
                                 final ToBytesSerialiser<Integer> vS) {
-        Throwable thrown = catchThrowable(() -> assertThat(actual).isEqualTo(expected));
 
-        if (thrown != null) {
-            // Serialiser
-            assertThat(expected.getKeySerialiser()).isEqualTo(kS);
-            assertThat(actual.getKeySerialiser()).isEqualTo(kS);
-            assertThat(expected.getValueSerialiser()).isEqualTo(vS);
-            assertThat(actual.getValueSerialiser()).isEqualTo(vS);
-            assertThat(actual.getKeySerialiser()).isEqualTo(expected.getKeySerialiser());
+        // Serialiser
+        assertThat(expected.getKeySerialiser()).isEqualTo(kS);
+        assertThat(actual.getKeySerialiser()).isEqualTo(kS);
+        assertThat(expected.getValueSerialiser()).isEqualTo(vS);
+        assertThat(actual.getValueSerialiser()).isEqualTo(vS);
+        assertThat(actual.getKeySerialiser()).isEqualTo(expected.getKeySerialiser());
 
-            // Key element
-            assertThat(expected.keySet().iterator().next().getClass()).isEqualTo(expectedKClass);
-            assertThat(actual.keySet().iterator().next().getClass()).isEqualTo(expectedKClass);
+        // Key element
+        assertThat(expected.keySet().iterator().next().getClass()).isEqualTo(expectedKClass);
+        assertThat(actual.keySet().iterator().next().getClass()).isEqualTo(expectedKClass);
 
-            // Value element
-            assertThat(expected.values().iterator().next().getClass()).isEqualTo(expectedVClass);
-            assertThat(actual.values().iterator().next().getClass()).isEqualTo(expectedVClass);
+        // Value element
+        assertThat(expected.values().iterator().next().getClass()).isEqualTo(expectedVClass);
+        assertThat(actual.values().iterator().next().getClass()).isEqualTo(expectedVClass);
 
-            // keySets
-            assertThat(actual.keySet()).isEqualTo(expected.keySet());
+        // keySets
+        assertThat(actual.keySet()).isEqualTo(expected.keySet());
 
-            //values
-            for (Object k : expected.keySet()) {
-                final Object expectedV = expected.get(k);
-                final Object actualV = actual.get(k);
-                assertThat(actualV.getClass()).isEqualTo(expectedV.getClass());
-                assertThat(actualV.getClass()).isEqualTo(expectedVClass);
-                assertThat(expectedV.getClass()).isEqualTo(expectedVClass);
-                assertThat(actualV).isEqualTo(expectedV);
-            }
-            assertThat(actual).isEqualTo(expected);
+        //values
+        for (Object k : expected.keySet()) {
+            final Object expectedV = expected.get(k);
+            final Object actualV = actual.get(k);
+            assertThat(actualV.getClass()).isEqualTo(expectedV.getClass());
+            assertThat(actualV.getClass()).isEqualTo(expectedVClass);
+            assertThat(expectedV.getClass()).isEqualTo(expectedVClass);
+            assertThat(actualV).isEqualTo(expectedV);
         }
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Override

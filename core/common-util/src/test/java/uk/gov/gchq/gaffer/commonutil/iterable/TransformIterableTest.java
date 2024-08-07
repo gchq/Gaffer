@@ -207,15 +207,9 @@ class TransformIterableTest {
         final boolean autoClose = true;
         final Iterable<String> items = mock(Iterable.class, Mockito.withSettings().extraInterfaces(Closeable.class));
 
-        TransformIterable<String, String> iterable = null;
-        try {
-            iterable = new TransformIterableImpl(items, new AlwaysValid<>(), false, autoClose);
-
+        try (TransformIterable<String, String> iterable = new TransformIterableImpl(items, new AlwaysValid<>(), false, autoClose)) {
             // Then
-            assertThat(iterable.getValidator())
-                .isInstanceOf(AlwaysValid.class);
-        } finally {
-            CloseableUtil.close(iterable);
+            assertThat(iterable.getValidator()).isInstanceOf(AlwaysValid.class);
         }
     }
 

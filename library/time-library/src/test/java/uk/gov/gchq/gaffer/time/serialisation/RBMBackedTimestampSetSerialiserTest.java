@@ -192,11 +192,8 @@ class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTest<RBMBa
         final CustomMap deserialiseMap = JSONSerialiser.deserialise(serialise, CustomMap.class);
 
         //then
-        assertThat(deserialiseMap)
-            .as("The expected map from Json doesn't match")
-            .isEqualTo(jsonMap)
-            .as("The expected map doesn't match")
-            .isEqualTo(expectedMap);
+        assertThat(jsonMap).isEqualTo(expectedMap);
+        assertThat(deserialiseMap).isEqualTo(expectedMap);
     }
 
     protected String jsonFromFile(final String path) throws IOException {

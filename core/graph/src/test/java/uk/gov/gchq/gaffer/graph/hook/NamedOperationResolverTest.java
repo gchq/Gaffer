@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -470,12 +472,20 @@ class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
         final Map<String, ParameterDetail> paramDetailMap = new HashMap<>();
         paramDetailMap.put("param1", param);
 
+        final String opChainString = new JSONObject()
+            .put("operations", new JSONArray()
+                .put(new JSONObject()
+                    .put("class", "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements"))
+                .put(new JSONObject()
+                    .put("class", "uk.gov.gchq.gaffer.operation.impl.Limit")
+                    .put("resultLimit", "${param1}")))
+            .toString();
+
         // Make a real NamedOperationDetail with a parameter
         return new NamedOperationDetail.Builder()
                 .operationName(OP_NAME)
                 .description("standard operation")
-                .operationChain("{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, "
-                        + "{ \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
+                .operationChain(opChainString)
                 .parameters(paramDetailMap)
                 .build();
     }

@@ -31,18 +31,13 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 class ConsumableBlockingQueueTest {
 
     @Test
-    void shouldConsumeResultsWhenIterating() {
+    void shouldConsumeResultsWhenIterating() throws InterruptedException {
         // Given
         final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
 
-        IntStream.range(0, 4)
-                .forEach(i -> {
-                    try {
-                        queue.put(i);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+        for (int i = 0; i < 4; i++) {
+            queue.put(i);
+        }
 
         // When
         final List<Integer> items = queue.stream().collect(Collectors.toList());
@@ -63,14 +58,13 @@ class ConsumableBlockingQueueTest {
 
         final boolean[] finishedAdding = new boolean[] {false};
         new Thread(() -> {
-            IntStream.range(0, 10)
-                    .forEach(i -> {
-                        try {
-                            queue.put(i);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
+            for (int i = 0; i < 10; i++) {
+                try {
+                    queue.put(i);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             finishedAdding[0] = true;
         }).start();
 
@@ -130,17 +124,12 @@ class ConsumableBlockingQueueTest {
     }
 
     @Test
-    void shouldReturnToString() {
+    void shouldReturnToString() throws InterruptedException {
         final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
 
-         IntStream.range(0, 4)
-                .forEach(i -> {
-                    try {
-                        queue.put(i);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+        for (int i = 0; i < 4; i++) {
+            queue.put(i);
+        }
 
         assertThat(queue).hasToString("ConsumableBlockingQueue[items={0,1,2,3}]");
     }
