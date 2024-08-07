@@ -79,7 +79,7 @@ public class JobController {
     }
 
     @PostMapping(path = "/schedule", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    @io.swagger.v3.oas.annotations.Operation(summary = "schedules an asynchronous job")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Schedules an asynchronous job")
     public ResponseEntity<JobDetail> scheduleJob(
             @RequestHeader final HttpHeaders httpHeaders,
             @RequestBody final Job job) throws OperationException {
