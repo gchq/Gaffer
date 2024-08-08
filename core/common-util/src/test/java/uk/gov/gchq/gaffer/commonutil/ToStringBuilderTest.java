@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class ToStringBuilderTest {
+class ToStringBuilderTest {
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         clearDebugModeProperty();
     }
 
@@ -35,19 +35,19 @@ public class ToStringBuilderTest {
     }
 
     @Test
-    public void testDebugOffToStringBuilder() {
+    void testDebugOffToStringBuilder() {
         setDebugMode("false");
         ToStringBuilder toStringBuilder = new ToStringBuilder("Test String");
 
-        assertEquals(ToStringBuilder.SHORT_STYLE, toStringBuilder.getStyle());
+        assertThat(toStringBuilder.getStyle()).isEqualTo(ToStringBuilder.SHORT_STYLE);
     }
 
     @Test
-    public void testDebugOnToStringBuilder() {
+    void testDebugOnToStringBuilder() {
         setDebugMode("true");
         ToStringBuilder toStringBuilder = new ToStringBuilder("Test String");
 
-        assertEquals(ToStringBuilder.FULL_STYLE, toStringBuilder.getStyle());
+        assertThat(toStringBuilder.getStyle()).isEqualTo(ToStringBuilder.FULL_STYLE);
     }
 
     private void setDebugMode(final String value) {
