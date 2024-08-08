@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ public class AddElementsFromHdfsLoaderIT {
         }
     }
 
-    private static class AddElementsFromHdfsLoader extends UserLoaderIT {
+    static class AddElementsFromHdfsLoader extends UserLoaderIT {
         @TempDir
         public File testFolder;
 
@@ -133,7 +133,7 @@ public class AddElementsFromHdfsLoaderIT {
         }
 
         @Test
-        public void shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles(final TestInfo testInfo) throws Exception {
+        void shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles(final TestInfo testInfo) throws Exception {
             tearDown();
             fs.mkdirs(new Path(failureDir));
             try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(new Path(failureDir + "/someFile.txt"), true)))) {
@@ -146,7 +146,7 @@ public class AddElementsFromHdfsLoaderIT {
         }
 
         @Test
-        public void shouldAddElementsFromHdfsWhenDirectoriesAlreadyExist(TestInfo testInfo) throws Exception {
+        void shouldAddElementsFromHdfsWhenDirectoriesAlreadyExist(TestInfo testInfo) throws Exception {
             // Given
             tearDown();
             fs.mkdirs(new Path(outputDir));
@@ -160,7 +160,7 @@ public class AddElementsFromHdfsLoaderIT {
         }
 
         @Test
-        public void shouldThrowExceptionWhenAddElementsFromHdfsWhenOutputDirectoryContainsFiles(final TestInfo testInfo) throws Exception {
+        void shouldThrowExceptionWhenAddElementsFromHdfsWhenOutputDirectoryContainsFiles(final TestInfo testInfo) throws Exception {
             // Given
             tearDown();
             fs.mkdirs(new Path(outputDir));

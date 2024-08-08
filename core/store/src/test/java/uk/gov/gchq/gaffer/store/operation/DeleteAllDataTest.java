@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,28 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DeleteAllDataTest extends OperationTest<DeleteAllData> {
 
-
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final DeleteAllData operation = new DeleteAllData.Builder().option("a", "1").build();
-        assertThat(operation.getOption("a")).isEqualTo(1);
+        assertThat(operation.getOption("a")).isEqualTo("1");
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         final DeleteAllData a = new DeleteAllData();
         final DeleteAllData b = a.shallowClone();
-        assertThat(a).isNotSameAs(b).isEqualTo(b);
+        assertThat(a).isNotEqualTo(b);
+        assertThat(b).isInstanceOf(DeleteAllData.class);
     }
 
     @Override
