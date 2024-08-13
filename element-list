@@ -116,6 +116,7 @@ uk.gov.gchq.gaffer.operation.graph
 uk.gov.gchq.gaffer.operation.impl
 uk.gov.gchq.gaffer.operation.impl.add
 uk.gov.gchq.gaffer.operation.impl.compare
+uk.gov.gchq.gaffer.operation.impl.delete
 uk.gov.gchq.gaffer.operation.impl.export
 uk.gov.gchq.gaffer.operation.impl.export.localfile
 uk.gov.gchq.gaffer.operation.impl.export.resultcache
@@ -143,7 +144,9 @@ uk.gov.gchq.gaffer.rest.config
 uk.gov.gchq.gaffer.rest.controller
 uk.gov.gchq.gaffer.rest.example
 uk.gov.gchq.gaffer.rest.factory
+uk.gov.gchq.gaffer.rest.factory.spring
 uk.gov.gchq.gaffer.rest.filter
+uk.gov.gchq.gaffer.rest.handler
 uk.gov.gchq.gaffer.rest.mapper
 uk.gov.gchq.gaffer.rest.model
 uk.gov.gchq.gaffer.rest.serialisation
@@ -255,7 +258,6 @@ uk.gov.gchq.gaffer.tinkerpop.process.traversal.step
 uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.util
 uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation
 uk.gov.gchq.gaffer.tinkerpop.process.traversal.util
-uk.gov.gchq.gaffer.tinkerpop.server.auth
 uk.gov.gchq.gaffer.tinkerpop.service
 uk.gov.gchq.gaffer.traffic
 uk.gov.gchq.gaffer.traffic.generator
