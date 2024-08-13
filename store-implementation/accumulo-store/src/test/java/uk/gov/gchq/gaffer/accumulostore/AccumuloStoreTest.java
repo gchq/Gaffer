@@ -89,6 +89,10 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -174,6 +178,22 @@ public class AccumuloStoreTest {
         // Then
         assertThat(store.getTableName()).isEqualTo("namespaceName.graphId");
         assertThat(store.getGraphId()).isEqualTo("graphId");
+    }
+    @Test
+    public void shouldStoreTableCreationTimeStampProperty() throws Exception {
+        // Given
+        final AccumuloProperties properties = PROPERTIES.clone();
+        String graphId = "graphId";
+
+        final AccumuloStore store = new MiniAccumuloStore();
+        long epoch = Instant.now().getEpochSecond();
+        // When
+
+        store.initialise(graphId, SCHEMA, properties);
+                LocalDateTime dateTime = LocalDateTime.parse(store.getCreationTimestamp(graphId));
+        long tableCreationEpoch = dateTime.atZone(ZoneId.ofOffset("UTC", ZoneOffset.ofHours(0))).toEpochSecond();
+        // Then
+        assertThat(tableCreationEpoch).isBetween(epoch - 20, epoch + 20);
     }
 
     @Test
@@ -427,7 +447,7 @@ public class AccumuloStoreTest {
                 .type(TestTypes.DIRECTED_EITHER, new TypeDefinition.Builder()
                         .clazz(Boolean.class)
                         .build())
-                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .aggregateFunction(new Max())
                         .build())
@@ -440,7 +460,7 @@ public class AccumuloStoreTest {
 
         // When
         store.initialise("graphId", schema, PROPERTIES);
-
+        
         // Then - no validation exceptions
     }
 

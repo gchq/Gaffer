@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -134,6 +135,15 @@ public class AccumuloPropertiesTest {
 
         // Then
         assertNull(props.getKeytabPath());
+    }
+    @Test
+    public void shouldSetTableCreationTimestamp() {
+        // Given
+        final AccumuloProperties props = new AccumuloProperties();
+        final String timestamp = LocalDateTime.now().toString();
+        // Then
+        props.setTableCreationTimestamp(timestamp);
+        assertEquals(props.getTableCreationTimestamp(), timestamp);
     }
 
     @Test

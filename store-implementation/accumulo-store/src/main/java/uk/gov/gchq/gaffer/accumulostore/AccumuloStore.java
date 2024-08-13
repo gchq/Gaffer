@@ -177,7 +177,8 @@ public class AccumuloStore extends Store {
         try {
             properties = TableUtils.getConnector(getProperties()).tableOperations().getProperties(tableName);
             for(Entry<String, String> entry : properties) {
-                if(entry.getKey() == TableUtils.TABLE_CREATION_TIMESTAMP) {
+                LOGGER.info(entry.getKey());
+                if(entry.getKey().equals(AccumuloProperties.TABLE_CREATION_TIMESTAMP)) {
                     return entry.getValue();
                 }
             }
