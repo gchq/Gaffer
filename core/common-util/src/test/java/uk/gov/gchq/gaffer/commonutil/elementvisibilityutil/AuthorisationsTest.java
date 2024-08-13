@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,54 +19,54 @@ package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This test class is copied from org.apache.accumulo.core.security.AuthorizationsTest.
  */
-public class AuthorisationsTest {
+class AuthorisationsTest {
 
     @Test
-    public void testEncodeDecode() {
+    void testEncodeDecode() {
         final Authorisations a = new Authorisations("a", "abcdefg", "hijklmno", ",");
         final byte[] array = a.getAuthorisationsArray();
         final Authorisations b = new Authorisations(array);
 
-        assertEquals(a, b);
+        assertThat(b).isEqualTo(a);
     }
 
     @Test
-    public void testEncodeEmptyAuthorisations() {
+    void testEncodeEmptyAuthorisations() {
         final Authorisations a = new Authorisations();
         final byte[] array = a.getAuthorisationsArray();
         final Authorisations b = new Authorisations(array);
 
-        assertEquals(a, b);
+        assertThat(b).isEqualTo(a);
     }
 
     @Test
-    public void testEncodeMultiByteAuthorisations() {
+    void testEncodeMultiByteAuthorisations() {
         final Authorisations a = new Authorisations("五", "b", "c", "九");
         final byte[] array = a.getAuthorisationsArray();
         final Authorisations b = new Authorisations(array);
 
-        assertEquals(a, b);
+        assertThat(b).isEqualTo(a);
     }
 
     @Test
-    public void testSerialization() {
+    void testSerialization() {
         final Authorisations a1 = new Authorisations("a", "b");
         final Authorisations a2 = new Authorisations("b", "a");
 
-        assertEquals(a1, a2);
-        assertEquals(a1.serialise(), a2.serialise());
+        assertThat(a2).isEqualTo(a1);
+        assertThat(a2.serialise()).isEqualTo(a1.serialise());
     }
 
     @Test
-    public void testDefensiveAccess() {
+    void testDefensiveAccess() {
         final Authorisations expected = new Authorisations("foo", "a");
         final Authorisations actual = new Authorisations("foo", "a");
 
@@ -74,37 +74,46 @@ public class AuthorisationsTest {
         for (byte[] bytes : actual) {
             bytes[0]++;
         }
-        assertArrayEquals(expected.getAuthorisationsArray(), actual.getAuthorisationsArray());
+        assertThat(actual.getAuthorisationsArray()).isEqualTo(expected.getAuthorisationsArray());
 
         // test defensive getter and serializer
         actual.getAuthorisations().get(0)[0]++;
 
-        assertArrayEquals(expected.getAuthorisationsArray(), actual.getAuthorisationsArray());
-        assertEquals(expected.serialise(), actual.serialise());
+        assertThat(actual.getAuthorisationsArray()).isEqualTo(expected.getAuthorisationsArray());
+        assertThat(actual.serialise()).isEqualTo(expected.serialise());
     }
 
     // This should throw ReadOnlyBufferException, but THRIFT-883 requires that the ByteBuffers themselves not be read-only
     // @Test(expected = ReadOnlyBufferException.class)
     @Test
-    public void testReadOnlyByteBuffer() {
+    void testReadOnlyByteBuffer() {
         final Authorisations expected = new Authorisations("foo");
         final Authorisations actual = new Authorisations("foo");
 
-        assertArrayEquals(expected.getAuthorisationsArray(), actual.getAuthorisationsArray());
+        assertThat(actual.getAuthorisationsArray()).isEqualTo(expected.getAuthorisationsArray());
 
         actual.getAuthorisationsBB().get(0).array()[0]++;
-        assertArrayEquals(expected.getAuthorisationsArray(), actual.getAuthorisationsArray());
+        assertThat(actual.getAuthorisationsArray()).isEqualTo(expected.getAuthorisationsArray());
     }
 
     @Test
-    public void testUnmodifiableList() {
+    void testUnmodifiableList() {
         final Authorisations expected = new Authorisations("foo");
         final Authorisations actual = new Authorisations("foo");
 
-        assertArrayEquals(expected.getAuthorisationsArray(), actual.getAuthorisationsArray());
+        assertThat(actual.getAuthorisationsArray()).isEqualTo(expected.getAuthorisationsArray());
 
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> {
-            actual.getAuthorisationsBB().add(ByteBuffer.wrap(new byte[] {'a'}));
-        });
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[] {'a'});
+        final List<ByteBuffer> getAuthBB = actual.getAuthorisationsBB();
+
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> getAuthBB.add(byteBuffer));
+    }
+
+    @Test
+    void testToString() {
+        final Authorisations a = new Authorisations("a", "abcdefg", "hijklmno");
+
+        assertThat(a).hasToString("a,hijklmno,abcdefg");
     }
 }

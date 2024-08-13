@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class CloseableUtilTest {
+class CloseableUtilTest {
 
     @Test
-    public void shouldCloseACloseable() throws IOException {
+    void shouldCloseACloseable() throws IOException {
         final Closeable closeable = mock(Closeable.class);
 
         CloseableUtil.close(closeable);
@@ -40,7 +40,7 @@ public class CloseableUtilTest {
     }
 
     @Test
-    public void shouldCloseAllCloseables() throws IOException {
+    void shouldCloseAllCloseables() throws IOException {
         final Closeable closeable1 = mock(Closeable.class);
         final Closeable closeable2 = mock(Closeable.class);
         final Object nonCloseable = mock(Object.class);
@@ -51,10 +51,19 @@ public class CloseableUtilTest {
         verify(closeable2).close();
     }
 
+    @Test
+    void shouldCloseAutoCloseables() throws Exception {
+        final AutoCloseable autoCloseable = mock(AutoCloseable.class);
+
+        CloseableUtil.close(autoCloseable);
+
+        verify(autoCloseable).close();
+    }
+
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"Some string"})
-    public void shouldNotThrowExceptionForNullOrStringObject(Object obj) {
+    void shouldNotThrowExceptionForNullOrStringObject(Object obj) {
         assertThatNoException().isThrownBy(() -> CloseableUtil.close(obj));
     }
 }

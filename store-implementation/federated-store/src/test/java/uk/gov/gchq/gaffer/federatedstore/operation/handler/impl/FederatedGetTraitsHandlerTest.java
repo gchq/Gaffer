@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -283,6 +284,11 @@ public class FederatedGetTraitsHandlerTest {
         @Override
         protected OperationHandler<? extends AddElements> getAddElementsHandler() {
             return null;
+        }
+
+        @Override
+        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+                return null;
         }
 
         @Override

@@ -19,18 +19,15 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>2.2.2</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>tinkerpop</artifactId>
 
     <properties>
-        <tinkerpop.version>3.7.1</tinkerpop.version>
         <google-guice.version>4.2.3</google-guice.version>
         <cucumber.version>7.15.0</cucumber.version>
-        <!-- Note later versions require scala version 2.12.x -->
-        <cypher-gremlin.version>1.0.0</cypher-gremlin.version>
 
         <!-- Don't run any of the standard tinkerpop tests by default-->
         <test>!GafferPopGraphStructureStandardTest,!GafferPopFeatureTest,!GafferPopGraphProcessStandardTest</test>
@@ -108,7 +105,7 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>federated-store</artifactId>
             <version>${project.parent.version}</version>
@@ -153,6 +150,18 @@
                                 </descriptorRef>
                             </descriptorRefs>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Build the test jar so can be reused for testing the rest API -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

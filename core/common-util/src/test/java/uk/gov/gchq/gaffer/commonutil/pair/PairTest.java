@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,48 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.commonutil.pair;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class PairTest {
+class PairTest {
 
     @Test
-    public void shouldCreateMutablePair() {
+    void shouldCreateMutablePair() {
         final Pair<Integer, String> pair = new Pair<>(0, "foo");
 
-        assertEquals(0, pair.getFirst().intValue());
-        assertEquals("foo", pair.getSecond());
+        assertThat(pair.getFirst().intValue()).isZero();
+        assertThat(pair.getSecond()).isEqualTo("foo");
     }
 
     @Test
-    public void shouldCreateMutablePair2() {
+    void shouldCreateMutablePair2() {
         final Pair<Object, String> pair = new Pair<>(null, "bar");
 
-        assertNull(pair.getFirst());
-        assertEquals("bar", pair.getSecond());
+        assertThat(pair.getFirst()).isNull();
+        assertThat(pair.getSecond()).isEqualTo("bar");
     }
 
     @Test
-    public void shouldBeAbleToMutateFirstInPair() {
+    void shouldBeAbleToMutateFirstInPair() {
         final Pair<Integer, String> pair = new Pair<>(0);
 
         pair.setFirst(1);
 
-        assertEquals(1, pair.getFirst().intValue());
-        assertNull(pair.getSecond());
+        assertThat(pair.getFirst().intValue()).isEqualTo(1);
+        assertThat(pair.getSecond()).isNull();
     }
 
     @Test
-    public void shouldBeAbleToMutateSecondInPair() {
+    void shouldBeAbleToMutateSecondInPair() {
         final Pair<Object, String> pair = new Pair<>();
 
         pair.setSecond("2nd");
 
-        assertNull(pair.getFirst());
-        assertEquals("2nd", pair.getSecond());
+        assertThat(pair.getFirst()).isNull();
+        assertThat(pair.getSecond()).isEqualTo("2nd");
+    }
+
+    @Test
+    void shouldReturnToString() {
+        final Pair<String, String> pair = new Pair<>("foo", "bar");
+
+        assertThat(pair).hasToString("Pair[first=foo,second=bar]");
     }
 }

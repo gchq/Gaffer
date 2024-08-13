@@ -23,29 +23,25 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils;
+import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils;
+import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.AGE;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.JOSH;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.LOP;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MARKO;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.MODERN_CONFIGURATION;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.NAME;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.PERSON;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.RIPPLE;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopModernTestUtils.VADAS;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.OTHER_TSTV_PROPERTY;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.OTHER_TSTV_PROPERTY_STRING;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV;
-import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY;
 import static uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils.TSTV_PROPERTY_STRING;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.AGE;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.LOP;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.MARKO;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.NAME;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.PERSON;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.RIPPLE;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 
 /**
  * Runs all tests against <code>g.V().out()</code> so that a HasStep is
@@ -56,13 +52,10 @@ class GafferPopHasStepIT {
 
     private static GraphTraversalSource g;
     private static GraphTraversalSource tstvG;
-    private static final AccumuloProperties ACCUMULO_PROPERTIES =
-        AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GafferPopHasStepIT.class, "/gaffer/store.properties"));
-
 
     @BeforeAll
     public static void beforeAll() {
-        GafferPopGraph modern = GafferPopModernTestUtils.createModernGraph(GafferPopHasStepIT.class, ACCUMULO_PROPERTIES, MODERN_CONFIGURATION);
+        GafferPopGraph modern = GafferPopModernTestUtils.createModernGraph(GafferPopHasStepIT.class, StoreType.ACCUMULO);
         g = modern.traversal();
 
         GafferPopGraph tstv = GafferPopTstvTestUtils.createTstvGraph();
@@ -85,7 +78,7 @@ class GafferPopHasStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(TSTV_PROPERTY_STRING);
     }
 
     @Test
@@ -105,7 +98,7 @@ class GafferPopHasStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(TSTV_PROPERTY_STRING);
     }
 
     @Test
@@ -125,7 +118,7 @@ class GafferPopHasStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY_STRING);
     }
 
     @Test
@@ -146,7 +139,7 @@ class GafferPopHasStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY, TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY_STRING, TSTV_PROPERTY_STRING);
     }
 
     @Test
@@ -184,7 +177,7 @@ class GafferPopHasStepIT {
 
         assertThat(result)
                 .extracting(r -> r.value(NAME))
-                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY, TSTV_PROPERTY);
+                .containsExactlyInAnyOrder(OTHER_TSTV_PROPERTY_STRING, TSTV_PROPERTY_STRING);
     }
 
     @Test

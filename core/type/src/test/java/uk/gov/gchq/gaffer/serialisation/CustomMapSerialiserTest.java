@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,12 @@ import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSeria
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
 import uk.gov.gchq.gaffer.types.CustomMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap> {
+class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap> {
 
     @Test
-    public void shouldSerialiseStringInt() throws SerialisationException {
+    void shouldSerialiseStringInt() throws SerialisationException {
         // Given
         final CustomMap<String, Integer> expected = new CustomMap<>(new StringSerialiser(), new OrderedIntegerSerialiser());
         expected.put("one", 111);
@@ -40,38 +40,47 @@ public class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap>
         final CustomMap deserialise = serialiser.deserialise(serialiser.serialise(expected));
 
         // Then
+        if (deserialise.equals(expected)) {
+            return;
+        }
         detailedEquals(expected, deserialise, String.class, Integer.class, new StringSerialiser(), new OrderedIntegerSerialiser());
     }
 
-    private void detailedEquals(final CustomMap expected, final CustomMap actual, final Class expectedKClass, final Class expectedVClass, final ToBytesSerialiser kS, final ToBytesSerialiser vS) {
-        try {
-            assertEquals(expected, actual);
-        } catch (AssertionError e) {
-            //Serialiser
-            assertEquals(kS, expected.getKeySerialiser());
-            assertEquals(kS, actual.getKeySerialiser());
-            assertEquals(vS, expected.getValueSerialiser());
-            assertEquals(vS, actual.getValueSerialiser());
-            assertEquals(expected.getKeySerialiser(), actual.getKeySerialiser());
-            //Key element
-            assertEquals(expectedKClass, expected.keySet().iterator().next().getClass());
-            assertEquals(expectedKClass, actual.keySet().iterator().next().getClass());
-            //Value element
-            assertEquals(expectedVClass, expected.values().iterator().next().getClass());
-            assertEquals(expectedVClass, actual.values().iterator().next().getClass());
-            //ketSets
-            assertEquals(expected.keySet(), actual.keySet());
-            //values
-            for (Object k : expected.keySet()) {
-                final Object expectedV = expected.get(k);
-                final Object actualV = actual.get(k);
-                assertEquals(expectedV.getClass(), actualV.getClass());
-                assertEquals(expectedVClass, actualV.getClass());
-                assertEquals(expectedVClass, expectedV.getClass());
-                assertEquals(expectedV, actualV);
-            }
-            assertEquals(expected, actual);
+    private void detailedEquals(final CustomMap<String, Integer> expected,
+                                final CustomMap actual,
+                                final Class<String> expectedKClass,
+                                final Class<Integer> expectedVClass,
+                                final ToBytesSerialiser<String> kS,
+                                final ToBytesSerialiser<Integer> vS) {
+
+        // Serialiser
+        assertThat(expected.getKeySerialiser()).isEqualTo(kS);
+        assertThat(actual.getKeySerialiser()).isEqualTo(kS);
+        assertThat(expected.getValueSerialiser()).isEqualTo(vS);
+        assertThat(actual.getValueSerialiser()).isEqualTo(vS);
+        assertThat(actual.getKeySerialiser()).isEqualTo(expected.getKeySerialiser());
+
+        // Key element
+        assertThat(expected.keySet().iterator().next().getClass()).isEqualTo(expectedKClass);
+        assertThat(actual.keySet().iterator().next().getClass()).isEqualTo(expectedKClass);
+
+        // Value element
+        assertThat(expected.values().iterator().next().getClass()).isEqualTo(expectedVClass);
+        assertThat(actual.values().iterator().next().getClass()).isEqualTo(expectedVClass);
+
+        // keySets
+        assertThat(actual.keySet()).isEqualTo(expected.keySet());
+
+        //values
+        for (Object k : expected.keySet()) {
+            final Object expectedV = expected.get(k);
+            final Object actualV = actual.get(k);
+            assertThat(actualV.getClass()).isEqualTo(expectedV.getClass());
+            assertThat(actualV.getClass()).isEqualTo(expectedVClass);
+            assertThat(expectedV.getClass()).isEqualTo(expectedVClass);
+            assertThat(actualV).isEqualTo(expectedV);
         }
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Override
@@ -81,7 +90,7 @@ public class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap>
 
     @Override
     public Pair<CustomMap, byte[]>[] getHistoricSerialisationPairs() {
-        final CustomMap<String, Integer> cm1 = new CustomMap(new StringSerialiser(), new OrderedIntegerSerialiser());
+        final CustomMap<String, Integer> cm1 = new CustomMap<>(new StringSerialiser(), new OrderedIntegerSerialiser());
         cm1.put("One", 1);
 
         final CustomMap<Float, String> cm2 = new CustomMap<>(new OrderedFloatSerialiser(), new StringSerialiser());

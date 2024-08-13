@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,38 +27,36 @@ import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
-public class JcsCacheTest {
+class JcsCacheTest {
 
     private static JcsCache<String, Integer> cache;
 
     @BeforeAll
-    public static void setUp() throws CacheException {
+    static void setUp() throws CacheException {
         CompositeCacheManager manager = CompositeCacheManager.getInstance();
         cache = new JcsCache<>(manager.getCache("test"));
     }
 
     @BeforeEach
-    public void before() throws CacheOperationException {
+    void before() throws CacheOperationException {
         cache.clear();
     }
 
 
     @Test
-    public void shouldThrowAnExceptionIfEntryAlreadyExistsWhenUsingPutSafe() {
-        try {
-            cache.put("test", 1);
-            cache.putSafe("test", 1);
-            fail();
-        } catch (final OverwritingException | CacheOperationException e) {
-            assertEquals("Cache entry already exists for key: test", e.getMessage());
-        }
+    void shouldThrowAnExceptionIfEntryAlreadyExistsWhenUsingPutSafe() throws CacheOperationException {
+        // given
+        cache.put("test", 1);
+
+        // then
+        assertThatExceptionOfType(OverwritingException.class)
+                .isThrownBy(() -> cache.putSafe("test", 1))
+                .withMessage("Cache entry already exists for key: test");
     }
 
     @Test
-    public void shouldThrowExceptionWhenAddingNullKeyToCache() {
+    void shouldThrowExceptionWhenAddingNullKeyToCache() {
         assertThatExceptionOfType(CacheOperationException.class)
                 .isThrownBy(() -> cache.put(null, 2))
                 .extracting("message")
@@ -66,7 +64,7 @@ public class JcsCacheTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfAddingNullValue() {
+    void shouldThrowExceptionIfAddingNullValue() {
         assertThatExceptionOfType(CacheOperationException.class)
                 .isThrownBy(() -> cache.put("test", null))
                 .extracting("message")
@@ -74,7 +72,7 @@ public class JcsCacheTest {
     }
 
     @Test
-    public void shouldAddToCache() throws CacheOperationException {
+    void shouldAddToCache() throws CacheOperationException {
 
         // when
         cache.put("key", 1);
@@ -84,17 +82,17 @@ public class JcsCacheTest {
     }
 
     @Test
-    public void shouldReadFromCache() throws CacheOperationException {
+    void shouldReadFromCache() throws CacheOperationException {
 
         // when
         cache.put("key", 2);
 
         // then
-        assertEquals(new Integer(2), cache.get("key"));
+        assertThat(cache.get("key")).isEqualTo(2);
     }
 
     @Test
-    public void shouldDeleteCachedEntries() throws CacheOperationException {
+    void shouldDeleteCachedEntries() throws CacheOperationException {
 
         // given
         cache.put("key", 3);
@@ -107,7 +105,7 @@ public class JcsCacheTest {
     }
 
     @Test
-    public void shouldUpdateCachedEntries() throws CacheOperationException {
+    void shouldUpdateCachedEntries() throws CacheOperationException {
 
         // given
         cache.put("key", 4);
@@ -117,11 +115,11 @@ public class JcsCacheTest {
 
         // then
         assertThat(cache.size()).isOne();
-        assertEquals(new Integer(5), cache.get("key"));
+        assertThat(cache.get("key")).isEqualTo(5);
     }
 
     @Test
-    public void shouldRemoveAllEntries() throws CacheOperationException {
+    void shouldRemoveAllEntries() throws CacheOperationException {
 
         // given
         cache.put("key1", 1);
@@ -136,7 +134,7 @@ public class JcsCacheTest {
     }
 
     @Test
-    public void shouldGetAllKeys() throws CacheOperationException {
+    void shouldGetAllKeys() throws CacheOperationException {
         cache.put("test1", 1);
         cache.put("test2", 2);
         cache.put("test3", 3);
@@ -146,14 +144,14 @@ public class JcsCacheTest {
     }
 
     @Test
-    public void shouldGetAllValues() throws CacheOperationException {
+    void shouldGetAllValues() throws CacheOperationException {
         cache.put("test1", 1);
         cache.put("test2", 2);
         cache.put("test3", 3);
         cache.put("duplicate", 3);
 
         assertThat(cache.size()).isEqualTo(4);
-        assertEquals(4, cache.getAllValues().size());
+        assertThat(cache.getAllValues()).hasSize(4);
 
         assertThat(cache.getAllValues()).contains(1, 2, 3);
     }

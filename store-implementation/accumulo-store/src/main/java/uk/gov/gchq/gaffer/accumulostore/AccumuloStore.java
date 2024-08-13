@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore;
 
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.ClientConfiguration;
@@ -42,6 +43,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.AddElementsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.DeleteElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GenerateSplitPointsFromSampleHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAllElementsHandler;
@@ -81,6 +83,7 @@ import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -104,6 +107,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -139,6 +143,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  */
 public class AccumuloStore extends Store {
 
+    private static final String MUTATION_ERROR = "Failed to create an accumulo key mutation";
     public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(Sets.newHashSet(
             ORDERED,
             VISIBILITY,
@@ -412,6 +417,11 @@ public class AccumuloStore extends Store {
         return new GetTraitsHandler(TRAITS);
     }
 
+    @Override
+    protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        return new DeleteElementsHandler();
+    }
+
     /**
      * Method to add {@link Element}s into Accumulo.
      *
@@ -455,7 +465,7 @@ public class AccumuloStore extends Store {
                 try {
                     writer.addMutation(m);
                 } catch (final MutationsRejectedException e) {
-                    LOGGER.error("Failed to create an accumulo key mutation");
+                    LOGGER.error(MUTATION_ERROR);
                     continue;
                 }
                 // If the GraphElement is a Vertex then there will only be 1 key,
@@ -471,7 +481,7 @@ public class AccumuloStore extends Store {
                     try {
                         writer.addMutation(m2);
                     } catch (final MutationsRejectedException e) {
-                        LOGGER.error("Failed to create an accumulo key mutation");
+                        LOGGER.error(MUTATION_ERROR);
                     }
                 }
             }
@@ -480,6 +490,53 @@ public class AccumuloStore extends Store {
         }
         try {
             writer.close();
+        } catch (final MutationsRejectedException e) {
+            LOGGER.warn("Accumulo batch writer failed to close", e);
+        }
+    }
+
+    /**
+     * Method to delete {@link Element}s from Accumulo.
+     *
+     * @param elements The elements to be deleted.
+     * @throws StoreException If there is a failure to delete elements.
+     */
+    public void deleteElements(final Iterable<? extends Element> elements) throws StoreException {
+        deleteGraphElements(elements);
+    }
+
+    protected void deleteGraphElements(final Iterable<? extends Element> elements) throws StoreException {
+        // Create BatchWriter
+        // Loop through elements, convert to mutations, and add to BatchWriter
+        // The BatchWriter takes care of batching them up, sending them without
+        // too high a latency, etc.
+        if (elements == null) {
+            throw new GafferRuntimeException("Could not find any elements to delete from graph.", Status.BAD_REQUEST);
+        }
+
+        try (BatchWriter writer = TableUtils.createBatchWriter(this)) {
+            for (final Element element : elements) {
+                final Pair<Key, Key> keys;
+                try {
+                    keys = getKeyPackage().getKeyConverter().getKeysFromElement(element);
+                } catch (final AccumuloElementConversionException e) {
+                    LOGGER.error(FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS, "key", element.getGroup());
+                    continue;
+                }
+
+                for (final Key key : Arrays.asList(keys.getFirst(), keys.getSecond())) {
+                    if (nonNull(key)) {
+                        final Mutation m = new Mutation(key.getRow());
+                        m.putDelete(key.getColumnFamily(), key.getColumnQualifier(), key.getTimestamp());
+
+                        try {
+                            writer.addMutation(m);
+                        } catch (final MutationsRejectedException e) {
+                            LOGGER.error(MUTATION_ERROR);
+                        }
+                    }
+                }
+            }
         } catch (final MutationsRejectedException e) {
             LOGGER.warn("Accumulo batch writer failed to close", e);
         }

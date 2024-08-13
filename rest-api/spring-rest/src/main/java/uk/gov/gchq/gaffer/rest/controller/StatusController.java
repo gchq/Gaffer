@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,12 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -24,8 +29,12 @@ import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
-public class StatusController implements IStatusController {
+@Tag(name = "status")
+@RequestMapping("/rest/graph/status")
+public class StatusController {
 
     private final GraphFactory graphFactory;
 
@@ -34,7 +43,8 @@ public class StatusController implements IStatusController {
         this.graphFactory = graphFactory;
     }
 
-    @Override
+    @GetMapping(produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Retrieves the status of the graph")
     public SystemStatus getStatus() {
         try {
             if (graphFactory.getGraph() != null) {
