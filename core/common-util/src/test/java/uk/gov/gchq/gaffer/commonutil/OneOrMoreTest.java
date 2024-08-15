@@ -24,8 +24,6 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class OneOrMoreTest {
 
     @Test
@@ -80,7 +78,7 @@ public class OneOrMoreTest {
         collection.add(2);
         collection.add(3);
 
-        assertThat(collection.size()).isEqualTo(3);
+        assertThat(collection).hasSize(3);
     }
 
     @Test
@@ -88,7 +86,7 @@ public class OneOrMoreTest {
         final boolean deduplicate = true;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
 
-        assertEquals(1, collection.size());
+        assertThat(collection).hasSize(1);
     }
 
     @Test
@@ -96,7 +94,7 @@ public class OneOrMoreTest {
         final boolean deduplicate = true;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, null);
 
-        assertEquals(0, collection.size());
+        assertThat(collection).hasSize(0);
     }
 
     @Test
