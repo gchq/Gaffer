@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,28 +24,28 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class FieldUtilTest {
+class FieldUtilTest {
 
     @Test
-    public void testNullField() {
-        final Pair nullPair = new Pair("Test", null);
+    void testNullField() {
+        final Pair<String, Object> nullPair = new Pair<String, Object>("Test", null);
 
         final ValidationResult validationResult = FieldUtil.validateRequiredFields(nullPair);
 
         final Set<String> expected = new LinkedHashSet<>();
         expected.add("Test is required.");
-        assertEquals(expected, validationResult.getErrors());
+        assertThat(validationResult.getErrors()).isEqualTo(expected);
     }
 
     @Test
-    public void testNotNullField() {
-        final Pair nonNullPair = new Pair("Test", "Test");
+    void testNotNullField() {
+        final Pair<String, Object> nonNullPair = new Pair<String, Object>("Test", "Test");
 
         final ValidationResult validationResult = FieldUtil.validateRequiredFields(nonNullPair);
 
         final Set<String> expected = new LinkedHashSet<>();
-        assertEquals(expected, validationResult.getErrors());
+        assertThat(validationResult.getErrors()).isEqualTo(expected);
     }
 }

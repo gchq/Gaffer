@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This test class is copied from org.apache.accumulo.core.data.ArrayByteSequenceTest.
  */
-public class ArrayByteSequenceTest {
+class ArrayByteSequenceTest {
 
     ArrayByteSequence abs;
     byte[] data;
@@ -39,74 +39,76 @@ public class ArrayByteSequenceTest {
     }
 
     @Test
-    public void testInvalidByteBufferBounds0ShouldThrowIAX() {
+    void testInvalidByteBufferBounds0ShouldThrowIAX() {
         assertThatIllegalArgumentException().isThrownBy(() -> abs = new ArrayByteSequence(data, -1, 0));
     }
 
     @Test
-    public void testInvalidByteBufferBounds1ShouldThrowIAX() {
+    void testInvalidByteBufferBounds1ShouldThrowIAX() {
         assertThatIllegalArgumentException().isThrownBy(() -> abs = new ArrayByteSequence(data, data.length + 1, 0));
     }
 
     @Test
-    public void testInvalidByteBufferBounds2ShouldThrowIAX() {
+    void testInvalidByteBufferBounds2ShouldThrowIAX() {
         assertThatIllegalArgumentException().isThrownBy(() -> abs = new ArrayByteSequence(data, 0, -1));
     }
 
     @Test
-    public void testInvalidByteBufferBounds3ShouldThrowIAX() {
+    void testInvalidByteBufferBounds3ShouldThrowIAX() {
         assertThatIllegalArgumentException().isThrownBy(() -> abs = new ArrayByteSequence(data, 6, 2));
     }
 
     @Test
-    public void testInvalidByteAt0ShouldThrowIAX() {
+    void testInvalidByteAt0ShouldThrowIAX() {
         assertThatIllegalArgumentException().isThrownBy(() -> abs.byteAt(-1));
     }
 
     @Test
-    public void testInvalidByteAt1ShouldThrowIAX() {
+    void testInvalidByteAt1ShouldThrowIAX() {
         assertThatIllegalArgumentException().isThrownBy(() -> abs.byteAt(data.length));
     }
 
     @Test
-    public void testSubSequence() {
-        assertEquals(0, abs.subSequence(0, 0).length());
-        assertEquals("mile", abs.subSequence(1, 5).toString());
+    void testSubSequence() {
+        assertThat(abs.subSequence(0, 0).length()).isZero();
+        assertThat(abs.subSequence(1, 5)).hasToString("mile");
     }
 
     @Test
-    public void testInvalidSubsequence0ShouldThrowIAX() {
+    void testInvalidSubsequence0ShouldThrowIAX() {
         assertThatIllegalArgumentException().isThrownBy(() -> abs.subSequence(5, 1));
     }
 
     @Test
-    public void testInvalidSubsequence1ShouldThrowIAX() {
+    void testInvalidSubsequence1ShouldThrowIAX() {
         assertThatIllegalArgumentException().isThrownBy(() -> abs.subSequence(-1, 1));
     }
 
     @Test
-    public void testInvalidSubsequence3ShouldThrowIAX() {
+    void testInvalidSubsequence3ShouldThrowIAX() {
         assertThatIllegalArgumentException().isThrownBy(() -> abs.subSequence(0, 10));
     }
 
     @Test
-    public void testFromByteBuffer() {
+    void testFromByteBuffer() {
         final ByteBuffer bb = ByteBuffer.wrap(data, 1, 4);
         abs = new ArrayByteSequence(bb);
 
-        assertEquals("mile", abs.toString());
+        assertThat(abs).hasToString("mile");
     }
 
     @Test
-    public void testFromReadOnlyByteBuffer() {
+    void testFromReadOnlyByteBuffer() {
         final ByteBuffer bb = ByteBuffer.wrap(data, 1, 4).asReadOnlyBuffer();
         abs = new ArrayByteSequence(bb);
 
-        assertEquals("mile", abs.toString());
+        assertThat(abs).hasToString("mile");
     }
 
     @Test
-    public void testToString() {
-        assertEquals("", new ArrayByteSequence("").toString(), "String conversion should round trip correctly");
+    void testToString() {
+        assertThat(new ArrayByteSequence(""))
+            .as("String conversion should round trip correctly")
+            .hasToString("");
     }
 }

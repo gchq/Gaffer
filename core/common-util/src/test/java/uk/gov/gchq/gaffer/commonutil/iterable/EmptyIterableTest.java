@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2021 Crown Copyright
+ * Copyright 2015-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EmptyIterableTest {
+class EmptyIterableTest {
 
     @Test
-    public void shouldBeEmpty() {
+    void shouldBeEmpty() {
         final EmptyIterable<Object> iterable = new EmptyIterable<>();
 
         assertThat(iterable).isEmpty();

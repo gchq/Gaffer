@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RepeatItemIterableTest {
+class RepeatItemIterableTest {
 
     @Test
-    public void shouldRepeatItem5Times() {
+    void shouldRepeatItem5Times() {
         final String item = "item";
         final long repeats = 5;
 
@@ -38,7 +38,7 @@ public class RepeatItemIterableTest {
 
     @ParameterizedTest
     @ValueSource(longs = {0, -1, -5})
-    public void shouldRepeatItem0TimesWhenRepeatsIsEqualOrLessThanZero(long repeats) {
+    void shouldRepeatItem0TimesWhenRepeatsIsEqualOrLessThanZero(long repeats) {
         final String item = "item";
 
         final Iterable<String> itr = new RepeatItemIterable<>(item, repeats);

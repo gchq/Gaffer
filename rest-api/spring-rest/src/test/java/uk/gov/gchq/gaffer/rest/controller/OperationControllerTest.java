@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -36,7 +37,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.rest.factory.ExamplesFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
-import uk.gov.gchq.gaffer.rest.factory.UserFactory;
+import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.rest.model.OperationDetail;
 import uk.gov.gchq.gaffer.rest.model.OperationField;
 import uk.gov.gchq.gaffer.store.Context;
@@ -68,7 +69,7 @@ public class OperationControllerTest {
 
     private Store store;
     private GraphFactory graphFactory;
-    private UserFactory userFactory;
+    private AbstractUserFactory userFactory;
     private ExamplesFactory examplesFactory;
     private OperationController operationController;
 
@@ -76,7 +77,7 @@ public class OperationControllerTest {
     public void setUpController() {
         store = mock(Store.class);
         graphFactory = mock(GraphFactory.class);
-        userFactory = mock(UserFactory.class);
+        userFactory = mock(AbstractUserFactory.class);
         examplesFactory = mock(ExamplesFactory.class);
 
         operationController = new OperationController(graphFactory, userFactory, examplesFactory);
@@ -296,7 +297,7 @@ public class OperationControllerTest {
         when(store.execute(any(Output.class), any(Context.class))).thenReturn(Arrays.asList(1, 2, 3));
 
         // When
-        final ResponseEntity<StreamingResponseBody> response = operationController.executeChunked(new GetAllElements());
+        final ResponseEntity<StreamingResponseBody> response = operationController.executeChunked(mock(HttpHeaders.class), new GetAllElements());
         try (final OutputStream output = new ByteArrayOutputStream()) {
             response.getBody().writeTo(output);
             // Then
