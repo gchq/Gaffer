@@ -521,6 +521,10 @@ public final class Graph {
         return store.getCaches();
     }
 
+    public String getCreationTimestamp() {
+        return store.getCreationTimestamp(getGraphId());
+    }
+
     @FunctionalInterface
     private interface StoreExecuter<O> {
         O execute(final OperationChain<O> operation, final Context context) throws OperationException;
