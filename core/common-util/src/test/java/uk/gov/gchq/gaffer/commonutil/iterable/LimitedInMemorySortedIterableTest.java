@@ -91,7 +91,7 @@ class LimitedInMemorySortedIterableTest {
     }
 
     @Test
-    void should_InsertNewItemAndRemoveOldItem_when_limitIsReachedAndNewItemIsLessThanLastEntry() {
+    void shouldInsertNewItemAndRemoveOldItemWhenlimitIsReachedAndNewItemIsLessThanLastEntry() {
         final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 3, false);
 
         list.add(3);
