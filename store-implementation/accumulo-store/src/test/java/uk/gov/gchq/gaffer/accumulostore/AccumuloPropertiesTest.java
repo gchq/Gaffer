@@ -136,15 +136,6 @@ public class AccumuloPropertiesTest {
         // Then
         assertNull(props.getKeytabPath());
     }
-    @Test
-    public void shouldSetTableCreationTimestamp() {
-        // Given
-        final AccumuloProperties props = new AccumuloProperties();
-        final String timestamp = LocalDateTime.now().toString();
-        // Then
-        props.setTableCreationTimestamp(timestamp);
-        assertEquals(props.getTableCreationTimestamp(), timestamp);
-    }
 
     @Test
     public void shouldSetProperties() {
@@ -162,6 +153,7 @@ public class AccumuloPropertiesTest {
         final String KEY_PACKAGE_CLASS = "gaffer.store.accumulo.keypackage.class";
         final String REPLICATION_FACTOR = "accumulo.file.replication";
         final String NAMESPACE = "gaffer.namespace";
+        final String TABLE_CREATION_TIMESTAMP = LocalDateTime.now().toString();
 
         // When
         props.setNumThreadsForBatchWriter(NUM_THREADS_WRITER);
@@ -177,6 +169,7 @@ public class AccumuloPropertiesTest {
         props.setTableFileReplicationFactor(REPLICATION_FACTOR);
         props.setEnableValidatorIterator(true);
         props.setNamespace(NAMESPACE);
+        props.setTableCreationTimestamp(TABLE_CREATION_TIMESTAMP);
 
         // Then
         assertEquals(Integer.parseInt(NUM_THREADS_WRITER), props.getNumThreadsForBatchWriter());
@@ -192,6 +185,7 @@ public class AccumuloPropertiesTest {
         assertEquals(REPLICATION_FACTOR, props.getTableFileReplicationFactor());
         assertTrue(props.getEnableValidatorIterator());
         assertEquals(NAMESPACE, props.getNamespace());
+        assertEquals(TABLE_CREATION_TIMESTAMP, props.getTableCreationTimestamp());
 
     }
 
