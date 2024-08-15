@@ -112,6 +112,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return new Schema.Builder().json(filePaths).build();
     }
 
+    public static Schema fromYaml(final Path... filePaths) throws SchemaException {
+        return new Schema.Builder().yaml(filePaths).build();
+    }
+
     public static Schema fromJson(final byte[]... jsonBytes) throws SchemaException {
         return new Schema.Builder().json(jsonBytes).build();
     }
@@ -470,6 +474,11 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         @JsonIgnore
         public CHILD_CLASS json(final byte[]... jsonBytes) throws SchemaException {
             return json(Schema.class, jsonBytes);
+        }
+
+        @JsonIgnore
+        public CHILD_CLASS yaml(final Path... filePaths) throws SchemaException {
+            return yaml(Schema.class, filePaths);
         }
 
         @Override

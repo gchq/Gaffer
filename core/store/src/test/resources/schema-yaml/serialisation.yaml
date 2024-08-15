@@ -1,0 +1,2 @@
+vertexSerialiser:
+  class: uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser

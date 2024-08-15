@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.jsonserialisation.YAMLDeserialiser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -286,6 +287,10 @@ public class ElementDefinitions<ENTITY_DEF extends ElementDefinition, EDGE_DEF e
             return json(clazz, (Object[]) filePaths);
         }
 
+        public CHILD_CLASS yaml(final Class<? extends ELEMENT_DEFS> clazz, final Path... filePaths) throws SchemaException {
+            return yaml(clazz, (Object[]) filePaths);
+        }
+
         @SuppressWarnings("PMD.UseTryWithResources")
         public CHILD_CLASS json(final Class<? extends ELEMENT_DEFS> clazz, final InputStream... inputStreams) throws SchemaException {
             try {
@@ -318,6 +323,31 @@ public class ElementDefinitions<ENTITY_DEF extends ElementDefinition, EDGE_DEF e
                             }
                         } else {
                             merge(JSONSerialiser.deserialise((byte[]) jsonItem, clazz));
+                        }
+                    } catch (final IOException e) {
+                        throw new SchemaException("Failed to load element definitions from bytes", e);
+                    }
+                }
+            }
+
+            return self();
+        }
+
+        public CHILD_CLASS yaml(final Class<? extends ELEMENT_DEFS> clazz, final Object... yamlItems) throws SchemaException {
+            if (null != yamlItems) {
+                for (final Object yamlItem : yamlItems) {
+                    try {
+                        if (yamlItem instanceof InputStream) {
+                            // TODO
+                        } else if (yamlItem instanceof Path) {
+                            final Path path = (Path) yamlItem;
+                            if (Files.isDirectory(path)) {
+                                yaml(clazz, Files.list(path).collect(Collectors.toList()).toArray());
+                            } else {
+                                merge(YAMLDeserialiser.deserialise(path.toFile(), clazz));
+                            }
+                        } else {
+                            // TODO
                         }
                     } catch (final IOException e) {
                         throw new SchemaException("Failed to load element definitions from bytes", e);

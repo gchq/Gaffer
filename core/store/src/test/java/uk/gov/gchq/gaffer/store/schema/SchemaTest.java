@@ -408,6 +408,16 @@ public class SchemaTest {
     }
 
     @Test
+    public void testYamlSchemaConstructedFromPath() throws Exception {
+
+        final Schema schema = Schema.fromYaml(Paths.get(SchemaTest.class.getResource("/schema-yaml").toURI()));
+
+        assertExpectedSchemaElementsContent(schema);
+        assertExpectedSchemaSerialisationContent(schema);
+        assertExpectedSchemaTypesContent(schema);
+    }
+
+    @Test
     public void testSchemaConstructedByRecursiveDirectoryProcessingOfPath() throws Exception {
 
         final Schema schemaNested = Schema
