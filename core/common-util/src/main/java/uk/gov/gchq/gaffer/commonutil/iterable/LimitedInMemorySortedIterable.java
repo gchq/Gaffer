@@ -86,20 +86,28 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
         boolean result = false;
 
         final OneOrMore<E> values = backingMap.get(e);
-        // Skip the item if we are deduplicating and the item already exists
+        // Skip the item if we are deduplicating and the item already exists.
         boolean skipItem = (deduplicate && nonNull(values) && values.contains(e));
         if (!skipItem) {
             if (nonNull(limit) && size >= limit) {
                 // Check the item against the last item.
                 final Map.Entry<E, OneOrMore<E>> last = backingMap.lastEntry();
+                // Checks if the last items key is greater than e
                 if (0 < comparator.compare(last.getKey(), e)) {
+                    // Checks if the items value contains a collection or a single item
                     if (1 < last.getValue().size()) {
+                        // Items value contains a collection.
+                        // Remove item from collection.
                         last.getValue().removeAnyItem();
                     } else {
+                        // Items value contains a single item.
+                        // Remove item from backingMap.
                         backingMap.remove(last.getKey());
                     }
                     size--;
+                    // e is bigger than the lastEntry.
                 } else {
+                    // Skip adding the item.
                     skipItem = true;
                 }
             }
