@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,10 +41,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class TransformIterableTest {
+class TransformIterableTest {
 
     @Test
-    public void shouldCreateIteratorThatReturnsOnlyValidStrings(@Mock final Validator<String> validator) {
+    void shouldCreateIteratorThatReturnsOnlyValidStrings(@Mock final Validator<String> validator) {
         // Given
         final String item1 = "valid item 1";
         final String item2 = "invalid item 2";
@@ -74,7 +74,7 @@ public class TransformIterableTest {
     }
 
     @Test
-    public void shouldThrowIAXExceptionWhenNextItemIsInvalidString(@Mock final Validator<String> validator) {
+    void shouldThrowIAXExceptionWhenNextItemIsInvalidString(@Mock final Validator<String> validator) {
         // Given
         final String item1 = "valid item 1";
         final String item2 = "invalid item 2 invalid";
@@ -100,7 +100,7 @@ public class TransformIterableTest {
     }
 
     @Test
-    public void shouldThrowNoElementExceptionWhenNextCalledWhenNoNextString(@Mock final Validator<String> validator) {
+    void shouldThrowNoElementExceptionWhenNextCalledWhenNoNextString(@Mock final Validator<String> validator) {
         // Given
         final String item1 = "item 1";
         final Iterable<String> items = Arrays.asList(item1);
@@ -122,7 +122,7 @@ public class TransformIterableTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfRemoveCalled(@Mock final Validator<String> validator) {
+    void shouldThrowExceptionIfRemoveCalled(@Mock final Validator<String> validator) {
         final String item1 = "item 1";
         final String item2 = "item 2";
         final Iterable<String> items = Arrays.asList(item1, item2);
@@ -139,7 +139,7 @@ public class TransformIterableTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void shouldAutoCloseIterator() throws IOException {
+    void shouldAutoCloseIterator() throws IOException {
         // Given
         final boolean autoClose = true;
         final Iterable<String> items = mock(Iterable.class, Mockito.withSettings().extraInterfaces(Closeable.class));
@@ -164,7 +164,7 @@ public class TransformIterableTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void shouldNotAutoCloseIterator() throws IOException {
+    void shouldNotAutoCloseIterator() throws IOException {
         // Given
         final boolean autoClose = false;
         final Iterable<String> items = mock(Iterable.class, Mockito.withSettings().extraInterfaces(Closeable.class));
@@ -185,6 +185,31 @@ public class TransformIterableTest {
             verify((Closeable) itemsIterator, never()).close();
         } finally {
             CloseableUtil.close(iterable);
+        }
+    }
+
+    @Test
+    void shouldThrowExceptionWithNullInput() {
+        // Given
+        final boolean autoClose = true;
+        final AlwaysValid<String> valid = new AlwaysValid<>();
+
+        // When/then
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> new TransformIterableImpl(null, valid, false, autoClose))
+            .withMessage("Input iterable is required");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void shouldGetValidator() {
+        // Given
+        final boolean autoClose = true;
+        final Iterable<String> items = mock(Iterable.class, Mockito.withSettings().extraInterfaces(Closeable.class));
+
+        try (TransformIterable<String, String> iterable = new TransformIterableImpl(items, new AlwaysValid<>(), false, autoClose)) {
+            // Then
+            assertThat(iterable.getValidator()).isInstanceOf(AlwaysValid.class);
         }
     }
 

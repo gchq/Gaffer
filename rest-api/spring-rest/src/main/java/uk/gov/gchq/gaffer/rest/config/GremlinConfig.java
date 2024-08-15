@@ -44,7 +44,7 @@ public class GremlinConfig {
         // Determine where to look for the GafferPop properties
         String gafferPopProperties = graphFactory.getGraph().getStoreProperties().get(GafferPopGraph.GAFFERPOP_PROPERTIES);
         if (gafferPopProperties == null) {
-            LOGGER.warn("GafferPop properties file was not specified using default location: {}", DEFAULT_PROPERTIES);
+            LOGGER.warn("GafferPop properties file was not specified. Using default location: {}", DEFAULT_PROPERTIES);
             gafferPopProperties = DEFAULT_PROPERTIES;
         }
         // Obtain the graph traversal

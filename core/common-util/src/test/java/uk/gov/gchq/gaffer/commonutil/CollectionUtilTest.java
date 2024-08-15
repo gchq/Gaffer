@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,11 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class CollectionUtilTest {
+class CollectionUtilTest {
 
     @Test
-    public void shouldReturnTreeSetWithProvidedItem() {
+    void shouldReturnTreeSetWithProvidedItem() {
         final String item = "test item";
 
         final TreeSet<String> treeSet = CollectionUtil.treeSet(item);
@@ -44,14 +41,14 @@ public class CollectionUtilTest {
     }
 
     @Test
-    public void shouldReturnTreeSetWithWithOutNullItem() {
-        final TreeSet<String> treeSet = CollectionUtil.treeSet(null);
+    void shouldReturnTreeSetWithWithOutNullItem() {
+        final TreeSet<String> treeSet = CollectionUtil.treeSet((String) null);
 
         assertThat(treeSet).isEmpty();
     }
 
     @Test
-    public void shouldReturnTreeSetWithProvidedItems() {
+     void shouldReturnTreeSetWithProvidedItems() {
         final String[] items = {"test item 1", "test item 2", null};
 
         final TreeSet<String> treeSet = CollectionUtil.treeSet(items);
@@ -65,14 +62,7 @@ public class CollectionUtilTest {
     }
 
     @Test
-    public void shouldReturnTreeSetWithNoItemsForNullArray() {
-        final TreeSet<String> treeSet = CollectionUtil.treeSet(null);
-
-        assertThat(treeSet).isEmpty();
-    }
-
-    @Test
-    public void shouldConvertMapToStringKeys() {
+    void shouldConvertMapToStringKeys() {
         // Given
         final Map<Class<? extends Number>, String> map = new HashMap<>();
         populateClassKeyMap(map);
@@ -83,11 +73,11 @@ public class CollectionUtilTest {
         // Then
         final Map<String, String> expectedResult = new HashMap<>();
         populateStringKeyMap(expectedResult);
-        assertEquals(expectedResult, result);
+        assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
-    public void shouldConvertMapToStringKeysWithProvidedMap() {
+    void shouldConvertMapToStringKeysWithProvidedMap() {
         // Given
         final Map<Class<? extends Number>, String> map = new HashMap<>();
         populateClassKeyMap(map);
@@ -100,11 +90,11 @@ public class CollectionUtilTest {
         // Then
         final Map<String, String> expectedResult = new LinkedHashMap<>();
         populateStringKeyMap(expectedResult);
-        assertEquals(expectedResult, result);
+        assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
-    public void shouldConvertMapToClassKeys() throws ClassNotFoundException {
+    void shouldConvertMapToClassKeys() throws ClassNotFoundException {
         // Given
         final Map<String, String> map = new HashMap<>();
         populateStringKeyMap(map);
@@ -115,11 +105,11 @@ public class CollectionUtilTest {
         // Then
         final Map<Class<? extends Number>, String> expectedResult = new HashMap<>();
         populateClassKeyMap(expectedResult);
-        assertEquals(expectedResult, result);
+        assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
-    public void shouldConvertMapToClassKeysWithProvidedMap() throws ClassNotFoundException {
+    void shouldConvertMapToClassKeysWithProvidedMap() throws ClassNotFoundException {
         // Given
         final Map<String, String> map = new HashMap<>();
         populateStringKeyMap(map);
@@ -132,11 +122,11 @@ public class CollectionUtilTest {
         // Then
         final Map<Class<? extends Number>, String> expectedResult = new LinkedHashMap<>();
         populateClassKeyMap(expectedResult);
-        assertEquals(expectedResult, result);
+        assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
-    public void shouldReturnTrueWhenCollectionContainsAProvidedValue() {
+    void shouldReturnTrueWhenCollectionContainsAProvidedValue() {
         // Given
         final Collection<Integer> collection = Sets.newHashSet(10, 20, 2, 30);
         final Object[] values = new Object[] {1, 2, 3};
@@ -145,11 +135,11 @@ public class CollectionUtilTest {
         final boolean result = CollectionUtil.containsAny(collection, values);
 
         // Then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
-    public void shouldReturnFalseWhenCollectionDoesNotContainsAProvidedValue() {
+    void shouldReturnFalseWhenCollectionDoesNotContainsAProvidedValue() {
         // Given
         final Collection<Integer> collection = Sets.newHashSet(10, 20, 30);
         final Object[] values = new Object[] {1, 2, 3};
@@ -158,11 +148,11 @@ public class CollectionUtilTest {
         final boolean result = CollectionUtil.containsAny(collection, values);
 
         // Then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
-    public void shouldReturnFalseWhenContainsAnyCalledWithNullValue() {
+    void shouldReturnFalseWhenContainsAnyCalledWithNullValue() {
         // Given
         final Collection<Integer> collection = Sets.newHashSet(10, 20, 30);
 
@@ -170,20 +160,20 @@ public class CollectionUtilTest {
         final boolean result = CollectionUtil.containsAny(collection, null);
 
         // Then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
-    public void shouldReturnFalseWhenContainsAnyCalledWithNullCollection() {
+    void shouldReturnFalseWhenContainsAnyCalledWithNullCollection() {
         final Object[] values = new Object[] {1, 2, 3};
 
         final boolean result = CollectionUtil.containsAny(null, values);
 
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
-    public void shouldReturnFalseWhenAnyMissingCalledWhenTheCollectionContainsAllValues() {
+    void shouldReturnFalseWhenAnyMissingCalledWhenTheCollectionContainsAllValues() {
         // Given
         final Collection<Integer> collection = Sets.newHashSet(10, 20, 30);
         final Object[] values = new Object[] {10, 20, 30};
@@ -192,11 +182,11 @@ public class CollectionUtilTest {
         final boolean result = CollectionUtil.anyMissing(collection, values);
 
         // Then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
-    public void shouldReturnFalseWhenAnyMissingCalledWhenNullValues() {
+    void shouldReturnFalseWhenAnyMissingCalledWhenNullValues() {
         // Given
         final Collection<Integer> collection = Sets.newHashSet(10, 20, 30);
 
@@ -204,11 +194,11 @@ public class CollectionUtilTest {
         final boolean result = CollectionUtil.anyMissing(collection, null);
 
         // Then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
-    public void shouldReturnTrueWhenAnyMissingCalledWhenTheCollectionDoesNotContainAProvidedValue() {
+    void shouldReturnTrueWhenAnyMissingCalledWhenTheCollectionDoesNotContainAProvidedValue() {
         // Given
         final Collection<Integer> collection = Sets.newHashSet(10, 20, 30);
         final Object[] values = new Object[] {1, 2, 3};
@@ -217,23 +207,11 @@ public class CollectionUtilTest {
         final boolean result = CollectionUtil.anyMissing(collection, values);
 
         // Then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
-    public void shouldReturnFalseWhenAnyMissingCalledWithNullValue() {
-        // Given
-        final Collection<Integer> collection = Sets.newHashSet(10, 20, 30);
-
-        // When
-        final boolean result = CollectionUtil.anyMissing(collection, null);
-
-        // Then
-        assertFalse(result);
-    }
-
-    @Test
-    public void shouldReturnTrueWhenAnyMissingCalledWithNullCollectionAndSomeValues() {
+    void shouldReturnTrueWhenAnyMissingCalledWithNullCollectionAndSomeValues() {
         // Given
         final Object[] values = new Object[] {1, 2, 3};
 
@@ -241,20 +219,20 @@ public class CollectionUtilTest {
         final boolean result = CollectionUtil.anyMissing(null, values);
 
         // Then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
-    public void shouldReturnFalseWhenAnyMissingCalledWithNullCollectionAndValues() {
+    void shouldReturnFalseWhenAnyMissingCalledWithNullCollectionAndValues() {
         // When
         final boolean result = CollectionUtil.anyMissing(null, null);
 
         // Then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     @Test
-    public void shouldReturnTrueWhenDistinctCalledWithCollectionOfUniqueValues() {
+    void shouldReturnTrueWhenDistinctCalledWithCollectionOfUniqueValues() {
         // Given
         final Collection<Integer> collection = Lists.newArrayList(1, 2, 3, 4, 5);
 
@@ -262,11 +240,11 @@ public class CollectionUtilTest {
         final boolean result = CollectionUtil.distinct(collection);
 
         // Then
-        assertTrue(result);
+        assertThat(result).isTrue();
     }
 
     @Test
-    public void shouldReturnFalseWhenDistinctCalledWithCollectionOfNonUniqueValues() {
+    void shouldReturnFalseWhenDistinctCalledWithCollectionOfNonUniqueValues() {
         // Given
         final Collection<Integer> collection = Lists.newArrayList(1, 2, 3, 1, 2);
 
@@ -274,7 +252,7 @@ public class CollectionUtilTest {
         final boolean result = CollectionUtil.distinct(collection);
 
         // Then
-        assertFalse(result);
+        assertThat(result).isFalse();
     }
 
     private void populateClassKeyMap(Map<Class<? extends Number>, String> map) {

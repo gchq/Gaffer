@@ -1,0 +1,23 @@
+changelog:
+  categories:
+    - title: Headliners
+      labels:
+        - headliner
+    - title: New Features
+      labels:
+        - feature
+    - title: Enhancements
+      labels:
+        - enhancement
+    - title: Bugs Fixed
+      labels:
+        - bug
+    - title: Documentation
+      labels:
+        - documentation
+    - title: Automation
+      labels:
+        - automation
+    - title: Other changes
+      labels:
+        - "*"

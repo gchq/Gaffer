@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,11 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class StreamsTest {
+class StreamsTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void shouldCloseIteratorWhenStreamIsClosed() throws Throwable {
+    void shouldCloseIteratorWhenStreamIsClosed() throws Throwable {
         // Given
         final Iterator<String> iterator = mock(Iterator.class, Mockito.withSettings().extraInterfaces(Closeable.class));
         given(iterator.hasNext()).willReturn(true, false);
@@ -53,7 +53,7 @@ public class StreamsTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void shouldCloseIterableWhenStreamIsClosed() throws Throwable {
+    void shouldCloseIterableWhenStreamIsClosed() throws Throwable {
         // Given
         final Iterable<String> iterable = mock(Iterable.class, Mockito.withSettings().extraInterfaces(Closeable.class));
         final Iterator<String> iterator = mock(Iterator.class, Mockito.withSettings().extraInterfaces(Closeable.class));
@@ -76,7 +76,7 @@ public class StreamsTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void shouldCloseIteratorWhenParallelStreamIsClosed() throws Throwable {
+    void shouldCloseIteratorWhenParallelStreamIsClosed() throws Throwable {
         // Given
         final Iterator<String> iterator = mock(Iterator.class, Mockito.withSettings().extraInterfaces(Closeable.class));
         given(iterator.hasNext()).willReturn(true, false);
@@ -96,7 +96,7 @@ public class StreamsTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void shouldCloseIterableWhenParallelStreamIsClosed() throws Throwable {
+    void shouldCloseIterableWhenParallelStreamIsClosed() throws Throwable {
         // Given
         final Iterable<String> iterable = mock(Iterable.class, Mockito.withSettings().extraInterfaces(Closeable.class));
         final Iterator<String> iterator = mock(Iterator.class, Mockito.withSettings().extraInterfaces(Closeable.class));
