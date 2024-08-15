@@ -168,9 +168,13 @@ public class AccumuloStore extends Store {
         preInitialise(graphId, schema, properties);
         TableUtils.ensureTableExists(this);
     }
-
-    @Override
-    public String getCreationTimestamp(final String graphId) {
+    /**
+     * Performs general initialisation without creating the table.
+     *
+     * @param graphId    The graph ID.
+     * @throws StoreException If the store could not be initialised.
+     */
+    public String getCreatedTime(final String graphId) {
 
         String tableName = TableUtils.getTableName(getProperties(), graphId);
         Iterable<Entry<String, String>> properties;
@@ -178,7 +182,7 @@ public class AccumuloStore extends Store {
             properties = TableUtils.getConnector(getProperties()).tableOperations().getProperties(tableName);
             for(Entry<String, String> entry : properties) {
                 LOGGER.info(entry.getKey());
-                if(entry.getKey().equals(AccumuloProperties.TABLE_CREATION_TIMESTAMP)) {
+                if(entry.getKey().equals(AccumuloProperties.TABLE_CREATED_TIME)) {
                     return entry.getValue();
                 }
             }

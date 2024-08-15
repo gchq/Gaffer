@@ -213,7 +213,7 @@ public abstract class Store {
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
     private final Boolean addCoreOpHandlers;
-    private LocalDateTime creationTimestamp = LocalDateTime.now();
+    private LocalDateTime createdTime = LocalDateTime.now();
 
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
@@ -315,17 +315,17 @@ public abstract class Store {
         }
     }
 
-    public String getCreationTimestamp(final String graphId) {
+    public String getCreatedTime(final String graphId) {
         if (this.graphId != graphId) {
             throw new RuntimeException("Graph Id doesn't exist.");
         }
-        return creationTimestamp.toString();
+        return createdTime.toString();
     }
-    public void setCreationTimestamp(final String graphId, final LocalDateTime creationTimestamp) {
+    public void setCreatedTime(final String graphId, final LocalDateTime createdTime) {
         if (this.graphId != graphId) {
             throw new RuntimeException("Graph Id doesn't exist.");
         }
-        this.creationTimestamp = creationTimestamp;
+        this.createdTime = createdTime;
     }
 
     private void rescheduleJob(final JobDetail jobDetail) {

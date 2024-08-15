@@ -52,7 +52,7 @@ public class AccumuloProperties extends StoreProperties {
     public static final String TABLE_REPLICATION_FACTOR = "accumulo.file.replication";
     public static final String ENABLE_VALIDATOR_ITERATOR = "gaffer.store.accumulo.enable.validator.iterator";
     public static final String HDFS_SKIP_PERMISSIONS = "accumulostore.operation.hdfs.skip_permissions";
-    public static final String TABLE_CREATION_TIMESTAMP = "table.custom.tableCreationTimestamp";
+    public static final String TABLE_CREATED_TIME = "table.custom.tableCreatedTime";
     // default values
     private static final String NUM_THREADS_FOR_BATCH_WRITER_DEFAULT = "10";
     private static final String MAX_ENTRIES_FOR_BATCH_SCANNER_DEFAULT = "50000";
@@ -106,8 +106,8 @@ public class AccumuloProperties extends StoreProperties {
      *
      * @param numThreadsForBatchWriter The number of concurrent threads to use in the batch writer.
      */
-    public void setTableCreationTimestamp(final String tableCreationTimestamp) {
-        set(TABLE_CREATION_TIMESTAMP, tableCreationTimestamp);
+    public void setTableCreatedTime(final String tableCreatedTime) {
+        set(TABLE_CREATED_TIME, tableCreatedTime);
     }
 
     /**
@@ -116,8 +116,8 @@ public class AccumuloProperties extends StoreProperties {
      *
      * @return The number of concurrent threads to use in the batch writer.
      */
-    public String getTableCreationTimestamp() {
-        return get(TABLE_CREATION_TIMESTAMP);
+    public String getTableCreatedTime() {
+        return get(TABLE_CREATED_TIME);
     }
 
     /**

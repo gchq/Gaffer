@@ -84,10 +84,10 @@ public class GraphConfigurationController {
         return graphFactory.getGraph().getGraphId();
     }
 
-    @GetMapping(path = "/graphCreationTimestamp", produces = TEXT_PLAIN_VALUE)
-    @Operation(summary = "Gets the graph creation timestamp")
-    public String getGraphCreationTimestamp() {
-        return graphFactory.getGraph().getCreationTimestamp();
+    @GetMapping(path = "/graphCreatedTime", produces = TEXT_PLAIN_VALUE)
+    @Operation(summary = "Gets the graph created time")
+    public String getGraphCreatedTime() {
+        return graphFactory.getGraph().getCreatedTime();
     }
 
     @GetMapping(path = "/filterFunctions", produces = APPLICATION_JSON_VALUE)

@@ -180,7 +180,7 @@ public class AccumuloStoreTest {
         assertThat(store.getGraphId()).isEqualTo("graphId");
     }
     @Test
-    public void shouldStoreTableCreationTimeStampProperty() throws Exception {
+    public void shouldStoreTableCreatedTimeProperty() throws Exception {
         // Given
         final AccumuloProperties properties = PROPERTIES.clone();
         String graphId = "graphId";
@@ -190,7 +190,7 @@ public class AccumuloStoreTest {
         // When
 
         store.initialise(graphId, SCHEMA, properties);
-                LocalDateTime dateTime = LocalDateTime.parse(store.getCreationTimestamp(graphId));
+                LocalDateTime dateTime = LocalDateTime.parse(store.getCreatedTime(graphId));
         long tableCreationEpoch = dateTime.atZone(ZoneId.ofOffset("UTC", ZoneOffset.ofHours(0))).toEpochSecond();
         // Then
         assertThat(tableCreationEpoch).isBetween(epoch - 20, epoch + 20);

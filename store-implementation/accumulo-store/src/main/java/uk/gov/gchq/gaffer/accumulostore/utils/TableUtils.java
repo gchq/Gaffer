@@ -142,7 +142,7 @@ public final class TableUtils {
           
             //  Set table creation timestamp
             LOGGER.info("Storing creation timestamp for table {}", tableName);
-            connector.tableOperations().setProperty(tableName, AccumuloProperties.TABLE_CREATION_TIMESTAMP, LocalDateTime.now().toString());
+            connector.tableOperations().setProperty(tableName, AccumuloProperties.TABLE_CREATED_TIME, LocalDateTime.now().toString());
 
             // Remove versioning iterator from table for all scopes
             LOGGER.info("Removing versioning iterator from table {}", tableName);

@@ -521,8 +521,8 @@ public final class Graph {
         return store.getCaches();
     }
 
-    public String getCreationTimestamp() {
-        return store.getCreationTimestamp(getGraphId());
+    public String getCreatedTime() {
+        return store.getCreatedTime(getGraphId());
     }
 
     @FunctionalInterface
@@ -894,7 +894,7 @@ public final class Graph {
             // This is stored inside the Store but is primarily
             // used by this class.
             store.setOriginalSchema(schema);
-            store.setCreationTimestamp(config.getGraphId(), LocalDateTime.now());
+            store.setCreatedTime(config.getGraphId(), LocalDateTime.now());
 
             return new Graph(config, store);
         }

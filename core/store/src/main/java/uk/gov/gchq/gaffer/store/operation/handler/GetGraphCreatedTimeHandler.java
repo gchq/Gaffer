@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.store.Context;
      public Map<String, String> doOperation(final GetGraphCreatedTime operation, final Context context, final Store store)
              throws OperationException {
         Map<String, String> timestamps = new HashMap<>();
-        operation.getInput().forEach(graphId -> timestamps.put(graphId, store.getCreationTimestamp(graphId)));
+        operation.getInput().forEach(graphId -> timestamps.put(graphId, store.getCreatedTime(graphId)));
         
          return timestamps;
      }
