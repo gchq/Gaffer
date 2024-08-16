@@ -99,8 +99,7 @@ class LimitedInMemorySortedIterableTest {
         list.add(3);
         list.add(2);
 
-        assertThat(list.size()).isEqualTo(3);
-        assertThat(list).containsExactly(2, 2, 3);
+        assertThat(list).hasSize(3).containsExactly(2, 2, 3);
     }
 
     @Test

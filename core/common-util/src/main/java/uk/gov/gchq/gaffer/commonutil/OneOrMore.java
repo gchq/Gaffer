@@ -117,7 +117,7 @@ public class OneOrMore<T> implements Iterable<T> {
     }
 
     public int size() {
-        if (null != collection) {
+        if (collection != null) {
             return collection.size();
         }
         return (singleItem != null) ? 1 : 0;
