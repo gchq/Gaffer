@@ -72,7 +72,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void testSizeWithNonNullCollection() {
+    void testSizeWithNonNullCollection() {
         final boolean deduplicate = true;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
         collection.add(2);
@@ -82,7 +82,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void testSizeWithSingleItem() {
+    void testSizeWithSingleItem() {
         final boolean deduplicate = true;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
 
@@ -90,11 +90,11 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void testSizeWithNullCollectionAndSingleItem() {
+    void testSizeWithNullCollectionAndSingleItem() {
         final boolean deduplicate = true;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, null);
 
-        assertThat(collection).hasSize(0);
+        assertThat(collection).isEmpty();
     }
 
     @Test
