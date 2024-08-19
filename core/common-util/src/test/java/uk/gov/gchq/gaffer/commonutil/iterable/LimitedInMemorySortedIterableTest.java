@@ -91,6 +91,18 @@ class LimitedInMemorySortedIterableTest {
     }
 
     @Test
+    void shouldInsertNewItemAndRemoveOldItemWhenlimitIsReachedAndNewItemIsLessThanLastEntry() {
+        final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 3, false);
+
+        list.add(3);
+        list.add(2);
+        list.add(3);
+        list.add(2);
+
+        assertThat(list).hasSize(3).containsExactly(2, 2, 3);
+    }
+
+    @Test
     void shouldAddAll() {
         final LimitedInMemorySortedIterable<Integer> itr = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 100);
 
