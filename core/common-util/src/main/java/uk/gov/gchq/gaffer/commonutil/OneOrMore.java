@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,14 +117,10 @@ public class OneOrMore<T> implements Iterable<T> {
     }
 
     public int size() {
-        if (null == collection) {
-            if (null != singleItem) {
-                return 1;
-            }
-            return 0;
+        if (collection != null) {
+            return collection.size();
         }
-
-        return collection.size();
+        return (singleItem != null) ? 1 : 0;
     }
 
     public boolean isEmpty() {
