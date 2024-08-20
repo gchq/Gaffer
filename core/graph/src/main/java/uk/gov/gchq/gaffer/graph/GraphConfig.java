@@ -361,7 +361,6 @@ public final class GraphConfig {
             if (config.getOtelActive() != null) {
                 this.config.setOtelActive(config.getOtelActive());
             }
-
             this.config.getHooks().addAll(config.getHooks());
 
             return this;

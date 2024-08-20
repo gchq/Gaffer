@@ -101,26 +101,6 @@ public class AccumuloProperties extends StoreProperties {
     }
 
     /**
-     * Sets the number of threads that should be used for the Accumulo batch
-     * writers.
-     *
-     * @param numThreadsForBatchWriter The number of concurrent threads to use in the batch writer.
-     */
-    public void setTableCreatedTime(final String tableCreatedTime) {
-        set(TABLE_CREATED_TIME, tableCreatedTime);
-    }
-
-    /**
-     * Gets the number of threads that should be used for the Accumulo batch
-     * writers.
-     *
-     * @return The number of concurrent threads to use in the batch writer.
-     */
-    public String getTableCreatedTime() {
-        return get(TABLE_CREATED_TIME);
-    }
-
-    /**
      * Sets the time out/latency that should be used for the Accumulo batch
      * writers.
      *

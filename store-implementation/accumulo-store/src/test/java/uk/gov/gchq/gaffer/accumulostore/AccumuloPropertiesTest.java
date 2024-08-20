@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -153,7 +152,6 @@ public class AccumuloPropertiesTest {
         final String KEY_PACKAGE_CLASS = "gaffer.store.accumulo.keypackage.class";
         final String REPLICATION_FACTOR = "accumulo.file.replication";
         final String NAMESPACE = "gaffer.namespace";
-        final String TABLE_CREATED_TIME = LocalDateTime.now().toString();
 
         // When
         props.setNumThreadsForBatchWriter(NUM_THREADS_WRITER);
@@ -169,7 +167,6 @@ public class AccumuloPropertiesTest {
         props.setTableFileReplicationFactor(REPLICATION_FACTOR);
         props.setEnableValidatorIterator(true);
         props.setNamespace(NAMESPACE);
-        props.setTableCreatedTime(TABLE_CREATED_TIME);
 
         // Then
         assertEquals(Integer.parseInt(NUM_THREADS_WRITER), props.getNumThreadsForBatchWriter());
@@ -185,8 +182,6 @@ public class AccumuloPropertiesTest {
         assertEquals(REPLICATION_FACTOR, props.getTableFileReplicationFactor());
         assertTrue(props.getEnableValidatorIterator());
         assertEquals(NAMESPACE, props.getNamespace());
-        assertEquals(TABLE_CREATED_TIME, props.getTableCreatedTime());
-
     }
 
     public static final class TestCustomJsonModules1 implements JSONSerialiserModules {

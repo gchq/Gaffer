@@ -169,10 +169,9 @@ public class AccumuloStore extends Store {
         TableUtils.ensureTableExists(this);
     }
     /**
-     * Performs general initialisation without creating the table.
-     *
-     * @param graphId    The graph ID.
-     * @throws StoreException If the store could not be initialised.
+     * Retrieves Accumulo Table created time property.
+     * @return Accumulo Table created time string.
+     * @throws StoreException If timestamp cannot be found.
      */
     @Override
     public String getCreatedTime() {
@@ -566,8 +565,6 @@ public class AccumuloStore extends Store {
             LOGGER.warn("Accumulo batch writer failed to close", e);
         }
     }
-
-    
 
     /**
      * Gets the {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage} in use by
