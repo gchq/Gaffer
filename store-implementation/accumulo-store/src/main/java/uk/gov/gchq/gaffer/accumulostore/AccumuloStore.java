@@ -174,9 +174,10 @@ public class AccumuloStore extends Store {
      * @param graphId    The graph ID.
      * @throws StoreException If the store could not be initialised.
      */
-    public String getCreatedTime(final String graphId) {
+    @Override
+    public String getCreatedTime() {
 
-        String tableName = TableUtils.getTableName(getProperties(), graphId);
+        String tableName = TableUtils.getTableName(getProperties(), this.getGraphId());
         Iterable<Entry<String, String>> properties;
         try {
             properties = TableUtils.getConnector(getProperties()).tableOperations().getProperties(tableName);

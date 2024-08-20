@@ -85,7 +85,7 @@ public class GraphConfigurationController {
     }
 
     @GetMapping(path = "/graphCreatedTime", produces = TEXT_PLAIN_VALUE)
-    @Operation(summary = "Gets the graph created time")
+    @Operation(summary = "Gets the creation time for the store associated with this REST API")
     public String getGraphCreatedTime() {
         return graphFactory.getGraph().getCreatedTime();
     }

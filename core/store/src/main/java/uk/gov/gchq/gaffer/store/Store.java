@@ -79,6 +79,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetGraphCreatedTime;
 import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -113,6 +114,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ForEachHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetGraphCreatedTimeHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariablesHandler;
@@ -315,16 +317,10 @@ public abstract class Store {
         }
     }
 
-    public String getCreatedTime(final String graphId) {
-        if (this.graphId != graphId) {
-            throw new RuntimeException("Graph Id doesn't exist.");
-        }
+    public String getCreatedTime() {
         return createdTime.toString();
     }
-    public void setCreatedTime(final String graphId, final LocalDateTime createdTime) {
-        if (this.graphId != graphId) {
-            throw new RuntimeException("Graph Id doesn't exist.");
-        }
+    public void setCreatedTime(final LocalDateTime createdTime) {
         this.createdTime = createdTime;
     }
 
@@ -1112,6 +1108,8 @@ public abstract class Store {
         addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
         addOperationHandler(Reduce.class, new ReduceHandler());
         addOperationHandler(Join.class, new JoinHandler());
+        addOperationHandler(GetGraphCreatedTime.class, new GetGraphCreatedTimeHandler());
+
 
         // Context variables
         addOperationHandler(SetVariable.class, new SetVariableHandler());

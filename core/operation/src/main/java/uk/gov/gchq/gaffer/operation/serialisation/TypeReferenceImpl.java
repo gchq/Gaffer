@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,6 +95,8 @@ public final class TypeReferenceImpl {
     public static class MapStringObject extends TypeReference<java.util.Map<java.lang.String, java.lang.Object>> {
     }
 
+    public static class MapStringString extends TypeReference<java.util.Map<java.lang.String, java.lang.String>> {
+    }
     public static class MapStringSet extends TypeReference<java.util.Map<java.lang.String, java.util.Set<java.lang.Object>>> {
     }
 

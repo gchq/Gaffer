@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
- package uk.gov.gchq.gaffer.store.operation.handler;
+package uk.gov.gchq.gaffer.store.operation.handler;
 
- import java.util.HashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
- import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.get.GetGraphCreatedTime;
 import uk.gov.gchq.gaffer.store.Context;
- import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.Store;
  
  /**
   * A {@code GetGraphCreatedTimeHandler} handles {@link GetGraphCreatedTime} operations.
@@ -33,7 +32,7 @@ import uk.gov.gchq.gaffer.store.Context;
      public Map<String, String> doOperation(final GetGraphCreatedTime operation, final Context context, final Store store)
              throws OperationException {
         Map<String, String> timestamps = new HashMap<>();
-        operation.getInput().forEach(graphId -> timestamps.put(graphId, store.getCreatedTime(graphId)));
+        timestamps.put(store.getGraphId(), store.getCreatedTime());
         
          return timestamps;
      }

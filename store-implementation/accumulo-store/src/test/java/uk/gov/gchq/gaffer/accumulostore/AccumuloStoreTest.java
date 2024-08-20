@@ -190,7 +190,7 @@ public class AccumuloStoreTest {
         // When
 
         store.initialise(graphId, SCHEMA, properties);
-                LocalDateTime dateTime = LocalDateTime.parse(store.getCreatedTime(graphId));
+                LocalDateTime dateTime = LocalDateTime.parse(store.getCreatedTime());
         long tableCreationEpoch = dateTime.atZone(ZoneId.ofOffset("UTC", ZoneOffset.ofHours(0))).toEpochSecond();
         // Then
         assertThat(tableCreationEpoch).isBetween(epoch - 20, epoch + 20);
