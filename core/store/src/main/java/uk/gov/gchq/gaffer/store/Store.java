@@ -98,6 +98,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.HasTrait;
@@ -897,6 +898,14 @@ public abstract class Store {
     protected abstract OperationHandler<? extends DeleteElements> getDeleteElementsHandler();
 
     /**
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.DeleteAllData}.
+     * All Stores must implement this.
+     *
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.DeleteAllData}
+     */
+    protected abstract OperationHandler<DeleteAllData> getDeleteAllDataHandler();
+
+    /**
      * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.store.operation.GetTraits}.
      * All Stores must implement this.
      *
@@ -1016,6 +1025,9 @@ public abstract class Store {
 
         // Delete elements
         addOperationHandler(DeleteElements.class, getDeleteElementsHandler());
+
+        // Delete all data
+        addOperationHandler(DeleteElements.class, getDeleteAllDataHandler());
 
         // Get Elements
         addOperationHandler(GetElements.class, getGetElementsHandler());

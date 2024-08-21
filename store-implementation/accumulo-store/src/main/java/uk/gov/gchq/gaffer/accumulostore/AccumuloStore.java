@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.AddElementsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.DeleteAllDataHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.DeleteElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GenerateSplitPointsFromSampleHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAdjacentIdsHandler;
@@ -93,6 +94,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -420,6 +422,11 @@ public class AccumuloStore extends Store {
     @Override
     protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
         return new DeleteElementsHandler();
+    }
+
+    @Override
+    protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+        return new DeleteAllDataHandler();
     }
 
     /**

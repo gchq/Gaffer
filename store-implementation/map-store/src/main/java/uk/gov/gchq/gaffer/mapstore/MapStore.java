@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.impl.AddElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.CountAllElementsDefaultViewHandler;
+import uk.gov.gchq.gaffer.mapstore.impl.DeleteAllDataHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.DeleteElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandler;
@@ -45,6 +46,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -176,6 +178,11 @@ public class MapStore extends Store {
     @Override
     protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
         return new DeleteElementsHandler();
+    }
+
+    @Override
+    protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+        return new DeleteAllDataHandler();
     }
 
     @Override

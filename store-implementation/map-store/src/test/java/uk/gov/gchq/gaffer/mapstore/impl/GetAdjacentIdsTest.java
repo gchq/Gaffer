@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,10 +39,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static uk.gov.gchq.gaffer.mapstore.impl.VisibilityTest.VERTEX_1;
 
-public class GetAdjacentIdsTest {
+class GetAdjacentIdsTest {
 
     @Test
-    public void shouldGetAdjacentIdsWhenThereAreNone() throws OperationException {
+    void shouldGetAdjacentIdsWhenThereAreNone() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -63,7 +63,7 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void shouldGetAdjacentEntityId() throws OperationException {
+    void shouldGetAdjacentEntityId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -139,7 +139,7 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void shouldGetAdjacentEntityIdWithViewRestrictedByGroup() throws OperationException {
+    void shouldGetAdjacentEntityIdWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -183,7 +183,7 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPreAggregationFilter()
+    void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPreAggregationFilter()
             throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
@@ -234,7 +234,7 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter()
+    void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter()
             throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
@@ -285,7 +285,7 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void shouldFailValidationWhenEntityHasFilter() throws OperationException {
+    void shouldFailValidationWhenEntityHasFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -316,7 +316,7 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void shouldPassValidationOnEntitiesWithoutFilters() throws OperationException {
+    void shouldPassValidationOnEntitiesWithoutFilters() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -368,7 +368,7 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+    void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
         VisibilityTest.executeOperation(new GetAdjacentIds.Builder().input(new EntitySeed(VERTEX_1)).build(),
                 VisibilityTest::vertex1AdjacentIdsResultConsumer);
     }

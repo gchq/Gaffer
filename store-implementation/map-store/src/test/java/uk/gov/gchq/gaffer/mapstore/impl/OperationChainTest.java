@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -40,12 +39,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class OperationChainTest {
+class OperationChainTest {
 
     @Test
-    public void testOperationChain() throws StoreException, OperationException {
+    void testOperationChain() throws OperationException {
         // Given
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -82,7 +81,7 @@ public class OperationChainTest {
                     return edge.getSource().equals("vertex1") || edge.getDestination().equals("vertex2");
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     private static List<Element> getElements() {

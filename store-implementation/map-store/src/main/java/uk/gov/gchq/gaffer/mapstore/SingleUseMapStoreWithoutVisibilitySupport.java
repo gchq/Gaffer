@@ -26,11 +26,12 @@ import java.util.Set;
 
 public class SingleUseMapStoreWithoutVisibilitySupport extends SingleUseMapStore {
 
-    private static final Set<StoreTrait> TRAITS = new HashSet<StoreTrait>(MapStore.TRAITS) {
-        {
-            remove(StoreTrait.VISIBILITY);
-        }
-    };
+
+    private static final Set<StoreTrait> TRAITS = new HashSet<>(MapStore.TRAITS);
+
+    static {
+        TRAITS.remove(StoreTrait.VISIBILITY);
+    }
 
     @Override
     public Set<StoreTrait> getTraits() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.mapstore.multimap;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.store.StoreException;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,16 +25,14 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class MapOfSetsTest {
+class MapOfSetsTest {
     @Test
-    public void shouldPutValueInExistingMapSet() throws StoreException {
+    void shouldPutValueInExistingMapSet() {
         // Given
         final String key = "key1";
         final String value = "value1";
@@ -51,12 +47,12 @@ public class MapOfSetsTest {
         final boolean putResult = mapOfSets.put(key, value);
 
         // Then
-        assertTrue(putResult);
+        assertThat(putResult).isTrue();
         verify(set).add(value);
     }
 
     @Test
-    public void shouldPutValueInMapWhenNullSetAndNullSetClass() throws StoreException {
+    void shouldPutValueInMapWhenNullSetAndNullSetClass() {
         // Given
         final String key = "key1";
         final String value = "value1";
@@ -67,12 +63,12 @@ public class MapOfSetsTest {
         final boolean putResult = mapOfSets.put(key, value);
 
         // Then
-        assertTrue(putResult);
-        assertEquals(Sets.newHashSet(value), mapOfSets.get(key));
+        assertThat(putResult).isTrue();
+        assertThat(mapOfSets.get(key)).isEqualTo(Sets.newHashSet(value));
     }
 
     @Test
-    public void shouldPutValueInMapWhenNullSetAndLinkedHashSetClass() throws StoreException {
+    void shouldPutValueInMapWhenNullSetAndLinkedHashSetClass() {
         // Given
         final String key = "key1";
         final String value = "value1";
@@ -83,12 +79,12 @@ public class MapOfSetsTest {
         final boolean putResult = mapOfSets.put(key, value);
 
         // Then
-        assertTrue(putResult);
-        assertEquals(Sets.newLinkedHashSet(Collections.singleton(value)), map.get(key));
+        assertThat(putResult).isTrue();
+        assertThat(map).containsEntry(key, Sets.newLinkedHashSet(Collections.singleton(value)));
     }
 
     @Test
-    public void shouldGetSetFromMap() throws StoreException {
+    void shouldGetSetFromMap() {
         // Given
         final String key = "key1";
         final Set<String> set = mock(Set.class);
@@ -102,11 +98,11 @@ public class MapOfSetsTest {
 
         // Then
         verify(map).get(key);
-        assertSame(set, result);
+        assertThat(result).isSameAs(set);
     }
 
     @Test
-    public void shouldClearMap() throws StoreException {
+    void shouldClearMap() {
         // Given
         final String key = "key1";
         final Set<String> set = mock(Set.class);

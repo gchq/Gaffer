@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ import uk.gov.gchq.gaffer.store.StoreException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ElementClonerTest {
+class ElementClonerTest {
 
     @Test
-    public void testElementCloner() throws StoreException {
+    void testElementCloner() throws StoreException {
         // Given
         final ElementCloner cloner = new ElementCloner();
         final MapStore mapStore = new MapStore();

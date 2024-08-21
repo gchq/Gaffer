@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class MapStoreTest {
+class MapStoreTest {
 
     @Test
-    public void testTraits() throws StoreException {
+    void testTraits() throws StoreException {
         final MapStore mapStore = new MapStore();
         mapStore.initialise("graphId", new Schema(), new MapStoreProperties());
         final Set<StoreTrait> expectedTraits = new HashSet<>(Arrays.asList(
@@ -44,11 +43,11 @@ public class MapStoreTest {
                 StoreTrait.TRANSFORMATION,
                 StoreTrait.POST_TRANSFORMATION_FILTERING,
                 StoreTrait.MATCHED_VERTEX));
-        assertEquals(expectedTraits, mapStore.getTraits());
+        assertThat(mapStore.getTraits()).isEqualTo(expectedTraits);
     }
 
     @Test
-    public void shouldConfigureCountAllElementsOperationChainOptimiser() throws Exception {
+    void shouldConfigureCountAllElementsOperationChainOptimiser() throws Exception {
         // Given
         final MapStore mapStore = new MapStore();
 
@@ -56,7 +55,7 @@ public class MapStoreTest {
         mapStore.initialise("graphId", new Schema(), new MapStoreProperties());
 
         // Then
-        assertEquals(1, mapStore.getOperationChainOptimisers().size());
-        assertTrue(mapStore.getOperationChainOptimisers().contains(new CountAllElementsOperationChainOptimiser()));
+        assertThat(mapStore.getOperationChainOptimisers()).hasSize(1);
+        assertThat(mapStore.getOperationChainOptimisers()).contains(new CountAllElementsOperationChainOptimiser());
     }
 }
