@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -183,7 +183,6 @@ public class AccumuloPropertiesTest {
         assertTrue(props.getEnableValidatorIterator());
         assertEquals(NAMESPACE, props.getNamespace());
     }
-
     public static final class TestCustomJsonModules1 implements JSONSerialiserModules {
         public static List<Module> modules;
 
