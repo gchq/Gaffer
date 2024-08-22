@@ -587,8 +587,8 @@ public class AccumuloStoreTest {
          final AccumuloProperties properties = PROPERTIES.clone();
          String graphId = "graphId";
 
-         final AccumuloStore store = new MiniAccumuloStore();
          LocalDateTime dateTime = LocalDateTime.now();
+         final AccumuloStore store = new MiniAccumuloStore();
          // When
 
          store.initialise(graphId, SCHEMA, properties);
