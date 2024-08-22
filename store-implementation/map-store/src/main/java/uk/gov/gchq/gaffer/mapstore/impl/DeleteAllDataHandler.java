@@ -31,13 +31,9 @@ public class DeleteAllDataHandler implements OperationHandler<DeleteAllData> {
 
     @Override
     public Object doOperation(final DeleteAllData operation, final Context context, final Store store) throws OperationException {
-        try {
-            removeAllData((MapStore) store);
-            return null;
-        } catch (final Exception e) {
-            LOGGER.error("Error deleting graph: {}", store.getGraphId());
-            throw new OperationException(e);
-        }
+        LOGGER.info("Removing all data from graph: {}", store.getGraphId());
+        removeAllData((MapStore) store);
+        return null;
     }
 
     private void removeAllData(final MapStore mapStore) {
