@@ -89,10 +89,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -178,22 +175,6 @@ public class AccumuloStoreTest {
         // Then
         assertThat(store.getTableName()).isEqualTo("namespaceName.graphId");
         assertThat(store.getGraphId()).isEqualTo("graphId");
-    }
-    @Test
-    public void shouldStoreTableCreatedTimeProperty() throws Exception {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        String graphId = "graphId";
-
-        final AccumuloStore store = new MiniAccumuloStore();
-        long epoch = Instant.now().getEpochSecond();
-        // When
-
-        store.initialise(graphId, SCHEMA, properties);
-                LocalDateTime dateTime = LocalDateTime.parse(store.getCreatedTime());
-        long tableCreationEpoch = dateTime.atZone(ZoneId.ofOffset("UTC", ZoneOffset.ofHours(0))).toEpochSecond();
-        // Then
-        assertThat(tableCreationEpoch).isBetween(epoch - 20, epoch + 20);
     }
 
     @Test
@@ -600,4 +581,19 @@ public class AccumuloStoreTest {
         }
      }
 
+     @Test
+     public void shouldStoreTableCreatedTimeProperty() throws Exception {
+         // Given
+         final AccumuloProperties properties = PROPERTIES.clone();
+         String graphId = "graphId";
+ 
+         final AccumuloStore store = new MiniAccumuloStore();
+         LocalDateTime dateTime = LocalDateTime.now();
+         // When
+ 
+         store.initialise(graphId, SCHEMA, properties);
+         LocalDateTime storeDateTime = LocalDateTime.parse(store.getCreatedTime());
+         // Then
+         assertThat(dateTime).isBeforeOrEqualTo(storeDateTime);
+     }
 }

@@ -46,6 +46,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -55,6 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -388,6 +390,27 @@ public class GraphConfigurationControllerTest {
                 POST_AGGREGATION_FILTERING.name()
                 ),
                 traits);
+    }
+    @Test
+    public void shouldGetGraphCreatedTime() {
+        // Given
+        when(graphFactory.getGraph()).thenReturn(new Graph.Builder()
+                .config(new GraphConfig("id"))
+                .addSchema(new Schema())
+                .storeProperties(new MapStoreProperties())
+                .description("test graph")
+                .build());
+
+        // When
+        LocalDateTime time = LocalDateTime.now();
+        GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
+
+        // When
+        final String graphCreatedTime = controller.getGraphCreatedTime();
+
+        // Then
+        assertThat(graphCreatedTime).isInstanceOf(String.class);
+        assertThat(LocalDateTime.parse(graphCreatedTime)).isBeforeOrEqualTo(time);
     }
 
 
