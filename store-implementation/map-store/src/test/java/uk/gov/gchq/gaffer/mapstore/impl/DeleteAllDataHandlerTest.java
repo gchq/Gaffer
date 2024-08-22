@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- package uk.gov.gchq.gaffer.mapstore.impl;
+package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.jupiter.api.Test;
 
