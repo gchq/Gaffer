@@ -748,7 +748,6 @@ public class FederatedStoreTest {
 
         // When
         final Collection<GraphSerialisable> returnedGraphs = store.getGraphs(blankUser, getCleanStrings("mockGraphId1,mockGraphId2,mockGraphId4"), new GetAllGraphIds());
-        
         // Then
         assertThat(returnedGraphs)
                 .hasSize(3)
