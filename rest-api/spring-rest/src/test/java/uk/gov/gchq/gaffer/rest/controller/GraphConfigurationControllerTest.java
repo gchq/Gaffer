@@ -88,7 +88,7 @@ public class GraphConfigurationControllerTest {
         final String description = controller.getDescription();
 
         // Then
-        assertThat("test graph").isEqualTo(description);
+        assertThat(description).isEqualTo("test graph");
     }
 
     @Test
@@ -107,7 +107,7 @@ public class GraphConfigurationControllerTest {
         final String graphId = controller.getGraphId();
 
         // Then
-        assertThat("id").isEqualTo(graphId);
+        assertThat(graphId).isEqualTo("id");
     }
 
     @Test
@@ -241,7 +241,7 @@ public class GraphConfigurationControllerTest {
         expectedFields.put("conditional", "uk.gov.gchq.gaffer.operation.util.Conditional");
 
         // Then
-        assertThat(expectedFields).isEqualTo(fields);
+        assertThat(fields).isEqualTo(expectedFields);
     }
 
     @Test
@@ -298,7 +298,7 @@ public class GraphConfigurationControllerTest {
         final Set<StoreTrait> traits = controller.getStoreTraits();
 
         // Then
-        assertThat(MapStore.TRAITS).isEqualTo(traits);
+        assertThat(traits).isEqualTo(MapStore.TRAITS);
     }
 
     @Test
