@@ -556,7 +556,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
-        return null;
+        return new FederatedNoOutputHandler<>();
     }
 
     @Override
@@ -564,7 +564,6 @@ public class FederatedStore extends Store {
         return new FederatedOutputIterableHandler<>();
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new FederatedNoOutputHandler<>();
