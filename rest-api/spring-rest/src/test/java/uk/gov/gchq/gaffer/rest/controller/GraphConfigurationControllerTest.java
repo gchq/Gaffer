@@ -199,7 +199,7 @@ public class GraphConfigurationControllerTest {
         expectedFields.add("views");
 
         // Then
-        assertThat(expectedFields).isEqualTo(fields);
+        assertThat(fields).isEqualTo(expectedFields);
     }
 
     @Test
@@ -221,7 +221,7 @@ public class GraphConfigurationControllerTest {
         expectedFields.put("directedType", String.class.getName());
 
         // Then
-        assertThat(expectedFields).isEqualTo(fields);
+        assertThat(fields).isEqualTo(expectedFields);
     }
 
     @Test
