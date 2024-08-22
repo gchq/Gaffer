@@ -428,7 +428,7 @@ public class AccumuloStoreTest {
                 .type(TestTypes.DIRECTED_EITHER, new TypeDefinition.Builder()
                         .clazz(Boolean.class)
                         .build())
-                        .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .aggregateFunction(new Max())
                         .build())
