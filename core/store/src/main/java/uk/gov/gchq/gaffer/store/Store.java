@@ -316,7 +316,11 @@ public abstract class Store {
             }
         }
     }
-
+    /**
+     * Gets this Store's creation timestamp.
+     *
+     * @return the Store's creation timestamp.
+     */
     public String getCreatedTime() {
         return createdTime.toString();
     }

@@ -171,7 +171,6 @@ public class AccumuloStore extends Store {
     /**
      * Retrieves Accumulo Table created time property.
      * @return Accumulo Table created time string.
-     * @throws StoreException If timestamp cannot be found.
      */
     @Override
     public String getCreatedTime() {
@@ -180,13 +179,13 @@ public class AccumuloStore extends Store {
         Iterable<Entry<String, String>> properties;
         try {
             properties = TableUtils.getConnector(getProperties()).tableOperations().getProperties(tableName);
-            for(Entry<String, String> entry : properties) {
-                LOGGER.info(entry.getKey());
-                if(entry.getKey().equals(AccumuloProperties.TABLE_CREATED_TIME)) {
+            for (final Entry<String, String>  entry : properties) {
+                LOGGER.debug(entry.getKey());
+                if (entry.getKey().equals(AccumuloProperties.TABLE_CREATED_TIME)) {
                     return entry.getValue();
                 }
             }
-        } catch (StoreException | AccumuloException | TableNotFoundException e) {
+        } catch (final StoreException | AccumuloException | TableNotFoundException e) {
             throw new RuntimeException("Error getting timestamp.", e);
         }
         throw new RuntimeException("Timestamp not found on table");

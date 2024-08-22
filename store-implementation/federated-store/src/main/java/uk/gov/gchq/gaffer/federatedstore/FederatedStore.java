@@ -438,8 +438,8 @@ public class FederatedStore extends Store {
         }
         return rtn;
     }
-    
-        private String getKeyForProcessedFedStoreId() {
+
+    private String getKeyForProcessedFedStoreId() {
         return FEDERATED_STORE_PROCESSED + id;
     }
 

@@ -139,7 +139,7 @@ public final class TableUtils {
             connector.tableOperations().setProperty(tableName, Property.TABLE_BLOOM_ENABLED.getKey(), "true");
             connector.tableOperations().setProperty(tableName, Property.TABLE_BLOOM_KEY_FUNCTOR.getKey(),
                     store.getKeyPackage().getKeyFunctor().getClass().getName());
-          
+
             //  Set table creation timestamp
             LOGGER.info("Storing creation timestamp for table {}", tableName);
             connector.tableOperations().setProperty(tableName, AccumuloProperties.TABLE_CREATED_TIME, LocalDateTime.now().toString());

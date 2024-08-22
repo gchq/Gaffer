@@ -381,11 +381,11 @@ public class GraphConfigurationControllerTest {
         final Set<String> traits = JSONSerialiser.deserialise(bytes, Set.class);
 
         // Then
-        assertThat(Sets.newHashSet(
-                INGEST_AGGREGATION.name(),
-                PRE_AGGREGATION_FILTERING.name(),
-                POST_AGGREGATION_FILTERING.name()
-                )).isEqualTo(traits);
+        assertThat(traits).isEqualTo(Sets.newHashSet(
+            INGEST_AGGREGATION.name(),
+            PRE_AGGREGATION_FILTERING.name(),
+            POST_AGGREGATION_FILTERING.name()
+            ));
     }
     @Test
     public void shouldGetGraphCreatedTime() {

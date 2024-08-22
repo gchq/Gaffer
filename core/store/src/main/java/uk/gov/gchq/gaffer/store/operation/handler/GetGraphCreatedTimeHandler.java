@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 Crown Copyright
+ * Copyright 2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetGraphCreatedTime;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
- 
- /**
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
   * A {@code GetGraphCreatedTimeHandler} handles {@link GetGraphCreatedTime} operations.
   */
  public class GetGraphCreatedTimeHandler implements OperationHandler<GetGraphCreatedTime> {
@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.store.Store;
              throws OperationException {
         Map<String, String> timestamps = new HashMap<>();
         timestamps.put(store.getGraphId(), store.getCreatedTime());
-        
-         return timestamps;
+
+        return timestamps;
      }
  }

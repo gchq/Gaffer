@@ -15,18 +15,15 @@
  */
 
 package uk.gov.gchq.gaffer.operation.impl.get;
-
-import java.util.Map;
-
-import org.apache.commons.lang3.exception.CloneFailedException;
-
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 
-public class GetGraphCreatedTime implements Output<Map<String, String>>
-{
+import java.util.Map;
+
+public class GetGraphCreatedTime implements Output<Map<String, String>> {
     private Map<String, String> options;
 
     @Override
@@ -48,7 +45,7 @@ public class GetGraphCreatedTime implements Output<Map<String, String>>
 
     @Override
     public TypeReference<Map<String, String>> getOutputTypeReference() {
-        return new TypeReference<Map<String, String>>(){};
+        return new TypeReference<Map<String, String>>() { };
 
     }
 
@@ -58,5 +55,4 @@ public class GetGraphCreatedTime implements Output<Map<String, String>>
         }
 
     }
-    
 }

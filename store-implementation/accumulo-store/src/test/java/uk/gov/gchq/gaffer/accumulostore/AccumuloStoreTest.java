@@ -441,7 +441,7 @@ public class AccumuloStoreTest {
 
         // When
         store.initialise("graphId", schema, PROPERTIES);
-        
+
         // Then - no validation exceptions
     }
 
@@ -586,11 +586,11 @@ public class AccumuloStoreTest {
          // Given
          final AccumuloProperties properties = PROPERTIES.clone();
          String graphId = "graphId";
- 
+
          final AccumuloStore store = new MiniAccumuloStore();
          LocalDateTime dateTime = LocalDateTime.now();
          // When
- 
+
          store.initialise(graphId, SCHEMA, properties);
          LocalDateTime storeDateTime = LocalDateTime.parse(store.getCreatedTime());
          // Then
