@@ -328,7 +328,6 @@ public abstract class Store {
      * Sets this Store's creation timestamp.
      *
      * @param createdTime the LocalDateTime to store as the graph creation date.
-     * @return the Store's creation timestamp.
      */
     public void setCreatedTime(final LocalDateTime createdTime) {
         this.createdTime = createdTime;
