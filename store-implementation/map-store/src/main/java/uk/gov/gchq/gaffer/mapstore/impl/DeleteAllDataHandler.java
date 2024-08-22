@@ -30,7 +30,7 @@ public class DeleteAllDataHandler implements OperationHandler<DeleteAllData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteAllDataHandler.class);
 
     @Override
-    public Object doOperation(DeleteAllData operation, Context context, Store store) throws OperationException {
+    public Object doOperation(final DeleteAllData operation, final Context context, final Store store) throws OperationException {
         try {
             removeAllData((MapStore) store);
             return null;

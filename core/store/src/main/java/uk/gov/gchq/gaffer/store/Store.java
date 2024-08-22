@@ -1027,7 +1027,7 @@ public abstract class Store {
         addOperationHandler(DeleteElements.class, getDeleteElementsHandler());
 
         // Delete all data
-        addOperationHandler(DeleteElements.class, getDeleteAllDataHandler());
+        addOperationHandler(DeleteAllData.class, getDeleteAllDataHandler());
 
         // Get Elements
         addOperationHandler(GetElements.class, getGetElementsHandler());

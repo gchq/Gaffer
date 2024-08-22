@@ -21,27 +21,30 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class DeleteAllDataHandlerTest {
 
-    // @Test
-    // void shouldRemoveAllData() throws OperationException {
-    // // Given
-    // final Graph graph = GetAllElementsHandlerTest.getGraph();
-    // final AddElements addElements = new AddElements.Builder()
-    //         .input(GetAllElementsHandlerTest.getElements())
-    //         .build();
-    // graph.execute(addElements, new User());
+    @Test
+    void shouldRemoveAllData() throws OperationException {
+        // Given
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final AddElements addElements = new AddElements.Builder()
+                .input(GetAllElementsHandlerTest.getElements())
+                .build();
+        graph.execute(addElements, new User());
 
-    // // When
-    // final DeleteAllData deleteAll = new DeleteAllData.Builder().build();
+        // When
+        final DeleteAllData deleteAll = new DeleteAllData.Builder().build();
+        graph.execute(deleteAll, new User());
 
-    // // Then
-    // verify(graph, times(1)).execute(deleteAll, new User());
-    // }
+        final GetAllElements getAllElements = new GetAllElements.Builder().build();
+
+        // Then
+        assertThat(graph.execute(getAllElements, new User())).isEmpty();
+    }
 }

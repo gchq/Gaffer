@@ -79,7 +79,7 @@ class MapStorePropertiesGraphSerialisableTest {
     }
 
     @Test
-    void shouldConsumeGraph(){
+    void shouldConsumeGraph() {
         final MapStoreProperties mapStoreProperties = new MapStoreProperties();
         mapStoreProperties.setProperties(properties);
         final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(mapStoreProperties).config(config).build();
