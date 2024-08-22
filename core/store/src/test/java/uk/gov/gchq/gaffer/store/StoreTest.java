@@ -536,6 +536,7 @@ public class StoreTest {
                         mock(AddElements.class).getClass(),
                         mock(GetElements.class).getClass(),
                         mock(GetAdjacentIds.class).getClass(),
+                        mock(GetGraphCreatedTime.class).getClass(),
 
                         // Export
                         ExportToSet.class,
@@ -604,7 +605,6 @@ public class StoreTest {
                         ForEach.class,
                         Reduce.class,
                         CancelScheduledJob.class,
-                        GetGraphCreatedTime.class,
 
                         // Function
                         Filter.class,
@@ -649,6 +649,7 @@ public class StoreTest {
                         mock(AddElements.class).getClass(),
                         mock(GetElements.class).getClass(),
                         mock(GetAdjacentIds.class).getClass(),
+                        mock(GetGraphCreatedTime.class).getClass(),
 
                         // Export
                         ExportToSet.class,
@@ -713,7 +714,6 @@ public class StoreTest {
                         ToSingletonList.class,
                         ForEach.class,
                         Reduce.class,
-                        GetGraphCreatedTime.class,
 
                         // Function
                         Filter.class,
