@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,9 +54,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -91,7 +88,7 @@ public class GraphConfigurationControllerTest {
         final String description = controller.getDescription();
 
         // Then
-        assertEquals("test graph", description);
+        assertThat("test graph").isEqualTo(description);
     }
 
     @Test
@@ -110,7 +107,7 @@ public class GraphConfigurationControllerTest {
         final String graphId = controller.getGraphId();
 
         // Then
-        assertEquals("id", graphId);
+        assertThat("id").isEqualTo(graphId);
     }
 
     @Test
@@ -202,7 +199,7 @@ public class GraphConfigurationControllerTest {
         expectedFields.add("views");
 
         // Then
-        assertEquals(expectedFields, fields);
+        assertThat(expectedFields).isEqualTo(fields);
     }
 
     @Test
@@ -224,7 +221,7 @@ public class GraphConfigurationControllerTest {
         expectedFields.put("directedType", String.class.getName());
 
         // Then
-        assertEquals(expectedFields, fields);
+        assertThat(expectedFields).isEqualTo(fields);
     }
 
     @Test
@@ -244,7 +241,7 @@ public class GraphConfigurationControllerTest {
         expectedFields.put("conditional", "uk.gov.gchq.gaffer.operation.util.Conditional");
 
         // Then
-        assertEquals(expectedFields, fields);
+        assertThat(expectedFields).isEqualTo(fields);
     }
 
     @Test
@@ -301,7 +298,7 @@ public class GraphConfigurationControllerTest {
         final Set<StoreTrait> traits = controller.getStoreTraits();
 
         // Then
-        assertEquals(MapStore.TRAITS, traits);
+        assertThat(MapStore.TRAITS).isEqualTo(traits);
     }
 
     @Test
@@ -313,7 +310,7 @@ public class GraphConfigurationControllerTest {
         final Set<Class> classes = controller.getTransformFunctions();
 
         // Then
-        assertFalse(classes.isEmpty());
+        assertThat(classes).isNotEmpty();
     }
 
     @Test
@@ -325,7 +322,7 @@ public class GraphConfigurationControllerTest {
         final Set<Class> classes = controller.getAggregationFunctions();
 
         // Then
-        assertFalse(classes.isEmpty());
+        assertThat(classes).isNotEmpty();
     }
 
     @Test
@@ -337,7 +334,7 @@ public class GraphConfigurationControllerTest {
         final Set<Class> classes = controller.getElementGenerators();
 
         // Then
-        assertFalse(classes.isEmpty());
+        assertThat(classes).isNotEmpty();
     }
 
     @Test
@@ -349,7 +346,7 @@ public class GraphConfigurationControllerTest {
         final Set<Class> classes = controller.getObjectGenerators();
 
         // Then
-        assertFalse(classes.isEmpty());
+        assertThat(classes).isNotEmpty();
     }
 
     @Test
@@ -384,12 +381,11 @@ public class GraphConfigurationControllerTest {
         final Set<String> traits = JSONSerialiser.deserialise(bytes, Set.class);
 
         // Then
-        assertEquals(Sets.newHashSet(
+        assertThat(Sets.newHashSet(
                 INGEST_AGGREGATION.name(),
                 PRE_AGGREGATION_FILTERING.name(),
                 POST_AGGREGATION_FILTERING.name()
-                ),
-                traits);
+                )).isEqualTo(traits);
     }
     @Test
     public void shouldGetGraphCreatedTime() {

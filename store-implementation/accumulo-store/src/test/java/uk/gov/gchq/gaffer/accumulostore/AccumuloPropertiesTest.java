@@ -182,7 +182,9 @@ public class AccumuloPropertiesTest {
         assertEquals(REPLICATION_FACTOR, props.getTableFileReplicationFactor());
         assertTrue(props.getEnableValidatorIterator());
         assertEquals(NAMESPACE, props.getNamespace());
+
     }
+
     public static final class TestCustomJsonModules1 implements JSONSerialiserModules {
         public static List<Module> modules;
 
