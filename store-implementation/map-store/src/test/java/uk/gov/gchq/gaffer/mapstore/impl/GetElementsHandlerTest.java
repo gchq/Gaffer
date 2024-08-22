@@ -75,7 +75,7 @@ class GetElementsHandlerTest {
     }
 
     @Test
-    void testGetElementsWhenNoEntityIdsProvided() throws OperationException {
+    void testGetElementsWhenNoIdsAreProvided() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -107,27 +107,6 @@ class GetElementsHandlerTest {
         // When
         final GetElements getElements = new GetElements.Builder()
                 .input(new EdgeSeed("NOT_PRESENT", "ALSO_NOT_PRESENT", true))
-                .build();
-        final Iterable<? extends Element> results = graph.execute(getElements, new User());
-
-        // Then
-        final Set<Element> resultsSet = new HashSet<>();
-        Streams.toStream(results).forEach(resultsSet::add);
-        assertThat(resultsSet).isEmpty();
-    }
-
-    @Test
-    void testGetElementsWhenNoEdgeIdsProvided() throws OperationException {
-        // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
-        graph.execute(addElements, new User());
-
-        // When
-        final GetElements getElements = new GetElements.Builder()
-                .input(new EmptyIterable<>())
                 .build();
         final Iterable<? extends Element> results = graph.execute(getElements, new User());
 

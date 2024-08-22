@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.SingleUseMapStore;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -29,13 +28,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Arrays;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class AddElementsHandlerTest {
+class AddElementsHandlerTest {
 
     @Test
-    public void shouldAddWithNoGroupByProperties() throws OperationException, StoreException {
+    void shouldAddWithNoGroupByProperties() throws StoreException {
         // Given
         final AddElements addElements = mock(AddElements.class);
         given(addElements.getInput()).willReturn((Iterable) Arrays.asList(new Edge("group1")));
@@ -45,6 +45,6 @@ public class AddElementsHandlerTest {
         final AddElementsHandler handler = new AddElementsHandler();
 
         // When / Then - should not throw NPE
-        handler.doOperation(addElements, context, store);
+        assertThatNoException().isThrownBy(() -> handler.doOperation(addElements, context, store));
     }
 }
