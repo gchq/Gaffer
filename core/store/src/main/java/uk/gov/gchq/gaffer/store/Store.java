@@ -317,7 +317,7 @@ public abstract class Store {
         }
     }
     /**
-     * Gets this Store's creation timestamp.
+     * Gets this Store's creation timestamp for {@link GetGraphCreatedTime} operation.
      *
      * @return the Store's creation timestamp.
      */

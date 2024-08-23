@@ -587,13 +587,13 @@ public class AccumuloStoreTest {
          final AccumuloProperties properties = PROPERTIES.clone();
          String graphId = "graphId";
 
-         LocalDateTime dateTime = LocalDateTime.now();
          final AccumuloStore store = new MiniAccumuloStore();
          // When
 
          store.initialise(graphId, SCHEMA, properties);
+         LocalDateTime dateTime = LocalDateTime.now();
          LocalDateTime storeDateTime = LocalDateTime.parse(store.getCreatedTime());
          // Then
-         assertThat(dateTime).isBeforeOrEqualTo(storeDateTime);
+         assertThat(storeDateTime).isBeforeOrEqualTo(dateTime);
      }
 }
