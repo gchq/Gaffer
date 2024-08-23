@@ -67,13 +67,13 @@ public class GraphConfigurationControllerTest {
     private GraphFactory graphFactory;
 
     @BeforeEach
-    public void initialiseMocks() {
+    void initialiseMocks() {
         MockitoAnnotations.initMocks(this);
         Mockito.reset(graphFactory);
     }
 
     @Test
-    public void shouldReturnDescription() {
+    void shouldReturnDescription() {
         // Given
         when(graphFactory.getGraph()).thenReturn(new Graph.Builder()
                 .config(new GraphConfig("id"))
@@ -92,7 +92,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldReturnGraphId() {
+    void shouldReturnGraphId() {
         // Given
         when(graphFactory.getGraph()).thenReturn(new Graph.Builder()
                 .config(new GraphConfig("id"))
@@ -111,7 +111,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetFilterFunctions() {
+    void shouldGetFilterFunctions() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -123,7 +123,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetFilterFunctionsWithNullInput() {
+    void shouldGetFilterFunctionsWithNullInput() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -135,7 +135,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetFilterFunctionsWithInputClass() {
+    void shouldGetFilterFunctionsWithInputClass() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -147,7 +147,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetFilterFunctionsUsingShortClassName() {
+    void shouldGetFilterFunctionsUsingShortClassName() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -159,7 +159,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenGetFilterFunctionsWithUnknownClassName() {
+    void shouldThrowExceptionWhenGetFilterFunctionsWithUnknownClassName() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -170,7 +170,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetSerialisedFields() {
+    void shouldGetSerialisedFields() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -183,7 +183,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetSerialisedFieldsForGetElementsClass() {
+    void shouldGetSerialisedFieldsForGetElementsClass() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -203,7 +203,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetCorrectSerialisedFieldsForEdgeClass() {
+    void shouldGetCorrectSerialisedFieldsForEdgeClass() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -225,7 +225,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetCorrectSerialisedFieldsForGetWalksClass() {
+    void shouldGetCorrectSerialisedFieldsForGetWalksClass() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -245,7 +245,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenGetSerialisedFieldsWithUnknownClassName() {
+    void shouldThrowExceptionWhenGetSerialisedFieldsWithUnknownClassName() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -256,7 +256,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldReturnStoreType() {
+    void shouldReturnStoreType() {
         // Given
         when(graphFactory.getGraph()).thenReturn(new Graph.Builder()
             .config(new GraphConfig("id"))
@@ -274,7 +274,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetStoreTraits() throws OperationException {
+    void shouldGetStoreTraits() throws OperationException {
         // Given
         Store store = mock(Store.class);
         Schema schema = new Schema();
@@ -302,7 +302,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetTransformFunctions() {
+    void shouldGetTransformFunctions() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -314,7 +314,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetAggregationFunctions() {
+    void shouldGetAggregationFunctions() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -326,7 +326,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetElementGenerators() {
+    void shouldGetElementGenerators() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -338,7 +338,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetObjectGenerators() {
+    void shouldGetObjectGenerators() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -350,7 +350,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeserialiseGetStoreTraits() throws SerialisationException, OperationException {
+    void shouldSerialiseAndDeserialiseGetStoreTraits() throws SerialisationException, OperationException {
         // Given
         Store store = mock(Store.class);
 
@@ -388,7 +388,7 @@ public class GraphConfigurationControllerTest {
             ));
     }
     @Test
-    public void shouldGetGraphCreatedTime() {
+    void shouldGetGraphCreatedTime() {
         // Given
         when(graphFactory.getGraph()).thenReturn(new Graph.Builder()
                 .config(new GraphConfig("id"))

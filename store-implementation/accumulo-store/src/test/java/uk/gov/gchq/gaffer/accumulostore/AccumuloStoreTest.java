@@ -582,7 +582,7 @@ public class AccumuloStoreTest {
      }
 
      @Test
-     public void shouldStoreTableCreatedTimeProperty() throws Exception {
+     void shouldStoreTableCreatedTimeProperty() throws Exception {
          // Given
          final AccumuloProperties properties = PROPERTIES.clone();
          String graphId = "graphId";

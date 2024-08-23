@@ -180,15 +180,15 @@ public class AccumuloStore extends Store {
         try {
             properties = TableUtils.getConnector(getProperties()).tableOperations().getProperties(tableName);
             for (final Entry<String, String>  entry : properties) {
-                LOGGER.debug("Comparing Accumulo Table property: %", entry.getKey());
+                LOGGER.debug("Comparing Accumulo Table property: {}", entry.getKey());
                 if (entry.getKey().equals(AccumuloProperties.TABLE_CREATED_TIME)) {
                     return entry.getValue();
                 }
             }
         } catch (final StoreException | AccumuloException | TableNotFoundException e) {
-            throw new RuntimeException("Error getting timestamp.", e);
+            throw new GafferRuntimeException("Error getting timestamp.", e);
         }
-        throw new RuntimeException("Timestamp not found on table");
+        throw new GafferRuntimeException("Timestamp not found on table");
     }
     /**
      * Performs general initialisation without creating the table.
