@@ -140,6 +140,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -919,6 +920,19 @@ public class StoreTest {
         assertThat(result).isSameAs(graphLibrary);
     }
 
+    @Test
+    void shouldSetAndGetCreatedTime() {
+        // Given
+        final Store store = new StoreImpl();
+        LocalDateTime time = LocalDateTime.now();
+        store.setCreatedTime(time);
+
+        // When
+        String storeTime = store.getCreatedTime();
+
+        // Then
+        assertThat(storeTime).isEqualTo(time.toString());
+    }
     private Schema createSchemaMock() {
         final Schema schema = mock(Schema.class);
         given(schema.validate()).willReturn(new ValidationResult());
