@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
@@ -32,6 +31,10 @@ public class GetGraphCreatedTimeTest extends OperationTest<GetGraphCreatedTime> 
         final GetGraphCreatedTime op = new GetGraphCreatedTime.Builder().build();
 
         assertThat(op).isInstanceOf(GetGraphCreatedTime.class);
+    }
+
+    protected GetGraphCreatedTime getTestObject() {
+        return new GetGraphCreatedTime();
     }
 
     @Test
@@ -46,10 +49,4 @@ public class GetGraphCreatedTimeTest extends OperationTest<GetGraphCreatedTime> 
         assertThat(clone).isNotSameAs(getGraphCreatedTime);
 
     }
-
-    @Override
-    protected GetGraphCreatedTime getTestObject() {
-        return new GetGraphCreatedTime();
-    }
-
 }
