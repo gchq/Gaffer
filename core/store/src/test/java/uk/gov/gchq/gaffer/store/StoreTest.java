@@ -923,12 +923,12 @@ public class StoreTest {
     @Test
     void shouldSetAndGetCreatedTime() {
         // Given
-        final Store store = new StoreImpl();
+        final Store testStore = new StoreImpl();
         LocalDateTime time = LocalDateTime.now();
-        store.setCreatedTime(time);
+        testStore.setCreatedTime(time);
 
         // When
-        String storeTime = store.getCreatedTime();
+        String storeTime = testStore.getCreatedTime();
 
         // Then
         assertThat(storeTime).isEqualTo(time.toString());
