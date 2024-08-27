@@ -104,6 +104,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -2686,6 +2687,28 @@ public class GraphTest {
         assertEquals(1, mergedView.getGlobalEdges().size());
         assertNotNull(mergedView.getGlobalEdges().get(0).getPostAggregationFilter());
 
+    }
+    @Test
+    void shouldGetGraphCreatedTime() throws OperationException {
+        // Given
+        final Store store = new TestStoreImpl();
+        final Schema schema = new Schema.Builder().build();
+        Graph graph = new Graph.Builder()
+        .config(new GraphConfig.Builder()
+                .graphId(GRAPH_ID)
+                .build())
+        .storeProperties(StreamUtil.storeProps(getClass()))
+        .store(store)
+        .addSchema(schema)
+        .build();
+
+        // When
+        String graphCreatedTime = graph.getCreatedTime();
+
+        // Then
+        assertThat(graphCreatedTime).isNotNull();
+        assertThat(graphCreatedTime).isInstanceOf(String.class);
+        assertThat(LocalDateTime.parse(graphCreatedTime)).isInstanceOf(LocalDateTime.class);
     }
 
     public static class TestStoreImpl extends Store {

@@ -16,13 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetGraphCreatedTimeTest extends OperationTest<GetGraphCreatedTime> {
 

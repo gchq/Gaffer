@@ -97,6 +97,7 @@ import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -595,5 +596,34 @@ public class AccumuloStoreTest {
          LocalDateTime storeDateTime = LocalDateTime.parse(store.getCreatedTime());
          // Then
          assertThat(storeDateTime).isBeforeOrEqualTo(dateTime);
+     }
+     @Test
+     void shouldThrowGafferRuntimeExceptionForGetCreatedTimeIfTableNotFound() throws Exception {
+        // Given
+        final AccumuloStore store = new MiniAccumuloStore();
+        store.initialise("graphId", SCHEMA, PROPERTIES);
+        GafferRuntimeException expectedException = new GafferRuntimeException("Error getting timestamp.");
+
+        // When
+        store.getConnection().tableOperations().delete("graphId");
+        GafferRuntimeException exception = assertThrows(GafferRuntimeException.class, () -> store.getCreatedTime());
+
+        // Then
+        assertThat(exception.getMessage()).isEqualTo(expectedException.getMessage());
+     }
+
+     @Test
+     void shouldThrowGafferRuntimeExceptionIfTableCreatedTimePropertyNotFound() throws Exception {
+        // Given
+        final AccumuloStore store = new MiniAccumuloStore();
+        store.initialise("graphId", SCHEMA, PROPERTIES);
+        GafferRuntimeException expectedException = new GafferRuntimeException("Timestamp not found on table");
+
+        // When
+        store.getConnection().tableOperations().removeProperty("graphId", AccumuloProperties.TABLE_CREATED_TIME);
+        GafferRuntimeException exception = assertThrows(GafferRuntimeException.class, () -> store.getCreatedTime());
+
+        // Then
+        assertThat(exception.getMessage()).isEqualTo(expectedException.getMessage());
      }
 }
