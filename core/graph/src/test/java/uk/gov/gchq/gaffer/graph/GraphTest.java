@@ -2689,7 +2689,7 @@ public class GraphTest {
 
     }
     @Test
-    void shouldGetGraphCreatedTime() throws OperationException {
+    void shouldGetGraphCreatedTime() {
         // Given
         final Store store = new TestStoreImpl();
         final Schema schema = new Schema.Builder().build();
@@ -2706,8 +2706,9 @@ public class GraphTest {
         String graphCreatedTime = graph.getCreatedTime();
 
         // Then
-        assertThat(graphCreatedTime).isNotNull();
-        assertThat(graphCreatedTime).isInstanceOf(String.class);
+        assertThat(graphCreatedTime)
+                .isNotNull()
+                .isInstanceOf(String.class);
         assertThat(LocalDateTime.parse(graphCreatedTime)).isInstanceOf(LocalDateTime.class);
     }
 
