@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.federatedstore.access.predicate;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.AccessPredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -35,7 +34,7 @@ import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
-public class FederatedGraphReadAccessPredicateTest implements AccessPredicateTest {
+public class FederatedGraphReadAccessPredicateTest {
     private static final List<String> NO_AUTHS = null;
     private static final boolean PUBLIC = true;
     private static final boolean NON_PUBLIC = false;

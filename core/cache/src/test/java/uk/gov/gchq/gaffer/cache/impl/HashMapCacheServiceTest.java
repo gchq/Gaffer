@@ -46,7 +46,7 @@ class HashMapCacheServiceTest {
     @Test
     void shouldReturnInstanceOfHashMapCache() {
         // When
-        final ICache cache = service.getCache(CACHE_NAME);
+        final ICache<String, String> cache = service.getCache(CACHE_NAME);
 
         // Then
         assertThat(cache).isInstanceOf(HashMapCache.class);
@@ -55,7 +55,7 @@ class HashMapCacheServiceTest {
     @Test
     void shouldCreateNewHashMapCacheIfOneDoesNotExist() {
         // When
-        final ICache cache = service.getCache(CACHE_NAME);
+        final ICache<String, String> cache = service.getCache(CACHE_NAME);
 
         // Then
         assertThat(cache.size()).isZero();

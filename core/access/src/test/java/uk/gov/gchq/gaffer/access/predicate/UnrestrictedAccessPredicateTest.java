@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,37 +23,28 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class UnrestrictedAccessPredicateTest implements AccessPredicateTest {
+class UnrestrictedAccessPredicateTest {
+
     @Test
-    public void shouldAlwaysReturnTrue() {
-        assertTrue(new UnrestrictedAccessPredicate().test(null, null));
-        assertTrue(new UnrestrictedAccessPredicate().test(new User.Builder().build(), ""));
-        assertTrue(new UnrestrictedAccessPredicate().test(new User.Builder().userId("someone").build(), "anything"));
+    void shouldAlwaysReturnTrue() {
+        assertThat(new UnrestrictedAccessPredicate().test(null, null)).isTrue();
+        assertThat(new UnrestrictedAccessPredicate().test(new User.Builder().build(), "")).isTrue();
+        assertThat(new UnrestrictedAccessPredicate().test(new User.Builder().userId("someone").build(), "anything")).isTrue();
     }
 
     @Test
-    @Override
-    public void canBeJsonSerialisedAndDeserialised() throws Exception {
+    void canBeJsonSerialisedAndDeserialised() throws Exception {
         final AccessPredicate predicate = new UnrestrictedAccessPredicate();
         final byte[] bytes = JSONSerialiser.serialise(predicate);
-        assertEquals("{" +
-                "\"class\":\"uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate\"" +
-                "}", new String(bytes, StandardCharsets.UTF_8));
-        assertEquals(predicate, JSONSerialiser.deserialise(bytes, UnrestrictedAccessPredicate.class));
+        final String expectedString = "{\"class\":\"uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate\"}";
+        assertThat(new String(bytes, StandardCharsets.UTF_8)).isEqualTo(expectedString);
+        assertThat(JSONSerialiser.deserialise(bytes, UnrestrictedAccessPredicate.class)).isEqualTo(predicate);
     }
 
     @Test
-    @Override
-    public void shouldReturnTrueForEqualObjectComparisonWhenEqual() {
-        assertEquals(new UnrestrictedAccessPredicate(), new UnrestrictedAccessPredicate());
-    }
-
-    @Test
-    @Override
-    public void shouldReturnFalseForEqualObjectComparisonWhenNotEqual() {
-        /* not possible */
+    void shouldReturnTrueForEqualObjectComparisonWhenEqual() {
+        assertThat(new UnrestrictedAccessPredicate()).isEqualTo(new UnrestrictedAccessPredicate());
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class Authorisations implements Iterable<byte[]>, Serializable {
     private static final long serialVersionUID = 8931467369628123909L;
-    private final Set<ArrayByteSequence> auths = new HashSet();
-    private final List<byte[]> authsList = new ArrayList();
+    private final Set<ArrayByteSequence> auths = new HashSet<>();
+    private final List<byte[]> authsList = new ArrayList<>();
     private static final boolean[] VALID_AUTH_CHARS = new boolean[256];
     public static final String HEADER = "!AUTH1:";
 
@@ -71,11 +71,11 @@ public class Authorisations implements Iterable<byte[]>, Serializable {
     }
 
     public List<byte[]> getAuthorisations() {
-        ArrayList copy = new ArrayList(this.authsList.size());
-        Iterator var2 = this.authsList.iterator();
+        ArrayList<byte[]> copy = new ArrayList<>(this.authsList.size());
+        Iterator<byte[]> var2 = this.authsList.iterator();
 
         while (var2.hasNext()) {
-            byte[] auth = (byte[]) var2.next();
+            byte[] auth = var2.next();
             byte[] bytes = new byte[auth.length];
             System.arraycopy(auth, 0, bytes, 0, auth.length);
             copy.add(bytes);
@@ -113,10 +113,10 @@ public class Authorisations implements Iterable<byte[]>, Serializable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         String sep = "";
-        Iterator var3 = this.auths.iterator();
+        Iterator<ArrayByteSequence> var3 = this.auths.iterator();
 
         while (var3.hasNext()) {
-            ArrayByteSequence auth = (ArrayByteSequence) var3.next();
+            ArrayByteSequence auth = var3.next();
             sb.append(sep);
             sep = ",";
             sb.append(new String(auth.toArray(), UTF_8));
@@ -152,8 +152,8 @@ public class Authorisations implements Iterable<byte[]>, Serializable {
         int result = 0;
 
         ArrayByteSequence b;
-        for (Iterator var2 = this.auths.iterator(); var2.hasNext(); result += b.hashCode()) {
-            b = (ArrayByteSequence) var2.next();
+        for (Iterator<ArrayByteSequence> var2 = this.auths.iterator(); var2.hasNext(); result += b.hashCode()) {
+            b = var2.next();
         }
 
         return result;
@@ -201,11 +201,11 @@ public class Authorisations implements Iterable<byte[]>, Serializable {
     }
 
     private void checkAuths() {
-        TreeSet sortedAuths = new TreeSet(this.auths);
-        Iterator var2 = sortedAuths.iterator();
+        TreeSet<ArrayByteSequence> sortedAuths = new TreeSet<>(this.auths);
+        Iterator<ArrayByteSequence> var2 = sortedAuths.iterator();
 
         while (var2.hasNext()) {
-            ArrayByteSequence bs = (ArrayByteSequence) var2.next();
+            ArrayByteSequence bs = var2.next();
             if (bs.length() == 0) {
                 throw new IllegalArgumentException("Empty authorisation");
             }

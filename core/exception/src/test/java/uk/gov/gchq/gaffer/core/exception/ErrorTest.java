@@ -26,13 +26,13 @@ import uk.gov.gchq.gaffer.core.exception.Error.ErrorBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public class ErrorTest {
+class ErrorTest {
 
     private static final String DETAILED_MSG = "detailedMessage";
     private static final String SIMPLE_MSG = "simpleMessage";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         clearDebugModeProperty();
     }
 
@@ -42,7 +42,7 @@ public class ErrorTest {
     }
 
     @Test
-    public void shouldNotBuildDetailedMessage() {
+    void shouldNotBuildDetailedMessage() {
         setDebugMode("false");
 
         final Error error = new ErrorBuilder()
@@ -54,7 +54,7 @@ public class ErrorTest {
     }
 
     @Test
-    public void shouldNotBuildDetailedMessageWithMissingPropertyFlag() {
+    void shouldNotBuildDetailedMessageWithMissingPropertyFlag() {
         clearDebugModeProperty();
 
         final Error error = new ErrorBuilder()
@@ -66,7 +66,7 @@ public class ErrorTest {
     }
 
     @Test
-    public void shouldNotBuildDetailedMessageWithIncorrectPropertyFlag() {
+    void shouldNotBuildDetailedMessageWithIncorrectPropertyFlag() {
         setDebugMode("wrong");
 
         final Error error = new ErrorBuilder()
@@ -78,7 +78,7 @@ public class ErrorTest {
     }
 
     @Test
-    public void shouldBuildDetailedAndSimpleMessageWhenDebugPropertyIsTrue() {
+    void shouldBuildDetailedAndSimpleMessageWhenDebugPropertyIsTrue() {
         setDebugMode("true");
 
         final Error error = new ErrorBuilder()

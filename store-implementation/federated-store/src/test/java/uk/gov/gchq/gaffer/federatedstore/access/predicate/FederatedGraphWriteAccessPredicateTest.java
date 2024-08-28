@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.federatedstore.access.predicate;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.AccessPredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -30,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FederatedGraphWriteAccessPredicateTest implements AccessPredicateTest {
+public class FederatedGraphWriteAccessPredicateTest {
     private static final User TEST_USER = new User.Builder().userId("TestUser").opAuths("auth1", "auth2").build();
 
     @Test
@@ -70,7 +69,6 @@ public class FederatedGraphWriteAccessPredicateTest implements AccessPredicateTe
     }
 
     @Test
-    @Override
     public void shouldReturnTrueForEqualObjectComparisonWhenEqual() {
         assertEquals(
                 createAccessPredicate(TEST_USER.getUserId()),

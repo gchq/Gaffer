@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 
 import java.util.Properties;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * are removed this class can be removed.
  */
 @Deprecated
-public class DeprecatedCacheServiceLoaderTest {
+class DeprecatedCacheServiceLoaderTest {
     private final Properties serviceLoaderProperties = new Properties();
 
     @BeforeEach
@@ -47,12 +48,12 @@ public class DeprecatedCacheServiceLoaderTest {
 
     @DisplayName("Should not throw NullPointer when Loader is initialised with null properties")
     @Test
-    public void shouldINotThrowNullPointerExceptionOnInitialiseLoader() {
-        CacheServiceLoader.initialise((Properties) null);
+    void shouldINotThrowNullPointerExceptionOnInitialiseLoader() {
+        assertThatCode(() -> CacheServiceLoader.initialise((Properties) null)).doesNotThrowAnyException();
     }
 
     @Test
-    public void shouldLoadServiceFromSystemVariable() {
+    void shouldLoadServiceFromSystemVariable() {
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, EmptyCacheService.class.getName());
         CacheServiceLoader.initialise(serviceLoaderProperties);
 
@@ -62,7 +63,7 @@ public class DeprecatedCacheServiceLoaderTest {
     }
 
     @Test
-    public void shouldThrowAnExceptionWhenSystemVariableIsInvalid() {
+    void shouldThrowAnExceptionWhenSystemVariableIsInvalid() {
         final String invalidClassName = "invalid.cache.name";
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, invalidClassName);
 
@@ -72,7 +73,7 @@ public class DeprecatedCacheServiceLoaderTest {
     }
 
     @Test
-    public void shouldUseTheSameServiceAcrossDifferentComponents() {
+    void shouldUseTheSameServiceAcrossDifferentComponents() {
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
         CacheServiceLoader.initialise(serviceLoaderProperties);
 
@@ -83,7 +84,7 @@ public class DeprecatedCacheServiceLoaderTest {
     }
 
     @Test
-    public void shouldSetServiceToNullAfterCallingShutdown() {
+    void shouldSetServiceToNullAfterCallingShutdown() {
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, EmptyCacheService.class.getName());
         CacheServiceLoader.initialise(serviceLoaderProperties);
 

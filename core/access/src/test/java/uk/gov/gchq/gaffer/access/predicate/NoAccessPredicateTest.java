@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,37 +23,28 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class NoAccessPredicateTest implements AccessPredicateTest {
+class NoAccessPredicateTest {
+
     @Test
-    public void shouldAlwaysReturnFalse() {
-        assertFalse(new NoAccessPredicate().test(null, null));
-        assertFalse(new NoAccessPredicate().test(new User.Builder().build(), ""));
-        assertFalse(new NoAccessPredicate().test(new User.Builder().userId("someone").build(), "anything"));
+    void shouldAlwaysReturnFalse() {
+        assertThat(new NoAccessPredicate().test(null, null)).isFalse();
+        assertThat(new NoAccessPredicate().test(new User.Builder().build(), "")).isFalse();
+        assertThat(new NoAccessPredicate().test(new User.Builder().userId("someone").build(), "anything")).isFalse();
     }
 
     @Test
-    @Override
-    public void canBeJsonSerialisedAndDeserialised() throws Exception {
+    void canBeJsonSerialisedAndDeserialised() throws Exception {
         final AccessPredicate predicate = new NoAccessPredicate();
         final byte[] bytes = JSONSerialiser.serialise(predicate);
-        assertEquals("{" +
-                "\"class\":\"uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate\"" +
-                "}", new String(bytes, StandardCharsets.UTF_8));
-        assertEquals(predicate, JSONSerialiser.deserialise(bytes, NoAccessPredicate.class));
+        final String expectedString = "{\"class\":\"uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate\"}";
+        assertThat(new String(bytes, StandardCharsets.UTF_8)).isEqualTo(expectedString);
+        assertThat(JSONSerialiser.deserialise(bytes, NoAccessPredicate.class)).isEqualTo(predicate);
     }
 
     @Test
-    @Override
-    public void shouldReturnTrueForEqualObjectComparisonWhenEqual() {
-        assertEquals(new NoAccessPredicate(), new NoAccessPredicate());
-    }
-
-    @Test
-    @Override
-    public void shouldReturnFalseForEqualObjectComparisonWhenNotEqual() {
-        /* not possible */
+    void shouldReturnTrueForEqualObjectComparisonWhenEqual() {
+        assertThat(new NoAccessPredicate()).isEqualTo(new NoAccessPredicate());
     }
 }

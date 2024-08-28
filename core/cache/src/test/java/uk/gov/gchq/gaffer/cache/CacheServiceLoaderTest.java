@@ -24,7 +24,7 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class CacheServiceLoaderTest {
+class CacheServiceLoaderTest {
     private final Properties emptyProperties = new Properties();
     private final String emptyCacheServiceName = "emptyService";
     private final String emptyCacheServiceClass = EmptyCacheService.class.getName();
@@ -94,8 +94,9 @@ public class CacheServiceLoaderTest {
     @Test
     void shouldThrowExceptionWhenInitialisingWithInvalidClass() {
         // When / Then
+        final String cacheName = ICacheService.class.getName();
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> CacheServiceLoader.initialise(emptyCacheServiceName, ICacheService.class.getName(), emptyProperties))
+                .isThrownBy(() -> CacheServiceLoader.initialise(emptyCacheServiceName, cacheName, emptyProperties))
                 .withMessage("Failed to instantiate cache using class uk.gov.gchq.gaffer.cache.ICacheService");
     }
 

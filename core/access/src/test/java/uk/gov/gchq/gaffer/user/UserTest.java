@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,10 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class UserTest {
+class UserTest {
+
     @Test
-    public void shouldBuildUser() {
+    void shouldBuildUser() {
         // Given
         final String userId = "user 01";
         final String dataAuth1 = "dataAuth 1";
@@ -53,7 +54,7 @@ public class UserTest {
     }
 
     @Test
-    public void shouldReplaceNullIdWithUnknownIdWhenBuildingUser() {
+    void shouldReplaceNullIdWithUnknownIdWhenBuildingUser() {
         // Given
         final String userId = null;
 
@@ -67,7 +68,7 @@ public class UserTest {
     }
 
     @Test
-    public void shouldReplaceEmptyIdWithUnknownIdWhenBuildingUser() {
+    void shouldReplaceEmptyIdWithUnknownIdWhenBuildingUser() {
         // Given
         final String userId = "";
 
@@ -81,7 +82,7 @@ public class UserTest {
     }
 
     @Test
-    public void shouldSetUnknownIdWhenBuildingUser() {
+    void shouldSetUnknownIdWhenBuildingUser() {
         // Given
         // When
         final User user = new User.Builder()
@@ -92,7 +93,7 @@ public class UserTest {
     }
 
     @Test
-    public void shouldNotAllowChangingDataAuths() {
+    void shouldNotAllowChangingDataAuths() {
         // Given
         final String userId = "user 01";
         final String dataAuth1 = "dataAuth 1";
@@ -113,7 +114,7 @@ public class UserTest {
     }
 
     @Test
-    public void shouldNotAllowChangingOpAuths() {
+    void shouldNotAllowChangingOpAuths() {
         // Given
         final String userId = "user 01";
         final String opAuth1 = "opAuth 1";
@@ -134,7 +135,7 @@ public class UserTest {
     }
 
     @Test
-    public void shouldBeEqualWhen2UsersHaveSameFields() {
+    void shouldBeEqualWhen2UsersHaveSameFields() {
         // Given
         final String userId = "user 01";
         final String dataAuth1 = "dataAuth 1";
@@ -165,7 +166,7 @@ public class UserTest {
     }
 
     @Test
-    public void shouldNotBeEqualWhen2UsersHaveDifferentUserIds() {
+    void shouldNotBeEqualWhen2UsersHaveDifferentUserIds() {
         // Given
         final String userId1 = "user 01";
         final String userId2 = "user 02";
@@ -197,7 +198,7 @@ public class UserTest {
     }
 
     @Test
-    public void shouldNotBeEqualWhen2UsersHaveDifferentDataAuths() {
+    void shouldNotBeEqualWhen2UsersHaveDifferentDataAuths() {
         // Given
         final String userId = "user 01";
         final String dataAuth1 = "dataAuth 1";
@@ -222,7 +223,7 @@ public class UserTest {
     }
 
     @Test
-    public void shouldNotBeEqualWhen2UsersHaveDifferentOpAuths() {
+    void shouldNotBeEqualWhen2UsersHaveDifferentOpAuths() {
         // Given
         final String userId = "user 01";
         final String opAuth1 = "opAuth 1";

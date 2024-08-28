@@ -21,7 +21,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.OneOrMore;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
@@ -153,12 +152,8 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
         if (ArrayUtils.isEmpty(values)) {
             return Collections.emptyIterator();
         } else {
-            ChainedIterable<E> iterable = null;
-            try {
-                iterable = new ChainedIterable<E>(values);
+            try (ChainedIterable<E> iterable = new ChainedIterable<>(values)) {
                 return iterable.iterator();
-            } finally {
-                CloseableUtil.close(iterable);
             }
         }
     }

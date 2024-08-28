@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
      *
      * @param input the input {@link java.lang.Iterable}
      */
-    public TransformIterable(final Iterable<? extends I> input) {
+    protected TransformIterable(final Iterable<? extends I> input) {
         this(input, new AlwaysValid<>(), false);
     }
 
@@ -59,7 +59,7 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
      * @param input     the input {@link java.lang.Iterable}
      * @param validator the {@link Validator}
      */
-    public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator) {
+    protected TransformIterable(final Iterable<? extends I> input, final Validator<I> validator) {
         this(input, validator, false);
     }
 
@@ -73,7 +73,7 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
      * @param validator   the {@link Validator}
      * @param skipInvalid if true invalid items should be skipped
      */
-    public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid) {
+    protected TransformIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid) {
         this(input, validator, skipInvalid, true);
     }
 
@@ -86,7 +86,7 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
      * @param autoClose   if true then the input iterable will be closed when any
      *                    iterators reach the end.
      */
-    public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid,
+    protected TransformIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid,
                              final boolean autoClose) {
         if (null == input) {
             throw new IllegalArgumentException("Input iterable is required");
@@ -170,9 +170,7 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
                         nextElement = transform(possibleNext);
                         hasNext = true;
                         return Boolean.TRUE.equals(hasNext);
-                    } else if (skipInvalid) {
-                        continue;
-                    } else {
+                    } else if (!skipInvalid) {
                         handleInvalidItem(possibleNext);
                     }
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class HashMapCacheTest {
+class HashMapCacheTest {
 
     private HashMapCache<String, Integer> cache = new HashMapCache<>();
 
@@ -36,20 +36,20 @@ public class HashMapCacheTest {
     }
 
     @Test
-    public void shouldAddKeyValuePairToCache() {
+    void shouldAddKeyValuePairToCache() {
         cache.put("key", 1);
         assertThat(cache.size()).isOne();
     }
 
     @Test
-    public void shouldGetEntryFromCacheUsingKey() {
+    void shouldGetEntryFromCacheUsingKey() {
         cache.put("key", 2);
 
-        assertEquals(new Integer(2), cache.get("key"));
+        assertThat(cache.get("key")).isEqualTo(2);
     }
 
     @Test
-    public void shouldDeleteCachedEntriesByKeyName() {
+    void shouldDeleteCachedEntriesByKeyName() {
         cache.put("key", 3);
 
         cache.remove("key");
@@ -58,17 +58,17 @@ public class HashMapCacheTest {
     }
 
     @Test
-    public void putShouldOverriteEntriesWithDuplicateKeyName() {
+    void putShouldOverriteEntriesWithDuplicateKeyName() {
         cache.put("key", 4);
 
         cache.put("key", 5);
 
         assertThat(cache.size()).isOne();
-        assertEquals(new Integer(5), cache.get("key"));
+        assertThat(cache.get("key")).isEqualTo(5);
     }
 
     @Test
-    public void shouldClearAllEntries() {
+    void shouldClearAllEntries() {
         cache.put("key1", 1);
         cache.put("key2", 2);
         cache.put("key3", 3);
@@ -79,7 +79,7 @@ public class HashMapCacheTest {
     }
 
     @Test
-    public void shouldGetAllKeys() {
+    void shouldGetAllKeys() {
         cache.put("test1", 1);
         cache.put("test2", 2);
         cache.put("test3", 3);
@@ -89,7 +89,7 @@ public class HashMapCacheTest {
     }
 
     @Test
-    public void shouldGetAllValues() {
+    void shouldGetAllValues() {
         cache.put("test1", 1);
         cache.put("test2", 2);
         cache.put("test3", 3);
@@ -104,7 +104,7 @@ public class HashMapCacheTest {
 
     @DisplayName("Should cause JavaSerialisableException when serialisation flag is true")
     @Test
-    public void shouldThrowRuntimeExceptionCausedByNonJavaSerialisableException() {
+    void shouldThrowRuntimeExceptionCausedByNonJavaSerialisableException() {
         final HashMapCache<String, Object> map = new HashMapCache<>(true);
         final String s = "hello";
         map.put("test1", s);
@@ -121,15 +121,15 @@ public class HashMapCacheTest {
 
     @DisplayName("Should not cause JavaSerialisableException when serialisation flag is false")
     @Test
-    public void shouldNotThrowAnyExceptions() {
+    void shouldNotThrowAnyExceptions() {
         final HashMapCache<String, Object> map = new HashMapCache<>(false);
 
-        map.put("test1", "hello");
+        assertThatCode(() -> map.put("test1", "hello")).doesNotThrowAnyException();
 
         class TempClass {
         }
 
         final TempClass tempClass = new TempClass();
-        map.put("test1", tempClass);
+        assertThatCode(() -> map.put("test1", tempClass)).doesNotThrowAnyException();
     }
 }

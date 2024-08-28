@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ public class ElementVisibility {
     ElementVisibility.Node node;
     private byte[] expression;
     private static final ElementVisibility.Node EMPTY_NODE;
+    private static final String PATTERN_SYNTAX_ERROR = "expression needs & or |";
 
     static {
         EMPTY_NODE = new ElementVisibility.Node(ElementVisibility.NodeType.EMPTY, 0);
@@ -127,7 +128,7 @@ public class ElementVisibility {
 
         public void add(final ElementVisibility.Node child) {
             if (this.children == EMPTY) {
-                this.children = new ArrayList();
+                this.children = new ArrayList<>();
             }
 
             this.children.add(child);
@@ -198,7 +199,7 @@ public class ElementVisibility {
         ElementVisibility.Node processTerm(final int start, final int end, final ElementVisibility.Node expr, final byte[] expression) {
             if (start != end) {
                 if (expr != null) {
-                    throw new PatternSyntaxException("expression needs | or &", new String(expression, UTF_8), start);
+                    throw new PatternSyntaxException(PATTERN_SYNTAX_ERROR, new String(expression, UTF_8), start);
                 } else {
                     return new ElementVisibility.Node(start, end);
                 }
@@ -222,7 +223,7 @@ public class ElementVisibility {
                 switch (expression[this.index++]) {
                     case 34:
                         if (subtermStart != this.index - 1) {
-                            throw new PatternSyntaxException("expression needs & or |", new String(expression, UTF_8), this.index - 1);
+                            throw new PatternSyntaxException(PATTERN_SYNTAX_ERROR, new String(expression, UTF_8), this.index - 1);
                         }
 
                         for (; this.index < expression.length && expression[this.index] != 34; ++this.index) {
@@ -269,7 +270,7 @@ public class ElementVisibility {
                             break;
                         }
 
-                        throw new PatternSyntaxException("expression needs & or |", new String(expression, UTF_8), this.index - 1);
+                        throw new PatternSyntaxException(PATTERN_SYNTAX_ERROR, new String(expression, UTF_8), this.index - 1);
                     case 41:
                         --this.parens;
                         child = this.processTerm(subtermStart, this.index - 1, expr, expression);
@@ -282,10 +283,10 @@ public class ElementVisibility {
                         }
 
                         if (result.type == child.type) {
-                            Iterator var8 = child.children.iterator();
+                            Iterator<Node> var8 = child.children.iterator();
 
                             while (var8.hasNext()) {
-                                ElementVisibility.Node c = (ElementVisibility.Node) var8.next();
+                                ElementVisibility.Node c = var8.next();
                                 result.add(c);
                             }
                         } else {
@@ -311,7 +312,7 @@ public class ElementVisibility {
                         break;
                     default:
                         if (subtermComplete) {
-                            throw new PatternSyntaxException("expression needs & or |", new String(expression, UTF_8), this.index - 1);
+                            throw new PatternSyntaxException(PATTERN_SYNTAX_ERROR, new String(expression, UTF_8), this.index - 1);
                         }
 
                         byte var10 = expression[this.index - 1];
