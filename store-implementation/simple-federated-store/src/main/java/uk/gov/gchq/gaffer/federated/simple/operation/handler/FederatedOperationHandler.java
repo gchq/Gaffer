@@ -1,23 +1,41 @@
+/*
+ * Copyright 2024 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.federated.simple.operation.handler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
-import uk.gov.gchq.gaffer.federated.simple.merge.DefaultResultAccumulator;
-import uk.gov.gchq.gaffer.federated.simple.merge.FederatedResultAccumulator;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class DefaultFederatedHandler<O> implements OperationHandler<OperationChain<O>> {
+/**
+ * Main default handler for federated operations. Handles delegation to selected
+ * graphs and will sub class the operation to a {@link FederatedOutputHandler}
+ * if provided operation has output so that it is merged.
+ */
+public class FederatedOperationHandler<P extends Operation> implements OperationHandler<P> {
 
     /**
      * The operation option for the Graph IDs that an operation should be
@@ -37,31 +55,25 @@ public class DefaultFederatedHandler<O> implements OperationHandler<OperationCha
     public static final String OPT_MERGE_ELEMENTS = "federated.mergeElements";
 
     @Override
-    public Object doOperation(OperationChain<O> operation, Context context, Store store) throws OperationException {
+    public Object doOperation(P operation, Context context, Store store) throws OperationException {
+        // If the operation has output wrap and return using sub class handler
+        if (operation instanceof Output) {
+            return new FederatedOutputHandler<>().doOperation((Output) operation, context, store);
+        }
+
         List<GraphSerialisable> graphsToExecute = getGraphsToExecuteOn((FederatedStore) store, operation);
 
         if (graphsToExecute.isEmpty()) {
-            return Collections.emptySet();
-        }
-
-        // Execute the operation chain on each graph
-        List<O> graphResults = new ArrayList<>();
-        for (GraphSerialisable gs : graphsToExecute) {
-            graphResults.add(gs.getGraph().execute(operation, context.getUser()));
-        }
-
-        // Not expecting any output so exit
-        if(operation.getOutputClass().isAssignableFrom(Void.class)) {
             return null;
         }
 
-        // Set up the result accumulator
-        FederatedResultAccumulator<O> resultAccumulator = new DefaultResultAccumulator<>();
-        if (operation.containsOption(OPT_MERGE_ELEMENTS)) {
-            resultAccumulator.setMergeElements(Boolean.parseBoolean(operation.getOption(OPT_MERGE_ELEMENTS)));
+        // Execute the operation chain on each graph
+        for (GraphSerialisable gs : graphsToExecute) {
+            gs.getGraph().execute(operation, context.getUser());
         }
-        // Should now have a list of <O> objects so need to reduce to just one
-        return graphResults.stream().reduce(resultAccumulator::apply).orElse(graphResults.get(0));
+
+        // Assume no output, we've already checked above
+        return null;
     }
 
 
@@ -72,10 +84,8 @@ public class DefaultFederatedHandler<O> implements OperationHandler<OperationCha
      * @param store The federated store.
      * @param operation The operation to execute.
      * @return List of {@link GraphSerialisable}s to execute on.
-     *
-     * @throws OperationException If issue getting graphs.
      */
-    private List<GraphSerialisable> getGraphsToExecuteOn(FederatedStore store, Operation operation) throws OperationException {
+    protected List<GraphSerialisable> getGraphsToExecuteOn(FederatedStore store, Operation operation) {
         List<String> graphIds = store.getDefaultGraphIds();
         List<GraphSerialisable> graphsToExecute = new ArrayList<>();
         // If user specified graph IDs for this chain parse as comma separated list
@@ -87,11 +97,7 @@ public class DefaultFederatedHandler<O> implements OperationHandler<OperationCha
 
         // Get the corresponding graph serialisable
         for (String id : graphIds) {
-            try {
-                graphsToExecute.add(store.getGraph(id));
-            } catch (GafferCheckedException e) {
-                throw new OperationException("Failed to run operation on Graph with ID: " + id, e);
-            }
+            graphsToExecute.add(store.getGraph(id));
         }
 
         return graphsToExecute;

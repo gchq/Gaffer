@@ -51,6 +51,11 @@ public class DefaultResultAccumulator<T> extends FederatedResultAccumulator<T> {
             return (T) this.stringMergeOperator.apply((String) update, (String) state);
         }
 
+        // Use configured boolean merger
+        if (state instanceof Boolean) {
+            return (T) this.booleanMergeOperator.apply((Boolean) update, (Boolean) state);
+        }
+
         // Use configured collection merger
         if (state instanceof Collection<?>) {
             return (T) this.collectionMergeOperator.apply((Collection<Object>) update, (Collection<Object>) state);

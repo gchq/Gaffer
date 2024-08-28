@@ -1,14 +1,30 @@
+/*
+ * Copyright 2024 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.federated.simple;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.federated.simple.operation.handler.DefaultFederatedHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOutputHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -54,16 +70,15 @@ public class FederatedStore extends Store {
      * @param graphId The graph ID
      * @return The {@link GraphSerialisable} relating to the ID.
      *
-     * @throws GafferCheckedException If graph not found.
+     * @throws IllegalArgumentException If graph not found.
      */
-    public GraphSerialisable getGraph(String graphId) throws GafferCheckedException {
+    public GraphSerialisable getGraph(String graphId) {
         for (GraphSerialisable graph : graphs) {
             if (graph.getGraphId().equals(graphId)) {
                 return graph;
             }
         }
-
-        throw new GafferCheckedException("Graph for Graph ID: " + graphId + " not available to federated store");
+        throw new IllegalArgumentException("Graph for Graph ID: '" + graphId + "' is not available to this federated store");
     }
 
     /**
@@ -75,6 +90,15 @@ public class FederatedStore extends Store {
         return defaultGraphIds;
     }
 
+    /**
+     * Set the default list of graph IDs for this federated store.
+     *
+     * @param defaultGraphIds Default list to set.
+     */
+    public void setDefaultGraphIds(List<String> defaultGraphIds) {
+        this.defaultGraphIds = defaultGraphIds;
+    }
+
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
         super.initialise(graphId, new Schema(), properties);
@@ -83,8 +107,8 @@ public class FederatedStore extends Store {
     @Override
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
         try {
-            // Use the default federated handler so operations are forwarded to graphs
-            return new DefaultFederatedHandler<>().doOperation((OperationChain<Object>) OperationChain.wrap(operation), context, this);
+            // Use a federated handler so operations are forwarded to graphs
+            return new FederatedOperationHandler<>().doOperation(operation, context, this);
         } catch (OperationException e) {
             throw new GafferRuntimeException(e.getMessage());
         }
@@ -96,33 +120,38 @@ public class FederatedStore extends Store {
     }
 
     @Override
+    protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
+        return new FederatedOperationHandler<>();
+    }
+
+    @Override
     protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
-        return null;
+        return new FederatedOutputHandler<>();
     }
 
     @Override
     protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
-        return null;
+        return new FederatedOutputHandler<>();
     }
 
     @Override
     protected OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
-        return null;
+        return new FederatedOutputHandler<>();
     }
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return null;
+        return new FederatedOperationHandler<>();
     }
 
     @Override
     protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
-        return null;
+        return new FederatedOperationHandler<>();
     }
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-        return null;
+        return new FederatedOutputHandler<>();
     }
 
     @Override
