@@ -69,9 +69,9 @@ public class DefaultResultAccumulator<T> extends FederatedResultAccumulator<T> {
                 return state;
             }
 
-            // Should we use the element merge operation (its likely slower)
-            if ((this.mergeElements) && (updateIterable.iterator().next() instanceof Element))  {
-                return (T) this.elementMergeOperator.apply((Iterable<Element>) update, (Iterable<Element>) state);
+            // Should we use the element aggregator operation
+            if ((this.aggregateElements) && (updateIterable.iterator().next() instanceof Element))  {
+                return (T) this.elementAggregateOperator.apply((Iterable<Element>) update, (Iterable<Element>) state);
             }
 
             // Default just chain iterables together

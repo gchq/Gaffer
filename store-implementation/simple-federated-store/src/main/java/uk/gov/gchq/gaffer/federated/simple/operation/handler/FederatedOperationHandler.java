@@ -52,7 +52,7 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
     /**
      * The boolean operation option to specify if element merging should be applied or not.
      */
-    public static final String OPT_MERGE_ELEMENTS = "federated.mergeElements";
+    public static final String OPT_AGGREGATE_ELEMENTS = "federated.aggregateElements";
 
     @Override
     public Object doOperation(P operation, Context context, Store store) throws OperationException {

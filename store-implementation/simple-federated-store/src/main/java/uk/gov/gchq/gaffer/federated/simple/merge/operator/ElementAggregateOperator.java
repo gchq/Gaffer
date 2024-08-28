@@ -26,13 +26,26 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
  * Operator for aggregating two iterables of {@link Element}s together, this
- * will ensure all properties for similar elements are merged using a
- * {@link ElementAggregator} to perform the actual aggregation.
+ * will ensure all properties for similar elements are merged using the
+ * {@link ElementAggregator} from the schema to perform the actual aggregation.
  */
 public class ElementAggregateOperator implements BinaryOperator<Iterable<Element>> {
+
+    // The schema to use for pulling aggregation functions from
+    private Schema schema;
+
+    /**
+     * Set the schema to use for aggregating elements of the same group
+     *
+     * @param schema The schema.
+     */
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+    }
 
     @Override
     public Iterable<Element> apply(Iterable<Element> update, Iterable<Element> state) {
@@ -56,7 +69,13 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                     Element current = chainedMergeIterator.next();
                     Element result = current;
 
-                    // Compare the current element with all others to do a full merge if required
+                    // Set up the aggregator for this group based on the schema
+                    ElementAggregator aggregator = new ElementAggregator();
+                    if (schema != null) {
+                        aggregator= schema.getElement(current.getGroup()).getIngestAggregator();
+                    }
+
+                    // Compare the current element with all others to do a full merge
                     for (Element inner : chainedMerge) {
                         // No merge required if not in same group
                         if (!current.getGroup().equals(inner.getGroup())) {
@@ -66,16 +85,16 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                         if ((current instanceof Entity)
                                 && (inner instanceof Entity)
                                 && ((Entity) current).getVertex().equals(((Entity) inner).getVertex())) {
-                            result = new ElementAggregator().apply(inner, current);
+                            result = aggregator.apply(inner, result);
+
                         }
 
                         if ((current instanceof Edge)
                                 && (inner instanceof Edge)
                                 && ((Edge) current).getSource().equals(((Edge) inner).getSource())
                                 && ((Edge) current).getDestination().equals(((Edge) inner).getDestination())) {
-                            result = new ElementAggregator().apply(inner, current);
+                            result = aggregator.apply(inner, result);
                         }
-
                     }
                     return result;
                 }

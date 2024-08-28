@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOutputHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -41,6 +42,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -99,9 +101,46 @@ public class FederatedStore extends Store {
         this.defaultGraphIds = defaultGraphIds;
     }
 
+    /**
+     * Gets a merged schema based on the graphs specified.
+     *
+     * @param graphs The graphs to get the schemas from.
+     * @return A merged {@link Schema}
+     */
+    public Schema getSchema(List<GraphSerialisable> graphs) {
+        try {
+            // Get the graph IDs we care about
+            List<String> graphIds = new ArrayList<>();
+            graphs.forEach(gs -> graphIds.add(gs.getGraphId()));
+
+            // Create and run a get schema operation with relevant IDs
+            GetSchema operation = new GetSchema.Builder()
+                    .option(FederatedOperationHandler.OPT_SHORT_GRAPH_IDS, String.join(",", graphIds))
+                    .build();
+            return (Schema) this.handleOperation(operation, new Context());
+
+        } catch (OperationException e) {
+            throw new GafferRuntimeException(e.getMessage());
+        }
+    }
+
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
         super.initialise(graphId, new Schema(), properties);
+    }
+
+    @Override
+    public Schema getSchema() {
+        // Return a blank schema if we have no default graphs
+        if (defaultGraphIds.isEmpty()) {
+            return new Schema();
+        }
+
+        try {
+            return (Schema) this.handleOperation(new GetSchema(), new Context());
+        } catch (OperationException e) {
+            throw new GafferRuntimeException(e.getMessage());
+        }
     }
 
     @Override
@@ -116,7 +155,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        ///
+        addOperationHandler(GetSchema.class, new GetSchemaHandler());
     }
 
     @Override

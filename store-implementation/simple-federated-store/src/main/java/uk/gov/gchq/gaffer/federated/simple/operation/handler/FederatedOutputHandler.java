@@ -58,8 +58,10 @@ public class FederatedOutputHandler<P extends Output<O>, O>
 
         // Set up the result accumulator
         FederatedResultAccumulator<O> resultAccumulator = new DefaultResultAccumulator<>();
-        if (operation.containsOption(OPT_MERGE_ELEMENTS)) {
-            resultAccumulator.setMergeElements(Boolean.parseBoolean(operation.getOption(OPT_MERGE_ELEMENTS)));
+        resultAccumulator.setSchema(((FederatedStore) store).getSchema(graphsToExecute));
+
+        if (operation.containsOption(OPT_AGGREGATE_ELEMENTS)) {
+            resultAccumulator.aggregateElements(Boolean.parseBoolean(operation.getOption(OPT_AGGREGATE_ELEMENTS)));
         }
         // Should now have a list of <O> objects so need to reduce to just one
         return graphResults.stream().reduce(resultAccumulator::apply).orElse(graphResults.get(0));

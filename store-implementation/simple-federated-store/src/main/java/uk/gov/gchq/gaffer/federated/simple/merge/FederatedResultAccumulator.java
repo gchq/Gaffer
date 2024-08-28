@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.federated.simple.merge;
 import java.util.Collection;
 import java.util.function.BinaryOperator;
 
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federated.simple.merge.operator.ElementAggregateOperator;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
@@ -32,17 +32,28 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
     protected BinaryOperator<String> stringMergeOperator = new StringConcat();
     protected BinaryOperator<Boolean> booleanMergeOperator = new And();
     protected BinaryOperator<Collection<Object>> collectionMergeOperator = new CollectionConcat<>();
-    protected BinaryOperator<Iterable<Element>> elementMergeOperator = new ElementAggregateOperator();
+    protected ElementAggregateOperator elementAggregateOperator = new ElementAggregateOperator();
 
-    // Should the element merge operator be used
-    protected boolean mergeElements = true;
+    // Schema to use for merging
+    protected Schema schema;
+
+    // Should the element aggregation operator be used, can be slower so disabled by default
+    protected boolean aggregateElements = false;
 
     /**
-     * Set whether the element merge operator should be used.
+     * Set whether the element aggregation operator should be used. This will
+     * attempt to aggregate elements based on the current schema.
      *
-     * @param mergeElements should merge.
+     * @param aggregateElements should elements be aggregated.
      */
-    public void setMergeElements(boolean mergeElements) {
-        this.mergeElements = mergeElements;
+    public void aggregateElements(boolean aggregateElements) {
+        this.aggregateElements = aggregateElements;
     }
+
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+        elementAggregateOperator.setSchema(schema);
+    }
+
+
 }
