@@ -921,18 +921,18 @@ public class StoreTest {
     }
 
     @Test
-    void shouldSetAndGetCreatedTime() {
+    void shouldGetCreatedTime() {
         // Given
         final Store testStore = new StoreImpl();
-        LocalDateTime time = LocalDateTime.now();
-        testStore.setCreatedTime(time);
 
         // When
         String storeTime = testStore.getCreatedTime();
 
         // Then
-        assertThat(storeTime).isEqualTo(time.toString());
+        assertThat(storeTime).isInstanceOf(String.class);
+        assertThat(LocalDateTime.parse(storeTime)).isInstanceOf(LocalDateTime.class);
     }
+
     private Schema createSchemaMock() {
         final Schema schema = mock(Schema.class);
         given(schema.validate()).willReturn(new ValidationResult());

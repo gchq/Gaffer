@@ -215,7 +215,7 @@ public abstract class Store {
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
     private final Boolean addCoreOpHandlers;
-    private LocalDateTime createdTime = LocalDateTime.now();
+    private final LocalDateTime createdTime = LocalDateTime.now();
 
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
@@ -323,14 +323,6 @@ public abstract class Store {
      */
     public String getCreatedTime() {
         return createdTime.toString();
-    }
-    /**
-     * Sets this Store's creation timestamp.
-     *
-     * @param createdTime the LocalDateTime to store as the graph creation date.
-     */
-    public void setCreatedTime(final LocalDateTime createdTime) {
-        this.createdTime = createdTime;
     }
 
     private void rescheduleJob(final JobDetail jobDetail) {

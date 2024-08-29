@@ -105,6 +105,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -118,6 +119,7 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -2710,6 +2712,7 @@ public class GraphTest {
                 .isNotNull()
                 .isInstanceOf(String.class);
         assertThat(LocalDateTime.parse(graphCreatedTime)).isInstanceOf(LocalDateTime.class);
+        assertThat(LocalDateTime.parse(graphCreatedTime)).isCloseTo(LocalDateTime.now(), within(20, ChronoUnit.SECONDS));
     }
 
     public static class TestStoreImpl extends Store {

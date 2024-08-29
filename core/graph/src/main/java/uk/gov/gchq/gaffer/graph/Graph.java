@@ -69,7 +69,6 @@ import java.net.URI;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -894,7 +893,7 @@ public final class Graph {
             // This is stored inside the Store but is primarily
             // used by this class.
             store.setOriginalSchema(schema);
-            store.setCreatedTime(LocalDateTime.now());
+            // store.setCreatedTime(LocalDateTime.now());
 
             return new Graph(config, store);
         }
