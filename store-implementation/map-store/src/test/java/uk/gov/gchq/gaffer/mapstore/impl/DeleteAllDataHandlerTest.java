@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 Crown Copyright
+ * Copyright 2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,18 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- *
- */
-class CountAllElementsDefaultViewHandlerTest {
+class DeleteAllDataHandlerTest {
 
     @Test
-    void testCountAllElementsDefaultViewHandler() throws OperationException {
+    void shouldRemoveAllData() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -41,17 +39,12 @@ class CountAllElementsDefaultViewHandlerTest {
         graph.execute(addElements, new User());
 
         // When
-        final CountAllElementsDefaultView countAllElementsDefaultView = new CountAllElementsDefaultView();
-        final Long result = graph.execute(countAllElementsDefaultView, new User());
+        final DeleteAllData deleteAll = new DeleteAllData.Builder().build();
+        graph.execute(deleteAll, new User());
+
+        final GetAllElements getAllElements = new GetAllElements.Builder().build();
 
         // Then
-        assertThat((long) result).isEqualTo((long) GetAllElementsHandlerTest.getElements().size());
-    }
-
-    @Test
-    void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
-        VisibilityTest.executeOperation(
-                new CountAllElementsDefaultView(),
-                VisibilityTest::elementIterableResultSizeConsumer);
+        assertThat(graph.execute(getAllElements, new User())).isEmpty();
     }
 }

@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 
 import java.util.HashSet;
@@ -54,6 +55,11 @@ public class TestAddToGraphLibraryImpl extends Store {
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
+        return null;
+    }
+
+    @Override
+    protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
         return null;
     }
 
