@@ -2711,8 +2711,9 @@ public class GraphTest {
         assertThat(graphCreatedTime)
                 .isNotNull()
                 .isInstanceOf(String.class);
-        assertThat(LocalDateTime.parse(graphCreatedTime)).isInstanceOf(LocalDateTime.class);
-        assertThat(LocalDateTime.parse(graphCreatedTime)).isCloseTo(LocalDateTime.now(), within(20, ChronoUnit.SECONDS));
+        assertThat(LocalDateTime.parse(graphCreatedTime))
+                .isInstanceOf(LocalDateTime.class)
+                .isCloseTo(LocalDateTime.now(), within(20, ChronoUnit.SECONDS));
     }
 
     public static class TestStoreImpl extends Store {
