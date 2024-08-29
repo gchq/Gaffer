@@ -52,7 +52,7 @@ public class MapOfSets<K, V> implements MultiMap<K, V> {
         final Set<V> existingValue = multiMap.get(key);
         if (null == existingValue) {
             if (value instanceof Set) {
-                multiMap.put(key, ((Set) value));
+                multiMap.put(key, ((Set<V>) value));
             } else {
                 multiMap.put(key, Sets.newHashSet(value));
             }

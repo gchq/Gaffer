@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore.factory;
 
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.multimap.MapOfSets;
 import uk.gov.gchq.gaffer.mapstore.utils.ElementCloner;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.LinkedHashMap;
@@ -29,20 +29,16 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class SimpleMapFactoryTest {
+class SimpleMapFactoryTest {
 
     @Test
-    public void shouldThrowExceptionIfMapClassIsInvalid() throws StoreException {
+    void shouldThrowExceptionIfMapClassIsInvalid() {
         // Given
-        final Class mapClass = String.class;
+        final Class<String> mapClass = String.class;
         final Schema schema = mock(Schema.class);
         final MapStoreProperties properties = mock(MapStoreProperties.class);
         final SimpleMapFactory factory = new SimpleMapFactory();
@@ -57,7 +53,7 @@ public class SimpleMapFactoryTest {
     }
 
     @Test
-    public void shouldExtractMapClassFromPropertiesWhenInitialised() throws StoreException {
+    void shouldExtractMapClassFromPropertiesWhenInitialised() {
         // Given
         final Class<? extends Map> mapClass = LinkedHashMap.class;
         final Schema schema = mock(Schema.class);
@@ -70,11 +66,11 @@ public class SimpleMapFactoryTest {
         factory.initialise(schema, properties);
 
         // Then
-        assertEquals(mapClass, factory.getMapClass());
+        assertThat(factory.getMapClass()).isEqualTo(mapClass);
     }
 
     @Test
-    public void shouldCreateNewMapUsingMapClass() throws StoreException {
+    void shouldCreateNewMapUsingMapClass() {
         // Given
         final Class<? extends Map> mapClass = LinkedHashMap.class;
         final Schema schema = mock(Schema.class);
@@ -96,11 +92,11 @@ public class SimpleMapFactoryTest {
         assertThat(map2)
                 .isInstanceOf(LinkedHashMap.class)
                 .isEmpty();
-        assertNotSame(map1, map2);
+        assertThat(map1).isNotSameAs(map2);
     }
 
     @Test
-    public void shouldThrowExceptionIfMapClassCannotBeInstantiated() throws StoreException {
+    void shouldThrowExceptionIfMapClassCannotBeInstantiated() {
         // Given
         final Class<? extends Map> mapClass = Map.class;
         final Schema schema = mock(Schema.class);
@@ -112,11 +108,14 @@ public class SimpleMapFactoryTest {
         factory.initialise(schema, properties);
 
         // When / Then
-        assertThatIllegalArgumentException().isThrownBy(() -> factory.getMap("mapName1", Object.class, Object.class)).extracting("message").isNotNull();
+        assertThatIllegalArgumentException()
+            .isThrownBy(() -> factory.getMap("mapName1", Object.class, Object.class))
+            .extracting("message")
+            .isNotNull();
     }
 
     @Test
-    public void shouldCreateNewMultiMap() throws StoreException {
+    void shouldCreateNewMultiMap() {
         // Given
         final Class<? extends Map> mapClass = LinkedHashMap.class;
         final Schema schema = mock(Schema.class);
@@ -128,19 +127,19 @@ public class SimpleMapFactoryTest {
         factory.initialise(schema, properties);
 
         // When
-        final MapOfSets<Object, Object> map1 = (MapOfSets) factory.getMultiMap("mapName1", Object.class, Object.class);
-        final MapOfSets<Object, Object> map2 = (MapOfSets) factory.getMultiMap("mapName2", Object.class, Object.class);
+        final MapOfSets<Object, Object> map1 = (MapOfSets<Object, Object>) factory.getMultiMap("mapName1", Object.class, Object.class);
+        final MapOfSets<Object, Object> map2 = (MapOfSets<Object, Object>) factory.getMultiMap("mapName2", Object.class, Object.class);
 
         // Then
-        assertTrue(map1.getWrappedMap().isEmpty());
-        assertTrue(map1.getWrappedMap().isEmpty());
-        assertTrue(map2.getWrappedMap() instanceof LinkedHashMap);
-        assertTrue(map2.getWrappedMap() instanceof LinkedHashMap);
-        assertNotSame(map1, map2);
+        assertThat(map1.getWrappedMap()).isEmpty();
+        assertThat(map1.getWrappedMap()).isEmpty();
+        assertThat(map2.getWrappedMap()).isInstanceOf(LinkedHashMap.class);
+        assertThat(map2.getWrappedMap()).isInstanceOf(LinkedHashMap.class);
+        assertThat(map1).isNotSameAs(map2);
     }
 
     @Test
-    public void shouldCloneElementUsingCloner() throws StoreException {
+    void shouldCloneElementUsingCloner() {
         // Given
         final ElementCloner elementCloner = mock(ElementCloner.class);
         final Element element = mock(Element.class);
@@ -155,7 +154,8 @@ public class SimpleMapFactoryTest {
 
         // Then
         verify(elementCloner).cloneElement(element, schema);
-        assertSame(expectedClonedElement, clonedElement);
-        assertNotSame(element, clonedElement);
+        assertThat(clonedElement)
+            .isSameAs(expectedClonedElement)
+            .isNotSameAs(element);
     }
 }

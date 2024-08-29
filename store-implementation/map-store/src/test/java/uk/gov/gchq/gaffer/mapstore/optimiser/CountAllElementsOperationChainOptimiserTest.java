@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-public class CountAllElementsOperationChainOptimiserTest {
+class CountAllElementsOperationChainOptimiserTest {
 
     private static final Operation COUNT_ALL_ELEMENTS_DEFAULT_VIEW = new CountAllElementsDefaultView.Builder().build();
     private static final Operation GET_ALL_ELEMENTS_DEFAULT_VIEW = new GetAllElements.Builder().build();
@@ -51,7 +50,7 @@ public class CountAllElementsOperationChainOptimiserTest {
 
     @ParameterizedTest
     @MethodSource("inputOperationChainAndExpectedOptimizedOperationChain")
-    public void shouldReturnExpectedOptimisedOperationChain(final OperationChain inputOperationChain, final OperationChain expectedOptimisedOperationChain) {
+    void shouldReturnExpectedOptimisedOperationChain(final OperationChain inputOperationChain, final OperationChain expectedOptimisedOperationChain) {
         //Given
         final CountAllElementsOperationChainOptimiser optimiser = new CountAllElementsOperationChainOptimiser();
 
@@ -59,11 +58,11 @@ public class CountAllElementsOperationChainOptimiserTest {
         final OperationChain optimisedOperationChain = optimiser.optimise(inputOperationChain);
 
         // Then
-        assertEquals(expectedOptimisedOperationChain.getOperations().size(), optimisedOperationChain.getOperations().size());
+        assertThat(optimisedOperationChain.getOperations()).hasSameSizeAs(expectedOptimisedOperationChain.getOperations());
         final Iterator<Operation> optimisedOperationsIterator = optimisedOperationChain.getOperations().iterator();
         final Iterator<Operation> expectedOperationsIterator = expectedOptimisedOperationChain.getOperations().iterator();
         while (optimisedOperationsIterator.hasNext()) {
-            assertSame(expectedOperationsIterator.next().getClass(), optimisedOperationsIterator.next().getClass());
+            assertThat(optimisedOperationsIterator.next().getClass()).isSameAs(expectedOperationsIterator.next().getClass());
         }
     }
 
@@ -83,7 +82,7 @@ public class CountAllElementsOperationChainOptimiserTest {
 
     @ParameterizedTest
     @MethodSource("nonOptimisableInputOperationChain")
-    public void shouldNotOptimiseOperationChain(final OperationChain inputOperationChain) {
+    void shouldNotOptimiseOperationChain(final OperationChain inputOperationChain) {
         //Given
         final CountAllElementsOperationChainOptimiser optimiser = new CountAllElementsOperationChainOptimiser();
 
@@ -91,7 +90,7 @@ public class CountAllElementsOperationChainOptimiserTest {
         final OperationChain optimisedOperationChain = optimiser.optimise(inputOperationChain);
 
         // Then
-        assertEquals(inputOperationChain.getOperations(), optimisedOperationChain.getOperations());
+        assertThat(optimisedOperationChain.getOperations()).isEqualTo(inputOperationChain.getOperations());
     }
 
     static Stream<Arguments> nonOptimisableInputOperationChain() {
