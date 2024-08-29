@@ -16,11 +16,6 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation.handler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -29,6 +24,11 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Main default handler for federated operations. Handles delegation to selected
@@ -55,7 +55,7 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
     public static final String OPT_AGGREGATE_ELEMENTS = "federated.aggregateElements";
 
     @Override
-    public Object doOperation(P operation, Context context, Store store) throws OperationException {
+    public Object doOperation(final P operation, final Context context, final Store store) throws OperationException {
         // If the operation has output wrap and return using sub class handler
         if (operation instanceof Output) {
             return new FederatedOutputHandler<>().doOperation((Output) operation, context, store);
@@ -68,7 +68,7 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         }
 
         // Execute the operation chain on each graph
-        for (GraphSerialisable gs : graphsToExecute) {
+        for (final GraphSerialisable gs : graphsToExecute) {
             gs.getGraph().execute(operation, context.getUser());
         }
 
@@ -80,14 +80,17 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
     /**
      * Extract the graph IDs from the operation and process the option.
      * Will default to the store configured graph IDs if no option present.
+     * <p>
+     * Returned list will be ordered alphabetically based on graph ID for
+     * predicability.
      *
      * @param store The federated store.
      * @param operation The operation to execute.
      * @return List of {@link GraphSerialisable}s to execute on.
      */
-    protected List<GraphSerialisable> getGraphsToExecuteOn(FederatedStore store, Operation operation) {
+    protected List<GraphSerialisable> getGraphsToExecuteOn(final FederatedStore store, final Operation operation) {
         List<String> graphIds = store.getDefaultGraphIds();
-        List<GraphSerialisable> graphsToExecute = new ArrayList<>();
+        List<GraphSerialisable> graphsToExecute = new LinkedList<>();
         // If user specified graph IDs for this chain parse as comma separated list
         if (operation.containsOption(OPT_GRAPH_IDS)) {
             graphIds = Arrays.asList(operation.getOption(OPT_GRAPH_IDS).split(","));
@@ -96,9 +99,12 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         }
 
         // Get the corresponding graph serialisable
-        for (String id : graphIds) {
+        for (final String id : graphIds) {
             graphsToExecute.add(store.getGraph(id));
         }
+
+        // Keep graphs sorted so results returned are predictable between runs
+        Collections.sort(graphsToExecute, (g1, g2) -> g1.getGraphId().compareTo(g2.getGraphId()));
 
         return graphsToExecute;
     }

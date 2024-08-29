@@ -16,10 +16,6 @@
 
 package uk.gov.gchq.gaffer.federated.simple.merge.operator;
 
-import java.util.Iterator;
-import java.util.function.BinaryOperator;
-import java.util.stream.StreamSupport;
-
 import org.apache.commons.collections4.IterableUtils;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -27,6 +23,10 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import java.util.Iterator;
+import java.util.function.BinaryOperator;
+import java.util.stream.StreamSupport;
 
 /**
  * Operator for aggregating two iterables of {@link Element}s together, this
@@ -43,12 +43,12 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
      *
      * @param schema The schema.
      */
-    public void setSchema(Schema schema) {
+    public void setSchema(final Schema schema) {
         this.schema = schema;
     }
 
     @Override
-    public Iterable<Element> apply(Iterable<Element> update, Iterable<Element> state) {
+    public Iterable<Element> apply(final Iterable<Element> update, final Iterable<Element> state) {
         // Just append the state and update so we can loop over it to do accurate merging
         Iterable<Element> chainedMerge = IterableUtils.chainedIterable(update, state);
 
@@ -72,11 +72,11 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                     // Set up the aggregator for this group based on the schema
                     ElementAggregator aggregator = new ElementAggregator();
                     if (schema != null) {
-                        aggregator= schema.getElement(current.getGroup()).getIngestAggregator();
+                        aggregator = schema.getElement(current.getGroup()).getIngestAggregator();
                     }
 
                     // Compare the current element with all others to do a full merge
-                    for (Element inner : chainedMerge) {
+                    for (final Element inner : chainedMerge) {
                         // No merge required if not in same group
                         if (!current.getGroup().equals(inner.getGroup())) {
                             continue;

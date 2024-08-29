@@ -16,9 +16,6 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation.handler;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.merge.DefaultResultAccumulator;
 import uk.gov.gchq.gaffer.federated.simple.merge.FederatedResultAccumulator;
@@ -29,6 +26,9 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A sub class operation handler for federation that can process operations that have an
  * output associated with them. Will apply a {@link FederatedResultAccumulator} to merge
@@ -38,7 +38,7 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         extends FederatedOperationHandler<P> implements OutputOperationHandler<P, O> {
 
     @Override
-    public O doOperation(P operation, Context context, Store store) throws OperationException {
+    public O doOperation(final P operation, final Context context, final Store store) throws OperationException {
         List<GraphSerialisable> graphsToExecute = this.getGraphsToExecuteOn((FederatedStore) store, operation);
 
         if (graphsToExecute.isEmpty()) {
@@ -47,12 +47,12 @@ public class FederatedOutputHandler<P extends Output<O>, O>
 
         // Execute the operation chain on each graph
         List<O> graphResults = new ArrayList<>();
-        for (GraphSerialisable gs : graphsToExecute) {
+        for (final GraphSerialisable gs : graphsToExecute) {
             graphResults.add(gs.getGraph().execute(operation, context.getUser()));
         }
 
         // Not expecting any output so exit since we've executed
-        if(operation.getOutputClass().isAssignableFrom(Void.class)) {
+        if (operation.getOutputClass().isAssignableFrom(Void.class)) {
             return null;
         }
 

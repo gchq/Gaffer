@@ -16,15 +16,15 @@
 
 package uk.gov.gchq.gaffer.federated.simple.merge;
 
-import java.util.Collection;
-import java.util.function.BinaryOperator;
-
 import uk.gov.gchq.gaffer.federated.simple.merge.operator.ElementAggregateOperator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.impl.binaryoperator.And;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
-import uk.gov.gchq.koryphe.impl.binaryoperator.And;
+
+import java.util.Collection;
+import java.util.function.BinaryOperator;
 
 public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T> {
     // Default merge operators for different data types
@@ -33,9 +33,6 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
     protected BinaryOperator<Boolean> booleanMergeOperator = new And();
     protected BinaryOperator<Collection<Object>> collectionMergeOperator = new CollectionConcat<>();
     protected ElementAggregateOperator elementAggregateOperator = new ElementAggregateOperator();
-
-    // Schema to use for merging
-    protected Schema schema;
 
     // Should the element aggregation operator be used, can be slower so disabled by default
     protected boolean aggregateElements = false;
@@ -46,14 +43,16 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
      *
      * @param aggregateElements should elements be aggregated.
      */
-    public void aggregateElements(boolean aggregateElements) {
+    public void aggregateElements(final boolean aggregateElements) {
         this.aggregateElements = aggregateElements;
     }
 
-    public void setSchema(Schema schema) {
-        this.schema = schema;
+    /**
+     * Sets the schema to use for the {@link ElementAggregateOperator}
+     *
+     * @param schema The schema.
+     */
+    public void setSchema(final Schema schema) {
         elementAggregateOperator.setSchema(schema);
     }
-
-
 }

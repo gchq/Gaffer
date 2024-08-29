@@ -16,9 +16,6 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation.handler;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -27,22 +24,25 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Simple handler for merging schemas from multiple graphs.
  */
 public class GetSchemaHandler extends FederatedOutputHandler<GetSchema, Schema> {
 
     @Override
-    public Schema doOperation(GetSchema operation, Context context, Store store) throws OperationException {
+    public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
         List<GraphSerialisable> graphsToExecute = this.getGraphsToExecuteOn((FederatedStore) store, operation);
 
         if (graphsToExecute.isEmpty()) {
-            return null;
+            return new Schema();
         }
 
         // Execute the operation chain on each graph
         List<Schema> graphResults = new ArrayList<>();
-        for (GraphSerialisable gs : graphsToExecute) {
+        for (final GraphSerialisable gs : graphsToExecute) {
             graphResults.add(gs.getGraph().execute(operation, context.getUser()));
         }
 
