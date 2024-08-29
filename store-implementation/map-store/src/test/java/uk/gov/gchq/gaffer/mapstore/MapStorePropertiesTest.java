@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Crown Copyright
+ * Copyright 2021-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore;
 
 import org.junit.jupiter.api.Test;
@@ -21,12 +22,12 @@ import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StorePropertiesTest.TestCustomJsonModules1;
 import uk.gov.gchq.gaffer.store.StorePropertiesTest.TestCustomJsonModules2;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class MapStorePropertiesTest {
+class MapStorePropertiesTest {
 
     @Test
-    public void shouldMergeJsonModules() {
+    void shouldMergeJsonModules() {
         // Given
         final MapStoreProperties props = new MapStoreProperties();
         props.setJsonSerialiserModules(TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName());
@@ -35,11 +36,12 @@ public class MapStorePropertiesTest {
         final String modules = props.getJsonSerialiserModules();
 
         // Then
-        assertEquals(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName(), modules);
+        assertThat(modules)
+            .isEqualTo(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName());
     }
 
     @Test
-    public void shouldMergeJsonModulesAndDeduplicate() {
+    void shouldMergeJsonModulesAndDeduplicate() {
         // Given
         final MapStoreProperties props = new MapStoreProperties();
         props.setJsonSerialiserModules(TestCustomJsonModules1.class.getName() + "," + SketchesJsonModules.class.getName());
@@ -48,6 +50,6 @@ public class MapStorePropertiesTest {
         final String modules = props.getJsonSerialiserModules();
 
         // Then
-        assertEquals(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName(), modules);
+        assertThat(modules).isEqualTo(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName());
     }
 }
