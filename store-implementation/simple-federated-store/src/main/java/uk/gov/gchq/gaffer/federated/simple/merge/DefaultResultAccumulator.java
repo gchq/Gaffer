@@ -69,12 +69,12 @@ public class DefaultResultAccumulator<T> extends FederatedResultAccumulator<T> {
                 return state;
             }
 
-            // Should we use the element aggregator operation
+            // Should we use the element aggregate operator
             if ((this.aggregateElements) && (updateIterable.iterator().next() instanceof Element))  {
                 return (T) this.elementAggregateOperator.apply((Iterable<Element>) update, (Iterable<Element>) state);
             }
 
-            // Default just chain iterables together
+            // By default just chain iterables together
             return (T) IterableUtils.chainedIterable((Iterable<?>) state, updateIterable);
         }
 

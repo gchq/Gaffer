@@ -46,6 +46,7 @@ public class GetSchemaHandler extends FederatedOutputHandler<GetSchema, Schema> 
             graphResults.add(gs.getGraph().execute(operation, context.getUser()));
         }
 
+        // Merge schemas using schema builder
         Schema.Builder mergeSchema = new Schema.Builder();
         graphResults.forEach(mergeSchema::merge);
 

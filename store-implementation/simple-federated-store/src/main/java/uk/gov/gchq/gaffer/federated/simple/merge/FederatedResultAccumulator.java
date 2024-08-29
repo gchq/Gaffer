@@ -26,6 +26,10 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import java.util.Collection;
 import java.util.function.BinaryOperator;
 
+/**
+ * Abstract base class for accumulators that merge results from multiple
+ * graphs together. Has default operators set for common data types.
+ */
 public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T> {
     // Default merge operators for different data types
     protected BinaryOperator<Number> numberMergeOperator = new Sum();
@@ -48,7 +52,7 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
     }
 
     /**
-     * Sets the schema to use for the {@link ElementAggregateOperator}
+     * Sets the schema to use for the {@link ElementAggregateOperator}.
      *
      * @param schema The schema.
      */

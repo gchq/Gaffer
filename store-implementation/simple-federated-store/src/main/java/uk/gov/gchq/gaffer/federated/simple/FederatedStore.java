@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -49,6 +50,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * The federated store implementation. Provides the set up and required
+ * methods to enable a {@link Store} that will delegate {@link Operation}s
+ * to sub graphs then merge the result.
+ */
 public class FederatedStore extends Store {
 
     // Default graph IDs to execute on
@@ -190,6 +196,11 @@ public class FederatedStore extends Store {
     }
 
     @Override
+    protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+        return new FederatedOperationHandler<>();
+    }
+
+    @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
         return new FederatedOutputHandler<>();
     }
@@ -198,5 +209,4 @@ public class FederatedStore extends Store {
     protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
         return ToBytesSerialiser.class;
     }
-
 }

@@ -70,8 +70,8 @@ class FederatedStoreIT {
 
         OperationChain<Void> addGraph2Elements = new OperationChain.Builder()
             .first(new AddElements.Builder()
-                    .input(graph2Entity)
-                    .build())
+                .input(graph2Entity)
+                .build())
             .option(FederatedOperationHandler.OPT_GRAPH_IDS, graphId2)
             .build();
 
