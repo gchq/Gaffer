@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,16 +32,16 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class MapStorePropertiesGraphSerialisableTest {
+class MapStorePropertiesGraphSerialisableTest {
     private GraphConfig config;
     private Schema schema;
     private Properties properties;
     private GraphSerialisable expected;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         config = new GraphConfig.Builder()
                 .graphId("testGraphId")
                 .addHook(new NamedViewResolver("testGraphId"))
@@ -71,19 +71,19 @@ public class MapStorePropertiesGraphSerialisableTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeserialise() throws Exception {
+    void shouldSerialiseAndDeserialise() throws Exception {
         final JavaSerialiser javaSerialiser = new JavaSerialiser();
         final byte[] serialise = javaSerialiser.serialise(expected);
         final GraphSerialisable result = (GraphSerialisable) javaSerialiser.deserialise(serialise);
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test
-    public void shouldConsumeGraph() throws Exception {
+    void shouldConsumeGraph() {
         final MapStoreProperties mapStoreProperties = new MapStoreProperties();
         mapStoreProperties.setProperties(properties);
         final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(mapStoreProperties).config(config).build();
         final GraphSerialisable result = new GraphSerialisable.Builder(graph).build();
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(expected);
     }
 }

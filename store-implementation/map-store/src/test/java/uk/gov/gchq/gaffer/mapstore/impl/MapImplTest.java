@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import com.google.common.collect.Sets;
@@ -28,7 +29,6 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Map;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class MapImplTest {
+class MapImplTest {
     private static MapFactory mockMapFactory;
 
     @BeforeEach
@@ -52,14 +52,14 @@ public class MapImplTest {
     }
 
     @Test
-    public void shouldCreateMapsUsingMapFactory() throws StoreException {
+    void shouldCreateMapsUsingMapFactory() {
         // Given
         final Schema schema = mock(Schema.class);
         final MapStoreProperties properties = mock(MapStoreProperties.class);
-        final Map aggElements = mock(Map.class);
-        final Map nonAggElements = mock(Map.class);
-        final MultiMap entityIdToElements = mock(MultiMap.class);
-        final MultiMap edgeIdToElements = mock(MultiMap.class);
+        final Map<Element, GroupedProperties> aggElements = mock(Map.class);
+        final Map<Element, Integer> nonAggElements = mock(Map.class);
+        final MultiMap<EntityId, Element> entityIdToElements = mock(MultiMap.class);
+        final MultiMap<EdgeId, Element> edgeIdToElements = mock(MultiMap.class);
 
         given(schema.getGroups()).willReturn(Sets.newHashSet(TestGroups.EDGE));
         given(properties.getMapFactory()).willReturn(TestMapFactory.class.getName());
@@ -80,12 +80,12 @@ public class MapImplTest {
     }
 
     @Test
-    public void shouldNotCreateIndexesIfNotRequired() throws StoreException {
+    void shouldNotCreateIndexesIfNotRequired() {
         // Given
         final Schema schema = mock(Schema.class);
         final MapStoreProperties properties = mock(MapStoreProperties.class);
-        final Map aggElements = mock(Map.class);
-        final Map nonAggElements = mock(Map.class);
+        final Map<Element, GroupedProperties> aggElements = mock(Map.class);
+        final Map<Element, Integer> nonAggElements = mock(Map.class);
 
         given(schema.getGroups()).willReturn(Sets.newHashSet(TestGroups.EDGE));
         given(properties.getMapFactory()).willReturn(TestMapFactory.class.getName());

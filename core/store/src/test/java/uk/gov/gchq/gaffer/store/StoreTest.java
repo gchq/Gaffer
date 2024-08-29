@@ -112,6 +112,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.Store.ScheduledJobRunnable;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.HasTrait;
@@ -1176,6 +1177,11 @@ public class StoreTest {
         }
 
         @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+            return null;
+        }
+
+        @Override
         protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
             return new GetTraitsHandler(traits);
         }
@@ -1268,6 +1274,11 @@ public class StoreTest {
 
         @Override
         protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
             return null;
         }
 
@@ -1373,6 +1384,11 @@ public class StoreTest {
 
         @Override
         protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
             return null;
         }
 

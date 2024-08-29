@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -288,7 +289,12 @@ public class FederatedGetTraitsHandlerTest {
 
         @Override
         protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
-                return null;
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+            return null;
         }
 
         @Override
