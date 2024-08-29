@@ -893,7 +893,6 @@ public final class Graph {
             // This is stored inside the Store but is primarily
             // used by this class.
             store.setOriginalSchema(schema);
-            // store.setCreatedTime(LocalDateTime.now());
 
             return new Graph(config, store);
         }
