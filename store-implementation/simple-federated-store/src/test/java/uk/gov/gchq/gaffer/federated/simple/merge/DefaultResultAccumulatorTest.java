@@ -91,6 +91,36 @@ class DefaultResultAccumulatorTest {
         FederatedResultAccumulator<Iterable<Entity>> accumulator = new DefaultResultAccumulator<>();
         accumulator.aggregateElements(true);
         accumulator.setSchema(schema);
+
+        // Then
+        assertThat(accumulator.apply(iter1, iter2)).containsExactlyElementsOf(expected);
+    }
+
+    @Test
+    void shouldNotAggregateDifferentElementsOfSameGroup() {
+        // Given
+        Schema schema = Schema.fromJson(StreamUtil.openStreams(this.getClass(), "/modern/schema"));
+        // Add some properties so can be sure aggregation has not happened
+        Properties iter1EntityProps = new Properties();
+        iter1EntityProps.put("name", "marko");
+        Properties iter2EntityProps = new Properties();
+        iter2EntityProps.put("name", "vadas");
+
+        // Add different vertexes from the same group
+        Entity entity1 = new Entity("person", "1", iter1EntityProps);
+        Entity entity2 = new Entity("person", "2", iter2EntityProps);
+        Iterable<Entity> iter1 = () -> Arrays.asList(entity1).iterator();
+        Iterable<Entity> iter2 = () -> Arrays.asList(entity2).iterator();
+
+        // We are just expecting chained iterable
+        Iterable<Entity> expected = () -> Arrays.asList(entity1, entity2).iterator();
+
+        // When
+        FederatedResultAccumulator<Iterable<Entity>> accumulator = new DefaultResultAccumulator<>();
+        accumulator.aggregateElements(true);
+        accumulator.setSchema(schema);
+
+        // Then
         assertThat(accumulator.apply(iter1, iter2)).containsExactlyElementsOf(expected);
     }
 }
