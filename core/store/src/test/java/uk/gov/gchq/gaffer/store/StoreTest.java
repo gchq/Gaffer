@@ -92,6 +92,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetGraphCreatedTime;
 import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -140,6 +141,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -604,6 +606,7 @@ public class StoreTest {
                         ForEach.class,
                         Reduce.class,
                         CancelScheduledJob.class,
+                        GetGraphCreatedTime.class,
 
                         // Function
                         Filter.class,
@@ -712,6 +715,7 @@ public class StoreTest {
                         ToSingletonList.class,
                         ForEach.class,
                         Reduce.class,
+                        GetGraphCreatedTime.class,
 
                         // Function
                         Filter.class,
@@ -915,6 +919,19 @@ public class StoreTest {
 
         // Then
         assertThat(result).isSameAs(graphLibrary);
+    }
+
+    @Test
+    void shouldGetCreatedTime() {
+        // Given
+        final Store testStore = new StoreImpl();
+
+        // When
+        String storeTime = testStore.getCreatedTime();
+
+        // Then
+        assertThat(storeTime).isInstanceOf(String.class);
+        assertThat(LocalDateTime.parse(storeTime)).isInstanceOf(LocalDateTime.class);
     }
 
     private Schema createSchemaMock() {

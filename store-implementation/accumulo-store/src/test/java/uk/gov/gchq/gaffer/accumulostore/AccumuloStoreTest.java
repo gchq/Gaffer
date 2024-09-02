@@ -89,6 +89,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -580,4 +581,45 @@ public class AccumuloStoreTest {
         }
      }
 
+     @Test
+     void shouldStoreTableCreatedTimeProperty() throws Exception {
+         // Given
+         final AccumuloProperties properties = PROPERTIES.clone();
+         String graphId = "graphId";
+
+         final AccumuloStore store = new MiniAccumuloStore();
+         // When
+
+         store.initialise(graphId, SCHEMA, properties);
+         LocalDateTime dateTime = LocalDateTime.now();
+         LocalDateTime storeDateTime = LocalDateTime.parse(store.getCreatedTime());
+         // Then
+         assertThat(storeDateTime).isBeforeOrEqualTo(dateTime);
+     }
+     @Test
+     void shouldThrowGafferRuntimeExceptionForGetCreatedTimeIfTableNotFound() throws Exception {
+        // Given
+        final AccumuloStore store = new MiniAccumuloStore();
+        store.initialise("graphId", SCHEMA, PROPERTIES);
+
+        // When
+        store.getConnection().tableOperations().delete("graphId");
+
+        // Then
+        assertThatExceptionOfType(GafferRuntimeException.class).isThrownBy(() -> store.getCreatedTime()).withMessage("Error getting timestamp.");
+     }
+
+     @Test
+     void shouldThrowGafferRuntimeExceptionIfTableCreatedTimePropertyNotFound() throws Exception {
+        // Given
+        final AccumuloStore store = new MiniAccumuloStore();
+        store.initialise("graphId", SCHEMA, PROPERTIES);
+
+        // When
+        store.getConnection().tableOperations().removeProperty("graphId", AccumuloProperties.TABLE_CREATED_TIME);
+
+        // Then
+        assertThatExceptionOfType(GafferRuntimeException.class).isThrownBy(() -> store.getCreatedTime()).withMessage("Timestamp not found on table");
+
+     }
 }

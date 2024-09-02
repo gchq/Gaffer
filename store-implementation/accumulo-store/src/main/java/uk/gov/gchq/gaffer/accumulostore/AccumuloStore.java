@@ -19,12 +19,14 @@ package uk.gov.gchq.gaffer.accumulostore;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.MutationsRejectedException;
+import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Key;
@@ -168,7 +170,28 @@ public class AccumuloStore extends Store {
         preInitialise(graphId, schema, properties);
         TableUtils.ensureTableExists(this);
     }
+    /**
+     * Retrieves Accumulo Table created time property.
+     * @return Accumulo Table created time string.
+     */
+    @Override
+    public String getCreatedTime() {
 
+        String tableName = TableUtils.getTableName(getProperties(), this.getGraphId());
+        Iterable<Entry<String, String>> properties;
+        try {
+            properties = TableUtils.getConnector(getProperties()).tableOperations().getProperties(tableName);
+            for (final Entry<String, String>  entry : properties) {
+                LOGGER.debug("Comparing Accumulo Table property: {}", entry.getKey());
+                if (entry.getKey().equals(AccumuloProperties.TABLE_CREATED_TIME)) {
+                    return entry.getValue();
+                }
+            }
+        } catch (final StoreException | AccumuloException | TableNotFoundException e) {
+            throw new GafferRuntimeException("Error getting timestamp.", e);
+        }
+        throw new GafferRuntimeException("Timestamp not found on table");
+    }
     /**
      * Performs general initialisation without creating the table.
      *

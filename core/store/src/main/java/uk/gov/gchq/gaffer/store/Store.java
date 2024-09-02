@@ -79,6 +79,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetGraphCreatedTime;
 import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -114,6 +115,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ForEachHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetGraphCreatedTimeHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariablesHandler;
@@ -174,6 +176,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -213,6 +216,7 @@ public abstract class Store {
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
     private final Boolean addCoreOpHandlers;
+    private final LocalDateTime createdTime = LocalDateTime.now();
 
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
@@ -312,6 +316,14 @@ public abstract class Store {
                 jobsRescheduled = true;
             }
         }
+    }
+    /**
+     * Gets this Store's creation timestamp for {@link GetGraphCreatedTime} operation.
+     *
+     * @return the Store's creation timestamp.
+     */
+    public String getCreatedTime() {
+        return createdTime.toString();
     }
 
     private void rescheduleJob(final JobDetail jobDetail) {
@@ -1109,6 +1121,8 @@ public abstract class Store {
         addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
         addOperationHandler(Reduce.class, new ReduceHandler());
         addOperationHandler(Join.class, new JoinHandler());
+        addOperationHandler(GetGraphCreatedTime.class, new GetGraphCreatedTimeHandler());
+
 
         // Context variables
         addOperationHandler(SetVariable.class, new SetVariableHandler());
