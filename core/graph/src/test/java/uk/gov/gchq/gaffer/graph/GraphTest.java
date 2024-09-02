@@ -105,6 +105,8 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -118,6 +120,7 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -2687,6 +2690,31 @@ public class GraphTest {
         assertEquals(1, mergedView.getGlobalEdges().size());
         assertNotNull(mergedView.getGlobalEdges().get(0).getPostAggregationFilter());
 
+    }
+    @Test
+    void shouldGetGraphCreatedTime() {
+        // Given
+        final Store store = new TestStoreImpl();
+        final Schema schema = new Schema.Builder().build();
+        Graph graph = new Graph.Builder()
+        .config(new GraphConfig.Builder()
+                .graphId(GRAPH_ID)
+                .build())
+        .storeProperties(StreamUtil.storeProps(getClass()))
+        .store(store)
+        .addSchema(schema)
+        .build();
+
+        // When
+        String graphCreatedTime = graph.getCreatedTime();
+
+        // Then
+        assertThat(graphCreatedTime)
+                .isNotNull()
+                .isInstanceOf(String.class);
+        assertThat(LocalDateTime.parse(graphCreatedTime))
+                .isInstanceOf(LocalDateTime.class)
+                .isCloseTo(LocalDateTime.now(), within(20, ChronoUnit.SECONDS));
     }
 
     public static class TestStoreImpl extends Store {
