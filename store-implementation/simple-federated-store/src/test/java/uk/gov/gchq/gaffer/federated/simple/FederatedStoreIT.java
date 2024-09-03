@@ -46,8 +46,8 @@ class FederatedStoreIT {
         final String graphId1 = "graph1";
         final String graphId2 = "graph2";
 
-        final Graph graph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
-        final Graph graph2 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.MAP);
+        final Graph graph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.ACCUMULO);
+        final Graph graph2 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.ACCUMULO);
 
         final String group = "person";
         final String vertex = "1";
@@ -63,14 +63,14 @@ class FederatedStoreIT {
 
         OperationChain<Void> addGraph1Elements = new OperationChain.Builder()
             .first(new AddElements.Builder()
-                .input(graph1Entity)
+                .input(graph1Entity, new Entity("software", "4"), new Entity(group, "2"))
                 .build())
             .option(FederatedOperationHandler.OPT_GRAPH_IDS, graphId1)
             .build();
 
         OperationChain<Void> addGraph2Elements = new OperationChain.Builder()
             .first(new AddElements.Builder()
-                .input(graph2Entity)
+                .input(graph2Entity, new Entity(group, "3"), new Entity("software", "4"))
                 .build())
             .option(FederatedOperationHandler.OPT_GRAPH_IDS, graphId2)
             .build();
@@ -108,6 +108,11 @@ class FederatedStoreIT {
 
         // Then
         assertThat(result).extracting(e -> (Element) e).containsOnly(expectedEntity);
+    }
+
+    @Test
+    void shouldFederate() {
+
     }
 
 }

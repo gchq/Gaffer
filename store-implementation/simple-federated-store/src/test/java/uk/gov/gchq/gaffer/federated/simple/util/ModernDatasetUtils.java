@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federated.simple.util;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -30,7 +31,8 @@ public final class ModernDatasetUtils {
 
     public static final MapStoreProperties MAP_STORE_PROPERTIES = MapStoreProperties
         .loadStoreProperties("/map-store.properties");
-
+    public static final AccumuloProperties ACCUMULO_STORE_PROPERTIES = AccumuloProperties.loadStoreProperties("/accumulo-store.properties")
+;
     public static Graph getBlankGraphWithModernSchema(Class<?> clazz, String graphId, StoreType storeType) {
         return new Graph.Builder()
             .config(new GraphConfig.Builder()
@@ -45,13 +47,15 @@ public final class ModernDatasetUtils {
      * Available store types for sub graphs
      */
     public enum StoreType {
-        MAP;
+        MAP, ACCUMULO;
     }
 
     public static StoreProperties getStoreProperties(StoreType storeType) {
         switch (storeType) {
             case MAP:
                 return MAP_STORE_PROPERTIES;
+            case ACCUMULO:
+                return ACCUMULO_STORE_PROPERTIES;
             default:
                 throw new IllegalArgumentException("Unknown StoreType: " + storeType);
         }

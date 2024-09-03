@@ -93,4 +93,65 @@ class DefaultResultAccumulatorTest {
         accumulator.setSchema(schema);
         assertThat(accumulator.apply(iter1, iter2)).containsExactlyElementsOf(expected);
     }
+
+    @Test
+    void shouldProvideElementAggregationBySchemaa() {
+        // Given
+        Schema schema = Schema.fromJson(StreamUtil.openStreams(this.getClass(), "/modern/schema"));
+        // Add some properties so can be sure aggregation has happened
+        Properties marko1 = new Properties();
+        marko1.put("name", "marko");
+        Properties marko2 = new Properties();
+        marko2.put("age", 29);
+
+        Properties vadas1 = new Properties();
+        vadas1.put("name", "vadas");
+        Properties vadas2 = new Properties();
+        vadas2.put("age", 30);
+
+        Properties peter1 = new Properties();
+        peter1.put("name", "peter");
+        Properties peter2 = new Properties();
+        peter2.put("age", 27);
+
+        Properties john1 = new Properties();
+        john1.put("name", "john");
+        Properties john2 = new Properties();
+        john2.put("age", 26);
+
+        Properties paul1 = new Properties();
+        paul1.put("name", "paul");
+        Properties paul2 = new Properties();
+        paul2.put("age", 25);
+
+        Properties mark1 = new Properties();
+        mark1.put("name", "mark");
+        Properties mark2 = new Properties();
+        mark2.put("age", 24);
+
+        // Add the same vertex but with different properties
+        Iterable<Entity> iter1 = () -> Arrays.asList(
+            new Entity("person", "1", marko1),
+            new Entity("person", "2", vadas1),
+            new Entity("person", "3", peter1),
+            new Entity("person", "6", mark1)
+        ).iterator();
+        Iterable<Entity> iter2 = () -> Arrays.asList(
+            new Entity("person", "1", marko2),
+            new Entity("person", "3", peter2),
+            new Entity("person", "5", paul2)
+        ).iterator();
+
+        // We are expecting merged properties
+        Properties mergedProperties = new Properties();
+        mergedProperties.putAll(marko1);
+        mergedProperties.putAll(marko2);
+        Iterable<Entity> expected = () -> Arrays.asList(new Entity("person", "1", mergedProperties)).iterator();
+
+        // When
+        FederatedResultAccumulator<Iterable<Entity>> accumulator = new DefaultResultAccumulator<>();
+        accumulator.aggregateElements(true);
+        accumulator.setSchema(schema);
+        assertThat(accumulator.apply(iter1, iter2)).containsExactlyElementsOf(expected);
+    }
 }

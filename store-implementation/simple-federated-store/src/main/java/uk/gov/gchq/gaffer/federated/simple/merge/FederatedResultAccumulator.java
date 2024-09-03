@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federated.simple.merge;
 
 import uk.gov.gchq.gaffer.federated.simple.merge.operator.ElementAggregateOperator;
+import uk.gov.gchq.gaffer.federated.simple.merge.operator.SortedElementAggregateOperator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.binaryoperator.And;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat;
@@ -36,7 +37,8 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
     protected BinaryOperator<String> stringMergeOperator = new StringConcat();
     protected BinaryOperator<Boolean> booleanMergeOperator = new And();
     protected BinaryOperator<Collection<Object>> collectionMergeOperator = new CollectionConcat<>();
-    protected ElementAggregateOperator elementAggregateOperator = new ElementAggregateOperator();
+    // protected ElementAggregateOperator elementAggregateOperator = new ElementAggregateOperator();
+    protected SortedElementAggregateOperator elementAggregateOperator = new SortedElementAggregateOperator();
 
     // Should the element aggregation operator be used, can be slower so disabled by default
     protected boolean aggregateElements = false;
