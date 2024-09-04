@@ -55,18 +55,18 @@ class AddGraphTest {
         expectedSerialisable.getConfig().setGraphId(federatedGraphId + PREFIX_SEPARATOR + graphId);
 
         // Build operation
-        AddGraph operation = new AddGraph.Builder()
+        final AddGraph operation = new AddGraph.Builder()
                 .graphConfig(new GraphConfig(graphId))
                 .schema(new Schema())
                 .properties(new Properties())
                 .build();
 
         // When
-        FederatedStore federatedStore = new FederatedStore();
+        final FederatedStore federatedStore = new FederatedStore();
         federatedStore.initialise(federatedGraphId, null, new StoreProperties());
 
         federatedStore.execute(operation, new Context());
-        GraphSerialisable addedGraph = federatedStore.getGraph(graphId);
+        final GraphSerialisable addedGraph = federatedStore.getGraph(graphId);
 
         // Then
         assertThat(addedGraph.getConfig().getGraphId())
@@ -100,14 +100,14 @@ class AddGraphTest {
                 .put("gaffer.store.class", "uk.gov.gchq.gaffer.mapstore.MapStore")
                 .put("gaffer.store.properties.class", "uk.gov.gchq.gaffer.mapstore.MapStoreProperties"));
 
-        FederatedStore federatedStore = new FederatedStore();
+        final FederatedStore federatedStore = new FederatedStore();
         federatedStore.initialise(federatedGraphId, null, new StoreProperties());
 
         // When
-        AddGraph operation = JSONSerialiser.deserialise(jsonOperation.toString(), AddGraph.class);
+        final AddGraph operation = JSONSerialiser.deserialise(jsonOperation.toString(), AddGraph.class);
         federatedStore.execute(operation, new Context());
 
-        GraphSerialisable addedGraph = federatedStore.getGraph(graphId);
+        final GraphSerialisable addedGraph = federatedStore.getGraph(graphId);
 
         // Then
         assertThat(addedGraph.getGraphId()).isEqualTo(expectedSerialisable.getGraphId());
@@ -119,19 +119,43 @@ class AddGraphTest {
     @Test
     void shouldPreventAddingGraphWithoutGraphConfig() throws StoreException {
         // Given
-        FederatedStore federatedStore = new FederatedStore();
+        final FederatedStore federatedStore = new FederatedStore();
         federatedStore.initialise("federated", null, new StoreProperties());
+        final Context context = new Context();
 
-        AddGraph operation = new AddGraph.Builder()
+        final AddGraph operation = new AddGraph.Builder()
             .schema(new Schema())
             .properties(new Properties())
             .build();
-        Context context = new Context();
 
         // When/Then
         assertThatExceptionOfType(IllegalArgumentException.class)
             .isThrownBy(() ->federatedStore.execute(operation, context))
             .withMessageContaining("graphConfig is required");
+    }
+
+    @Test
+    void shouldPreventAddingGraphsWithSameIds() throws StoreException, OperationException {
+        // Given
+        final String graphId = "graph";
+        final FederatedStore federatedStore = new FederatedStore();
+        federatedStore.initialise("federated", null, new StoreProperties());
+        final Context context = new Context();
+
+        AddGraph operation = new AddGraph.Builder()
+                .graphConfig(new GraphConfig(graphId))
+                .schema(new Schema())
+                .properties(new Properties())
+                .build();
+
+        // Add same graph twice expect fail second time
+        federatedStore.execute(operation, context);
+
+        // Then
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> federatedStore.execute(operation, context))
+                .withMessageContaining("already been added to this store");
+
     }
 
 }

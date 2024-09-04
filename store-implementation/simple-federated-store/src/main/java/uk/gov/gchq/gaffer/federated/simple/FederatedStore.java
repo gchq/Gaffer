@@ -64,6 +64,10 @@ import java.util.stream.Stream;
  */
 public class FederatedStore extends Store {
 
+    /**
+     * Separator used when the prefix of the federated store is added to a
+     * graph ID.
+     */
     public static final String PREFIX_SEPARATOR = "_";
 
     // Default graph IDs to execute on
@@ -81,7 +85,7 @@ public class FederatedStore extends Store {
     /**
      * Add a new graph so that it is available to this federated store.
      * Note the graph ID of the added graph will have the graph ID of
-     * this federated store prefixed to it so it will be identifiable
+     * this federated store prefixed to it so it will be identifiable,
      * and to avoid collisions with other stores.
      *
      * @param graph The serialisable instance of the graph.
