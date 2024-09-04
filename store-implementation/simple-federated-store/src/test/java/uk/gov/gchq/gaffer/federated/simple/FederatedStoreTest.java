@@ -29,6 +29,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStore.PREFIX_SEPARATOR;
+
 class FederatedStoreTest {
 
     @Test
@@ -56,6 +58,7 @@ class FederatedStoreTest {
     @Test
     void shouldAddGraphsViaStoreInterface() throws StoreException {
         // Given
+        final String federatedGraphId = "federated";
         final String graphId1 = "graph1";
         final String graphId2 = "graph2";
 
@@ -65,14 +68,27 @@ class FederatedStoreTest {
         final GraphSerialisable graph1Serialisable = new GraphSerialisable(graph1.getConfig(), graph1.getSchema(), graph1.getStoreProperties());
         final GraphSerialisable graph2Serialisable = new GraphSerialisable(graph2.getConfig(), graph2.getSchema(), graph2.getStoreProperties());
 
+        final Graph expectedGraph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(
+            this.getClass(), federatedGraphId + PREFIX_SEPARATOR + graphId1, StoreType.MAP);
+        final Graph expectedGraph2 = ModernDatasetUtils.getBlankGraphWithModernSchema(
+            this.getClass(), federatedGraphId + PREFIX_SEPARATOR + graphId2, StoreType.MAP);
+
         // When
         FederatedStore store = new FederatedStore();
-        store.initialise("federated", null, new StoreProperties());
+        store.initialise(federatedGraphId, null, new StoreProperties());
         store.addGraph(graph1Serialisable);
         store.addGraph(graph2Serialisable);
 
         // Then
-        assertThat(store.getGraph(graphId1)).isEqualTo(graph1Serialisable);
-        assertThat(store.getGraph(graphId2)).isEqualTo(graph2Serialisable);
+        assertThat(store.getGraph(graphId1))
+            .isEqualTo(new GraphSerialisable(
+                expectedGraph1.getConfig(),
+                expectedGraph1.getSchema(),
+                expectedGraph1.getStoreProperties()));
+        assertThat(store.getGraph(graphId2))
+            .isEqualTo(new GraphSerialisable(
+                expectedGraph2.getConfig(),
+                expectedGraph2.getSchema(),
+                expectedGraph2.getStoreProperties()));
     }
 }

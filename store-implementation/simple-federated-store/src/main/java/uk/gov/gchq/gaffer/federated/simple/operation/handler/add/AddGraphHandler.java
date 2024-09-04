@@ -31,8 +31,8 @@ public class AddGraphHandler implements OperationHandler<AddGraph> {
         // Create the graph serialisable from the supplied params
         GraphSerialisable newGraph = new GraphSerialisable.Builder()
                 .config(operation.getGraphConfig())
-                .properties(operation.getProperties())
                 .schema(operation.getSchema())
+                .properties(operation.getProperties())
                 .build();
 
         // Add the graph
