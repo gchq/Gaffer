@@ -19,9 +19,12 @@ package uk.gov.gchq.gaffer.federated.simple;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOutputHandler;
-import uk.gov.gchq.gaffer.federated.simple.operation.handler.GetSchemaHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.add.AddGraphHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -45,10 +48,14 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The federated store implementation. Provides the set up and required
@@ -57,24 +64,44 @@ import java.util.Set;
  */
 public class FederatedStore extends Store {
 
+    public static final String PREFIX_SEPARATOR = "_";
+
     // Default graph IDs to execute on
     private List<String> defaultGraphIds = new LinkedList<>();
 
     // Cached list of available graphs
     private final List<GraphSerialisable> graphs = new LinkedList<>();
 
+    // Store specific handlers
+    public final Map<Class<? extends Operation>, OperationHandler<?>> storeHandlers = Stream.of(
+            new SimpleEntry<>(AddGraph.class, new AddGraphHandler()),
+            new SimpleEntry<>(GetSchema.class, new GetSchemaHandler()))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
     /**
      * Add a new graph so that it is available to this federated store.
+     * Note the graph ID of the added graph will have the graph ID of
+     * this federated store prefixed to it so it will be identifiable
+     * and to avoid collisions with other stores.
      *
      * @param graph The serialisable instance of the graph.
      */
     public void addGraph(final GraphSerialisable graph) {
-        graphs.add(graph);
+        // Prefix this store's graph ID to the graph to be added
+        GraphConfig prefixedConfig = graph.getConfig();
+        prefixedConfig.setGraphId(this.getGraphId() + PREFIX_SEPARATOR + prefixedConfig.getGraphId());
+        // Make sure graph ID doesn't already exist
+        if (graphs.stream().map(GraphSerialisable::getGraphId).anyMatch(id -> id.equals(prefixedConfig.getGraphId()))) {
+            throw new IllegalArgumentException(
+                "A graph with Graph ID: '" + graph.getGraphId() + "' has already been added to this store");
+        }
+        graphs.add(new GraphSerialisable(prefixedConfig, graph.getSchema(), graph.getStoreProperties()));
     }
 
     /**
      * Get the {@link GraphSerialisable} from a given graph ID. The graph
-     * must obviously be known to this federated store to be returned.
+     * must obviously be known to this federated store to be returned and
+     * can have the store graph ID prefix or not, both will be matched.
      *
      * @param graphId The graph ID
      * @return The {@link GraphSerialisable} relating to the ID.
@@ -86,8 +113,11 @@ public class FederatedStore extends Store {
             if (graph.getGraphId().equals(graphId)) {
                 return graph;
             }
+            if (graph.getGraphId().equals(this.getGraphId() + PREFIX_SEPARATOR + graphId)) {
+                return graph;
+            }
         }
-        throw new IllegalArgumentException("Graph for Graph ID: '" + graphId + "' is not available to this federated store");
+        throw new IllegalArgumentException("Graph with Graph ID: '" + graphId + "' is not available to this federated store");
     }
 
     /**
@@ -131,6 +161,16 @@ public class FederatedStore extends Store {
         }
     }
 
+    /**
+     * Access to getting the operations that have handlers specific to this
+     * store.
+     *
+     * @return The Operation classes handled by this store.
+     */
+    public Set<Class<? extends Operation>> getStoreSpecificOperations() {
+        return storeHandlers.keySet();
+    }
+
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
         if (unused != null) {
@@ -165,7 +205,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(GetSchema.class, new GetSchemaHandler());
+        storeHandlers.forEach(this::addOperationHandler);
     }
 
     @Override
