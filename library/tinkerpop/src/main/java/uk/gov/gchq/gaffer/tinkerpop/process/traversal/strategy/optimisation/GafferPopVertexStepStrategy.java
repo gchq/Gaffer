@@ -16,42 +16,57 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation;
 
+import java.util.List;
+
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal.Admin;
 import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.FoldStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.VertexStep;
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.AbstractTraversalStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalHelper;
+import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopVertexStep;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopListVertexStep;
 
 public final class GafferPopVertexStepStrategy
-    extends AbstractTraversalStrategy<TraversalStrategy.ProviderOptimizationStrategy>
-    implements TraversalStrategy.ProviderOptimizationStrategy {
+        extends AbstractTraversalStrategy<TraversalStrategy.ProviderOptimizationStrategy>
+        implements TraversalStrategy.ProviderOptimizationStrategy {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopVertexStepStrategy.class);
-  private static final GafferPopVertexStepStrategy INSTANCE = new GafferPopVertexStepStrategy();
+    private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopVertexStepStrategy.class);
+    private static final GafferPopVertexStepStrategy INSTANCE = new GafferPopVertexStepStrategy();
 
-  private GafferPopVertexStepStrategy() {
+    private GafferPopVertexStepStrategy() {
+    }
 
-  }
+    @Override
+    public void apply(final Admin<?, ?> traversal) {
+        TraversalHelper.getStepsOfClass(VertexStep.class, traversal).forEach(originalVertexStep -> {
+            LOGGER.debug("Inserting FoldStep and replacing VertexStep");
 
-  @Override
-  public void apply(final Admin<?, ?> traversal) {
-    TraversalHelper.getStepsOfClass(VertexStep.class, traversal).forEach(originalGraphStep -> {
-      final GafferPopVertexStep<?> gafferPopVertexStep = new GafferPopVertexStep<>(originalGraphStep);
+            // final GafferPopVertexStep<? extends Element> gafferPopVertexStep = new
+            // GafferPopVertexStep<>(originalVertexStep);
+            // TraversalHelper.replaceStep(originalVertexStep, gafferPopVertexStep,
+            // traversal);
+            // TraversalHelper.insertBeforeStep(new
+            // FoldStep<>(originalVertexStep.getTraversal()), gafferPopVertexStep,
+            // traversal);
 
-      LOGGER.debug("Inserting FoldStep and replacing VertexStep");
-      TraversalHelper.replaceStep(originalGraphStep, gafferPopVertexStep, traversal);
-      TraversalHelper.insertBeforeStep(new FoldStep<>(originalGraphStep.getTraversal()), gafferPopVertexStep,
-          traversal);
-    });
-  }
+            final GafferPopListVertexStep<? extends Element> gafferPopListVertexStep = new GafferPopListVertexStep<>(
+                    originalVertexStep);
+            TraversalHelper.replaceStep(originalVertexStep, gafferPopListVertexStep, traversal);
 
-  public static GafferPopVertexStepStrategy instance() {
-    return INSTANCE;
-  }
+            // Add in a fold step before the new VertexStep so that the input is the list of
+            // all vertices
+            FoldStep<Vertex, List<Vertex>> foldStep = new FoldStep<>(originalVertexStep.getTraversal());
+            TraversalHelper.insertBeforeStep(foldStep, gafferPopListVertexStep, traversal);
+        });
+    }
+
+    public static GafferPopVertexStepStrategy instance() {
+        return INSTANCE;
+    }
 
 }
