@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  * is returned.
  * <p>
  * e.g. for the Tinkerpop Modern Graph:
- * 
+ *
  * <pre>
  * (Gremlin)   g.V().out() = [v2, v3, v3, v3, v4, v5]
  * (GafferPop) g.V().out() = [v2, v3, v4, v5]
@@ -130,7 +130,7 @@ public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<List
     @Override
     public int hashCode() {
         int result = Objects.hash(super.hashCode(), direction, returnClass);
-        // edgeLabel's order does not matter because in("x", "y") and in("y", "x") must
+        // edgeLabels' order does not matter because in("x", "y") and in("y", "x") must
         // be considered equal.
         if (edgeLabels != null && edgeLabels.length > 0) {
             final List<String> sortedEdgeLabels = Arrays.stream(edgeLabels)
@@ -157,9 +157,11 @@ public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<List
         GafferPopGraph graph = (GafferPopGraph) traversal.getGraph().get();
 
         if (edgeLabels.length == 0) {
+            LOGGER.debug("Getting {} AdjVertices for {} vertices", direction, vertexIds.size());
             return graph.adjVertices(vertexIds, direction);
         }
 
+        LOGGER.debug("Getting {} AdjVertices for edges {} for {} vertices", direction, edgeLabels, vertexIds.size());
         View view = new View.Builder().edges(Arrays.asList(edgeLabels)).build();
         return graph.adjVerticesWithView(vertexIds, direction, view);
     }
@@ -169,9 +171,11 @@ public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<List
         GafferPopGraph graph = (GafferPopGraph) traversal.getGraph().get();
 
         if (edgeLabels.length == 0) {
+            LOGGER.warn("Getting {} edges for {} vertices", direction, vertexIds.size());
             return graph.edges(vertexIds, direction);
         }
 
+        LOGGER.warn("Getting {} edges with labels {} for {} vertices", direction, edgeLabels, vertexIds.size());
         View view = new View.Builder().edges(Arrays.asList(edgeLabels)).build();
         return graph.edgesWithView(vertexIds, direction, view);
     }

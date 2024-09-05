@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation;
 
-import java.util.List;
-
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal.Admin;
 import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.FoldStep;
@@ -31,6 +29,12 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopListVertexStep;
 
+import java.util.List;
+
+/**
+ * Optimisation strategy to reduce the number of Gaffer operations performed.
+ * Replaces the VertexStep so they operate on multiple vertices at once.
+ */
 public final class GafferPopVertexStepStrategy
         extends AbstractTraversalStrategy<TraversalStrategy.ProviderOptimizationStrategy>
         implements TraversalStrategy.ProviderOptimizationStrategy {
@@ -46,22 +50,15 @@ public final class GafferPopVertexStepStrategy
         TraversalHelper.getStepsOfClass(VertexStep.class, traversal).forEach(originalVertexStep -> {
             LOGGER.debug("Inserting FoldStep and replacing VertexStep");
 
-            // final GafferPopVertexStep<? extends Element> gafferPopVertexStep = new
-            // GafferPopVertexStep<>(originalVertexStep);
-            // TraversalHelper.replaceStep(originalVertexStep, gafferPopVertexStep,
-            // traversal);
-            // TraversalHelper.insertBeforeStep(new
-            // FoldStep<>(originalVertexStep.getTraversal()), gafferPopVertexStep,
-            // traversal);
-
-            final GafferPopListVertexStep<? extends Element> gafferPopListVertexStep = new GafferPopListVertexStep<>(
+            // Replace vertex step
+            final GafferPopListVertexStep<? extends Element> listVertexStep = new GafferPopListVertexStep<>(
                     originalVertexStep);
-            TraversalHelper.replaceStep(originalVertexStep, gafferPopListVertexStep, traversal);
+            TraversalHelper.replaceStep(originalVertexStep, listVertexStep, traversal);
 
             // Add in a fold step before the new VertexStep so that the input is the list of
             // all vertices
             FoldStep<Vertex, List<Vertex>> foldStep = new FoldStep<>(originalVertexStep.getTraversal());
-            TraversalHelper.insertBeforeStep(foldStep, gafferPopListVertexStep, traversal);
+            TraversalHelper.insertBeforeStep(foldStep, listVertexStep, traversal);
         });
     }
 
