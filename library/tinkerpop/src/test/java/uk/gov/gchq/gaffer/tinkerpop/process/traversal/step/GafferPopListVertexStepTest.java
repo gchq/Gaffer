@@ -34,19 +34,18 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 
 class GafferPopListVertexStepTest {
 
-    private static GraphTraversalSource g;
     private static Traversal.Admin<Vertex, Vertex> traversal;
 
     @BeforeAll
     public static void beforeAll() {
         GafferPopGraph modern = GafferPopModernTestUtils.createModernGraph(GafferPopListVertexStepIT.class,
                 StoreType.MAP);
-        g = modern.traversal();
+        GraphTraversalSource g = modern.traversal();
         traversal = g.V().asAdmin();
     }
 
     @Test
-    void shouldBeEqual() {
+    void shouldCheckEquality() {
         VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.BOTH, KNOWS);
         GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep);
 
@@ -58,9 +57,9 @@ class GafferPopListVertexStepTest {
 
         assertThat(listStep)
                 .isEqualTo(otherListStep)
-                .isNotEqualTo(yetAnotherListStep)
                 .isNotEqualTo(null)
-                .isNotEqualTo(vertexStep);
+                .isNotEqualTo(vertexStep)
+                .isNotEqualTo(yetAnotherListStep);
     }
 
     @Test
@@ -106,6 +105,22 @@ class GafferPopListVertexStepTest {
         VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.OUT, KNOWS);
         try (GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep)) {
             assertThat(listStep).hasToString("GafferPopListVertexStep(OUT,[knows],vertex)");
+        }
+    }
+
+    @Test
+    void shouldGetEdgeLabels() throws Exception {
+        VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.OUT, KNOWS);
+        try (GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep)) {
+            assertThat(listStep.getEdgeLabels()).containsExactly(KNOWS);
+        }
+    }
+
+    @Test
+    void shouldGetReturnClass() throws Exception {
+        VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.OUT, KNOWS);
+        try (GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep)) {
+            assertThat(listStep.getReturnClass()).isEqualTo(Vertex.class);
         }
     }
 }
