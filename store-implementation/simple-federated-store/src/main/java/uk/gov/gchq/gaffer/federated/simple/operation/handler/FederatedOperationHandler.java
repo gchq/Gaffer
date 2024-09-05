@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -62,23 +63,22 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
 
         // Check inside operation chains in case there are operations that don't require running on sub graphs
         if (operation instanceof OperationChain) {
-            List<Operation> ops = ((OperationChain<?>) operation).flatten();
-            List<Class<? extends Operation>> opClasses = ops.stream().map(Operation::getClass).collect(Collectors.toList());
+            Set<Class<? extends Operation>> storeSpecificOps = ((FederatedStore) store).getStoreSpecificOperations();
+            List<Class<? extends Operation>> chainOps = ((OperationChain<?>) operation).flatten().stream()
+                .map(Operation::getClass)
+                .collect(Collectors.toList());
             // If all the operations in the chain can be handled by the store then execute them
-            if (((FederatedStore) store).getStoreSpecificOperations().containsAll(opClasses)) {
+            if (storeSpecificOps.containsAll(chainOps)) {
                 return new OperationChainHandler<>(store.getOperationChainValidator(), store.getOperationChainOptimisers())
                     .doOperation((OperationChain<Object>) operation, context, store);
             }
 
             // Check if we have a mix as that is an issue
             // It's better to keep federated and non federated separate so error and report back
-            for (final Class<? extends Operation> op : opClasses) {
-                if (((FederatedStore) store).getStoreSpecificOperations().contains(op)) {
-                    throw new OperationException(
-                        "Chain contains standard Operations alongside federated store specific Operation: '"
-                            + op.getSimpleName()
-                            + "'. Please submit each type separately.");
-                }
+            if (!Collections.disjoint(storeSpecificOps, chainOps)) {
+                throw new OperationException(
+                    "Chain contains standard Operations alongside federated store specific Operations."
+                        + " Please submit each type separately.");
             }
         }
 

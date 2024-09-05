@@ -29,8 +29,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import static uk.gov.gchq.gaffer.federated.simple.FederatedStore.PREFIX_SEPARATOR;
-
 class FederatedStoreTest {
 
     @Test
@@ -68,10 +66,8 @@ class FederatedStoreTest {
         final GraphSerialisable graph1Serialisable = new GraphSerialisable(graph1.getConfig(), graph1.getSchema(), graph1.getStoreProperties());
         final GraphSerialisable graph2Serialisable = new GraphSerialisable(graph2.getConfig(), graph2.getSchema(), graph2.getStoreProperties());
 
-        final Graph expectedGraph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(
-            this.getClass(), federatedGraphId + PREFIX_SEPARATOR + graphId1, StoreType.MAP);
-        final Graph expectedGraph2 = ModernDatasetUtils.getBlankGraphWithModernSchema(
-            this.getClass(), federatedGraphId + PREFIX_SEPARATOR + graphId2, StoreType.MAP);
+        final Graph expectedGraph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
+        final Graph expectedGraph2 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.MAP);
 
         // When
         FederatedStore store = new FederatedStore();

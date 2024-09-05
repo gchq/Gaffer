@@ -30,7 +30,7 @@ import uk.gov.gchq.koryphe.Summary;
 import java.util.Map;
 import java.util.Properties;
 
-@Since("2.3.1")
+@Since("2.4.0")
 @Summary("Adds a new Graph to the federated store")
 @JsonPropertyOrder(value = { "class", "graphConfig" }, alphabetic = true)
 public class AddGraph implements Operation {

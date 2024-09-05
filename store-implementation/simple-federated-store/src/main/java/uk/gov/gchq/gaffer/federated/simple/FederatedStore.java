@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationH
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOutputHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.add.AddGraphHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -64,12 +63,6 @@ import java.util.stream.Stream;
  */
 public class FederatedStore extends Store {
 
-    /**
-     * Separator used when the prefix of the federated store is added to a
-     * graph ID.
-     */
-    public static final String PREFIX_SEPARATOR = "_";
-
     // Default graph IDs to execute on
     private List<String> defaultGraphIds = new LinkedList<>();
 
@@ -84,28 +77,23 @@ public class FederatedStore extends Store {
 
     /**
      * Add a new graph so that it is available to this federated store.
-     * Note the graph ID of the added graph will have the graph ID of
-     * this federated store prefixed to it so it will be identifiable,
-     * and to avoid collisions with other stores.
      *
      * @param graph The serialisable instance of the graph.
+     *
+     * @throws IllegalArgumentException If already a graph wit the supplied ID
      */
     public void addGraph(final GraphSerialisable graph) {
-        // Prefix this store's graph ID to the graph to be added
-        GraphConfig prefixedConfig = graph.getConfig();
-        prefixedConfig.setGraphId(this.getGraphId() + PREFIX_SEPARATOR + prefixedConfig.getGraphId());
         // Make sure graph ID doesn't already exist
-        if (graphs.stream().map(GraphSerialisable::getGraphId).anyMatch(id -> id.equals(prefixedConfig.getGraphId()))) {
+        if (graphs.stream().map(GraphSerialisable::getGraphId).anyMatch(id -> id.equals(graph.getGraphId()))) {
             throw new IllegalArgumentException(
                 "A graph with Graph ID: '" + graph.getGraphId() + "' has already been added to this store");
         }
-        graphs.add(new GraphSerialisable(prefixedConfig, graph.getSchema(), graph.getStoreProperties()));
+        graphs.add(new GraphSerialisable(graph.getConfig(), graph.getSchema(), graph.getStoreProperties()));
     }
 
     /**
      * Get the {@link GraphSerialisable} from a given graph ID. The graph
-     * must obviously be known to this federated store to be returned and
-     * can have the store graph ID prefix or not, both will be matched.
+     * must obviously be known to this federated store to be returned.
      *
      * @param graphId The graph ID
      * @return The {@link GraphSerialisable} relating to the ID.
@@ -115,9 +103,6 @@ public class FederatedStore extends Store {
     public GraphSerialisable getGraph(final String graphId) {
         for (final GraphSerialisable graph : graphs) {
             if (graph.getGraphId().equals(graphId)) {
-                return graph;
-            }
-            if (graph.getGraphId().equals(this.getGraphId() + PREFIX_SEPARATOR + graphId)) {
                 return graph;
             }
         }

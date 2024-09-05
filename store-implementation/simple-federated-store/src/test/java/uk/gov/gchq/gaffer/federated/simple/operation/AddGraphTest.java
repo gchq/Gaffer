@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static uk.gov.gchq.gaffer.federated.simple.FederatedStore.PREFIX_SEPARATOR;
 
 import java.util.Properties;
 
@@ -51,8 +50,6 @@ class AddGraphTest {
                 .schema(new Schema())
                 .properties(new Properties())
                 .build();
-        // Add the expected prefix the federated store adds
-        expectedSerialisable.getConfig().setGraphId(federatedGraphId + PREFIX_SEPARATOR + graphId);
 
         // Build operation
         final AddGraph operation = new AddGraph.Builder()
@@ -88,8 +85,6 @@ class AddGraphTest {
         // Set up the graph we expect to be added
         final GraphSerialisable expectedSerialisable = new GraphSerialisable(
             new GraphConfig(graphId), null, storeProperties);
-        // Add the expected prefix the federated store adds
-        expectedSerialisable.getConfig().setGraphId(federatedGraphId + PREFIX_SEPARATOR + graphId);
 
         // JSON version of the operation
         final JSONObject jsonOperation = new JSONObject()
