@@ -36,10 +36,11 @@ import uk.gov.gchq.gaffer.user.User;
 public class GraphRequest<O> {
     private final OperationChain<O> operationChain;
     private final Context context;
+    private final String OPERATION_REQUIRED = "An operation is required";
 
     public GraphRequest(final Operation operation, final User user) {
         if (null == operation) {
-            throw new IllegalArgumentException("An operation is required");
+            throw new IllegalArgumentException(OPERATION_REQUIRED);
         }
         if (null == user) {
             throw new IllegalArgumentException("A user is required");
@@ -50,7 +51,7 @@ public class GraphRequest<O> {
 
     public GraphRequest(final Output<O> operation, final User user) {
         if (null == operation) {
-            throw new IllegalArgumentException("An operation is required");
+            throw new IllegalArgumentException(OPERATION_REQUIRED);
         }
         if (null == user) {
             throw new IllegalArgumentException("A user is required");
@@ -61,7 +62,7 @@ public class GraphRequest<O> {
 
     public GraphRequest(final Operation operation, final Context context) {
         if (null == operation) {
-            throw new IllegalArgumentException("An operation is required");
+            throw new IllegalArgumentException(OPERATION_REQUIRED);
         }
         if (null == context) {
             throw new IllegalArgumentException("A context containing a user is required");
@@ -73,7 +74,7 @@ public class GraphRequest<O> {
     @JsonCreator
     public GraphRequest(@JsonProperty("operationChain") final Output<O> operation, @JsonProperty("context") final Context context) {
         if (null == operation) {
-            throw new IllegalArgumentException("An operation is required");
+            throw new IllegalArgumentException(OPERATION_REQUIRED);
         }
         if (null == context) {
             throw new IllegalArgumentException("A context containing a user is required");

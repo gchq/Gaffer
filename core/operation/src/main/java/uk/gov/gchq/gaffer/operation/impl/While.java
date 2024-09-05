@@ -80,7 +80,7 @@ public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
      */
     private Conditional conditional;
     private Map<String, String> options;
-
+    private static final String CONDITION_ALREADY_CONFIGURED = "Tried to set conditional when condition has already been configured.";
 
     @Override
     public TypeReference<O> getOutputTypeReference() {
@@ -271,7 +271,7 @@ public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
 
         public Builder<I, O> conditional(final Conditional conditional) {
             if (null != conditional && null != _getOp().isCondition()) {
-                throw new IllegalArgumentException("Tried to set conditional when condition has already been configured.");
+                throw new IllegalArgumentException(CONDITION_ALREADY_CONFIGURED);
             }
 
             _getOp().setConditional(conditional);
@@ -280,7 +280,7 @@ public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
 
         public Builder<I, O> conditional(final Predicate predicate) {
             if (null != predicate && null != _getOp().isCondition()) {
-                throw new IllegalArgumentException("Tried to set conditional when condition has already been configured.");
+                throw new IllegalArgumentException(CONDITION_ALREADY_CONFIGURED);
             }
 
             _getOp().setConditional(new Conditional(predicate));
@@ -289,7 +289,7 @@ public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
 
         public Builder<I, O> conditional(final Predicate predicate, final Operation transform) {
             if ((null != predicate || null != transform) && null != _getOp().isCondition()) {
-                throw new IllegalArgumentException("Tried to set conditional when condition has already been configured.");
+                throw new IllegalArgumentException(CONDITION_ALREADY_CONFIGURED);
             }
 
             _getOp().setConditional(new Conditional(predicate, transform));

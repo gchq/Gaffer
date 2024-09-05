@@ -175,6 +175,7 @@ public class ElementVisibility {
     private static class ColumnVisibilityParser {
         private int index = 0;
         private int parens = 0;
+        private final String OR_AND_EXCEPTION_MESSAGE = "expression needs | or &";
 
         ColumnVisibilityParser() {
         }
@@ -198,7 +199,7 @@ public class ElementVisibility {
         ElementVisibility.Node processTerm(final int start, final int end, final ElementVisibility.Node expr, final byte[] expression) {
             if (start != end) {
                 if (expr != null) {
-                    throw new PatternSyntaxException("expression needs | or &", new String(expression, UTF_8), start);
+                    throw new PatternSyntaxException(OR_AND_EXCEPTION_MESSAGE, new String(expression, UTF_8), start);
                 } else {
                     return new ElementVisibility.Node(start, end);
                 }
@@ -222,7 +223,7 @@ public class ElementVisibility {
                 switch (expression[this.index++]) {
                     case 34:
                         if (subtermStart != this.index - 1) {
-                            throw new PatternSyntaxException("expression needs & or |", new String(expression, UTF_8), this.index - 1);
+                            throw new PatternSyntaxException(OR_AND_EXCEPTION_MESSAGE, new String(expression, UTF_8), this.index - 1);
                         }
 
                         for (; this.index < expression.length && expression[this.index] != 34; ++this.index) {
@@ -269,7 +270,7 @@ public class ElementVisibility {
                             break;
                         }
 
-                        throw new PatternSyntaxException("expression needs & or |", new String(expression, UTF_8), this.index - 1);
+                        throw new PatternSyntaxException(OR_AND_EXCEPTION_MESSAGE, new String(expression, UTF_8), this.index - 1);
                     case 41:
                         --this.parens;
                         child = this.processTerm(subtermStart, this.index - 1, expr, expression);

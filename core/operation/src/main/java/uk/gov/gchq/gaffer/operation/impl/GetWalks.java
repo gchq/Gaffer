@@ -129,10 +129,8 @@ public class GetWalks implements
                     result.addError("Operation chain " + i + " contains no operations");
                 } else {
                     final Operation firstOp = operation.getOperations().get(0);
-                    if (firstOp instanceof Input) {
-                        if (null != ((Input) firstOp).getInput()) {
-                            result.addError("The input for operations must be null.");
-                        }
+                    if (firstOp instanceof Input && null != ((Input) firstOp).getInput()) {
+                        result.addError("The input for operations must be null.");
                     } else {
                         result.addError("The first operation in operation chain " + i + ": " + firstOp.getClass().getName() + " is not be able to accept the input seeds. It must implement " + Input.class.getName());
                     }

@@ -51,6 +51,7 @@ import static java.util.Collections.emptyList;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonDeserialize(builder = NamedViewDetail.Builder.class)
 public class NamedViewDetail implements AccessControlledResource, Serializable {
+    private final static String NULL_VIEW_INVALID_MESSAGE = "View cannot be null";
     private static final long serialVersionUID = -8354836093398004122L;
     private String name;
     private String view;
@@ -112,7 +113,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
         if (null != view) {
             this.view = view;
         } else {
-            throw new IllegalArgumentException("View cannot be null");
+            throw new IllegalArgumentException(NULL_VIEW_INVALID_MESSAGE);
         }
     }
 
@@ -124,7 +125,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
                 throw new IllegalArgumentException(se.getMessage(), se);
             }
         } else {
-            throw new IllegalArgumentException("View cannot be null");
+            throw new IllegalArgumentException(NULL_VIEW_INVALID_MESSAGE);
         }
     }
 
@@ -365,7 +366,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
                 this.view = view;
                 return this;
             } else {
-                throw new IllegalArgumentException("View cannot be null");
+                throw new IllegalArgumentException(NULL_VIEW_INVALID_MESSAGE);
             }
         }
 

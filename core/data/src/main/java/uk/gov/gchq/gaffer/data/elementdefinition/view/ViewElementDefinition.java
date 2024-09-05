@@ -71,6 +71,7 @@ public class ViewElementDefinition implements ElementDefinition {
     protected ElementAggregator aggregator;
     protected ElementFilter postTransformFilter;
     protected ElementTransformer transformer;
+    private final static String PROPERTIES_EXCEPTION = "You cannot set both properties and excludeProperties";
 
     /**
      * This field overrides the group by properties in the schema.
@@ -327,7 +328,7 @@ public class ViewElementDefinition implements ElementDefinition {
         @JsonSetter("properties")
         public CHILD_CLASS properties(final Set<String> properties) {
             if (null != properties && null != elDef.excludeProperties && !elDef.excludeProperties.isEmpty()) {
-                throw new IllegalArgumentException("You cannot set both properties and excludeProperties");
+                throw new IllegalArgumentException(PROPERTIES_EXCEPTION);
             }
             elDef.properties = properties;
             return self();
@@ -336,7 +337,7 @@ public class ViewElementDefinition implements ElementDefinition {
         @JsonIgnore
         public CHILD_CLASS properties(final String... properties) {
             if (null != properties && null != elDef.excludeProperties && !elDef.excludeProperties.isEmpty()) {
-                throw new IllegalArgumentException("You cannot set both properties and excludeProperties");
+                throw new IllegalArgumentException(PROPERTIES_EXCEPTION);
             }
 
             if (null == properties) {
@@ -350,7 +351,7 @@ public class ViewElementDefinition implements ElementDefinition {
         @JsonSetter("excludeProperties")
         public CHILD_CLASS excludeProperties(final Set<String> excludeProperties) {
             if (null != excludeProperties && !excludeProperties.isEmpty() && null != elDef.properties) {
-                throw new IllegalArgumentException("You cannot set both properties and excludeProperties");
+                throw new IllegalArgumentException(PROPERTIES_EXCEPTION);
             }
 
             elDef.excludeProperties = excludeProperties;
@@ -360,7 +361,7 @@ public class ViewElementDefinition implements ElementDefinition {
         @JsonIgnore
         public CHILD_CLASS excludeProperties(final String... excludeProperties) {
             if (null != excludeProperties && excludeProperties.length > 0 && null != elDef.properties) {
-                throw new IllegalArgumentException("You cannot set both properties and excludeProperties");
+                throw new IllegalArgumentException(PROPERTIES_EXCEPTION);
             }
 
             if (null == excludeProperties) {
