@@ -51,10 +51,16 @@ class GafferPopListVertexStepTest {
         GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep);
 
         Traversal.Admin<Vertex, Vertex> otherTraversal = traversal.clone();
-        VertexStep<Vertex> otherVertexStep = new VertexStep<>(otherTraversal, Vertex.class, Direction.BOTH, KNOWS);
-        GafferPopListVertexStep<Vertex> otherListStep = new GafferPopListVertexStep<>(otherVertexStep);
+        GafferPopListVertexStep<Vertex> otherListStep = new GafferPopListVertexStep<>(
+                new VertexStep<>(otherTraversal, Vertex.class, Direction.BOTH, KNOWS));
+        GafferPopListVertexStep<Vertex> yetAnotherListStep = new GafferPopListVertexStep<>(
+                new VertexStep<>(otherTraversal, Vertex.class, Direction.BOTH));
 
-        assertThat(listStep).isEqualTo(otherListStep);
+        assertThat(listStep)
+                .isEqualTo(otherListStep)
+                .isNotEqualTo(yetAnotherListStep)
+                .isNotEqualTo(null)
+                .isNotEqualTo(vertexStep);
     }
 
     @Test
