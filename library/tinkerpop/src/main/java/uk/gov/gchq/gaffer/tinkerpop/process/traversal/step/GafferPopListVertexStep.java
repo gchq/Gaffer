@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.step;
 
-import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.process.traversal.step.Configuring;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.FlatMapStep;
@@ -71,7 +70,6 @@ public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<List
     private final String[] edgeLabels;
     private Direction direction;
     private final Class<E> returnClass;
-    private final Traversal.Admin traversal;
 
     public GafferPopListVertexStep(final VertexStep<E> originalVertexStep) {
         super(originalVertexStep.getTraversal());
@@ -93,8 +91,9 @@ public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<List
 
     @Override
     protected Iterator<E> flatMap(final Traverser.Admin<List<Vertex>> traverser) {
-        return Vertex.class.isAssignableFrom(returnClass) ? (Iterator<E>) this.vertices(traverser.get())
-                : (Iterator<E>) this.edges(traverser.get());
+        return Vertex.class.isAssignableFrom(returnClass) ?
+            (Iterator<E>) this.vertices(traverser.get()) :
+            (Iterator<E>) this.edges(traverser.get());
     }
 
     public Direction getDirection() {
@@ -143,6 +142,13 @@ public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<List
     }
 
     @Override
+    public boolean equals(final Object other) {
+        return other != null
+            && other.getClass().equals(this.getClass())
+            && this.hashCode() == other.hashCode();
+    }
+
+    @Override
     public void close() throws Exception {
         closeIterator();
     }
@@ -154,7 +160,7 @@ public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<List
 
     private Iterator<Vertex> vertices(final List<Vertex> vertices) {
         List<Object> vertexIds = vertices.stream().map(Element::id).collect(Collectors.toList());
-        GafferPopGraph graph = (GafferPopGraph) traversal.getGraph().get();
+        GafferPopGraph graph = (GafferPopGraph) getTraversal().getGraph().get();
 
         if (edgeLabels.length == 0) {
             LOGGER.debug("Getting {} AdjVertices for {} vertices", direction, vertexIds.size());
@@ -168,14 +174,14 @@ public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<List
 
     private Iterator<Edge> edges(final List<Vertex> vertices) {
         List<Object> vertexIds = vertices.stream().map(Element::id).collect(Collectors.toList());
-        GafferPopGraph graph = (GafferPopGraph) traversal.getGraph().get();
+        GafferPopGraph graph = (GafferPopGraph) getTraversal().getGraph().get();
 
         if (edgeLabels.length == 0) {
-            LOGGER.warn("Getting {} edges for {} vertices", direction, vertexIds.size());
+            LOGGER.debug("Getting {} edges for {} vertices", direction, vertexIds.size());
             return graph.edges(vertexIds, direction);
         }
 
-        LOGGER.warn("Getting {} edges with labels {} for {} vertices", direction, edgeLabels, vertexIds.size());
+        LOGGER.debug("Getting {} edges with labels {} for {} vertices", direction, edgeLabels, vertexIds.size());
         View view = new View.Builder().edges(Arrays.asList(edgeLabels)).build();
         return graph.edgesWithView(vertexIds, direction, view);
     }
