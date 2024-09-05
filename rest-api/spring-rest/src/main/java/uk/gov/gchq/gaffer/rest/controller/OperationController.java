@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +30,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -151,9 +153,62 @@ public class OperationController extends AbstractOperationService {
         }
     }
 
+    private static final String GET_ALL_ELEMENTS =
+            "{\n" +
+            "  \"class\": \"GetAllElements\"\n" +
+            "}";
+    private static final String GET_ELEMENTS =
+            "{\n" +
+            "  \"class\" : \"GetElements\",\n" +
+            "  \"input\" : [ {\n" +
+            "    \"class\" : \"EntitySeed\",\n" +
+            "    \"vertex\" : \"1\"\n" +
+            "  } ]\n" +
+            "}";
+    private static final String GET_ELEMENTS_WITH_VIEW =
+            "{\n" +
+            "  \"class\" : \"GetElements\",\n" +
+            "  \"input\" : [ {\n" +
+            "    \"class\" : \"EntitySeed\",\n" +
+            "    \"vertex\" : \"1\"\n" +
+            "  } ],\n" +
+            "  \"view\" : {\n" +
+            "    \"edges\" : {\n" +
+            "      \"created\" : {}\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+    private static final String OPERATION_CHAIN =
+            "{\n" +
+            "  \"class\":\"OperationChain\",\n" +
+            "  \"operations\":[\n" +
+            "    {\n" +
+            "      \"class\":\"GetAdjacentIds\",\n" +
+            "      \"input\":[\n" +
+            "        {\n" +
+            "          \"class\":\"EntitySeed\",\n" +
+            "          \"vertex\":\"1\"\n" +
+            "        }\n" +
+            "      ]\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"class\":\"GetElements\",\n" +
+            "      \"view\":{\n" +
+            "        \"allEntities\":true\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+
     @PostMapping(path = "/execute", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @io.swagger.v3.oas.annotations.Operation(summary = "Executes an operation against a Store")
-    public ResponseEntity<Object> execute(@RequestHeader final HttpHeaders httpHeaders, @RequestBody final Operation operation) {
+    public ResponseEntity<Object> execute(@RequestHeader final HttpHeaders httpHeaders,
+            @RequestBody(required = true, content = @Content(examples = {
+                    @ExampleObject(name = "Get all elements", description = "Get all elements", value = GET_ALL_ELEMENTS),
+                    @ExampleObject(name = "Get elements with seed", description = "Get elements seeded with Vertex 1", value = GET_ELEMENTS),
+                    @ExampleObject(name = "Get edges with label", description = "Get all 'created' edges from Vertex 1", value = GET_ELEMENTS_WITH_VIEW),
+                    @ExampleObject(name = "Get adjacent vertices", description = "Get all vertices adjacent to Vertex 1", value = OPERATION_CHAIN),
+            })) final Operation operation) {
         userFactory.setHttpHeaders(httpHeaders);
         final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
         return ResponseEntity.ok()
