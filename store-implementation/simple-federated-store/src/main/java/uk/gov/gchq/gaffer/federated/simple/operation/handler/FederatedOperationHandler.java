@@ -19,16 +19,20 @@ package uk.gov.gchq.gaffer.federated.simple.operation.handler;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Main default handler for federated operations. Handles delegation to selected
@@ -56,13 +60,35 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
 
     @Override
     public Object doOperation(final P operation, final Context context, final Store store) throws OperationException {
+
+        // Check inside operation chains in case there are operations that don't require running on sub graphs
+        if (operation instanceof OperationChain) {
+            Set<Class<? extends Operation>> storeSpecificOps = ((FederatedStore) store).getStoreSpecificOperations();
+            List<Class<? extends Operation>> chainOps = ((OperationChain<?>) operation).flatten().stream()
+                .map(Operation::getClass)
+                .collect(Collectors.toList());
+            // If all the operations in the chain can be handled by the store then execute them
+            if (storeSpecificOps.containsAll(chainOps)) {
+                return new OperationChainHandler<>(store.getOperationChainValidator(), store.getOperationChainOptimisers())
+                    .doOperation((OperationChain<Object>) operation, context, store);
+            }
+
+            // Check if we have a mix as that is an issue
+            // It's better to keep federated and non federated separate so error and report back
+            if (!Collections.disjoint(storeSpecificOps, chainOps)) {
+                throw new OperationException(
+                    "Chain contains standard Operations alongside federated store specific Operations."
+                        + " Please submit each type separately.");
+            }
+        }
+
         // If the operation has output wrap and return using sub class handler
         if (operation instanceof Output) {
             return new FederatedOutputHandler<>().doOperation((Output) operation, context, store);
         }
 
         List<GraphSerialisable> graphsToExecute = getGraphsToExecuteOn((FederatedStore) store, operation);
-
+        // No-op
         if (graphsToExecute.isEmpty()) {
             return null;
         }

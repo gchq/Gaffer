@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * A {@code GraphLibrary} stores a graphId and its related Schema and StoreProperties.
  */
 public abstract class GraphLibrary {
-    protected static final Pattern ID_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_]*");
+    protected static final Pattern ID_ALLOWED_CHARACTERS = Pattern.compile("\\w*");
     public static final String A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S = "A GraphLibrary can't be added with a null %s, graphId: %s";
 
     public abstract void initialise(final String path);

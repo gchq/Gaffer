@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federated.simple.operation.handler;
+package uk.gov.gchq.gaffer.federated.simple.operation.handler.get;
 
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOutputHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;

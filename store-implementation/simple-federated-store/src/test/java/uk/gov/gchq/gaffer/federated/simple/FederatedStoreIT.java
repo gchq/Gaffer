@@ -21,10 +21,11 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -32,8 +33,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
 
 class FederatedStoreIT {
@@ -61,20 +64,6 @@ class FederatedStoreIT {
         graph2ElementProps.put("age", 29);
         Entity graph2Entity = new Entity(group, vertex, graph2ElementProps);
 
-        OperationChain<Void> addGraph1Elements = new OperationChain.Builder()
-            .first(new AddElements.Builder()
-                .input(graph1Entity)
-                .build())
-            .option(FederatedOperationHandler.OPT_GRAPH_IDS, graphId1)
-            .build();
-
-        OperationChain<Void> addGraph2Elements = new OperationChain.Builder()
-            .first(new AddElements.Builder()
-                .input(graph2Entity)
-                .build())
-            .option(FederatedOperationHandler.OPT_GRAPH_IDS, graphId2)
-            .build();
-
         // We expect only one entity to be returned that has merged properties
         Properties mergedProperties = new Properties();
         mergedProperties.putAll(graph1ElementProps);
@@ -83,18 +72,32 @@ class FederatedStoreIT {
 
         // Init store and add graphs
         store.initialise("federated", null, new StoreProperties());
-        store.addGraph(new GraphSerialisable(
-                graph1.getConfig(),
-                graph1.getSchema(),
-                graph1.getStoreProperties()));
-        store.addGraph(new GraphSerialisable(
-                graph2.getConfig(),
-                graph2.getSchema(),
-                graph2.getStoreProperties()));
+        store.execute(
+            new AddGraph.Builder()
+                .graphConfig(graph1.getConfig())
+                .schema(graph1.getSchema())
+                .properties(graph1.getStoreProperties().getProperties()).build(),
+            new Context());
+        store.execute(
+            new AddGraph.Builder()
+                .graphConfig(graph2.getConfig())
+                .schema(graph2.getSchema())
+                .properties(graph2.getStoreProperties().getProperties()).build(),
+            new Context());
 
-        // Add data into graphs
-        store.execute(addGraph1Elements, new Context());
-        store.execute(addGraph2Elements, new Context());
+        // Add element operations
+        AddElements addGraph1Elements = new AddElements.Builder()
+            .input(graph1Entity)
+            .option(FederatedOperationHandler.OPT_GRAPH_IDS, graphId1)
+            .build();
+        AddElements addGraph2Elements = new AddElements.Builder()
+            .input(graph2Entity)
+            .option(FederatedOperationHandler.OPT_GRAPH_IDS, graphId2)
+            .build();
+
+        // Add data into graphs (use the handle method to widen methods that are tested)
+        store.handleOperation(addGraph1Elements, new Context());
+        store.handleOperation(addGraph2Elements, new Context());
 
         // Run a get all on both graphs specifying that we want to merge elements
         OperationChain<Iterable<? extends Element>> getAllElements = new OperationChain.Builder()
@@ -108,6 +111,28 @@ class FederatedStoreIT {
 
         // Then
         assertThat(result).extracting(e -> (Element) e).containsOnly(expectedEntity);
+    }
+
+    @Test
+    void shouldPreventMixOfFederatedAndCoreOperationsInChain() throws StoreException {
+        // Given
+        FederatedStore federatedStore = new FederatedStore();
+        federatedStore.initialise("federated", null, new StoreProperties());
+
+        OperationChain<Iterable<? extends Element>> mixedChain = new OperationChain.Builder()
+            .first(new AddGraph.Builder()
+                .graphConfig(new GraphConfig("dummy"))
+                .schema(new Schema())
+                .properties(new java.util.Properties())
+                .build())
+            .then(new GetAllElements.Builder()
+                .build())
+            .build();
+
+        // When/Then
+        assertThatExceptionOfType(OperationException.class)
+            .isThrownBy(() -> federatedStore.execute(mixedChain, new Context()))
+            .withMessageContaining("Please submit each type separately");
     }
 
 }
