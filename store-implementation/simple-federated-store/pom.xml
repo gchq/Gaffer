@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2024 Crown Copyright
+  ~ Copyright 2024 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,22 +16,34 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <groupId>uk.gov.gchq.gaffer</groupId>
-        <artifactId>gaffer2</artifactId>
-        <version>${revision}</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>store-implementation</artifactId>
-    <version>${revision}</version>
-    <packaging>pom</packaging>
+    <parent>
+        <groupId>uk.gov.gchq.gaffer</groupId>
+        <artifactId>store-implementation</artifactId>
+        <version>${revision}</version>
+    </parent>
 
-    <modules>
-        <module>accumulo-store</module>
-        <module>map-store</module>
-        <module>proxy-store</module>
-        <module>federated-store</module>
-        <module>simple-federated-store</module>
-    </modules>
+    <artifactId>simple-federated-store</artifactId>
+
+    <dependencies>
+        <!-- Gaffer dependencies -->
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>store</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>graph</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>map-store</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+    </dependencies>
+
 </project>
