@@ -122,6 +122,15 @@ public class FederatedStore extends Store {
     }
 
     /**
+     * Returns a list of all the graphs available to this store.
+     *
+     * @return List of {@link GraphSerialisable}s
+     */
+    public List<GraphSerialisable> getAllGraphs() {
+        return graphs;
+    }
+
+    /**
      * Get the default list of graph IDs for this federated store.
      *
      * @return The default list.

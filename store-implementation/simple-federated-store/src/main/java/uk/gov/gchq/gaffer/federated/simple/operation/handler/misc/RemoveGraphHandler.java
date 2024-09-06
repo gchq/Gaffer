@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public class RemoveGraphHandler implements OperationHandler<RemoveGraph> {
 
     @Override
-    public Object doOperation(RemoveGraph operation, Context context, Store store) throws OperationException {
+    public Object doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
         // If asked to delete all data then run that operation first on the requested graph
         if (operation.getDeleteAllData()) {
             DeleteAllData deleteAllOp = new DeleteAllData.Builder()
