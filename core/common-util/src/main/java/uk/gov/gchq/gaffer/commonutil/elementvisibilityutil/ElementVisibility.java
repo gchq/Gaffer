@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,7 +175,7 @@ public class ElementVisibility {
     private static class ColumnVisibilityParser {
         private int index = 0;
         private int parens = 0;
-        private final String OR_AND_EXCEPTION_MESSAGE = "expression needs | or &";
+        private static final String OR_AND_EXCEPTION_MESSAGE = "expression needs | or &";
 
         ColumnVisibilityParser() {
         }

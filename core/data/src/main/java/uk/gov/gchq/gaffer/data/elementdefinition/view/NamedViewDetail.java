@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ import static java.util.Collections.emptyList;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonDeserialize(builder = NamedViewDetail.Builder.class)
 public class NamedViewDetail implements AccessControlledResource, Serializable {
-    private final static String NULL_VIEW_INVALID_MESSAGE = "View cannot be null";
+    private static final  String NULL_VIEW_INVALID_MESSAGE = "View cannot be null";
     private static final long serialVersionUID = -8354836093398004122L;
     private String name;
     private String view;

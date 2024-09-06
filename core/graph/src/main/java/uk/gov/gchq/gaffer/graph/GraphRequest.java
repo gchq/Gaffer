@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.graph;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -36,7 +37,7 @@ import uk.gov.gchq.gaffer.user.User;
 public class GraphRequest<O> {
     private final OperationChain<O> operationChain;
     private final Context context;
-    private final String OPERATION_REQUIRED = "An operation is required";
+    private static final String OPERATION_REQUIRED = "An operation is required";
 
     public GraphRequest(final Operation operation, final User user) {
         if (null == operation) {

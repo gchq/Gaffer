@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class ViewElementDefinition implements ElementDefinition {
     protected ElementAggregator aggregator;
     protected ElementFilter postTransformFilter;
     protected ElementTransformer transformer;
-    private final static String PROPERTIES_EXCEPTION = "You cannot set both properties and excludeProperties";
+    private static final  String PROPERTIES_EXCEPTION = "You cannot set both properties and excludeProperties";
 
     /**
      * This field overrides the group by properties in the schema.

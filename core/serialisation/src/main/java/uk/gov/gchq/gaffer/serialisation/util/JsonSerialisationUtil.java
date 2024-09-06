@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.serialisation.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -45,6 +46,9 @@ import java.util.Map;
  */
 public final class JsonSerialisationUtil {
     private static Map<String, Map<String, String>> cache = Collections.emptyMap();
+    private static Class<?> builder;
+    private static String buildMethodPrefix = "with";
+    private static String propName;
 
     private JsonSerialisationUtil() {
 
@@ -61,7 +65,6 @@ public final class JsonSerialisationUtil {
         if (null != cachedResult) {
             return cachedResult;
         }
-
         final Class<?> clazz;
         try {
             clazz = Class.forName(SimpleClassNameIdResolver.getClassName(className));
@@ -74,29 +77,20 @@ public final class JsonSerialisationUtil {
         final BeanDescription introspection = mapper.getSerializationConfig()
                 .introspect(type);
 
-        final Class<?> builder = introspection.findPOJOBuilder();
-        String buildMethodPrefix = "with";
+        builder = introspection.findPOJOBuilder();
         if (null != builder) {
             JsonPOJOBuilder anno = findAnnotation(builder, JsonPOJOBuilder.class);
             if (null != anno) {
                 buildMethodPrefix = anno.withPrefix();
             }
         }
-
-        Constructor<?> creator = null;
-        for (final Constructor<?> constructor : type.getRawClass().getDeclaredConstructors()) {
-            final JsonCreator anno = constructor.getAnnotation(JsonCreator.class);
-            if (null != anno) {
-                creator = constructor;
-                break;
-            }
-        }
+        Constructor<?> constructor = getConstructor(type);
 
         final List<BeanPropertyDefinition> properties = introspection.findProperties();
 
         final Map<String, String> fieldMap = new HashMap<>();
         for (final BeanPropertyDefinition property : properties) {
-            final String propName = property.getName();
+            propName = property.getName();
 
             final String propClass;
             if ("class".equals(propName)) {
@@ -105,51 +99,20 @@ public final class JsonSerialisationUtil {
                 Type genericType = null;
                 if (null != builder) {
                     final String methodName = buildMethodPrefix + propName;
-                    Method matchedMethod = null;
-                    for (final Method method : builder.getMethods()) {
-                        if (methodName.equalsIgnoreCase(method.getName())) {
-                            final Type[] params = method.getGenericParameterTypes();
-                            if (null != params && 1 == params.length) {
-                                final JsonSetter jsonSetter = method.getAnnotation(JsonSetter.class);
-                                if (null != jsonSetter && propName.equals(jsonSetter.value())) {
-                                    matchedMethod = method;
-                                    break;
-                                }
-                                final JsonProperty jsonProperty = method.getAnnotation(JsonProperty.class);
-                                if (null != jsonProperty && propName.equals(jsonProperty.value())) {
-                                    matchedMethod = method;
-                                    break;
-                                }
-                                if (null == matchedMethod) {
-                                    matchedMethod = method;
-                                } else if (builder.equals(method.getReturnType())) {
-                                    // Checks for overridden methods
-                                    matchedMethod = method;
-                                }
-                            }
-                        }
-                    }
+
+                    Method matchedMethod = getMatchedMethod(methodName, builder.getMethods());
                     if (null != matchedMethod) {
+
                         genericType = matchedMethod.getGenericParameterTypes()[0];
                     }
                 }
-                if (null == genericType && null != creator) {
-                    for (final Parameter parameter : creator.getParameters()) {
-                        final JsonProperty anno = parameter.getAnnotation(JsonProperty.class);
-                        if (null != anno && propName.equals(anno.value())) {
-                            if (null != parameter.getParameterizedType()) {
-                                genericType = parameter.getParameterizedType();
-                            } else {
-                                genericType = parameter.getType();
-                            }
-                            break;
-                        }
-                    }
+                if (null == genericType && null != constructor) {
+                    genericType = getGenericTypeFromMatchedMethodParameter(constructor.getParameters());
                 }
                 if (null == genericType && null != property.getSetter() && null != property.getSetter().getGenericParameterTypes() && 1 == property.getSetter().getGenericParameterTypes().length) {
                     genericType = property.getSetter().getGenericParameterTypes()[0];
                 }
-                if (null != genericType && genericType instanceof Class && ((Class) genericType).isEnum()) {
+                if (genericType instanceof Class && ((Class) genericType).isEnum()) {
                     genericType = String.class;
                 }
                 if (null == genericType) {
@@ -168,6 +131,7 @@ public final class JsonSerialisationUtil {
 
         return fieldMap;
     }
+
 
     /**
      * Get the string representation of a type of an object.
@@ -233,27 +197,76 @@ public final class JsonSerialisationUtil {
         return typeName;
     }
 
-    private static <T extends Annotation> T findAnnotation(final Class<?> builderclass, final Class<T> annotationClass) {
-        T anno = builderclass.getAnnotation(annotationClass);
-        if (null == anno) {
-            Class<?> superClass = builderclass.getSuperclass();
-            while (null != superClass && null == anno) {
-                anno = superClass.getAnnotation(annotationClass);
-                if (null == anno) {
-                    superClass = superClass.getSuperclass();
-                }
-            }
-        }
-        if (null == anno) {
-            for (final Class<?> interfaceClass : builderclass.getInterfaces()) {
-                if (null != interfaceClass) {
-                    anno = interfaceClass.getAnnotation(annotationClass);
-                    if (null != anno) {
-                        break;
+
+    private static Method getMatchedMethod(final String methodName, final Method[] methods) {
+        for (final Method method : methods) {
+            if (methodName.equalsIgnoreCase(method.getName())) {
+                final Type[] params = method.getGenericParameterTypes();
+                if (null != params && 1 == params.length) {
+                    final JsonSetter jsonSetter = method.getAnnotation(JsonSetter.class);
+                    if (null != jsonSetter && propName.equals(jsonSetter.value())) {
+                        return method;
+                    }
+                    final JsonProperty jsonProperty = method.getAnnotation(JsonProperty.class);
+                    if (null != jsonProperty && propName.equals(jsonProperty.value())) {
+                        return method;
+                    }
+                    if (builder.equals(method.getReturnType())) {
+                        // Checks for overridden methods
+                        return method;
+                    } else {
+                        return method;
                     }
                 }
             }
         }
-        return anno;
+        return null;
+    }
+
+    private static <T extends Annotation> T findAnnotation(final Class<?> builderclass, final Class<T> annotationClass) {
+                T anno = builderclass.getAnnotation(annotationClass);
+                if (null == anno) {
+                    Class<?> superClass = builderclass.getSuperclass();
+                    while (null != superClass && null == anno) {
+                        anno = superClass.getAnnotation(annotationClass);
+                        if (null == anno) {
+                            superClass = superClass.getSuperclass();
+                        }
+                    }
+                }
+                if (null == anno) {
+                    for (final Class<?> interfaceClass : builderclass.getInterfaces()) {
+                        if (null != interfaceClass) {
+                            anno = interfaceClass.getAnnotation(annotationClass);
+                            if (null != anno) {
+                                break;
+                            }
+                        }
+                    }
+                }
+                return anno;
+    }
+    private static Type getGenericTypeFromMatchedMethodParameter(final Parameter[] parameters) {
+        for (final Parameter parameter : parameters) {
+            final JsonProperty anno = parameter.getAnnotation(JsonProperty.class);
+            if (null != anno && propName.equals(anno.value())) {
+                if (null != parameter.getParameterizedType()) {
+                    return parameter.getParameterizedType();
+                } else {
+                    return parameter.getType();
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Constructor<?> getConstructor(final JavaType type) {
+        for (final Constructor<?> constructor : type.getRawClass().getDeclaredConstructors()) {
+            final JsonCreator anno = constructor.getAnnotation(JsonCreator.class);
+            if (null != anno) {
+                return constructor;
+            }
+        }
+        return null;
     }
 }
