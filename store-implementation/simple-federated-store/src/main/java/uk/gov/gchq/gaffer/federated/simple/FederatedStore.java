@@ -80,7 +80,7 @@ public class FederatedStore extends Store {
      *
      * @param graph The serialisable instance of the graph.
      *
-     * @throws IllegalArgumentException If already a graph wit the supplied ID
+     * @throws IllegalArgumentException If already a graph with the supplied ID
      */
     public void addGraph(final GraphSerialisable graph) {
         // Make sure graph ID doesn't already exist
@@ -89,6 +89,18 @@ public class FederatedStore extends Store {
                 "A graph with Graph ID: '" + graph.getGraphId() + "' has already been added to this store");
         }
         graphs.add(new GraphSerialisable(graph.getConfig(), graph.getSchema(), graph.getStoreProperties()));
+    }
+
+    /**
+     * Remove a graph from the scope of this store.
+     *
+     * @param graphId The graph ID of the graph to remove.
+     *
+     * @throws IllegalArgumentException If graph not found.
+     */
+    public void removeGraph(final String graphId) {
+        GraphSerialisable graphToRemove = getGraph(graphId);
+        graphs.remove(graphToRemove);
     }
 
     /**
