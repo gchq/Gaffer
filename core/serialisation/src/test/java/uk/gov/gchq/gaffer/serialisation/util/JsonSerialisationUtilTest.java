@@ -35,10 +35,10 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class JsonSerialisationUtilTest {
+class JsonSerialisationUtilTest {
 
     @Test
-    public void testClassWithNoFields() {
+    void testClassWithNoFields() {
         // Given
         final String className = ClassWithNoFields.class.getName();
 
@@ -50,7 +50,7 @@ public class JsonSerialisationUtilTest {
     }
 
     @Test
-    public void testClassWithJsonAnnotations() {
+    void testClassWithJsonAnnotations() {
         // Given
         final String className = ClassWithAnnotations.class.getName();
 
@@ -64,7 +64,7 @@ public class JsonSerialisationUtilTest {
     }
 
     @Test
-    public void testClassWithCreator() {
+    void testClassWithCreator() {
         // Given
         final String className = ClassWithCreator.class.getName();
 
@@ -78,7 +78,7 @@ public class JsonSerialisationUtilTest {
     }
 
     @Test
-    public void testClassWithBuilder() {
+    void testClassWithBuilder() {
         // Given
         final String className = ClassWithBuilder.class.getName();
 
@@ -92,7 +92,7 @@ public class JsonSerialisationUtilTest {
     }
 
     @Test
-    public void testIsIn() {
+    void testIsIn() {
         // Given
         final String className = IsIn.class.getName();
 
@@ -106,7 +106,7 @@ public class JsonSerialisationUtilTest {
     }
 
     @Test
-    public void testInRange() {
+    void testInRange() {
         // Given
         final String className = InRange.class.getName();
 
@@ -123,7 +123,7 @@ public class JsonSerialisationUtilTest {
     }
 
     @Test
-    public void testInDateRangeAndInTimeRange() {
+    void testInDateRangeAndInTimeRange() {
         // Given
         final String classNameIDR = InDateRange.class.getName();
         final String classNameITR = InTimeRange.class.getName();
@@ -139,7 +139,7 @@ public class JsonSerialisationUtilTest {
     }
 
     @Test
-    public void testClassWithTypeParamAndOtherField() {
+    void testClassWithTypeParamAndOtherField() {
         // Given
         final String classWithTypeParamAndOtherFieldName = ClassWithTypeParamAndOtherField.class.getName();
 
@@ -155,7 +155,7 @@ public class JsonSerialisationUtilTest {
     }
 
     @Test
-    public void testClassWithJustTypeParam() {
+    void testClassWithJustTypeParam() {
         // Given
         final String classWithTypeParamName = ClassWithTypeParam.class.getName();
 
@@ -169,7 +169,7 @@ public class JsonSerialisationUtilTest {
     }
 
     @Test
-    public void testClassWithTypeParamExtendingComparable() {
+    void testClassWithTypeParamExtendingComparable() {
         // Given
         final String classWithTypeParamExtendingComparableName =
                 ClassWithTypeParamExtendingComparable.class.getName();
@@ -185,7 +185,7 @@ public class JsonSerialisationUtilTest {
     }
 
     @Test
-    public void testClassWithArray() {
+    void testClassWithArray() {
         // Given
         final String className = ClassWithArray.class.getName();
 
@@ -199,7 +199,7 @@ public class JsonSerialisationUtilTest {
     }
 
     @Test
-    public void testClassWithGenericArray() {
+    void testClassWithGenericArray() {
         // Given
         final String className = ClassWithGenericArray.class.getName();
 

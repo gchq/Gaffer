@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.operation.impl.GetWalks.HOP_DEFINITION;
 
-public class GetWalksTest extends OperationTest<GetWalks> {
+class GetWalksTest extends OperationTest<GetWalks> {
 
     @Test
     @Override
@@ -65,13 +65,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     }
 
     @Test
-    @Override
-    public void shouldValidateRequiredFields() throws Exception {
-        // We replace this test with the validation test below instead
-    }
-
-    @Test
-    public void shouldFailValidationWithNoHops() {
+    void shouldFailValidationWithNoHops() {
         // Given
         final GetWalks operation = getTestObject();
 
@@ -84,7 +78,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     }
 
     @Test
-    public void shouldValidateOperationWhenNoOperationsProvided() {
+    void shouldValidateOperationWhenNoOperationsProvided() {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
@@ -95,7 +89,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     }
 
     @Test
-    public void shouldValidateOperationWhenSecondOperationContainsNonNullInput() {
+    void shouldValidateOperationWhenSecondOperationContainsNonNullInput() {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
@@ -118,7 +112,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     }
 
     @Test
-    public void shouldValidateOperationWhenFirstOperationContainsNonNullInput() {
+    void shouldValidateOperationWhenFirstOperationContainsNonNullInput() {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
@@ -135,7 +129,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     }
 
     @Test
-    public void shouldValidateWhenPreFiltersContainsAnOperationWhichDoesNotAllowAnInput() {
+    void shouldValidateWhenPreFiltersContainsAnOperationWhichDoesNotAllowAnInput() {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
@@ -158,7 +152,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     }
 
     @Test
-    public void shouldValidateWhenOperationListContainsAnEmptyOperationChain() {
+    void shouldValidateWhenOperationListContainsAnEmptyOperationChain() {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
@@ -179,7 +173,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     }
 
     @Test
-    public void shouldValidateWhenOperationListDoesNotContainAGetElementsOperation() {
+    void shouldValidateWhenOperationListDoesNotContainAGetElementsOperation() {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
@@ -210,7 +204,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     }
 
     @Test
-    public void shouldValidateWhenOperationContainsMultipleHops() {
+    void shouldValidateWhenOperationContainsMultipleHops() {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
