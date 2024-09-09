@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -203,12 +203,13 @@ public class OperationController extends AbstractOperationService {
     @PostMapping(path = "/execute", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @io.swagger.v3.oas.annotations.Operation(summary = "Executes an operation against a Store")
     public ResponseEntity<Object> execute(@RequestHeader final HttpHeaders httpHeaders,
-            @RequestBody(required = true, content = @Content(examples = {
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, content = @Content(examples = {
                     @ExampleObject(name = "Get all elements", description = "Get all elements", value = GET_ALL_ELEMENTS),
                     @ExampleObject(name = "Get elements with seed", description = "Get elements seeded with Vertex 1", value = GET_ELEMENTS),
                     @ExampleObject(name = "Get edges with label", description = "Get all 'created' edges from Vertex 1", value = GET_ELEMENTS_WITH_VIEW),
                     @ExampleObject(name = "Get adjacent vertices", description = "Get all vertices adjacent to Vertex 1", value = OPERATION_CHAIN),
-            })) final Operation operation) {
+            }))
+            @RequestBody final Operation operation) {
         userFactory.setHttpHeaders(httpHeaders);
         final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
         return ResponseEntity.ok()
