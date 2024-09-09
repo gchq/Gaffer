@@ -44,6 +44,26 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>accumulo-store</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>accumulo-store</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.accumulo</groupId>
+            <artifactId>accumulo-minicluster</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

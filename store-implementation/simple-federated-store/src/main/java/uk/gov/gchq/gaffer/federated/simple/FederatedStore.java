@@ -20,10 +20,14 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
+import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federated.simple.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOutputHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.add.AddGraphHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphIdsHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.RemoveGraphHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -72,7 +76,9 @@ public class FederatedStore extends Store {
     // Store specific handlers
     public final Map<Class<? extends Operation>, OperationHandler<?>> storeHandlers = Stream.of(
             new SimpleEntry<>(AddGraph.class, new AddGraphHandler()),
-            new SimpleEntry<>(GetSchema.class, new GetSchemaHandler()))
+            new SimpleEntry<>(GetAllGraphIds.class, new GetAllGraphIdsHandler()),
+            new SimpleEntry<>(GetSchema.class, new GetSchemaHandler()),
+            new SimpleEntry<>(RemoveGraph.class, new RemoveGraphHandler()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     /**
