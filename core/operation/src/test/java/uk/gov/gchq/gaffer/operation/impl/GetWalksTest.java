@@ -65,6 +65,12 @@ class GetWalksTest extends OperationTest<GetWalks> {
     }
 
     @Test
+    @Override
+    public void shouldValidateRequiredFields() throws Exception {
+        // We replace this test with the validation test below instead
+    }
+
+    @Test
     void shouldFailValidationWithNoHops() {
         // Given
         final GetWalks operation = getTestObject();
