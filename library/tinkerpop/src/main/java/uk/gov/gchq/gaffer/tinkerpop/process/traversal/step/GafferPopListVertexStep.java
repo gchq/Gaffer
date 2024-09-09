@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
  * (GafferPop) g.V().out() = [v2, v3, v4, v5]
  * </pre>
  */
-public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<List<Vertex>, E>
+public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<Iterable<Vertex>, E>
         implements AutoCloseable, Configuring {
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopListVertexStep.class);
 
@@ -90,7 +90,7 @@ public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<List
     }
 
     @Override
-    protected Iterator<E> flatMap(final Traverser.Admin<List<Vertex>> traverser) {
+    protected Iterator<E> flatMap(final Traverser.Admin<Iterable<Vertex>> traverser) {
         return Vertex.class.isAssignableFrom(returnClass) ?
             (Iterator<E>) this.vertices(traverser.get()) :
             (Iterator<E>) this.edges(traverser.get());
@@ -158,31 +158,29 @@ public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<List
         return Collections.singleton(TraverserRequirement.OBJECT);
     }
 
-    private Iterator<Vertex> vertices(final List<Vertex> vertices) {
-        List<Object> vertexIds = vertices.stream().map(Element::id).collect(Collectors.toList());
+    private Iterator<Vertex> vertices(final Iterable<Vertex> vertices) {
         GafferPopGraph graph = (GafferPopGraph) getTraversal().getGraph().get();
 
         if (edgeLabels.length == 0) {
-            LOGGER.debug("Getting {} AdjVertices for {} vertices", direction, vertexIds.size());
-            return graph.adjVertices(vertexIds, direction);
+            LOGGER.debug("Getting {} AdjVertices for vertices", direction);
+            return graph.adjVertices((Iterable) vertices, direction);
         }
 
-        LOGGER.debug("Getting {} AdjVertices for edges {} for {} vertices", direction, edgeLabels, vertexIds.size());
+        LOGGER.debug("Getting {} AdjVertices for edges {} for vertices", direction, edgeLabels);
         View view = new View.Builder().edges(Arrays.asList(edgeLabels)).build();
-        return graph.adjVerticesWithView(vertexIds, direction, view);
+        return graph.adjVerticesWithView((Iterable) vertices, direction, view);
     }
 
-    private Iterator<Edge> edges(final List<Vertex> vertices) {
-        List<Object> vertexIds = vertices.stream().map(Element::id).collect(Collectors.toList());
+    private Iterator<Edge> edges(final Iterable<Vertex> vertices) {
         GafferPopGraph graph = (GafferPopGraph) getTraversal().getGraph().get();
 
         if (edgeLabels.length == 0) {
-            LOGGER.debug("Getting {} edges for {} vertices", direction, vertexIds.size());
-            return graph.edges(vertexIds, direction);
+            LOGGER.debug("Getting {} edges for vertices", direction);
+            return graph.edges((Iterable) vertices, direction);
         }
 
-        LOGGER.debug("Getting {} edges with labels {} for {} vertices", direction, edgeLabels, vertexIds.size());
+        LOGGER.debug("Getting {} edges with labels {} for vertices", direction, edgeLabels);
         View view = new View.Builder().edges(Arrays.asList(edgeLabels)).build();
-        return graph.edgesWithView(vertexIds, direction, view);
+        return graph.edgesWithView((Iterable) vertices, direction, view);
     }
 }

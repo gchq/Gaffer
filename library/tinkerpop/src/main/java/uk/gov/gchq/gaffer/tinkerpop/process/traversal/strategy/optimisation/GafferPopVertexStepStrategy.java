@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal.Admin;
 import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategy;
-import org.apache.tinkerpop.gremlin.process.traversal.step.map.FoldStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.VertexStep;
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.AbstractTraversalStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalHelper;
@@ -28,8 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopListVertexStep;
-
-import java.util.List;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.LazyFoldStep;
 
 /**
  * Optimisation strategy to reduce the number of Gaffer operations performed.
@@ -57,8 +55,8 @@ public final class GafferPopVertexStepStrategy
 
             // Add in a fold step before the new VertexStep so that the input is the list of
             // all vertices
-            FoldStep<Vertex, List<Vertex>> foldStep = new FoldStep<>(originalVertexStep.getTraversal());
-            TraversalHelper.insertBeforeStep(foldStep, listVertexStep, traversal);
+            LazyFoldStep<Vertex> lazyFoldStep = new LazyFoldStep<>(originalVertexStep.getTraversal());
+            TraversalHelper.insertBeforeStep(lazyFoldStep, listVertexStep, traversal);
         });
     }
 

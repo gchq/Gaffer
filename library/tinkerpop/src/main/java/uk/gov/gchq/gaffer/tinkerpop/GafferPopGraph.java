@@ -947,10 +947,13 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             List<Object> edgeIdList = new LinkedList<>();
             // Extract Vertex ID
             if (id instanceof Vertex) {
-                seeds.add(new EntitySeed(((Vertex) id).id()));
+                Object parsedId = GafferCustomTypeFactory.parseAsCustomTypeIfValid(((Vertex) id).id());
+                seeds.add(new EntitySeed(parsedId));
             // Extract Edge ID
             } else if (id instanceof Edge) {
-                seeds.add(new EdgeSeed(((Edge) id).outVertex().id(), ((Edge) id).inVertex().id()));
+                Object src = GafferCustomTypeFactory.parseAsCustomTypeIfValid(((Edge) id).outVertex().id());
+                Object target = GafferCustomTypeFactory.parseAsCustomTypeIfValid(((Edge) id).inVertex().id());
+                seeds.add(new EdgeSeed(src, target));
             // Extract source and destination from ID list
             } else if (id instanceof Iterable) {
                 ((Iterable<?>) id).forEach(edgeIdList::add);
