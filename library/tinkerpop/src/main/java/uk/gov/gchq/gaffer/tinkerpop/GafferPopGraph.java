@@ -58,6 +58,7 @@ import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopHasStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferCustomTypeFactory;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferVertexFromEdgeFactory;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.iterable.MappedIterable;
@@ -406,6 +407,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public Iterator<Vertex> vertices(final Object... vertexIds) {
         final boolean getAll = null == vertexIds || 0 == vertexIds.length;
         final OperationChain<Iterable<? extends Element>> getOperation;
+        final Iterable<Vertex> edgeOnlyVertices;
 
         if (getAll) {
             LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
@@ -419,7 +421,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             getOperation = new Builder()
                 .first(new GetElements.Builder()
                     .input(getElementSeeds(Arrays.asList(vertexIds)))
-                    .view(createAllEntitiesView())
                     .build())
                 .build();
         }
@@ -439,6 +440,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 "Result size is equal to configured limit ({}). Results may have been truncated",
                 variables.getAllElementsLimit());
         }
+
+        // Check for seeds that are not entities but are vertices on an edge
+        edgeOnlyVertices = GafferVertexFromEdgeFactory.checkForSeed(result, this, vertexIds);
+        if (edgeOnlyVertices != null) {
+            return Stream.concat(
+                StreamSupport.stream(translatedResults.spliterator(), false),
+                StreamSupport.stream(edgeOnlyVertices.spliterator(), false)).iterator();
+        }
+
         return translatedResults.iterator();
     }
 
