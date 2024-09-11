@@ -52,14 +52,14 @@ public final class GafferVertexUtils {
 
     public static Iterable<Vertex> getOrphanVertices(final Iterable<? extends Element> result, final GafferPopGraph graph, final Object... vertexIds) {
         // Check for any vertex ID seeds that are not returned as Entities
-        List<Object> noneMatchingIds = Arrays.stream(vertexIds)
+        List<Object> orphanVertexIds = Arrays.stream(vertexIds)
             .filter(id -> StreamSupport.stream(result.spliterator(), false)
                 .filter(Entity.class::isInstance)
                 .map(e -> ((Entity) e).getVertex())
                 .noneMatch(e -> e.equals(id)))
                 .collect(Collectors.toList());
 
-        return (noneMatchingIds != null) ? extractOrphanVerticesFromEdges(result, graph, noneMatchingIds) : Collections.emptyList();
+        return (orphanVertexIds != null) ? extractOrphanVerticesFromEdges(result, graph, orphanVertexIds) : Collections.emptyList();
     }
 
     /**
@@ -68,17 +68,17 @@ public final class GafferVertexUtils {
      *
      * @param result The results of a Gaffer query
      * @param graph The GafferPop graph being queried
-     * @param noneMatchingIds Any seeds that were not found in the entity results
+     * @param orphanVertexIds Any seeds that were not found to have an entity
      * @return Iterable of 'orphan' {@link Vertex}'s
      */
-    private static Iterable<Vertex> extractOrphanVerticesFromEdges(final Iterable<? extends Element> result, final GafferPopGraph graph, final List<Object> noneMatchingIds) {
+    private static Iterable<Vertex> extractOrphanVerticesFromEdges(final Iterable<? extends Element> result, final GafferPopGraph graph, final List<Object> orphanVertexIds) {
         return StreamSupport.stream(result.spliterator(), false)
             .filter(Edge.class::isInstance)
             .map(e -> (Edge) e)
             .map(e -> {
-                if (noneMatchingIds.contains(e.getSource())) {
+                if (orphanVertexIds.contains(e.getSource())) {
                     return new GafferPopVertex(GafferPopGraph.ID_LABEL, GafferCustomTypeFactory.parseForGraphSONv3(e.getSource()), graph);
-                } else if (noneMatchingIds.contains(e.getDestination())) {
+                } else if (orphanVertexIds.contains(e.getDestination())) {
                     return new GafferPopVertex(GafferPopGraph.ID_LABEL, GafferCustomTypeFactory.parseForGraphSONv3(e.getDestination()), graph);
                 } else {
                     return null;
