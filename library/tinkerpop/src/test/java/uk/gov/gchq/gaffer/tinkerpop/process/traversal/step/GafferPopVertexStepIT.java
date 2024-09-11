@@ -38,13 +38,13 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.RIPPLE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 
-class GafferPopListVertexStepIT {
+class GafferPopVertexStepIT {
 
     private static GraphTraversalSource g;
 
     @BeforeAll
     public static void beforeAll() {
-        GafferPopGraph modern = GafferPopModernTestUtils.createModernGraph(GafferPopListVertexStepIT.class,
+        GafferPopGraph modern = GafferPopModernTestUtils.createModernGraph(GafferPopVertexStepIT.class,
                 StoreType.ACCUMULO);
         g = modern.traversal();
     }

@@ -32,13 +32,13 @@ import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.KNOWS;
 
-class GafferPopListVertexStepTest {
+class GafferPopVertexStepTest {
 
     private static Traversal.Admin<Vertex, Vertex> traversal;
 
     @BeforeAll
     public static void beforeAll() {
-        GafferPopGraph modern = GafferPopModernTestUtils.createModernGraph(GafferPopListVertexStepIT.class,
+        GafferPopGraph modern = GafferPopModernTestUtils.createModernGraph(GafferPopVertexStepIT.class,
                 StoreType.MAP);
         GraphTraversalSource g = modern.traversal();
         traversal = g.V().asAdmin();
@@ -104,7 +104,7 @@ class GafferPopListVertexStepTest {
     void shouldHaveToString() throws Exception {
         VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.OUT, KNOWS);
         try (GafferPopVertexStep<Vertex> listStep = new GafferPopVertexStep<>(vertexStep)) {
-            assertThat(listStep).hasToString("GafferPopListVertexStep(OUT,[knows],vertex)");
+            assertThat(listStep).hasToString("GafferPopVertexStep(OUT,[knows],vertex)");
         }
     }
 
