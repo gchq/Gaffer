@@ -58,7 +58,7 @@ import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopHasStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferCustomTypeFactory;
-import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferVertexFromEdgeFactory;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferVertexUtils;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.iterable.MappedIterable;
@@ -407,7 +407,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public Iterator<Vertex> vertices(final Object... vertexIds) {
         final boolean getAll = null == vertexIds || 0 == vertexIds.length;
         final OperationChain<Iterable<? extends Element>> getOperation;
-        final Iterable<Vertex> edgeOnlyVertices;
+        final Iterable<Vertex> orphanVertices;
 
         if (getAll) {
             LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
@@ -441,15 +441,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 variables.getAllElementsLimit());
         }
 
-        // Check for seeds that are not entities but are vertices on an edge
-        edgeOnlyVertices = GafferVertexFromEdgeFactory.checkForSeed(result, this, vertexIds);
-        if (edgeOnlyVertices != null) {
-            return Stream.concat(
-                StreamSupport.stream(translatedResults.spliterator(), false),
-                StreamSupport.stream(edgeOnlyVertices.spliterator(), false)).iterator();
-        }
+        // Check for seeds that are not entities but are vertices on an edge (orphan vertices)
+        orphanVertices = GafferVertexUtils.getOrphanVertices(result, this, vertexIds);
+        Iterable<Vertex> chainedIterable = IterableUtils.chainedIterable(translatedResults, orphanVertices);
 
-        return translatedResults.iterator();
+        return chainedIterable.iterator();
     }
 
     /**
