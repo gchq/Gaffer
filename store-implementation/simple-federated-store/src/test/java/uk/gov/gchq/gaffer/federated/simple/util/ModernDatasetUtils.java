@@ -23,8 +23,6 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
-import java.util.UUID;
-
 public final class ModernDatasetUtils {
 
     private ModernDatasetUtils() {
@@ -58,10 +56,7 @@ public final class ModernDatasetUtils {
             case MAP:
                 return MAP_STORE_PROPERTIES;
             case ACCUMULO:
-                // Keep instances unique
-                AccumuloProperties uniqueProps = ACCUMULO_STORE_PROPERTIES;
-                uniqueProps.setInstance(UUID.randomUUID().toString());
-                return uniqueProps;
+                return ACCUMULO_STORE_PROPERTIES;
             default:
                 throw new IllegalArgumentException("Unknown StoreType: " + storeType);
         }
