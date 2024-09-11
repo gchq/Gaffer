@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public final class GafferVertexFromEdgeFactory {
-    static Iterable<Vertex> nonEntityVertices = null;
+    private static Iterable<Vertex> nonEntityVertices;
 
     private GafferVertexFromEdgeFactory() {
         // Utility class
