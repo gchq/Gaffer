@@ -26,7 +26,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopListVertexStep;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopVertexStep;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.LazyFoldStep;
 
 /**
@@ -49,7 +49,7 @@ public final class GafferPopVertexStepStrategy
             LOGGER.debug("Inserting FoldStep and replacing VertexStep");
 
             // Replace vertex step
-            final GafferPopListVertexStep<? extends Element> listVertexStep = new GafferPopListVertexStep<>(
+            final GafferPopVertexStep<? extends Element> listVertexStep = new GafferPopVertexStep<>(
                     originalVertexStep);
             TraversalHelper.replaceStep(originalVertexStep, listVertexStep, traversal);
 

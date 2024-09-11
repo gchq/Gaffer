@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 /**
  * Custom GafferPop VertexStep.
  * <p>
- * Takes a list of Vertices is input rather than a single Vertex.
+ * Takes an Iterable of Vertices as input rather than a single Vertex.
  * This is so we can perform a single Gaffer query for multiple vertices rather
  * than one each.
  * <p>
@@ -62,16 +62,16 @@ import java.util.stream.Collectors;
  * (GafferPop) g.V().out() = [v2, v3, v4, v5]
  * </pre>
  */
-public class GafferPopListVertexStep<E extends Element> extends FlatMapStep<Iterable<Vertex>, E>
+public class GafferPopVertexStep<E extends Element> extends FlatMapStep<Iterable<Vertex>, E>
         implements AutoCloseable, Configuring {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopListVertexStep.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopVertexStep.class);
 
     protected Parameters parameters = new Parameters();
     private final String[] edgeLabels;
     private Direction direction;
     private final Class<E> returnClass;
 
-    public GafferPopListVertexStep(final VertexStep<E> originalVertexStep) {
+    public GafferPopVertexStep(final VertexStep<E> originalVertexStep) {
         super(originalVertexStep.getTraversal());
         this.direction = originalVertexStep.getDirection();
         this.edgeLabels = originalVertexStep.getEdgeLabels();

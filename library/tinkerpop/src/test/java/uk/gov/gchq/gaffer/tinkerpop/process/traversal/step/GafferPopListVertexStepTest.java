@@ -47,12 +47,12 @@ class GafferPopListVertexStepTest {
     @Test
     void shouldCheckEquality() {
         VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.BOTH, KNOWS);
-        GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep);
+        GafferPopVertexStep<Vertex> listStep = new GafferPopVertexStep<>(vertexStep);
 
         Traversal.Admin<Vertex, Vertex> otherTraversal = traversal.clone();
-        GafferPopListVertexStep<Vertex> otherListStep = new GafferPopListVertexStep<>(
+        GafferPopVertexStep<Vertex> otherListStep = new GafferPopVertexStep<>(
                 new VertexStep<>(otherTraversal, Vertex.class, Direction.BOTH, KNOWS));
-        GafferPopListVertexStep<Vertex> yetAnotherListStep = new GafferPopListVertexStep<>(
+        GafferPopVertexStep<Vertex> yetAnotherListStep = new GafferPopVertexStep<>(
                 new VertexStep<>(otherTraversal, Vertex.class, Direction.BOTH));
 
         assertThat(listStep)
@@ -65,7 +65,7 @@ class GafferPopListVertexStepTest {
     @Test
     void shouldConfigureParameters() throws Exception {
         VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.BOTH, KNOWS);
-        try (GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep)) {
+        try (GafferPopVertexStep<Vertex> listStep = new GafferPopVertexStep<>(vertexStep)) {
             listStep.configure("key", "value");
 
             Parameters params = new Parameters();
@@ -77,7 +77,7 @@ class GafferPopListVertexStepTest {
     @Test
     void shouldGetDirection() throws Exception {
         VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.BOTH, KNOWS);
-        try (GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep)) {
+        try (GafferPopVertexStep<Vertex> listStep = new GafferPopVertexStep<>(vertexStep)) {
             assertThat(listStep.getDirection()).isEqualTo(Direction.BOTH);
         }
     }
@@ -85,7 +85,7 @@ class GafferPopListVertexStepTest {
     @Test
     void shouldReverseDirection() throws Exception {
         VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.OUT, KNOWS);
-        try (GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep)) {
+        try (GafferPopVertexStep<Vertex> listStep = new GafferPopVertexStep<>(vertexStep)) {
             listStep.reverseDirection();
             assertThat(listStep.getDirection()).isEqualTo(Direction.IN);
         }
@@ -94,7 +94,7 @@ class GafferPopListVertexStepTest {
     @Test
     void shouldReturnVertex() throws Exception {
         VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.OUT, KNOWS);
-        try (GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep)) {
+        try (GafferPopVertexStep<Vertex> listStep = new GafferPopVertexStep<>(vertexStep)) {
             assertThat(listStep.returnsVertex()).isTrue();
             assertThat(listStep.returnsEdge()).isFalse();
         }
@@ -103,7 +103,7 @@ class GafferPopListVertexStepTest {
     @Test
     void shouldHaveToString() throws Exception {
         VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.OUT, KNOWS);
-        try (GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep)) {
+        try (GafferPopVertexStep<Vertex> listStep = new GafferPopVertexStep<>(vertexStep)) {
             assertThat(listStep).hasToString("GafferPopListVertexStep(OUT,[knows],vertex)");
         }
     }
@@ -111,7 +111,7 @@ class GafferPopListVertexStepTest {
     @Test
     void shouldGetEdgeLabels() throws Exception {
         VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.OUT, KNOWS);
-        try (GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep)) {
+        try (GafferPopVertexStep<Vertex> listStep = new GafferPopVertexStep<>(vertexStep)) {
             assertThat(listStep.getEdgeLabels()).containsExactly(KNOWS);
         }
     }
@@ -119,7 +119,7 @@ class GafferPopListVertexStepTest {
     @Test
     void shouldGetReturnClass() throws Exception {
         VertexStep<Vertex> vertexStep = new VertexStep<>(traversal, Vertex.class, Direction.OUT, KNOWS);
-        try (GafferPopListVertexStep<Vertex> listStep = new GafferPopListVertexStep<>(vertexStep)) {
+        try (GafferPopVertexStep<Vertex> listStep = new GafferPopVertexStep<>(vertexStep)) {
             assertThat(listStep.getReturnClass()).isEqualTo(Vertex.class);
         }
     }

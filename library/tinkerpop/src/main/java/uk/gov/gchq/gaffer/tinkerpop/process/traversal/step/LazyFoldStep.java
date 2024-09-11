@@ -32,7 +32,7 @@ public class LazyFoldStep<S> extends AbstractStep<S, Iterable<S>> {
 
     private boolean done = false;
 
-    public LazyFoldStep(final Traversal.Admin traversal) {
+    public LazyFoldStep(final Traversal.Admin<S, Iterable<S>> traversal) {
         super(traversal);
     }
 
