@@ -38,13 +38,10 @@ public final class GafferVertexUtils {
     }
 
     /**
-     * Util method to extract seeds that are Gaffer vertices but do not have an
-     * associated Gremlin entity in the current graph. These vertices exist only
-     * on an edge.
+     * Util method to extract vertices that are vertices on an edge but do not have an
+     * associated {@link Vertex} or {@link Entity} the current graph.
+     * These vertices exist only on an edge.
      *
-     * Checks whether the vertex ID seeds are contained in the entity results,
-     * if not then it will try check whether they are on any of the edges. If so
-     * they will be extracted as 'orphan' vertices.
      *
      * @param result The results from a Gaffer query
      * @param graph The GafferPop graph being queried
@@ -67,8 +64,7 @@ public final class GafferVertexUtils {
 
     /**
      * Extracts vertices from {@link Edge}'s which have not been stored as
-     * an {@link Entity} in Gaffer. There are 'orphan' vertices that are only
-     * returned on edges. These will be returned as a 'dummy' {@link Vertex}.
+     * an {@link Entity} in Gaffer. These will be returned as a 'dummy' {@link Vertex}.
      *
      * @param result The results of a Gaffer query
      * @param graph The GafferPop graph being queried
