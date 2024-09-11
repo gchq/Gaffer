@@ -86,7 +86,7 @@ public class FederatedStore extends Store {
      *
      * @param graph The serialisable instance of the graph.
      *
-     * @throws IllegalArgumentException If already a graph with the supplied ID
+     * @throws IllegalArgumentException If there is already a graph with the supplied ID
      */
     public void addGraph(final GraphSerialisable graph) {
         // Make sure graph ID doesn't already exist
