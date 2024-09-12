@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federated.simple;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -54,7 +55,7 @@ class FederatedStoreTest {
     }
 
     @Test
-    void shouldAddAndGetGraphsViaStoreInterface() throws StoreException {
+    void shouldAddAndGetGraphsViaStoreInterface() throws StoreException, CacheOperationException {
         // Given
         final String federatedGraphId = "federated";
         final String graphId1 = "graph1";
