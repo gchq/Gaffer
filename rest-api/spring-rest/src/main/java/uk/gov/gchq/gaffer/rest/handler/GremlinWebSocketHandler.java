@@ -88,6 +88,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
     private final ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(4));
     private final ConcurrentBindings bindings = new ConcurrentBindings();
+    private final Long requestTimeout;
     private final AbstractUserFactory userFactory;
     private final Graph graph;
     private final Map<String, Map<String, Object>> plugins = new HashMap<>();
@@ -98,10 +99,11 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      * @param g The graph traversal source
      * @param userFactory The user factory
      */
-    public GremlinWebSocketHandler(final GraphTraversalSource g, final AbstractUserFactory userFactory) {
+    public GremlinWebSocketHandler(final GraphTraversalSource g, final AbstractUserFactory userFactory, final Long requestTimeout) {
         bindings.putIfAbsent("g", g);
         graph = g.getGraph();
         this.userFactory = userFactory;
+        this.requestTimeout = requestTimeout;
         // Add cypher plugin so cypher functions can be used in queries
         plugins.put(CypherPlugin.class.getName(), new HashMap<>());
     }
@@ -149,6 +151,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
                 GremlinExecutor gremlinExecutor = GremlinExecutor.build()
                         .globalBindings(bindings)
                         .addPlugins("gremlin-groovy", plugins)
+                        .evaluationTimeout(requestTimeout)
                         .executorService(executorService)
                         .create()) {
             // Set current headers for potential authorisation then set the user
