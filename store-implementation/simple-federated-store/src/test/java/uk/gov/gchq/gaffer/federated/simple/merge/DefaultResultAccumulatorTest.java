@@ -114,7 +114,7 @@ class DefaultResultAccumulatorTest {
 
         // When/Then
         FederatedResultAccumulator<?> accumulator = new DefaultResultAccumulator<>(properties);
-        assertThat(accumulator.getAggregateElements()).isTrue();
+        assertThat(accumulator.aggregateElements()).isTrue();
     }
 
     @Test
@@ -139,7 +139,7 @@ class DefaultResultAccumulatorTest {
 
         // When
         FederatedResultAccumulator<Iterable<Entity>> accumulator = new DefaultResultAccumulator<>();
-        accumulator.aggregateElements(true);
+        accumulator.setAggregateElements(true);
         accumulator.setSchema(schema);
 
         // Then
@@ -167,7 +167,7 @@ class DefaultResultAccumulatorTest {
 
         // When
         FederatedResultAccumulator<Iterable<Entity>> accumulator = new DefaultResultAccumulator<>();
-        accumulator.aggregateElements(true);
+        accumulator.setAggregateElements(true);
         accumulator.setSchema(schema);
 
         // Then

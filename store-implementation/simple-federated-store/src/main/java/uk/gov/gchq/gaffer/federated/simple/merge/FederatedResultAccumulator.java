@@ -78,7 +78,7 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
         }
         // Should we do element aggregation by default
         if (properties.containsKey(PROP_DEFAULT_MERGE_ELEMENTS)) {
-            aggregateElements(Boolean.parseBoolean(properties.get(PROP_DEFAULT_MERGE_ELEMENTS)));
+            setAggregateElements(Boolean.parseBoolean(properties.get(PROP_DEFAULT_MERGE_ELEMENTS)));
         }
     }
 
@@ -88,7 +88,7 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
      *
      * @param aggregateElements should elements be aggregated.
      */
-    public void aggregateElements(final boolean aggregateElements) {
+    public void setAggregateElements(final boolean aggregateElements) {
         this.aggregateElements = aggregateElements;
     }
 
@@ -98,7 +98,7 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
      *
      * @return Is aggregation set.
      */
-    public boolean getAggregateElements() {
+    public boolean aggregateElements() {
         return aggregateElements;
     }
 
