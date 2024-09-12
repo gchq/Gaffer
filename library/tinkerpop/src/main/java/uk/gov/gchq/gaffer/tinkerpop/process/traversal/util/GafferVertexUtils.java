@@ -56,9 +56,9 @@ public final class GafferVertexUtils {
                 .filter(Entity.class::isInstance)
                 .map(e -> ((Entity) e).getVertex())
                 .noneMatch(e -> e.equals(id)))
-                .collect(Collectors.toList());
+            .collect(Collectors.toList());
 
-        return (orphanVertexIds != null) ? extractOrphanVerticesFromEdges(result, graph, orphanVertexIds) : Collections.emptyList();
+        return (orphanVertexIds.isEmpty()) ? Collections.emptyList() : extractOrphanVerticesFromEdges(result, graph, orphanVertexIds);
     }
 
     /**
