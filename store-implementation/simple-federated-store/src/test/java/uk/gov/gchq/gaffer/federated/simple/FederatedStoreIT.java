@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
+import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -38,6 +39,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
+
+import java.util.Set;
 
 class FederatedStoreIT {
 
@@ -133,6 +136,33 @@ class FederatedStoreIT {
         assertThatExceptionOfType(OperationException.class)
             .isThrownBy(() -> federatedStore.execute(mixedChain, new Context()))
             .withMessageContaining("Please submit each type separately");
+    }
+
+    @Test
+    void shouldAddAndGetAllGraphs() throws StoreException, OperationException {
+        // Given
+        final String federatedGraphId = "federated";
+        final String graphId = "newGraph";
+
+        // AddGraph operation
+        final AddGraph addGraph = new AddGraph.Builder()
+                .graphConfig(new GraphConfig(graphId))
+                .schema(new Schema())
+                .properties(new java.util.Properties())
+                .build();
+
+        // GetAllGraphIds operation
+        final GetAllGraphIds getAllGraphIds = new GetAllGraphIds();
+
+        // When
+        final FederatedStore federatedStore = new FederatedStore();
+        federatedStore.initialise(federatedGraphId, null, new StoreProperties());
+
+        federatedStore.execute(addGraph, new Context());
+        final Set<String> graphIds = federatedStore.execute(getAllGraphIds, new Context());
+
+        assertThat(graphIds).containsExactly(graphId);
+
     }
 
 }
