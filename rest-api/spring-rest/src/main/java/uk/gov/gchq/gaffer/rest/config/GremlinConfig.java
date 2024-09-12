@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.config;
 
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -39,20 +40,43 @@ public class GremlinConfig {
      */
     private static final String DEFAULT_PROPERTIES = "/gaffer/gafferpop.properties";
 
+    /**
+     * Default timeout for executing gremlin queries (2 min)
+     */
+    private static final Long DEFAULT_REQUEST_TIMEOUT = 120000L;
+
+    private static final String REQUEST_TIMEOUT_KEY = "gaffer.rest.timeout";
+
     @Bean
     public GraphTraversalSource graphTraversalSource(final GraphFactory graphFactory) throws Exception {
+        // Obtain the graph traversal
+        try (Graph graph = GafferPopGraph.open(findPropertiesFile(graphFactory), graphFactory.getGraph())) {
+            return graph.traversal();
+        } catch (final ConfigurationException e) {
+            LOGGER.error("Error loading GafferPop config, Gremlin will be unavailable: {}", e.getMessage());
+            return EmptyGraph.instance().traversal();
+        }
+    }
+
+    @Bean
+    public Long requestTimeout(final GraphFactory graphFactory) throws ConfigurationException {
+        return findPropertiesFile(graphFactory).getLong(REQUEST_TIMEOUT_KEY, DEFAULT_REQUEST_TIMEOUT);
+    }
+
+    /**
+     * Finds and loads the correct config file for gafferpop.
+     *
+     * @param graphFactory The graph factory.
+     * @return Loaded properties from file.
+     * @throws ConfigurationException If problem loading.
+     */
+    private PropertiesConfiguration findPropertiesFile(final GraphFactory graphFactory) throws ConfigurationException {
         // Determine where to look for the GafferPop properties
         String gafferPopProperties = graphFactory.getGraph().getStoreProperties().get(GafferPopGraph.GAFFERPOP_PROPERTIES);
         if (gafferPopProperties == null) {
             LOGGER.warn("GafferPop properties file was not specified. Using default location: {}", DEFAULT_PROPERTIES);
             gafferPopProperties = DEFAULT_PROPERTIES;
         }
-        // Obtain the graph traversal
-        try (Graph graph = GafferPopGraph.open(new Configurations().properties(gafferPopProperties), graphFactory.getGraph())) {
-            return graph.traversal();
-        } catch (final ConfigurationException e) {
-            LOGGER.error("Error loading GafferPop config, Gremlin will be unavailable: {}", e.getMessage());
-            return EmptyGraph.instance().traversal();
-        }
+        return new Configurations().properties(gafferPopProperties);
     }
 }
