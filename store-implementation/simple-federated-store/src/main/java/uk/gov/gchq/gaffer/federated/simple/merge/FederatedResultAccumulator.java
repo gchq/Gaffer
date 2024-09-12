@@ -16,6 +16,11 @@
 
 package uk.gov.gchq.gaffer.federated.simple.merge;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federated.simple.merge.operator.ElementAggregateOperator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.binaryoperator.And;
@@ -26,20 +31,56 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import java.util.Collection;
 import java.util.function.BinaryOperator;
 
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_MERGE_ELEMENTS;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_BOOLEAN;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_COLLECTION;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_ELEMENTS;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_NUMBER;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_STRING;
+
 /**
  * Abstract base class for accumulators that merge results from multiple
  * graphs together. Has default operators set for common data types.
  */
 public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedResultAccumulator.class);
+
     // Default merge operators for different data types
     protected BinaryOperator<Number> numberMergeOperator = new Sum();
     protected BinaryOperator<String> stringMergeOperator = new StringConcat();
     protected BinaryOperator<Boolean> booleanMergeOperator = new And();
     protected BinaryOperator<Collection<Object>> collectionMergeOperator = new CollectionConcat<>();
-    protected ElementAggregateOperator elementAggregateOperator = new ElementAggregateOperator();
+    protected BinaryOperator<Iterable<Element>> elementAggregateOperator = new ElementAggregateOperator();
 
     // Should the element aggregation operator be used, can be slower so disabled by default
     protected boolean aggregateElements = false;
+
+    protected FederatedResultAccumulator() {
+        // Construct with defaults
+    }
+
+    protected FederatedResultAccumulator(final FederatedStoreProperties properties) {
+        // Use the store properties to configure the merging
+        if (properties.containsKey(PROP_MERGE_CLASS_NUMBER)) {
+            numberMergeOperator = loadMergeClass(numberMergeOperator, properties.get(PROP_MERGE_CLASS_NUMBER));
+        }
+        if (properties.containsKey(PROP_MERGE_CLASS_STRING)) {
+            stringMergeOperator = loadMergeClass(stringMergeOperator, properties.get(PROP_MERGE_CLASS_STRING));
+        }
+        if (properties.containsKey(PROP_MERGE_CLASS_BOOLEAN)) {
+            booleanMergeOperator = loadMergeClass(booleanMergeOperator, properties.get(PROP_MERGE_CLASS_BOOLEAN));
+        }
+        if (properties.containsKey(PROP_MERGE_CLASS_COLLECTION)) {
+            collectionMergeOperator = loadMergeClass(collectionMergeOperator, properties.get(PROP_MERGE_CLASS_COLLECTION));
+        }
+        if (properties.containsKey(PROP_MERGE_CLASS_ELEMENTS)) {
+            elementAggregateOperator = loadMergeClass(elementAggregateOperator, properties.get(PROP_MERGE_CLASS_ELEMENTS));
+        }
+        // Should we do element aggregation by default
+        if (properties.containsKey(PROP_DEFAULT_MERGE_ELEMENTS)) {
+            aggregateElements(Boolean.parseBoolean(properties.get(PROP_DEFAULT_MERGE_ELEMENTS)));
+        }
+    }
 
     /**
      * Set whether the element aggregation operator should be used. This will
@@ -52,11 +93,33 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
     }
 
     /**
+     * Access to see if this accumulator is set to try element aggregation or
+     * not.
+     *
+     * @return Is aggregation set.
+     */
+    public boolean getAggregateElements() {
+        return aggregateElements;
+    }
+
+    /**
      * Sets the schema to use for the {@link ElementAggregateOperator}.
      *
      * @param schema The schema.
      */
     public void setSchema(final Schema schema) {
-        elementAggregateOperator.setSchema(schema);
+        ((ElementAggregateOperator) elementAggregateOperator).setSchema(schema);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <I> BinaryOperator<I> loadMergeClass(final BinaryOperator<I> originalOperator, final String clazzName) {
+        BinaryOperator<I> mergeOperator = originalOperator;
+        try {
+            Class<?> clazz = Class.forName(clazzName);
+            mergeOperator = (BinaryOperator<I>) clazz.newInstance();
+        } catch (final ClassCastException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            LOGGER.warn("Failed to load alternative merge function: {} The default will be used instead.", clazzName);
+        }
+        return mergeOperator;
     }
 }
