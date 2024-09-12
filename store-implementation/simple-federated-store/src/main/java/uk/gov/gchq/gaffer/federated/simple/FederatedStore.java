@@ -61,7 +61,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -209,7 +208,7 @@ public class FederatedStore extends Store {
         }
         super.initialise(graphId, new Schema(), properties);
 
-        graphCache = new Cache<>("federatedGraphCache-" + UUID.randomUUID().toString());
+        graphCache = new Cache<>("federatedGraphCache-" + graphId);
     }
 
     @Override

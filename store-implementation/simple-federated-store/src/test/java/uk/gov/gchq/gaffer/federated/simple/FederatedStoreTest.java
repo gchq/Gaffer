@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.federated.simple;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
@@ -31,6 +33,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class FederatedStoreTest {
+
+    @AfterEach
+    void reset() {
+        CacheServiceLoader.shutdown();
+    }
 
     @Test
     void shouldInitialiseNewStore() throws StoreException {

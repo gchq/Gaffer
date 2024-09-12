@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.federated.simple.operation;
 
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
@@ -38,6 +40,11 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import java.util.Properties;
 
 class AddGraphTest {
+
+    @AfterEach
+    void reset() {
+        CacheServiceLoader.shutdown();
+    }
 
     @Test
     void shouldAddGraphUsingBuilder() throws StoreException, OperationException, CacheOperationException {

@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -37,6 +39,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class RemoveGraphTest {
+
+    @AfterEach
+    void reset() {
+        CacheServiceLoader.shutdown();
+    }
 
     @Test
     void shouldRemoveGraphAndPreserveData() throws StoreException, OperationException {
