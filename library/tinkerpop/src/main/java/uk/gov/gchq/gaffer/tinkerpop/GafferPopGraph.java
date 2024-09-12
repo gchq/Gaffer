@@ -57,6 +57,7 @@ import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopHasStepStrategy;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopVertexStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferCustomTypeFactory;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.user.User;
@@ -288,7 +289,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         // Add and register custom traversals
         TraversalStrategies traversalStrategies = GlobalCache.getStrategies(this.getClass()).addStrategies(
                 GafferPopGraphStepStrategy.instance(),
-                GafferPopHasStepStrategy.instance());
+                GafferPopHasStepStrategy.instance(),
+                GafferPopVertexStepStrategy.instance());
         GlobalCache.registerStrategies(this.getClass(), traversalStrategies);
     }
 
@@ -945,10 +947,13 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             List<Object> edgeIdList = new LinkedList<>();
             // Extract Vertex ID
             if (id instanceof Vertex) {
-                seeds.add(new EntitySeed(((Vertex) id).id()));
+                Object parsedId = GafferCustomTypeFactory.parseAsCustomTypeIfValid(((Vertex) id).id());
+                seeds.add(new EntitySeed(parsedId));
             // Extract Edge ID
             } else if (id instanceof Edge) {
-                seeds.add(new EdgeSeed(((Edge) id).outVertex().id(), ((Edge) id).inVertex().id()));
+                Object src = GafferCustomTypeFactory.parseAsCustomTypeIfValid(((Edge) id).outVertex().id());
+                Object target = GafferCustomTypeFactory.parseAsCustomTypeIfValid(((Edge) id).inVertex().id());
+                seeds.add(new EdgeSeed(src, target));
             // Extract source and destination from ID list
             } else if (id instanceof Iterable) {
                 ((Iterable<?>) id).forEach(edgeIdList::add);
