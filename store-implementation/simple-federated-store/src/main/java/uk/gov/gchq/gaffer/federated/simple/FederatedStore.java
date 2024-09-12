@@ -53,12 +53,15 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_GRAPH_IDS;
 
 /**
  * The federated store implementation. Provides the set up and required
@@ -193,6 +196,12 @@ public class FederatedStore extends Store {
             throw new IllegalArgumentException("Federated store should not be initialised with a Schema");
         }
         super.initialise(graphId, new Schema(), properties);
+
+        // Get and set default graph IDs from properties
+        if (properties.containsKey(PROP_DEFAULT_GRAPH_IDS)) {
+            // Parse as comma separated list
+            setDefaultGraphIds(Arrays.asList(properties.get(PROP_DEFAULT_GRAPH_IDS).split(",")));
+        }
     }
 
     @Override
@@ -267,5 +276,10 @@ public class FederatedStore extends Store {
     @Override
     protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
         return ToBytesSerialiser.class;
+    }
+
+    @Override
+    protected Class<FederatedStoreProperties> getPropertiesClass() {
+        return FederatedStoreProperties.class;
     }
 }
