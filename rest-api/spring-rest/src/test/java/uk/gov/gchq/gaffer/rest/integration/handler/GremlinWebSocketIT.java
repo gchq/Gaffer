@@ -80,6 +80,12 @@ class GremlinWebSocketIT {
         public AbstractUserFactory userFactory() {
             return new UnknownUserFactory();
         }
+
+        @Bean
+        @Profile("test")
+        public Long requestTimeout() {
+            return 30000L;
+        }
     }
 
     @LocalServerPort

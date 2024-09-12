@@ -52,6 +52,7 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 @Import(GremlinControllerTest.TestConfig.class)
 class GremlinControllerTest {
 
+    private static final String GREMLIN_EXECUTE_ENDPOINT = "/rest/gremlin/execute";
     private static final String GREMLIN_EXPLAIN_ENDPOINT = "/rest/gremlin/explain";
     private static final String CYPHER_EXPLAIN_ENDPOINT = "/rest/gremlin/cypher/explain";
 
@@ -67,6 +68,11 @@ class GremlinControllerTest {
         public AbstractUserFactory userFactory() {
             return new UnknownUserFactory();
         }
+
+        @Bean
+        public Long timeout() {
+            return 30000L;
+        }
     }
 
     @Autowired
@@ -74,6 +80,25 @@ class GremlinControllerTest {
 
     @Autowired
     private GraphTraversalSource g;
+
+    @Test
+    void shouldExecuteValidGremlinQuery() throws Exception {
+        String gremlinString = "g.V('" + MARKO.getId() + "').toList()";
+        // When
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders
+                    .post(GREMLIN_EXECUTE_ENDPOINT)
+                    .content(gremlinString)
+                    .contentType(TEXT_PLAIN_VALUE))
+            .andReturn();
+
+        // Then
+        // Ensure OK response
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+
+        // Get and check response
+        assertThat(result.getResponse().getContentAsString()).isEqualTo("[v[" + MARKO.getId() + "]]");
+    }
 
     @Test
     void shouldReturnExplainOfValidGremlinQuery() throws Exception {
