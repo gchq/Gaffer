@@ -47,7 +47,6 @@ public final class GafferVertexUtils {
      * @param graph The GafferPop graph being queried
      * @param vertexIds The vertexIds that have been used as seeds in the query
      * @return Iterable of 'orphan' {@link Vertex}'s
-     *
      */
 
     public static Iterable<Vertex> getOrphanVertices(final Iterable<? extends Element> result, final GafferPopGraph graph, final Object... vertexIds) {
