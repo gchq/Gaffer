@@ -59,6 +59,7 @@ import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.Gaff
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopHasStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopVertexStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferCustomTypeFactory;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferVertexUtils;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.iterable.MappedIterable;
@@ -408,6 +409,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public Iterator<Vertex> vertices(final Object... vertexIds) {
         final boolean getAll = null == vertexIds || 0 == vertexIds.length;
         final OperationChain<Iterable<? extends Element>> getOperation;
+        final Iterable<Vertex> orphanVertices;
 
         if (getAll) {
             LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
@@ -421,7 +423,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             getOperation = new Builder()
                 .first(new GetElements.Builder()
                     .input(getElementSeeds(Arrays.asList(vertexIds)))
-                    .view(createAllEntitiesView())
                     .build())
                 .build();
         }
@@ -441,7 +442,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 "Result size is equal to configured limit ({}). Results may have been truncated",
                 variables.getAllElementsLimit());
         }
-        return translatedResults.iterator();
+
+        // Check for seeds that are not entities but are vertices on an edge (orphan vertices)
+        orphanVertices = GafferVertexUtils.getOrphanVertices(result, this, vertexIds);
+        Iterable<Vertex> chainedIterable = IterableUtils.chainedIterable(translatedResults, orphanVertices);
+
+        return chainedIterable.iterator();
     }
 
     /**
