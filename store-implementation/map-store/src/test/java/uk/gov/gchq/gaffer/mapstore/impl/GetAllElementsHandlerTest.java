@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.jupiter.api.Test;
@@ -29,10 +30,12 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -44,6 +47,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -57,7 +61,16 @@ public class GetAllElementsHandlerTest {
     static final String PROPERTY1 = "property1";
     static final String PROPERTY2 = "property2";
     static final String COUNT = "count";
+    public static final Context CONTEXT = new Context(new User("user"));
     private static final int NUM_LOOPS = 10;
+    public static final String EXPECTED = "{\n" +
+            "  \"class\" : \"uk.gov.gchq.gaffer.data.element.Edge\",\n" +
+            "  \"group\" : \"BasicEdge\",\n" +
+            "  \"source\" : \"A\",\n" +
+            "  \"destination\" : \"B\",\n" +
+            "  \"directed\" : false,\n" +
+            "  \"properties\" : { }\n" +
+            "}";
 
     @Test
     public void testAddAndGetAllElementsNoAggregation() throws StoreException, OperationException {
@@ -510,4 +523,36 @@ public class GetAllElementsHandlerTest {
                 new GetAllElements.Builder().build(),
                 VisibilityTest::elementIterableResultConsumer);
     }
+
+    @Test
+    public void getAllElementsOperationShouldNotContainMatchedVertex() throws Exception {
+        final Edge edge = new Edge.Builder()
+                .group(BASIC_EDGE1)
+                .source("A")
+                .dest("B")
+                .build();
+
+        Graph mapStoreGraph = getMapStoreGraph();
+
+        mapStoreGraph.execute(new AddElements.Builder()
+                .input(edge)
+                .build(), CONTEXT);
+
+        Iterable<? extends Element> results = mapStoreGraph.execute(new GetAllElements.Builder()
+                .build(), CONTEXT);
+        final List<Element> list = Streams.toStream(results).collect(Collectors.toList());
+
+        assertThat(new String(JSONSerialiser.serialise(list.get(0), true))).isEqualTo(EXPECTED);
+        assertThat(new String(JSONSerialiser.serialise(list.get(0), true))).doesNotContain("matchedVertex");
+
+    }
+
+    private Graph getMapStoreGraph() {
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder().graphId("store1").build())
+                .addSchema(getSchema())
+                .storeProperties(new MapStoreProperties())
+                .build();
+    }
+
 }
