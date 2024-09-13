@@ -83,7 +83,7 @@ class GremlinWebSocketIT {
 
         @Bean
         @Profile("test")
-        public Long requestTimeout() {
+        public Long timeout() {
             return 30000L;
         }
     }

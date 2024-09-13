@@ -98,6 +98,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      *
      * @param g The graph traversal source
      * @param userFactory The user factory
+     * @param requestTimeout The timeout for gremlin requests
      */
     public GremlinWebSocketHandler(final GraphTraversalSource g, final AbstractUserFactory userFactory, final Long requestTimeout) {
         bindings.putIfAbsent("g", g);
@@ -148,12 +149,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
         // Execute the query
         try (Scope scope = span.makeCurrent();
-                GremlinExecutor gremlinExecutor = GremlinExecutor.build()
-                        .globalBindings(bindings)
-                        .addPlugins("gremlin-groovy", plugins)
-                        .evaluationTimeout(requestTimeout)
-                        .executorService(executorService)
-                        .create()) {
+                GremlinExecutor gremlinExecutor = getGremlinExecutor()) {
             // Set current headers for potential authorisation then set the user
             userFactory.setHttpHeaders(session.getHandshakeHeaders());
             graph.variables().set(GafferPopGraphVariables.USER, userFactory.createUser());
@@ -242,6 +238,21 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
             byteBuffer.get(byteArray);
             return Unpooled.wrappedBuffer(byteArray);
         }
+    }
+
+    /**
+     * Returns a new gremlin executor. It's the responsibility of the caller to
+     * ensure it is closed.
+     *
+     * @return Gremlin executor.
+     */
+    private GremlinExecutor getGremlinExecutor() {
+        return GremlinExecutor.build()
+                .globalBindings(bindings)
+                .addPlugins("gremlin-groovy", plugins)
+                .evaluationTimeout(requestTimeout)
+                .executorService(executorService)
+                .create();
     }
 
 }
