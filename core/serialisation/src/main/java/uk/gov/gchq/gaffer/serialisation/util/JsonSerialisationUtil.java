@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.gov.gchq.gaffer.serialisation.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -74,15 +73,15 @@ public final class JsonSerialisationUtil {
         final BeanDescription introspection = mapper.getSerializationConfig()
                 .introspect(type);
 
-        Class<?> builder = introspection.findPOJOBuilder();
+        final Class<?> builder = introspection.findPOJOBuilder();
         String buildMethodPrefix = "with";
-
         if (null != builder) {
             JsonPOJOBuilder anno = findAnnotation(builder, JsonPOJOBuilder.class);
             if (null != anno) {
                 buildMethodPrefix = anno.withPrefix();
             }
         }
+
         Constructor<?> creator = null;
         for (final Constructor<?> constructor : type.getRawClass().getDeclaredConstructors()) {
             final JsonCreator anno = constructor.getAnnotation(JsonCreator.class);
@@ -104,7 +103,7 @@ public final class JsonSerialisationUtil {
                 Type genericType = null;
                 if (null != builder) {
                     final String methodName = buildMethodPrefix + propName;
-                        Method matchedMethod = null;
+                    Method matchedMethod = null;
                     for (final Method method : builder.getMethods()) {
                         if (methodName.equalsIgnoreCase(method.getName())) {
                             final Type[] params = method.getGenericParameterTypes();
@@ -167,7 +166,6 @@ public final class JsonSerialisationUtil {
 
         return fieldMap;
     }
-
 
     /**
      * Get the string representation of a type of an object.
