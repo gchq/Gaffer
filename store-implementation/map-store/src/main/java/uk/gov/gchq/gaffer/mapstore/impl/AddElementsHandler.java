@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,9 +149,10 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             mapImpl.addIndex(entitySeed, element);
         } else {
             final Edge edge = (Edge) element;
-            edge.setIdentifiers(edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeSeed.MatchedVertex.SOURCE);
+            final Edge sourceMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeSeed.MatchedVertex.SOURCE, edge.getProperties());
+
             final EntitySeed sourceEntitySeed = new EntitySeed(edge.getSource());
-            mapImpl.addIndex(sourceEntitySeed, edge);
+            mapImpl.addIndex(sourceEntitySeed, sourceMatchedEdge);
 
             final Edge destMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeSeed.MatchedVertex.DESTINATION, edge.getProperties());
             final EntitySeed destinationEntitySeed = new EntitySeed(edge.getDestination());
