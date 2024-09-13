@@ -210,6 +210,7 @@ public class FederatedStore extends Store {
         }
         super.initialise(graphId, new Schema(), properties);
 
+        // Init the cache for graphs
         graphCache = new Cache<>("federatedGraphCache-" + graphId);
 
         // Get and set default graph IDs from properties
