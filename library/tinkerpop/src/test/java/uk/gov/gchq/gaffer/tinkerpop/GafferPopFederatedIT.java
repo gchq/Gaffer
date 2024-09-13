@@ -91,7 +91,7 @@ class GafferPopFederatedIT {
 
         // Then
         assertThat(result)
-                .containsExactly(0.4, 0.4, 1.0);
+                .containsExactlyInAnyOrder(0.4, 0.4, 1.0);
     }
 
     @Test

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation.handler;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -113,8 +114,9 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      * @param store The federated store.
      * @param operation The operation to execute.
      * @return List of {@link GraphSerialisable}s to execute on.
+     * @throws OperationException Fail to get Graphs.
      */
-    protected List<GraphSerialisable> getGraphsToExecuteOn(final FederatedStore store, final Operation operation) {
+    protected List<GraphSerialisable> getGraphsToExecuteOn(final FederatedStore store, final Operation operation) throws OperationException {
         List<String> graphIds = store.getDefaultGraphIds();
         List<GraphSerialisable> graphsToExecute = new LinkedList<>();
         // If user specified graph IDs for this chain parse as comma separated list
@@ -124,10 +126,15 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
             graphIds = Arrays.asList(operation.getOption(OPT_SHORT_GRAPH_IDS).split(","));
         }
 
-        // Get the corresponding graph serialisable
-        for (final String id : graphIds) {
-            graphsToExecute.add(store.getGraph(id));
+        try {
+            // Get the corresponding graph serialisable
+            for (final String id : graphIds) {
+                graphsToExecute.add(store.getGraph(id));
+            }
+        } catch (final CacheOperationException e) {
+            throw new OperationException("Failed to get Graphs from cache", e);
         }
+
 
         // Keep graphs sorted so results returned are predictable between runs
         Collections.sort(graphsToExecute, (g1, g2) -> g1.getGraphId().compareTo(g2.getGraphId()));
