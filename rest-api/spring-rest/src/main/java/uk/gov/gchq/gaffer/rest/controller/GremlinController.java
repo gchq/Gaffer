@@ -268,7 +268,6 @@ public class GremlinController {
      * @return A pair tuple with result and explain in.
      */
     private Tuple2<Object, JSONObject> runGremlinQuery(final String gremlinQuery) {
-        LOGGER.info("QUERY IS: {} ", gremlinQuery);
         GafferPopGraph gafferPopGraph = (GafferPopGraph) graph;
 
         // OpenTelemetry hooks
