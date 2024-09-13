@@ -16,6 +16,10 @@
 
 package uk.gov.gchq.gaffer.federated.simple;
 
+import uk.gov.gchq.gaffer.cache.Cache;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -61,6 +65,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_GRAPH_IDS;
 
 /**
@@ -69,12 +74,13 @@ import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_
  * to sub graphs then merge the result.
  */
 public class FederatedStore extends Store {
+    private static final String DEFAULT_CACHE_CLASS_FALLBACK = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
 
     // Default graph IDs to execute on
     private List<String> defaultGraphIds = new LinkedList<>();
 
-    // Cached list of available graphs
-    private final List<GraphSerialisable> graphs = new LinkedList<>();
+    // Gaffer cache of available graphs
+    private Cache<String, GraphSerialisable> graphCache;
 
     // Store specific handlers
     public final Map<Class<? extends Operation>, OperationHandler<?>> storeHandlers = Stream.of(
@@ -92,24 +98,31 @@ public class FederatedStore extends Store {
      * @throws IllegalArgumentException If there is already a graph with the supplied ID
      */
     public void addGraph(final GraphSerialisable graph) {
-        // Make sure graph ID doesn't already exist
-        if (graphs.stream().map(GraphSerialisable::getGraphId).anyMatch(id -> id.equals(graph.getGraphId()))) {
+        try {
+            // Add safely to the cache
+            graphCache.getCache().putSafe(graph.getGraphId(), graph);
+        } catch (final CacheOperationException e) {
+            // Unknown issue adding to cache
+            throw new GafferRuntimeException(e.getMessage(), e);
+        } catch (final OverwritingException e) {
+            // Notify that the graph ID is already in use
             throw new IllegalArgumentException(
-                "A graph with Graph ID: '" + graph.getGraphId() + "' has already been added to this store");
+                "A graph with Graph ID: '" + graph.getGraphId() + "' has already been added to this store", e);
         }
-        graphs.add(new GraphSerialisable(graph.getConfig(), graph.getSchema(), graph.getStoreProperties()));
     }
 
     /**
      * Remove a graph from the scope of this store.
      *
      * @param graphId The graph ID of the graph to remove.
-     *
-     * @throws IllegalArgumentException If graph not found.
+     * @throws IllegalArgumentException If graph does not exist.
      */
     public void removeGraph(final String graphId) {
-        GraphSerialisable graphToRemove = getGraph(graphId);
-        graphs.remove(graphToRemove);
+        if (!graphCache.contains(graphId)) {
+            throw new IllegalArgumentException(
+                "Graph with Graph ID: '" + graphId + "' is not available to this federated store");
+        }
+        graphCache.deleteFromCache(graphId);
     }
 
     /**
@@ -118,25 +131,25 @@ public class FederatedStore extends Store {
      *
      * @param graphId The graph ID
      * @return The {@link GraphSerialisable} relating to the ID.
-     *
+     * @throws CacheOperationException If issue getting from cache.
      * @throws IllegalArgumentException If graph not found.
      */
-    public GraphSerialisable getGraph(final String graphId) {
-        for (final GraphSerialisable graph : graphs) {
-            if (graph.getGraphId().equals(graphId)) {
-                return graph;
-            }
+    public GraphSerialisable getGraph(final String graphId) throws CacheOperationException {
+        GraphSerialisable graph = graphCache.getFromCache(graphId);
+        if (graph == null) {
+            throw new IllegalArgumentException(
+                "Graph with Graph ID: '" + graphId + "' is not available to this federated store");
         }
-        throw new IllegalArgumentException("Graph with Graph ID: '" + graphId + "' is not available to this federated store");
+        return graph;
     }
 
     /**
-     * Returns a list of all the graphs available to this store.
+     * Returns all the graphs available to this store.
      *
-     * @return List of {@link GraphSerialisable}s
+     * @return Iterable of {@link GraphSerialisable}s
      */
-    public List<GraphSerialisable> getAllGraphs() {
-        return graphs;
+    public Iterable<GraphSerialisable> getAllGraphs() {
+        return graphCache.getCache().getAllValues();
     }
 
     /**
@@ -196,6 +209,8 @@ public class FederatedStore extends Store {
             throw new IllegalArgumentException("Federated store should not be initialised with a Schema");
         }
         super.initialise(graphId, new Schema(), properties);
+
+        graphCache = new Cache<>("federatedGraphCache-" + graphId);
 
         // Get and set default graph IDs from properties
         if (properties.containsKey(PROP_DEFAULT_GRAPH_IDS)) {
@@ -281,5 +296,17 @@ public class FederatedStore extends Store {
     @Override
     protected Class<FederatedStoreProperties> getPropertiesClass() {
         return FederatedStoreProperties.class;
+    }
+
+    @Override
+    protected void startCacheServiceLoader(final StoreProperties properties) {
+        super.startCacheServiceLoader(properties);
+        // If default not setup then initialise cache as its needed for storing graphs
+        if (!CacheServiceLoader.isDefaultEnabled()) {
+            CacheServiceLoader.initialise(
+                DEFAULT_SERVICE_NAME,
+                DEFAULT_CACHE_CLASS_FALLBACK,
+                properties.getProperties());
+        }
     }
 }

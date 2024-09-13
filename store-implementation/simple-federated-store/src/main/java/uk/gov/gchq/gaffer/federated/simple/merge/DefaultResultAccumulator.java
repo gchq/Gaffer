@@ -84,7 +84,9 @@ public class DefaultResultAccumulator<T> extends FederatedResultAccumulator<T> {
             }
 
             // By default just chain iterables together
-            return (T) IterableUtils.chainedIterable((Iterable<?>) state, updateIterable);
+            // (need to use the iterator to make sure the FluentIterable under the hood serialises correctly)
+            Iterable<Object> chained = () -> IterableUtils.chainedIterable((Iterable<?>) state, updateIterable).iterator();
+            return (T) chained;
         }
 
         return update;
