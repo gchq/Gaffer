@@ -24,9 +24,10 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.BinaryOperator;
-import java.util.stream.StreamSupport;
+import java.util.stream.Collectors;
 
 /**
  * Operator for aggregating two iterables of {@link Element}s together, this
@@ -50,60 +51,42 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
     @Override
     public Iterable<Element> apply(final Iterable<Element> update, final Iterable<Element> state) {
         // Just append the state and update so we can loop over it to do accurate merging
-        Iterable<Element> chainedMerge = IterableUtils.chainedIterable(update, state);
+        // We can't use the original iterators directly in case they close or become exhausted so save to a Set first.
+        Set<Element> chainedResult = new HashSet<>(IterableUtils.toList(IterableUtils.chainedIterable(update, state)));
 
-        // Custom merge iterable for lazy processing
-        Iterable<Element> mergeIterable = () ->
-            new Iterator<Element>() {
-                // An iterator over the chained state and update iterables gives an accurate hasNext
-                Iterator<Element> chainedMergeIterator = chainedMerge.iterator();
-
-                @Override
-                public boolean hasNext() {
-                    return chainedMergeIterator.hasNext();
+        // Iterate over the chained result to merge the elements with each other
+        // Collect to a set to ensure deduplication
+        return chainedResult.stream()
+            .map(e -> {
+                Element result = e;
+                // Set up the aggregator for this group based on the schema
+                ElementAggregator aggregator = new ElementAggregator();
+                if (schema != null) {
+                    aggregator = schema.getElement(e.getGroup()).getIngestAggregator();
                 }
-
-                @Override
-                public Element next() {
-                    // When requested do element aggregation on for the current element if required
-                    Element current = chainedMergeIterator.next();
-                    Element result = current;
-
-                    // Set up the aggregator for this group based on the schema
-                    ElementAggregator aggregator = new ElementAggregator();
-                    if (schema != null) {
-                        aggregator = schema.getElement(current.getGroup()).getIngestAggregator();
+                // Compare the current element with all others to do a full merge
+                for (final Element inner : chainedResult) {
+                    // No merge required if not in same group
+                    if (!e.getGroup().equals(inner.getGroup())) {
+                        continue;
                     }
 
-                    // Compare the current element with all others to do a full merge
-                    for (final Element inner : chainedMerge) {
-                        // No merge required if not in same group
-                        if (!current.getGroup().equals(inner.getGroup())) {
-                            continue;
-                        }
-
-                        if ((current instanceof Entity)
-                                && (inner instanceof Entity)
-                                && ((Entity) current).getVertex().equals(((Entity) inner).getVertex())) {
-                            result = aggregator.apply(inner, result);
-
-                        }
-
-                        if ((current instanceof Edge)
-                                && (inner instanceof Edge)
-                                && ((Edge) current).getSource().equals(((Edge) inner).getSource())
-                                && ((Edge) current).getDestination().equals(((Edge) inner).getDestination())) {
-                            result = aggregator.apply(inner, result);
-                        }
+                    if ((e instanceof Entity)
+                            && (inner instanceof Entity)
+                            && ((Entity) e).getVertex().equals(((Entity) inner).getVertex())) {
+                        result = aggregator.apply(inner, result);
                     }
-                    return result;
-                }
-            };
 
-        // Use stream to dedupe the merged result
-        return () -> StreamSupport.stream(mergeIterable.spliterator(), false)
-                .distinct()
-                .iterator();
+                    if ((e instanceof Edge)
+                            && (inner instanceof Edge)
+                            && ((Edge) e).getSource().equals(((Edge) inner).getSource())
+                            && ((Edge) e).getDestination().equals(((Edge) inner).getDestination())) {
+                        result = aggregator.apply(inner, result);
+                    }
+                }
+                return result;
+            })
+            .collect(Collectors.toSet());
     }
 
 }
