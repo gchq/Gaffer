@@ -17,8 +17,11 @@
 package uk.gov.gchq.gaffer.federated.simple.operation;
 
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -38,8 +41,13 @@ import java.util.Properties;
 
 class AddGraphTest {
 
+    @AfterEach
+    void reset() {
+        CacheServiceLoader.shutdown();
+    }
+
     @Test
-    void shouldAddGraphUsingBuilder() throws StoreException, OperationException {
+    void shouldAddGraphUsingBuilder() throws StoreException, OperationException, CacheOperationException {
         // Given
         final String federatedGraphId = "federated";
         final String graphId = "newGraph";
@@ -75,7 +83,7 @@ class AddGraphTest {
     }
 
     @Test
-    void shouldAddGraphUsingJSONSerialisation() throws StoreException, OperationException, SerialisationException {
+    void shouldAddGraphUsingJSONSerialisation() throws StoreException, OperationException, SerialisationException, CacheOperationException {
         // Given
         final String federatedGraphId = "federated";
         final String graphId = "newGraph";
