@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federated.simple;
 
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -23,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -40,6 +42,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 class FederatedStoreIT {
@@ -163,6 +167,41 @@ class FederatedStoreIT {
 
         assertThat(graphIds).containsExactly(graphId);
 
+    }
+
+    @Test
+    void shouldAddAndGetAllGraphInfo() throws StoreException, OperationException {
+        // Given
+        FederatedStore store = new FederatedStore();
+
+        final String graphId1 = "graph1";
+        final String graphId2 = "graph2";
+
+        final Graph graph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
+        final Graph graph2 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.MAP);
+
+        // Init store and add graphs
+        store.initialise("federated", null, new StoreProperties());
+        store.execute(
+            new AddGraph.Builder()
+                .graphConfig(graph1.getConfig())
+                .schema(graph1.getSchema())
+                .properties(graph1.getStoreProperties().getProperties()).build(),
+            new Context());
+        store.execute(
+            new AddGraph.Builder()
+                .graphConfig(graph2.getConfig())
+                .schema(graph2.getSchema())
+                .properties(graph2.getStoreProperties().getProperties()).build(),
+            new Context());
+
+        // GetAllGraphInfo operation
+        final GetAllGraphInfo getAllGraphInfo = new GetAllGraphInfo();
+
+        final Map<String, Object> graphInfo = store.execute(getAllGraphInfo, new Context());
+
+        assertThat(graphInfo)
+            .contains(graphId1, graphId2, graph1.getStoreProperties().getProperties(), graph2.getStoreProperties().getProperties());
     }
 
 }

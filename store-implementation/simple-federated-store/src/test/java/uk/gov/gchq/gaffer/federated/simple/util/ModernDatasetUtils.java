@@ -38,6 +38,7 @@ public final class ModernDatasetUtils {
         return new Graph.Builder()
             .config(new GraphConfig.Builder()
                     .graphId(graphId)
+                    .description("Graph using the modern dataset")
                     .build())
             .storeProperties(getStoreProperties(storeType))
             .addSchemas(StreamUtil.openStreams(clazz, "/modern/schema"))
