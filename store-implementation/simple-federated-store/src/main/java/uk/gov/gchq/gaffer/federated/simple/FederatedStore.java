@@ -20,10 +20,14 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
+import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federated.simple.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOutputHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.add.AddGraphHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphIdsHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.RemoveGraphHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -72,7 +76,9 @@ public class FederatedStore extends Store {
     // Store specific handlers
     public final Map<Class<? extends Operation>, OperationHandler<?>> storeHandlers = Stream.of(
             new SimpleEntry<>(AddGraph.class, new AddGraphHandler()),
-            new SimpleEntry<>(GetSchema.class, new GetSchemaHandler()))
+            new SimpleEntry<>(GetAllGraphIds.class, new GetAllGraphIdsHandler()),
+            new SimpleEntry<>(GetSchema.class, new GetSchemaHandler()),
+            new SimpleEntry<>(RemoveGraph.class, new RemoveGraphHandler()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     /**
@@ -80,7 +86,7 @@ public class FederatedStore extends Store {
      *
      * @param graph The serialisable instance of the graph.
      *
-     * @throws IllegalArgumentException If already a graph wit the supplied ID
+     * @throws IllegalArgumentException If there is already a graph with the supplied ID
      */
     public void addGraph(final GraphSerialisable graph) {
         // Make sure graph ID doesn't already exist
@@ -89,6 +95,18 @@ public class FederatedStore extends Store {
                 "A graph with Graph ID: '" + graph.getGraphId() + "' has already been added to this store");
         }
         graphs.add(new GraphSerialisable(graph.getConfig(), graph.getSchema(), graph.getStoreProperties()));
+    }
+
+    /**
+     * Remove a graph from the scope of this store.
+     *
+     * @param graphId The graph ID of the graph to remove.
+     *
+     * @throws IllegalArgumentException If graph not found.
+     */
+    public void removeGraph(final String graphId) {
+        GraphSerialisable graphToRemove = getGraph(graphId);
+        graphs.remove(graphToRemove);
     }
 
     /**
@@ -107,6 +125,15 @@ public class FederatedStore extends Store {
             }
         }
         throw new IllegalArgumentException("Graph with Graph ID: '" + graphId + "' is not available to this federated store");
+    }
+
+    /**
+     * Returns a list of all the graphs available to this store.
+     *
+     * @return List of {@link GraphSerialisable}s
+     */
+    public List<GraphSerialisable> getAllGraphs() {
+        return graphs;
     }
 
     /**

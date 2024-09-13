@@ -54,7 +54,7 @@ class FederatedStoreTest {
     }
 
     @Test
-    void shouldAddGraphsViaStoreInterface() throws StoreException {
+    void shouldAddAndGetGraphsViaStoreInterface() throws StoreException {
         // Given
         final String federatedGraphId = "federated";
         final String graphId1 = "graph1";
@@ -76,13 +76,22 @@ class FederatedStoreTest {
         store.addGraph(graph2Serialisable);
 
         // Then
-        assertThat(store.getGraph(graphId1))
-            .isEqualTo(new GraphSerialisable(
+        assertThat(store.getGraph(graphId1)).isEqualTo(
+            new GraphSerialisable(
                 expectedGraph1.getConfig(),
                 expectedGraph1.getSchema(),
                 expectedGraph1.getStoreProperties()));
-        assertThat(store.getGraph(graphId2))
-            .isEqualTo(new GraphSerialisable(
+        assertThat(store.getGraph(graphId2)).isEqualTo(
+            new GraphSerialisable(
+                expectedGraph2.getConfig(),
+                expectedGraph2.getSchema(),
+                expectedGraph2.getStoreProperties()));
+        assertThat(store.getAllGraphs()).containsExactlyInAnyOrder(
+            new GraphSerialisable(
+                expectedGraph1.getConfig(),
+                expectedGraph1.getSchema(),
+                expectedGraph1.getStoreProperties()),
+            new GraphSerialisable(
                 expectedGraph2.getConfig(),
                 expectedGraph2.getSchema(),
                 expectedGraph2.getStoreProperties()));
