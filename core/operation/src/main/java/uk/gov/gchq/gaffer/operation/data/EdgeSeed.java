@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,6 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
                     final Object destination,
                     final DirectedType directed,
                     final MatchedVertex matchedVertex) {
-        this.matchedVertex = matchedVertex;
         this.source = source;
         this.destination = destination;
         this.directed = directed;
