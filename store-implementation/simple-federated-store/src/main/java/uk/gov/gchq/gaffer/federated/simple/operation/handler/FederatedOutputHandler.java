@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federated.simple.operation.handler;
 
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federated.simple.merge.DefaultResultAccumulator;
 import uk.gov.gchq.gaffer.federated.simple.merge.FederatedResultAccumulator;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -57,11 +58,12 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         }
 
         // Set up the result accumulator
-        FederatedResultAccumulator<O> resultAccumulator = new DefaultResultAccumulator<>();
+        FederatedResultAccumulator<O> resultAccumulator =
+            new DefaultResultAccumulator<>((FederatedStoreProperties) store.getProperties());
         resultAccumulator.setSchema(((FederatedStore) store).getSchema(graphsToExecute));
 
         if (operation.containsOption(OPT_AGGREGATE_ELEMENTS)) {
-            resultAccumulator.aggregateElements(Boolean.parseBoolean(operation.getOption(OPT_AGGREGATE_ELEMENTS)));
+            resultAccumulator.setAggregateElements(Boolean.parseBoolean(operation.getOption(OPT_AGGREGATE_ELEMENTS)));
         }
         // Should now have a list of <O> objects so need to reduce to just one
         return graphResults.stream().reduce(resultAccumulator::apply).orElse(graphResults.get(0));

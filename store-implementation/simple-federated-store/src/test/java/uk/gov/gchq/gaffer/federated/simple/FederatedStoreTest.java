@@ -16,8 +16,11 @@
 
 package uk.gov.gchq.gaffer.federated.simple;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -29,12 +32,19 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_GRAPH_IDS;
+
 class FederatedStoreTest {
+
+    @AfterEach
+    void reset() {
+        CacheServiceLoader.shutdown();
+    }
 
     @Test
     void shouldInitialiseNewStore() throws StoreException {
         String graphId = "federated";
-        StoreProperties properties = new StoreProperties();
+        FederatedStoreProperties properties = new FederatedStoreProperties();
         FederatedStore store = new FederatedStore();
         store.initialise(graphId, null, properties);
 
@@ -54,7 +64,21 @@ class FederatedStoreTest {
     }
 
     @Test
-    void shouldAddAndGetGraphsViaStoreInterface() throws StoreException {
+    void shouldSetDefaultGraphIds() throws StoreException {
+        final String graphId = "federated";
+        final String graphId1 = "graph1";
+        final String graphId2 = "graph2";
+        FederatedStoreProperties properties = new FederatedStoreProperties();
+        properties.set(PROP_DEFAULT_GRAPH_IDS, graphId1 + "," + graphId2);
+
+        FederatedStore store = new FederatedStore();
+        store.initialise(graphId, null, properties);
+
+        assertThat(store.getDefaultGraphIds()).containsExactlyInAnyOrder(graphId1, graphId2);
+    }
+
+    @Test
+    void shouldAddAndGetGraphsViaStoreInterface() throws StoreException, CacheOperationException {
         // Given
         final String federatedGraphId = "federated";
         final String graphId1 = "graph1";
