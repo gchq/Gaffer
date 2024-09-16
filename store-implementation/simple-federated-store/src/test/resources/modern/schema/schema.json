@@ -65,25 +65,25 @@
         "property.string": {
             "class": "java.lang.String",
             "aggregateFunction": {
-                "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+                "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Max"
             }
         },
         "property.integer": {
             "class": "java.lang.Integer",
             "aggregateFunction": {
-                "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+                "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
             }
         },
         "property.double": {
             "class": "java.lang.Double",
             "aggregateFunction": {
-                "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+                "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
             }
         },
         "property.float": {
             "class": "java.lang.Float",
             "aggregateFunction": {
-                "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+                "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
             }
         }
     }
