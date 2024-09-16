@@ -16,12 +16,9 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation;
 
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import org.apache.commons.lang3.exception.CloneFailedException;
-
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -29,9 +26,11 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.Map;
+
 @Since("2.4.0")
 @Summary("Get all the graph info from graphs in a federated store")
-public class GetAllGraphInfo implements Output<Map<String, Object>>{
+public class GetAllGraphInfo implements Output<Map<String, Object>> {
 
     private Map<String, String> options;
 

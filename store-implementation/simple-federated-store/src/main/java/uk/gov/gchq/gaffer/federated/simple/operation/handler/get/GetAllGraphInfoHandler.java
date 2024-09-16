@@ -34,14 +34,14 @@ public class GetAllGraphInfoHandler implements OutputOperationHandler<GetAllGrap
  * Simple handler for getting information about the graphs contained in the federated store
  */
     @Override
-    public Map<String, Object> doOperation(GetAllGraphInfo operation, Context context, Store store)
+    public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store)
         throws OperationException {
             // Get all the graphs in the federated store
             List<GraphSerialisable> graphList = ((FederatedStore) store).getAllGraphs();
 
             Map<String, Object> allGraphInfo = new HashMap<>();
 
-            for(final GraphSerialisable gs : graphList) {
+            for (final GraphSerialisable gs : graphList) {
                 // Get the various properties of the individual federated graphs
                 Map<String, Object> graphInfo = new HashMap<>();
                 graphInfo.put("graphDescription", gs.getConfig().getDescription());
