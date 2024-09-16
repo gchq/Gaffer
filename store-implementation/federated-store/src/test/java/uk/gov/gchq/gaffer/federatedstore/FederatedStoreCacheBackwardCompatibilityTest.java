@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.JcsCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -32,17 +33,22 @@ import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreCacheTransient.FEDERATED_STORE_CACHE_SERVICE_NAME;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_MAP;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.MAP_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_2;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_USER_ID;
 
 public class FederatedStoreCacheBackwardCompatibilityTest {
 
-    private static final String MAP_ID_1 = "mockMapGraphId1";
-
-    private static final String ADDING_USER_ID = "user1";
+    private static final String ADDING_USER_ID = AUTH_USER_ID;
+    private static final String BACKWARDS_COMPATABILITY_2_1_0 = "backwards_compatability_2.1.0";
+    public static final String GAFFER_2_1_0_CACHE_CACHE_CCF = "src/test/resources/gaffer-2.1.0-cache/cache.ccf";
     private static FederatedStoreCache federatedStoreCache;
 
     @AfterAll
@@ -55,30 +61,30 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
         resetForFederatedTests();
 
         Properties properties = new Properties();
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, JcsCacheService.class.getName());
         // Note that this config causes a binary resource file containing data to be loaded into the cache
         // This data includes MAP_ID_1 and user auths
-        properties.setProperty(CacheProperties.CACHE_CONFIG_FILE, "src/test/resources/gaffer-1.12.0-cache/cache.ccf");
+        properties.setProperty(CacheProperties.CACHE_CONFIG_FILE, GAFFER_2_1_0_CACHE_CACHE_CCF);
 
-        CacheServiceLoader.initialise(properties);
-        federatedStoreCache = new FederatedStoreCache();
+        CacheServiceLoader.initialise(FEDERATED_STORE_CACHE_SERVICE_NAME, JcsCacheService.class.getName(), properties);
+        federatedStoreCache = new FederatedStoreCache(BACKWARDS_COMPATABILITY_2_1_0);
 
-        new Graph.Builder().config(new GraphConfig(MAP_ID_1))
-                .addStoreProperties(loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES))
+        new Graph.Builder().config(new GraphConfig(GRAPH_ID_MAP))
+                .addStoreProperties(loadStoreProperties(MAP_STORE_SINGLE_USE_PROPERTIES))
                 .addSchema(loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON))
                 .build();
     }
 
     @Test
-    public void shouldReturnExpectedFederatedAccessUsingCacheDataFromVersion1_12() {
-        final Set<String> graphAuths = new HashSet<>(asList("auth1", "auth2"));
+    public void shouldReturnExpectedFederatedAccessUsingCacheDataFromVersion2() throws CacheOperationException {
+        final Set<String> graphAuths = new HashSet<>(asList(AUTH_1, AUTH_2));
 
         final FederatedAccess access = new FederatedAccess(graphAuths, ADDING_USER_ID);
-        final FederatedAccess accessFromCacheVersion1_12 = federatedStoreCache.getAccessFromCache(MAP_ID_1);
 
-        assertEquals(access.getReadAccessPredicate(), accessFromCacheVersion1_12.getReadAccessPredicate());
-        assertEquals(access.getWriteAccessPredicate(), accessFromCacheVersion1_12.getWriteAccessPredicate());
-        assertEquals(access.getOrDefaultReadAccessPredicate(), accessFromCacheVersion1_12.getOrDefaultReadAccessPredicate());
-        assertEquals(access.getOrDefaultWriteAccessPredicate(), accessFromCacheVersion1_12.getOrDefaultWriteAccessPredicate());
+        final FederatedAccess accessFromCacheVersion2_1 = federatedStoreCache.getAccessFromCache(GRAPH_ID_MAP);
+
+        assertEquals(access.getReadAccessPredicate(), accessFromCacheVersion2_1.getReadAccessPredicate());
+        assertEquals(access.getWriteAccessPredicate(), accessFromCacheVersion2_1.getWriteAccessPredicate());
+        assertEquals(access.getOrDefaultReadAccessPredicate(), accessFromCacheVersion2_1.getOrDefaultReadAccessPredicate());
+        assertEquals(access.getOrDefaultWriteAccessPredicate(), accessFromCacheVersion2_1.getOrDefaultWriteAccessPredicate());
     }
 }

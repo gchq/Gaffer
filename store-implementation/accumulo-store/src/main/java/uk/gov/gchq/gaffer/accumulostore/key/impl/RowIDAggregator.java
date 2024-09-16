@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.accumulostore.key.impl;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -33,15 +34,13 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionE
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AggregationException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorOptionsBuilder;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -108,11 +107,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         this.source = source;
-        try {
-            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
-        } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise the schema", e);
-        }
+        schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(StandardCharsets.UTF_8));
         LOGGER.debug("Initialising RowIDAggregator with schema {}", schema);
 
         final String elementConverterClass = options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
@@ -185,7 +180,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
         Properties topProperties = reduce(iter);
         try {
             topValue = elementConverter.getValueFromProperties(group, topProperties);
-            topKey = new Key(workKey.getRowData().getBackingArray(), group.getBytes(CommonConstants.UTF_8),
+            topKey = new Key(workKey.getRowData().getBackingArray(), group.getBytes(StandardCharsets.UTF_8),
                     elementConverter.buildColumnQualifier(group, topProperties),
                     elementConverter.buildColumnVisibility(group, topProperties),
                     elementConverter.buildTimestamp(group, topProperties));
@@ -216,8 +211,8 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
         private final AccumuloElementConverter elementConverter;
         private Key currentKey;
         private Value currentValue;
-        private Key workKeyRef;
-        private String group;
+        private final Key workKeyRef;
+        private final String group;
 
         public PropertiesIterator(final SortedKeyValueIterator<Key, Value> source, final Range currentRange, final Collection<ByteSequence> currentColumnFamilies, final boolean currentColumnFamiliesInclusive, final String group, final Key workKeyRef, final AccumuloElementConverter elementConverter) throws IOException {
             this.source = source;
@@ -240,11 +235,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
                 return false;
             }
             final String currentColumnFamily;
-            try {
-                currentColumnFamily = new String(source.getTopKey().getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
-            } catch (final UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
+            currentColumnFamily = new String(source.getTopKey().getColumnFamilyData().getBackingArray(), StandardCharsets.UTF_8);
             if (group.equals(currentColumnFamily) && !source.getTopKey().isDeleted()) {
                 return true;
             }

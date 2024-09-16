@@ -1,5 +1,6 @@
 {
   "graphId": "graphId1",
+  "otelActive": true,
   "library": {
     "class": "uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary"
   },

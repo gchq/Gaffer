@@ -1,21 +1,11 @@
-Copyright 2016-2022 Crown Copyright
+<img align="right" width="300" height="auto" src="logos/logoWithText.png">
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+# Gaffer
 
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-<img src="logos/logoWithText.png" width="300">
-
-Gaffer
-======
+![ci](https://github.com/gchq/Gaffer/actions/workflows/continuous-integration.yaml/badge.svg?branch=develop)
+[![codecov](https://codecov.io/gh/gchq/Gaffer/branch/develop/graph/badge.svg?token=D7FRqMeurU)](https://codecov.io/gh/gchq/Gaffer)
+[<img src="https://img.shields.io/badge/docs-passing-success.svg?logo=readthedocs">](https://gchq.github.io/gaffer-doc/latest/)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/uk.gov.gchq.gaffer/gaffer2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/uk.gov.gchq.gaffer/gaffer2)
 
 Gaffer is a graph database framework. It allows the storage of very large graphs containing rich properties on the nodes and edges. Several storage options are available, including Accumulo and an in-memory Java Map Store.
 
@@ -34,31 +24,38 @@ Gaffer offers:
  - Retrieval of graph data into Apache Spark for fast and flexible analysis
  - A fully-featured REST API
 
-To get going with Gaffer, visit our [getting started pages](https://gchq.github.io/gaffer-doc/v1docs/summaries/getting-started.html).
+To get going with Gaffer, visit our getting started pages ([1.x](https://gchq.github.io/gaffer-doc/v1docs/summaries/getting-started.html), [2.x](https://gchq.github.io/gaffer-doc/latest/administration-guide/gaffer-deployment/quickstart)).
+We also have a demo available to try that is based around a small uk road use dataset. See the example/road-traffic [README](https://github.com/gchq/Gaffer/blob/master/example/road-traffic/README.md) to try it out.
 
-Gaffer is under active development. Version 1.0 of Gaffer was released in October 2017.
+Gaffer is under active development. Version 1.0 of Gaffer was released in October 2017, version 2.0 was released in May 2023.
 
-Gaffer 2.0 Alpha
----------------
-Gaffer 2.0 is currently in the alpha phase, see the [v2docs](https://gchq.github.io/gaffer-doc/latest/) for a list of changes under development.
+## Contributing
 
-License
--------
+We welcome contributions to the project.
 
-Gaffer is licensed under the Apache 2 license and is covered by [Crown Copyright](https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/copyright-and-re-use/crown-copyright/).
+### Quickstart
 
-Getting Started
----------------
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/gchq/Gaffer?quickstart=1)
 
-### Try it out
+To quickly and easily get access to an environment with everything installed and setup correctly you can use GitHub Codespaces, or alternatively GitLab GitPod.
+These provide remote coding environments using VS Code with the required plugins, Java version and Maven preinstalled.
 
-We have a demo available to try that is based around a small uk road use dataset. See the example/road-traffic [README](https://github.com/gchq/Gaffer/blob/master/example/road-traffic/README.md) to try it out.
+Our Javadoc can be found [here](http://gchq.github.io/Gaffer/). Gaffer's documentation is kept in the [gaffer-doc](https://github.com/gchq/gaffer-doc) repository and [published on GitHub pages (gchq.github.io)](https://gchq.github.io/gaffer-doc/latest/).
 
-### Building and Deploying
+### Local Requirements
+
+For building Gaffer locally you need Java 8 or 11 and Maven installed locally in a *nix environment. MS Windows will work for most purposes, but is not recommended because tests utilising Hadoop fail due to limited Hadoop support on Windows.
+Gaffer will compile with newer versions of Java, but some tests will fail because of a lack of support for newer Java in certain external dependencies.
 
 To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This will build all of Gaffer's core libraries and some examples of how to load and query data.
 
-See our [Store](https://gchq.github.io/gaffer-doc/v1docs/summaries/stores.html) documentation page for a list of available Gaffer Stores to chose from and the relevant documentation for each.
+### Contribution Process
+
+Detailed information on our ways of working can be found [in our developer docs](https://gchq.github.io/gaffer-doc/latest/development-guide/ways-of-working). In brief:
+
+- Sign the [GCHQ Contributor Licence Agreement](https://cla-assistant.io/gchq/Gaffer)
+- Push your changes to a fork
+- Submit a pull request
 
 ### Inclusion in other projects
 
@@ -66,7 +63,7 @@ Gaffer is hosted on [Maven Central](https://mvnrepository.com/search?q=uk.gov.gc
 
 To use Gaffer from the Java API the only required dependencies are the Gaffer graph module and a store module for the specific database technology used to store the data, e.g. for the Accumulo store:
 
-```
+```xml
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>graph</artifactId>
@@ -81,28 +78,31 @@ To use Gaffer from the Java API the only required dependencies are the Gaffer gr
 
 This will include all other mandatory dependencies. Other (optional) components can be added to your project as required.
 
-### Documentation
+## Related repositories
 
-Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).
+The [gafferpy](https://github.com/gchq/gafferpy) repository contains a python shell that can execute operations.
 
-We have some user guides in our [docs](https://gchq.github.io/gaffer-doc/v1docs/getting-started/user-guide/contents.html).
+The [gaffer-docker](https://github.com/gchq/gaffer-docker) repository contains the code needed to run Gaffer using Docker or Kubernetes.
 
-Related repositories
---------------------
+The [koryphe](https://github.com/gchq/koryphe) repository contains an extensible functions library for filtering, aggregating and transforming data
+based on the Java Function API. It is a dependency of Gaffer.
 
-The [gaffer-tools](https://github.com/gchq/gaffer-tools) repository contains useful tools to help work with Gaffer. These include:
+## License
 
-- `mini-accumulo-cluster` - Allows a mini Accumulo cluster to be spun up for testing purposes
-- `performance-testing` - Methods of testing the performance of ingest and query operations against a graph
-- `python-shell` - Allows operations against a graph to be executed from a Python shell
-- `random-element-generation` - Code to generate large volumes of random graph data
-- `ui` - A basic graph visualisation tool
+Gaffer is licensed under the Apache 2 license and is covered by [Crown Copyright](https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/).  
 
-Contributing
-------------
+```
+Copyright 2016-2023 Crown Copyright
 
-We welcome contributions to the project. Detailed information on our ways of working can be found [here](https://gchq.github.io/gaffer-doc/v1docs/other/ways-of-working.html). In brief:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-- Sign the [GCHQ Contributor Licence Agreement](https://cla-assistant.io/gchq/Gaffer)
-- Push your changes to a fork
-- Submit a pull request
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```

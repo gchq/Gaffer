@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter
  * A {@link Converter} that converts a {@link HyperLogLogPlus} into a {@code long} so that it can be
  * included in a Dataframe.
  */
+@Deprecated
 public class HyperLogLogPlusConverter implements Converter {
     private static final long serialVersionUID = -1867038905136086956L;
 

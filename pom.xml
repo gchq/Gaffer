@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2022 Crown Copyright
+  ~ Copyright 2016-2024 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>2.0.0-alpha-1.3.1-SNAPSHOT</version>
+    <version>${revision}</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -37,6 +37,9 @@
     </modules>
 
     <properties>
+        <!-- CI/CD revision variable -->
+        <revision>2.3.1-SNAPSHOT</revision>
+
         <disable.forking>false</disable.forking>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.surefire.tests>false</skip.surefire.tests>
@@ -50,11 +53,10 @@
         <java.version>1.8</java.version>
 
         <!-- Dependency version properties -->
-        <junit.version>5.9.0</junit.version>
-        <junit-suite.version>1.9.0</junit-suite.version>
-        <assertj.version>3.23.1</assertj.version>
-        <mockito.version>4.6.1</mockito.version>
-        <failsafe.version>3.0.0-M4</failsafe.version>
+        <junit.version>5.9.3</junit.version>
+        <junit-suite.version>1.9.3</junit-suite.version>
+        <assertj.version>3.24.2</assertj.version>
+        <mockito.version>4.11.0</mockito.version>
         <slf4j.api.version>1.7.36</slf4j.api.version>
 
         <scala.minor.version>2.11</scala.minor.version>
@@ -62,31 +64,30 @@
         <spark.minor.version>2.4</spark.minor.version>
         <spark.version>${spark.minor.version}.5</spark.version>
 
-        <koryphe.version>2.5.1</koryphe.version>
+        <koryphe.version>2.5.2</koryphe.version>
         <accumulo.version>2.0.1</accumulo.version>
         <avro.version>1.8.2</avro.version>
         <hadoop.version>3.3.3</hadoop.version>
-        <jackson.version>2.13.4</jackson.version>
-        <jackson.minor.version>2.11</jackson.minor.version>
+        <jackson.version>2.13.5</jackson.version>
 
         <clearspring.version>2.7.0</clearspring.version>
-        <datasketches.version>0.12.0</datasketches.version>
+        <datasketches.version>4.0.0</datasketches.version>
         <commons-codec.version>1.15</commons-codec.version>
         <commons-io.version>2.11.0</commons-io.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
         <commons-math.version>2.2</commons-math.version>
         <commons-math3.version>3.6.1</commons-math3.version>
-        <commons-csv.version>1.9.0</commons-csv.version>
+        <commons-csv.version>1.10.0</commons-csv.version>
         <commons-collections.version>4.4</commons-collections.version>
-        <commons-text.version>1.9</commons-text.version>
-        <curator.version>2.11.1</curator.version>
+        <commons-text.version>1.10.0</commons-text.version>
+        <curator.version>2.13.0</curator.version>
         <guava.version>30.1.1-jre</guava.version>
-        <javassist.version>3.28.0-GA</javassist.version>
+        <javassist.version>3.29.2-GA</javassist.version>
         <javax-activation.version>1.1.1</javax-activation.version>
         <javax-annotation.version>1.3.2</javax-annotation.version>
-        <javax-xml-bind.version>2.3.1</javax-xml-bind.version>
-        <jcs.version>2.1</jcs.version>
+        <javax-xml-bind.version>2.3.3</javax-xml-bind.version>
+        <jcs.version>2.2.1</jcs.version>
         <jersey.version>2.36</jersey.version>
         <hk2.version>2.6.1</hk2.version>
         <reload4j.version>1.2.18.3</reload4j.version>
@@ -95,30 +96,41 @@
         <servlet-api.version>3.1.0</servlet-api.version>
         <swagger.version>1.6.6</swagger.version>
         <zookeeper.version>3.4.14</zookeeper.version>
-        <mockserver.version>3.9.16</mockserver.version>
+        <mockserver.version>5.15.0</mockserver.version>
+        <opentelemetry.version>1.36.0</opentelemetry.version>
+        <tinkerpop.version>3.7.1</tinkerpop.version>
+        <!-- Note later versions require scala version 2.12.x -->
+        <cypher-gremlin.version>1.0.0</cypher-gremlin.version>
 
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
         <compiler.plugin.verson>3.9.0</compiler.plugin.verson>
-        <dependency.plugin.version>3.2.0</dependency.plugin.version>
-        <spotbugs.plugin.version>3.1.12.2</spotbugs.plugin.version>
-        <spotless.plugin.version>2.22.1</spotless.plugin.version>
+        <dependency.plugin.version>3.6.1</dependency.plugin.version>
+        <depgraph.plugin.version>4.0.2</depgraph.plugin.version>
+        <spotbugs.plugin.version>4.7.3.4</spotbugs.plugin.version>
+        <pmd.plugin.version>3.21.0</pmd.plugin.version>
+        <spotless.plugin.version>2.30.0</spotless.plugin.version>
         <war.plugin.version>3.2.3</war.plugin.version>
-        <gpg.plugin.version>3.0.1</gpg.plugin.version>
+        <gpg.plugin.version>3.1.0</gpg.plugin.version>
         <install.plugin.version>3.0.0-M1</install.plugin.version>
         <resources.plugin.version>3.2.0</resources.plugin.version>
-        <clean.plugin.version>3.1.0</clean.plugin.version>
-        <jacoco.plugin.version>0.8.7</jacoco.plugin.version>
+        <assembly.plugin.version>3.6.0</assembly.plugin.version>
+        <clean.plugin.version>3.2.0</clean.plugin.version>
+        <jacoco.plugin.version>0.8.10</jacoco.plugin.version>
         <jar.plugin.version>3.2.2</jar.plugin.version>
-        <javadoc.plugin.version>3.3.1</javadoc.plugin.version>
+        <javadoc.plugin.version>3.5.0</javadoc.plugin.version>
         <nexus.plugin.version>1.6.8</nexus.plugin.version>
         <release.plugin.version>3.0.0-M5</release.plugin.version>
         <scm.plugin.version>3.1.0</scm.plugin.version>
         <shade.plugin.version>3.2.4</shade.plugin.version>
         <source.plugin.version>3.2.1</source.plugin.version>
-        <surefire.plugin.version>3.0.0-M5</surefire.plugin.version>
+        <surefire.plugin.version>3.1.2</surefire.plugin.version>
+        <failsafe.plugin.version>3.1.2</failsafe.plugin.version>
         <cargo.plugin.version>1.9.10</cargo.plugin.version>
         <enforcer.plugin.version>3.1.0</enforcer.plugin.version>
+        <site.plugin.version>3.12.1</site.plugin.version>
+        <info.plugin.version>3.4.1</info.plugin.version>
+        <flatten.plugin.version>1.5.0</flatten.plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>
@@ -187,7 +199,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}.1</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -734,6 +746,48 @@
                 <artifactId>junit-platform-suite</artifactId>
                 <version>${junit-suite.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-servlet</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-servlet-core</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.inject</groupId>
+                <artifactId>jersey-hk2</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-common</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-server</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-core</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -834,6 +888,21 @@
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>${resources.plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${assembly.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${site.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>${info.plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -841,7 +910,15 @@
             <plugin>
                 <groupId>com.github.ferstl</groupId>
                 <artifactId>depgraph-maven-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>${depgraph.plugin.version}</version>
+                <configuration>
+                    <showClassifiers>true</showClassifiers>
+                    <showDuplicates>true</showDuplicates>
+                    <showConflicts>true</showConflicts>
+                    <showVersions>true</showVersions>
+                    <showGroupIds>true</showGroupIds>
+                    <showTypes>true</showTypes>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -863,7 +940,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${failsafe.version}</version>
+                <version>${failsafe.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>integration-test</id>
@@ -960,16 +1037,10 @@
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>${spotbugs.plugin.version}</version>
                 <configuration>
-                    <effort>Low</effort>
-                    <threshold>Low</threshold>
-                    <xmlOutput>true</xmlOutput>
-                    <findbugsXmlOutputDirectory>
-                        ${project.build.directory}/findbugs
-                    </findbugsXmlOutputDirectory>
+                    <effort>Max</effort>
                     <excludeFilterFile>
                         findbugs-exclude.xml
                     </excludeFilterFile>
-                    <onlyAnalyze>uk.gov.gchq.gaffer.*</onlyAnalyze>
                 </configuration>
                 <executions>
                     <execution>
@@ -978,14 +1049,6 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
-                        <configuration>
-                            <effort>Low</effort>
-                            <threshold>Low</threshold>
-                            <xmlOutput>true</xmlOutput>
-                            <findbugsXmlOutputDirectory>
-                                ${project.build.directory}/findbugs
-                            </findbugsXmlOutputDirectory>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -1027,6 +1090,35 @@
                     <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
                 </configuration>
             </plugin>
+            <!-- Flatten plugin to expand CI/CD properties -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>${flatten.plugin.version}</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <!-- Only flatten the CI/CD revision property -->
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <!-- enable flattening -->
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <!-- ensure proper cleanup -->
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -1056,7 +1148,7 @@
                 <artifactId>spotless-maven-plugin</artifactId>
                 <version>${spotless.plugin.version}</version>
                 <configuration>
-                    <ratchetFrom>origin/v2-alpha</ratchetFrom>
+                    <ratchetFrom>origin/develop</ratchetFrom>
                     <lineEndings>UNIX</lineEndings>
                     <java>
                         <licenseHeader>
@@ -1071,6 +1163,28 @@
                     </pom>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${pmd.plugin.version}</version>
+                <configuration>
+                    <linkXRef>false</linkXRef>
+                    <analysisCache>true</analysisCache>
+                    <printFailingErrors>true</printFailingErrors>
+                    <rulesets>
+                        <ruleset>code-style/pmd-ruleset.xml</ruleset>
+                    </rulesets>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>analyze-compile</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -1078,41 +1192,36 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${javadoc.plugin.version}</version>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
                 <reportSets>
                     <reportSet>
-                        <id>aggregate</id>
                         <reports>
-                            <report>aggregate</report>
+                            <report>index</report>
+                            <report>plugins</report>
                         </reports>
                     </reportSet>
                 </reportSets>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire.plugin.version}</version>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.plugin.version}</version>
                 <configuration>
-                    <forkMode>perthread</forkMode>
-                    <parallel>classes</parallel>
-                    <argLine>-XX:MaxDirectMemorySize=1G -Xmx1900m
-                        -XX:MaxPermSize=256m
-                    </argLine>
+                    <effort>Max</effort>
+                    <excludeFilterFile>
+                        findbugs-exclude.xml
+                    </excludeFilterFile>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>${failsafe.version}</version>
-                <reportSets>
-                    <reportSet>
-                        <id>integration-tests</id>
-                        <reports>
-                            <report>failsafe-report-only</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${pmd.plugin.version}</version>
+                <configuration>
+                    <rulesets>
+                        <ruleset>code-style/pmd-ruleset.xml</ruleset>
+                    </rulesets>
+                </configuration>
             </plugin>
         </plugins>
     </reporting>
@@ -1154,6 +1263,16 @@
                     <plugin>
                         <groupId>com.github.spotbugs</groupId>
                         <artifactId>spotbugs-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>analyze-compile</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-pmd-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>analyze-compile</id>
@@ -1280,7 +1399,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire.plugin.version}</version>
                         <configuration>
                             <forkCount>0</forkCount>
                         </configuration>
@@ -1433,7 +1551,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire.plugin.version}</version>
                         <configuration>
                             <argLine>${surefireArgLine}</argLine>
                         </configuration>
@@ -1441,17 +1558,8 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${failsafe.version}</version>
                         <configuration>
                             <argLine>${failsafeArgLine}</argLine>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.github.spotbugs</groupId>
-                        <artifactId>spotbugs-maven-plugin</artifactId>
-                        <version>${spotbugs.plugin.version}</version>
-                        <configuration>
-                            <fork>false</fork>
                         </configuration>
                     </plugin>
                     <plugin>

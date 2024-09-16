@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,14 +30,13 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -74,7 +73,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     private List<GlobalViewElementDefinition> globalElements;
     private List<GlobalViewElementDefinition> globalEntities;
     private List<GlobalViewElementDefinition> globalEdges;
-    private Map<String, String> config = new HashMap<>();
+    private final Map<String, String> config = new HashMap<>();
     private boolean allEntities = false;
     private boolean allEdges = false;
 
@@ -100,13 +99,9 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
 
     @Override
     public String toString() {
-        try {
-            return new ToStringBuilder(this)
-                    .append(new String(toJson(true), CommonConstants.UTF_8))
-                    .build();
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        return new ToStringBuilder(this)
+                .append(new String(toJson(true), StandardCharsets.UTF_8))
+                .build();
     }
 
     @Override
@@ -309,7 +304,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     }
 
     public boolean canMerge(final View addingView, final View srcView) {
-        if (addingView instanceof View && !(srcView instanceof View)) {
+        if (addingView != null && srcView == null) {
             return false;
         }
         return true;
@@ -551,11 +546,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         public CHILD_CLASS expandGlobalDefinitions() {
             getThisView().expandGlobalDefinitions();
             return self();
-        }
-
-        @Override
-        public View build() {
-            return super.build();
         }
 
         private View getThisView() {

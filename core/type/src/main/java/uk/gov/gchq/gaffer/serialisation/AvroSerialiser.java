@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,11 @@ import org.apache.avro.io.DatumWriter;
 import org.apache.avro.reflect.ReflectData;
 import org.apache.avro.reflect.ReflectDatumReader;
 import org.apache.avro.reflect.ReflectDatumWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -41,22 +38,18 @@ import java.io.InputStream;
 public class AvroSerialiser implements ToBytesSerialiser<Object> {
 
     private static final long serialVersionUID = -6264923181170362212L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(AvroSerialiser.class);
 
     @Override
     public byte[] serialise(final Object object) throws SerialisationException {
         Schema schema = ReflectData.get().getSchema(object.getClass());
         DatumWriter<Object> datumWriter = new ReflectDatumWriter<>(schema);
-        DataFileWriter<Object> dataFileWriter = new DataFileWriter<>(datumWriter);
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        try {
+        try (DataFileWriter<Object> dataFileWriter = new DataFileWriter<>(datumWriter)) {
             dataFileWriter.create(schema, byteOut);
             dataFileWriter.append(object);
             dataFileWriter.flush();
         } catch (final IOException e) {
             throw new SerialisationException("Unable to serialise given object of class: " + object.getClass().getName(), e);
-        } finally {
-            close(dataFileWriter);
         }
         return byteOut.toByteArray();
     }
@@ -98,16 +91,6 @@ public class AvroSerialiser implements ToBytesSerialiser<Object> {
             return false;
         }
         return true;
-    }
-
-    private void close(final Closeable close) {
-        if (null != close) {
-            try {
-                close.close();
-            } catch (final IOException e) {
-                LOGGER.warn("Resource leak: unable to close stream in AvroSerialiser.class", e);
-            }
-        }
     }
 
     @Override

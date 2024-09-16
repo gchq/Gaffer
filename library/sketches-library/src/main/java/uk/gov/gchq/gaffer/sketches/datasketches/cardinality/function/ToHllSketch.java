@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.yahoo.sketches.hll.HllSketch;
+import org.apache.datasketches.hll.HllSketch;
 
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants.DEFAULT_LOG_K;
 
 /**
  * Creates a new {@link HllSketch} instance and initialises it with
@@ -32,38 +35,47 @@ import static java.util.Objects.nonNull;
 @Summary("Creates a new HllSketch instance and initialises it with the given object")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ToHllSketch extends KorypheFunction<Object, HllSketch> {
-    private int logK = 5;
+    private int logK = DEFAULT_LOG_K;
+    @JsonIgnore
+    private HllSketch hllSketch;
 
     public ToHllSketch() {
+        hllSketch = new HllSketch(logK);
     }
 
     public ToHllSketch(final int logK) {
         this.logK = logK;
+        hllSketch = new HllSketch(logK);
+    }
+
+    public ToHllSketch(final HllSketch hllSketch) {
+        setHllSketch(hllSketch);
     }
 
     @Override
     public HllSketch apply(final Object o) {
-        final HllSketch hllp = new HllSketch(logK);
         if (nonNull(o)) {
             if (o instanceof String) {
-                hllp.update((String) o);
+                hllSketch.update((String) o);
             } else if (o instanceof Long) {
-                hllp.update(((long) o));
+                hllSketch.update(((long) o));
+            } else if (o instanceof Integer) {
+                hllSketch.update(((int) o));
             } else if (o instanceof byte[]) {
-                hllp.update(((byte[]) o));
+                hllSketch.update(((byte[]) o));
             } else if (o instanceof Double) {
-                hllp.update(((double) o));
+                hllSketch.update(((double) o));
             } else if (o instanceof char[]) {
-                hllp.update(((char[]) o));
+                hllSketch.update(((char[]) o));
             } else if (o instanceof long[]) {
-                hllp.update(((long[]) o));
+                hllSketch.update(((long[]) o));
             } else if (o instanceof int[]) {
-                hllp.update(((int[]) o));
+                hllSketch.update(((int[]) o));
             } else {
-                hllp.update(o.toString());
+                hllSketch.update(o.toString());
             }
         }
-        return hllp;
+        return hllSketch;
     }
 
     public int getLogK() {
@@ -72,5 +84,17 @@ public class ToHllSketch extends KorypheFunction<Object, HllSketch> {
 
     public void setLogK(final int logK) {
         this.logK = logK;
+    }
+
+    public HllSketch getHllSketch() {
+        return hllSketch;
+    }
+
+    public void setHllSketch(final HllSketch hllSketch) {
+        if (hllSketch != null) {
+            this.hllSketch = hllSketch.copy();
+        } else {
+            this.hllSketch = new HllSketch(logK);
+        }
     }
 }

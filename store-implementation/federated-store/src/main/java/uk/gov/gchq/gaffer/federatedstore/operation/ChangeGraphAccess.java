@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
@@ -46,8 +45,6 @@ public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation 
     private Set<String> graphAuths = new HashSet<>();
     private Map<String, String> options = new HashMap<>();
     private boolean isPublic = false;
-    private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
-
     private String ownerUserId;
     private boolean userRequestingAdminUsage;
 
@@ -63,7 +60,6 @@ public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation 
     public ChangeGraphAccess shallowClone() throws CloneFailedException {
         final Builder builder = new Builder()
                 .graphId(graphId)
-                .disabledByDefault(disabledByDefault)
                 .options(this.options)
                 .isPublic(this.isPublic)
                 .ownerUserId(this.ownerUserId)
@@ -74,14 +70,6 @@ public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation 
         }
 
         return builder.build();
-    }
-
-    public boolean isDisabledByDefault() {
-        return disabledByDefault;
-    }
-
-    public void setDisabledByDefault(final boolean disabledByDefault) {
-        this.disabledByDefault = disabledByDefault;
     }
 
     @Override
@@ -160,11 +148,6 @@ public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation 
             } else {
                 _getOp().setGraphAuths(new HashSet<>(asList(graphAuths)));
             }
-            return _self();
-        }
-
-        public Builder disabledByDefault(final boolean disabledByDefault) {
-            _getOp().setDisabledByDefault(disabledByDefault);
             return _self();
         }
 

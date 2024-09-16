@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,52 +17,49 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.yahoo.sketches.hll.HllSketch;
+import org.apache.datasketches.hll.HllSketch;
 
-import java.io.IOException;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants.DEFAULT_LOG_K;
-import static uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants.VALUES;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 /**
- * A {@code HyperLogLogPlusJsonSerialiser} deserialises {@link HllSketch} objects.
+ * A {@code HllSketchJsonDeserialiser} deserialises {@link HllSketch} objects.
+ *
+ * Custom objects are now supported in the values list.
+ * This includes the custom Gaffer types, such as
+ * {@link uk.gov.gchq.gaffer.types.TypeSubTypeValue},
+ * {@link uk.gov.gchq.gaffer.types.TypeValue},
+ * {@link uk.gov.gchq.gaffer.types.CustomMap} and
+ * {@link uk.gov.gchq.gaffer.types.FreqMap}.
+ *
+ * The only stipulation is that the {@code class} must be included in the fields of the
+ * {@code JSON} object. This means your custom type will need the following
+ * {@code Jackson} {@code annotation} or it will be ignored during deserialisation:
+ * <pre>
+ * <code>&#064;JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")</code>
+ * </pre>
+ *
+ * <p>
+ * <b>
+ * NOTE: the {@code toString} method is called by the {@link HllSketchWithValues}
+ * class when deserialising the {@code values} so you need to ensure that the
+ * {@code toString} method is overridden by your object.
+ * </b>
+ * </p>
  */
 public class HllSketchJsonDeserialiser extends JsonDeserializer<HllSketch> {
 
     @Override
-    public HllSketch deserialize(final JsonParser jsonParser, final DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
-        final TreeNode treeNode = jsonParser.getCodec().readTree(jsonParser);
-
-        final HllSketch hllp;
-
-        final TextNode jsonNodes = (TextNode) treeNode.get(HllSketchJsonConstants.BYTES);
-        if (isNull(jsonNodes)) {
-            final IntNode kNode = (IntNode) treeNode.get(HllSketchJsonConstants.LOG_K);
-            final int k = nonNull(kNode) ? kNode.asInt(DEFAULT_LOG_K) : DEFAULT_LOG_K;
-            hllp = new HllSketch(k);
-        } else {
-            hllp = HllSketch.heapify(jsonNodes.binaryValue());
+    public HllSketch deserialize(final JsonParser jsonParser, final DeserializationContext deserializationContext) throws SerialisationException {
+        try {
+            final TreeNode treeNode = jsonParser.getCodec().readTree(jsonParser);
+            final HllSketchWithValues hllSketchWithValues = JSONSerialiser.deserialise(treeNode.toString(), HllSketchWithValues.class);
+            return hllSketchWithValues.getHllSketch();
+        } catch (final Exception e) {
+            throw new SerialisationException("Error deserialising JSON object: " + e.getMessage(), e);
         }
-
-        final ArrayNode offers = (ArrayNode) treeNode.get(VALUES);
-        if (nonNull(offers)) {
-            for (final JsonNode offer : offers) {
-                if (nonNull(offer)) {
-                    hllp.update(offer.asText());
-                }
-            }
-        }
-
-        return hllp;
     }
 }

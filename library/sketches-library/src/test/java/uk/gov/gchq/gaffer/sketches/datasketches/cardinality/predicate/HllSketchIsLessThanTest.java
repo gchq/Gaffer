@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.predicate;
 
-import com.yahoo.sketches.hll.HllSketch;
+import org.apache.datasketches.hll.HllSketch;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -25,14 +26,13 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.predicate.PredicateTest;
 
 import java.util.Arrays;
-import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class HllSketchIsLessThanTest extends PredicateTest {
+public class HllSketchIsLessThanTest extends PredicateTest<HllSketchIsLessThan> {
 
     private static final double DELTA = 0.00001D;
 
@@ -135,12 +135,7 @@ public class HllSketchIsLessThanTest extends PredicateTest {
     }
 
     @Override
-    protected Class<? extends Predicate> getPredicateClass() {
-        return HllSketchIsLessThan.class;
-    }
-
-    @Override
-    protected Predicate getInstance() {
+    protected HllSketchIsLessThan getInstance() {
         return new HllSketchIsLessThan(10);
     }
 
@@ -150,12 +145,5 @@ public class HllSketchIsLessThanTest extends PredicateTest {
                 new HllSketchIsLessThan(20),
                 new HllSketchIsLessThan(20, true)
         );
-    }
-
-    @Test
-    @Override
-    public void shouldHaveSummaryAnnotation() {
-        /* TODO: look at why this is not passing unless we include the overriden method whereas with HyperLogLogPlusIsLessThanTest it is without the override */
-        super.shouldHaveSummaryAnnotation();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.jcs.access.exception.CacheException;
 import org.apache.commons.jcs.engine.control.CompositeCache;
 import org.apache.commons.jcs.engine.control.CompositeCacheManager;
@@ -27,9 +26,10 @@ import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.ICacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -81,12 +81,9 @@ public class JcsCacheService implements ICacheService {
     private Properties readProperties(final String configFilePath) throws IOException {
         Properties props = new Properties();
 
-        InputStream is = new FileInputStream(configFilePath);
-        try {
+        try (InputStream is = Files.newInputStream(Paths.get(configFilePath))) {
             props.load(is);
             return props;
-        } finally {
-            IOUtils.closeQuietly(is);
         }
     }
 }

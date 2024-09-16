@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.serialisation.json;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.yahoo.sketches.hll.HllSketch;
+import org.apache.datasketches.hll.HllSketch;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
-import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json.HyperLogLogPlusJsonConstants;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json.HyperLogLogPlusJsonDeserialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json.HyperLogLogPlusJsonSerialiser;
-import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants;
 import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonDeserialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonSerialiser;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json.HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SERIALISER_MODULE_NAME;
+import static uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json.HllSketchJsonConstants.MODULE_NAME;
 
 /**
  * Factory class to create the required modules for serialisation and deserialising
@@ -41,10 +43,10 @@ public class SketchesJsonModules implements JSONSerialiserModules {
     @Override
     public List<Module> getModules() {
         return Collections.unmodifiableList(Arrays.asList(
-                new SimpleModule(HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SERIALISER_MODULE_NAME, new Version(1, 0, 0, null, null, null))
+                new SimpleModule(HYPER_LOG_LOG_PLUS_SERIALISER_MODULE_NAME, new Version(1, 0, 0, null, null, null))
                         .addSerializer(HyperLogLogPlus.class, new HyperLogLogPlusJsonSerialiser())
                         .addDeserializer(HyperLogLogPlus.class, new HyperLogLogPlusJsonDeserialiser()),
-                new SimpleModule(HllSketchJsonConstants.MODULE_NAME, new Version(1, 0, 0, null, null, null))
+                new SimpleModule(MODULE_NAME, new Version(1, 0, 0, null, null, null))
                         .addSerializer(HllSketch.class, new HllSketchJsonSerialiser())
                         .addDeserializer(HllSketch.class, new HllSketchJsonDeserialiser())
         ));

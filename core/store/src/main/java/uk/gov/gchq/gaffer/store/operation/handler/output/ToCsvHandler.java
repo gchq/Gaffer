@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,12 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.generator.CsvFormat;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -32,28 +31,25 @@ import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 
+import static uk.gov.gchq.gaffer.data.element.IdentifierType.DIRECTED;
+
 /**
  * A {@code ToCsvHandler} handles {@link ToCsv} operations by applying the provided
- * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to each item in the
+ * {@link uk.gov.gchq.gaffer.data.generator.CsvGenerator} to each item in the
  * input {@link Iterable}.
  */
 public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? extends String>> {
     @Override
     public Iterable<? extends String> doOperation(final ToCsv operation, final Context context, final Store store) throws OperationException {
-        CsvGenerator csvGenerator;
         if (null == operation.getInput()) {
             return null;
         }
 
-        if (null == operation.getCsvGenerator() && null == operation.getCsvFormat()) {
-            throw new IllegalArgumentException("ToCsv operation requires a generator, supply one or provide a CsvFormat");
-        } else if (null != operation.getCsvGenerator() && null != operation.getCsvFormat()) {
-            throw new IllegalArgumentException("ToCsv operation requires either a generator or a CsvFormat not both");
-        } else if (null == operation.getCsvGenerator() && null != operation.getCsvFormat()) {
-            csvGenerator = createGenerator(operation.getCsvFormat(), getPropertyHeadersFromSchema(store));
-        } else {
-            csvGenerator = operation.getCsvGenerator();
+        if (null == operation.getCsvGenerator()) {
+            throw new IllegalArgumentException("ToCsv operation requires a generator");
         }
+        final CsvGenerator csvGenerator = operation.getCsvGenerator();
+        csvGenerator.addAdditionalFieldsFromSchemaProperties(getPropertiesFromSchema(store.execute(new GetSchema(), context)));
 
         final Iterable<? extends String> csv = csvGenerator.apply(operation.getInput());
         if (operation.isIncludeHeader()) {
@@ -63,36 +59,26 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
         return csv;
     }
 
-    private LinkedHashMap<String, String> getPropertyHeadersFromSchema(final Store store) {
-        Schema schema = store.getSchema();
-        LinkedHashMap<String, String> propertyHeadersFromSchema = new LinkedHashMap<>();
+    private LinkedHashMap<String, Class<?>> getPropertiesFromSchema(final Schema schema) {
+        final LinkedHashMap<String, Class<?>>  propertiesFromSchema = new LinkedHashMap<>();
+
         for (final SchemaEntityDefinition schemaEntityDefinition : schema.getEntities().values()) {
-            for (final String propertyName:schemaEntityDefinition.getProperties()) {
-                String typeName = schemaEntityDefinition.getPropertyTypeName(propertyName);
-                propertyHeadersFromSchema.put(propertyName, schema.getType(typeName).getClazz().getSimpleName());
+            for (final String propertyName : schemaEntityDefinition.getProperties()) {
+                final String typeName = schemaEntityDefinition.getPropertyTypeName(propertyName);
+                propertiesFromSchema.put(propertyName, schema.getType(typeName).getClazz());
             }
         }
+
         for (final SchemaEdgeDefinition schemaEdgeDefinition : schema.getEdges().values()) {
-            for (final IdentifierType identifierType:schemaEdgeDefinition.getIdentifiers()) {
-                if (identifierType.toString().equals(identifierType.DIRECTED.toString())) {
-                    String typeName = schemaEdgeDefinition.getIdentifierTypeName(identifierType);
-                    propertyHeadersFromSchema.put(identifierType.toString(), schema.getType(typeName).getClazz().getSimpleName());
-                }
+            for (final String propertyName : schemaEdgeDefinition.getProperties()) {
+                final String typeName = schemaEdgeDefinition.getPropertyTypeName(propertyName);
+                propertiesFromSchema.put(propertyName, schema.getType(typeName).getClazz());
             }
-            for (final String propertyName:schemaEdgeDefinition.getProperties()) {
-                String typeName = schemaEdgeDefinition.getPropertyTypeName(propertyName);
-                propertyHeadersFromSchema.put(propertyName, schema.getType(typeName).getClazz().getSimpleName());
-            }
+
+            final String directedTypeName = schemaEdgeDefinition.getIdentifierTypeName(DIRECTED);
+            propertiesFromSchema.put(DIRECTED.toString(), schema.getType(directedTypeName).getClazz());
         }
-        return propertyHeadersFromSchema;
-    }
-
-
-    private CsvGenerator createGenerator(final CsvFormat csvFormat, final LinkedHashMap<String, String> propertyHeadersFromSchema) {
-        return new CsvGenerator.Builder()
-                .identifiersFromFormat(CsvFormat.getIdentifiers(csvFormat))
-                .propertyHeadersFromSchema(propertyHeadersFromSchema)
-                .build();
+        return propertiesFromSchema;
     }
 
 }

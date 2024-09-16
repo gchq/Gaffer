@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,29 +29,30 @@ import static uk.gov.gchq.gaffer.core.exception.Status.FORBIDDEN;
 import static uk.gov.gchq.gaffer.core.exception.Status.NOT_FOUND;
 
 class GafferExceptionMapperTest {
+    private static final String TEST_MESSAGE = "Unauthorised test message";
     @Test
     public void shouldPropagateForbiddenError() {
         // When
-        GafferExceptionMapper gafferExceptionMapper = new GafferExceptionMapper();
+        final GafferExceptionMapper gafferExceptionMapper = new GafferExceptionMapper();
 
-        ResponseEntity<?> response = gafferExceptionMapper.handleUnauthorisedException(null, new UnauthorisedException("nah"));
+        final ResponseEntity<?> response = gafferExceptionMapper.handleUnauthorisedException(null, new UnauthorisedException(TEST_MESSAGE));
 
         // Then
         assertEquals(FORBIDDEN.getStatusCode(), response.getStatusCode().value());
-        assertEquals("nah", ((Error) response.getBody()).getSimpleMessage());
+        assertEquals(TEST_MESSAGE, ((Error) response.getBody()).getSimpleMessage());
     }
 
     @Test
     public void shouldPropagateErrorFromGRE() {
         // Given
-        GafferRuntimeException exception = new GafferRuntimeException("couldn't find the thing", Status.NOT_FOUND);
+        final GafferRuntimeException exception = new GafferRuntimeException(TEST_MESSAGE, Status.NOT_FOUND);
 
         // When
-        GafferExceptionMapper gafferExceptionMapper = new GafferExceptionMapper();
-        ResponseEntity<?> responseEntity = gafferExceptionMapper.handleGafferRuntimeException(null, exception);
+        final GafferExceptionMapper gafferExceptionMapper = new GafferExceptionMapper();
+        final ResponseEntity<?> responseEntity = gafferExceptionMapper.handleGafferRuntimeException(null, exception);
 
         // Then
         assertEquals(NOT_FOUND.getStatusCode(), responseEntity.getStatusCode().value());
-        assertEquals("couldn't find the thing", ((Error) responseEntity.getBody()).getSimpleMessage());
+        assertEquals(TEST_MESSAGE, ((Error) responseEntity.getBody()).getSimpleMessage());
     }
 }

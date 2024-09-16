@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -36,8 +35,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class Authorisations implements Iterable<byte[]>, Serializable {
     private static final long serialVersionUID = 8931467369628123909L;
-    private Set<ArrayByteSequence> auths = new HashSet();
-    private List<byte[]> authsList = new ArrayList();
+    private final Set<ArrayByteSequence> auths = new HashSet();
+    private final List<byte[]> authsList = new ArrayList();
     private static final boolean[] VALID_AUTH_CHARS = new boolean[256];
     public static final String HEADER = "!AUTH1:";
 
@@ -120,7 +119,7 @@ public class Authorisations implements Iterable<byte[]>, Serializable {
             ArrayByteSequence auth = (ArrayByteSequence) var3.next();
             sb.append(sep);
             sep = ",";
-            sb.append(new String(auth.toArray(), StandardCharsets.UTF_8));
+            sb.append(new String(auth.toArray(), UTF_8));
         }
 
         return sb.toString();
@@ -225,7 +224,7 @@ public class Authorisations implements Iterable<byte[]>, Serializable {
         for (int var4 = 0; var4 < var3; ++var4) {
             String str = var2[var4];
             str = str.trim();
-            this.auths.add(new ArrayByteSequence(str.getBytes(StandardCharsets.UTF_8)));
+            this.auths.add(new ArrayByteSequence(str.getBytes(UTF_8)));
         }
 
         this.checkAuths();

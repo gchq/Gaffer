@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,17 +44,17 @@ public class EmptyCacheService implements ICacheService {
     }
 
     @Override
-    public <K, V> void putInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
+    public <K, V> void putInCache(final String cacheName, final K key, final V value) {
 
     }
 
     @Override
-    public <K, V> void putSafeInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
+    public <K, V> void putSafeInCache(final String cacheName, final K key, final V value) {
 
     }
 
     @Override
-    public <K, V> void removeFromCache(final String cacheName, final K key) {
+    public <K> void removeFromCache(final String cacheName, final K key) {
 
     }
 

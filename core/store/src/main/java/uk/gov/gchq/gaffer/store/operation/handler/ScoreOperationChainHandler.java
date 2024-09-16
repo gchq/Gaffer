@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +50,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache.NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX;
+
 /**
  * Operation Handler for ScoreOperationChain
  */
@@ -62,7 +67,27 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
             Collections.unmodifiableMap(opScores), Collections.unmodifiableMap(scoreResolvers)
     );
 
-    private static final Map<Class<? extends Operation>, ScoreResolver> DEFAULT_SCORE_RESOLVERS = addDefaultScoreResolvers();
+    private final Map<Class<? extends Operation>, ScoreResolver> defaultScoreResolvers;
+
+    @JsonCreator
+    public ScoreOperationChainHandler(@JsonProperty("suffixNamedOperationCacheName") final String namedOperationCacheNameSuffix) {
+        defaultScoreResolvers = addDefaultScoreResolvers(namedOperationCacheNameSuffix);
+        if (Strings.isNullOrEmpty(namedOperationCacheNameSuffix)) {
+            LOGGER.error(NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX);
+        }
+    }
+
+    @JsonGetter("suffixNamedOperationCacheName")
+    public String getSuffixNamedOperationCacheName() {
+        if (defaultScoreResolvers.containsKey(NamedOperation.class)) {
+            final ScoreResolver scoreResolver = defaultScoreResolvers.get(NamedOperation.class);
+            if (scoreResolver instanceof NamedOperationScoreResolver) {
+                NamedOperationScoreResolver resolver = (NamedOperationScoreResolver) scoreResolver;
+                return resolver.getSuffixCacheName();
+            }
+        }
+        return null;
+    }
 
     /**
      * Returns the OperationChainLimiter score for the OperationChain provided.
@@ -97,10 +122,8 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         Integer maxUserScore = 0;
         for (final String opAuth : opAuths) {
             Integer authScore = authScores.get(opAuth);
-            if (null != authScore) {
-                if (authScore > maxUserScore) {
-                    maxUserScore = authScore;
-                }
+            if (authScore != null && (authScore > maxUserScore)) {
+                maxUserScore = authScore;
             }
         }
         LOGGER.debug("Returning users max operation chain limit score of {}", maxUserScore);
@@ -152,7 +175,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
 
     public void setScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers) {
         this.scoreResolvers.clear();
-        scoreResolvers.putAll(DEFAULT_SCORE_RESOLVERS);
+        scoreResolvers.putAll(defaultScoreResolvers);
         if (null != resolvers) {
             this.scoreResolvers.putAll(resolvers);
         }
@@ -181,20 +204,22 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
      * Adds Gaffer's native {@link ScoreResolver} implementations to the list of available <code>ScoreResolver</code>s.
      * Any new implementations should be added to the map in this method, along with their respective class.
      *
+     * @param namedOperationCacheNameSuffix the suffix of NamedOperationCache to score against.
      * @return a map of Operation class to ScoreResolver implementation
      */
-    private static Map<Class<? extends Operation>, ScoreResolver> addDefaultScoreResolvers() {
+    private static Map<Class<? extends Operation>, ScoreResolver> addDefaultScoreResolvers(final String namedOperationCacheNameSuffix) {
         final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = new HashMap<>();
 
-        defaultResolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
+        //TODO Possible DEFAULT_SCORE_RESOLVERS is never used?
+        defaultResolvers.put(NamedOperation.class, new NamedOperationScoreResolver(namedOperationCacheNameSuffix));
         defaultResolvers.put(If.class, new IfScoreResolver());
         defaultResolvers.put(While.class, new WhileScoreResolver());
 
         return Collections.unmodifiableMap(defaultResolvers);
     }
 
-    public static Map<Class<? extends Operation>, ScoreResolver> getDefaultScoreResolvers() {
-        return Collections.unmodifiableMap(DEFAULT_SCORE_RESOLVERS);
+    public Map<Class<? extends Operation>, ScoreResolver> getDefaultScoreResolvers() {
+        return Collections.unmodifiableMap(defaultScoreResolvers);
     }
 
 }

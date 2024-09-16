@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2020-2022 Crown Copyright
+  ~ Copyright 2020-2024 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@
     <parent>
         <artifactId>rest-api</artifactId>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <version>2.0.0-alpha-1.3.1-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>spring-rest</artifactId>
 
     <properties>
-        <spring.boot.version>2.5.12</spring.boot.version>
-        <springdoc.version>1.6.9</springdoc.version>
+        <spring.boot.version>2.7.12</spring.boot.version>
+        <springdoc.version>1.6.15</springdoc.version>
         <store.type>map</store.type>
     </properties>
 
@@ -60,6 +60,11 @@
             <artifactId>jcs-cache-service</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>tinkerpop</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- store dependencies -->
         <dependency>
@@ -70,6 +75,11 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>federated-store</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>simple-federated-store</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -102,11 +112,24 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+        </dependency>
         <!-- Provides Swagger/OpenAPI UI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>${springdoc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opencypher.gremlin</groupId>
+            <artifactId>cypher-gremlin-server-plugin</artifactId>
+            <version>${cypher-gremlin.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -114,17 +137,31 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
-            <version>${jersey.version}</version>
-            <scope>test</scope>
+            <exclusions>
+                <!-- Removed because it introduces duplicate org.json.JSONObject on the class path -->
+                <exclusion>
+                    <groupId>com.vaadin.external.google</groupId>
+                    <artifactId>android-json</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Already defined in parent POM but required for surefire to discover tests -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>tinkerpop</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tinkerpop</groupId>
+            <artifactId>gremlin-driver</artifactId>
+            <version>${tinkerpop.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -137,17 +174,6 @@
                 <version>${spring.boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <!-- Required to force older Jersey -->
-            <dependency>
-                <groupId>org.glassfish.jersey.core</groupId>
-                <artifactId>jersey-client</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jersey.core</groupId>
-                <artifactId>jersey-common</artifactId>
-                <version>${jersey.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -173,10 +199,19 @@
                 </executions>
             </plugin>
         </plugins>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
     </build>
     <profiles>
         <profile>
             <id>demo</id>
+            <properties>
+               <maven.test.skip>true</maven.test.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -190,6 +225,14 @@
                                 -Dgaffer.schemas=${project.build.outputDirectory}/schemas
                             </jvmArguments>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <id>run</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -36,7 +37,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.rest.factory.ExamplesFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
-import uk.gov.gchq.gaffer.rest.factory.UserFactory;
+import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.rest.model.OperationDetail;
 import uk.gov.gchq.gaffer.rest.model.OperationField;
 import uk.gov.gchq.gaffer.store.Context;
@@ -57,7 +58,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.core.exception.Status.BAD_REQUEST;
@@ -68,7 +69,7 @@ public class OperationControllerTest {
 
     private Store store;
     private GraphFactory graphFactory;
-    private UserFactory userFactory;
+    private AbstractUserFactory userFactory;
     private ExamplesFactory examplesFactory;
     private OperationController operationController;
 
@@ -76,7 +77,7 @@ public class OperationControllerTest {
     public void setUpController() {
         store = mock(Store.class);
         graphFactory = mock(GraphFactory.class);
-        userFactory = mock(UserFactory.class);
+        userFactory = mock(AbstractUserFactory.class);
         examplesFactory = mock(ExamplesFactory.class);
 
         operationController = new OperationController(graphFactory, userFactory, examplesFactory);
@@ -91,6 +92,32 @@ public class OperationControllerTest {
                 .build();
 
         when(graphFactory.getGraph()).thenReturn(graph);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    @Test
+    public void shouldReturnAllSupportedOperations() {
+        // Given
+        when(store.getSupportedOperations()).thenReturn(Sets.newHashSet(AddElements.class, GetElements.class));
+
+        // When
+        final Set<Class<? extends Operation>> allOperations = operationController.getOperations();
+
+        // Then
+        assertThat(allOperations).hasSize(2);
+        assertThat(allOperations).contains(AddElements.class, GetElements.class);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    @Test
+    public void shouldReturnAllOperations() {
+        // Given / When
+        final Set<Class> allOperations = (Set) operationController.getOperationsIncludingUnsupported();
+
+        // Then
+        final Set<Class> allExpectedOperations = ReflectionUtil.getSubTypes(Operation.class);
+        assertThat(allOperations).containsExactlyInAnyOrderElementsOf(allExpectedOperations);
+        assertThat(allOperations).isNotEmpty();
     }
 
     @SuppressWarnings({"unchecked"})
@@ -270,7 +297,7 @@ public class OperationControllerTest {
         when(store.execute(any(Output.class), any(Context.class))).thenReturn(Arrays.asList(1, 2, 3));
 
         // When
-        final ResponseEntity<StreamingResponseBody> response = operationController.executeChunked(new GetAllElements());
+        final ResponseEntity<StreamingResponseBody> response = operationController.executeChunked(mock(HttpHeaders.class), new GetAllElements());
         try (final OutputStream output = new ByteArrayOutputStream()) {
             response.getBody().writeTo(output);
             // Then

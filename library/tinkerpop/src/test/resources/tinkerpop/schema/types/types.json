@@ -1,0 +1,43 @@
+{
+  "types": {
+    "int.id": {
+      "class": "java.lang.Integer"
+    },
+    "long.id": {
+      "class": "java.lang.Long"
+    },
+    "string.id": {
+      "class": "java.lang.String"
+    },
+    "uuid.id": {
+      "class": "java.util.UUID"
+    },
+    "true": {
+      "class": "java.lang.Boolean"
+    },
+    "property.string": {
+      "class": "java.lang.String",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    },
+    "property.integer": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    },
+    "property.double": {
+      "class": "java.lang.Double",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    },
+    "property.float": {
+      "class": "java.lang.Float",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    }
+  }
+}

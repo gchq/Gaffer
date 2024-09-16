@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -48,9 +47,16 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
+import uk.gov.gchq.gaffer.proxystore.SingleUseMapProxyStore;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
+import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
@@ -98,13 +104,12 @@ public class ProxyStoreBasicIT {
                     .build()
     };
 
-    @TempDir
-    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
-
+    private Store store;
     private Graph graph;
 
     @BeforeAll
     public static void beforeAll() throws Exception {
+        SingleUseMapProxyStore.cleanUp();
         CLIENT.startServer();
     }
 
@@ -114,17 +119,18 @@ public class ProxyStoreBasicIT {
     }
 
     @BeforeEach
-    public void before() throws IOException {
+    public void before(@TempDir File testFolder) throws IOException {
         CLIENT.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
 
         // setup ProxyStore
+        store = new ProxyStore.Builder()
+                .graphId("graph1")
+                .host("localhost")
+                .port(8080)
+                .contextRoot("rest/v2")
+                .build();
         graph = new Graph.Builder()
-                .store(new ProxyStore.Builder()
-                        .graphId("graph1")
-                        .host("localhost")
-                        .port(8080)
-                        .contextRoot("rest/v2")
-                        .build())
+                .store(store)
                 .build();
     }
 
@@ -212,13 +218,13 @@ public class ProxyStoreBasicIT {
     }
 
     @Test
-    public void shouldHaveAllOfDelegateStoreTraitsApartFromVisibility() {
+    public void shouldHaveAllOfDelegateStoreTraitsApartFromVisibility() throws OperationException {
         // Given
         final Set<StoreTrait> expectedTraits = new HashSet<>(MapStore.TRAITS);
         expectedTraits.remove(StoreTrait.VISIBILITY);
 
         // When
-        final Set<StoreTrait> storeTraits = graph.getStoreTraits();
+        final Set<StoreTrait> storeTraits = graph.execute(new GetTraits.Builder().currentTraits(false).build(), new Context());
 
         // Then
         assertThat(storeTraits).isEqualTo(expectedTraits);
@@ -238,5 +244,37 @@ public class ProxyStoreBasicIT {
                 .option("Anything", "Value") // any value to create a optionsMap
                 .build();
         graph.execute(add, USER);
+    }
+
+    @Test
+    public void shouldGetOriginalSchemaUsingMethodsAndOperation() throws OperationException {
+        // Given
+        Schema storeSchema = Schema.fromJson(StreamUtil.openStream(this.getClass(), StreamUtil.SCHEMA));
+
+        // When - Get
+        final Schema returnedSchemaFromGraphMethod = graph.getSchema(); // Indirectly runs getOriginalSchema
+        final Schema returnedSchemaFromStoreMethod = store.getOriginalSchema();
+        final Schema returnedSchemaFromOperation = graph.execute(new GetSchema(), USER);
+
+        // Then
+        assertThat(returnedSchemaFromGraphMethod).isEqualTo(storeSchema);
+        assertThat(returnedSchemaFromStoreMethod).isEqualTo(storeSchema);
+        assertThat(returnedSchemaFromOperation).isEqualTo(storeSchema);
+    }
+
+    @Test
+    public void shouldGetInternalOptimisedSchemaUsingMethodAndOperation() throws OperationException {
+        // Given
+        Schema storeSchema = Schema.fromJson(StreamUtil.openStream(this.getClass(), StreamUtil.SCHEMA));
+        Schema optimisedStoreSchema = new SchemaOptimiser().optimise(storeSchema, true);
+
+        // When - Get
+        final Schema returnedSchemaFromMethod = store.getSchema();
+        GetSchema getCompactSchema = new GetSchema.Builder().compact(true).build();
+        final Schema returnedSchemaFromOperation = graph.execute(getCompactSchema, USER);
+
+        // Then
+        assertThat(returnedSchemaFromMethod).isEqualTo(optimisedStoreSchema);
+        assertThat(returnedSchemaFromOperation).isEqualTo(optimisedStoreSchema);
     }
 }

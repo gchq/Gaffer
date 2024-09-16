@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
@@ -97,7 +96,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldRemoveGraphFromCache() throws Exception {
         //given
-        FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+        FederatedStoreCache federatedStoreCache = new FederatedStoreCache(graph.getGraphId());
         graph.execute(new AddGraph.Builder()
                 .graphId(GRAPH_ID_A)
                 .schema(new Schema())
@@ -532,7 +531,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldStartWithEmptyCache() throws Exception {
         //given
-        FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+        FederatedStoreCache federatedStoreCache = new FederatedStoreCache(graph.getGraphId());
 
         //then
         assertThat(federatedStoreCache.getAllGraphIds()).isEmpty();
@@ -567,7 +566,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     public void shouldChangeGraphIdInCache() throws Exception {
         //given
         String newName = "newName" + 23452335;
-        FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+        FederatedStoreCache federatedStoreCache = new FederatedStoreCache(graph.getGraphId());
 
         graph.execute(new AddGraph.Builder()
                 .graphId(GRAPH_ID_A)
@@ -584,12 +583,8 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
                 .build(), user);
 
         //then
-        Set<String> graphIds = federatedStoreCache.getAllGraphIds();
-
         assertThat(changed).isTrue();
-        assertThat(graphIds.toArray())
-                .as(graphIds.toString())
-                .containsExactly(new String[]{newName});
+        assertThat(federatedStoreCache.getAllGraphIds()).containsExactly(newName);
     }
 
     @Test
@@ -621,7 +616,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldChangeGraphAccessIdInCache() throws Exception {
         //given
-        FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+        FederatedStoreCache federatedStoreCache = new FederatedStoreCache(graph.getGraphId());
         graph.execute(new AddGraph.Builder()
                 .graphId(GRAPH_ID_A)
                 .schema(new Schema())

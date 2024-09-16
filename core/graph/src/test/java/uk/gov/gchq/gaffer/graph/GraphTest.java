@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.otel.OtelUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -57,13 +58,15 @@ import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.Repeat;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -78,10 +81,13 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -96,11 +102,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -110,7 +118,9 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -135,6 +145,7 @@ public class GraphTest {
     private static final String GRAPH_ID = "graphId";
     public static final String SCHEMA_ID_1 = "schemaId1";
     public static final String STORE_PROPERTIES_ID_1 = "storePropertiesId1";
+    public static final String SUFFIX_CACHE_NAME = "suffix";
 
     @TempDir
     Path tempDir;
@@ -308,10 +319,9 @@ public class GraphTest {
 
     @Test
     public void shouldCreateNewContextInstanceWhenExecuteOperation(@Mock final Store store)
-            throws OperationException, IOException {
+            throws OperationException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -320,7 +330,7 @@ public class GraphTest {
                         .build())
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .store(store)
-                .addSchema(new Schema.Builder().build())
+                .addSchema(schema)
                 .build();
 
         // When
@@ -335,7 +345,6 @@ public class GraphTest {
             throws OperationException, IOException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -359,7 +368,6 @@ public class GraphTest {
             throws OperationException, IOException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -385,7 +393,6 @@ public class GraphTest {
         // Given
         given(store.execute(clonedOpChain, clonedContext)).willThrow(exception);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -415,7 +422,6 @@ public class GraphTest {
         // Given
         given(store.executeJob(clonedOpChain, clonedContext)).willThrow(exception);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -445,7 +451,6 @@ public class GraphTest {
             throws OperationException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -476,7 +481,6 @@ public class GraphTest {
             throws OperationException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -511,7 +515,6 @@ public class GraphTest {
         // Given
         final Schema schema = new Schema();
 
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
         given(hook2.postExecute(result2, clonedOpChain, clonedContext)).willReturn(result3);
@@ -555,7 +558,6 @@ public class GraphTest {
             throws OperationException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
         given(hook2.postExecute(result2, clonedOpChain, clonedContext)).willReturn(result3);
@@ -594,7 +596,6 @@ public class GraphTest {
             throws OperationException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
         given(hook2.postExecute(result2, clonedOpChain, clonedContext)).willReturn(result3);
@@ -630,7 +631,6 @@ public class GraphTest {
             throws OperationException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
         doThrow(e).when(hook1).preExecute(clonedOpChain, clonedContext);
@@ -674,7 +674,6 @@ public class GraphTest {
             throws OperationException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
@@ -721,7 +720,6 @@ public class GraphTest {
             throws OperationException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final RuntimeException e = new RuntimeException("Store failed to execute operation chain");
@@ -767,7 +765,6 @@ public class GraphTest {
             throws OperationException {
         // Given
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
         doThrow(e).when(hook1).preExecute(clonedOpChain, clonedContext);
@@ -812,7 +809,6 @@ public class GraphTest {
         // Given
         final Schema schema = new Schema();
 
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
@@ -867,7 +863,6 @@ public class GraphTest {
         final Schema schema = new Schema();
         final RuntimeException e = new RuntimeException("Store failed to execute operation chain");
 
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.onFailure(null, clonedOpChain, clonedContext, e))
                 .willThrow(new RuntimeException("Hook1 failed in onFailure"));
@@ -949,36 +944,9 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldExposeGetTraitsMethod(@Mock final Store store,
-                                            @Mock final View view)
-            throws OperationException {
-        // Given
-        given(store.getSchema()).willReturn(new Schema());
-        given(store.getProperties()).willReturn(new StoreProperties());
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .view(view)
-                        .build())
-                .store(store)
-                .build();
-
-        // When
-        final Set<StoreTrait> storeTraits = new HashSet<>(
-                Arrays.asList(StoreTrait.INGEST_AGGREGATION, StoreTrait.TRANSFORMATION));
-        given(store.getTraits()).willReturn(storeTraits);
-        final Collection<StoreTrait> returnedTraits = graph.getStoreTraits();
-
-        // Then
-        assertEquals(returnedTraits, storeTraits);
-
-    }
-
-    @Test
-    public void shouldGetSchemaFromStoreIfSchemaIsEmpty(@Mock final Store store,
-                                                        @Mock final View view)
-            throws OperationException {
-        // Given
+    public void shouldGetSchemaFromStoreIfSchemaNotSupplied(@Mock final Store store,
+                                                            @Mock final View view) {
+        // Given / When
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex("string")
@@ -992,12 +960,11 @@ public class GraphTest {
                         .graphId(GRAPH_ID)
                         .view(view)
                         .build())
-                .addSchema(new Schema())
                 .store(store)
                 .build();
 
-        // When
-        verify(store).setOriginalSchema(schema);
+        // Then
+        verify(store).getSchema();
     }
 
     @Test
@@ -1112,6 +1079,21 @@ public class GraphTest {
             assertEquals("The Store class name was not found in the store properties for key: "
                     + StoreProperties.STORE_CLASS + ", GraphId: " + GRAPH_ID, e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfGraphIdIsMissing() {
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        Graph.Builder initNoGraphId = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .build())
+                .addSchema(new Schema())
+                .storeProperties(storeProperties);
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(initNoGraphId::build)
+                .withMessage("graphId is required");
     }
 
     @Test
@@ -1390,8 +1372,12 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(),
-                FunctionAuthoriser.class), graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                graphHook1.getClass(),
+                graphHook2.getClass(),
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -1401,8 +1387,11 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
-        final NamedOperationResolver graphHook2 = new NamedOperationResolver();
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.getOperationHandler(AddNamedView.class)).willReturn((OperationHandler) new AddNamedViewHandler(SUFFIX_CACHE_NAME));
+        given(TestStore.mockStore.getOperationHandler(AddNamedOperation.class)).willReturn((OperationHandler) new AddNamedOperationHandler(SUFFIX_CACHE_NAME, true));
+        final NamedOperationResolver graphHook2 = new NamedOperationResolver(SUFFIX_CACHE_NAME);
 
         // When
         final Graph graph = new Graph.Builder()
@@ -1417,8 +1406,13 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(),
-                graphHook3.getClass(), FunctionAuthoriser.class), graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                graphHook1.getClass(),
+                graphHook2.getClass(),
+                graphHook3.getClass(),
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -1428,7 +1422,10 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.getOperationHandler(AddNamedView.class)).willReturn((OperationHandler) new AddNamedViewHandler(SUFFIX_CACHE_NAME));
+        given(TestStore.mockStore.getOperationHandler(AddNamedOperation.class)).willReturn((OperationHandler) new AddNamedOperationHandler(SUFFIX_CACHE_NAME, true));
 
         // When
         final Graph graph = new Graph.Builder()
@@ -1442,8 +1439,13 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, graphHook1.getClass(),
-                graphHook2.getClass(), FunctionAuthoriser.class), graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedOperationResolver.class,
+                NamedViewResolver.class,
+                graphHook1.getClass(),
+                graphHook2.getClass(),
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -1453,7 +1455,7 @@ public class GraphTest {
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
         final File graphHooks = tempDir.resolve("graphHooks.json").toFile();
-        FileUtils.writeLines(graphHooks, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphHooks.json")));
+        FileUtils.writeLines(graphHooks, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphHooks.json"), StandardCharsets.UTF_8));
 
         // When
         final Graph graph = new Graph.Builder()
@@ -1466,10 +1468,13 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(
-                Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class,
-                        OperationAuthoriser.class, FunctionAuthoriser.class),
-                graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                OperationChainLimiter.class,
+                AddOperationsToChain.class,
+                OperationAuthoriser.class,
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -1480,10 +1485,10 @@ public class GraphTest {
 
         final File graphHook1File = tempDir.resolve("opChainLimiter.json").toFile();
         FileUtils.writeLines(graphHook1File,
-                IOUtils.readLines(StreamUtil.openStream(getClass(), "opChainLimiter.json")));
+                IOUtils.readLines(StreamUtil.openStream(getClass(), "opChainLimiter.json"), StandardCharsets.UTF_8));
 
         final File graphHook2File = tempDir.resolve("opAuthoriser.json").toFile();
-        FileUtils.writeLines(graphHook2File, IOUtils.readLines(StreamUtil.openStream(getClass(), "opAuthoriser.json")));
+        FileUtils.writeLines(graphHook2File, IOUtils.readLines(StreamUtil.openStream(getClass(), "opAuthoriser.json"), StandardCharsets.UTF_8));
 
         // When
         final Graph graph = new Graph.Builder()
@@ -1497,8 +1502,12 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, OperationAuthoriser.class,
-                FunctionAuthoriser.class), graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                OperationChainLimiter.class,
+                OperationAuthoriser.class,
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -1509,26 +1518,29 @@ public class GraphTest {
 
         // When
         final Graph graph = new Graph.Builder()
-                .config(StreamUtil.graphConfig(getClass()))
-                .storeProperties(storeProperties)
-                .addSchemas(StreamUtil.schemas(getClass()))
-                .build();
+            .config(StreamUtil.graphConfig(getClass()))
+            .storeProperties(storeProperties)
+            .addSchemas(StreamUtil.schemas(getClass()))
+            .build();
 
         // Then
-        assertEquals("graphId1", graph.getGraphId());
-        assertEquals(new View.Builder()
-                .globalElements(new GlobalViewElementDefinition.Builder()
-                        .groupBy()
-                        .build())
-                .build(), graph.getView());
-        assertEquals(HashMapGraphLibrary.class, graph.getGraphLibrary().getClass());
-        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class,
-                FunctionAuthoriser.class), graph.getGraphHooks());
+        assertThat(graph.getGraphId()).isEqualTo("graphId1");
+        assertThat(OtelUtil.getOpenTelemetryActive()).isTrue();
+        assertThat(graph.getView()).isEqualTo(new View.Builder()
+            .globalElements(new GlobalViewElementDefinition.Builder()
+                .groupBy()
+                .build())
+            .build());
+        assertThat(graph.getGraphLibrary().getClass()).isEqualTo(HashMapGraphLibrary.class);
+        assertThat(graph.getGraphHooks()).containsExactlyInAnyOrder(
+            NamedViewResolver.class,
+            OperationChainLimiter.class,
+            AddOperationsToChain.class,
+            FunctionAuthoriser.class);
     }
 
     @Test
-    public void shouldBuildGraphFromConfigAndMergeConfigWithExistingConfig(
-                                                                           @Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
+    public void shouldBuildGraphFromConfigAndMergeConfigWithExistingConfig(@Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
                                                                            @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3)
             throws Exception {
         // Given
@@ -1568,15 +1580,17 @@ public class GraphTest {
         assertEquals(graphId2, graph.getGraphId());
         assertEquals(view2, graph.getView());
         assertEquals(library2, graph.getGraphLibrary());
-        assertEquals(
-                Arrays.asList(NamedViewResolver.class, hook1.getClass(), hook2.getClass(), hook3.getClass(),
-                        FunctionAuthoriser.class),
-                graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                hook2.getClass(),
+                hook1.getClass(),
+                hook3.getClass(),
+                FunctionAuthoriser.class);
     }
 
     @Test
-    public void shouldBuildGraphFromConfigAndOverrideFields(
-                                                            @Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
+    public void shouldBuildGraphFromConfigAndOverrideFields(@Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
                                                             @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3)
             throws Exception {
         // Given
@@ -1618,10 +1632,13 @@ public class GraphTest {
         assertEquals(graphId1, graph.getGraphId());
         assertEquals(view1, graph.getView());
         assertEquals(library1, graph.getGraphLibrary());
-        assertEquals(
-                Arrays.asList(NamedViewResolver.class, hook2.getClass(), hook1.getClass(), hook3.getClass(),
-                        FunctionAuthoriser.class),
-                graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(
+                NamedViewResolver.class,
+                hook2.getClass(),
+                hook1.getClass(),
+                hook3.getClass(),
+                FunctionAuthoriser.class);
     }
 
     @Test
@@ -2181,9 +2198,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldFillSchemaViewAndManipulateViewRemovingBlacklistedEdgeLeavingEmptyViewUsingUpdateViewHook(
-                                                                                                                @Mock final Store store)
-            throws OperationException {
+    public void shouldFillSchemaViewAndManipulateViewRemovingBlacklistedEdgeLeavingEmptyViewUsingUpdateViewHook(@Mock final Store store) throws OperationException {
         // Given
         operation = new GetElements.Builder()
                 .build();
@@ -2271,8 +2286,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldNotAddExtraGroupsFromSchemaViewWithUpdateViewHookWhenInBlacklist(@Mock final Store store)
-            throws OperationException {
+    public void shouldNotAddExtraGroupsFromSchemaViewWithUpdateViewHookWhenInBlacklist(@Mock final Store store) throws OperationException {
         // Given
         operation = new GetElements.Builder()
                 .build();
@@ -2359,7 +2373,11 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.getOperationHandler(AddNamedView.class)).willReturn((OperationHandler) new AddNamedViewHandler(SUFFIX_CACHE_NAME));
+        given(TestStore.mockStore.getOperationHandler(AddNamedOperation.class)).willReturn((OperationHandler) new AddNamedOperationHandler(SUFFIX_CACHE_NAME, true));
+
         // When
         final GraphConfig config = new GraphConfig.Builder()
                 .graphId("test")
@@ -2372,8 +2390,8 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class),
-                graph.getGraphHooks());
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class);
         assertEquals(CreateObject.class,
                 ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
     }
@@ -2383,7 +2401,11 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedView.class)).willReturn(true);
+        given(TestStore.mockStore.isSupported(AddNamedOperation.class)).willReturn(true);
+        given(TestStore.mockStore.getOperationHandler(AddNamedView.class)).willReturn((OperationHandler) new AddNamedViewHandler(SUFFIX_CACHE_NAME));
+        given(TestStore.mockStore.getOperationHandler(AddNamedOperation.class)).willReturn((OperationHandler) new AddNamedOperationHandler(SUFFIX_CACHE_NAME, true));
+
         // When
         final GraphConfig config = new GraphConfig.Builder()
                 .graphId("test")
@@ -2397,16 +2419,22 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class),
-                graph.getGraphHooks());
-        assertEquals(Identity.class,
-                ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
+        assertThat(graph.getGraphHooks())
+            .containsExactlyInAnyOrder(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class);
+
+        // Get authoriser class
+        FunctionAuthoriser functionAuthoriser = (FunctionAuthoriser) graph.getConfig().getHooks().stream()
+                .filter(hook -> FunctionAuthoriser.class.isAssignableFrom(hook.getClass()))
+                .findFirst()
+                .get();
+        // Validate
+        assertThat(functionAuthoriser.getUnauthorisedFunctions().get(0))
+            .isEqualTo(Identity.class);
     }
 
     @Test
     public void shouldExpandGlobalEdges(@Mock final Store store, @Mock final ElementFilter filter,
-                                        @Mock final StoreProperties mockStoreProperties)
-            throws OperationException {
+                                        @Mock final StoreProperties mockStoreProperties) throws OperationException {
 
         final Schema twoEdgesNoEntities = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
@@ -2435,7 +2463,6 @@ public class GraphTest {
         final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
 
-        given(store.getSchema()).willReturn(twoEdgesNoEntities);
         given(store.getProperties()).willReturn(mockStoreProperties);
 
         final Graph graph = new Graph.Builder()
@@ -2509,7 +2536,6 @@ public class GraphTest {
         final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
 
-        given(store.getSchema()).willReturn(twoEdgesNoEntities);
         given(store.getOriginalSchema()).willReturn(twoEdgesNoEntities);
         given(store.getProperties()).willReturn(mockStoreProperties);
 
@@ -2551,8 +2577,7 @@ public class GraphTest {
 
     @Test
     public void preserveAllEntitiesIfNoEntitiesInSchema(@Mock final Store store, @Mock final ElementFilter filter,
-                                                        @Mock final StoreProperties mockStoreProperties)
-            throws OperationException {
+                                                        @Mock final StoreProperties mockStoreProperties) throws OperationException {
         final Schema twoEdgesNoEntities = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -2580,7 +2605,6 @@ public class GraphTest {
         final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
 
-        given(store.getSchema()).willReturn(twoEdgesNoEntities);
         given(store.getOriginalSchema()).willReturn(twoEdgesNoEntities);
         given(store.getProperties()).willReturn(mockStoreProperties);
 
@@ -2623,11 +2647,9 @@ public class GraphTest {
     @Test
     public void shouldNotExpandGlobalEdgesWhereNotPresentInSchema(@Mock final Store store,
                                                                   @Mock final ElementFilter filter,
-                                                                  @Mock final StoreProperties mockStoreProperties)
-            throws OperationException {
-        final Schema federatedStoreSchema = new Schema.Builder().build();
+                                                                  @Mock final StoreProperties mockStoreProperties) throws OperationException {
+        final Schema schema = new Schema.Builder().build();
 
-        given(store.getSchema()).willReturn(federatedStoreSchema);
         given(store.getProperties()).willReturn(mockStoreProperties);
         final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
@@ -2638,7 +2660,7 @@ public class GraphTest {
                         .build())
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .store(store)
-                .addSchema(federatedStoreSchema)
+                .addSchema(schema)
                 .build();
 
         final GlobalViewElementDefinition globalEdgeAggregate = new GlobalViewElementDefinition.Builder()
@@ -2669,15 +2691,36 @@ public class GraphTest {
         assertNotNull(mergedView.getGlobalEdges().get(0).getPostAggregationFilter());
 
     }
+    @Test
+    void shouldGetGraphCreatedTime() {
+        // Given
+        final Store store = new TestStoreImpl();
+        final Schema schema = new Schema.Builder().build();
+        Graph graph = new Graph.Builder()
+        .config(new GraphConfig.Builder()
+                .graphId(GRAPH_ID)
+                .build())
+        .storeProperties(StreamUtil.storeProps(getClass()))
+        .store(store)
+        .addSchema(schema)
+        .build();
+
+        // When
+        String graphCreatedTime = graph.getCreatedTime();
+
+        // Then
+        assertThat(graphCreatedTime)
+                .isNotNull()
+                .isInstanceOf(String.class);
+        assertThat(LocalDateTime.parse(graphCreatedTime))
+                .isInstanceOf(LocalDateTime.class)
+                .isCloseTo(LocalDateTime.now(), within(20, ChronoUnit.SECONDS));
+    }
 
     public static class TestStoreImpl extends Store {
         @Override
-        public Set<StoreTrait> getTraits() {
-            return new HashSet<>(0);
-        }
-
-        @Override
         protected void addAdditionalOperationHandlers() {
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(getProperties().getCacheServiceNamedViewSuffix(getGraphId())));
         }
 
         @Override
@@ -2701,6 +2744,16 @@ public class GraphTest {
         }
 
         @Override
+        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+            return null;
+        }
+
+        @Override
         protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
             return new GetTraitsHandler(new HashSet<>(0));
         }
@@ -2720,6 +2773,7 @@ public class GraphTest {
                 }
             }
         }
+
         @Override
         public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
             return result;

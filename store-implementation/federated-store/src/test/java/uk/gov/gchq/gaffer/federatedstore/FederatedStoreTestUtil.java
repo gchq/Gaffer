@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,18 @@ import org.assertj.core.api.ListAssert;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
@@ -38,12 +41,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -71,6 +76,7 @@ public final class FederatedStoreTestUtil {
     public static final String GRAPH_ID_B = "graphB";
     public static final String GRAPH_ID_C = "graphC";
     public static final String FEDERATED_STORE_SINGLE_USE_PROPERTIES = "properties/singleUseFederatedStore.properties";
+    public static final String FEDERATED_STORE_WITH_CACHE_PROPERTIES = "properties/federatedStore.properties";
     public static final String SCHEMA_EDGE_BASIC_JSON = "/schema/basicEdgeSchema.json";
     public static final String SCHEMA_ENTITY_BASIC_JSON = "/schema/basicEntitySchema.json";
     public static final String SCHEMA_ENTITY_A_JSON = "/schema/entityASchema.json";
@@ -89,7 +95,7 @@ public final class FederatedStoreTestUtil {
     public static final String VALUE_1 = value(1);
     public static final String VALUE_2 = value(2);
     public static final String INTEGER = "integer";
-    public static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    public static final String CACHE_SERVICE_CLASS_STRING = HashMapCacheService.class.getCanonicalName();
     public static final Set<String> GRAPH_AUTHS_ALL_USERS = ImmutableSet.of(ALL_USERS);
 
     private FederatedStoreTestUtil() {
@@ -123,13 +129,32 @@ public final class FederatedStoreTestUtil {
         return AccumuloProperties.loadStoreProperties(path);
     }
 
-    public static void addGraph(final FederatedStore federatedStore, final String graphId, final boolean isPublic, final Schema schema) throws StorageException {
-        federatedStore.addGraphs(null, UNKNOWN_USER_ID, isPublic,
-                new GraphSerialisable.Builder()
-                        .config(new GraphConfig(graphId))
+    public static FederatedStoreProperties getFederatedStorePropertiesWithHashMapCache() {
+        return loadFederatedStoreProperties(FEDERATED_STORE_WITH_CACHE_PROPERTIES);
+    }
+
+    public static void addGraphToAccumuloStore(final FederatedStore federatedStore, final String graphId,
+                                               final boolean isPublic, final Schema schema)
+            throws StorageException, OperationException {
+        addGraph(federatedStore, graphId, isPublic,
+                loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES),
+                schema, null, null, new Context(new User(UNKNOWN_USER_ID)));
+    }
+
+    public static void addGraph(final FederatedStore federatedStore, final String graphId,
+                                final boolean isPublic, final StoreProperties storeProperties, final Schema schema,
+                                final String parentPropertyIds, final List<String> parentSchemaIds,
+                                final Context context)
+            throws OperationException {
+        federatedStore.execute(OperationChain.wrap(
+                new AddGraph.Builder()
+                        .graphId(graphId)
+                        .storeProperties(storeProperties)
                         .schema(schema)
-                        .properties(loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES))
-                        .build());
+                        .parentSchemaIds(parentSchemaIds)
+                        .parentPropertiesId(parentPropertyIds)
+                        .isPublic(isPublic)
+                        .build()), context);
     }
 
     public static Context contextBlankUser() {

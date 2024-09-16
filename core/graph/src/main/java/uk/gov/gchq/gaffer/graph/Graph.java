@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,22 @@
 package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
+
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.otel.OtelUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
@@ -38,7 +46,8 @@ import uk.gov.gchq.gaffer.graph.hook.UpdateViewHook;
 import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -49,9 +58,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
@@ -59,6 +66,7 @@ import uk.gov.gchq.koryphe.util.ReflectionUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -103,7 +111,7 @@ public final class Graph {
      */
     private final Store store;
 
-    private GraphConfig config;
+    private final GraphConfig config;
 
     /**
      * Constructs a {@code Graph} with the given {@link uk.gov.gchq.gaffer.store.Store}
@@ -111,8 +119,7 @@ public final class Graph {
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
      * @param config a {@link GraphConfig} used to store the configuration for
-     *               a
-     *               Graph.
+     *               a Graph.
      * @param store  a {@link Store} used to store the elements and handle
      *               operations.
      */
@@ -309,13 +316,22 @@ public final class Graph {
 
         final Context clonedContext = request.getContext().shallowClone();
         final OperationChain clonedOpChain = request.getOperationChain().shallowClone();
+
+        // OpenTelemetry hooks
+        Span span = OtelUtil.startSpan(
+            this.getClass().getName(),
+            "Graph Request: " + clonedOpChain.toOverviewString());
+        span.setAttribute("gaffer.graphId", getGraphId());
+        span.setAttribute("gaffer.jobId", clonedContext.getJobId());
+        span.setAttribute("gaffer.user", clonedContext.getUser().getUserId());
+
         O result = null;
-        try {
+        // Sets the span to current so parent child spans are auto linked
+        try (Scope scope = span.makeCurrent()) {
             updateOperationChainView(clonedOpChain);
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, clonedContext);
             }
-            // TODO - remove in V2
             // This updates the view, used for empty or null views, for
             // example if there is a NamedOperation that has been resolved
             // that contains an empty view
@@ -328,16 +344,19 @@ public final class Graph {
                     hookInstances.add((UpdateViewHook) graphHook);
                 }
             }
-            if (hookInstances.size() == 0) {
+            if (hookInstances.isEmpty()) {
                 hookInstances.add(new UpdateViewHook());
             }
             for (final UpdateViewHook hook : hookInstances) {
                 hook.preExecute(clonedOpChain, clonedContext);
             }
+            span.addEvent("Finished Pre-execute");
             result = (O) storeExecuter.execute(clonedOpChain, clonedContext);
+            span.addEvent("Operation Chain Complete");
             for (final GraphHook graphHook : config.getHooks()) {
                 result = graphHook.postExecute(result, clonedOpChain, clonedContext);
             }
+            span.addEvent("Finished Post-execute");
         } catch (final Exception e) {
             for (final GraphHook graphHook : config.getHooks()) {
                 try {
@@ -348,7 +367,11 @@ public final class Graph {
             }
             CloseableUtil.close(clonedOpChain);
             CloseableUtil.close(result);
+            span.setStatus(StatusCode.ERROR, e.getMessage());
+            span.recordException(e);
             throw e;
+        } finally {
+            span.end();
         }
         return new GraphResult<>(result, clonedContext);
     }
@@ -369,7 +392,7 @@ public final class Graph {
                     if (!isEmpty(opView.getGlobalElements()) || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {
                         opView = new View.Builder().merge(config.getView()).merge(opView).build();
                     } else { // We have either global edges or entities in
-                             // opView, but not both
+                        // opView, but not both
                         final View originalView = opView;
                         final View partialConfigView = new View.Builder()
                                 .merge(config.getView())
@@ -407,6 +430,46 @@ public final class Graph {
     }
 
     /**
+     * Returns the current {@link GraphConfig} that holds the configuration for
+     * the graph.
+     *
+     * @return The graph config.
+     */
+    public GraphConfig getConfig() {
+        return config;
+    }
+
+    /**
+     * Returns the graph view from the {@link GraphConfig}.
+     *
+     * @return the graph view.
+     */
+    public View getView() {
+        return config.getView();
+    }
+
+    /**
+     * Returns the description held in the {@link GraphConfig}.
+     *
+     * @return the description
+     */
+    public String getDescription() {
+        return config.getDescription();
+    }
+
+    /**
+     * Returns the graph hooks from the {@link GraphConfig}
+     *
+     * @return The list of {@link GraphHook}s
+     */
+    public List<Class <? extends GraphHook>> getGraphHooks() {
+        if (config.getHooks().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return config.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList());
+    }
+
+    /**
      * @return a collection of all the supported {@link Operation}s.
      */
     public Set<Class<? extends Operation>> getSupportedOperations() {
@@ -416,44 +479,23 @@ public final class Graph {
     /**
      * @param operation the class of the operation to check
      * @return a collection of all the compatible {@link Operation}s that could
-     *         be added to an operation chain after the provided operation.
+     * be added to an operation chain after the provided operation.
      */
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
         return store.getNextOperations(operation);
     }
 
     /**
-     * Returns the graph view.
+     * Get the Store's original {@link Schema}.
+     * <p>
+     * This is not the same as the {@link Schema} used internally by
+     * the {@link Store}. See {@link Store#getOriginalSchema()} and
+     * {@link Store#getSchema()} for more details.
      *
-     * @return the graph view.
-     */
-    public View getView() {
-        return config.getView();
-    }
-
-    /**
-     * @return the original schema.
+     * @return the original {@link Schema} used to create this graph
      */
     public Schema getSchema() {
         return store.getOriginalSchema();
-    }
-
-    /**
-     * @return the description held in the {@link GraphConfig}
-     */
-    public String getDescription() {
-        return config.getDescription();
-    }
-
-    /**
-     * Returns all the {@link StoreTrait}s for the contained {@link Store}
-     * implementation
-     *
-     * @return a {@link Set} of all of the {@link StoreTrait}s that the store has.
-     */
-    @Deprecated
-    public Set<StoreTrait> getStoreTraits() {
-        return store.getTraits();
     }
 
     /**
@@ -470,20 +512,16 @@ public final class Graph {
         return store.getProperties();
     }
 
-    public List<Class<? extends GraphHook>> getGraphHooks() {
-        if (config.getHooks().isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return (List) config.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList());
-    }
-
     public GraphLibrary getGraphLibrary() {
         return store.getGraphLibrary();
     }
 
-    protected GraphConfig getConfig() {
-        return config;
+    public List<Cache<?, ?>> getCaches() {
+        return store.getCaches();
+    }
+
+    public String getCreatedTime() {
+        return store.getCreatedTime();
     }
 
     @FunctionalInterface
@@ -690,6 +728,7 @@ public final class Graph {
             return this;
         }
 
+        @SuppressWarnings("PMD.UseTryWithResources")
         public Builder addSchemas(final InputStream... schemaStreams) {
             if (null != schemaStreams) {
                 try {
@@ -737,6 +776,7 @@ public final class Graph {
             return this;
         }
 
+        @SuppressWarnings("PMD.UseTryWithResources")
         public Builder addSchema(final InputStream schemaStream) {
             if (null != schemaStream) {
                 try {
@@ -773,18 +813,18 @@ public final class Graph {
         }
 
         public Builder addSchema(final Path schemaPath) {
-            if (null != schemaPath) {
-                try {
-                    if (Files.isDirectory(schemaPath)) {
-                        for (final Path path : Files.newDirectoryStream(schemaPath)) {
-                            addSchema(path);
-                        }
-                    } else {
-                        addSchema(Files.readAllBytes(schemaPath));
+            try {
+                // If directory load all schemas from it
+                if (Files.isDirectory(schemaPath)) {
+                    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(schemaPath)) {
+                        directoryStream.forEach(this::addSchema);
                     }
-                } catch (final IOException e) {
-                    throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
+                } else {
+                    // Just load the file
+                    addSchema(Files.readAllBytes(schemaPath));
                 }
+            } catch (final IOException e) {
+                throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
             }
             return this;
         }
@@ -802,18 +842,28 @@ public final class Graph {
         }
 
         public Graph build() {
+            // Initialise GraphConfig (with default library of NoGraphLibrary)
             final GraphConfig config = configBuilder.build();
-            if (null == config.getLibrary()) {
-                config.setLibrary(new NoGraphLibrary());
+
+            // Enable opentelemetry if configured to be active
+            if (Boolean.TRUE.equals(config.getOtelActive())) {
+                AutoConfiguredOpenTelemetrySdk.initialize();
+                OtelUtil.setOpenTelemetryActive(true);
             }
 
-            if (null == config.getGraphId() && null != store) {
-                config.setGraphId(store.getGraphId());
+            // Make sure parent store properties are applied
+            if (parentStorePropertiesId != null) {
+                final StoreProperties parentStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
+                properties = applyParentStoreProperties(properties, parentStoreProperties);
             }
 
-            updateStoreProperties(config);
+            // Make sure parent schemas are applied
+            if (parentSchemaIds != null) {
+                final List<Schema> parentSchemas = parentSchemaIds.stream().map(id -> config.getLibrary().getSchema(id)).collect(Collectors.toList());
+                schema = applyParentSchemas(schema, parentSchemas);
+            }
 
-            updateSchema(config);
+            loadSchemaFromJson();
 
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
                 // Set Props & Schema if null.
@@ -822,133 +872,150 @@ public final class Graph {
                 schema = (null == schema) ? pair.getFirst() : schema;
             }
 
-            updateStore(config);
+            // Initialise the store
+            initStore(config);
 
-            if (null != config.getGraphId()) {
-                config.getLibrary().checkExisting(config.getGraphId(), schema, properties);
-            }
+            // Check this graph does not conflict with an existing graph library graph
+            config.getLibrary().checkExisting(config.getGraphId(), schema, properties);
 
-            updateView(config);
+            // Initialise the view
+            config.initView(schema);
 
-            if (null == config.getGraphId()) {
-                config.setGraphId(store.getGraphId());
-            }
+            // Validate and set up the graph hooks
+            validateAndUpdateHooks(config);
 
-            if (null == config.getGraphId()) {
-                throw new IllegalArgumentException("graphId is required");
-            }
-
-            updateGraphHooks(config);
-
+            // Add this graph to the graph library (true by default)
             if (addToLibrary) {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
             }
 
+            // Set the original schema used to create the graph.
+            // This is stored inside the Store but is primarily
+            // used by this class.
             store.setOriginalSchema(schema);
 
             return new Graph(config, store);
         }
 
-        private void updateGraphHooks(final GraphConfig config) {
-            List<GraphHook> hooks = config.getHooks();
-            if (!hasHook(hooks, NamedViewResolver.class)) {
-                hooks.add(0, new NamedViewResolver());
-            }
-            if (store.isSupported(NamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
-                config.getHooks().add(0, new NamedOperationResolver());
-            }
-            if (!hasHook(hooks, FunctionAuthoriser.class)) {
-                config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
+        private void validateAndUpdateHooks(final GraphConfig config) {
+            config.validateAndUpdateGetFromCacheHook(
+                store,
+                AddNamedView.class,
+                NamedViewResolver.class,
+                properties != null ? properties.getCacheServiceNamedViewSuffix(config.getGraphId()) : null);
+
+            config.validateAndUpdateGetFromCacheHook(
+                store,
+                AddNamedOperation.class,
+                NamedOperationResolver.class,
+                properties != null ? properties.getCacheServiceNamedOperationSuffix(config.getGraphId()) : null);
+
+            if (!config.hasHook(FunctionAuthoriser.class)) {
+                LOGGER.info("No FunctionAuthoriser hook was supplied, adding default hook.");
+                config.addHook(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
             }
         }
 
-        private boolean hasHook(final List<GraphHook> hooks, final Class<? extends GraphHook> hookClass) {
-            for (final GraphHook hook : hooks) {
-                if (hookClass.isAssignableFrom(hook.getClass())) {
-                    return true;
-                }
+        /**
+         * Loads the current schema list of byte arrays as json.
+         */
+        private void loadSchemaFromJson() {
+            if (schemaBytesList.isEmpty()) {
+                LOGGER.debug("No schema bytes have been supplied unable to load as JSON");
+                return;
             }
-            return false;
-        }
-
-        private void updateSchema(final GraphConfig config) {
-            Schema mergedParentSchema = null;
-
-            if (null != parentSchemaIds) {
-                for (final String parentSchemaId : parentSchemaIds) {
-                    if (null != parentSchemaId) {
-                        final Schema parentSchema = config.getLibrary().getSchema(parentSchemaId);
-                        if (null != parentSchema) {
-                            if (null == mergedParentSchema) {
-                                mergedParentSchema = parentSchema;
-                            } else {
-                                mergedParentSchema = new Schema.Builder()
-                                        .merge(mergedParentSchema)
-                                        .merge(parentSchema)
-                                        .build();
-                            }
-                        }
-                    }
-                }
+            if (properties == null) {
+                throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
             }
 
-            if (null != mergedParentSchema) {
-                if (null == schema) {
-                    schema = mergedParentSchema;
-                } else {
-                    schema = new Schema.Builder()
-                            .merge(mergedParentSchema)
-                            .merge(schema)
-                            .build();
-                }
-            }
+            // Get the schema class to load with
+            final Class<? extends Schema> schemaClass = properties.getSchemaClass();
 
-            if (!schemaBytesList.isEmpty()) {
-                if (null == properties) {
-                    throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
-                }
-
-                final Class<? extends Schema> schemaClass = properties.getSchemaClass();
-                final Schema newSchema = new Schema.Builder()
-                        .json(schemaClass, schemaBytesList.toArray(new byte[schemaBytesList.size()][]))
-                        .build();
+            // Add the schemas
+            schemaBytesList.forEach(schemaBytes -> {
+                Schema newSchema = new Schema.Builder()
+                    .json(schemaClass, schemaBytes)
+                    .build();
                 addSchema(newSchema);
-            }
+            });
         }
 
-        private void updateStoreProperties(final GraphConfig config) {
-            StoreProperties mergedStoreProperties = null;
-            if (null != parentStorePropertiesId) {
-                mergedStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
-            }
+        /**
+         * Merges the supplied properties with the properties from the parent store
+         * and returns the result. The parent store properties are applied first so
+         * the properties supplied can override them during the merge.
+         *
+         * @param properties The current properties.
+         * @param parentStoreProperties The properties the parent store to apply
+         * @return Merged properties of the parent store and the supplied properties.
+         */
+        private StoreProperties applyParentStoreProperties(final StoreProperties properties, final StoreProperties parentStoreProperties) {
+            // Start with the parent store properties
+            StoreProperties mergedProperties = parentStoreProperties;
 
-            if (null != properties) {
-                if (null == mergedStoreProperties) {
-                    mergedStoreProperties = properties;
+            // Apply rest of properties
+            if (properties != null) {
+                mergedProperties.merge(properties);
+            }
+            return mergedProperties;
+        }
+
+        /**
+         * Merges the supplied schema with any parent schemas and returns the
+         * result.
+         *
+         * @param currentSchema The current schema.
+         * @param parentSchemas The list of parent schemas to merge.
+         * @return Merged schema of any parents and the supplied schema.
+         */
+        private Schema applyParentSchemas(final Schema currentSchema, final List<Schema> parentSchemas) {
+            Schema mergedSchema = null;
+
+            // Apply parent schemas
+            for (final Schema parentSchema : parentSchemas) {
+                // If the merged result is still null init with the current schema else merge
+                if (mergedSchema == null) {
+                    mergedSchema = parentSchema;
                 } else {
-                    mergedStoreProperties.merge(properties);
+                    mergedSchema = new Schema.Builder()
+                        .merge(mergedSchema)
+                        .merge(parentSchema)
+                        .build();
                 }
             }
-            properties = mergedStoreProperties;
+            // Merge parent schemas with current schema
+            if (mergedSchema != null && currentSchema != null) {
+                mergedSchema = new Schema.Builder()
+                    .merge(mergedSchema)
+                    .merge(currentSchema)
+                    .build();
+            }
+
+            return mergedSchema;
         }
 
-        private void updateStore(final GraphConfig config) {
-            if (null == store) {
+        /**
+         * Initialises the {@link Store} class instance with a given graph configuration.
+         * Will only initialise the store if it is currently null or relevant parameters
+         * are not null e.g. schema/graph ID.
+         * <p>
+         * Will also attempt to extract some graph configuration from the current store if
+         * not currently configured.
+         *
+         * @param config The graph config
+         */
+        private void initStore(final GraphConfig config) {
+            // If store was not supplied then create it
+            // This also checks the GraphId is valid
+            if (store == null) {
+                LOGGER.debug("Store currently null initialising with Id: {} and existing schema/properties", config.getGraphId());
                 store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
-            } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
-                    || (null != schema)
-                    || (null != properties && !properties.equals(store.getProperties()))) {
-                if (null == config.getGraphId()) {
-                    config.setGraphId(store.getGraphId());
-                }
-                if (null == schema || schema.getGroups().isEmpty()) {
-                    schema = store.getSchema();
-                }
+            }
 
-                if (null == properties) {
-                    properties = store.getProperties();
-                }
-
+            // Only init if some configuration has already been set up and is different to what the store already has
+            if ((config.getGraphId() != null && !config.getGraphId().equals(store.getGraphId())) ||
+                (schema != null) ||
+                (properties != null && !properties.equals(store.getProperties()))) {
                 try {
                     store.initialise(config.getGraphId(), cloneSchema(schema), properties);
                 } catch (final StoreException e) {
@@ -956,24 +1023,32 @@ public final class Graph {
                 }
             }
 
-            store.setGraphLibrary(config.getLibrary());
+            // Use the store's graph Id if we don't have one configured already
+            if (config.getGraphId() == null) {
+                config.setGraphId(store.getGraphId());
+            }
 
-            if (null == schema || schema.getGroups().isEmpty()) {
+            // Use the store's schema if not already set
+            if (schema == null) {
                 schema = store.getSchema();
             }
-        }
 
-        private void updateView(final GraphConfig config) {
-            if (null == config.getView()) {
-                config.setView(new View.Builder()
-                        .entities(store.getSchema().getEntityGroups())
-                        .edges(store.getSchema().getEdgeGroups())
-                        .build());
+            // Use the store's properties if not already set
+            if (properties == null) {
+                properties = store.getProperties();
             }
+
+            store.setGraphLibrary(config.getLibrary());
         }
 
+        /**
+         * Null safe clone of the supplied schema.
+         *
+         * @param schema The schema to clone.
+         * @return Clone of the schema.
+         */
         private Schema cloneSchema(final Schema schema) {
-            return null != schema ? schema.clone() : null;
+            return schema != null ? schema.clone() : null;
         }
     }
 

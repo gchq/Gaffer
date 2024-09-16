@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
@@ -36,8 +35,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +49,6 @@ import java.util.Map;
 @Since("1.3.0")
 @Summary("Adds a new named view")
 public class AddNamedView implements Operation {
-    private static final String CHARSET_NAME = CommonConstants.UTF_8;
     @Required
     private String name;
     @Required
@@ -92,25 +89,25 @@ public class AddNamedView implements Operation {
         try {
             return null == view ? null : JSONSerialiser.getJsonNodeFromString(view);
         } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
+            throw new IllegalArgumentException(se.getMessage(), se);
         }
     }
 
     @JsonIgnore
     public void setView(final View view) {
         try {
-            this.view = null == view ? null : new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
+            this.view = null == view ? null : new String(JSONSerialiser.serialise(view), StandardCharsets.UTF_8);
         } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
+            throw new IllegalArgumentException(se.getMessage(), se);
         }
     }
 
     @JsonIgnore
     public View getView() {
         try {
-            return null == view ? null : JSONSerialiser.deserialise(view.getBytes(CHARSET_NAME), View.class);
-        } catch (final UnsupportedEncodingException | SerialisationException e) {
-            throw new IllegalArgumentException(e.getMessage());
+            return null == view ? null : JSONSerialiser.deserialise(view.getBytes(StandardCharsets.UTF_8), View.class);
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 

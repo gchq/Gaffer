@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.impl.AddElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.CountAllElementsDefaultViewHandler;
+import uk.gov.gchq.gaffer.mapstore.impl.DeleteAllDataHandler;
+import uk.gov.gchq.gaffer.mapstore.impl.DeleteElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetElementsHandler;
@@ -32,6 +34,7 @@ import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.mapstore.optimiser.CountAllElementsOperationChainOptimiser;
 import uk.gov.gchq.gaffer.mapstore.utils.SchemaOptimiserMapStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.ImportFromLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -43,6 +46,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -53,6 +57,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,7 +79,7 @@ import static java.util.Objects.isNull;
  */
 public class MapStore extends Store {
 
-    public static final Set<StoreTrait> TRAITS = new HashSet<>(asList(
+    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(asList(
             StoreTrait.VISIBILITY,
             StoreTrait.QUERY_AGGREGATION,
             StoreTrait.INGEST_AGGREGATION,
@@ -82,7 +87,7 @@ public class MapStore extends Store {
             StoreTrait.POST_AGGREGATION_FILTERING,
             StoreTrait.TRANSFORMATION,
             StoreTrait.POST_TRANSFORMATION_FILTERING,
-            StoreTrait.MATCHED_VERTEX));
+            StoreTrait.MATCHED_VERTEX)));
     private static final Logger LOGGER = LoggerFactory.getLogger(MapStore.class);
     private static MapImpl staticMapImpl;
     private MapImpl mapImpl;
@@ -108,7 +113,12 @@ public class MapStore extends Store {
         return mapImpl;
     }
 
-    @Override
+    /**
+     * Get the traits supported by this Map Store.
+     * This method is for internal Map Store use
+     * only.
+     * @return Map Store Traits
+     */
     public Set<StoreTrait> getTraits() {
         return TRAITS;
     }
@@ -163,6 +173,16 @@ public class MapStore extends Store {
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new AddElementsHandler();
+    }
+
+    @Override
+    protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        return new DeleteElementsHandler();
+    }
+
+    @Override
+    protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+        return new DeleteAllDataHandler();
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,8 +41,8 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 public class GetAllNamedOperationsHandlerTest {
 
-    private final NamedOperationCache cache = new NamedOperationCache();
-    private final AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler(cache);
+    private final NamedOperationCache cache = new NamedOperationCache("Suffix");
+    private final AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler(cache, true);
     private final GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler(cache);
     private final Context context = new Context(new User.Builder()
             .userId(User.UNKNOWN_USER_ID)
@@ -68,17 +68,15 @@ public class GetAllNamedOperationsHandlerTest {
     @Mock
     private Store store;
 
-    @AfterAll
-    public static void tearDown() {
+    @AfterEach
+    public void tearDown() {
         CacheServiceLoader.shutdown();
     }
 
     @BeforeEach
     public void before() {
         given(store.getProperties()).willReturn(new StoreProperties());
-        final StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties.getProperties());
+        CacheServiceLoader.initialise("uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
     }
 
     @Test
@@ -120,6 +118,7 @@ public class GetAllNamedOperationsHandlerTest {
                 .name(expectedOperationDetailWithInputType.getOperationName())
                 .description(expectedOperationDetailWithInputType.getDescription())
                 .operationChain(expectedOperationDetailWithInputType.getOperationChainWithDefaultParams())
+                .overwrite(true)
                 .build();
 
         addNamedOperationHandler.doOperation(addNamedOperation, context, store);

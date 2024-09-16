@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+@Deprecated
 public interface MultiInputB<I_ITEM> extends InputB<Iterable<? extends I_ITEM>> {
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If inputB is null then null should be returned")
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -38,7 +39,7 @@ public interface MultiInputB<I_ITEM> extends InputB<Iterable<? extends I_ITEM>> 
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonSetter("inputB")
-    default void setInputB(final I_ITEM[] inputB) {
+    default void setInputB(final I_ITEM... inputB) {
         setInputB(Lists.newArrayList(inputB));
     }
 

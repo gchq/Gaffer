@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 @Since("1.21.0")
 @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
 @Summary("Creates a new HyperLogLogPlus instance and initialises it from the given iterable")
+@Deprecated
 public class IterableToHyperLogLogPlus extends KorypheFunction<Iterable<Object>, HyperLogLogPlus> {
     private int p = 5;
 

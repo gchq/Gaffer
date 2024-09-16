@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,6 +81,7 @@ public class CountAllElementsOperationChainOptimiser extends AbstractOperationCh
     }
 
     @Override
+    @SuppressWarnings("PMD.UselessOverridingMethod") //Required
     public int hashCode() {
         return super.hashCode();
     }

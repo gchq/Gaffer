@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore;
 
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.HllSketchSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.LongsSketchSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.StringsSketchSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation.DoublesUnionSerialiser;
@@ -33,8 +34,9 @@ import uk.gov.gchq.gaffer.store.SerialisationFactory;
  * is design to provide compatible serialisers for given object classes.
  */
 public class AccumuloSerialisationFactory extends SerialisationFactory {
-    private static final Serialiser[] ACCUMULO_SERIALISERS = new Serialiser[]{
+    private static final Serialiser[] ACCUMULO_SERIALISERS = {
             new HyperLogLogPlusSerialiser(),
+            new HllSketchSerialiser(),
             new LongsSketchSerialiser(),
             new StringsSketchSerialiser(),
             new DoublesUnionSerialiser(),

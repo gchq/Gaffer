@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.ICacheService;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -74,10 +75,10 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.add.CsvToElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
@@ -91,6 +92,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetGraphCreatedTime;
 import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -111,6 +113,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.Store.ScheduledJobRunnable;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.HasTrait;
@@ -136,12 +139,14 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import java.nio.charset.Charset;
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.RunnableScheduledFuture;
 import java.util.concurrent.ScheduledExecutorService;
@@ -159,11 +164,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.jobtracker.JobTracker.JOB_TRACKER_CACHE_SERVICE_NAME;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
@@ -200,6 +207,7 @@ public class StoreTest {
 
     @BeforeEach
     public void setup() {
+        CacheServiceLoader.shutdown();
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
         JSONSerialiser.update();
@@ -246,6 +254,61 @@ public class StoreTest {
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
         JSONSerialiser.update();
+    }
+
+    @Test
+    public void shouldExecuteOperationWhenJobTrackerCacheIsBroken(@Mock final StoreProperties storeProperties) throws Exception {
+        // Given
+        ICache<Object, Object> mockICache = Mockito.mock(ICache.class);
+        doThrow(new CacheOperationException("Stubbed class")).when(mockICache).put(any(), any());
+        ICacheService mockICacheService = Mockito.spy(ICacheService.class);
+        given(mockICacheService.getCache(any())).willReturn(mockICache);
+
+        Field field = CacheServiceLoader.class.getDeclaredField("SERVICES");
+        field.setAccessible(true);
+        java.util.Map<String, ICacheService> mockCacheServices = (java.util.Map<String, ICacheService>) field.get(new HashMap<>());
+        mockCacheServices.put(JOB_TRACKER_CACHE_SERVICE_NAME, mockICacheService);
+
+        final AddElements addElements = new AddElements();
+        final StoreImpl3 store = new StoreImpl3();
+        store.initialise("graphId", createSchemaMock(), storeProperties);
+
+        // When
+        store.execute(addElements, context);
+
+        // Then
+        verify(addElementsHandler).doOperation(addElements, context, store);
+        verify(mockICacheService, Mockito.atLeast(1)).getCache(any());
+        verify(mockICache, Mockito.atLeast(1)).put(any(), any());
+    }
+
+    @Test
+    public void shouldCreateStoreWithSpecificCaches() throws SchemaException, StoreException {
+        // Given
+        final Store testStore = new StoreImpl();
+
+        // When
+        testStore.initialise("testGraph", new Schema(), StoreProperties.loadStoreProperties("allCaches.properties"));
+
+        // Then
+        assertThat(CacheServiceLoader.isDefaultEnabled()).isFalse();
+        assertThat(CacheServiceLoader.isEnabled("JobTracker")).isTrue();
+        assertThat(CacheServiceLoader.isEnabled("NamedView")).isTrue();
+        assertThat(CacheServiceLoader.isEnabled("NamedOperation")).isTrue();
+    }
+
+    @Test
+    public void shouldCreateStoreWithDefaultCache() throws SchemaException, StoreException {
+        // Given
+        final Store testStore = new StoreImpl();
+        final StoreProperties props = new StoreProperties();
+
+        // When
+        props.setDefaultCacheServiceClass(HashMapCacheService.class.getName());
+        testStore.initialise("testGraph", new Schema(), props);
+
+        // Then
+        assertThat(CacheServiceLoader.isDefaultEnabled()).isTrue();
     }
 
     @Test
@@ -448,17 +511,16 @@ public class StoreTest {
         assertThat(result).isSameAs(getElementsResult);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
-    public void shouldReturnAllSupportedOperations(@Mock final StoreProperties properties) throws Exception {
+    public void shouldReturnAllSupportedOperationsWhenJobTrackerIsEnabled(@Mock final StoreProperties properties) throws Exception {
         // Given
-        final Properties cacheProperties = new Properties();
-        cacheProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        CacheServiceLoader.initialise(cacheProperties);
+        CacheServiceLoader.initialise(HashMapCacheService.class.getName());
 
         final Schema schema = createSchemaMock();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
+        given(properties.getNamedViewEnabled()).willReturn(true);
+        given(properties.getNamedOperationEnabled()).willReturn(true);
         store.initialise("graphId", schema, properties);
 
         // When
@@ -483,9 +545,6 @@ public class StoreTest {
                         GetExports.class,
                         ExportToGafferResultCache.class,
                         GetGafferResultCacheExport.class,
-
-                        // Import
-                        CsvToElements.class,
 
                         // Jobs
                         GetJobDetails.class,
@@ -547,6 +606,7 @@ public class StoreTest {
                         ForEach.class,
                         Reduce.class,
                         CancelScheduledJob.class,
+                        GetGraphCreatedTime.class,
 
                         // Function
                         Filter.class,
@@ -563,17 +623,16 @@ public class StoreTest {
         assertThat(supportedOperations).isEqualTo(expectedOperations);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldReturnAllSupportedOperationsWhenJobTrackerIsDisabled(@Mock final StoreProperties properties) throws Exception {
         // Given
-        final Properties cacheProperties = new Properties();
-        cacheProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        CacheServiceLoader.initialise(cacheProperties);
+        CacheServiceLoader.initialise(HashMapCacheService.class.getName());
 
         final Schema schema = createSchemaMock();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(false);
+        given(properties.getNamedViewEnabled()).willReturn(true);
+        given(properties.getNamedOperationEnabled()).willReturn(true);
         store.initialise("graphId", schema, properties);
 
         // When
@@ -599,9 +658,6 @@ public class StoreTest {
                         GetExports.class,
                         ExportToGafferResultCache.class,
                         GetGafferResultCacheExport.class,
-
-                        // Import
-                        CsvToElements.class,
 
                         // Jobs are disabled
 
@@ -659,7 +715,7 @@ public class StoreTest {
                         ToSingletonList.class,
                         ForEach.class,
                         Reduce.class,
-                        CancelScheduledJob.class,
+                        GetGraphCreatedTime.class,
 
                         // Function
                         Filter.class,
@@ -865,6 +921,19 @@ public class StoreTest {
         assertThat(result).isSameAs(graphLibrary);
     }
 
+    @Test
+    void shouldGetCreatedTime() {
+        // Given
+        final Store testStore = new StoreImpl();
+
+        // When
+        String storeTime = testStore.getCreatedTime();
+
+        // Then
+        assertThat(storeTime).isInstanceOf(String.class);
+        assertThat(LocalDateTime.parse(storeTime)).isInstanceOf(LocalDateTime.class);
+    }
+
     private Schema createSchemaMock() {
         final Schema schema = mock(Schema.class);
         given(schema.validate()).willReturn(new ValidationResult());
@@ -919,7 +988,7 @@ public class StoreTest {
         final OperationChain opChain = new OperationChain.Builder().first(new DiscardOutput()).build();
         final Context context = new Context(user);
         final String operationChainOverviewString = opChain.toOverviewString();
-        final String serialisedOperationChain = new String(JSONSerialiser.serialise(opChain), Charset.forName(CommonConstants.UTF_8));
+        final String serialisedOperationChain = new String(JSONSerialiser.serialise(opChain), StandardCharsets.UTF_8);
 
         // When - setup job
         final JobDetail parentJobDetail = store.executeJob(new Job(repeat, opChain), context);
@@ -955,6 +1024,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobTrackerEnabled()).willReturn(true);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getRescheduleJobsOnStart()).willReturn(true);
 
         final Repeat repeat = new Repeat(0, 100, TimeUnit.SECONDS);
         final OperationChain<?> opChain = new OperationChain.Builder().first(new DiscardOutput()).build();
@@ -1073,9 +1143,216 @@ public class StoreTest {
             return operationChainValidator;
         }
 
+        @SuppressWarnings("rawtypes")
+        public OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
+            return super.getOperationHandler(opClass);
+        }
+
         @Override
-        public Set<StoreTrait> getTraits() {
-            return traits;
+        public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+            if (opClass.equals(SetVariable.class)) {
+                return null;
+            }
+            return super.getOperationHandler(opClass);
+        }
+
+        @Override
+        protected void addAdditionalOperationHandlers() {
+            createOperationHandlersCallCount++;
+            addOperationHandler(mock(AddElements.class).getClass(), addElementsHandler);
+            addOperationHandler(mock(GetElements.class).getClass(), getElementsHandler);
+            addOperationHandler(mock(GetAdjacentIds.class).getClass(), getElementsHandler);
+            addOperationHandler(Validate.class, validateHandler);
+            addOperationHandler(ExportToGafferResultCache.class, exportToGafferResultCacheHandler);
+            addOperationHandler(GetGafferResultCacheExport.class, getGafferResultCacheExportHandler);
+        }
+
+        @Override
+        protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
+            return getElementsHandler;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
+            return getAllElementsHandler;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
+            return getAdjacentIdsHandler;
+        }
+
+        @Override
+        protected OperationHandler<AddElements> getAddElementsHandler() {
+            return addElementsHandler;
+        }
+
+
+        @Override
+        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+            return null;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(traits);
+        }
+
+        @Override
+        protected Object doUnhandledOperation(final Operation operation, final Context context) {
+            doUnhandledOperationCalls.add(operation);
+            return null;
+        }
+
+        public int getCreateOperationHandlersCallCount() {
+            return createOperationHandlersCallCount;
+        }
+
+        public ArrayList<Operation> getDoUnhandledOperationCalls() {
+            return doUnhandledOperationCalls;
+        }
+
+        @Override
+        protected SchemaOptimiser createSchemaOptimiser() {
+            return schemaOptimiser;
+        }
+
+        @Override
+        protected void populateCaches() {
+            if (getProperties().getJobTrackerEnabled()) {
+                super.jobTracker = StoreTest.this.jobTracker;
+            }
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return Serialiser.class;
+        }
+    }
+
+    // Second store implementation with overriding ExecutorService.
+    // This cannot be done in the first because the other tests for Jobs will fail due to mocking.
+    private class StoreImpl2 extends Store {
+        private final Set<StoreTrait> traits = new HashSet<>(asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
+
+        private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
+
+        private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
+
+        @Override
+        protected OperationChainValidator createOperationChainValidator() {
+            return operationChainValidator;
+        }
+
+        @Override
+        public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+            if (opClass.equals(SetVariable.class)) {
+                return null;
+            }
+            return super.getOperationHandler(opClass);
+        }
+
+        @Override
+        protected void addAdditionalOperationHandlers() {
+            addOperationHandler(mock(AddElements.class).getClass(), addElementsHandler);
+            addOperationHandler(mock(GetElements.class).getClass(), getElementsHandler);
+            addOperationHandler(mock(GetAdjacentIds.class).getClass(), getElementsHandler);
+            addOperationHandler(Validate.class, validateHandler);
+            addOperationHandler(ExportToGafferResultCache.class, exportToGafferResultCacheHandler);
+            addOperationHandler(GetGafferResultCacheExport.class, getGafferResultCacheExportHandler);
+        }
+
+        @Override
+        protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
+            return getElementsHandler;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
+            return getAllElementsHandler;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
+            return getAdjacentIdsHandler;
+        }
+
+        @Override
+        protected OperationHandler<AddElements> getAddElementsHandler() {
+            return addElementsHandler;
+        }
+
+
+        @Override
+        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+            return null;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(traits);
+        }
+
+        @Override
+        protected Object doUnhandledOperation(final Operation operation, final Context context) {
+            doUnhandledOperationCalls.add(operation);
+            return null;
+        }
+
+        @Override
+        protected void populateCaches() {
+            if (getProperties().getJobTrackerEnabled()) {
+                super.jobTracker = StoreTest.this.jobTracker;
+            }
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return Serialiser.class;
+        }
+
+        @Override
+        protected ScheduledExecutorService getExecutorService() {
+            final ScheduledFuture<?> future = mock(RunnableScheduledFuture.class);
+            lenient().doReturn(future).when(executorService).scheduleAtFixedRate(any(Runnable.class),
+                    anyLong(),
+                    anyLong(),
+                    any(TimeUnit.class));
+            return executorService;
+        }
+    }
+
+    public static final class TestCustomJsonSerialiser1 extends JSONSerialiser {
+        public static ObjectMapper mapper;
+
+        public TestCustomJsonSerialiser1() {
+            super(mapper);
+        }
+    }
+    private class StoreImpl3 extends Store {
+        private final Set<StoreTrait> traits =
+                new HashSet<>(asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
+        private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
+        private int createOperationHandlersCallCount;
+
+        @Mock
+        private ScheduledExecutorService executorService;
+
+        @Override
+        protected OperationChainValidator createOperationChainValidator() {
+            return operationChainValidator;
         }
 
         @SuppressWarnings("rawtypes")
@@ -1123,6 +1400,16 @@ public class StoreTest {
         }
 
         @Override
+        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+            return null;
+        }
+
+        @Override
         protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
             return new GetTraitsHandler(traits);
         }
@@ -1147,120 +1434,14 @@ public class StoreTest {
         }
 
         @Override
-        protected JobTracker createJobTracker() {
-            if (getProperties().getJobTrackerEnabled()) {
-                return jobTracker;
-            }
-
-            return null;
+        protected void populateCaches() {
+            super.jobTracker = new JobTracker("Test");
         }
 
         @SuppressWarnings("rawtypes")
         @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return Serialiser.class;
-        }
-    }
-
-    // Second store implementation with overriding ExecutorService.
-    // This cannot be done in the first because the other tests for Jobs will fail due to mocking.
-    private class StoreImpl2 extends Store {
-        private final Set<StoreTrait> traits = new HashSet<>(asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
-
-        private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
-
-        private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
-
-        @Override
-        protected OperationChainValidator createOperationChainValidator() {
-            return operationChainValidator;
-        }
-
-        @Override
-        public Set<StoreTrait> getTraits() {
-            return traits;
-        }
-
-        @Override
-        public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
-            if (opClass.equals(SetVariable.class)) {
-                return null;
-            }
-            return super.getOperationHandler(opClass);
-        }
-
-        @Override
-        protected void addAdditionalOperationHandlers() {
-            addOperationHandler(mock(AddElements.class).getClass(), addElementsHandler);
-            addOperationHandler(mock(GetElements.class).getClass(), getElementsHandler);
-            addOperationHandler(mock(GetAdjacentIds.class).getClass(), getElementsHandler);
-            addOperationHandler(Validate.class, validateHandler);
-            addOperationHandler(ExportToGafferResultCache.class, exportToGafferResultCacheHandler);
-            addOperationHandler(GetGafferResultCacheExport.class, getGafferResultCacheExportHandler);
-        }
-
-        @Override
-        protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
-            return getElementsHandler;
-        }
-
-        @Override
-        protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
-            return getAllElementsHandler;
-        }
-
-        @Override
-        protected OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
-            return getAdjacentIdsHandler;
-        }
-
-        @Override
-        protected OperationHandler<AddElements> getAddElementsHandler() {
-            return addElementsHandler;
-        }
-
-        @Override
-        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-            return new GetTraitsHandler(traits);
-        }
-
-        @Override
-        protected Object doUnhandledOperation(final Operation operation, final Context context) {
-            doUnhandledOperationCalls.add(operation);
-            return null;
-        }
-
-        @Override
-        protected JobTracker createJobTracker() {
-            if (getProperties().getJobTrackerEnabled()) {
-                return jobTracker;
-            }
-
-            return null;
-        }
-
-        @SuppressWarnings("rawtypes")
-        @Override
-        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
-            return Serialiser.class;
-        }
-
-        @Override
-        protected ScheduledExecutorService getExecutorService() {
-            final ScheduledFuture<?> future = mock(RunnableScheduledFuture.class);
-            lenient().doReturn(future).when(executorService).scheduleAtFixedRate(any(Runnable.class),
-                    anyLong(),
-                    anyLong(),
-                    any(TimeUnit.class));
-            return executorService;
-        }
-    }
-
-    public static final class TestCustomJsonSerialiser1 extends JSONSerialiser {
-        public static ObjectMapper mapper;
-
-        public TestCustomJsonSerialiser1() {
-            super(mapper);
         }
     }
 }

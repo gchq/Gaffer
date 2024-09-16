@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -95,7 +95,7 @@ public class FileGraphLibrary extends GraphLibrary {
 
     @Override
     protected void _addIds(final String graphId, final Pair<String, String> schemaAndPropsIds) throws OverwritingException {
-        String schemaAndPropsIdsString = new String(schemaAndPropsIds.getFirst() + "," + schemaAndPropsIds.getSecond());
+        String schemaAndPropsIdsString = schemaAndPropsIds.getFirst() + "," + schemaAndPropsIds.getSecond();
         try {
             FileUtils.writeStringToFile(getGraphsPath(graphId).toFile(), schemaAndPropsIdsString);
         } catch (final IOException e) {
@@ -122,12 +122,12 @@ public class FileGraphLibrary extends GraphLibrary {
     protected void _addProperties(final String propertiesId,
                                   final StoreProperties properties) {
         if (null != properties) {
-            getPropertiesPath(propertiesId).toFile().getParentFile().mkdirs();
-            try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
+            Boolean dirCreated = getPropertiesPath(propertiesId).toFile().getParentFile().mkdirs();
+            try (OutputStream propertiesFileOutputStream = Files.newOutputStream(getPropertiesPath(propertiesId))) {
                 properties.getProperties().store(propertiesFileOutputStream, null);
             } catch (final IOException e) {
-                throw new IllegalArgumentException("Could not write " +
-                        "properties to path: " + getPropertiesPath(propertiesId), e);
+                throw new IllegalArgumentException(String.format("Could not write properties to path: %s. Directory created: %s",
+                        getPropertiesPath(propertiesId), dirCreated), e);
             }
         } else {
             throw new IllegalArgumentException("StoreProperties cannot be null");
@@ -141,7 +141,7 @@ public class FileGraphLibrary extends GraphLibrary {
         try {
             return path.toFile().exists() ? Files.readAllBytes(path) : null;
         } catch (final IOException e) {
-            throw new SchemaException("Unable to read schema bytes from file: " + getSchemaPath(graphId));
+            throw new SchemaException("Unable to read schema bytes from file: " + getSchemaPath(graphId), e);
         }
     }
 

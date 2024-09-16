@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
 
         assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
         assertTrue(op.isUserRequestingAdminUsage());
+        assertTrue(op.isRemoveCache());
     }
 
     @Test

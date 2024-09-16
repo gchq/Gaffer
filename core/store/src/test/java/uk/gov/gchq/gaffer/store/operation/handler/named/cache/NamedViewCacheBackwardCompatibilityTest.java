@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,31 +24,35 @@ import uk.gov.gchq.gaffer.cache.impl.JcsCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Properties;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache.NAMED_VIEW_CACHE_SERVICE_NAME;
 
 public class NamedViewCacheBackwardCompatibilityTest {
+    private static final String BACKWARDS_COMPATABILITY_2_0_0 = "backwards_compatability_2.0.0";
+    public static final String GAFFER_2_0_0_CACHE_CACHE_CCF = "src/test/resources/gaffer-2.0.0-cache/cache.ccf";
     private static NamedViewCache viewCache;
-    private static final User ADDING_USER = new User("user1");
+    private static final User ADDING_USER = StoreUser.authUser();
     private static final String VIEW_NAME = "TestView";
 
     @BeforeAll
     public static void setUp() {
+        CacheServiceLoader.shutdown();
         final Properties properties = new Properties();
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, JcsCacheService.class.getName());
         // Note that this config causes a binary resource file containing data to be loaded into the cache
         // This data includes ADDING_USER and VIEW_NAME
-        properties.setProperty(CacheProperties.CACHE_CONFIG_FILE, "src/test/resources/gaffer-1.12.0-cache/cache.ccf");
-        CacheServiceLoader.initialise(properties);
-        viewCache = new NamedViewCache();
+        properties.setProperty(CacheProperties.CACHE_CONFIG_FILE, GAFFER_2_0_0_CACHE_CACHE_CCF);
+        CacheServiceLoader.initialise(NAMED_VIEW_CACHE_SERVICE_NAME, JcsCacheService.class.getName(), properties);
+        viewCache = new NamedViewCache(BACKWARDS_COMPATABILITY_2_0_0);
     }
 
     @Test
-    public void shouldReturnExpectedNamedViewDetailUsingCacheDataFromVersion1_12() throws Exception {
+    public void shouldReturnExpectedNamedViewDetailUsingCacheDataFromVersion2() throws Exception {
         final NamedViewDetail namedViewDetail = new NamedViewDetail.Builder()
                 .name(VIEW_NAME)
                 .description("standard View")
@@ -57,9 +61,9 @@ public class NamedViewCacheBackwardCompatibilityTest {
                 .view(new View.Builder().build())
                 .build();
 
-        final NamedViewDetail namedViewDetailFromCacheVersion1_12 = viewCache.getNamedView(namedViewDetail.getName(), ADDING_USER);
+        final NamedViewDetail namedViewDetailFromCacheVersion2_0 = viewCache.getNamedView(namedViewDetail.getName(), ADDING_USER);
 
-        assertEquals(namedViewDetail.getOrDefaultReadAccessPredicate(), namedViewDetailFromCacheVersion1_12.getOrDefaultReadAccessPredicate());
-        assertEquals(namedViewDetail.getOrDefaultWriteAccessPredicate(), namedViewDetailFromCacheVersion1_12.getOrDefaultWriteAccessPredicate());
+        assertEquals(namedViewDetail.getOrDefaultReadAccessPredicate(), namedViewDetailFromCacheVersion2_0.getOrDefaultReadAccessPredicate());
+        assertEquals(namedViewDetail.getOrDefaultWriteAccessPredicate(), namedViewDetailFromCacheVersion2_0.getOrDefaultWriteAccessPredicate());
     }
 }

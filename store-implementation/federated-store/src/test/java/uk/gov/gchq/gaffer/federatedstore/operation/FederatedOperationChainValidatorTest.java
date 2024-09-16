@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
@@ -37,16 +38,14 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 
 public class FederatedOperationChainValidatorTest {
     @Test
-    public void shouldGetFederatedSchema() {
+    public void shouldGetFederatedSchema() throws OperationException {
         // Given
         final ViewValidator viewValidator = mock(FederatedViewValidator.class);
         final FederatedOperationChainValidator validator = new FederatedOperationChainValidator(viewValidator);
@@ -54,18 +53,18 @@ public class FederatedOperationChainValidatorTest {
         final User user = mock(User.class);
         final Operation op = mock(Operation.class);
         final Schema schema = mock(Schema.class);
-        given(store.getSchema(eq(getFederatedWrappedSchema()), any(Context.class))).willReturn(schema);
+        given(store.execute(any(GetSchema.class), any(Context.class))).willReturn(schema);
 
         // When
         final Schema actualSchema = validator.getSchema(op, user, store);
 
-        verify(store).getSchema(eq(getFederatedWrappedSchema()), any(Context.class));
+        verify(store).execute(any(GetSchema.class), any(Context.class));
         // Then
         assertEquals(schema, actualSchema);
     }
 
     @Test
-    public void shouldNotErrorWithInvalidViewFromMissingGraph() throws OperationException {
+    public void shouldNotErrorWithInvalidViewFromMissingGraph() {
         //given
         String missingGraph = "missingGraph";
         final Graph graph = new Graph.Builder()

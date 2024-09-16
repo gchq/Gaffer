@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -41,7 +42,8 @@ import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class GetAllNamedViewsHandlerTest {
-    private final NamedViewCache namedViewCache = new NamedViewCache();
+    public static final String SUFFIX_CACHE_NAME = "suffix";
+    private final NamedViewCache namedViewCache = new NamedViewCache(SUFFIX_CACHE_NAME);
     private final AddNamedViewHandler addNamedViewHandler = new AddNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
     private final String testUserId = "testUser";
@@ -90,9 +92,12 @@ public class GetAllNamedViewsHandlerTest {
     }
 
     @Test
-    public void shouldGetAllAccessibleNamedViewsFromCache() throws OperationException {
+    public void shouldGetAllAccessibleNamedViewsFromCache() throws OperationException, CacheOperationException {
         // Given
-        initialiseCache();
+        given(store.getProperties()).willReturn(new StoreProperties());
+        CacheServiceLoader.initialise("uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        namedViewCache.clearCache();
+
         final NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder()
                 .name(testNamedViewName)
                 .view(view)
@@ -118,12 +123,5 @@ public class GetAllNamedViewsHandlerTest {
                 .hasSize(2)
                 .contains(namedViewAsDetail)
                 .contains(namedViewAsDetail2);
-    }
-
-    private void initialiseCache() {
-        given(store.getProperties()).willReturn(new StoreProperties());
-        final StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties.getProperties());
     }
 }

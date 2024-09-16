@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,10 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 @ExtendWith(MockitoExtension.class)
-public class SuppliedIterableTest {
+class SuppliedIterableTest {
 
     @Test
-    public void shouldRequestNewIterableFromSupplierWhenIteratorInvoked(@Mock final Supplier<Iterable<Integer>> supplier) {
+    void shouldRequestNewIterableFromSupplierWhenIteratorInvoked(@Mock final Supplier<Iterable<Integer>> supplier) {
         // Given
         final Iterable<Integer> iterable1 = Arrays.asList(1, 2, 3);
         final Iterable<Integer> iterable2 = Arrays.asList(4, 5, 6);
@@ -69,7 +69,7 @@ public class SuppliedIterableTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void shouldCloseIterables(@Mock final Supplier<Iterable<Integer>> supplier) throws IOException {
+    void shouldCloseIterables(@Mock final Supplier<Iterable<Integer>> supplier) throws IOException {
         // Given
         final Iterable<Integer> iterable1 = mock(Iterable.class, withSettings().extraInterfaces(Closeable.class));
         final Iterable<Integer> iterable2 = mock(Iterable.class, withSettings().extraInterfaces(Closeable.class));

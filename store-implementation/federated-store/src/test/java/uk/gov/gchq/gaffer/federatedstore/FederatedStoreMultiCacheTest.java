@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,21 +44,23 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreMultiCacheTest {
 
-    public static final User AUTH_USER = authUser();
-    public static final User TEST_USER = testUser();
-    public static final User BLANK_USER = blankUser();
+    private static final User AUTH_USER = authUser();
+    private static final User TEST_USER = testUser();
+    private static final User BLANK_USER = blankUser();
     private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
-    public FederatedStore federatedStore;
-    public FederatedStore federatedStore2WithSameCache;
-    public FederatedStoreProperties federatedStoreProperties;
+    private static final String USER_SAME_CACHE_SUFFIX = "UseSameCacheSuffix";
+    private FederatedStore federatedStore;
+    private FederatedStore federatedStore2WithSameCache;
+    private FederatedStoreProperties federatedStoreProperties;
 
     @BeforeEach
     public void setUp() throws Exception {
         resetForFederatedTests();
 
         federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         federatedStoreProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
+        federatedStoreProperties.setCacheServiceNameSuffix(USER_SAME_CACHE_SUFFIX);
         federatedStore = new FederatedStore();
         federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
         federatedStore.execute(new AddGraph.Builder()

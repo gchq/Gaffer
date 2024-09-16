@@ -8,33 +8,78 @@ on:
     branches:
       - 'release/**'
       - 'hotfix/**'
-      - 'alpha-release/**'
+      - develop
+      - master
 
 jobs:
   check-all-modules-are-tested:
+    name: Check all modules are tested
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check all modules are tested
         run: ./cd/check_modules.sh
 
-  build-javadoc:
+  check-copyright:
+    name: Check Copyright Headers
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '8'
+
+      - name: Run Spotless copyright check
+        run: mvn -ntp spotless:check -T0.5C
+
+  check-markdown-links:
+    name: Check Markdown Links
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run linkspector
+        uses: umbrelladocs/action-linkspector@v1
+        with:
+          filter_mode: nofilter
+          reporter: github-pr-annotations
+          fail_on_error: true
+
+  build-javadoc:
+    name: Build Javadoc
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/uk
+          key: all-gaffer-dependencies
+          restore-keys: Accumulo-gaffer-dependencies
 
       - name: Build Javadoc
         run: |
           mvn -ntp clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
           mvn -ntp javadoc:javadoc -Pquick
 
-  build:
+  build-and-run-tests:
+    name: Tests
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
@@ -49,7 +94,7 @@ jobs:
           - name: Accumulo
             values: :accumulo-store,:accumulo-rest
           - name: Federated-And-Map
-            values: :integration-test,:federated-store,:map-store,:map-rest
+            values: :integration-test,:federated-store,:map-store,:map-rest,:simple-federated-store
           - name: REST
             values: :rest-api,:common-rest,:spring-rest,:core-rest,:store-implementation,:proxy-store
           - name: Examples
@@ -60,6 +105,8 @@ jobs:
             values: :library,:time-library
           - name: Caches
             values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
+          - name: Tinkerpop
+            values: :tinkerpop
         exclude:
           - os: windows-latest
             modules:
@@ -76,27 +123,27 @@ jobs:
           - os: windows-latest
             modules:
               name: Rest
-
     env:
       MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '8'
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.m2/repository
             !~/.m2/repository/uk
           key: ${{matrix.modules.name}}-gaffer-dependencies
+          restore-keys: ${{matrix.modules.name}}
 
       - name: Install
         run: mvn -B -ntp clean install -P quick -pl ${{matrix.modules.values}} -am
@@ -104,10 +151,31 @@ jobs:
       - name: Test
         run: mvn -B -ntp verify -P coverage -pl ${{matrix.modules.values}}
 
-      - name: Check Copyright Headers
-        if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest'
-        run: mvn -B -ntp spotless:check -pl ${{matrix.modules.values}}
-
-      - name: Upload Coverage
+      - name: Add JaCoCo reports to artifact
+        uses: actions/upload-artifact@v4
         if: matrix.os == 'ubuntu-latest'
-        uses: codecov/codecov-action@v2
+        with:
+          name: jacoco-coverage-${{matrix.modules.name}}
+          path: "*/**/jacoco.xml"
+          retention-days: 5
+
+  upload-test-coverage:
+    name: Upload coverage to Codecov
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-run-tests
+    steps:
+      - uses: actions/checkout@v4 # Codecov need to see the src code to pair with coverage
+
+      - name: Fetch JaCoCo reports artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: jacoco-coverage-*
+          merge-multiple: true
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          name: gaffer-coverage
+          fail_ci_if_error: true # Ensures upload doesn't fail silently
+          token: ${{ secrets.CODECOV_TOKEN }}

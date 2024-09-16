@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation;
 
-import com.yahoo.memory.WritableMemory;
-import com.yahoo.sketches.ArrayOfStringsSerDe;
-import com.yahoo.sketches.frequencies.ItemsSketch;
+import org.apache.datasketches.common.ArrayOfStringsSerDe;
+import org.apache.datasketches.frequencies.ItemsSketch;
+import org.apache.datasketches.memory.WritableMemory;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -42,7 +43,7 @@ public class StringsSketchSerialiser implements ToBytesSerialiser<ItemsSketch<St
 
     @Override
     public ItemsSketch<String> deserialise(final byte[] bytes) throws SerialisationException {
-        return ItemsSketch.getInstance(WritableMemory.wrap(bytes), SERIALISER);
+        return ItemsSketch.getInstance(WritableMemory.writableWrap(bytes), SERIALISER);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -59,14 +60,18 @@ public class WhileHandler implements OutputOperationHandler<While<Object, Object
 
         Object input = operation.getInput();
         for (int repeatCount = 0; repeatCount < operation.getMaxRepeats(); repeatCount++) {
-            final While operationClone = operation.shallowClone();
-            if (!isSatisfied(input, operationClone, context, store)) {
+            final While clonedWhile = operation.shallowClone();
+            if (!isSatisfied(input, clonedWhile, context, store)) {
                 break;
             }
-            input = doDelegateOperation(input, operationClone.getOperation(), context, store);
+            input = doDelegateOperation(input, getOperationFromWhile(clonedWhile), context, store);
         }
 
         return input;
+    }
+
+    protected Operation getOperationFromWhile(final While aWhile) {
+        return aWhile.getOperation();
     }
 
     public void validateMaxRepeats(final While operation) throws OperationException {
@@ -103,7 +108,7 @@ public class WhileHandler implements OutputOperationHandler<While<Object, Object
             } catch (final ClassCastException e) {
                 final String inputType = null != input ? input.getClass().getSimpleName() : "null";
                 throw new OperationException("The predicate '" + operation.getConditional().getPredicate().getClass().getSimpleName()
-                        + "' cannot accept an input of type '" + inputType + "'");
+                        + "' cannot accept an input of type '" + inputType + "'", e);
             }
         }
         return satisfied;

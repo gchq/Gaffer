@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package uk.gov.gchq.gaffer.access.predicate;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -71,7 +71,7 @@ public class DefaultAccessPredicateTest implements AccessPredicateTest {
         assertEquals("{" +
                 "\"class\":\"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
                 "\"userPredicate\":{\"class\":\"uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate\",\"creatingUserId\":\"TestUser\",\"auths\":[\"auth1\",\"auth2\"]}" +
-                "}", new String(bytes, CommonConstants.UTF_8));
+                "}", new String(bytes, StandardCharsets.UTF_8));
         assertEquals(predicate, JSONSerialiser.deserialise(bytes, AccessPredicate.class));
     }
 

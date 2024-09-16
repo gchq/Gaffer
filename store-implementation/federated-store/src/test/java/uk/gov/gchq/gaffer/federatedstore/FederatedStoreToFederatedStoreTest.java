@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,10 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_ED
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_ENTITY_BASIC_JSON;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.edgeBasic;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.entityBasic;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
+import static uk.gov.gchq.gaffer.proxystore.SingleUseProxyStore.CONTEXT_ROOT_SINGLE_USE_PROXY;
 
 /**
  * The FederatedStoreToFederatedStore Test works as follows:
@@ -70,6 +72,7 @@ public class FederatedStoreToFederatedStoreTest {
 
 
         ProxyProperties proxyProperties = new ProxyProperties();
+        proxyProperties.setGafferContextRoot(CONTEXT_ROOT_SINGLE_USE_PROXY);
         proxyProperties.setStoreClass(SingleUseFederatedStore.class);
 
         restApiFederatedGraph = new Graph.Builder()
@@ -80,7 +83,7 @@ public class FederatedStoreToFederatedStoreTest {
 
         federatedStoreGraph = new Graph.Builder()
                 .config(new GraphConfig("federatedStoreGraph"))
-                .storeProperties(new FederatedStoreProperties())
+                .storeProperties(getFederatedStorePropertiesWithHashMapCache())
                 .build();
 
         connectGraphs();
@@ -98,9 +101,11 @@ public class FederatedStoreToFederatedStoreTest {
     }
 
     private void connectGraphs() throws OperationException {
+        final ProxyProperties storeProperties = new ProxyProperties();
+        storeProperties.setGafferContextRoot(CONTEXT_ROOT_SINGLE_USE_PROXY);
         federatedStoreGraph.execute(
                 new AddGraph.Builder()
-                        .storeProperties(new ProxyProperties())
+                        .storeProperties(storeProperties)
                         .graphId("RestProxy")
                         .schema(new Schema())
                         .build(), new User());
@@ -120,14 +125,14 @@ public class FederatedStoreToFederatedStoreTest {
                         .build(), new User());
 
         // When
-        assertThatExceptionOfType(OperationException.class)
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> federatedStoreGraph.execute(
                         new GetAllElements.Builder()
                                 .view(new View.Builder()
                                         .edge(GROUP_BASIC_EDGE)
                                         .build())
                                 .build(), new User()))
-                .withStackTraceContaining("View is not valid for graphIds:[mapStore]");
+                .withStackTraceContaining("View is not valid for graphIds:[RestProxy]");
     }
 
     @Test

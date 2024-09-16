@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -90,15 +91,13 @@ public class CustomMap<K, V> {
         if (!canHandleKey || !canHandleValue) {
             final StringBuilder sb = new StringBuilder("Error in constructor, mismatched");
             if (!canHandleKey) {
-                sb.append(" key with keySerialiser");
-                sb.append(" Key:" + ((null == keyClass) ? null : keyClass.getSimpleName()) + ", Serialiser:" + keySerialiser.getClass().getSimpleName());
+                sb.append(" key with keySerialiser Key:" + ((keyClass == null) ? null : keyClass.getSimpleName()) + ", Serialiser:" + keySerialiser.getClass().getSimpleName());
             }
             if (!canHandleKey && !canHandleValue) {
                 sb.append(" and");
             }
             if (!canHandleValue) {
-                sb.append(" value with valueSerialiser");
-                sb.append(" Value:" + ((null == valueClass) ? null : valueClass.getSimpleName()) + ", Serialiser:" + valueSerialiser.getClass().getSimpleName());
+                sb.append(" value with valueSerialiser Value:" + ((valueClass == null) ? null : valueClass.getSimpleName()) + ", Serialiser:" + valueSerialiser.getClass().getSimpleName());
             }
             throw new IllegalArgumentException(sb.toString());
         }

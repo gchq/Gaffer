@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An abstract OperationsService which allows for implementations to ingect dependencies
+ * An abstract OperationsService which allows for implementations to inject dependencies
  * depending on what DI framework they prefer. This abstraction allows Spring and Jersey
  * implementations share the same code
  */
+@SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract") //Class is not particularly abstract
 public abstract class AbstractOperationService {
 
     protected abstract UserFactory getUserFactory();
@@ -50,7 +51,17 @@ public abstract class AbstractOperationService {
     protected abstract GraphFactory getGraphFactory();
 
     public Set<Class <? extends Operation>> getSupportedOperations() {
-        return getGraphFactory().getGraph().getSupportedOperations();
+        return getSupportedOperations(false);
+    }
+
+    public Set<Class<? extends Operation>> getSupportedOperations(final boolean includeUnsupported) {
+        Set<Class<? extends Operation>> operationsClasses;
+        if (includeUnsupported) {
+            operationsClasses = new HashSet(ReflectionUtil.getSubTypes(Operation.class));
+        } else {
+            operationsClasses = getGraphFactory().getGraph().getSupportedOperations();
+        }
+        return operationsClasses;
     }
 
     public Set<OperationDetail> getSupportedOperationDetails() {
@@ -85,7 +96,7 @@ public abstract class AbstractOperationService {
         // no action by default
     }
 
-    @SuppressWarnings("ThrowFromFinallyBlock")
+    @SuppressWarnings({"ThrowFromFinallyBlock", "PMD.UseTryWithResources"})
     protected <O> Pair<O, String> _execute(final Operation operation, final Context context) {
 
         OperationChain<O> opChain = (OperationChain<O>) OperationChain.wrap(operation);

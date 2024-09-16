@@ -39,7 +39,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_ENTITY;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_ENTITY_BASIC_JSON;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.addGraph;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.addGraphToAccumuloStore;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
 
@@ -75,8 +75,8 @@ public class FederatedStoreViewAggregationTest {
     @Test
     public void shouldOnlyReturn1EntitySmallerThanViewFilter() throws Exception {
         //given
-        addGraph(federatedStore, GRAPH_ID_A, true, loadSchemaFromJson(SCHEMA_ENTITY_BASIC_JSON));
-        addGraph(federatedStore, GRAPH_ID_B, true, loadSchemaFromJson(SCHEMA_ENTITY_BASIC_JSON));
+        addGraphToAccumuloStore(federatedStore, GRAPH_ID_A, true, loadSchemaFromJson(SCHEMA_ENTITY_BASIC_JSON));
+        addGraphToAccumuloStore(federatedStore, GRAPH_ID_B, true, loadSchemaFromJson(SCHEMA_ENTITY_BASIC_JSON));
 
         addEntity(GRAPH_ID_A, entity1);
         addEntity(GRAPH_ID_B, entity99);

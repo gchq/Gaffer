@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-import org.apache.commons.io.FileUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -32,13 +33,15 @@ import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -61,39 +64,47 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
         assertEquals(obj.getView(), deserialisedObj.getView());
         assertEquals(obj.getLibrary().getClass(), deserialisedObj.getLibrary().getClass());
         assertEquals(obj.getDescription(), deserialisedObj.getDescription());
+        assertEquals(obj.getOtelActive(), deserialisedObj.getOtelActive());
         assertEquals((List) obj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()), (List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
     }
 
     @Test
-    public void shouldJsonDeserialiseFromHookPaths(@TempDir Path tmpDir) throws IOException {
+    void shouldJsonDeserialiseFromHookPaths(@TempDir Path tmpDir) throws IOException {
         // Given
-        final File hook1Path = tmpDir.resolve("hook1Path").toFile();
-        final File hook2Path = tmpDir.resolve("hook2Path").toFile();
-        FileUtils.write(hook1Path, "{\"class\": \"" + Log4jLogger.class.getName() + "\"}");
-        FileUtils.write(hook2Path, "{\"class\": \"" + AddOperationsToChain.class.getName() + "\"}");
-        final String json = "{" +
-                "  \"graphId\": \"graphId1\"," +
-                "  \"hooks\": [" +
-                "    {" +
-                "      \"class\": \"uk.gov.gchq.gaffer.graph.hook.GraphHookPath\"," +
-                "      \"path\": \"" + hook1Path.getAbsolutePath().replace('\\', '/') + "\"" +
-                "    }, " +
-                "    {" +
-                "      \"class\": \"uk.gov.gchq.gaffer.graph.hook.GraphHookPath\"," +
-                "      \"path\": \"" + hook2Path.getAbsolutePath().replace('\\', '/') + "\"" +
-                "    }," +
-                "    {" +
-                "      \"class\": \"uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver\"" +
-                "    }" +
-                "  ]" +
-                "}";
+        final Path hook1Path = tmpDir.resolve("hook1Path");
+        final Path hook2Path = tmpDir.resolve("hook2Path");
+        Files.write(
+                hook1Path,
+                Arrays.asList(new JSONObject().put("class", Log4jLogger.class.getName()).toString()),
+                StandardCharsets.UTF_8);
+        Files.write(
+                hook2Path,
+                Arrays.asList(new JSONObject().put("class", AddOperationsToChain.class.getName()).toString()),
+                StandardCharsets.UTF_8);
+
+        final String json = new JSONObject()
+                .put("graphId", "graphId1")
+                .put("hooks", new JSONArray()
+                        .put(new JSONObject()
+                                .put("class", "uk.gov.gchq.gaffer.graph.hook.GraphHookPath")
+                                .put("path", hook1Path.toAbsolutePath().toString().replace('\\', '/')))
+                        .put(new JSONObject()
+                                .put("class", "uk.gov.gchq.gaffer.graph.hook.GraphHookPath")
+                                .put("path", hook2Path.toAbsolutePath().toString().replace('\\', '/')))
+                        .put(new JSONObject()
+                                .put("class", "uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver")))
+                .toString();
 
         // When
         final GraphConfig deserialisedObj = fromJson(json.getBytes());
 
         // Then
-        assertNotNull(deserialisedObj);
-        assertEquals(Arrays.asList(Log4jLogger.class, AddOperationsToChain.class, NamedOperationResolver.class), (List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
+        assertThat(deserialisedObj).isNotNull();
+        assertThat((List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()))
+                .containsExactlyInAnyOrder(
+                        Log4jLogger.class,
+                        AddOperationsToChain.class,
+                        NamedOperationResolver.class);
     }
 
     @Test
@@ -126,12 +137,13 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
                 .build();
 
         final GraphHook hook1 = new AddOperationsToChain();
-        final GraphHook hook2 = new OperationChainLimiter();
+        final GraphHook hook2 = new OperationChainLimiter("testSuffix");
 
         return new GraphConfig.Builder()
                 .graphId(graphId)
                 .library(library)
                 .description("testGraphConfig")
+                .otelActive(true)
                 .addHook(hook1)
                 .addHook(hook2)
                 .view(view)

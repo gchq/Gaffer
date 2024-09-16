@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,12 +44,14 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -114,12 +116,13 @@ public final class FederatedStoreUtil {
      * schemas at the same time without causing validation errors.
      * </p>
      *
+     * @param <OP>      Operation type
      * @param operation current operation
      * @param graph     current graph
-     * @param <OP>      Operation type
+     * @param context   current context, used for getSchema operation
      * @return cloned operation with modified View for the given graph.
      */
-    public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
+    public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph, final Context context) {
         OP resultOp = (OP) operation.shallowClone();
         if (nonNull(resultOp.getOptions())) {
             resultOp.setOptions(new HashMap<>(resultOp.getOptions()));
@@ -128,7 +131,7 @@ public final class FederatedStoreUtil {
             final Operations<Operation> operations = (Operations) resultOp;
             final List<Operation> resultOperations = new ArrayList<>();
             for (final Operation nestedOp : operations.getOperations()) {
-                final Operation updatedNestedOp = updateOperationForGraph(nestedOp, graph);
+                final Operation updatedNestedOp = updateOperationForGraph(nestedOp, graph, context);
                 if (null == updatedNestedOp) {
                     resultOp = null;
                     break;
@@ -145,8 +148,7 @@ public final class FederatedStoreUtil {
                     // then clone the operation and add the new view.
                     if (validView.hasGroups()) {
                         ((OperationView) resultOp).setView(validView);
-                        // Deprecated function still in use due to Federated GetTraits bug with DYNAMIC_SCHEMA
-                    } else if (!graph.getStoreTraits().contains(StoreTrait.DYNAMIC_SCHEMA)) {
+                    } else {
                         // The view has no groups so the operation would return
                         // nothing, so we shouldn't execute the operation.
                         resultOp = null;
@@ -164,12 +166,17 @@ public final class FederatedStoreUtil {
                 }
             } else {
                 resultOp = (OP) addElements.shallowClone();
-                final Set<String> graphGroups = graph.getSchema().getGroups();
-                final Iterable<? extends Element> filteredInput = Iterables.filter(
-                        addElements.getInput(),
-                        element -> graphGroups.contains(null != element ? element.getGroup() : null)
-                );
-                ((AddElements) resultOp).setInput(filteredInput);
+                try {
+                    final Set<String> graphGroups = graph.execute(new GetSchema(), context).getGroups();
+                    final Iterable<? extends Element> filteredInput = Iterables.filter(
+                            addElements.getInput(),
+                            element -> graphGroups.contains(null != element ? element.getGroup() : null)
+                    );
+                    ((AddElements) resultOp).setInput(filteredInput);
+                } catch (final Exception e) {
+                    LOGGER.error("Error getting schema to filter Input based on legal groups for the graphId={}. Will attempt with No input filtering. Error was due to: {}", graph.getGraphId(), e.getMessage());
+                    ((AddElements) resultOp).setInput(addElements.getInput());
+                }
             }
         }
 
@@ -239,7 +246,7 @@ public final class FederatedStoreUtil {
     }
 
     public static BiFunction getDefaultMergeFunction() {
-        return new ConcatenateListMergeFunction();
+        return new ConcatenateMergeFunction();
     }
 
     public static <INPUT> FederatedOperation<INPUT, Void> getFederatedOperation(final Operation operation) {
@@ -269,11 +276,6 @@ public final class FederatedStoreUtil {
             LOGGER.warn("Operation:{} has old Deprecated style of graphId selection.", simpleName);
         }
         return deprecatedGraphIds;
-    }
-
-    @Deprecated
-    public static FederatedOperation<Void, Iterable<Schema>> getFederatedWrappedSchema() {
-        return new FederatedOperation.Builder().<Void, Iterable<Schema>>op(new GetSchema()).build();
     }
 
     /**
@@ -321,7 +323,7 @@ public final class FederatedStoreUtil {
                 functionContext.put(VIEW, ((OperationView) payload).getView());
             } catch (final ClassCastException e) {
                 throw new GafferCheckedException("Merge function requires a view for payload operation, " +
-                        "but it is not an instance of OperationView, likely the wrong merge function has been asked. payload:" + payload.getClass());
+                        "but it is not an instance of OperationView, likely the wrong merge function has been asked. payload:" + payload.getClass(), e);
             }
         }
         return functionContext;
@@ -366,36 +368,48 @@ public final class FederatedStoreUtil {
         }
     }
 
-    public static List<String> loadStoreConfiguredGraphIdsListFrom(final String path) throws IOException {
-        if (isNull(path)) {
+    public static List<String> loadStoreConfiguredGraphIdsListFrom(final String pathStr) throws IOException {
+        if (isNull(pathStr)) {
             return null;
-        } else {
-            return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), List.class);
         }
+        final Path path = Paths.get(pathStr);
+        byte[] json;
+        if (path.toFile().exists()) {
+            json = Files.readAllBytes(path);
+        } else {
+            json = IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, pathStr));
+        }
+        return JSONSerialiser.deserialise(json, List.class);
     }
 
-    public static Map<String, BiFunction> loadStoreConfiguredMergeFunctionMapFrom(final String path) throws IOException {
-        if (isNull(path)) {
+    public static Map<String, BiFunction> loadStoreConfiguredMergeFunctionMapFrom(final String pathStr) throws IOException {
+        if (isNull(pathStr)) {
             return Collections.emptyMap();
-        } else {
-            return JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, path)), SerialisableConfiguredMergeFunctionsMap.class).getMap();
         }
+        final Path path = Paths.get(pathStr);
+        byte[] json;
+        if (path.toFile().exists()) {
+            json = Files.readAllBytes(path);
+        } else {
+            json = IOUtils.toByteArray(StreamUtil.openStream(FederatedStoreUtil.class, pathStr));
+        }
+        return JSONSerialiser.deserialise(json, SerialisableConfiguredMergeFunctionsMap.class).getMap();
     }
 
     public static class SerialisableConfiguredMergeFunctionsMap {
-        @JsonProperty("configuredMergeFunctions")
+        @JsonProperty("storeConfiguredMergeFunctions")
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
         HashMap<String, BiFunction> map = new HashMap<>();
 
         public SerialisableConfiguredMergeFunctionsMap() {
         }
 
-        @JsonGetter("configuredMergeFunctions")
+        @JsonGetter("storeConfiguredMergeFunctions")
         public HashMap<String, BiFunction> getMap() {
             return map;
         }
 
-        @JsonSetter("configuredMergeFunctions")
+        @JsonSetter("storeConfiguredMergeFunctions")
         public void setMap(final HashMap<String, BiFunction> map) {
             this.map = map;
         }

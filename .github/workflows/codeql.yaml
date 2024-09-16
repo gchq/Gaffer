@@ -1,0 +1,45 @@
+name: CodeQL test
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**/README.md'
+  push:
+    branches:
+      - 'release/**'
+      - 'hotfix/**'
+      - develop
+      - master
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/uk
+          key: all-gaffer-dependencies
+          restore-keys: Accumulo-gaffer-dependencies
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java
+          queries: security-extended
+
+      - name: Build Code
+        run: mvn -B -ntp clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3

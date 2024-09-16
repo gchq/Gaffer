@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import java.util.Optional;
  * For further information on how this class is used see
  * {@link IntegrationTestSuiteExtension}.
  */
-public abstract class IntegrationTestSuite {
+public class IntegrationTestSuite {
 
     private Schema schema = null;
 

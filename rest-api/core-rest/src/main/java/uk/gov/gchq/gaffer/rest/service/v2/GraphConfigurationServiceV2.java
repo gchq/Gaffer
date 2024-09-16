@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,15 @@ import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
@@ -184,10 +187,21 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     }
 
     @Override
-    public Response getStoreTraits() {
-        return Response.ok(graphFactory.getGraph().getStoreTraits())
+    public Response getStoreType() {
+        return Response.ok(graphFactory.getGraph().getStoreProperties().getStoreClass())
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
+    }
+
+    @Override
+    public Response getStoreTraits() {
+        try {
+            return Response.ok(graphFactory.getGraph().execute(new GetTraits.Builder().currentTraits(false).build(), userFactory.createContext()))
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .build();
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException("Unable to get Traits using GetTraits Operation", e);
+        }
     }
 
     @Override

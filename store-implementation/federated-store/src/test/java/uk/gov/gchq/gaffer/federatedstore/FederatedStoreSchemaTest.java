@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ package uk.gov.gchq.gaffer.federatedstore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -47,10 +50,14 @@ import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEqualsIncludingMatchedVertex;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.DEST_BASIC;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_A;
@@ -65,12 +72,16 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.VALUE_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.VALUE_2;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.property;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
+import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreSchemaTest {
@@ -98,7 +109,7 @@ public class FederatedStoreSchemaTest {
         resetForFederatedTests();
 
         federatedStore = new FederatedStore();
-        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, new FederatedStoreProperties());
+        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, getFederatedStorePropertiesWithHashMapCache());
 
         testUser = testUser();
         testContext = contextTestUser();
@@ -168,6 +179,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build());
         // Graph a, element 2: prop2 missing
@@ -175,6 +187,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_2)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build());
         // Graph b, element 1: prop2 empty (see below)
@@ -182,6 +195,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 // Due to a string serialisation quirk, missing properties (null value)
                 // are deserialised as empty strings
@@ -192,13 +206,12 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_2)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_2, VALUE_2)
                 .build());
 
-        assertThat((Iterable<Edge>) results)
-                .isNotNull()
-                .containsExactlyInAnyOrderElementsOf(expected);
+        assertElementEqualsIncludingMatchedVertex(expected, results);
     }
 
     @Test
@@ -230,6 +243,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 // Due to a string serialisation quirk, missing properties (null value)
                 // are deserialised as empty strings
@@ -240,13 +254,12 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_2)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_2, VALUE_2)
                 .build());
 
-        assertThat((Iterable<Edge>) results)
-                .isNotNull()
-                .containsExactlyInAnyOrderElementsOf(expected);
+        assertElementEqualsIncludingMatchedVertex(expected, results);
     }
 
     @Test
@@ -261,6 +274,159 @@ public class FederatedStoreSchemaTest {
         assertThat(schema.validate().isValid())
                 .withFailMessage(schema.validate().getErrorString())
                 .isTrue();
+    }
+
+    @Test
+    public void shouldGetSchemaWithOperationAndMethodWithContext() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
+
+        // When
+        final Schema schemaFromOperation = federatedStore.execute(new GetSchema.Builder().build(), testContext);
+        final Schema schemaFromStore = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaFromOperation).isEqualTo(schemaFromStore);
+    }
+
+    @Test
+    public void shouldGetBlankSchemaWhenUsingDefaultMethod() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
+
+        // When
+        final Schema schemaFromStoreMethod = federatedStore.getOriginalSchema(); // No Context, results in blank schema returned
+
+        // Then
+        assertThat(schemaFromStoreMethod).isEqualTo(new Schema());
+    }
+
+    @Test
+    public void shouldGetSchemaWhenUsingDefaultMethodWhenPermissiveReadAccessPredicateConfigured() throws OperationException {
+        // Given
+        addGraphWithContextAndAccess(GRAPH_ID_A, STRING_TYPE, GROUP_BASIC_EDGE, testContext, new UnrestrictedAccessPredicate(), PROPERTY_1);
+
+        // When
+        final Schema schemaFromStoreMethod = federatedStore.getOriginalSchema();
+
+        // Then
+        assertThat(schemaFromStoreMethod.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_1);
+    }
+
+    @Test
+    public void shouldErrorWhenGetSchemaASharedGroupHasNoSharedProperties() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
+
+        // When
+        final Schema schemaA = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaA.getTypes().size()).isEqualTo(2);
+        assertThat(schemaA.getType(STRING).getClazz()).isEqualTo(String.class);
+        assertThat(schemaA.getEdge(GROUP_BASIC_EDGE).getProperties().size()).isEqualTo(1);
+
+        // Given
+        addGraphWith(GRAPH_ID_B, STRING_REQUIRED_TYPE, PROPERTY_2);
+
+        // When
+        assertThatException()
+                .isThrownBy(() -> federatedStore.getSchema(testContext, false))
+                .withStackTraceContaining("MergeSchema function unable to recover from error")
+                .withStackTraceContaining("Element group properties cannot be defined in different schema parts, they must all be defined in a single schema part")
+                .withStackTraceContaining("Please fix this group: BasicEdge");
+    }
+
+    @Test
+    public void shouldChangeReturnSchemaWhenAddingGraphWithOverLapProperty() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_TYPE, PROPERTY_1);
+
+        // When
+        final Schema schemaA = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaA.getTypes().size()).isEqualTo(2);
+        assertThat(schemaA.getType(STRING).getClazz()).isEqualTo(String.class);
+        assertThat(schemaA.getEdge(GROUP_BASIC_EDGE).getProperties().size()).isEqualTo(1);
+
+        // Given
+        addGraphWith(GRAPH_ID_B, STRING_REQUIRED_TYPE, PROPERTY_1, PROPERTY_2);
+
+        // When
+        final Schema schemaAB = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaAB).isNotEqualTo(schemaA);
+        assertThat(schemaAB.getEdge(GROUP_BASIC_EDGE).getProperties())
+                .contains(PROPERTY_1)
+                .contains(PROPERTY_2);
+    }
+
+    @Test
+    public void shouldGetSchemaForOwningUser() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_REQUIRED_TYPE, PROPERTY_1);
+        addGraphWithContextAndAuths(GRAPH_ID_B, STRING_TYPE, "hidden" + GROUP_BASIC_EDGE, singleton(AUTH_1), new Context(authUser()), PROPERTY_2);
+
+        // When
+        final Schema schemaFromOwningUser = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaFromOwningUser.getEdge("hidden" + GROUP_BASIC_EDGE)).withFailMessage("Revealing hidden schema").isNull();
+        assertThat(schemaFromOwningUser.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_1);
+    }
+
+    @Test
+    public void shouldNotGetSchemaForOwningUserWhenBlockingReadAccessPredicateConfigured() throws OperationException {
+        // Given
+        addGraphWithContextAndAccess(GRAPH_ID_A, STRING_TYPE, GROUP_BASIC_EDGE, testContext, new NoAccessPredicate(), PROPERTY_1);
+
+        // When
+        final Schema schemaFromOwningUser = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaFromOwningUser).withFailMessage("Revealing blocked schema, should be empty").isEqualTo(new Schema());
+    }
+
+    @Test
+    public void shouldGetSchemaForAuthUser() throws OperationException {
+        // Given
+        final User authUser = new User.Builder().userId("authUser2").opAuths(AUTH_1).build();
+        addGraphWithContextAndAuths(GRAPH_ID_B, STRING_TYPE, GROUP_BASIC_EDGE, singleton(AUTH_1), new Context(authUser()), PROPERTY_1);
+
+        // When
+        final Schema schemaFromAuthUser = federatedStore.getSchema(new Context(authUser), false);
+        final Schema schemaFromTestUser = federatedStore.getSchema(testContext, false);
+
+        // Then
+        assertThat(schemaFromTestUser.getEdge("hidden" + GROUP_BASIC_EDGE)).withFailMessage("Revealing hidden schema").isNull();
+        assertThat(schemaFromTestUser).withFailMessage("Revealing hidden schema, should be empty").isEqualTo(new Schema());
+        assertThat(schemaFromAuthUser.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_1);
+    }
+
+    @Test
+    public void shouldNotGetSchemaForBlankUser() throws OperationException {
+        // Given
+        addGraphWith(GRAPH_ID_A, STRING_REQUIRED_TYPE, PROPERTY_1);
+
+        // When
+        final Schema schemaFromBlankUser = federatedStore.getSchema(new Context(blankUser()), false);
+
+        // Then
+        assertThat(schemaFromBlankUser).withFailMessage("Revealing schema to blank user, should be empty").isEqualTo(new Schema());
+    }
+
+    @Test
+    public void shouldGetSchemaForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws OperationException {
+        // Given
+        addGraphWithContextAndAccess(GRAPH_ID_A, STRING_TYPE, GROUP_BASIC_EDGE, testContext, new UnrestrictedAccessPredicate(), PROPERTY_1);
+
+        // When
+        final Schema schemaFromBlankUser = federatedStore.getSchema(new Context(blankUser()), false);
+
+        // Then
+        assertThat(schemaFromBlankUser.getEdge(GROUP_BASIC_EDGE).getProperties()).contains(PROPERTY_1);
     }
 
     @Test
@@ -352,6 +518,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, "value1,value1")
                 .build());
@@ -360,14 +527,13 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, "value1,value1")
                 .property(PROPERTY_2, "value2,value2")
                 .build());
 
-        assertThat((Iterable<Edge>) results)
-                .isNotNull()
-                .containsExactlyInAnyOrderElementsOf(expected);
+        assertElementEqualsIncludingMatchedVertex(expected, results);
     }
 
     @Test
@@ -401,14 +567,13 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, "value1,value1,value1,value1")
                 .property(PROPERTY_2, "value2,value2")
                 .build());
 
-        assertThat((Iterable<Edge>) results)
-                .isNotNull()
-                .containsExactlyInAnyOrderElementsOf(expected);
+        assertElementEqualsIncludingMatchedVertex(expected, results);
     }
 
     @Test
@@ -424,7 +589,7 @@ public class FederatedStoreSchemaTest {
 
         // When
         // getDefaultMergeFunction specified - behaves like pre 2.0 aggregation
-        final Iterable<? extends Element> elements = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
+        final Iterable<? extends Element> results = (Iterable<? extends Element>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(new GetElements.Builder()
                         .input(new EntitySeed(SOURCE_BASIC))
                         .view(new View.Builder()
@@ -440,6 +605,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, "value1,value1")
                 .build());
@@ -448,6 +614,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, "value1,value1")
                 // Due to a string serialisation quirk, missing properties (null value)
@@ -455,9 +622,7 @@ public class FederatedStoreSchemaTest {
                 .property(PROPERTY_2, ",")
                 .build());
 
-        assertThat((Iterable<Edge>) elements)
-                .isNotNull()
-                .containsExactlyInAnyOrderElementsOf(expected);
+        assertElementEqualsIncludingMatchedVertex(expected, results);
     }
 
     @Test
@@ -473,7 +638,7 @@ public class FederatedStoreSchemaTest {
 
         // When
         // No merge function specified - ApplyViewToElementsFunction is used
-        final Iterable<? extends Element> elements = federatedStore.execute(new GetElements.Builder()
+        final Iterable<? extends Element> results = federatedStore.execute(new GetElements.Builder()
                 .input(new EntitySeed(SOURCE_BASIC))
                 .view(new View.Builder()
                         .edge(GROUP_BASIC_EDGE, new ViewElementDefinition.Builder().build()).build())
@@ -487,6 +652,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, "value1,value1,value1,value1")
                 // Due to a string serialisation quirk, missing properties (null value)
@@ -494,9 +660,7 @@ public class FederatedStoreSchemaTest {
                 .property(PROPERTY_2, ",")
                 .build());
 
-        assertThat((Iterable<Edge>) elements)
-                .isNotNull()
-                .containsExactlyInAnyOrderElementsOf(expected);
+        assertElementEqualsIncludingMatchedVertex(expected, results);
     }
 
     @Test
@@ -532,6 +696,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build());
         // Graph a, element 2: prop1 omitted, prop2 missing
@@ -539,6 +704,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_2)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build());
         // Graph b, element 1: prop1 omitted, prop2 present
@@ -546,6 +712,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_2, VALUE_2)
                 .build());
@@ -554,13 +721,12 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_2)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_2, VALUE_2)
                 .build());
 
-        assertThat((Iterable<Edge>) results)
-                .isNotNull()
-                .containsExactlyInAnyOrderElementsOf(expected);
+        assertElementEqualsIncludingMatchedVertex(expected, results);
     }
 
     @Test
@@ -593,6 +759,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_2, VALUE_2)
                 .build());
@@ -601,13 +768,12 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_2)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_2, VALUE_2)
                 .build());
 
-        assertThat((Iterable<Edge>) results)
-                .isNotNull()
-                .containsExactlyInAnyOrderElementsOf(expected);
+        assertElementEqualsIncludingMatchedVertex(expected, results);
     }
 
     @Test
@@ -642,6 +808,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, VALUE_1)
                 .property(PROPERTY_2, VALUE_2)
@@ -651,14 +818,13 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_2)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, VALUE_1)
                 .property(PROPERTY_2, VALUE_2)
                 .build());
 
-        assertThat((Iterable<Edge>) results)
-                .isNotNull()
-                .containsExactlyInAnyOrderElementsOf(expected);
+        assertElementEqualsIncludingMatchedVertex(expected, results);
     }
 
     @Test
@@ -694,6 +860,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, VALUE_1)
                 .build());
@@ -702,6 +869,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_2)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, VALUE_1)
                 .build());
@@ -710,6 +878,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, VALUE_1)
                 .property(PROPERTY_2, VALUE_2)
@@ -719,14 +888,13 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_2)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, VALUE_1)
                 .property(PROPERTY_2, VALUE_2)
                 .build());
 
-        assertThat((Iterable<Edge>) results)
-                .isNotNull()
-                .containsExactlyInAnyOrderElementsOf(expected);
+        assertElementEqualsIncludingMatchedVertex(expected, results);
     }
 
     @Test
@@ -759,6 +927,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_BASIC)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, "value1,value1")
                 .property(PROPERTY_2, VALUE_2)
@@ -768,14 +937,13 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(DEST_2)
+                .directed(true)
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(PROPERTY_1, "value1,value1")
                 .property(PROPERTY_2, VALUE_2)
                 .build());
 
-        assertThat((Iterable<Edge>) results)
-                .isNotNull()
-                .containsExactlyInAnyOrderElementsOf(expected);
+        assertElementEqualsIncludingMatchedVertex(expected, results);
     }
 
     private void addGroupCollisionGraphs() throws OperationException {
@@ -788,11 +956,11 @@ public class FederatedStoreSchemaTest {
         addGraphWith(GRAPH_ID_B, stringSchema, PROPERTY_1, PROPERTY_2);
     }
 
-    private void addGraphWith(final String graphId, final Schema stringType, final String... property) throws OperationException {
-        federatedStore.execute(new AddGraph.Builder()
+    private AddGraph.Builder getAddGraphBuilder(final String graphId, final Schema stringType, final String edgeGroup, final String... property) {
+        return new AddGraph.Builder()
                 .graphId(graphId)
                 .schema(new Schema.Builder()
-                        .edge(GROUP_BASIC_EDGE, new SchemaEdgeDefinition.Builder()
+                        .edge(edgeGroup, new SchemaEdgeDefinition.Builder()
                                 .source(STRING)
                                 .destination(STRING)
                                 .directed(DIRECTED_EITHER)
@@ -801,8 +969,26 @@ public class FederatedStoreSchemaTest {
                         .type(DIRECTED_EITHER, Boolean.class)
                         .merge(stringType)
                         .build())
-                .storeProperties(STORE_PROPERTIES.clone())
+                .storeProperties(STORE_PROPERTIES.clone());
+    }
+
+    private void addGraphWith(final String graphId, final Schema stringType, final String... property) throws OperationException {
+        federatedStore.execute(getAddGraphBuilder(graphId, stringType, GROUP_BASIC_EDGE, property)
                 .build(), testContext);
+    }
+
+    private void addGraphWithContextAndAuths(final String graphId, final Schema stringType, final String edgeGroup, Set<String> graphAuths,
+                                             Context context, final String... property) throws OperationException {
+        federatedStore.execute(getAddGraphBuilder(graphId, stringType, edgeGroup, property)
+                .graphAuths(graphAuths.toArray(new String[0]))
+                .build(), context);
+    }
+
+    private void addGraphWithContextAndAccess(final String graphId, final Schema stringType, final String edgeGroup, Context context,
+                                              AccessPredicate read, final String... property) throws OperationException {
+        federatedStore.execute(getAddGraphBuilder(graphId, stringType, edgeGroup, property)
+                .readAccessPredicate(read)
+                .build(), context);
     }
 
     private void addEdgeBasicWith(final String destination, final Integer... propertyValues) throws OperationException {
@@ -816,6 +1002,7 @@ public class FederatedStoreSchemaTest {
                 .group(GROUP_BASIC_EDGE)
                 .source(SOURCE_BASIC)
                 .dest(destination)
+                .directed(true)
                 .properties(Arrays.stream(propertyValues).collect(Collectors.toMap(FederatedStoreTestUtil::property, FederatedStoreTestUtil::value))).build();
     }
 }

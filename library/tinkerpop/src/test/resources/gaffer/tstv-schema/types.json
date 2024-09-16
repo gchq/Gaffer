@@ -1,0 +1,22 @@
+{
+  "types": {
+    "tstv": {
+      "class": "uk.gov.gchq.gaffer.types.TypeSubTypeValue",
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.TypeSubTypeValueSerialiser"
+      },
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    },
+    "true": {
+      "class": "java.lang.Boolean"
+    },
+    "weight.double": {
+      "class": "java.lang.Double",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    }
+  }
+}

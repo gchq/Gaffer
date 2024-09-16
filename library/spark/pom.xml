@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2020 Crown Copyright
+  ~ Copyright 2016-2024 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>2.0.0-alpha-1.3.1-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>spark</artifactId>
@@ -31,6 +32,14 @@
     </modules>
 
     <repositories>
+        <!-- Manually specify central repo to ensure it is the highest priority.
+         Otherwise, Maven trys to fetch everything from the spark repo which can
+         cause a wait for a timeout before trying central. This is because repos
+         in a POM are prioritised before the super POM where central is declared. -->
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
         <repository>
             <id>Spark Packages</id>
             <url>https://repos.spark-packages.org/</url>

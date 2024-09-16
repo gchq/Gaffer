@@ -15,20 +15,17 @@ jobs:
 
     steps:
     - name: Checkout branch
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
 
-    - name: Get branch name
-      run: echo "SOURCE_BRANCH=$(git branch --show-current)" >> $GITHUB_ENV
-
     - name: Set up Github credentials
       run: |
-        git config user.name Gaffer
-        git config user.email github-actions@github.com
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
     - name: Setup JDK
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: '8'
@@ -43,3 +40,5 @@ jobs:
         source_branch: ${{ env.VERSION_UPDATE_BRANCH }}
         destination_branch: ${{ env.SOURCE_BRANCH }}
         github_token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
+        pr_title: "Update Koryphe version to ${{ github.event.inputs.version }}"
+        pr_body: "Automated GitHub Actions PR to upgrade to version ${{ github.event.inputs.version }} of Koryphe"

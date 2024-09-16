@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,36 +89,28 @@ public final class GetElementsUtil {
                         && ((Edge) e).isDirected()
                         && (EdgeId.MatchedVertex.DESTINATION == ((Edge) e).getMatchedVertex()));
             }
-            // TODO 2552: Can this be improved?
+
             // Remove Edges if searching with EntityId and View has no Edges
             if (view.hasEntities() && !view.hasEdges()) {
-                isFiltered = isFiltered.or(e -> e instanceof Edge);
+                isFiltered = isFiltered.or(Edge.class::isInstance);
             }
         } else {
-            relevantElements = new HashSet<>();
-
             final EdgeId edgeId = (EdgeId) elementId;
 
-            if (DirectedType.isEither(edgeId.getDirectedType())) {
-                relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), false)));
-                relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), true)));
-            } else {
-                relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), edgeId.getDirectedType())));
-            }
+            relevantElements = getRelevantElements(mapImpl, edgeId);
 
             mapImpl.lookup(new EntitySeed(edgeId.getSource()))
                     .stream()
-                    .filter(e -> e instanceof Entity)
+                    .filter(Entity.class::isInstance)
                     .forEach(relevantElements::add);
             mapImpl.lookup(new EntitySeed(edgeId.getDestination()))
                     .stream()
-                    .filter(e -> e instanceof Entity)
+                    .filter(Entity.class::isInstance)
                     .forEach(relevantElements::add);
 
-            // TODO 2552: Can this be improved?
             // Remove Entities if searching with EdgeId and View has no Entities
             if (view.hasEdges() && !view.hasEntities()) {
-                isFiltered = isFiltered.or(e -> e instanceof Entity);
+                isFiltered = isFiltered.or(Entity.class::isInstance);
             }
         }
 
@@ -130,6 +122,19 @@ public final class GetElementsUtil {
         }
 
         relevantElements.removeIf(isFiltered);
+        return relevantElements;
+    }
+
+    private static Set<Element> getRelevantElements(final MapImpl mapImpl, final EdgeId edgeId) {
+        final Set<Element> relevantElements = new HashSet<>();
+
+        if (DirectedType.isEither(edgeId.getDirectedType())) {
+            relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), false)));
+            relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), true)));
+        } else {
+            relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), edgeId.getDirectedType())));
+        }
+
         return relevantElements;
     }
 
@@ -154,7 +159,7 @@ public final class GetElementsUtil {
                 return false;
             }
         } else {
-            e.putProperty(visibilityProperty, new String());
+            e.putProperty(visibilityProperty, "");
             return true;
         }
     }

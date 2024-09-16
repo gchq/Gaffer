@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,10 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.TestTypes;
@@ -42,6 +44,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,10 +52,31 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class FederatedStoreUtilTest {
+    private final Schema schema = new Schema.Builder()
+            .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                    .vertex(TestTypes.ID_STRING)
+                    .aggregate(false)
+                    .build())
+            .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                    .source(TestTypes.ID_STRING)
+                    .destination(TestTypes.ID_STRING)
+                    .directed(TestTypes.DIRECTED_TRUE)
+                    .aggregate(false)
+                    .build())
+            .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                    .clazz(String.class)
+                    .build())
+            .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
+                    .clazz(Boolean.class)
+                    .validateFunctions(new IsTrue())
+                    .build())
+            .build();
+
     @Test
     public void shouldGetNullStringsWhenNullCsv() {
         // Given
@@ -112,7 +136,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertEquals(operation, updatedOp);
@@ -133,7 +157,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNotSame(operation, updatedOp);
@@ -156,7 +180,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNull(updatedOp);
@@ -176,7 +200,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final OperationChain<?> updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final OperationChain<?> updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNull(updatedOp);
@@ -205,7 +229,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final OperationChain<?> updatedOpChain = FederatedStoreUtil.updateOperationForGraph(opChain, graph);
+        final OperationChain<?> updatedOpChain = FederatedStoreUtil.updateOperationForGraph(opChain, graph, new Context());
 
         // Then
         assertNotSame(opChain, updatedOpChain);
@@ -232,7 +256,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertEquals(operation, updatedOp);
@@ -249,7 +273,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNotSame(operation, updatedOp);
@@ -268,7 +292,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNotSame(operation, updatedOp);
@@ -278,9 +302,11 @@ public class FederatedStoreUtilTest {
     }
 
     @Test
-    public void shouldUpdateAddElementsInput() {
+    public void shouldUpdateAddElementsInput() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Store store = mock(Store.class);
+        given(store.execute(any(OperationChain.class), any(Context.class))).willReturn(schema);
+        final Graph graph = createGraphWithStore(store);
         final AddElements operation = new AddElements.Builder()
                 .input(new Entity.Builder()
                                 .group(TestGroups.ENTITY)
@@ -297,7 +323,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         // When
-        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph, new Context());
 
         // Then
         assertNotSame(operation, updatedOp);
@@ -315,26 +341,16 @@ public class FederatedStoreUtilTest {
 
     protected Graph createGraph() {
         final Store store = mock(Store.class);
-        final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex(TestTypes.ID_STRING)
-                        .aggregate(false)
-                        .build())
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source(TestTypes.ID_STRING)
-                        .destination(TestTypes.ID_STRING)
-                        .directed(TestTypes.DIRECTED_TRUE)
-                        .aggregate(false)
-                        .build())
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
-                .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
-                        .clazz(Boolean.class)
-                        .validateFunctions(new IsTrue())
-                        .build())
-                .build();
+        try {
+            // Mock GetTraits operation that returns empty traits
+            given(store.execute(any(OperationChain.class), any(Context.class))).willReturn(new HashSet<>());
+        } catch (final OperationException e) {
+            throw new RuntimeException(e);
+        }
+        return createGraphWithStore(store);
+    }
 
+    protected Graph createGraphWithStore(final Store store) {
         given(store.getSchema()).willReturn(schema);
         given(store.getOriginalSchema()).willReturn(schema);
 

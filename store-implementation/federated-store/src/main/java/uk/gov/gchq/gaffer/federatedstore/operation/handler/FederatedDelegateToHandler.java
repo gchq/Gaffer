@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class FederatedDelegateToHandler implements OutputOperationHandler<InputO
                 || ValidateHandler.class.isAssignableFrom(handler.getClass())
                 || AggregateHandler.class.isAssignableFrom(handler.getClass())) {
             // Use the doOperation which requires a schema.
-            return (Iterable<? extends Element>) ((OperationWithSchemaHandler) handler).doOperation(operation, ((FederatedStore) store).getSchema(context));
+            return (Iterable<? extends Element>) ((OperationWithSchemaHandler) handler).doOperation(operation, ((FederatedStore) store).getSchema(context, true));
         } else {
             return handler.doOperation(operation, context, store);
         }

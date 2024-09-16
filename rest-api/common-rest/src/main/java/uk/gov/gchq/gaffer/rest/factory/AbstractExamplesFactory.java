@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package uk.gov.gchq.gaffer.rest.factory;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -55,11 +57,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.koryphe.impl.binaryoperator.First;
+import uk.gov.gchq.koryphe.impl.function.ToString;
 import uk.gov.gchq.koryphe.impl.predicate.IsLongerThan;
 
 import javax.annotation.PostConstruct;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -68,12 +73,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.BinaryOperator;
 
 import static java.lang.reflect.Modifier.isStatic;
 
 /**
  * Abstract Examples factory which can create examples using a schema and class inspection.
  */
+@SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract") //Class is not particularly abstract
 public abstract class AbstractExamplesFactory implements ExamplesFactory {
     private Map<Class<? extends Operation>, Operation> examplesMap;
 
@@ -96,11 +103,13 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
         map.put(AddNamedView.class, addNamedView());
         map.put(If.class, ifOperation());
         map.put(While.class, whileOperation());
+        map.put(uk.gov.gchq.gaffer.operation.impl.Map.class, mapOperation());
 
         examplesMap = map;
     }
 
     @Override
+    @SuppressFBWarnings(value = "REFLC_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_CLASS", justification = "Investigate")
     public Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
         if (null == examplesMap) {
             generateExamples();
@@ -127,40 +136,45 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
 
     private Object getExampleValue(final Class clazz, final int uniqueId) {
         Object value;
-        if (null == clazz) {
-            value = null;
-        } else if (Character.class.equals(clazz) || char.class.equals(clazz)) {
-            value = (char) uniqueId;
-        } else if (String.class.equals(clazz) || Object.class.equals(clazz)) {
-            value = String.valueOf(uniqueId);
-        } else if (Integer.class.equals(clazz) || int.class.equals(clazz)) {
-            value = uniqueId;
-        } else if (Double.class.equals(clazz) || double.class.equals(clazz)) {
-            value = (double) uniqueId + 0.1;
-        } else if (Long.class.equals(clazz) || long.class.equals(clazz)) {
-            value = (long) uniqueId;
-        } else if (Float.class.equals(clazz) || float.class.equals(clazz)) {
-            value = (float) uniqueId;
-        } else if (Date.class.equals(clazz)) {
-            value = new Date(System.currentTimeMillis() - 10000 + uniqueId);
-        } else if (boolean.class.equals(clazz)) {
-            value = uniqueId % 2 == 0;
-        } else {
-            try {
-                if (clazz.isEnum()) {
-                    final List l = Arrays.asList(clazz.getEnumConstants());
-                    if (!l.isEmpty()) {
-                        value = Enum.valueOf(clazz, l.get(0).toString());
-                    } else {
-                        value = clazz.newInstance();
-                    }
-                } else {
-                    value = clazz.newInstance();
-                }
-            } catch (final InstantiationException | IllegalAccessException e) {
+        try {
+            if (null == clazz) {
                 value = null;
+            } else if (Character.class.equals(clazz) || char.class.equals(clazz)) {
+                value = (char) uniqueId;
+            } else if (String.class.equals(clazz) || Object.class.equals(clazz)) {
+                value = String.valueOf(uniqueId);
+            } else if (Integer.class.equals(clazz) || int.class.equals(clazz)) {
+                value = uniqueId;
+            } else if (Double.class.equals(clazz) || double.class.equals(clazz)) {
+                value = (double) uniqueId;
+            } else if (Long.class.equals(clazz) || long.class.equals(clazz)) {
+                value = (long) uniqueId;
+            } else if (Float.class.equals(clazz) || float.class.equals(clazz)) {
+                value = (float) uniqueId;
+            } else if (Date.class.equals(clazz)) {
+                value = new Date(System.currentTimeMillis() - 10000 + uniqueId);
+            } else if (boolean.class.equals(clazz)) {
+                value = uniqueId % 2 == 0;
+            } else if (BinaryOperator.class.equals(clazz)) {
+                value = new First();
+            } else if (clazz.isEnum()) {
+                final List<Object> l = Arrays.asList(clazz.getEnumConstants());
+                if (!l.isEmpty()) {
+                    value = Enum.valueOf(clazz, l.get(0).toString());
+                } else {
+                    value = clazz.getDeclaredConstructor().newInstance();
+                }
+            } else {
+                value = clazz.getDeclaredConstructor().newInstance();
             }
+
+        } catch (final InstantiationException |
+                       IllegalAccessException |
+                       NoSuchMethodException |
+                       InvocationTargetException e) {
+            value = null;
         }
+
 
         return value;
     }
@@ -188,7 +202,7 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
                 .group(group)
                 .source(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.SOURCE), uniqueId1))
                 .dest(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.DESTINATION), uniqueId2))
-                .directed(isAnEdgeDirected())
+                .directed(isEdgeDirected(group))
                 .build();
 
         populateProperties(edge, edgeDef, uniqueId1);
@@ -203,19 +217,28 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
     }
 
     protected EdgeId getEdgeId(final int uniqueId1, final int uniqueId2) {
-        return new EdgeSeed(
-                getExampleVertex(getSchema().getEdge(getAnEdgeGroup())
-                        .getIdentifierClass(IdentifierType.SOURCE), uniqueId1),
-                getExampleVertex(getSchema().getEdge(getAnEdgeGroup())
-                        .getIdentifierClass(IdentifierType.DESTINATION), uniqueId2),
-                isAnEdgeDirected());
+        final String group = getAnEdgeGroup();
+        final SchemaEdgeDefinition edge = getSchema().getEdge(group);
+        final Object sourceVert = getExampleVertex(edge.getIdentifierClass(IdentifierType.SOURCE), uniqueId1);
+        final Object destVert = getExampleVertex(edge.getIdentifierClass(IdentifierType.DESTINATION), uniqueId2);
+
+        if (edge.getDirected() == null) {
+            return new EdgeSeed(sourceVert, destVert);
+        }
+
+        return new EdgeSeed(sourceVert, destVert, isEdgeDirected(group));
     }
 
-    protected boolean isAnEdgeDirected() {
-        return !getSchema().getEdge(getAnEdgeGroup())
-                .getDirected()
-                .toLowerCase(Locale.getDefault())
-                .contains("false");
+    protected boolean isEdgeDirected(final String group) {
+        SchemaEdgeDefinition edge = getSchema().getEdge(group);
+        // Schema may not define if directed
+        if (edge.getDirected() == null) {
+            return false;
+        }
+
+        return edge.getDirected()
+            .toLowerCase(Locale.getDefault())
+            .contains("true");
     }
 
     protected String getAnEntityPropertyName() {
@@ -229,23 +252,23 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
     }
 
     protected String getAnEntityGroup() {
-        if (!getSchema().getEntityGroups().isEmpty()) {
-            for (final Map.Entry<String, SchemaEntityDefinition> entry : getSchema()
-                    .getEntities()
-                    .entrySet()) {
-                // Try and find an entity that has properties
-                if (null != entry.getValue()
-                        .getProperties() && !entry.getValue()
-                        .getProperties()
-                        .isEmpty()) {
-                    return entry.getKey();
-                }
-            }
-            // if no entities have properties just return the first entity.
-            return getSchema().getEntityGroups().iterator().next();
-        } else {
+        if (getSchema().getEntityGroups().isEmpty()) {
             return "exampleEntityGroup";
         }
+
+        for (final Map.Entry<String, SchemaEntityDefinition> entry : getSchema()
+                .getEntities()
+                .entrySet()) {
+            // Try and find an entity that has properties
+            if (null != entry.getValue()
+                    .getProperties() && !entry.getValue()
+                    .getProperties()
+                    .isEmpty()) {
+                return entry.getKey();
+            }
+        }
+        // if no entities have properties just return the first entity.
+        return getSchema().getEntityGroups().iterator().next();
     }
 
     protected String getAnEdgePropertyName() {
@@ -261,22 +284,23 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
     }
 
     protected String getAnEdgeGroup() {
-        if (!getSchema().getEdgeGroups().isEmpty()) {
-            for (final Map.Entry<String, SchemaEdgeDefinition> entry : getSchema().getEdges()
-                    .entrySet()) {
-                // Try and find an edge that has properties
-                if (null != entry.getValue()
-                        .getProperties() && !entry.getValue()
-                        .getProperties()
-                        .isEmpty()) {
-                    return entry.getKey();
-                }
-            }
-            // if no edges have properties just return the first entity.
-            return getSchema().getEdgeGroups().iterator().next();
-        } else {
+        if (getSchema().getEdgeGroups().isEmpty()) {
             return "exampleEdgeGroup";
         }
+
+        for (final Map.Entry<String, SchemaEdgeDefinition> entry : getSchema().getEdges()
+                .entrySet()) {
+            // Try and find an edge that has properties
+            if (null != entry.getValue()
+                    .getProperties() && !entry.getValue()
+                    .getProperties()
+                    .isEmpty()) {
+                return entry.getKey();
+            }
+        }
+        // if no edges have properties just return the first entity.
+        return getSchema().getEdgeGroups().iterator().next();
+
     }
 
     protected boolean hasEdges() {
@@ -384,11 +408,12 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
 
 
         if (hasEdges()) {
-            final SchemaElementDefinition edgeDef = getSchema().getEdge(getAnEdgeGroup());
-            objs.add(new ExampleDomainObject(getAnEdgeGroup(),
+            final String group = getAnEdgeGroup();
+            final SchemaElementDefinition edgeDef = getSchema().getEdge(group);
+            objs.add(new ExampleDomainObject(group,
                     getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.SOURCE), 1),
                     getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.DESTINATION), 1),
-                    isAnEdgeDirected()));
+                    isEdgeDirected(group)));
         }
 
         op.setInput(objs);
@@ -438,7 +463,7 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
 
     public GetWalks getWalks() {
         final List<String> edges = new ArrayList<>(getSchema().getEdgeGroups());
-        if (edges.isEmpty()) {
+        if (edges.isEmpty() || getSchema().getEntityGroups().isEmpty()) {
             return new GetWalks();
         }
 
@@ -513,6 +538,13 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
                 .conditional(new IsLongerThan(0))
                 .operation(new GetAdjacentIds())
                 .maxRepeats(10)
+                .build();
+    }
+
+    public uk.gov.gchq.gaffer.operation.impl.Map mapOperation() {
+        return new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>()
+                .input(2)
+                .first(new ToString())
                 .build();
     }
 

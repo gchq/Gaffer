@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,10 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-import static java.util.Objects.nonNull;
+import java.util.Properties;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * A handler for operations that addGraph to the FederatedStore.
@@ -55,8 +58,13 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         final User user = context.getUser();
         final boolean isLimitedToLibraryProperties = ((FederatedStore) store).isLimitedToLibraryProperties(user, operation.isUserRequestingAdminUsage());
 
-        if (isLimitedToLibraryProperties && nonNull(operation.getStoreProperties())) {
+        if (isLimitedToLibraryProperties && (operation.getStoreProperties() != null)) {
             throw new OperationException(String.format(USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, operation.getProperties().toString()));
+        }
+
+        // If the operation has store properties, check them for conflicts with existing cache configuration
+        if (operation.getStoreProperties() != null) {
+            checkCacheProperties(operation, store);
         }
 
         final GraphSerialisable graphSerialisable;
@@ -75,7 +83,6 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                     operation.getGraphAuths(),
                     context.getUser().getUserId(),
                     operation.getIsPublic(),
-                    operation.isDisabledByDefault(),
                     operation.getReadAccessPredicate(),
                     operation.getWriteAccessPredicate(),
                     graphSerialisable);
@@ -88,6 +95,34 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         addGenericHandler((FederatedStore) store, graph);
 
         return null;
+    }
+
+    /**
+     * Warns users when their specified cache config may be ignored
+     * <p>
+     * FederatedStore initialises its own cache(s) and a subgraph cannot
+     * re-initialise these. If an added graph tries to initialise a cache
+     * class which was already initialised, then this is ignored and the
+     * existing cache service is used instead.
+     *
+     * @param operation {@link Operation} adding a new subgraph
+     * @param store existing federated {@link Store}
+     */
+    private void checkCacheProperties(final OP operation, final Store store) {
+        final Properties operationProperties = operation.getStoreProperties().getProperties();
+        final Properties storeProperties = store.getProperties().getProperties();
+        Predicate<Object> matchCacheClassPredicate = (key) -> ((String) key).matches("^gaffer\\.cache\\.service\\..*class$");
+        final boolean propertiesContainCacheConfig = operationProperties.keySet().stream().anyMatch(matchCacheClassPredicate);
+
+        if (propertiesContainCacheConfig) {
+            LOGGER.info("Graph '{}' specifies Cache class(s), which will be ignored if they are already initialised.", operation.getGraphId());
+            Set<Object> initCacheProps = storeProperties.keySet().stream().filter(matchCacheClassPredicate).collect(Collectors.toSet());
+            Set<Object> opCacheProps = operationProperties.keySet().stream().filter(matchCacheClassPredicate).collect(Collectors.toSet());
+            initCacheProps.retainAll(opCacheProps); // Intersection of existing props and operation props, indicates conflicting props unless empty
+            if (!initCacheProps.isEmpty()) {
+                LOGGER.warn("Graph '{}' specifies property {} - will be ignored as these cache(s) were already initialised by the Federated Store.", operation.getGraphId(), initCacheProps);
+            }
+        }
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -108,11 +143,13 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                     }
                     if (Iterable.class.isAssignableFrom(outputClass)) {
                         store.addOperationHandler((Class) supportedOutputOperation, new FederatedOutputIterableHandler());
+                        store.addExternallySupportedOperation(supportedOutputOperation);
                     } else {
                         LOGGER.warn("No generic default handler can be used for an Output operation that does not return CloseableIterable. operation: {}", supportedOutputOperation);
                     }
                 } else {
                     store.addOperationHandler(supportedOperation, new FederatedNoOutputHandler());
+                    store.addExternallySupportedOperation(supportedOperation);
                 }
             }
         }

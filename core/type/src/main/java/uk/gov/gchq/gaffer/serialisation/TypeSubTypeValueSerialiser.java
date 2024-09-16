@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.serialisation;
 
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A {@code TypeSubTypeValueSerialiser} is used to serialise and deserialise {@link TypeSubTypeValue}
@@ -48,7 +48,7 @@ public class TypeSubTypeValueSerialiser implements ToBytesSerialiser<TypeSubType
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         if (null != type) {
             try {
-                out.write(ByteArrayEscapeUtils.escape(type.getBytes(CommonConstants.UTF_8)));
+                out.write(ByteArrayEscapeUtils.escape(type.getBytes(StandardCharsets.UTF_8)));
             } catch (final IOException e) {
                 throw new SerialisationException("Failed to serialise the Type from TypeSubTypeValue Object", e);
             }
@@ -56,7 +56,7 @@ public class TypeSubTypeValueSerialiser implements ToBytesSerialiser<TypeSubType
         out.write(ByteArrayEscapeUtils.DELIMITER);
         if (null != subType) {
             try {
-                out.write(ByteArrayEscapeUtils.escape(subType.getBytes(CommonConstants.UTF_8)));
+                out.write(ByteArrayEscapeUtils.escape(subType.getBytes(StandardCharsets.UTF_8)));
             } catch (final IOException e) {
                 throw new SerialisationException("Failed to serialise the SubType from TypeSubTypeValue Object", e);
             }
@@ -64,7 +64,7 @@ public class TypeSubTypeValueSerialiser implements ToBytesSerialiser<TypeSubType
         out.write(ByteArrayEscapeUtils.DELIMITER);
         if (null != value) {
             try {
-                out.write(ByteArrayEscapeUtils.escape(value.getBytes(CommonConstants.UTF_8)));
+                out.write(ByteArrayEscapeUtils.escape(value.getBytes(StandardCharsets.UTF_8)));
             } catch (final IOException e) {
                 throw new SerialisationException("Failed to serialise the Value from TypeSubTypeValue Object", e);
             }
@@ -79,11 +79,7 @@ public class TypeSubTypeValueSerialiser implements ToBytesSerialiser<TypeSubType
         for (int i = 0; i < bytes.length; i++) {
             if (bytes[i] == ByteArrayEscapeUtils.DELIMITER) {
                 if (i > 0) {
-                    try {
-                        typeSubTypeValue.setType(new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, i), CommonConstants.UTF_8));
-                    } catch (final UnsupportedEncodingException e) {
-                        throw new SerialisationException("Failed to deserialise the Type from TypeSubTypeValue Object", e);
-                    }
+                    typeSubTypeValue.setType(new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, i), StandardCharsets.UTF_8));
                 }
                 lastDelimiter = i + 1;
                 break;
@@ -92,22 +88,14 @@ public class TypeSubTypeValueSerialiser implements ToBytesSerialiser<TypeSubType
         for (int i = lastDelimiter; i < bytes.length; i++) {
             if (bytes[i] == ByteArrayEscapeUtils.DELIMITER) {
                 if (i > lastDelimiter) {
-                    try {
-                        typeSubTypeValue.setSubType(new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, i), CommonConstants.UTF_8));
-                    } catch (final UnsupportedEncodingException e) {
-                        throw new SerialisationException("Failed to deserialise the SubType from TypeSubTypeValue Object", e);
-                    }
+                    typeSubTypeValue.setSubType(new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, i), StandardCharsets.UTF_8));
                 }
                 lastDelimiter = i + 1;
                 break;
             }
         }
         if (bytes.length > lastDelimiter) {
-            try {
-                typeSubTypeValue.setValue(new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, bytes.length), CommonConstants.UTF_8));
-            } catch (final UnsupportedEncodingException e) {
-                throw new SerialisationException("Failed to deserialise the Value from TypeSubTypeValue Object", e);
-            }
+            typeSubTypeValue.setValue(new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, bytes.length), StandardCharsets.UTF_8));
         }
         return typeSubTypeValue;
     }

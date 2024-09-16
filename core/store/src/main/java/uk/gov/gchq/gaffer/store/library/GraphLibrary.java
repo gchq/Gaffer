@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * A {@code GraphLibrary} stores a graphId and its related Schema and StoreProperties.
  */
 public abstract class GraphLibrary {
-    protected static final Pattern ID_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_]*");
+    protected static final Pattern ID_ALLOWED_CHARACTERS = Pattern.compile("\\w*");
     public static final String A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S = "A GraphLibrary can't be added with a null %s, graphId: %s";
 
     public abstract void initialise(final String path);
@@ -188,12 +188,11 @@ public abstract class GraphLibrary {
         if (schema == null) {
             throw new IllegalArgumentException("Schema cannot be null");
         }
-        if (null != schema) {
-            validateId(id);
-            final byte[] schemaJson = schema.toJson(false);
-            if (!checkSchemaExists(id, schemaJson)) {
-                _addSchema(id, schemaJson);
-            }
+
+        validateId(id);
+        final byte[] schemaJson = schema.toJson(false);
+        if (!checkSchemaExists(id, schemaJson)) {
+            _addSchema(id, schemaJson);
         }
     }
 
@@ -224,11 +223,10 @@ public abstract class GraphLibrary {
         if (properties == null) {
             throw new IllegalArgumentException("Store properties cannot be null");
         }
-        if (null != properties) {
-            validateId(id);
-            if (!checkPropertiesExist(id, properties)) {
-                _addProperties(id, properties);
-            }
+
+        validateId(id);
+        if (!checkPropertiesExist(id, properties)) {
+            _addProperties(id, properties);
         }
     }
 
@@ -269,19 +267,15 @@ public abstract class GraphLibrary {
     private void checkExisting(final String graphId, final byte[] schema, final StoreProperties properties) {
         final Pair<Schema, StoreProperties> existingPair = get(graphId);
         if (null != existingPair) {
-            if (null != existingPair.getFirst()) {
-                if (!JsonUtil.equals(existingPair.getFirst().toJson(false), schema)) {
-                    throw new OverwritingException("GraphId " + graphId + " already exists with a different schema:\n"
-                            + "existing schema:\n" + StringUtil.toString(existingPair.getFirst().toJson(false))
-                            + "\nnew schema:\n" + StringUtil.toString(schema));
-                }
+            if (existingPair.getFirst() != null && !JsonUtil.equals(existingPair.getFirst().toJson(false), schema)) {
+                throw new OverwritingException("GraphId " + graphId + " already exists with a different schema:\n"
+                        + "existing schema:\n" + StringUtil.toString(existingPair.getFirst().toJson(false))
+                        + "\nnew schema:\n" + StringUtil.toString(schema));
             }
-            if (null != existingPair.getSecond()) {
-                if (!existingPair.getSecond().getProperties().equals(properties.getProperties())) {
-                    throw new OverwritingException("GraphId " + graphId + " already exists with a different store properties:\n"
-                            + "existing storeProperties:\n" + existingPair.getSecond().toString()
-                            + "\nnew storeProperties:\n" + properties.toString());
-                }
+            if (existingPair.getSecond() != null && !existingPair.getSecond().getProperties().equals(properties.getProperties())) {
+                throw new OverwritingException("GraphId " + graphId + " already exists with a different store properties:\n"
+                        + "existing storeProperties:\n" + existingPair.getSecond().toString()
+                        + "\nnew storeProperties:\n" + properties);
             }
         }
     }
@@ -289,12 +283,10 @@ public abstract class GraphLibrary {
     private boolean checkSchemaExists(final String id, final byte[] schemaJson) {
         final byte[] existingSchemaJson = _getSchema(id);
         final boolean exists = null != existingSchemaJson;
-        if (exists) {
-            if (!JsonUtil.equals(existingSchemaJson, schemaJson)) {
-                throw new OverwritingException("schemaId " + id + " already exists with a different schema:\n"
-                        + "existing schema:\n" + StringUtil.toString(existingSchemaJson)
-                        + "\nnew schema:\n" + StringUtil.toString(schemaJson));
-            }
+        if (exists && !JsonUtil.equals(existingSchemaJson, schemaJson)) {
+            throw new OverwritingException("schemaId " + id + " already exists with a different schema:\n"
+                    + "existing schema:\n" + StringUtil.toString(existingSchemaJson)
+                    + "\nnew schema:\n" + StringUtil.toString(schemaJson));
         }
 
         return exists;
@@ -302,13 +294,11 @@ public abstract class GraphLibrary {
 
     private boolean checkPropertiesExist(final String id, final StoreProperties properties) {
         final StoreProperties existingProperties = _getProperties(id);
-        final boolean exists = null != existingProperties;
-        if (exists) {
-            if (!existingProperties.getProperties().equals(properties.getProperties())) {
-                throw new OverwritingException("propertiesId " + id + " already exists with a different store properties:\n"
-                        + "existing storeProperties:\n" + existingProperties.getProperties().toString()
-                        + "\nnew storeProperties:\n" + properties.getProperties().toString());
-            }
+        final boolean exists = existingProperties != null;
+        if (exists && !existingProperties.getProperties().equals(properties.getProperties())) {
+            throw new OverwritingException("propertiesId " + id + " already exists with a different store properties:\n"
+                    + "existing storeProperties:\n" + existingProperties.getProperties().toString()
+                    + "\nnew storeProperties:\n" + properties.getProperties().toString());
         }
         return exists;
     }

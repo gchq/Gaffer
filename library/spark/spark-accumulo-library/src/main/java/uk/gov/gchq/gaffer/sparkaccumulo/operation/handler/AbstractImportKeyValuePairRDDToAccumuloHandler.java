@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler;
 
 import org.apache.hadoop.conf.Configuration;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends Operation> implements OperationHandler<OP> {
 
@@ -71,7 +72,7 @@ public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends 
         final String serialisedConf = operation.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY);
         if (null != serialisedConf) {
             try {
-                final ByteArrayInputStream bais = new ByteArrayInputStream(serialisedConf.getBytes(CommonConstants.UTF_8));
+                final ByteArrayInputStream bais = new ByteArrayInputStream(serialisedConf.getBytes(StandardCharsets.UTF_8));
                 conf.readFields(new DataInputStream(bais));
             } catch (final IOException e) {
                 throw new OperationException("Exception decoding Configuration from options", e);

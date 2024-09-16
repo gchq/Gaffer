@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.time;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -20,10 +21,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.datasketches.sampling.ReservoirLongsUnion;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
@@ -53,8 +54,8 @@ public class BoundedTimestampSet implements TimestampSet {
         SAMPLE
     }
 
-    private TimeBucket timeBucket;
-    private int maxSize;
+    private final TimeBucket timeBucket;
+    private final int maxSize;
     private State state;
     private RBMBackedTimestampSet rbmBackedTimestampSet;
     private ReservoirLongsUnion reservoirLongsUnion;

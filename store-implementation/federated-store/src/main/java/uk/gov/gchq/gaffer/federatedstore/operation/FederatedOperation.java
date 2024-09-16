@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -32,6 +33,8 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -41,6 +44,7 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +65,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds", "skipFailedFederatedExecution"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("Federates a payload operation across given graphs and merges the results with a given function.")
-public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, InputOutput<INPUT, OUTPUT> {
+public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, InputOutput<INPUT, OUTPUT>, Operations<Operation> {
     private List<String> graphIds;
     @Required
     private Operation payloadOperation;
@@ -97,18 +101,21 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         return this;
     }
 
+    @Override
+    @JsonIgnore
+    public Collection<Operation> getOperations() {
+        return OperationChain.wrap(getPayloadOperation()).getOperations();
+    }
+
     public FederatedOperation<INPUT, OUTPUT> mergeFunction(final BiFunction mergeFunction) {
         this.mergeFunction = mergeFunction;
         return this;
     }
 
+    @JsonGetter("skipFailedFederatedExecution")
+    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
     public boolean isSkipFailedFederatedExecution() {
         return skipFailedFederatedExecution;
-    }
-
-    @JsonGetter("skipFailedFederatedExecution")
-    public Boolean _isSkipFailedFederatedExecution() {
-        return skipFailedFederatedExecution ? true : null;
     }
 
     @Override
@@ -221,7 +228,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         final boolean rtn;
         if (this == o) {
             rtn = true;
-        } else if (o == null || !(o instanceof FederatedOperation)) {
+        } else if (!(o instanceof FederatedOperation)) {
             rtn = false;
         } else {
             FederatedOperation that = (FederatedOperation) o;
@@ -329,6 +336,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     }
 
+    @SuppressWarnings("PMD.UselessOverridingMethod") //False positive - Generics are different
     public abstract static class BuilderParent<INPUT, OUTPUT> extends IFederationOperation.BaseBuilder<FederatedOperation<INPUT, OUTPUT>, BuilderParent<INPUT, OUTPUT>> {
         public BuilderParent(final FederatedOperation<INPUT, OUTPUT> fedOp) {
             super(fedOp);

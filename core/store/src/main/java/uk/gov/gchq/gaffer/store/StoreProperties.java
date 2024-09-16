@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
@@ -47,6 +46,19 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import static java.lang.Boolean.parseBoolean;
+import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_DEFAULT_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_DEFAULT_SUFFIX;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_JOB_TRACKER_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_JOB_TRACKER_SUFFIX;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_NAMED_OPERATION_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_NAMED_OPERATION_SUFFIX;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_NAMED_VIEW_CLASS;
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_NAMED_VIEW_SUFFIX;
+import static uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler.DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED;
+
 /**
  * A {@code StoreProperties} contains specific configuration information for the store, such as database
  * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
@@ -61,8 +73,12 @@ public class StoreProperties implements Cloneable {
 
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
+    public static final String OPERATION_DECLARATIONS_JSON = "gaffer.store.operation.declarations.json";
 
+    public static final String NAMED_VIEW_ENABLED = "gaffer.store.namedview.enabled";
+    public static final String NAMED_OPERATION_ENABLED = "gaffer.store.namedoperation.enabled";
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
+    public static final String RESCHEDULE_JOBS_ON_START = "gaffer.store.job.rescheduleOnStart";
 
     public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
     public static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
@@ -74,24 +90,12 @@ public class StoreProperties implements Cloneable {
     public static final String ADMIN_AUTH = "gaffer.store.admin.auth";
 
     /**
-     * This is used....
-     * eg.gaffer.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
-     */
-    public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
-
-    /**
-     * This is used...
-     * CASE INSENSITIVE
-     * e.g. gaffer.cache.service.name.suffix="v2"
-     */
-    public static final String CACHE_SERVICE_NAME_SUFFIX = "gaffer.cache.service.name.suffix";
-
-    /**
      * CSV of extra packages to be included in the reflection scanning.
      */
     public static final String REFLECTION_PACKAGES = "gaffer.store.reflection.packages";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
+    public static final String GAFFER_NAMED_OPERATION_NESTED = "gaffer.named.operation.nested";
 
     private Properties props = new Properties();
 
@@ -178,6 +182,7 @@ public class StoreProperties implements Cloneable {
         return (T) updateInstanceType(requiredClass, properties);
     }
 
+    @SuppressWarnings("PMD.UseTryWithResources") //Not possible
     public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
         if (null == storePropertiesStream) {
             return new StoreProperties();
@@ -274,18 +279,21 @@ public class StoreProperties implements Cloneable {
      */
     @JsonIgnore
     public OperationDeclarations getOperationDeclarations() {
-        OperationDeclarations declarations = null;
+        OperationDeclarations.Builder declarations = new OperationDeclarations.Builder();
 
         final String declarationsPaths = get(StoreProperties.OPERATION_DECLARATIONS);
         if (null != declarationsPaths) {
-            declarations = OperationDeclarations.fromPaths(declarationsPaths);
+            OperationDeclarations.fromPaths(declarationsPaths).getOperations()
+                    .forEach(d -> declarations.declaration(d));
         }
 
-        if (null == declarations) {
-            declarations = new OperationDeclarations.Builder().build();
+        if (containsKey(OPERATION_DECLARATIONS_JSON)) {
+            final String json = get(OPERATION_DECLARATIONS_JSON);
+            OperationDeclarations.fromJson(json).getOperations()
+                    .forEach(d -> declarations.declaration(d));
         }
 
-        return declarations;
+        return declarations.build();
     }
 
     public String getStoreClass() {
@@ -301,12 +309,36 @@ public class StoreProperties implements Cloneable {
         set(STORE_CLASS, storeClass);
     }
 
-    public Boolean getJobTrackerEnabled() {
+    public boolean getJobTrackerEnabled() {
         return Boolean.valueOf(get(JOB_TRACKER_ENABLED, "false"));
     }
 
-    public void setJobTrackerEnabled(final Boolean jobTrackerEnabled) {
-        set(JOB_TRACKER_ENABLED, jobTrackerEnabled.toString());
+    public void setJobTrackerEnabled(final boolean jobTrackerEnabled) {
+        set(JOB_TRACKER_ENABLED, Boolean.toString(jobTrackerEnabled));
+    }
+
+    public boolean getNamedViewEnabled() {
+        return Boolean.valueOf(get(NAMED_VIEW_ENABLED, "true"));
+    }
+
+    public void setNamedViewEnabled(final boolean namedViewEnabled) {
+        set(NAMED_VIEW_ENABLED, Boolean.toString(namedViewEnabled));
+    }
+
+    public boolean getNamedOperationEnabled() {
+        return Boolean.valueOf(get(NAMED_OPERATION_ENABLED, "true"));
+    }
+
+    public void setNamedOperationEnabled(final boolean namedOperationEnabled) {
+        set(NAMED_OPERATION_ENABLED, Boolean.toString(namedOperationEnabled));
+    }
+
+    public boolean getRescheduleJobsOnStart() {
+        return Boolean.valueOf(get(RESCHEDULE_JOBS_ON_START, "false"));
+    }
+
+    public void setRescheduleJobsOnStart(final boolean rescheduleJobsOnStart) {
+        set(RESCHEDULE_JOBS_ON_START, Boolean.toString(rescheduleJobsOnStart));
     }
 
     public String getSchemaClassName() {
@@ -330,7 +362,7 @@ public class StoreProperties implements Cloneable {
     }
 
     public void setSchemaClass(final Class<? extends Schema> schemaClass) {
-        set(SCHEMA_CLASS, schemaClass.getName());
+        setSchemaClass(schemaClass.getName());
     }
 
     public String getStorePropertiesClassName() {
@@ -420,7 +452,7 @@ public class StoreProperties implements Cloneable {
 
     public Boolean getStrictJson() {
         final String strictJson = get(STRICT_JSON);
-        return null == strictJson ? null : Boolean.parseBoolean(strictJson);
+        return null == strictJson ? null : parseBoolean(strictJson);
     }
 
     public void setStrictJson(final Boolean strictJson) {
@@ -435,20 +467,89 @@ public class StoreProperties implements Cloneable {
         set(ADMIN_AUTH, adminAuth);
     }
 
-    public void setCacheServiceClass(final String cacheServiceClassString) {
-        set(CACHE_SERVICE_CLASS, cacheServiceClassString);
+    public String getDefaultCacheServiceClass() {
+        final String defaultCacheClass = get(CACHE_SERVICE_DEFAULT_CLASS);
+        // Fallback to old CACHE_SERVICE_CLASS property if CACHE_SERVICE_DEFAULT_CLASS is missing
+        return (defaultCacheClass == null ? get(CACHE_SERVICE_CLASS) : defaultCacheClass);
     }
 
+    public void setDefaultCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_DEFAULT_CLASS, cacheServiceClassString);
+    }
+
+    public String getJobTrackerCacheServiceClass() {
+        return get(CACHE_SERVICE_JOB_TRACKER_CLASS);
+    }
+
+    public void setJobTrackerCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_JOB_TRACKER_CLASS, cacheServiceClassString);
+    }
+
+    public String getNamedViewCacheServiceClass() {
+        return get(CACHE_SERVICE_NAMED_VIEW_CLASS);
+    }
+
+    public void setNamedViewCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_NAMED_VIEW_CLASS, cacheServiceClassString);
+    }
+
+    public String getNamedOperationCacheServiceClass() {
+        return get(CACHE_SERVICE_NAMED_OPERATION_CLASS);
+    }
+
+    public void setNamedOperationCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_NAMED_OPERATION_CLASS, cacheServiceClassString);
+    }
+
+    @Deprecated
+    public void setCacheServiceClass(final String cacheServiceClassString) {
+        set(CACHE_SERVICE_CLASS, cacheServiceClassString);
+        setDefaultCacheServiceClass(cacheServiceClassString);
+    }
+
+    @Deprecated
+    public String getCacheServiceClass() {
+        return getCacheServiceClass(null);
+    }
+
+    @Deprecated
     public String getCacheServiceClass(final String defaultValue) {
-        return get(CACHE_SERVICE_CLASS, defaultValue);
+        final String cacheServiceClass = getDefaultCacheServiceClass();
+        return (cacheServiceClass != null) ? cacheServiceClass : get(CACHE_SERVICE_CLASS, defaultValue);
     }
 
     public void setCacheServiceNameSuffix(final String suffix) {
-        set(CACHE_SERVICE_NAME_SUFFIX, suffix);
+        set(CACHE_SERVICE_DEFAULT_SUFFIX, suffix);
     }
 
-    public String getCacheServiceNameSuffix() {
-        return get(CACHE_SERVICE_NAME_SUFFIX, null);
+    public String getCacheServiceDefaultSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_DEFAULT_SUFFIX, defaultValue);
+    }
+
+    public String getCacheServiceNamedOperationSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_NAMED_OPERATION_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
+    }
+
+    public boolean isNestedNamedOperationAllow() {
+        return isNestedNamedOperationAllow(DEFAULT_IS_NESTED_NAMED_OPERATIONS_ALLOWED);
+    }
+
+    public boolean isNestedNamedOperationAllow(final boolean defaultValue) {
+        final String propertyValue = get(GAFFER_NAMED_OPERATION_NESTED);
+
+        return nonNull(propertyValue) ? parseBoolean(propertyValue) : defaultValue;
+    }
+
+    public void setNestedNamedOperationAllow(final boolean isAllowed) {
+        this.props.setProperty(GAFFER_NAMED_OPERATION_NESTED, String.valueOf(isAllowed));
+    }
+
+    public String getCacheServiceJobTrackerSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_JOB_TRACKER_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
+    }
+
+    public String getCacheServiceNamedViewSuffix(final String defaultValue) {
+        return get(CACHE_SERVICE_NAMED_VIEW_SUFFIX, getCacheServiceDefaultSuffix(defaultValue));
     }
 
     public Properties getProperties() {

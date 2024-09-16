@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.accumulostore.key.core;
 
-import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionE
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.LongUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -46,21 +45,33 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
     protected final Schema schema;
     private final String timestampProperty;
     private final Set<String> aggregatedGroups;
+    private final Set<String> timeSensitiveAggregatedGroups = new HashSet<>();
 
-    public AbstractCoreKeyAccumuloElementConverter(final Schema schema) {
+    protected AbstractCoreKeyAccumuloElementConverter(final Schema schema) {
         this.schema = schema;
-        this.timestampProperty = null != schema ? schema.getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY) : null;
-        this.aggregatedGroups = null != schema ? Sets.newHashSet(schema.getAggregatedGroups()) : Collections.emptySet();
+
+        // Init with info from the schema if supplied
+        if (schema != null) {
+            timestampProperty = schema.getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY);
+            aggregatedGroups = new HashSet<>(schema.getAggregatedGroups());
+            populateTimeSensitiveGroups();
+        } else {
+            aggregatedGroups = Collections.emptySet();
+            timestampProperty = null;
+        }
     }
 
     @Override
@@ -189,20 +200,12 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @Override
     public byte[] buildColumnFamily(final String group) {
-        try {
-            return group.getBytes(CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new AccumuloElementConversionException(e.getMessage(), e);
-        }
+        return group.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
     public String getGroupFromColumnFamily(final byte[] columnFamily) {
-        try {
-            return new String(columnFamily, CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new AccumuloElementConversionException(e.getMessage(), e);
-        }
+        return new String(columnFamily, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -266,6 +269,28 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         }
 
         return stream.toByteArray();
+    }
+
+    /**
+     * Populates the set of groups that aggregate with a time sensitive
+     * aggregation function.
+     */
+    private void populateTimeSensitiveGroups() {
+        // Find the groups that use a time sensitive aggregation function
+        for (final String group : aggregatedGroups) {
+            // Check all type definitions for the group
+            Stream<TypeDefinition> typeStream = StreamSupport.stream(
+                schema.getElement(group).getPropertyTypeDefs().spliterator(), false);
+
+            // Check if a time sensitive function is used anywhere
+            boolean timeSensitiveGroup = typeStream.anyMatch(td ->
+                td.getAggregateFunction() != null &&
+                AccumuloStoreConstants.TIME_SENSITIVE_AGGREGATORS.contains(td.getAggregateFunction().getClass()));
+
+            if (timeSensitiveGroup) {
+                timeSensitiveAggregatedGroups.add(group);
+            }
+        }
     }
 
     private SchemaElementDefinition getSchemaElementDefinition(final String group) {
@@ -359,17 +384,23 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @Override
     public long buildTimestamp(final String group, final Properties properties) {
-        Long timestamp = null;
-        if (null != timestampProperty) {
-            timestamp = (Long) properties.get(timestampProperty);
+        Long timestamp;
+
+        // Allow override via property
+        if (timestampProperty != null) {
+            return (Long) properties.get(timestampProperty);
         }
 
-        if (null == timestamp) {
-            if (aggregatedGroups.contains(group)) {
-                timestamp = AccumuloStoreConstants.DEFAULT_TIMESTAMP;
+        // Check if aggregating to see what timestamp we should apply
+        if (aggregatedGroups.contains(group)) {
+            // If any types used by the element aggregate using a time sensitive function, add a timestamp
+            if (timeSensitiveAggregatedGroups.contains(group)) {
+                timestamp = System.currentTimeMillis();
             } else {
-                timestamp = LongUtil.getTimeBasedRandom();
+                timestamp = AccumuloStoreConstants.DEFAULT_TIMESTAMP;
             }
+        } else {
+            timestamp = LongUtil.getTimeBasedRandom();
         }
 
         return timestamp;
@@ -492,11 +523,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     protected String getGroupFromKey(final Key key) {
-        try {
-            return new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new AccumuloElementConversionException("Failed to get element group from key", e);
-        }
+        return new String(key.getColumnFamilyData().getBackingArray(), StandardCharsets.UTF_8);
     }
 
     protected boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.jobtracker;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * POJO containing details of a Gaffer job.
  */
 public class JobDetail implements Serializable {
     private static final long serialVersionUID = -1677432285205724269L;
-    private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String parentJobId;
     private Repeat repeat;
     private String jobId;
@@ -308,18 +307,14 @@ public class JobDetail implements Serializable {
     }
 
     private static String serialiseOperationChain(final OperationChain operationChain) {
-
         if (operationChain == null) {
             return "";
         }
 
         try {
-
-            return new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
-
+            return new String(JSONSerialiser.serialise(operationChain), StandardCharsets.UTF_8);
         } catch (final Exception exception) {
-
-            throw new IllegalArgumentException(exception.getMessage());
+            throw new IllegalArgumentException(exception.getMessage(), exception);
         }
     }
 }

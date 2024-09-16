@@ -1,5 +1,6 @@
 /*
  * Copyright 2017-2024 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +74,7 @@ public class GetAllElementsHandlerTest {
             "}";
 
     @Test
-    public void testAddAndGetAllElementsNoAggregation() throws StoreException, OperationException {
+    void testAddAndGetAllElementsNoAggregation() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -98,7 +99,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testAddAndGetAllElementsWithAggregation() throws StoreException, OperationException {
+    void testAddAndGetAllElementsWithAggregation() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -151,7 +152,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsWithViewRestrictedByGroup() throws OperationException {
+    void testGetAllElementsWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -178,7 +179,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
+    void testGetAllElementsWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -210,7 +211,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
+    void testGetAllElementsWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -243,7 +244,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsWithAndWithEntities() throws OperationException {
+    void testGetAllElementsWithAndWithEntities() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -288,7 +289,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsDirectedTypeOption() throws OperationException {
+    void testGetAllElementsDirectedTypeOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -518,7 +519,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+    void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
         VisibilityTest.executeOperation(
                 new GetAllElements.Builder().build(),
                 VisibilityTest::elementIterableResultConsumer);

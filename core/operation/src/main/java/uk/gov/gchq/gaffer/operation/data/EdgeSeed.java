@@ -112,10 +112,8 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
     }
 
     private void orderVertices() {
-        if (!DirectedType.isDirected(directed)) {
-            if (VERTEX_COMPARATOR.compare(source, destination) > 0) {
-                swapVertices();
-            }
+        if (!DirectedType.isDirected(directed) && VERTEX_COMPARATOR.compare(source, destination) > 0) {
+            swapVertices();
         }
     }
 

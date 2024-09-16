@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ import static org.mockito.Mockito.mock;
 
 public class CancelScheduledJobHandlerTest {
 
+    public static final String SUFFIX_CACHE_NAME = "Suffix";
+
     @Test
     public void shouldThrowExceptionWithNoJobId() {
         // Given
@@ -41,7 +43,7 @@ public class CancelScheduledJobHandlerTest {
         final Store store = mock(Store.class);
         final User user = mock(User.class);
 
-        given(store.getJobTracker()).willReturn(new JobTracker());
+        given(store.getJobTracker()).willReturn(new JobTracker(SUFFIX_CACHE_NAME));
 
         // When / Then
         assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(operation, new Context(user), store)).withMessage("job id must be specified");

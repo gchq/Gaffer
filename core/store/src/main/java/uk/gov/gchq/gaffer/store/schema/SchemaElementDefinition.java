@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ import java.util.function.Predicate;
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
+@SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "Appears to be a false positive")
 public abstract class SchemaElementDefinition implements ElementDefinition {
     /**
      * A validator to validate the element definition
@@ -196,7 +197,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     @JsonIgnore
-    public ElementAggregator getFullAggregator() {
+    public synchronized ElementAggregator getFullAggregator() {
         if (null == fullAggregatorCache) {
             createFullAggregator();
         }
@@ -225,7 +226,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     @JsonIgnore
-    public ElementAggregator getIngestAggregator() {
+    public synchronized ElementAggregator getIngestAggregator() {
         if (null == ingestAggregatorCache) {
             createIngestAggregator();
         }
@@ -251,10 +252,9 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                     }
                 }
                 for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                    if (!aggregatorProperties.contains(entry.getKey())) {
-                        if (!groupBy.contains(entry.getKey()) && !entry.getKey().equals(schemaReference.getVisibilityProperty())) {
-                            addTypeAggregateFunction(ingestAggregatorCache, entry.getKey(), entry.getValue());
-                        }
+                    if (!aggregatorProperties.contains(entry.getKey()) && !groupBy.contains(entry.getKey())
+                            && !entry.getKey().equals(schemaReference.getVisibilityProperty())) {
+                        addTypeAggregateFunction(ingestAggregatorCache, entry.getKey(), entry.getValue());
                     }
                 }
             }
@@ -355,13 +355,10 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         typeNames.addAll(properties.values());
         for (final String typeName : typeNames) {
             final TypeDefinition typeDef = getTypeDef(typeName);
-            if (null != typeDef) {
-                if (null != typeDef.getValidateFunctions() && !typeDef.getValidateFunctions().isEmpty()) {
-                    return true;
-                }
+            if (typeDef != null && typeDef.getValidateFunctions() != null && !typeDef.getValidateFunctions().isEmpty()) {
+                return true;
             }
         }
-
         return false;
     }
 

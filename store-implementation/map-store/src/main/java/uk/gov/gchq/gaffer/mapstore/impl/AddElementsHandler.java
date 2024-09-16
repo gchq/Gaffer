@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId.MatchedVertex;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -154,7 +155,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             final EntitySeed sourceEntitySeed = new EntitySeed(edge.getSource());
             mapImpl.addIndex(sourceEntitySeed, sourceMatchedEdge);
 
-            final Edge destMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeSeed.MatchedVertex.DESTINATION, edge.getProperties());
+            final Edge destMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(), MatchedVertex.DESTINATION, edge.getProperties());
             final EntitySeed destinationEntitySeed = new EntitySeed(edge.getDestination());
             mapImpl.addIndex(destinationEntitySeed, destMatchedEdge);
 

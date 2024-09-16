@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2021 Crown Copyright
+ * Copyright 2021-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.proxystore.operation.handler;
 
 import org.junit.jupiter.api.Test;
@@ -72,7 +73,7 @@ public class GetProxyPropertiesHandlerTest {
         expected.put(ProxyProperties.GAFFER_PORT, String.valueOf(properties.getGafferPort()));
         expected.put(ProxyProperties.CONNECT_TIMEOUT, String.valueOf(properties.getConnectTimeout()));
         expected.put(ProxyProperties.READ_TIMEOUT, String.valueOf(ProxyProperties.DEFAULT_READ_TIMEOUT));
-        expected.put(URL_INFERRED, String.format("http://%s:%s/rest/v2", HOST, PORT, DEFAULT_GAFFER_CONTEXT_ROOT));
+        expected.put(URL_INFERRED, String.format("http://%s:%s/rest", HOST, PORT, DEFAULT_GAFFER_CONTEXT_ROOT));
         return expected;
     }
 

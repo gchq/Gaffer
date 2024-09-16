@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public class FederatedDelegateToAggregateHandlerTest {
                                         @Mock final Schema schema)
             throws OperationException {
         // Given
-        given(store.getSchema(context)).willReturn(schema);
+        given(store.getSchema(context, true)).willReturn(schema);
         given(handler.doOperation(op, schema)).willReturn((Iterable) expectedResult);
 
         final FederatedDelegateToHandler federatedHandler = new FederatedDelegateToHandler(handler);

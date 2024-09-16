@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator;
 
-import com.yahoo.sketches.sampling.ReservoirLongsUnion;
+import org.apache.datasketches.sampling.ReservoirLongsUnion;
 
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -23,9 +24,9 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
  * A {@code ReservoirLongsUnionAggregator} is a {@link java.util.function.BinaryOperator} that aggregates
- * {@link ReservoirLongsUnion}s. It does this by extracting a {@link com.yahoo.sketches.sampling.ReservoirLongsSketch}
+ * {@link ReservoirLongsUnion}s. It does this by extracting a {@link org.apache.datasketches.sampling.ReservoirLongsSketch}
  * from each {@link ReservoirLongsUnion} and merges that using
- * {@link ReservoirLongsUnion#update(com.yahoo.sketches.sampling.ReservoirLongsSketch)}.
+ * {@link ReservoirLongsUnion#update(org.apache.datasketches.sampling.ReservoirLongsSketch)}.
  */
 @Since("1.0.0")
 @Summary("Aggregates ReservoirLongsUnions")

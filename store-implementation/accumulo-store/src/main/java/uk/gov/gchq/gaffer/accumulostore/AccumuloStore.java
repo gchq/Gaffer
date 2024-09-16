@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,15 @@ package uk.gov.gchq.gaffer.accumulostore;
 
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.MutationsRejectedException;
+import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Key;
@@ -42,10 +45,13 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.AddElementsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.DeleteAllDataHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.DeleteElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GenerateSplitPointsFromSampleHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsPairsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
@@ -57,13 +63,13 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SampleDataForSpli
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitStoreFromIterableHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSetsPairs;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
@@ -80,6 +86,7 @@ import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -89,6 +96,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -102,7 +110,8 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -138,6 +147,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  */
 public class AccumuloStore extends Store {
 
+    private static final String MUTATION_ERROR = "Failed to create an accumulo key mutation";
     public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(Sets.newHashSet(
             ORDERED,
             VISIBILITY,
@@ -160,7 +170,28 @@ public class AccumuloStore extends Store {
         preInitialise(graphId, schema, properties);
         TableUtils.ensureTableExists(this);
     }
+    /**
+     * Retrieves Accumulo Table created time property.
+     * @return Accumulo Table created time string.
+     */
+    @Override
+    public String getCreatedTime() {
 
+        String tableName = TableUtils.getTableName(getProperties(), this.getGraphId());
+        Iterable<Entry<String, String>> properties;
+        try {
+            properties = TableUtils.getConnector(getProperties()).tableOperations().getProperties(tableName);
+            for (final Entry<String, String>  entry : properties) {
+                LOGGER.debug("Comparing Accumulo Table property: {}", entry.getKey());
+                if (entry.getKey().equals(AccumuloProperties.TABLE_CREATED_TIME)) {
+                    return entry.getValue();
+                }
+            }
+        } catch (final StoreException | AccumuloException | TableNotFoundException e) {
+            throw new GafferRuntimeException("Error getting timestamp.", e);
+        }
+        throw new GafferRuntimeException("Timestamp not found on table");
+    }
     /**
      * Performs general initialisation without creating the table.
      *
@@ -198,11 +229,13 @@ public class AccumuloStore extends Store {
         return connection;
     }
 
+    /**
+     * Gets the name of the Accumulo table backing this store
+     *
+     * @return Accumulo Table Name
+     */
     public String getTableName() {
-        if (StringUtils.isNotBlank(getProperties().getNamespace())) {
-            return String.format("%s.%s", getProperties().getNamespace(), getGraphId());
-        }
-        return getGraphId();
+        return TableUtils.getTableName(getProperties(), getGraphId());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -263,9 +296,9 @@ public class AccumuloStore extends Store {
             // Add keypackage, schema and view to conf
             conf.set(ElementInputFormat.KEY_PACKAGE, getProperties().getKeyPackageClass());
             LOGGER.info("Updating configuration with key package of {}", getProperties().getKeyPackageClass());
-            conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), CommonConstants.UTF_8));
+            conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), StandardCharsets.UTF_8));
             LOGGER.debug("Updating configuration with Schema of {}", getSchema());
-            conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
+            conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), StandardCharsets.UTF_8));
             LOGGER.debug("Updating configuration with View of {}", view);
 
             if (view.hasGroups()) {
@@ -301,7 +334,7 @@ public class AccumuloStore extends Store {
                     LOGGER.info("Added edge direction filter iterator of {}", edgeEntityDirFilter);
                 }
             }
-        } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
+        } catch (final AccumuloSecurityException | IteratorSettingException e) {
             throw new StoreException(e);
         }
     }
@@ -366,6 +399,7 @@ public class AccumuloStore extends Store {
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
         addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
+        addOperationHandler(GetElementsBetweenSetsPairs.class, new GetElementsBetweenSetsPairsHandler());
         addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
         addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
         addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());
@@ -409,8 +443,13 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    public Set<StoreTrait> getTraits() {
-        return TRAITS;
+    protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        return new DeleteElementsHandler();
+    }
+
+    @Override
+    protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+        return new DeleteAllDataHandler();
     }
 
     /**
@@ -456,7 +495,7 @@ public class AccumuloStore extends Store {
                 try {
                     writer.addMutation(m);
                 } catch (final MutationsRejectedException e) {
-                    LOGGER.error("Failed to create an accumulo key mutation");
+                    LOGGER.error(MUTATION_ERROR);
                     continue;
                 }
                 // If the GraphElement is a Vertex then there will only be 1 key,
@@ -472,7 +511,7 @@ public class AccumuloStore extends Store {
                     try {
                         writer.addMutation(m2);
                     } catch (final MutationsRejectedException e) {
-                        LOGGER.error("Failed to create an accumulo key mutation");
+                        LOGGER.error(MUTATION_ERROR);
                     }
                 }
             }
@@ -481,6 +520,53 @@ public class AccumuloStore extends Store {
         }
         try {
             writer.close();
+        } catch (final MutationsRejectedException e) {
+            LOGGER.warn("Accumulo batch writer failed to close", e);
+        }
+    }
+
+    /**
+     * Method to delete {@link Element}s from Accumulo.
+     *
+     * @param elements The elements to be deleted.
+     * @throws StoreException If there is a failure to delete elements.
+     */
+    public void deleteElements(final Iterable<? extends Element> elements) throws StoreException {
+        deleteGraphElements(elements);
+    }
+
+    protected void deleteGraphElements(final Iterable<? extends Element> elements) throws StoreException {
+        // Create BatchWriter
+        // Loop through elements, convert to mutations, and add to BatchWriter
+        // The BatchWriter takes care of batching them up, sending them without
+        // too high a latency, etc.
+        if (elements == null) {
+            throw new GafferRuntimeException("Could not find any elements to delete from graph.", Status.BAD_REQUEST);
+        }
+
+        try (BatchWriter writer = TableUtils.createBatchWriter(this)) {
+            for (final Element element : elements) {
+                final Pair<Key, Key> keys;
+                try {
+                    keys = getKeyPackage().getKeyConverter().getKeysFromElement(element);
+                } catch (final AccumuloElementConversionException e) {
+                    LOGGER.error(FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS, "key", element.getGroup());
+                    continue;
+                }
+
+                for (final Key key : Arrays.asList(keys.getFirst(), keys.getSecond())) {
+                    if (nonNull(key)) {
+                        final Mutation m = new Mutation(key.getRow());
+                        m.putDelete(key.getColumnFamily(), key.getColumnQualifier(), key.getTimestamp());
+
+                        try {
+                            writer.addMutation(m);
+                        } catch (final MutationsRejectedException e) {
+                            LOGGER.error(MUTATION_ERROR);
+                        }
+                    }
+                }
+            }
         } catch (final MutationsRejectedException e) {
             LOGGER.warn("Accumulo batch writer failed to close", e);
         }

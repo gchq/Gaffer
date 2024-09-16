@@ -100,12 +100,12 @@
       }
     },
     "hllp": {
-      "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus",
+      "class": "org.apache.datasketches.hll.HllSketch",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator.HyperLogLogPlusAggregator"
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator.HllSketchAggregator"
       },
       "serialiser": {
-        "class": "uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser"
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.HllSketchSerialiser"
       }
     },
     "counts.freqmap": {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,11 @@
 package uk.gov.gchq.gaffer.store;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
@@ -61,10 +63,10 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.add.CsvToElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
@@ -77,6 +79,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetGraphCreatedTime;
 import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -96,6 +99,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.HasTrait;
@@ -111,6 +115,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ForEachHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetGraphCreatedTimeHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariablesHandler;
@@ -127,7 +132,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.SetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateOperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.WhileHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.add.CsvToElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MaxHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MinHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.SortHandler;
@@ -151,6 +155,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedViewHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedViewsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToArrayHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToCsvHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToEntitySeedsHandler;
@@ -170,8 +176,10 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -184,6 +192,10 @@ import java.util.stream.StreamSupport;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
+import static uk.gov.gchq.gaffer.jobtracker.JobTracker.JOB_TRACKER_CACHE_SERVICE_NAME;
+import static uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache.NAMED_OPERATION_CACHE_SERVICE_NAME;
+import static uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache.NAMED_VIEW_CACHE_SERVICE_NAME;
 
 /**
  * A {@code Store} backs a Graph and is responsible for storing the {@link
@@ -204,6 +216,7 @@ public abstract class Store {
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
     private final Boolean addCoreOpHandlers;
+    private final LocalDateTime createdTime = LocalDateTime.now();
 
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
@@ -212,7 +225,8 @@ public abstract class Store {
     private Schema schema;
 
     /**
-     * The original schema containing all of the original descriptions and parent groups.
+     * The original user supplied schema containing all the original descriptions and parent
+     * groups. In most cases this will differ from the schema used internally which is optimised.
      */
     private Schema originalSchema;
 
@@ -224,10 +238,10 @@ public abstract class Store {
 
     private GraphLibrary library;
 
-    private JobTracker jobTracker;
+    JobTracker jobTracker;
+    private List<Cache<?, ?>> caches;
     private String graphId;
-
-    private boolean jobsRescheduled;
+    private boolean jobsRescheduled = false;
 
     public Store() {
         this(true);
@@ -251,8 +265,7 @@ public abstract class Store {
 
         final String storeClass = storeProperties.getStoreClass();
         if (isNull(storeClass)) {
-            throw new IllegalArgumentException(String.format("The Store class name was not found in the store properties for key: %s, GraphId: %s",
-                            StoreProperties.STORE_CLASS, graphId));
+            throw new IllegalArgumentException(String.format("The Store class name was not found in the store properties for key: %s, GraphId: %s", StoreProperties.STORE_CLASS, graphId));
         }
 
         final Store newStore;
@@ -285,28 +298,32 @@ public abstract class Store {
         updateJsonSerialiser();
 
         startCacheServiceLoader(properties);
-        this.jobTracker = createJobTracker();
+        populateCaches();
 
         addOpHandlers();
         optimiseSchema();
         validateSchemas();
         addExecutorService(properties);
 
-        if (properties.getJobTrackerEnabled() && !jobsRescheduled) {
-            Iterable<JobDetail> scheduledJobs = null;
-            try {
-                scheduledJobs = this.jobTracker.getAllScheduledJobs();
-                if (scheduledJobs != null) {
-                    StreamSupport.stream(scheduledJobs.spliterator(), false)
-                            .peek(jd -> LOGGER.debug("Rescheduling job: {}", jd))
-                            .forEach(this::rescheduleJob);
-                }
-            } finally {
-                CloseableUtil.close(scheduledJobs);
+        if (!jobsRescheduled && properties.getJobTrackerEnabled() && properties.getRescheduleJobsOnStart()) {
+            Iterable<JobDetail> scheduledJobs = this.jobTracker.getAllScheduledJobs();
+            if (scheduledJobs != null) {
+                StreamSupport.stream(scheduledJobs.spliterator(), false)
+                    .forEach(jd -> {
+                        LOGGER.debug("Rescheduling job: {}", jd);
+                        rescheduleJob(jd);
+                    });
+                jobsRescheduled = true;
             }
-
-            jobsRescheduled = true;
         }
+    }
+    /**
+     * Gets this Store's creation timestamp for {@link GetGraphCreatedTime} operation.
+     *
+     * @return the Store's creation timestamp.
+     */
+    public String getCreatedTime() {
+        return createdTime.toString();
     }
 
     private void rescheduleJob(final JobDetail jobDetail) {
@@ -343,20 +360,6 @@ public abstract class Store {
     }
 
     /**
-     * Returns the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
-     * Most stores should support FILTERING.
-     * <p>
-     * If you use Operation.validateFilter(Element) in you handlers, it will
-     * deal with the filtering for you.
-     * </p>
-     *
-     * @return the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
-     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetTraits Operation.
-     */
-    @Deprecated
-    public abstract Set<StoreTrait> getTraits();
-
-    /**
      * Executes a given operation and returns the result.
      *
      * @param operation the operation to execute.
@@ -383,8 +386,8 @@ public abstract class Store {
     }
 
     protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
-        addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
         try {
+            addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
             final O result = (O) handleOperation(operation, context);
             addOrUpdateJobDetail(operation, context, null, JobStatus.FINISHED);
             return result;
@@ -565,6 +568,10 @@ public abstract class Store {
         return jobTracker;
     }
 
+    public List<Cache<?, ?>> getCaches() {
+        return unmodifiableList(caches);
+    }
+
     /**
      * @param operationClass the operation class to check
      * @return true if the provided operation is supported.
@@ -578,7 +585,7 @@ public abstract class Store {
      * @return a collection of all the supported {@link Operation}s.
      */
     public Set<Class<? extends Operation>> getSupportedOperations() {
-        return operationHandlers.keySet();
+        return new HashSet<>(operationHandlers.keySet());
     }
 
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
@@ -634,22 +641,46 @@ public abstract class Store {
     }
 
     /**
-     * Get this Store's {@link Schema}.
+     * Get this Store's internal {@link Schema}.
+     * <p>
+     * This is optimised and will usually differ from the original schema used to
+     * create the store initially.
      *
      * @return the instance of {@link Schema} used for describing the type of
-     *         {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to
-     *         aggregate the elements.
+     * {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to
+     * aggregate the elements.
      */
-    @Deprecated
     public Schema getSchema() {
         return schema;
+    }
+
+    /**
+     * Set the Store's original {@link Schema}.
+     * <p>
+     * This is used to keep an (unoptimised, unchanged) copy of the original
+     * schema used to create the store initially.
+     *
+     * @param originalSchema the {@link Schema} to be set as the original
+     *                       schema used to create this store
+     */
+    public void setOriginalSchema(final Schema originalSchema) {
+        this.originalSchema = originalSchema;
+    }
+
+    /**
+     * Get the Store's original {@link Schema}.
+     *
+     * @return the {@link Schema} used to create this store, null if not set
+     */
+    public Schema getOriginalSchema() {
+        return originalSchema;
     }
 
     /**
      * Get this Store's {@link uk.gov.gchq.gaffer.store.StoreProperties}.
      *
      * @return the instance of {@link uk.gov.gchq.gaffer.store.StoreProperties},
-     *         this may contain details such as database connection details.
+     * this may contain details such as database connection details.
      */
     public StoreProperties getProperties() {
         return properties;
@@ -688,7 +719,7 @@ public abstract class Store {
         } catch (final OperationException e) {
             throw new GafferRuntimeException("Error performing HasTrait Operation while optimising schema.", e);
         }
-        schema = schemaOptimiser.optimise(schema, null == isOrdered ? false : isOrdered);
+        schema = schemaOptimiser.optimise(schema, isOrdered != null && isOrdered);
     }
 
     public void validateSchemas() {
@@ -748,8 +779,7 @@ public abstract class Store {
     }
 
     /**
-     * Ensures that each of the GroupBy properties in the {@link
-     * SchemaElementDefinition} is consistent,
+     * Ensures that each of the GroupBy properties in the {@link SchemaElementDefinition} is consistent,
      * otherwise an error is added to the {@link ValidationResult}.
      *
      * @param schemaElementDefinitionEntry A map of SchemaElementDefinitions
@@ -799,11 +829,18 @@ public abstract class Store {
         }
     }
 
-    protected JobTracker createJobTracker() {
-        if (properties.getJobTrackerEnabled()) {
-            return new JobTracker(getProperties().getCacheServiceNameSuffix());
+    protected void populateCaches() {
+        caches = new ArrayList<>();
+        if (properties.getJobTrackerEnabled() && isCacheServiceAvailable(JOB_TRACKER_CACHE_SERVICE_NAME)) {
+            jobTracker = new JobTracker(getProperties().getCacheServiceJobTrackerSuffix(graphId));
+            caches.add(jobTracker);
         }
-        return null;
+        if (properties.getNamedOperationEnabled() && isCacheServiceAvailable(NAMED_OPERATION_CACHE_SERVICE_NAME)) {
+            caches.add(new NamedOperationCache(getProperties().getCacheServiceNamedOperationSuffix(graphId)));
+        }
+        if (properties.getNamedViewEnabled() && isCacheServiceAvailable(NAMED_VIEW_CACHE_SERVICE_NAME)) {
+            caches.add(new NamedViewCache(getProperties().getCacheServiceNamedViewSuffix(graphId)));
+        }
     }
 
     protected SchemaOptimiser createSchemaOptimiser() {
@@ -833,28 +870,23 @@ public abstract class Store {
     protected abstract void addAdditionalOperationHandlers();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetElements}. All Stores must
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}. All Stores must
      * implement this.
      *
-     * @return the implementation of the handler for {@link
-     *         uk.gov.gchq.gaffer.operation.impl.get.GetElements}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}
      */
     protected abstract OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}. All Stores must
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}. All Stores must
      * implement this.
      *
-     * @return the implementation of the handler for {@link
-     *         uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
      */
     protected abstract OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * GetAdjacentIds}.
+     * Get this Store's implementation of the handler for {@link GetAdjacentIds}.
      * All Stores must implement this.
      *
      * @return the implementation of the handler for {@link GetAdjacentIds}
@@ -862,32 +894,42 @@ public abstract class Store {
     protected abstract OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.add.AddElements}.
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link
-     *         uk.gov.gchq.gaffer.operation.impl.add.AddElements}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}
      */
     protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.store.operation.GetTraits}.
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements}.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.store.operation.GetTraits}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements}
      */
-    protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>>  getGetTraitsHandler();
+    protected abstract OperationHandler<? extends DeleteElements> getDeleteElementsHandler();
 
     /**
-     * Get this Store's implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.OperationChain}.
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.DeleteAllData}.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link
-     *         uk.gov.gchq.gaffer.operation.OperationChain}
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.DeleteAllData}
+     */
+    protected abstract OperationHandler<DeleteAllData> getDeleteAllDataHandler();
+
+    /**
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.store.operation.GetTraits}.
+     * All Stores must implement this.
+     *
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.store.operation.GetTraits}
+     */
+    protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler();
+
+    /**
+     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.OperationChain}.
+     * All Stores must implement this.
+     *
+     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.OperationChain}
      */
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
         return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
@@ -904,8 +946,7 @@ public abstract class Store {
     protected abstract Class<? extends Serialiser> getRequiredParentSerialiserClass();
 
     /**
-     * Should deal with any unhandled operations, simply throws an {@link
-     * UnsupportedOperationException}.
+     * Should deal with any unhandled operations, simply throws an {@link UnsupportedOperationException}.
      *
      * @param operation the operation that does not have a registered handler.
      * @param context   operation execution context
@@ -994,6 +1035,12 @@ public abstract class Store {
         // Add elements
         addOperationHandler(AddElements.class, getAddElementsHandler());
 
+        // Delete elements
+        addOperationHandler(DeleteElements.class, getDeleteElementsHandler());
+
+        // Delete all data
+        addOperationHandler(DeleteAllData.class, getDeleteAllDataHandler());
+
         // Get Elements
         addOperationHandler(GetElements.class, getGetElementsHandler());
 
@@ -1008,14 +1055,12 @@ public abstract class Store {
         addOperationHandler(GetSetExport.class, new GetSetExportHandler());
         addOperationHandler(GetExports.class, new GetExportsHandler());
 
-        //Import
-        addOperationHandler(CsvToElements.class, new CsvToElementsHandler());
-
         // Jobs
-        if (nonNull(getJobTracker())) {
+        if (properties.getJobTrackerEnabled() && isCacheServiceAvailable(JOB_TRACKER_CACHE_SERVICE_NAME)) {
             addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
             addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
             addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
+            addOperationHandler(CancelScheduledJob.class, new CancelScheduledJobHandler());
         }
 
         // Output
@@ -1028,17 +1073,21 @@ public abstract class Store {
         addOperationHandler(ToStream.class, new ToStreamHandler<>());
         addOperationHandler(ToVertices.class, new ToVerticesHandler());
 
-        if (nonNull(CacheServiceLoader.getService())) {
-            // Named operation
+        // Named Operation
+        if (properties.getNamedOperationEnabled() && isCacheServiceAvailable(NAMED_OPERATION_CACHE_SERVICE_NAME)) {
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
-            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler());
-            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler());
-            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler());
+            final String suffixNamedOperationCacheName = properties.getCacheServiceNamedOperationSuffix(graphId);
+            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler(suffixNamedOperationCacheName, properties.isNestedNamedOperationAllow()));
+            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler(suffixNamedOperationCacheName));
+            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler(suffixNamedOperationCacheName));
+        }
 
-            // Named view
-            addOperationHandler(AddNamedView.class, new AddNamedViewHandler());
-            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler());
-            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler());
+        // Named View
+        if (properties.getNamedViewEnabled() && isCacheServiceAvailable(NAMED_VIEW_CACHE_SERVICE_NAME)) {
+            final String suffixNamedViewCacheName = properties.getCacheServiceNamedViewSuffix(graphId);
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler(suffixNamedViewCacheName));
+            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler(suffixNamedViewCacheName));
+            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler(suffixNamedViewCacheName));
         }
 
         // ElementComparison
@@ -1072,7 +1121,8 @@ public abstract class Store {
         addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
         addOperationHandler(Reduce.class, new ReduceHandler());
         addOperationHandler(Join.class, new JoinHandler());
-        addOperationHandler(CancelScheduledJob.class, new CancelScheduledJobHandler());
+        addOperationHandler(GetGraphCreatedTime.class, new GetGraphCreatedTimeHandler());
+
 
         // Context variables
         addOperationHandler(SetVariable.class, new SetVariableHandler());
@@ -1105,15 +1155,38 @@ public abstract class Store {
         }
     }
 
+    private boolean isCacheServiceAvailable(final String serviceName) {
+        return (CacheServiceLoader.isEnabled(serviceName) ||
+                CacheServiceLoader.isDefaultEnabled());
+    }
+
     protected void startCacheServiceLoader(final StoreProperties properties) {
-        CacheServiceLoader.initialise(properties.getProperties());
-    }
+        final String jobTrackerCacheClass = properties.getJobTrackerCacheServiceClass();
+        final String namedViewCacheClass = properties.getNamedViewCacheServiceClass();
+        final String namedOperationCacheClass = properties.getNamedOperationCacheServiceClass();
+        final String defaultCacheClass = properties.getDefaultCacheServiceClass();
 
-    public void setOriginalSchema(final Schema originalSchema) {
-        this.originalSchema = originalSchema;
-    }
+        final boolean jobTrackerEnabled = properties.getJobTrackerEnabled();
+        final boolean namedViewEnabled = properties.getNamedViewEnabled();
+        final boolean namedOperationEnabled = properties.getNamedOperationEnabled();
 
-    public Schema getOriginalSchema() {
-        return originalSchema;
+        final boolean defaultServiceRequired = (jobTrackerEnabled && jobTrackerCacheClass == null) |
+                                               (namedViewEnabled && namedViewCacheClass == null) |
+                                               (namedOperationEnabled && namedOperationCacheClass == null);
+
+        if (jobTrackerEnabled && jobTrackerCacheClass != null) {
+            CacheServiceLoader.initialise(JOB_TRACKER_CACHE_SERVICE_NAME, jobTrackerCacheClass, properties.getProperties());
+        }
+        if (namedViewEnabled && namedViewCacheClass != null) {
+            CacheServiceLoader.initialise(NAMED_VIEW_CACHE_SERVICE_NAME, namedViewCacheClass, properties.getProperties());
+        }
+        if (namedOperationEnabled && namedOperationCacheClass != null) {
+            CacheServiceLoader.initialise(NAMED_OPERATION_CACHE_SERVICE_NAME, namedOperationCacheClass, properties.getProperties());
+        }
+        if (defaultServiceRequired && defaultCacheClass != null) {
+            CacheServiceLoader.initialise(DEFAULT_SERVICE_NAME, properties.getDefaultCacheServiceClass(), properties.getProperties());
+        } else if (defaultServiceRequired) {
+            LOGGER.info("Store Properties did not include a default cache class, caches not fully initialised");
+        }
     }
 }

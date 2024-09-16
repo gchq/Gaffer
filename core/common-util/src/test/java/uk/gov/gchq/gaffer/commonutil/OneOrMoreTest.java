@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.commonutil;
 
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,6 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 public class OneOrMoreTest {
 
     @Test
@@ -72,6 +72,32 @@ public class OneOrMoreTest {
     }
 
     @Test
+    void testSizeWithNonNullCollection() {
+        final boolean deduplicate = true;
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
+        collection.add(2);
+        collection.add(3);
+
+        assertThat(collection).hasSize(3);
+    }
+
+    @Test
+    void testSizeWithSingleItem() {
+        final boolean deduplicate = true;
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
+
+        assertThat(collection).hasSize(1);
+    }
+
+    @Test
+    void testSizeWithNullCollectionAndSingleItem() {
+        final boolean deduplicate = true;
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, null);
+
+        assertThat(collection).isEmpty();
+    }
+
+    @Test
     public void shouldAddItemsWithoutDeduplicate() {
         // Given
         final boolean deduplicate = false;
@@ -107,7 +133,7 @@ public class OneOrMoreTest {
         }
 
         // Then
-        assertThat(collection).containsExactlyElementsOf(expectedItems);
+        assertThat(collection).containsExactlyInAnyOrderElementsOf(expectedItems);
     }
 
     @Test
@@ -143,7 +169,7 @@ public class OneOrMoreTest {
         collection.addAll(expectedItems);
 
         // Then
-        assertThat(collection).containsExactlyElementsOf(expectedItems);
+        assertThat(collection).containsExactlyInAnyOrderElementsOf(expectedItems);
     }
 
     @Test

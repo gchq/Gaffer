@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,11 +54,11 @@ public final class PropertiesUtil {
     }
 
      public static String stripInvalidCharacters(final String property) {
-        String validProperty = "";
+        StringBuilder builder = new StringBuilder();
         Matcher matcher = PROPERTY_ALLOWED_CHARACTERS.matcher(property);
         while (matcher.find()) {
-            validProperty += matcher.group();
+            builder.append(matcher.group());
         }
-        return validProperty;
+        return builder.toString();
     }
 }

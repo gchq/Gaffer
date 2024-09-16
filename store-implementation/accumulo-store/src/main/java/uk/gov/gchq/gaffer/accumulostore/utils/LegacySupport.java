@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
@@ -54,6 +55,7 @@ import java.util.Set;
  */
 public class LegacySupport {
     private static boolean usingAccumulo2 = true;
+    private static final String INIT_ERROR = "Failed initialing Accumulo class. Ensure Accumulo version is supported";
     private static Class<?> inputConfiguratorClazz;
     private static Class<?> noCryptoServiceClazz;
     private static Class<?> cryptoServiceClazz;
@@ -109,7 +111,7 @@ public class LegacySupport {
                 Method setScanAuthorizations = inputConfiguratorClazz.getMethod("setScanAuthorizations", Class.class, Configuration.class, Authorizations.class);
                 setScanAuthorizations.invoke(null, implementingClass, conf, auths);
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
 
@@ -118,7 +120,7 @@ public class LegacySupport {
                 Method setInputTableName = inputConfiguratorClazz.getMethod("setInputTableName", Class.class, Configuration.class, String.class);
                 setInputTableName.invoke(null, accumuloInputFormatClass, conf, tableName);
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
 
@@ -128,7 +130,7 @@ public class LegacySupport {
                 Method fetchColumns = inputConfiguratorClazz.getMethod("fetchColumns", Class.class, Configuration.class, Collection.class);
                 fetchColumns.invoke(null, accumuloInputFormatClass, conf, columnFamilyColumnQualifierPairs);
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
 
@@ -137,7 +139,7 @@ public class LegacySupport {
                 Method addIterator = inputConfiguratorClazz.getMethod("addIterator", Class.class, Configuration.class, IteratorSetting.class);
                 addIterator.invoke(null, accumuloInputFormatClass, conf, elementPreFilter);
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
 
@@ -146,7 +148,7 @@ public class LegacySupport {
                 Method setConnectorInfo = inputConfiguratorClazz.getMethod("setConnectorInfo", Class.class, Configuration.class, String.class, AuthenticationToken.class);
                 setConnectorInfo.invoke(null, accumuloInputFormatClass, conf, user, token);
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
 
@@ -155,7 +157,7 @@ public class LegacySupport {
                 Method setZooKeeperInstance = inputConfiguratorClazz.getMethod("setZooKeeperInstance", Class.class, Configuration.class, ClientConfiguration.class);
                 setZooKeeperInstance.invoke(null, accumuloInputFormatClass, conf, withZkHosts);
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
 
@@ -164,7 +166,7 @@ public class LegacySupport {
                 Method setBatchScan = inputConfiguratorClazz.getMethod("setBatchScan", Class.class, Configuration.class, boolean.class);
                 setBatchScan.invoke(null, accumuloInputFormatClass, conf, enableFeature);
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
 
@@ -173,7 +175,7 @@ public class LegacySupport {
                 Method setRanges = inputConfiguratorClazz.getMethod("setRanges", Class.class, Configuration.class, Collection.class);
                 setRanges.invoke(null, accumuloInputFormatClass, conf, ranges);
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
 
@@ -182,7 +184,7 @@ public class LegacySupport {
                 Method getIterators = inputConfiguratorClazz.getMethod("getIterators", Class.class, Configuration.class);
                 return (List<IteratorSetting>) getIterators.invoke(null, accumuloInputFormatClass, conf);
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
 
@@ -191,11 +193,12 @@ public class LegacySupport {
                 Method getFetchedColumns = inputConfiguratorClazz.getMethod("getFetchedColumns", Class.class, Configuration.class);
                 return (Set<Pair<Text, Text>>) getFetchedColumns.invoke(null, accumuloInputFormatClass, conf);
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
     }
 
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Specific Exception types vary depending on library version")
     public static class BackwardsCompatibleReaderBuilder {
         public static FileSKVIterator create(final String filename, final FileSystem fs, final Configuration fsConf,
                                              final AccumuloConfiguration tableConfiguration, final boolean seekBeginning) {
@@ -220,7 +223,7 @@ public class LegacySupport {
                 builder = withTableConfiguration.invoke(builder, tableConfiguration);
                 return (FileSKVIterator) builderBuild.invoke(builder);
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
     }
@@ -246,11 +249,12 @@ public class LegacySupport {
                 builder = withTableConfiguration.invoke(builder, tableConfiguration);
                 return (FileSKVWriter) builderBuild.invoke(builder);
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
     }
 
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Specific Exception types vary depending on library version")
     public static class BackwardsCompatibleCachableBlockFileReader {
         public static RFile.Reader create(final FileSystem fs, final Path path, final Configuration fsConf) {
             final RFile.Reader reader;
@@ -280,11 +284,12 @@ public class LegacySupport {
                 }
                 return reader;
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
     }
 
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Specific Exception types vary depending on library version")
     public static class BackwardsCompatibleRFileWriter {
         public static RFile.Writer create(final String file, final Configuration fsConf, final int blocksize) {
             final RFile.Writer writer;
@@ -319,7 +324,7 @@ public class LegacySupport {
                 }
                 return writer;
             } catch (final Exception e) {
-                throw new RuntimeException("Failed initialing Accumulo class. Ensure Accumulo version is supported", e);
+                throw new RuntimeException(INIT_ERROR, e);
             }
         }
     }

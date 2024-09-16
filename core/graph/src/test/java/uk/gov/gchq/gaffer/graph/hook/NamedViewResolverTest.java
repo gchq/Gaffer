@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 import com.google.common.collect.Maps;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -31,7 +32,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -71,13 +71,14 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
             .name(NAMED_VIEW_NAME)
             .view(FULL_VIEW)
             .build();
+    public static final String SUFFIX_CACHE_NAME = "suffix";
 
     public NamedViewResolverTest() {
         super(NamedViewResolver.class);
     }
 
     @Test
-    public void shouldResolveNamedView() throws CacheOperationFailedException {
+    public void shouldResolveNamedView() throws CacheOperationException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(FULL_NAMED_VIEW_DETAIL);
 
@@ -98,7 +99,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     }
 
     @Test
-    public void shouldResolveNamedViewAndMergeAnotherView() throws CacheOperationFailedException {
+    public void shouldResolveNamedViewAndMergeAnotherView() throws CacheOperationException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(FULL_NAMED_VIEW_DETAIL);
         final View viewToMerge = new View.Builder().edge(TestGroups.EDGE).build();
@@ -122,7 +123,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     }
 
     @Test
-    public void shouldResolveNamedViewAndMergeAnotherNamedView() throws CacheOperationFailedException {
+    public void shouldResolveNamedViewAndMergeAnotherNamedView() throws CacheOperationException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(FULL_NAMED_VIEW_DETAIL);
         final NamedView namedViewToMerge = new NamedView.Builder().name(NAMED_VIEW_NAME + 1).edge(TestGroups.EDGE).build();
@@ -148,7 +149,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     }
 
     @Test
-    public void shouldResolveNestedNamedViews() throws CacheOperationFailedException {
+    public void shouldResolveNestedNamedViews() throws CacheOperationException {
         // Given
         final NamedView nestedNamedView = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME).entity(TestGroups.ENTITY_2).build();
         final NamedViewDetail nestedNamedViewDetail = new NamedViewDetail.Builder().name(nestedNamedView.getName()).view(new View.Builder().entity(TestGroups.ENTITY_2).build()).build();
@@ -195,7 +196,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     }
 
     @Test
-    public void shouldResolveNamedViewWithParameter() throws CacheOperationFailedException {
+    public void shouldResolveNamedViewWithParameter() throws CacheOperationException {
         Map<String, Object> paramMap = Maps.newHashMap();
         paramMap.put(EDGE_NAME_PARAM_KEY, TestGroups.EDGE_2);
 
@@ -258,7 +259,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     }
 
     @Test
-    public void shouldResolveNamedViewWithParametersToMakeCompleteFilter() throws CacheOperationFailedException {
+    public void shouldResolveNamedViewWithParametersToMakeCompleteFilter() throws CacheOperationException {
         Map<String, Object> paramMap = Maps.newHashMap();
         paramMap.put(IS_MORE_THAN_X_PARAM_KEY, 7L);
 
@@ -320,7 +321,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     }
 
     @Test
-    public void shouldResolveNamedViewJsonWithParameters() throws CacheOperationFailedException {
+    public void shouldResolveNamedViewJsonWithParameters() throws CacheOperationException {
         Map<String, Object> paramMap = Maps.newHashMap();
         paramMap.put(IS_MORE_THAN_X_PARAM_KEY, 7L);
         paramMap.put(SELECTION_PARAM_KEY, "VERTEX");
@@ -385,7 +386,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     }
 
     @Test
-    public void shouldResolveMultipleNestedNamedViews() throws CacheOperationFailedException {
+    public void shouldResolveMultipleNestedNamedViews() throws CacheOperationException {
         // Given
         final NamedView nestedNamedView = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME).entity(TestGroups.ENTITY_2).build();
         final NamedViewDetail nestedNamedViewDetail = new NamedViewDetail.Builder().name(nestedNamedView.getName()).view(nestedNamedView).build();
@@ -428,7 +429,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     }
 
     @Test
-    public void shouldBuildFullViewWhenAViewToBeMergedIsSupplied() throws CacheOperationFailedException {
+    public void shouldBuildFullViewWhenAViewToBeMergedIsSupplied() throws CacheOperationException {
         // Given
         final View viewToMerge = new View.Builder().edge(TestGroups.EDGE).build();
         final View finalExpectedView = new View.Builder()
@@ -456,7 +457,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     }
 
     @Test
-    public void shouldBuildFullViewWhenANamedViewNeedingToBeResolvedAndMergedIsSupplied() throws CacheOperationFailedException, SerialisationException {
+    public void shouldBuildFullViewWhenANamedViewNeedingToBeResolvedAndMergedIsSupplied() throws CacheOperationException, SerialisationException {
         // Given
         final View viewToMerge = new View.Builder().edge(TestGroups.EDGE).build();
         final NamedViewDetail namedViewDetailToMerge = new NamedViewDetail.Builder().name(NAMED_VIEW_NAME + 2).view(viewToMerge).build();
@@ -485,10 +486,10 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     }
 
     @Test
-    public void shouldThrowExceptionWhenNamedViewToBeMergedIsNotInCache() throws CacheOperationFailedException {
+    public void shouldThrowExceptionWhenNamedViewToBeMergedIsNotInCache() throws CacheOperationException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(FULL_NAMED_VIEW_DETAIL);
-        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1, CONTEXT.getUser())).willThrow(new CacheOperationFailedException("No NamedView with the name namedViewName1 exists in the cache"));
+        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1, CONTEXT.getUser())).willThrow(new CacheOperationException("No NamedView with the name namedViewName1 exists in the cache"));
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -510,6 +511,6 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
 
     @Override
     public NamedViewResolver getTestObject() {
-        return new NamedViewResolver();
+        return new NamedViewResolver(SUFFIX_CACHE_NAME);
     }
 }

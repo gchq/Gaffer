@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2023 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -43,7 +43,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,9 +81,9 @@ public class AddNamedOperationHandlerTest {
     private AddNamedOperationHandler handler;
 
     @BeforeEach
-    public void before() throws CacheOperationFailedException {
+    public void before() throws CacheOperationException {
         storedOperations.clear();
-        handler = new AddNamedOperationHandler(mockCache);
+        handler = new AddNamedOperationHandler(mockCache, true);
 
         addNamedOperation.setOperationName(OPERATION_NAME);
 
@@ -100,7 +100,7 @@ public class AddNamedOperationHandlerTest {
             final String name = (String) invocationOnMock.getArguments()[0];
             final NamedOperationDetail result = storedOperations.get(name);
             if (result == null) {
-                throw new CacheOperationFailedException();
+                throw new CacheOperationException();
             }
             return result;
         }).when(mockCache).getNamedOperation(anyString(), any(User.class), eq(EMPTY_ADMIN_AUTH));
@@ -109,7 +109,7 @@ public class AddNamedOperationHandlerTest {
     }
 
     @AfterEach
-    public void after() throws CacheOperationFailedException {
+    public void after() throws CacheOperationException {
         addNamedOperation.setOperationName(null);
         addNamedOperation.setOperationChain((String) null);
         addNamedOperation.setDescription(null);
@@ -117,7 +117,7 @@ public class AddNamedOperationHandlerTest {
         addNamedOperation.setReadAccessPredicate(null);
         addNamedOperation.setWriteAccessPredicate(null);
         storedOperations.clear();
-        mockCache.clear();
+        mockCache.clearCache();
     }
 
     @SuppressWarnings({"rawtypes"})
@@ -126,6 +126,9 @@ public class AddNamedOperationHandlerTest {
         final OperationChain<?> child = new OperationChain.Builder().first(new AddElements()).build();
         addNamedOperation.setOperationChain(child);
         addNamedOperation.setOperationName("child");
+
+        //isNestedNamedOperationsAllowed = FALSE
+        handler = new AddNamedOperationHandler(mockCache, false);
         handler.doOperation(addNamedOperation, context, store);
 
         final OperationChain<?> parent = new OperationChain.Builder()
@@ -138,6 +141,28 @@ public class AddNamedOperationHandlerTest {
 
         assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(addNamedOperation, context, store));
     }
+
+    @Test
+    public void shouldAllowForRecursiveNamedOperationsToBeNested() throws OperationException {
+        final OperationChain<?> child = new OperationChain.Builder().first(new AddElements()).build();
+        addNamedOperation.setOperationChain(child);
+        addNamedOperation.setOperationName("child");
+
+        //isNestedNamedOperationsAllowed = TRUE
+        handler = new AddNamedOperationHandler(mockCache, true);
+        handler.doOperation(addNamedOperation, context, store);
+
+        final OperationChain<?> parent = new OperationChain.Builder()
+                .first(new NamedOperation.Builder().name("child").build())
+                .then(new GetElements())
+                .build();
+
+        addNamedOperation.setOperationChain(parent);
+        addNamedOperation.setOperationName("parent");
+
+        handler.doOperation(addNamedOperation, context, store);
+    }
+
 
     @Test
     public void shouldAllowForOperationChainJSONWithParameter() throws OperationException {
@@ -181,7 +206,7 @@ public class AddNamedOperationHandlerTest {
     }
 
     @Test
-    public void shouldNotAllowForOperationChainJSONWithInvalidParameter() throws UnsupportedEncodingException, SerialisationException {
+    public void shouldNotAllowForOperationChainJSONWithInvalidParameter() throws SerialisationException {
         final String opChainJSON = "{" +
                 "  \"operations\": [" +
                 "      {" +
@@ -211,11 +236,11 @@ public class AddNamedOperationHandlerTest {
                 "}";
 
         assertThatExceptionOfType(SerialisationException.class)
-                .isThrownBy(() -> JSONSerialiser.deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class));
+                .isThrownBy(() -> JSONSerialiser.deserialise(opChainJSON.getBytes(StandardCharsets.UTF_8), OperationChain.class));
     }
 
     @Test
-    public void shouldAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
+    public void shouldAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationException {
         final List<String> readAuths = asList("readAuth1", "readAuth2");
         final List<String> writeAuths = asList("writeAuth1", "writeAuth2");
         final OperationChain<?> opChain = new OperationChain.Builder().first(new AddElements()).build();
@@ -244,7 +269,7 @@ public class AddNamedOperationHandlerTest {
 
     @Test
     public void shouldAddCustomAccessPredicateFieldsToNamedOperationDetailCorrectly()
-            throws OperationException, CacheOperationFailedException {
+            throws OperationException, CacheOperationException {
         final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         final OperationChain<?> opChain = new OperationChain.Builder().first(new AddElements()).build();

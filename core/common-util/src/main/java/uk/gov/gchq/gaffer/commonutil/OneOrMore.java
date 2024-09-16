@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import com.google.common.collect.Iterators;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -101,6 +102,8 @@ public class OneOrMore<T> implements Iterable<T> {
         return result;
     }
 
+    @SuppressFBWarnings(value = "BC_BAD_CAST_TO_ABSTRACT_COLLECTION",
+            justification = "Cast to List is required to use a List specific remove method")
     public void removeAnyItem() {
         if (null == collection) {
             singleItem = null;
@@ -114,14 +117,10 @@ public class OneOrMore<T> implements Iterable<T> {
     }
 
     public int size() {
-        if (null == collection) {
-            if (null != singleItem) {
-                return 1;
-            }
-            return 0;
+        if (collection != null) {
+            return collection.size();
         }
-
-        return collection.size();
+        return (singleItem != null) ? 1 : 0;
     }
 
     public boolean isEmpty() {
