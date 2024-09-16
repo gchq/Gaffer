@@ -526,7 +526,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void getAllElementsOperationShouldNotContainMatchedVertex() throws Exception {
+    void getAllElementsOperationShouldNotContainMatchedVertex() throws Exception {
         final Edge edge = new Edge.Builder()
                 .group(BASIC_EDGE1)
                 .source("A")
