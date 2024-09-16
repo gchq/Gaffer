@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -37,7 +36,7 @@ public class GetAllGraphInfoHandler implements OutputOperationHandler<GetAllGrap
     public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store)
         throws OperationException {
             // Get all the graphs in the federated store
-            List<GraphSerialisable> graphList = ((FederatedStore) store).getAllGraphs();
+            Iterable<GraphSerialisable> graphList = ((FederatedStore) store).getAllGraphs();
 
             Map<String, Object> allGraphInfo = new HashMap<>();
 
