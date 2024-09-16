@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.federated.simple.merge;
 import org.apache.commons.collections4.IterableUtils;
 
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 
 import java.util.Collection;
 
@@ -26,6 +27,14 @@ import java.util.Collection;
  * The default result accumulator for merging results from multiple graphs into one.
  */
 public class DefaultResultAccumulator<T> extends FederatedResultAccumulator<T> {
+
+    public DefaultResultAccumulator() {
+        super();
+    }
+
+    public DefaultResultAccumulator(final FederatedStoreProperties properties) {
+        super(properties);
+    }
 
     /**
      * Concatenates the result from a graph with the previous result.
@@ -75,7 +84,9 @@ public class DefaultResultAccumulator<T> extends FederatedResultAccumulator<T> {
             }
 
             // By default just chain iterables together
-            return (T) IterableUtils.chainedIterable((Iterable<?>) state, updateIterable);
+            // (need to use the iterator to make sure the FluentIterable under the hood serialises correctly)
+            Iterable<Object> chained = () -> IterableUtils.chainedIterable((Iterable<?>) state, updateIterable).iterator();
+            return (T) chained;
         }
 
         return update;

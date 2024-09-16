@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.federated.simple;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -48,6 +50,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class FederatedStoreIT {
+
+    @AfterEach
+    void reset() {
+        CacheServiceLoader.shutdown();
+    }
 
     @Test
     void shouldFederateElementsByAggregation() throws StoreException, OperationException {
