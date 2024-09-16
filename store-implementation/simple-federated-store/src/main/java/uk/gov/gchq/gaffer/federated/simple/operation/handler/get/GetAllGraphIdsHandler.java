@@ -26,13 +26,14 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class GetAllGraphIdsHandler implements OutputOperationHandler<GetAllGraphIds, Set<String>> {
 
     @Override
     public Set<String> doOperation(final GetAllGraphIds operation, final Context context, final Store store) throws OperationException {
         // Get all the graphs and convert to a set of just IDs
-        return ((FederatedStore) store).getAllGraphs().stream()
+        return StreamSupport.stream(((FederatedStore) store).getAllGraphs().spliterator(), false)
             .map(GraphSerialisable::getGraphId)
             .collect(Collectors.toSet());
     }
