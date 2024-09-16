@@ -67,21 +67,21 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                 // Compare the current element with all others to do a full merge
                 for (final Element inner : chainedResult) {
                     // No merge required if not in same group
-                    if (!e.getGroup().equals(inner.getGroup())) {
+                    if (!e.getGroup().equals(inner.getGroup()) || e.equals(inner)) {
                         continue;
                     }
 
                     if ((e instanceof Entity)
                             && (inner instanceof Entity)
                             && ((Entity) e).getVertex().equals(((Entity) inner).getVertex())) {
-                        result = aggregator.apply(inner, result);
+                        result = aggregator.apply(inner.shallowClone(), result).shallowClone();
                     }
 
                     if ((e instanceof Edge)
                             && (inner instanceof Edge)
                             && ((Edge) e).getSource().equals(((Edge) inner).getSource())
                             && ((Edge) e).getDestination().equals(((Edge) inner).getDestination())) {
-                        result = aggregator.apply(inner, result);
+                        result = aggregator.apply(inner.shallowClone(), result);
                     }
                 }
                 return result;
