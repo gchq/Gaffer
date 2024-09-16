@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.gov.gchq.gaffer.serialisation.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -62,6 +61,7 @@ public final class JsonSerialisationUtil {
         if (null != cachedResult) {
             return cachedResult;
         }
+
         final Class<?> clazz;
         try {
             clazz = Class.forName(SimpleClassNameIdResolver.getClassName(className));
@@ -91,6 +91,7 @@ public final class JsonSerialisationUtil {
                 break;
             }
         }
+
         final List<BeanPropertyDefinition> properties = introspection.findProperties();
 
         final Map<String, String> fieldMap = new HashMap<>();
@@ -233,28 +234,26 @@ public final class JsonSerialisationUtil {
     }
 
     private static <T extends Annotation> T findAnnotation(final Class<?> builderclass, final Class<T> annotationClass) {
-                T anno = builderclass.getAnnotation(annotationClass);
+        T anno = builderclass.getAnnotation(annotationClass);
+        if (null == anno) {
+            Class<?> superClass = builderclass.getSuperclass();
+            while (null != superClass && null == anno) {
+                anno = superClass.getAnnotation(annotationClass);
                 if (null == anno) {
-                    Class<?> superClass = builderclass.getSuperclass();
-                    while (null != superClass && null == anno) {
-                        anno = superClass.getAnnotation(annotationClass);
-                        if (null == anno) {
-                            superClass = superClass.getSuperclass();
-                        }
-                    }
+                    superClass = superClass.getSuperclass();
                 }
-                if (null == anno) {
-                    for (final Class<?> interfaceClass : builderclass.getInterfaces()) {
-                        if (null != interfaceClass) {
-                            anno = interfaceClass.getAnnotation(annotationClass);
-                            if (null != anno) {
-                                break;
-                            }
-                        }
-                    }
-                }
-                return anno;
+            }
         }
-
+        if (null == anno) {
+            for (final Class<?> interfaceClass : builderclass.getInterfaces()) {
+                if (null != interfaceClass) {
+                    anno = interfaceClass.getAnnotation(annotationClass);
+                    if (null != anno) {
+                        break;
+                    }
+                }
+            }
+        }
+        return anno;
+    }
 }
-
