@@ -25,13 +25,24 @@ import org.junit.jupiter.params.provider.MethodSource;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionIntersect;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Or;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Product;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_MERGE_ELEMENTS;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_BOOLEAN;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_COLLECTION;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_NUMBER;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_STRING;
 
 class DefaultResultAccumulatorTest {
 
@@ -47,11 +58,39 @@ class DefaultResultAccumulatorTest {
                 Arrays.asList("a", "b", "c", "d")));
     }
 
+    static Stream<Arguments> customMergeDataArgs() {
+        return Stream.of(
+                Arguments.of(2, 3, 6),
+                Arguments.of("s1", "s1", "s1"),
+                Arguments.of(true, false, true),
+                Arguments.of(true, true, true),
+                Arguments.of(
+                        new ArrayList<>(Arrays.asList("a", "c")),
+                        new ArrayList<>(Arrays.asList("c", "d")),
+                        Arrays.asList("c")));
+    }
+
     @DisplayName("Should provide default merge methods for common data types")
     @ParameterizedTest
     @MethodSource("commonDataArgs")
     <T> void shouldAccumulatePrimitiveDataByDefault(T result1, T result2, T expected) {
         FederatedResultAccumulator<T> accumulator = new DefaultResultAccumulator<>();
+        assertThat(accumulator.apply(result1, result2)).isEqualTo(expected);
+    }
+
+    @DisplayName("Should allow customising the merge operators for common data types")
+    @ParameterizedTest
+    @MethodSource("customMergeDataArgs")
+    <T> void shouldAllowCustomOperatorsForPrimitiveData(T result1, T result2, T expected) {
+        // Set properties to update the operators
+        FederatedStoreProperties properties = new FederatedStoreProperties();
+        properties.set(PROP_MERGE_CLASS_NUMBER, Product.class.getName());
+        properties.set(PROP_MERGE_CLASS_STRING, StringDeduplicateConcat.class.getName());
+        properties.set(PROP_MERGE_CLASS_BOOLEAN, Or.class.getName());
+        properties.set(PROP_MERGE_CLASS_COLLECTION, CollectionIntersect.class.getName());
+
+        // Init the accumulator with custom properties
+        FederatedResultAccumulator<T> accumulator = new DefaultResultAccumulator<>(properties);
         assertThat(accumulator.apply(result1, result2)).isEqualTo(expected);
     }
 
@@ -65,6 +104,17 @@ class DefaultResultAccumulatorTest {
 
         FederatedResultAccumulator<Iterable<Entity>> accumulator = new DefaultResultAccumulator<>();
         assertThat(accumulator.apply(iter1, iter2)).containsExactlyElementsOf(expected);
+    }
+
+    @Test
+    void shouldSetElementAggregationFromProperties() {
+        // Given
+        FederatedStoreProperties properties = new FederatedStoreProperties();
+        properties.set(PROP_DEFAULT_MERGE_ELEMENTS, "true");
+
+        // When/Then
+        FederatedResultAccumulator<?> accumulator = new DefaultResultAccumulator<>(properties);
+        assertThat(accumulator.aggregateElements()).isTrue();
     }
 
     @Test
@@ -89,7 +139,7 @@ class DefaultResultAccumulatorTest {
 
         // When
         FederatedResultAccumulator<Iterable<Entity>> accumulator = new DefaultResultAccumulator<>();
-        accumulator.aggregateElements(true);
+        accumulator.setAggregateElements(true);
         accumulator.setSchema(schema);
 
         // Then
@@ -117,7 +167,7 @@ class DefaultResultAccumulatorTest {
 
         // When
         FederatedResultAccumulator<Iterable<Entity>> accumulator = new DefaultResultAccumulator<>();
-        accumulator.aggregateElements(true);
+        accumulator.setAggregateElements(true);
         accumulator.setSchema(schema);
 
         // Then
