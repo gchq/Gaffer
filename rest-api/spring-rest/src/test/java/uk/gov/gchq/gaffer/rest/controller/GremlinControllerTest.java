@@ -31,6 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -47,6 +48,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.MediaType.APPLICATION_NDJSON;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.MARKO;
 
@@ -96,10 +98,14 @@ class GremlinControllerTest {
         // When
         MvcResult result = mockMvc
             .perform(MockMvcRequestBuilders
-                    .post(GREMLIN_EXECUTE_ENDPOINT)
-                    .content(gremlinString)
-                    .contentType(TEXT_PLAIN_VALUE))
+                .post(GREMLIN_EXECUTE_ENDPOINT)
+                .content(gremlinString)
+                .contentType(TEXT_PLAIN_VALUE)
+                .accept(APPLICATION_NDJSON))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
             .andReturn();
+        // Kick of the async dispatch so the result is available
+        mockMvc.perform(MockMvcRequestBuilders.asyncDispatch(result));
 
         // Then
         // Ensure OK response
@@ -194,11 +200,16 @@ class GremlinControllerTest {
                                             .put("@value", 29)))))))));
         // When
         MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .post(CYPHER_EXECUTE_ENDPOINT)
-                        .content(cypherString)
-                        .contentType(TEXT_PLAIN_VALUE))
-                .andReturn();
+            .perform(MockMvcRequestBuilders
+                .post(CYPHER_EXECUTE_ENDPOINT)
+                .content(cypherString)
+                .contentType(TEXT_PLAIN_VALUE)
+                .accept(APPLICATION_NDJSON))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
+            .andReturn();
+
+        // Kick of the async dispatch so the result is available
+        mockMvc.perform(MockMvcRequestBuilders.asyncDispatch(result));
 
         // Then
         // Ensure OK response

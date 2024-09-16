@@ -38,11 +38,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import uk.gov.gchq.gaffer.commonutil.otel.OtelUtil;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -56,7 +58,6 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -67,6 +68,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_NDJSON;
+import static org.springframework.http.MediaType.APPLICATION_NDJSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 @RestController
@@ -128,27 +131,32 @@ public class GremlinController {
         return runGremlinQuery(gremlinQuery).get1().toString();
     }
 
-
     /**
      * Endpoint for running a gremlin groovy query, will respond with an output
      * stream of GraphSONv3 JSON.
      *
      * @param httpHeaders  The request headers.
      * @param gremlinQuery The gremlin groovy query.
-     * @param response The response output stream.
+     * @return A response output stream of GraphSONv3.
      *
      * @throws IOException If issue writing output.
      */
-    @PostMapping(path = "/execute", consumes = TEXT_PLAIN_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/execute", consumes = TEXT_PLAIN_VALUE, produces = APPLICATION_NDJSON_VALUE)
     @io.swagger.v3.oas.annotations.Operation(
         summary = "Run a Gremlin Query",
-        description = "Runs a Gremlin query and outputs the result as GraphSONv3 JSON")
-    public void execute(@RequestHeader final HttpHeaders httpHeaders, @RequestBody final String gremlinQuery,
-            final OutputStream response) throws IOException {
+        description = "Runs a Gremlin Groovy script and outputs the result as GraphSONv3 JSON")
+    public ResponseEntity<StreamingResponseBody> execute(@RequestHeader final HttpHeaders httpHeaders,
+            @RequestBody final String gremlinQuery) throws IOException {
         preExecuteSetUp(httpHeaders);
 
         // Write to output stream for response
-        GRAPHSON_V3_WRITER.writeObject(response, runGremlinQuery(gremlinQuery).get0());
+        StreamingResponseBody responseBody = outputStream -> GRAPHSON_V3_WRITER.writeObject(
+                outputStream,
+                runGremlinQuery(gremlinQuery).get0());
+
+        return ResponseEntity.ok()
+                .contentType(APPLICATION_NDJSON)
+                .body(responseBody);
     }
 
     /**
@@ -181,17 +189,17 @@ public class GremlinController {
      *
      * @param httpHeaders The request headers.
      * @param cypherQuery The cypher query.
-     * @param response    The response output stream.
+     * @return The output stream of GraphSONv3.
      *
      * @throws IOException If issue writing output.
      */
-    @PostMapping(path = "/cypher/execute", consumes = TEXT_PLAIN_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/cypher/execute", consumes = TEXT_PLAIN_VALUE, produces = APPLICATION_NDJSON_VALUE)
     @io.swagger.v3.oas.annotations.Operation(
         summary = "Run a Cypher Query",
         description = "Translates a Cypher query to Gremlin and executes it returning a GraphSONv3 JSON result." +
                       "Note will always append a '.toList()' to the translation")
-    public void cypherExecute(@RequestHeader final HttpHeaders httpHeaders, @RequestBody final String cypherQuery,
-            final OutputStream response) throws IOException {
+    public ResponseEntity<StreamingResponseBody> cypherExecute(@RequestHeader final HttpHeaders httpHeaders,
+            @RequestBody final String cypherQuery) throws IOException {
         preExecuteSetUp(httpHeaders);
         final CypherAst ast = CypherAst.parse(cypherQuery);
         // Translate the cypher to gremlin, always add a .toList() otherwise Gremlin
@@ -199,7 +207,13 @@ public class GremlinController {
         final String translation = ast.buildTranslation(Translator.builder().gremlinGroovy().enableCypherExtensions().build()) + ".toList()";
 
         // Write to output stream for response
-        GRAPHSON_V3_WRITER.writeObject(response, runGremlinQuery(translation).get0());
+        StreamingResponseBody responseBody = outputStream -> GRAPHSON_V3_WRITER.writeObject(
+                outputStream,
+                runGremlinQuery(translation).get0());
+
+        return ResponseEntity.ok()
+                .contentType(APPLICATION_NDJSON)
+                .body(responseBody);
     }
 
     /**
