@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphInfoHandler;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -195,10 +196,10 @@ class FederatedStoreIT {
 
         // Map of the expected values for the graph
         final Map<String, Object> graph1InfoExpected = Stream.of(
-                new SimpleEntry<>("graphDescription", graph1.getDescription()),
-                new SimpleEntry<>("graphHooks", graph1.getConfig().getHooks()),
-                new SimpleEntry<>("operationDeclarations", graph1.getStoreProperties().getOperationDeclarations().getOperations()),
-                new SimpleEntry<>("storeProperties", graph1.getStoreProperties().getProperties()))
+                new SimpleEntry<>(GetAllGraphInfoHandler.DESCRIPTION, graph1.getDescription()),
+                new SimpleEntry<>(GetAllGraphInfoHandler.HOOKS, graph1.getConfig().getHooks()),
+                new SimpleEntry<>(GetAllGraphInfoHandler.OP_DECLARATIONS, graph1.getStoreProperties().getOperationDeclarations().getOperations()),
+                new SimpleEntry<>(GetAllGraphInfoHandler.PROPERTIES, graph1.getStoreProperties().getProperties()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // When
