@@ -124,7 +124,7 @@ class FederatedStoreIT {
     }
 
     @Test
-    void shouldPreventMixOfFederatedAndCoreOperationsInChain() throws StoreException {
+    void shouldPreventMixOfFederatedAndCoreOperationsInChainByDefault() throws StoreException {
         // Given
         FederatedStore federatedStore = new FederatedStore();
         federatedStore.initialise("federated", null, new StoreProperties());
