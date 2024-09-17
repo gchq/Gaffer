@@ -27,11 +27,16 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.HashMap;
 import java.util.Map;
 
-
-public class GetAllGraphInfoHandler implements OutputOperationHandler<GetAllGraphInfo, Map<String, Object>> {
 /**
  * Simple handler for getting information about the graphs contained in the federated store
  */
+public class GetAllGraphInfoHandler implements OutputOperationHandler<GetAllGraphInfo, Map<String, Object>> {
+
+    public static final String DESCRIPTION = "graphDescription";
+    public static final String HOOKS = "graphHooks";
+    public static final String PROPERTIES = "storeProperties";
+    public static final String OP_DECLARATIONS = "operationDeclarations";
+
     @Override
     public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store)
         throws OperationException {
@@ -43,10 +48,10 @@ public class GetAllGraphInfoHandler implements OutputOperationHandler<GetAllGrap
             for (final GraphSerialisable gs : graphList) {
                 // Get the various properties of the individual federated graphs
                 Map<String, Object> graphInfo = new HashMap<>();
-                graphInfo.put("graphDescription", gs.getConfig().getDescription());
-                graphInfo.put("graphHooks", gs.getConfig().getHooks());
-                graphInfo.put("storeProperties", gs.getStoreProperties().getProperties());
-                graphInfo.put("operationDeclarations", gs.getStoreProperties().getOperationDeclarations().getOperations());
+                graphInfo.put(DESCRIPTION, gs.getConfig().getDescription());
+                graphInfo.put(HOOKS, gs.getConfig().getHooks());
+                graphInfo.put(PROPERTIES, gs.getStoreProperties().getProperties());
+                graphInfo.put(OP_DECLARATIONS, gs.getStoreProperties().getOperationDeclarations().getOperations());
 
                 // Add the Graph ID and all properties associated with it
                 allGraphInfo.put(gs.getConfig().getGraphId(), graphInfo);
