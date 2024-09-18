@@ -184,7 +184,6 @@ public class FederatedStore extends Store {
      * @param graphToUpdateId the graph that is to have its ID updated
      * @param newGraphId the new graph ID
      * @throws OperationException if accumulo table fails to be renamed
-     * @throws CacheOperationException if graph cannot be retrieved from cache
      *
      */
     public void changeGraphId(final String graphToUpdateId, final String newGraphId) throws OperationException {
