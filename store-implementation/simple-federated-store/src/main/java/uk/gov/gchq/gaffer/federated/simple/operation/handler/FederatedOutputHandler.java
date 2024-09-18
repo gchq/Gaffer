@@ -40,7 +40,7 @@ public class FederatedOutputHandler<P extends Output<O>, O>
 
     @Override
     public O doOperation(final P operation, final Context context, final Store store) throws OperationException {
-        List<GraphSerialisable> graphsToExecute = this.getGraphsToExecuteOn((FederatedStore) store, operation);
+        List<GraphSerialisable> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
 
         if (graphsToExecute.isEmpty()) {
             return null;

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federated.simple.operation.handler.add;
 
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -35,8 +36,12 @@ public class AddGraphHandler implements OperationHandler<AddGraph> {
                 .properties(operation.getProperties())
                 .build();
 
+        GraphAccess access = operation.getGraphAccess() != null
+            ? operation.getGraphAccess()
+            : new GraphAccess.Builder().owner(context.getUser().getUserId()).build();
+
         // Add the graph
-        ((FederatedStore) store).addGraph(newGraph);
+        ((FederatedStore) store).addGraph(newGraph, access);
 
         return null;
     }

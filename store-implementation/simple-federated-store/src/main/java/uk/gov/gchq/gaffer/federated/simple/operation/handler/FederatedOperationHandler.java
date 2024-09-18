@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federated.simple.operation.handler;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -34,6 +35,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Main default handler for federated operations. Handles delegation to selected
@@ -88,7 +91,7 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
             return new FederatedOutputHandler<>().doOperation((Output) operation, context, store);
         }
 
-        List<GraphSerialisable> graphsToExecute = getGraphsToExecuteOn((FederatedStore) store, operation);
+        List<GraphSerialisable> graphsToExecute = getGraphsToExecuteOn(operation, context, (FederatedStore) store);
         // No-op
         if (graphsToExecute.isEmpty()) {
             return null;
@@ -111,12 +114,15 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      * Returned list will be ordered alphabetically based on graph ID for
      * predicability.
      *
-     * @param store The federated store.
      * @param operation The operation to execute.
+     * @param context The context.
+     * @param store The federated store.
      * @return List of {@link GraphSerialisable}s to execute on.
      * @throws OperationException Fail to get Graphs.
      */
-    protected List<GraphSerialisable> getGraphsToExecuteOn(final FederatedStore store, final Operation operation) throws OperationException {
+    protected List<GraphSerialisable> getGraphsToExecuteOn(final Operation operation, final Context context,
+            final FederatedStore store) throws OperationException {
+        // Use default graph IDs as fallback
         List<String> graphIds = store.getDefaultGraphIds();
         List<GraphSerialisable> graphsToExecute = new LinkedList<>();
         // If user specified graph IDs for this chain parse as comma separated list
@@ -129,7 +135,11 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         try {
             // Get the corresponding graph serialisable
             for (final String id : graphIds) {
-                graphsToExecute.add(store.getGraph(id));
+                Pair<GraphSerialisable, GraphAccess> pair = store.getGraphAccessPair(id);
+                // Check the user has access to the graph
+                if (pair.getRight().hasReadAccess(context.getUser(), store.getProperties().getAdminAuth())) {
+                    graphsToExecute.add(pair.getLeft());
+                }
             }
         } catch (final CacheOperationException e) {
             throw new OperationException("Failed to get Graphs from cache", e);
@@ -141,5 +151,4 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
 
         return graphsToExecute;
     }
-
 }

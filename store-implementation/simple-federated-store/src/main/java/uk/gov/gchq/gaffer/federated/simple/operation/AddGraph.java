@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -39,6 +40,7 @@ public class AddGraph implements Operation {
     private GraphConfig graphConfig;
     private Schema schema;
     private Properties properties;
+    private GraphAccess graphAccess;
     private Map<String, String> options;
 
     // Getters
@@ -70,6 +72,15 @@ public class AddGraph implements Operation {
         return properties;
     }
 
+    /**
+     * Get the current set {@link GraphAccess}.
+     *
+     * @return The Graph access.
+     */
+    public GraphAccess getGraphAccess() {
+        return graphAccess;
+    }
+
     // Setters
 
     /**
@@ -99,6 +110,15 @@ public class AddGraph implements Operation {
         this.properties = properties;
     }
 
+    /**
+     * Set the {@link GraphAccess} for the graph.
+     *
+     * @param graphAccess The graph access to set.
+     */
+    public void setGraphAccess(final GraphAccess graphAccess) {
+        this.graphAccess = graphAccess;
+    }
+
     @Override
     public Map<String, String> getOptions() {
         return options;
@@ -115,6 +135,7 @@ public class AddGraph implements Operation {
                 .graphConfig(graphConfig)
                 .schema(schema)
                 .properties(properties)
+                .graphAccess(graphAccess)
                 .options(options)
                 .build();
     }
@@ -154,6 +175,17 @@ public class AddGraph implements Operation {
          */
         public Builder properties(final Properties properties) {
             _getOp().setProperties(properties);
+            return _self();
+        }
+
+        /**
+         * Set the {@link GraphAccess}.
+         *
+         * @param graphAccess The graph access to set.
+         * @return The builder.
+         */
+        public Builder graphAccess(final GraphAccess graphAccess) {
+            _getOp().setGraphAccess(graphAccess);
             return _self();
         }
     }

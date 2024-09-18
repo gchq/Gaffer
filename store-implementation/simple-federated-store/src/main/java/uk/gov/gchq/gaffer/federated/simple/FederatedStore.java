@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.federated.simple;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -23,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federated.simple.operation.RemoveGraph;
@@ -64,6 +68,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_GRAPH_IDS;
@@ -74,13 +79,18 @@ import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_
  * to sub graphs then merge the result.
  */
 public class FederatedStore extends Store {
+    /**
+     * The system user account name, this user is essentially an admin for this store.
+     */
+    public static final String FEDERATED_STORE_SYSTEM_USER = "FederatedStoreSystemUser";
+
     private static final String DEFAULT_CACHE_CLASS_FALLBACK = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
 
     // Default graph IDs to execute on
     private List<String> defaultGraphIds = new LinkedList<>();
 
     // Gaffer cache of available graphs
-    private Cache<String, GraphSerialisable> graphCache;
+    private Cache<String, Pair<GraphSerialisable, GraphAccess>> graphCache;
 
     // Store specific handlers
     public final Map<Class<? extends Operation>, OperationHandler<?>> storeHandlers = Stream.of(
@@ -94,13 +104,16 @@ public class FederatedStore extends Store {
      * Add a new graph so that it is available to this federated store.
      *
      * @param graph The serialisable instance of the graph.
+     * @param graphAccess The graph access.
      *
      * @throws IllegalArgumentException If there is already a graph with the supplied ID
      */
-    public void addGraph(final GraphSerialisable graph) {
+    public void addGraph(final GraphSerialisable graph, GraphAccess graphAccess) {
+        // Pair the graph with its access in the cache
+        Pair<GraphSerialisable, GraphAccess> graphAndAccessPair = new ImmutablePair<>(graph, graphAccess);
         try {
             // Add safely to the cache
-            graphCache.getCache().putSafe(graph.getGraphId(), graph);
+            graphCache.getCache().putSafe(graph.getGraphId(), graphAndAccessPair);
         } catch (final CacheOperationException e) {
             // Unknown issue adding to cache
             throw new GafferRuntimeException(e.getMessage(), e);
@@ -135,12 +148,25 @@ public class FederatedStore extends Store {
      * @throws IllegalArgumentException If graph not found.
      */
     public GraphSerialisable getGraph(final String graphId) throws CacheOperationException {
-        GraphSerialisable graph = graphCache.getFromCache(graphId);
-        if (graph == null) {
+        return getGraphAccessPair(graphId).getLeft();
+    }
+
+    /**
+     * Gets the {@link GraphSerialisable} and {@link GraphAccess} {@Pair} from a
+     * given graph ID.
+     *
+     * @param graphId The graph ID
+     * @return The {@Pair} relating to the graph ID.
+     * @throws CacheOperationException  If issue getting from cache.
+     * @throws IllegalArgumentException If graph not found.
+     */
+    public Pair<GraphSerialisable, GraphAccess> getGraphAccessPair(final String graphId) throws CacheOperationException {
+        Pair<GraphSerialisable, GraphAccess> graphAndAccess = graphCache.getFromCache(graphId);
+        if (graphAndAccess == null) {
             throw new IllegalArgumentException(
-                "Graph with Graph ID: '" + graphId + "' is not available to this federated store");
+                    "Graph with Graph ID: '" + graphId + "' is not available to this federated store");
         }
-        return graph;
+        return graphAndAccess;
     }
 
     /**
@@ -149,7 +175,9 @@ public class FederatedStore extends Store {
      * @return Iterable of {@link GraphSerialisable}s
      */
     public Iterable<GraphSerialisable> getAllGraphs() {
-        return graphCache.getCache().getAllValues();
+        return StreamSupport.stream(graphCache.getCache().getAllValues().spliterator(), false)
+            .map(Pair::getLeft)
+            .collect(Collectors.toList());
     }
 
     /**
