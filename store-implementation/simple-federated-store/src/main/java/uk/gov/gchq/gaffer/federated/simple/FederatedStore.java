@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.federated.simple;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -25,11 +28,13 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federated.simple.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOutputHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.add.AddGraphHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphIdsHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphInfoHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.RemoveGraphHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -57,14 +62,17 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_GRAPH_IDS;
 
 /**
  * The federated store implementation. Provides the set up and required
@@ -72,6 +80,7 @@ import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
  * to sub graphs then merge the result.
  */
 public class FederatedStore extends Store {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStore.class);
     private static final String DEFAULT_CACHE_CLASS_FALLBACK = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
 
     // Default graph IDs to execute on
@@ -85,6 +94,7 @@ public class FederatedStore extends Store {
             new SimpleEntry<>(AddGraph.class, new AddGraphHandler()),
             new SimpleEntry<>(GetAllGraphIds.class, new GetAllGraphIdsHandler()),
             new SimpleEntry<>(GetSchema.class, new GetSchemaHandler()),
+            new SimpleEntry<>(GetAllGraphInfo.class, new GetAllGraphInfoHandler()),
             new SimpleEntry<>(RemoveGraph.class, new RemoveGraphHandler()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -156,7 +166,15 @@ public class FederatedStore extends Store {
      * @return The default list.
      */
     public List<String> getDefaultGraphIds() {
-        return defaultGraphIds;
+        // Only return the graphs that actually exist
+        return defaultGraphIds.stream().filter(id -> {
+            try {
+                return Objects.nonNull(getGraph(id));
+            } catch (final IllegalArgumentException | CacheOperationException e) {
+                LOGGER.warn("Default Graph was not found: {}", id);
+                return false;
+            }
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -208,7 +226,14 @@ public class FederatedStore extends Store {
         }
         super.initialise(graphId, new Schema(), properties);
 
+        // Init the cache for graphs
         graphCache = new Cache<>("federatedGraphCache-" + graphId);
+
+        // Get and set default graph IDs from properties
+        if (properties.containsKey(PROP_DEFAULT_GRAPH_IDS)) {
+            // Parse as comma separated list
+            setDefaultGraphIds(Arrays.asList(properties.get(PROP_DEFAULT_GRAPH_IDS).split(",")));
+        }
     }
 
     @Override
@@ -283,6 +308,11 @@ public class FederatedStore extends Store {
     @Override
     protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
         return ToBytesSerialiser.class;
+    }
+
+    @Override
+    protected Class<FederatedStoreProperties> getPropertiesClass() {
+        return FederatedStoreProperties.class;
     }
 
     @Override
