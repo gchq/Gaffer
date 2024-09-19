@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.federated.simple;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -29,11 +31,13 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federated.simple.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOutputHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.add.AddGraphHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphIdsHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphInfoHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.RemoveGraphHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -65,6 +69,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -79,6 +84,7 @@ import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_
  * to sub graphs then merge the result.
  */
 public class FederatedStore extends Store {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStore.class);
     /**
      * The system user account name, this user is essentially an admin for this store.
      */
@@ -97,6 +103,7 @@ public class FederatedStore extends Store {
             new SimpleEntry<>(AddGraph.class, new AddGraphHandler()),
             new SimpleEntry<>(GetAllGraphIds.class, new GetAllGraphIdsHandler()),
             new SimpleEntry<>(GetSchema.class, new GetSchemaHandler()),
+            new SimpleEntry<>(GetAllGraphInfo.class, new GetAllGraphInfoHandler()),
             new SimpleEntry<>(RemoveGraph.class, new RemoveGraphHandler()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -186,7 +193,15 @@ public class FederatedStore extends Store {
      * @return The default list.
      */
     public List<String> getDefaultGraphIds() {
-        return defaultGraphIds;
+        // Only return the graphs that actually exist
+        return defaultGraphIds.stream().filter(id -> {
+            try {
+                return Objects.nonNull(getGraph(id));
+            } catch (final IllegalArgumentException | CacheOperationException e) {
+                LOGGER.warn("Default Graph was not found: {}", id);
+                return false;
+            }
+        }).collect(Collectors.toList());
     }
 
     /**

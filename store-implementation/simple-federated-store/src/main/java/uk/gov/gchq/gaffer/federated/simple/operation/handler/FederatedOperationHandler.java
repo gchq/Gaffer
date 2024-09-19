@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
@@ -44,6 +47,7 @@ import org.apache.commons.lang3.tuple.Pair;
  * if provided operation has output so that it is merged.
  */
 public class FederatedOperationHandler<P extends Operation> implements OperationHandler<P> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedOperationHandler.class);
 
     /**
      * The operation option for the Graph IDs that an operation should be
@@ -62,17 +66,26 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      */
     public static final String OPT_AGGREGATE_ELEMENTS = "federated.aggregateElements";
 
+    /**
+     * A boolean option to specify if to forward the whole operation chain to the sub graph or not.
+     */
+    public static final String OPT_FORWARD_CHAIN = "federated.forwardChain";
+
     @Override
     public Object doOperation(final P operation, final Context context, final Store store) throws OperationException {
-
+        LOGGER.debug("Running operation: {}", operation);
         // Check inside operation chains in case there are operations that don't require running on sub graphs
         if (operation instanceof OperationChain) {
             Set<Class<? extends Operation>> storeSpecificOps = ((FederatedStore) store).getStoreSpecificOperations();
             List<Class<? extends Operation>> chainOps = ((OperationChain<?>) operation).flatten().stream()
                 .map(Operation::getClass)
                 .collect(Collectors.toList());
-            // If all the operations in the chain can be handled by the store then execute them
-            if (storeSpecificOps.containsAll(chainOps)) {
+
+            // If all the operations in the chain can be handled by the store then execute them.
+            // Or if told not to forward the whole chain process each operation individually.
+            if (storeSpecificOps.containsAll(chainOps) ||
+                    (!Boolean.parseBoolean(operation.getOption(OPT_FORWARD_CHAIN, "true")))) {
+                // Use default handler
                 return new OperationChainHandler<>(store.getOperationChainValidator(), store.getOperationChainOptimisers())
                     .doOperation((OperationChain<Object>) operation, context, store);
             }
@@ -82,7 +95,7 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
             if (!Collections.disjoint(storeSpecificOps, chainOps)) {
                 throw new OperationException(
                     "Chain contains standard Operations alongside federated store specific Operations."
-                        + " Please submit each type separately.");
+                        + " Please submit each type separately or set: '" + OPT_FORWARD_CHAIN + "' to: 'false'.");
             }
         }
 
@@ -135,6 +148,7 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         try {
             // Get the corresponding graph serialisable
             for (final String id : graphIds) {
+                LOGGER.debug("Will execute on Graph: {}", id);
                 Pair<GraphSerialisable, GraphAccess> pair = store.getGraphAccessPair(id);
                 // Check the user has access to the graph
                 if (pair.getRight().hasReadAccess(context.getUser(), store.getProperties().getAdminAuth())) {

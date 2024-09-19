@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -64,17 +65,35 @@ class FederatedStoreTest {
     }
 
     @Test
-    void shouldSetDefaultGraphIds() throws StoreException {
+    void shouldNotSetDefaultGraphIdsIfGraphDoesNotExist() throws StoreException {
         final String graphId = "federated";
         final String graphId1 = "graph1";
         final String graphId2 = "graph2";
         FederatedStoreProperties properties = new FederatedStoreProperties();
+        // Set the defaults to graphs not available to the store
         properties.set(PROP_DEFAULT_GRAPH_IDS, graphId1 + "," + graphId2);
 
         FederatedStore store = new FederatedStore();
         store.initialise(graphId, null, properties);
 
-        assertThat(store.getDefaultGraphIds()).containsExactlyInAnyOrder(graphId1, graphId2);
+        assertThat(store.getDefaultGraphIds()).isEmpty();
+    }
+
+    @Test
+    void shouldSetDefaultGraphIdsIfGraphsExist() throws StoreException {
+        final String graphId = "federated";
+        final String graphId1 = "graph1";
+        final String graphId2 = "graph2";
+        final FederatedStore store = new FederatedStore();
+        final FederatedStoreProperties properties = new FederatedStoreProperties();
+
+        // Set the defaults to graphs and make sure to add them
+        properties.set(PROP_DEFAULT_GRAPH_IDS, graphId1 + "," + graphId2);
+        store.initialise(graphId, null, properties);
+        store.addGraph(new GraphSerialisable(new GraphConfig(graphId1), new Schema(), new StoreProperties()));
+        store.addGraph(new GraphSerialisable(new GraphConfig(graphId2), new Schema(), new StoreProperties()));
+
+        assertThat(store.getDefaultGraphIds()).containsExactly(graphId1, graphId2);
     }
 
     @Test
