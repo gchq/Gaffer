@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.federated.simple;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -63,6 +66,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -76,6 +80,7 @@ import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_
  * to sub graphs then merge the result.
  */
 public class FederatedStore extends Store {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStore.class);
     private static final String DEFAULT_CACHE_CLASS_FALLBACK = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
 
     // Default graph IDs to execute on
@@ -161,7 +166,15 @@ public class FederatedStore extends Store {
      * @return The default list.
      */
     public List<String> getDefaultGraphIds() {
-        return defaultGraphIds;
+        // Only return the graphs that actually exist
+        return defaultGraphIds.stream().filter(id -> {
+            try {
+                return Objects.nonNull(getGraph(id));
+            } catch (final IllegalArgumentException | CacheOperationException e) {
+                LOGGER.warn("Default Graph was not found: {}", id);
+                return false;
+            }
+        }).collect(Collectors.toList());
     }
 
     /**
