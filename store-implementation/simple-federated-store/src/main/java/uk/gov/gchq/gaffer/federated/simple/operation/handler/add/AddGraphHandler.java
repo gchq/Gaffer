@@ -36,12 +36,22 @@ public class AddGraphHandler implements OperationHandler<AddGraph> {
                 .properties(operation.getProperties())
                 .build();
 
-        GraphAccess access = operation.getGraphAccess() != null
-            ? operation.getGraphAccess()
-            : new GraphAccess.Builder().owner(context.getUser().getUserId()).build();
+        // Init the builder with the owner if set
+        GraphAccess.Builder accessBuilder = new GraphAccess.Builder()
+            .owner(operation.getOwner() != null ? operation.getOwner() : context.getUser().getUserId());
+        // Add options to the graph access
+        if (operation.isPublic() != null) {
+            accessBuilder.isPublic(operation.isPublic());
+        }
+        if (operation.getReadPredicate() != null) {
+            accessBuilder.readAccessPredicate(operation.getReadPredicate());
+        }
+        if (operation.getWritePredicate() != null) {
+            accessBuilder.writeAccessPredicate(operation.getWritePredicate());
+        }
 
         // Add the graph
-        ((FederatedStore) store).addGraph(newGraph, access);
+        ((FederatedStore) store).addGraph(newGraph, accessBuilder.build());
 
         return null;
     }

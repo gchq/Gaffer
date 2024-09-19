@@ -16,7 +16,9 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation.handler.misc;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -29,6 +31,17 @@ public class RemoveGraphHandler implements OperationHandler<RemoveGraph> {
 
     @Override
     public Object doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
+        try {
+            // Check user for write access as we're modifying the graph
+            GraphAccess access = ((FederatedStore) store).getGraphAccessPair(operation.getGraphId()).getRight();
+            if (!access.hasWriteAccess(context.getUser(), store.getProperties().getAdminAuth())) {
+                throw new OperationException(
+                    "User: " + context.getUser() + " does not have write permissions for Graph: " + operation.getGraphId());
+            }
+        } catch (final CacheOperationException e) {
+            throw new OperationException(e);
+        }
+
         // If asked to delete all data then run that operation first on the requested graph
         if (operation.getDeleteAllData()) {
             DeleteAllData deleteAllOp = new DeleteAllData.Builder()

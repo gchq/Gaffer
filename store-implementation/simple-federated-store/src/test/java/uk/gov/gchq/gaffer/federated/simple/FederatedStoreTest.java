@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -90,8 +91,10 @@ class FederatedStoreTest {
         // Set the defaults to graphs and make sure to add them
         properties.set(PROP_DEFAULT_GRAPH_IDS, graphId1 + "," + graphId2);
         store.initialise(graphId, null, properties);
-        store.addGraph(new GraphSerialisable(new GraphConfig(graphId1), new Schema(), new StoreProperties()));
-        store.addGraph(new GraphSerialisable(new GraphConfig(graphId2), new Schema(), new StoreProperties()));
+        store.addGraph(new GraphSerialisable(new GraphConfig(graphId1), new Schema(), new StoreProperties()),
+                new GraphAccess());
+        store.addGraph(new GraphSerialisable(new GraphConfig(graphId2), new Schema(), new StoreProperties()),
+                new GraphAccess());
 
         assertThat(store.getDefaultGraphIds()).containsExactly(graphId1, graphId2);
     }
@@ -115,8 +118,8 @@ class FederatedStoreTest {
         // When
         FederatedStore store = new FederatedStore();
         store.initialise(federatedGraphId, null, new StoreProperties());
-        store.addGraph(graph1Serialisable);
-        store.addGraph(graph2Serialisable);
+        store.addGraph(graph1Serialisable, new GraphAccess());
+        store.addGraph(graph2Serialisable, new GraphAccess());
 
         // Then
         assertThat(store.getGraph(graphId1)).isEqualTo(

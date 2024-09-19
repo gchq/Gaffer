@@ -16,14 +16,20 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.access.ResourceType;
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -33,11 +39,12 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
+
+import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
-import java.util.Properties;
 
 class AddGraphTest {
 
@@ -83,7 +90,8 @@ class AddGraphTest {
     }
 
     @Test
-    void shouldAddGraphUsingJSONSerialisation() throws StoreException, OperationException, SerialisationException, CacheOperationException {
+    void shouldAddGraphUsingJSONSerialisation()
+            throws StoreException, OperationException, SerialisationException, CacheOperationException {
         // Given
         final String federatedGraphId = "federated";
         final String graphId = "newGraph";
@@ -159,6 +167,55 @@ class AddGraphTest {
                 .isThrownBy(() -> federatedStore.execute(operation, context))
                 .withMessageContaining("already been added to this store");
 
+    }
+
+    @Test
+    void shouldAddGraphAndAccessUsingJSONSerialisation()
+            throws StoreException, OperationException, SerialisationException, CacheOperationException {
+        // Given
+        final String federatedGraphId = "federated";
+        final String graphId = "newGraph";
+        final StoreProperties storeProperties = new MapStoreProperties();
+        storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.mapstore.MapStore");
+
+        // JSON version of the operation
+        final JSONObject jsonOperation = new JSONObject()
+                .put("class", "uk.gov.gchq.gaffer.federated.simple.operation.AddGraph")
+                .put("graphConfig", new JSONObject()
+                        .put("graphId", graphId))
+                .put("properties", new JSONObject()
+                        .put("gaffer.store.class", "uk.gov.gchq.gaffer.mapstore.MapStore")
+                        .put("gaffer.store.properties.class", "uk.gov.gchq.gaffer.mapstore.MapStoreProperties"))
+                .put("owner", User.UNKNOWN_USER_ID)
+                .put("isPublic", true)
+                .put("readPredicate", new JSONObject()
+                    .put("class", "uk.gov.gchq.gaffer.access.predicate.AccessPredicate")
+                    .put("userPredicate", new JSONObject()
+                        .put("class", "uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate")
+                        .put("auths", new JSONArray()
+                            .put("test"))));
+
+        final FederatedStore federatedStore = new FederatedStore();
+        federatedStore.initialise(federatedGraphId, null, new StoreProperties());
+
+        // When
+        final AddGraph operation = JSONSerialiser.deserialise(jsonOperation.toString(), AddGraph.class);
+        System.out.print(operation.getReadPredicate());
+        federatedStore.execute(operation, new Context());
+
+        final GraphAccess addedAccess = federatedStore.getGraphAccessPair(graphId).getRight();
+
+        // Then
+        // Check the access that was added
+        assertThat(addedAccess.getOwner()).isEqualTo(User.UNKNOWN_USER_ID);
+        assertThat(addedAccess.isPublic()).isTrue();
+        assertThat(addedAccess.getResourceType()).isEqualTo(ResourceType.FederatedStoreGraph);
+        assertThat(addedAccess.getReadAccessPredicate())
+            .isExactlyInstanceOf(AccessPredicate.class);
+        assertThat(addedAccess.getReadAccessPredicate().getUserPredicate())
+            .isExactlyInstanceOf(DefaultUserPredicate.class);
+        assertThat(addedAccess.getWriteAccessPredicate())
+            .isExactlyInstanceOf(UnrestrictedAccessPredicate.class);
     }
 
 }

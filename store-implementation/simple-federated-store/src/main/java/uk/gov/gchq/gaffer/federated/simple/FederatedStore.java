@@ -115,7 +115,7 @@ public class FederatedStore extends Store {
      *
      * @throws IllegalArgumentException If there is already a graph with the supplied ID
      */
-    public void addGraph(final GraphSerialisable graph, GraphAccess graphAccess) {
+    public void addGraph(final GraphSerialisable graph, final GraphAccess graphAccess) {
         // Pair the graph with its access in the cache
         Pair<GraphSerialisable, GraphAccess> graphAndAccessPair = new ImmutablePair<>(graph, graphAccess);
         try {
@@ -159,11 +159,11 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * Gets the {@link GraphSerialisable} and {@link GraphAccess} {@Pair} from a
-     * given graph ID.
+     * Gets the {@link Pair} of {@link GraphSerialisable} and
+     * {@link GraphAccess} from a given graph ID.
      *
      * @param graphId The graph ID
-     * @return The {@Pair} relating to the graph ID.
+     * @return The {@link Pair} relating to the graph ID.
      * @throws CacheOperationException  If issue getting from cache.
      * @throws IllegalArgumentException If graph not found.
      */
