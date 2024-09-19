@@ -65,8 +65,8 @@ class FederatedStoreIT {
         final String graphId1 = "graph1";
         final String graphId2 = "graph2";
 
-        final Graph graph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
-        final Graph graph2 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.MAP);
+        final Graph graph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.ACCUMULO);
+        final Graph graph2 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.ACCUMULO);
 
         final String group = "person";
         final String vertex = "1";
@@ -130,7 +130,7 @@ class FederatedStoreIT {
     }
 
     @Test
-    void shouldPreventMixOfFederatedAndCoreOperationsInChain() throws StoreException {
+    void shouldPreventMixOfFederatedAndCoreOperationsInChainByDefault() throws StoreException {
         // Given
         FederatedStore federatedStore = new FederatedStore();
         federatedStore.initialise("federated", null, new StoreProperties());
