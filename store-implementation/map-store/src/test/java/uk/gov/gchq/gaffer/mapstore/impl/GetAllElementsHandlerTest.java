@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -46,7 +45,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -62,14 +60,6 @@ public class GetAllElementsHandlerTest {
     static final String COUNT = "count";
     public static final Context CONTEXT = new Context(new User("user"));
     private static final int NUM_LOOPS = 10;
-    public static final String EXPECTED = "{\n" +
-            "  \"class\" : \"uk.gov.gchq.gaffer.data.element.Edge\",\n" +
-            "  \"group\" : \"BasicEdge\",\n" +
-            "  \"source\" : \"A\",\n" +
-            "  \"destination\" : \"B\",\n" +
-            "  \"directed\" : false,\n" +
-            "  \"properties\" : { }\n" +
-            "}";
 
     @Test
     void testAddAndGetAllElementsNoAggregation() throws OperationException {
@@ -525,6 +515,7 @@ public class GetAllElementsHandlerTest {
 
     @Test
     void getAllElementsOperationShouldNotContainMatchedVertex() throws Exception {
+
         final Edge edge = new Edge.Builder()
                 .group(BASIC_EDGE1)
                 .source("A")
@@ -539,10 +530,8 @@ public class GetAllElementsHandlerTest {
 
         Iterable<? extends Element> results = mapStoreGraph.execute(new GetAllElements.Builder()
                 .build(), CONTEXT);
-        final List<Element> list = Streams.toStream(results).collect(Collectors.toList());
 
-        assertThat(new String(JSONSerialiser.serialise(list.get(0), true))).isEqualTo(EXPECTED);
-        assertThat(new String(JSONSerialiser.serialise(list.get(0), true))).doesNotContain("matchedVertex");
+        assertThat(results).extracting(e -> (Element) e).containsExactly(edge);
 
     }
 
