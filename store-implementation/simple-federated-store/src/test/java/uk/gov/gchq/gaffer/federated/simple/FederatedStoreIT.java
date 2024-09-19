@@ -25,7 +25,9 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphInfoHandler;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -42,7 +44,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class FederatedStoreIT {
 
@@ -170,6 +176,41 @@ class FederatedStoreIT {
 
         assertThat(graphIds).containsExactly(graphId);
 
+    }
+
+    @Test
+    void shouldGetAllGraphInfo() throws StoreException, OperationException {
+        // Given
+        FederatedStore store = new FederatedStore();
+        final String graphId1 = "graph1";
+        final Graph graph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
+
+        // Init store and add graph
+        store.initialise("federated", null, new StoreProperties());
+        store.execute(
+            new AddGraph.Builder()
+                .graphConfig(graph1.getConfig())
+                .schema(graph1.getSchema())
+                .properties(graph1.getStoreProperties().getProperties()).build(),
+            new Context());
+
+        // Map of the expected values for the graph
+        final Map<String, Object> graph1InfoExpected = Stream.of(
+                new SimpleEntry<>(GetAllGraphInfoHandler.DESCRIPTION, graph1.getDescription()),
+                new SimpleEntry<>(GetAllGraphInfoHandler.HOOKS, graph1.getConfig().getHooks()),
+                new SimpleEntry<>(GetAllGraphInfoHandler.OP_DECLARATIONS, graph1.getStoreProperties().getOperationDeclarations().getOperations()),
+                new SimpleEntry<>(GetAllGraphInfoHandler.PROPERTIES, graph1.getStoreProperties().getProperties()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        // When
+        // Run a GetAllGraphInfo operation
+        final Map<String, Object> graphInfo = store.execute(new GetAllGraphInfo(), new Context());
+
+        // Then
+        assertThat(graphInfo)
+            .extracting(g -> g.get(graphId1))
+            .usingRecursiveComparison()
+            .isEqualTo(graph1InfoExpected);
     }
 
 }
