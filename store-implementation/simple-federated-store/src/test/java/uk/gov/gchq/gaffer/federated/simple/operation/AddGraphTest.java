@@ -170,7 +170,7 @@ class AddGraphTest {
     }
 
     @Test
-    void shouldAddGraphAndAccessUsingJSONSerialisation()
+    void shouldAddGraphWithAccessUsingJSONSerialisation()
             throws StoreException, OperationException, SerialisationException, CacheOperationException {
         // Given
         final String federatedGraphId = "federated";
