@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphInfo;
@@ -184,6 +185,7 @@ class FederatedStoreIT {
         FederatedStore store = new FederatedStore();
         final String graphId1 = "graph1";
         final Graph graph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
+        final GraphAccess access = new GraphAccess();
 
         // Init store and add graph
         store.initialise("federated", null, new StoreProperties());
@@ -199,7 +201,9 @@ class FederatedStoreIT {
                 new SimpleEntry<>(GetAllGraphInfoHandler.DESCRIPTION, graph1.getDescription()),
                 new SimpleEntry<>(GetAllGraphInfoHandler.HOOKS, graph1.getConfig().getHooks()),
                 new SimpleEntry<>(GetAllGraphInfoHandler.OP_DECLARATIONS, graph1.getStoreProperties().getOperationDeclarations().getOperations()),
-                new SimpleEntry<>(GetAllGraphInfoHandler.PROPERTIES, graph1.getStoreProperties().getProperties()))
+                new SimpleEntry<>(GetAllGraphInfoHandler.PROPERTIES, graph1.getStoreProperties().getProperties()),
+                new SimpleEntry<>(GetAllGraphInfoHandler.OWNER, access.getOwner()),
+                new SimpleEntry<>(GetAllGraphInfoHandler.IS_PUBLIC, access.isPublic()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // When

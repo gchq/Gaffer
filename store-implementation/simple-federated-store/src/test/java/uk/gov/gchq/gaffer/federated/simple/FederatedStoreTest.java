@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federated.simple;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -132,11 +133,13 @@ class FederatedStoreTest {
                 expectedGraph2.getConfig(),
                 expectedGraph2.getSchema(),
                 expectedGraph2.getStoreProperties()));
-        assertThat(store.getAllGraphs()).containsExactlyInAnyOrder(
-            new GraphSerialisable(
-                expectedGraph1.getConfig(),
-                expectedGraph1.getSchema(),
-                expectedGraph1.getStoreProperties()),
+        assertThat(store.getAllGraphsAndAccess())
+            .extracting(Pair::getLeft)
+            .containsExactlyInAnyOrder(
+                new GraphSerialisable(
+                    expectedGraph1.getConfig(),
+                    expectedGraph1.getSchema(),
+                    expectedGraph1.getStoreProperties()),
             new GraphSerialisable(
                 expectedGraph2.getConfig(),
                 expectedGraph2.getSchema(),

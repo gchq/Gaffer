@@ -73,7 +73,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_GRAPH_IDS;
@@ -177,14 +176,13 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * Returns all the graphs available to this store.
+     * Returns all the graphs and their access available to this store.
      *
-     * @return Iterable of {@link GraphSerialisable}s
+     * @return Iterable of {@link Pair}s containing the {@link GraphSerialisable}
+     *         and {@link GraphAccess}
      */
-    public Iterable<GraphSerialisable> getAllGraphs() {
-        return StreamSupport.stream(graphCache.getCache().getAllValues().spliterator(), false)
-            .map(Pair::getLeft)
-            .collect(Collectors.toList());
+    public Iterable<Pair<GraphSerialisable, GraphAccess>> getAllGraphsAndAccess() {
+        return graphCache.getCache().getAllValues();
     }
 
     /**
