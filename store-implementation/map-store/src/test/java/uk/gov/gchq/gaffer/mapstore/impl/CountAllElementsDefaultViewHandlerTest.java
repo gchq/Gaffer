@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.jupiter.api.Test;
@@ -21,18 +22,17 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  *
  */
-public class CountAllElementsDefaultViewHandlerTest {
+class CountAllElementsDefaultViewHandlerTest {
 
     @Test
-    public void testCountAllElementsDefaultViewHandler() throws StoreException, OperationException {
+    void testCountAllElementsDefaultViewHandler() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -45,11 +45,11 @@ public class CountAllElementsDefaultViewHandlerTest {
         final Long result = graph.execute(countAllElementsDefaultView, new User());
 
         // Then
-        assertEquals((long) GetAllElementsHandlerTest.getElements().size(), (long) result);
+        assertThat((long) result).isEqualTo((long) GetAllElementsHandlerTest.getElements().size());
     }
 
     @Test
-    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+    void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
         VisibilityTest.executeOperation(
                 new CountAllElementsDefaultView(),
                 VisibilityTest::elementIterableResultSizeConsumer);

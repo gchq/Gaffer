@@ -17,9 +17,12 @@
 package uk.gov.gchq.gaffer.tinkerpop.util.modern;
 
 import org.apache.tinkerpop.gremlin.structure.T;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
+import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopVertexGenerator;
 
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.AGE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.NAME;
@@ -162,5 +165,9 @@ public class Person {
                 .property(NAME, name)
                 .property(AGE, age)
                 .build();
+    }
+
+    public Vertex toVertex(GafferPopGraph graph) {
+        return new GafferPopVertexGenerator(graph)._apply(toEntity());
     }
 }

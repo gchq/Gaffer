@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,6 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -60,7 +60,7 @@ public class GetAllElementsHandlerTest {
     private static final int NUM_LOOPS = 10;
 
     @Test
-    public void testAddAndGetAllElementsNoAggregation() throws StoreException, OperationException {
+    void testAddAndGetAllElementsNoAggregation() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -85,7 +85,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testAddAndGetAllElementsWithAggregation() throws StoreException, OperationException {
+    void testAddAndGetAllElementsWithAggregation() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -138,7 +138,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsWithViewRestrictedByGroup() throws OperationException {
+    void testGetAllElementsWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -165,7 +165,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
+    void testGetAllElementsWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -197,7 +197,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
+    void testGetAllElementsWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -230,7 +230,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsWithAndWithEntities() throws OperationException {
+    void testGetAllElementsWithAndWithEntities() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -275,7 +275,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsDirectedTypeOption() throws OperationException {
+    void testGetAllElementsDirectedTypeOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -505,7 +505,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+    void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
         VisibilityTest.executeOperation(
                 new GetAllElements.Builder().build(),
                 VisibilityTest::elementIterableResultConsumer);

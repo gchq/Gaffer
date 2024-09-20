@@ -32,16 +32,18 @@ public class GremlinWebSocketConfig implements WebSocketConfigurer {
 
     private final GraphTraversalSource g;
     private final AbstractUserFactory userFactory;
+    private final Long requestTimeout;
 
     @Autowired
-    public GremlinWebSocketConfig(final GraphTraversalSource g, final AbstractUserFactory userFactory) {
+    public GremlinWebSocketConfig(final GraphTraversalSource g, final AbstractUserFactory userFactory, final Long requestTimeout) {
         this.g = g;
         this.userFactory = userFactory;
+        this.requestTimeout = requestTimeout;
     }
 
     @Override
     public void registerWebSocketHandlers(final WebSocketHandlerRegistry registry) {
-        registry.addHandler(new GremlinWebSocketHandler(g, userFactory), "/gremlin");
+        registry.addHandler(new GremlinWebSocketHandler(g, userFactory, requestTimeout), "/gremlin");
     }
 
 }

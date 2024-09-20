@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,8 +54,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -68,13 +67,13 @@ public class GraphConfigurationControllerTest {
     private GraphFactory graphFactory;
 
     @BeforeEach
-    public void initialiseMocks() {
+    void initialiseMocks() {
         MockitoAnnotations.initMocks(this);
         Mockito.reset(graphFactory);
     }
 
     @Test
-    public void shouldReturnDescription() {
+    void shouldReturnDescription() {
         // Given
         when(graphFactory.getGraph()).thenReturn(new Graph.Builder()
                 .config(new GraphConfig("id"))
@@ -89,11 +88,11 @@ public class GraphConfigurationControllerTest {
         final String description = controller.getDescription();
 
         // Then
-        assertEquals("test graph", description);
+        assertThat(description).isEqualTo("test graph");
     }
 
     @Test
-    public void shouldReturnGraphId() {
+    void shouldReturnGraphId() {
         // Given
         when(graphFactory.getGraph()).thenReturn(new Graph.Builder()
                 .config(new GraphConfig("id"))
@@ -108,11 +107,11 @@ public class GraphConfigurationControllerTest {
         final String graphId = controller.getGraphId();
 
         // Then
-        assertEquals("id", graphId);
+        assertThat(graphId).isEqualTo("id");
     }
 
     @Test
-    public void shouldGetFilterFunctions() {
+    void shouldGetFilterFunctions() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -124,7 +123,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetFilterFunctionsWithNullInput() {
+    void shouldGetFilterFunctionsWithNullInput() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -136,7 +135,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetFilterFunctionsWithInputClass() {
+    void shouldGetFilterFunctionsWithInputClass() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -148,7 +147,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetFilterFunctionsUsingShortClassName() {
+    void shouldGetFilterFunctionsUsingShortClassName() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -160,7 +159,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenGetFilterFunctionsWithUnknownClassName() {
+    void shouldThrowExceptionWhenGetFilterFunctionsWithUnknownClassName() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -171,7 +170,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetSerialisedFields() {
+    void shouldGetSerialisedFields() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -184,7 +183,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetSerialisedFieldsForGetElementsClass() {
+    void shouldGetSerialisedFieldsForGetElementsClass() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -200,11 +199,11 @@ public class GraphConfigurationControllerTest {
         expectedFields.add("views");
 
         // Then
-        assertEquals(expectedFields, fields);
+        assertThat(fields).isEqualTo(expectedFields);
     }
 
     @Test
-    public void shouldGetCorrectSerialisedFieldsForEdgeClass() {
+    void shouldGetCorrectSerialisedFieldsForEdgeClass() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -222,11 +221,11 @@ public class GraphConfigurationControllerTest {
         expectedFields.put("directedType", String.class.getName());
 
         // Then
-        assertEquals(expectedFields, fields);
+        assertThat(fields).isEqualTo(expectedFields);
     }
 
     @Test
-    public void shouldGetCorrectSerialisedFieldsForGetWalksClass() {
+    void shouldGetCorrectSerialisedFieldsForGetWalksClass() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -242,11 +241,11 @@ public class GraphConfigurationControllerTest {
         expectedFields.put("conditional", "uk.gov.gchq.gaffer.operation.util.Conditional");
 
         // Then
-        assertEquals(expectedFields, fields);
+        assertThat(fields).isEqualTo(expectedFields);
     }
 
     @Test
-    public void shouldThrowExceptionWhenGetSerialisedFieldsWithUnknownClassName() {
+    void shouldThrowExceptionWhenGetSerialisedFieldsWithUnknownClassName() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -257,7 +256,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldReturnStoreType() {
+    void shouldReturnStoreType() {
         // Given
         when(graphFactory.getGraph()).thenReturn(new Graph.Builder()
             .config(new GraphConfig("id"))
@@ -275,7 +274,7 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
-    public void shouldGetStoreTraits() throws OperationException {
+    void shouldGetStoreTraits() throws OperationException {
         // Given
         Store store = mock(Store.class);
         Schema schema = new Schema();
@@ -299,11 +298,11 @@ public class GraphConfigurationControllerTest {
         final Set<StoreTrait> traits = controller.getStoreTraits();
 
         // Then
-        assertEquals(MapStore.TRAITS, traits);
+        assertThat(traits).isEqualTo(MapStore.TRAITS);
     }
 
     @Test
-    public void shouldGetTransformFunctions() {
+    void shouldGetTransformFunctions() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -311,11 +310,11 @@ public class GraphConfigurationControllerTest {
         final Set<Class> classes = controller.getTransformFunctions();
 
         // Then
-        assertFalse(classes.isEmpty());
+        assertThat(classes).isNotEmpty();
     }
 
     @Test
-    public void shouldGetAggregationFunctions() {
+    void shouldGetAggregationFunctions() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -323,11 +322,11 @@ public class GraphConfigurationControllerTest {
         final Set<Class> classes = controller.getAggregationFunctions();
 
         // Then
-        assertFalse(classes.isEmpty());
+        assertThat(classes).isNotEmpty();
     }
 
     @Test
-    public void shouldGetElementGenerators() {
+    void shouldGetElementGenerators() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -335,11 +334,11 @@ public class GraphConfigurationControllerTest {
         final Set<Class> classes = controller.getElementGenerators();
 
         // Then
-        assertFalse(classes.isEmpty());
+        assertThat(classes).isNotEmpty();
     }
 
     @Test
-    public void shouldGetObjectGenerators() {
+    void shouldGetObjectGenerators() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
 
@@ -347,11 +346,11 @@ public class GraphConfigurationControllerTest {
         final Set<Class> classes = controller.getObjectGenerators();
 
         // Then
-        assertFalse(classes.isEmpty());
+        assertThat(classes).isNotEmpty();
     }
 
     @Test
-    public void shouldSerialiseAndDeserialiseGetStoreTraits() throws SerialisationException, OperationException {
+    void shouldSerialiseAndDeserialiseGetStoreTraits() throws SerialisationException, OperationException {
         // Given
         Store store = mock(Store.class);
 
@@ -382,12 +381,32 @@ public class GraphConfigurationControllerTest {
         final Set<String> traits = JSONSerialiser.deserialise(bytes, Set.class);
 
         // Then
-        assertEquals(Sets.newHashSet(
-                INGEST_AGGREGATION.name(),
-                PRE_AGGREGATION_FILTERING.name(),
-                POST_AGGREGATION_FILTERING.name()
-                ),
-                traits);
+        assertThat(traits).isEqualTo(Sets.newHashSet(
+            INGEST_AGGREGATION.name(),
+            PRE_AGGREGATION_FILTERING.name(),
+            POST_AGGREGATION_FILTERING.name()
+            ));
+    }
+    @Test
+    void shouldGetGraphCreatedTime() {
+        // Given
+        when(graphFactory.getGraph()).thenReturn(new Graph.Builder()
+                .config(new GraphConfig("id"))
+                .addSchema(new Schema())
+                .storeProperties(new MapStoreProperties())
+                .description("test graph")
+                .build());
+
+        // When
+        LocalDateTime time = LocalDateTime.now();
+        GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
+
+        // When
+        final String graphCreatedTime = controller.getGraphCreatedTime();
+
+        // Then
+        assertThat(graphCreatedTime).isInstanceOf(String.class);
+        assertThat(LocalDateTime.parse(graphCreatedTime)).isBeforeOrEqualTo(time);
     }
 
 

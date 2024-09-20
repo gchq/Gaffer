@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,12 @@ import java.util.Set;
 
 public class SingleUseMapStoreWithoutVisibilitySupport extends SingleUseMapStore {
 
-    private static final Set<StoreTrait> TRAITS = new HashSet<StoreTrait>(MapStore.TRAITS) {
-        {
-            remove(StoreTrait.VISIBILITY);
-        }
-    };
+
+    private static final Set<StoreTrait> TRAITS = new HashSet<>(MapStore.TRAITS);
+
+    static {
+        TRAITS.remove(StoreTrait.VISIBILITY);
+    }
 
     @Override
     public Set<StoreTrait> getTraits() {

@@ -222,7 +222,7 @@ class GafferPopHasStepIT {
 
          assertThat(result)
                  .extracting(r -> r.id())
-                 .containsExactlyInAnyOrder(RIPPLE.getId(), LOP.getId(), LOP.getId(), LOP.getId());
+                 .containsExactlyInAnyOrder(RIPPLE.getId(), LOP.getId());
      }
 
     @Test

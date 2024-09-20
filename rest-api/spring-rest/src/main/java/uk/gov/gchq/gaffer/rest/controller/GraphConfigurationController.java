@@ -84,6 +84,12 @@ public class GraphConfigurationController {
         return graphFactory.getGraph().getGraphId();
     }
 
+    @GetMapping(path = "/graphCreatedTime", produces = TEXT_PLAIN_VALUE)
+    @Operation(summary = "Gets the creation time for the store associated with this REST API")
+    public String getGraphCreatedTime() {
+        return graphFactory.getGraph().getCreatedTime();
+    }
+
     @GetMapping(path = "/filterFunctions", produces = APPLICATION_JSON_VALUE)
     @Operation(summary = "Gets the available filter functions")
     public Set<Class> getFilterFunctions() {

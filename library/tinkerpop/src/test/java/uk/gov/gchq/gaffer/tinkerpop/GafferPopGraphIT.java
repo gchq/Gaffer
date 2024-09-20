@@ -305,6 +305,37 @@ class GafferPopGraphIT {
         reset();
     }
 
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldSeedWithVertexOnlyEdge(String graph, GraphTraversalSource g) throws OperationException {
+        // Edge has a vertex but not an entity in the graph - Gaffer only feature
+        String vertexOnlyId = "7";
+        mapStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), vertexOnlyId, mapStore));
+        accumuloStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), vertexOnlyId, accumuloStore));
+        federated.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), vertexOnlyId, federated));
+
+        List<Vertex> result = g.V("7").toList();
+        assertThat(result)
+            .extracting(r -> r.id())
+            .contains(vertexOnlyId);
+        reset();
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldTraverseEdgeWithVertexOnlySeed(String graph, GraphTraversalSource g) throws OperationException {
+        // Edge has a vertex but not an entity in the graph - Gaffer only feature
+        String vertexOnlyId = "7";
+        mapStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), vertexOnlyId, mapStore));
+        accumuloStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), vertexOnlyId, accumuloStore));
+        federated.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), vertexOnlyId, federated));
+
+        List<Map<Object, Object>> result = g.V("7").inE().outV().elementMap().toList();
+        assertThat(result)
+            .containsExactly(MARKO.getPropertyMap());
+        reset();
+    }
+
     void reset() throws OperationException  {
         // reset cache for federation
         CacheServiceLoader.shutdown();

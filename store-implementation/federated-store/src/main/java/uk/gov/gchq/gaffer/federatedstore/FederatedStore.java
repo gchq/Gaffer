@@ -81,6 +81,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
@@ -554,11 +555,15 @@ public class FederatedStore extends Store {
     }
 
     @Override
+    protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+        return new FederatedNoOutputHandler<>();
+    }
+
+    @Override
     protected OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
         return new FederatedOutputIterableHandler<>();
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new FederatedNoOutputHandler<>();

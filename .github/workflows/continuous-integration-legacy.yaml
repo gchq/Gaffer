@@ -24,7 +24,7 @@ jobs:
           - name: Accumulo
             values: :accumulo-store,:accumulo-rest
           - name: Federated-And-Map
-            values: :integration-test,:federated-store,:map-store,:map-rest
+            values: :integration-test,:federated-store,:map-store,:map-rest,:simple-federated-store
           - name: REST
             values: :rest-api,:common-rest,:spring-rest,:core-rest,:store-implementation,:proxy-store
           - name: Examples

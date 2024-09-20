@@ -57,7 +57,9 @@ import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopGraphStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopHasStepStrategy;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation.GafferPopVertexStepStrategy;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferCustomTypeFactory;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferVertexUtils;
 import uk.gov.gchq.gaffer.tinkerpop.service.GafferPopNamedOperationServiceFactory;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.iterable.MappedIterable;
@@ -288,7 +290,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         // Add and register custom traversals
         TraversalStrategies traversalStrategies = GlobalCache.getStrategies(this.getClass()).addStrategies(
                 GafferPopGraphStepStrategy.instance(),
-                GafferPopHasStepStrategy.instance());
+                GafferPopHasStepStrategy.instance(),
+                GafferPopVertexStepStrategy.instance());
         GlobalCache.registerStrategies(this.getClass(), traversalStrategies);
     }
 
@@ -406,6 +409,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public Iterator<Vertex> vertices(final Object... vertexIds) {
         final boolean getAll = null == vertexIds || 0 == vertexIds.length;
         final OperationChain<Iterable<? extends Element>> getOperation;
+        final Iterable<Vertex> orphanVertices;
 
         if (getAll) {
             LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
@@ -419,7 +423,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             getOperation = new Builder()
                 .first(new GetElements.Builder()
                     .input(getElementSeeds(Arrays.asList(vertexIds)))
-                    .view(createAllEntitiesView())
                     .build())
                 .build();
         }
@@ -439,7 +442,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 "Result size is equal to configured limit ({}). Results may have been truncated",
                 variables.getAllElementsLimit());
         }
-        return translatedResults.iterator();
+
+        // Check for seeds that are not entities but are vertices on an edge (orphan vertices)
+        orphanVertices = GafferVertexUtils.getOrphanVertices(result, this, vertexIds);
+        Iterable<Vertex> chainedIterable = IterableUtils.chainedIterable(translatedResults, orphanVertices);
+
+        return chainedIterable.iterator();
     }
 
     /**
@@ -945,10 +953,13 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             List<Object> edgeIdList = new LinkedList<>();
             // Extract Vertex ID
             if (id instanceof Vertex) {
-                seeds.add(new EntitySeed(((Vertex) id).id()));
+                Object parsedId = GafferCustomTypeFactory.parseAsCustomTypeIfValid(((Vertex) id).id());
+                seeds.add(new EntitySeed(parsedId));
             // Extract Edge ID
             } else if (id instanceof Edge) {
-                seeds.add(new EdgeSeed(((Edge) id).outVertex().id(), ((Edge) id).inVertex().id()));
+                Object src = GafferCustomTypeFactory.parseAsCustomTypeIfValid(((Edge) id).outVertex().id());
+                Object target = GafferCustomTypeFactory.parseAsCustomTypeIfValid(((Edge) id).inVertex().id());
+                seeds.add(new EdgeSeed(src, target));
             // Extract source and destination from ID list
             } else if (id instanceof Iterable) {
                 ((Iterable<?>) id).forEach(edgeIdList::add);

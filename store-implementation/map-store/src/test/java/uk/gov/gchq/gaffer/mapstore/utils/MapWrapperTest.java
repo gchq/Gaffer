@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore.utils;
 
 import org.junit.jupiter.api.Test;
-
-import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class MapWrapperTest {
+class MapWrapperTest {
 
     @Test
-    public void shouldDelegateAllCallsToMap() throws StoreException {
+    void shouldDelegateAllCallsToMap() {
         // Given
         final String key = "key1";
         final String value = "value1";
@@ -62,37 +60,37 @@ public class MapWrapperTest {
         // When / Then - put
         final String putResult = wrapper.put(key, value);
         verify(map).put(key, value);
-        assertEquals(value2, putResult);
+        assertThat(putResult).isEqualTo(value2);
 
         // When / Then - get
         final String getResult = wrapper.get(key);
         verify(map).get(key);
-        assertEquals(value, getResult);
+        assertThat(getResult).isEqualTo(value);
 
         // When / Then - size
         final int sizeResult = wrapper.size();
         verify(map).size();
-        assertEquals(size, sizeResult);
+        assertThat(sizeResult).isEqualTo(size);
 
         // When / Then - isEmpty
         final boolean isEmptyResult = wrapper.isEmpty();
         verify(map).size();
-        assertEquals(isEmpty, isEmptyResult);
+        assertThat(isEmptyResult).isEqualTo(isEmpty);
 
         // When / Then - containsKey
         final boolean containsKeyResult = wrapper.containsKey(key);
         verify(map).containsKey(key);
-        assertEquals(containsKey, containsKeyResult);
+        assertThat(containsKeyResult).isEqualTo(containsKey);
 
         // When / Then - containsValue
         final boolean containsValueResult = wrapper.containsValue(value);
         verify(map).containsValue(value);
-        assertEquals(containsValue, containsValueResult);
+        assertThat(containsValueResult).isEqualTo(containsValue);
 
         // When / Then - remove
         final String removeResult = wrapper.remove(key);
         verify(map).remove(key);
-        assertEquals(value, removeResult);
+        assertThat(removeResult).isEqualTo(value);
 
         // When / Then - putAll
         wrapper.putAll(map2);
@@ -105,20 +103,20 @@ public class MapWrapperTest {
         // When / Then - keySet
         final Set<String> keySetResult = wrapper.keySet();
         verify(map).keySet();
-        assertSame(keySet, keySetResult);
+        assertThat(keySetResult).isEqualTo(keySet);
 
         // When / Then - values
         final Collection<String> valuesResult = wrapper.values();
         verify(map).values();
-        assertSame(values, valuesResult);
+        assertThat(valuesResult).isSameAs(values);
 
         // When / Then - entrySet
         final Set<Map.Entry<String, String>> entrySetResult = wrapper.entrySet();
         verify(map).entrySet();
-        assertSame(entrySet, entrySetResult);
+        assertThat(entrySetResult).isSameAs(entrySet);
 
         // When / Then - getMap
         final Map<String, String> mapResult = wrapper.getMap();
-        assertSame(map, mapResult);
+        assertThat(mapResult).isSameAs(map);
     }
 }

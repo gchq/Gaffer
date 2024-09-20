@@ -147,8 +147,8 @@ public class MapImpl {
         nonAggElements.get(element.getGroup()).remove(element);
     }
 
-    Collection<Element> lookup(final EntityId entitId) {
-        Collection<Element> results = entityIdToElements.get(entitId);
+    Collection<Element> lookup(final EntityId entityId) {
+        Collection<Element> results = entityIdToElements.get(entityId);
         if (null == results) {
             results = Collections.emptySet();
         }
