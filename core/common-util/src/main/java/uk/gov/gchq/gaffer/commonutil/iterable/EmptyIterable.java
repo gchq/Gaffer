@@ -34,6 +34,7 @@ public class EmptyIterable<T> implements Closeable, Iterable<T> {
 
     @Override
     public void close() {
+        // Required by interface but not used in this implementation
     }
 
     @Override

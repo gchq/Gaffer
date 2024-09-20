@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import static java.util.Objects.isNull;
-
 /**
  * A {@code TransformToMultiIterable} allows {@link Iterable}s to be lazily validated and transformed without
  * loading the entire iterable into memory. The easiest way to use this class is to create an anonymous inner class.
@@ -46,7 +44,7 @@ public abstract class TransformOneToManyIterable<I, O> implements Closeable, Ite
      *
      * @param input the input {@link Iterable}
      */
-    public TransformOneToManyIterable(final Iterable<? extends I> input) {
+    protected TransformOneToManyIterable(final Iterable<? extends I> input) {
         this(input, new AlwaysValid<>(), false);
     }
 
@@ -59,7 +57,7 @@ public abstract class TransformOneToManyIterable<I, O> implements Closeable, Ite
      * @param input     the input {@link Iterable}
      * @param validator the {@link Validator}
      */
-    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator) {
+    protected TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator) {
         this(input, validator, false);
     }
 
@@ -71,7 +69,7 @@ public abstract class TransformOneToManyIterable<I, O> implements Closeable, Ite
      * @param validator   the {@link Validator}
      * @param skipInvalid if true invalid items should be skipped
      */
-    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid) {
+    protected TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid) {
         this(input, validator, skipInvalid, true);
     }
 
@@ -83,7 +81,7 @@ public abstract class TransformOneToManyIterable<I, O> implements Closeable, Ite
      * @param skipInvalid if true invalid items should be skipped
      * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
      */
-    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid,
+    protected TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid,
                                       final boolean autoClose) {
         this.input = input;
         this.validator = validator;
@@ -146,32 +144,39 @@ public abstract class TransformOneToManyIterable<I, O> implements Closeable, Ite
 
         @Override
         public boolean hasNext() {
-            if (isNull(hasNext)) {
-                if (iterator.hasNext()) {
-                    final I possibleNext = iterator.next();
-                    if (validator.validate(possibleNext)) {
-                        final Iterable<O> nextElementsIterable = transform(possibleNext);
-                        if (Objects.nonNull(nextElementsIterable)) {
-                            nextElements = nextElementsIterable.iterator();
-                            if (nextElements.hasNext()) {
-                                hasNext = true;
-                            } else {
-                                nextElements = null;
-                                hasNext();
-                            }
+            if (hasNext != null) {
+                return hasNext;
+            }
+
+            while (iterator.hasNext()) {
+                final I possibleNext = iterator.next();
+
+                // Validate the iterable
+                if (validator.validate(possibleNext)) {
+                    final Iterable<O> nextElementsIterable = transform(possibleNext);
+
+                    // If transformation not null, update the iterator
+                    if (Objects.nonNull(nextElementsIterable)) {
+                        nextElements = nextElementsIterable.iterator();
+
+                        // If new iterator has a next item, update the hasNext
+                        if (nextElements.hasNext()) {
+                            hasNext = true;
+                            return true;
                         } else {
-                            hasNext();
+                            // If not reset and continue to loop
+                            nextElements = null;
                         }
-                    } else if (skipInvalid) {
-                        hasNext();
-                    } else {
-                        handleInvalidItem(possibleNext);
                     }
-                } else {
-                    hasNext = false;
-                    nextElements = null;
+                } else if (!skipInvalid) {
+                    // handle invalid case and re-iterate loop
+                    handleInvalidItem(possibleNext);
+                    break;
                 }
             }
+
+            hasNext = false;
+            nextElements = null;
 
             final boolean hasNextResult = _hasNext();
             if (autoClose && !hasNextResult) {

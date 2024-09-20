@@ -92,23 +92,7 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
                 // Check the item against the last item.
                 final Map.Entry<E, OneOrMore<E>> last = backingMap.lastEntry();
                 // Checks if the last items key is greater than e
-                if (0 < comparator.compare(last.getKey(), e)) {
-                    // Checks if the items value contains a collection or a single item
-                    if (1 < last.getValue().size()) {
-                        // Items value contains a collection.
-                        // Remove item from collection.
-                        last.getValue().removeAnyItem();
-                    } else {
-                        // Items value contains a single item.
-                        // Remove item from backingMap.
-                        backingMap.remove(last.getKey());
-                    }
-                    size--;
-                    // e is bigger than the lastEntry.
-                } else {
-                    // Skip adding the item.
-                    skipItem = true;
-                }
+                skipItem = handleLastEntry(last, e);
             }
 
             if (!skipItem) {
@@ -124,6 +108,27 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
         }
 
         return result;
+    }
+
+    private Boolean handleLastEntry(final Map.Entry<E, OneOrMore<E>> last, final E e) {
+        // if e is bigger than the last entry then we skip the last entry
+        if (comparator.compare(last.getKey(), e) <= 0) {
+            return true;
+        }
+
+        // Checks if the items value contains a collection or a single item
+        if (last.getValue().size() > 1) {
+            // Items value contains a collection.
+            // Remove item from collection.
+            last.getValue().removeAnyItem();
+        } else {
+            // Items value contains a single item.
+            // Remove item from backingMap.
+            backingMap.remove(last.getKey());
+        }
+        size--;
+
+        return false;
     }
 
     public boolean addAll(final Iterable<E> items) {

@@ -24,10 +24,10 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-public class OneOrMoreTest {
+class OneOrMoreTest {
 
     @Test
-    public void shouldDeduplicateByDefault() {
+    void shouldDeduplicateByDefault() {
         final OneOrMore<Integer> collection = new OneOrMore<>();
 
         collection.add(1);
@@ -38,7 +38,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldAddItemInConstructor() {
+    void shouldAddItemInConstructor() {
         final boolean deduplicate = false;
 
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
@@ -48,7 +48,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldRemoveAnyItem() {
+    void shouldRemoveAnyItem() {
         final boolean deduplicate = true;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
 
@@ -58,7 +58,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldRemoveLastItemInList() {
+    void shouldRemoveLastItemInList() {
         final boolean deduplicate = false;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
         collection.add(2);
@@ -98,7 +98,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldAddItemsWithoutDeduplicate() {
+    void shouldAddItemsWithoutDeduplicate() {
         // Given
         final boolean deduplicate = false;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate);
@@ -119,7 +119,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldAddItemsWithDeduplicate() {
+    void shouldAddItemsWithDeduplicate() {
         // Given
         final boolean deduplicate = true;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate);
@@ -137,7 +137,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldAddAllItemsWithoutDeduplicate() {
+    void shouldAddAllItemsWithoutDeduplicate() {
         // Given
         final boolean deduplicate = false;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate);
@@ -156,7 +156,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldAddAllItemsWithDeduplicate() {
+    void shouldAddAllItemsWithDeduplicate() {
         // Given
         final boolean deduplicate = true;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate);
@@ -173,7 +173,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldGetEmptyIterator() {
+    void shouldGetEmptyIterator() {
         // Given
         final OneOrMore<Integer> collection = new OneOrMore<>();
 
@@ -185,7 +185,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldGetSingletonIterator() {
+    void shouldGetSingletonIterator() {
         // Given
         final OneOrMore<Integer> collection = new OneOrMore<>();
         collection.add(1);
@@ -200,7 +200,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldBeEqual() {
+    void shouldBeEqual() {
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 1);
 
@@ -210,7 +210,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldBeEqualWithDeduplicate() {
+    void shouldBeEqualWithDeduplicate() {
         final OneOrMore<Integer> collection1 = new OneOrMore<>(true, 1);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(true, 1);
 
@@ -220,7 +220,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldBeEqualWithMultipleValues() {
+    void shouldBeEqualWithMultipleValues() {
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         collection1.add(2);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 1);
@@ -232,7 +232,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldBeEqualWithMultipleValuesWithDeduplicate() {
+    void shouldBeEqualWithMultipleValuesWithDeduplicate() {
         final OneOrMore<Integer> collection1 = new OneOrMore<>(true, 1);
         collection1.add(2);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(true, 1);
@@ -244,7 +244,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldNotBeEqual() {
+    void shouldNotBeEqual() {
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 2);
 
@@ -254,7 +254,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldNotBeEqualWhenDeduplicateDifferent() {
+    void shouldNotBeEqualWhenDeduplicateDifferent() {
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(true, 1);
 
@@ -264,7 +264,7 @@ public class OneOrMoreTest {
     }
 
     @Test
-    public void shouldNotBeEqualWithMultipleValues() {
+    void shouldNotBeEqualWithMultipleValues() {
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         collection1.add(2);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 1);

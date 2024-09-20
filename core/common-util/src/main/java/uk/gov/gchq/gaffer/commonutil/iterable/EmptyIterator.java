@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
 public class EmptyIterator<T> implements Closeable, Iterator<T> {
     @Override
     public void close() {
+        // Required by interface but not used in this implementation
     }
 
     @Override
