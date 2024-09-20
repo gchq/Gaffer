@@ -41,7 +41,6 @@ import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphInfo
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.ChangeGraphIdHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.RemoveGraphHandler;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -210,18 +209,22 @@ public class FederatedStore extends Store {
             // Remove from cache
             removeGraph(graphToUpdateId);
 
-            // Update accumulo tables with new graph ID
             if (graphToUpdate.getStoreProperties().getStoreClass().startsWith(AccumuloStore.class.getPackage().getName())) {
+                // Update accumulo tables with new graph ID
                 renameTable((AccumuloProperties) graphToUpdate.getStoreProperties(), graphToUpdateId, newGraphId);
+                // Update id in the original graph
+                graphToUpdate.getConfig().setGraphId(newGraphId);
+                GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder(graphToUpdate)
+                    .config(graphToUpdate.getConfig())
+                    .build();
+                // Add graph with new id back to cache
+                addGraph(updatedGraphSerialisable);
+            } else {
+                // For other stores just re-add with new graph ID
+                graphToUpdate.getConfig().setGraphId(newGraphId);
+                addGraph(graphToUpdate);
             }
 
-            // Update id in the original graph
-            graphToUpdate.getConfig().setGraphId(newGraphId);
-            GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder(graphToUpdate)
-                .config(graphToUpdate.getConfig())
-                .build();
-            // Add graph with new id back to cache
-            addGraph(updatedGraphSerialisable);
         } catch (final CacheOperationException e) {
             // Unknown issue getting graph from cache
             throw new GafferRuntimeException(e.getMessage(), e);
