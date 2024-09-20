@@ -21,13 +21,19 @@ import uk.gov.gchq.gaffer.federated.simple.operation.ChangeGraphId;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 public class ChangeGraphIdHandler implements OperationHandler<ChangeGraphId> {
 
     @Override
     public Object doOperation(final ChangeGraphId operation, final Context context, final Store store) throws OperationException {
-        ((FederatedStore) store).changeGraphId(operation.getGraphId(), operation.getNewGraphId());
+        try {
+            ((FederatedStore) store).changeGraphId(operation.getGraphId(), operation.getNewGraphId());
+        } catch (OperationException | StoreException e) {
+            throw new OperationException("Error changing graph ID", e);
+        }
+
         // Nothing to return
         return null;
     }

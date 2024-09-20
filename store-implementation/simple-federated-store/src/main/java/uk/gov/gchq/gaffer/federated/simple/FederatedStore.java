@@ -199,52 +199,33 @@ public class FederatedStore extends Store {
      *
      * @param graphToUpdateId the graph that is to have its ID updated
      * @param newGraphId the new graph ID
-     * @throws OperationException if accumulo table fails to be renamed
+     * @throws OperationException if the operation fails
+     * @throws StoreException if the accumulo tables cannot be renamed
      *
      */
-    public void changeGraphId(final String graphToUpdateId, final String newGraphId) throws OperationException {
+    public void changeGraphId(final String graphToUpdateId, final String newGraphId) throws OperationException, StoreException {
         try {
             final GraphSerialisable graphToUpdate = getGraph(graphToUpdateId);
-            updateTableAndCache(graphToUpdate, newGraphId);
+
+            // Remove from cache
+            removeGraph(graphToUpdateId);
+
+            // Update accumulo tables with new graph ID
+            if (graphToUpdate.getStoreProperties().getStoreClass().startsWith(AccumuloStore.class.getPackage().getName())) {
+                renameTable((AccumuloProperties) graphToUpdate.getStoreProperties(), graphToUpdateId, newGraphId);
+            }
+
+            // Update id in the original graph
+            graphToUpdate.getConfig().setGraphId(newGraphId);
+            GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder(graphToUpdate)
+                .config(graphToUpdate.getConfig())
+                .build();
+            // Add graph with new id back to cache
+            addGraph(updatedGraphSerialisable);
         } catch (final CacheOperationException e) {
             // Unknown issue getting graph from cache
             throw new GafferRuntimeException(e.getMessage(), e);
         }
-    }
-
-    /**
-     * Remove graph from cache, update any Accumulo table names
-     * and then re-add graph with new id back into the cache.
-     *
-     * @param graphToUpdate The graph to have its ID updated
-     * @param newGraphId the new graph ID
-     * @throws OperationException if accumulo table fails to be renamed
-     *
-     */
-    private void updateTableAndCache(final GraphSerialisable graphToUpdate, final String newGraphId) throws OperationException {
-        final String graphToUpdateId = graphToUpdate.getGraphId();
-
-        // Remove from cache
-        removeGraph(graphToUpdateId);
-
-        // Update accumulo tables with new graph ID
-        if (graphToUpdate.getStoreProperties().getStoreClass().startsWith(AccumuloStore.class.getPackage().getName())) {
-            try {
-                renameTable((AccumuloProperties) graphToUpdate.getStoreProperties(), graphToUpdateId, newGraphId);
-            } catch (final StoreException e) {
-                throw new OperationException("Error trying to rename Accumulo table for graph: " + graphToUpdateId, e);
-            }
-        }
-
-        GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder(graphToUpdate)
-            .config(new GraphConfig.Builder()
-                .json(graphToUpdate.getSerialisedConfig())
-                .graphId(newGraphId)
-                .build())
-            .build();
-
-        // Add graph with new id back to cache
-        addGraph(updatedGraphSerialisable);
     }
 
     /**
