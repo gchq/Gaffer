@@ -88,6 +88,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
     private final ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(4));
     private final ConcurrentBindings bindings = new ConcurrentBindings();
+    private final Long requestTimeout;
     private final AbstractUserFactory userFactory;
     private final Graph graph;
     private final Map<String, Map<String, Object>> plugins = new HashMap<>();
@@ -97,11 +98,13 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      *
      * @param g The graph traversal source
      * @param userFactory The user factory
+     * @param requestTimeout The timeout for gremlin requests
      */
-    public GremlinWebSocketHandler(final GraphTraversalSource g, final AbstractUserFactory userFactory) {
+    public GremlinWebSocketHandler(final GraphTraversalSource g, final AbstractUserFactory userFactory, final Long requestTimeout) {
         bindings.putIfAbsent("g", g);
         graph = g.getGraph();
         this.userFactory = userFactory;
+        this.requestTimeout = requestTimeout;
         // Add cypher plugin so cypher functions can be used in queries
         plugins.put(CypherPlugin.class.getName(), new HashMap<>());
     }
@@ -146,11 +149,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
         // Execute the query
         try (Scope scope = span.makeCurrent();
-                GremlinExecutor gremlinExecutor = GremlinExecutor.build()
-                        .globalBindings(bindings)
-                        .addPlugins("gremlin-groovy", plugins)
-                        .executorService(executorService)
-                        .create()) {
+                GremlinExecutor gremlinExecutor = getGremlinExecutor()) {
             // Set current headers for potential authorisation then set the user
             userFactory.setHttpHeaders(session.getHandshakeHeaders());
             graph.variables().set(GafferPopGraphVariables.USER, userFactory.createUser());
@@ -239,6 +238,21 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
             byteBuffer.get(byteArray);
             return Unpooled.wrappedBuffer(byteArray);
         }
+    }
+
+    /**
+     * Returns a new gremlin executor. It's the responsibility of the caller to
+     * ensure it is closed.
+     *
+     * @return Gremlin executor.
+     */
+    private GremlinExecutor getGremlinExecutor() {
+        return GremlinExecutor.build()
+                .globalBindings(bindings)
+                .addPlugins("gremlin-groovy", plugins)
+                .evaluationTimeout(requestTimeout)
+                .executorService(executorService)
+                .create();
     }
 
 }
