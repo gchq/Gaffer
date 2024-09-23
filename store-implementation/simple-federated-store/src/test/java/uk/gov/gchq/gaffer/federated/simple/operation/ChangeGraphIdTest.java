@@ -20,7 +20,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -30,7 +29,6 @@ import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
-import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationChain;

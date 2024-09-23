@@ -30,7 +30,7 @@ public class ChangeGraphIdHandler implements OperationHandler<ChangeGraphId> {
     public Object doOperation(final ChangeGraphId operation, final Context context, final Store store) throws OperationException {
         try {
             ((FederatedStore) store).changeGraphId(operation.getGraphId(), operation.getNewGraphId());
-        } catch (OperationException | StoreException e) {
+        } catch (final OperationException | StoreException e) {
             throw new OperationException("Error changing graph ID", e);
         }
 
