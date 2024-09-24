@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_ALLOW_PUBLIC_GRAPHS;
+
 public class AddGraphHandler implements OperationHandler<AddGraph> {
 
     @Override
@@ -49,9 +51,15 @@ public class AddGraphHandler implements OperationHandler<AddGraph> {
         if (operation.getWritePredicate() != null) {
             accessBuilder.writeAccessPredicate(operation.getWritePredicate());
         }
+        GraphAccess access = accessBuilder.build();
+
+        // Check if public graphs can be added
+        if (access.isPublic() && !Boolean.parseBoolean(store.getProperties().get(PROP_ALLOW_PUBLIC_GRAPHS, "true"))) {
+            throw new OperationException("Public graphs are not allowed to be added to this store");
+        }
 
         // Add the graph
-        ((FederatedStore) store).addGraph(newGraph, accessBuilder.build());
+        ((FederatedStore) store).addGraph(newGraph, access);
 
         return null;
     }
