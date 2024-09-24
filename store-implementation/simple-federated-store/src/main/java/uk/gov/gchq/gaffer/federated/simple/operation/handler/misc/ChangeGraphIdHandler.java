@@ -27,10 +27,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public class ChangeGraphIdHandler implements OperationHandler<ChangeGraphId> {
 
     @Override
-    public Object doOperation(final ChangeGraphId operation, final Context context, final Store store) {
+    public Object doOperation(final ChangeGraphId operation, final Context context, final Store store) throws OperationException {
         try {
             ((FederatedStore) store).changeGraphId(operation.getGraphId(), operation.getNewGraphId());
-        } catch (final OperationException | StoreException e) {
+        } catch (final StoreException e) {
             throw new OperationException("Error changing graph ID", e);
         }
 
