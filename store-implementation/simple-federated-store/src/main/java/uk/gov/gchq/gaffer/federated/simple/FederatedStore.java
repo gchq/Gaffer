@@ -202,7 +202,7 @@ public class FederatedStore extends Store {
      * @throws StoreException if the accumulo tables cannot be renamed
      *
      */
-    public void changeGraphId(final String graphToUpdateId, final String newGraphId) throws OperationException, StoreException {
+    public void changeGraphId(final String graphToUpdateId, final String newGraphId) throws StoreException {
         try {
             final GraphSerialisable graphToUpdate = getGraph(graphToUpdateId);
 
