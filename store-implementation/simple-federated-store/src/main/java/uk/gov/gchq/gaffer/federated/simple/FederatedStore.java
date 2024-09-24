@@ -198,7 +198,6 @@ public class FederatedStore extends Store {
      *
      * @param graphToUpdateId the graph that is to have its ID updated
      * @param newGraphId the new graph ID
-     * @throws OperationException if the operation fails
      * @throws StoreException if the accumulo tables cannot be renamed
      *
      */
