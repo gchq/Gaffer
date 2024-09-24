@@ -36,7 +36,7 @@ public class RemoveGraphHandler implements OperationHandler<RemoveGraph> {
             GraphAccess access = ((FederatedStore) store).getGraphAccessPair(operation.getGraphId()).getRight();
             if (!access.hasWriteAccess(context.getUser(), store.getProperties().getAdminAuth())) {
                 throw new OperationException(
-                    "User: " + context.getUser() + " does not have write permissions for Graph: " + operation.getGraphId());
+                    "User: '" + context.getUser().getUserId() + "' does not have write permissions for Graph: " + operation.getGraphId());
             }
         } catch (final CacheOperationException e) {
             throw new OperationException(e);

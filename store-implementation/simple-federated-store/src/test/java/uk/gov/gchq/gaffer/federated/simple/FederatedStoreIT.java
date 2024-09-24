@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphInfoHandler;
-import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
+import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -43,7 +43,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
+import static uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils.StoreType;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
@@ -66,8 +66,8 @@ class FederatedStoreIT {
         final String graphId1 = "graph1";
         final String graphId2 = "graph2";
 
-        final Graph graph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.ACCUMULO);
-        final Graph graph2 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.ACCUMULO);
+        final Graph graph1 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.ACCUMULO);
+        final Graph graph2 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.ACCUMULO);
 
         final String group = "person";
         final String vertex = "1";
@@ -184,7 +184,7 @@ class FederatedStoreIT {
         // Given
         FederatedStore store = new FederatedStore();
         final String graphId1 = "graph1";
-        final Graph graph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
+        final Graph graph1 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
         final GraphAccess access = new GraphAccess();
 
         // Init store and add graph

@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -166,7 +167,6 @@ class AddGraphTest {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> federatedStore.execute(operation, context))
                 .withMessageContaining("already been added to this store");
-
     }
 
     @Test
@@ -216,6 +216,29 @@ class AddGraphTest {
             .isExactlyInstanceOf(DefaultUserPredicate.class);
         assertThat(addedAccess.getWriteAccessPredicate())
             .isExactlyInstanceOf(UnrestrictedAccessPredicate.class);
+    }
+
+    @Test
+    void shouldPreventAddingPublicGraphsToStoresThatDoNotAllowIt() throws StoreException {
+        final String graphId = "graph";
+        final String federatedGraphId = "federated";
+        final FederatedStore federatedStore = new FederatedStore();
+        FederatedStoreProperties properties = new FederatedStoreProperties();
+        properties.set(FederatedStoreProperties.PROP_ALLOW_PUBLIC_GRAPHS, "false");
+
+        federatedStore.initialise(federatedGraphId, null, properties);
+
+        // Build operation
+        final AddGraph operation = new AddGraph.Builder()
+                .graphConfig(new GraphConfig(graphId))
+                .schema(new Schema())
+                .properties(new Properties())
+                .isPublic(true)
+                .build();
+
+        assertThatExceptionOfType(OperationException.class)
+            .isThrownBy(() -> federatedStore.execute(operation, new Context()))
+            .withMessageContaining("Public graphs are not allowed");
     }
 
 }

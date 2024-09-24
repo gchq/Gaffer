@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
-import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
-import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
+import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils;
+import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils.StoreType;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -107,14 +107,14 @@ class FederatedStoreTest {
         final String graphId1 = "graph1";
         final String graphId2 = "graph2";
 
-        final Graph graph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
-        final Graph graph2 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.MAP);
+        final Graph graph1 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
+        final Graph graph2 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.MAP);
 
         final GraphSerialisable graph1Serialisable = new GraphSerialisable(graph1.getConfig(), graph1.getSchema(), graph1.getStoreProperties());
         final GraphSerialisable graph2Serialisable = new GraphSerialisable(graph2.getConfig(), graph2.getSchema(), graph2.getStoreProperties());
 
-        final Graph expectedGraph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
-        final Graph expectedGraph2 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.MAP);
+        final Graph expectedGraph1 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
+        final Graph expectedGraph2 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.MAP);
 
         // When
         FederatedStore store = new FederatedStore();
