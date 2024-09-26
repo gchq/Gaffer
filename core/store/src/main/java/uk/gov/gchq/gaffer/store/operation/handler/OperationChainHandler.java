@@ -53,7 +53,7 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
             // OpenTelemetry hooks
             Span span = OtelUtil.startSpan(this.getClass().getName(), op.getClass().getName());
             span.setAttribute("jobId", context.getJobId());
-            if (op instanceof OperationView) {
+            if (op instanceof OperationView && ((OperationView) op).getView() != null) {
                 span.setAttribute("view", ((OperationView) op).getView().toString());
             }
 
