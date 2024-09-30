@@ -16,7 +16,9 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation.handler.misc;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.ChangeGraphId;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -29,8 +31,15 @@ public class ChangeGraphIdHandler implements OperationHandler<ChangeGraphId> {
     @Override
     public Object doOperation(final ChangeGraphId operation, final Context context, final Store store) throws OperationException {
         try {
+            // Check user for write access as we're modifying the graph
+            GraphAccess access = ((FederatedStore) store).getGraphAccessPair(operation.getGraphId()).getRight();
+            if (!access.hasWriteAccess(context.getUser(), store.getProperties().getAdminAuth())) {
+                throw new OperationException(
+                    "User: '" + context.getUser().getUserId() + "' does not have write permissions for Graph: " + operation.getGraphId());
+            }
+
             ((FederatedStore) store).changeGraphId(operation.getGraphId(), operation.getNewGraphId());
-        } catch (final StoreException e) {
+        } catch (final StoreException | CacheOperationException e) {
             throw new OperationException("Error changing graph ID", e);
         }
 

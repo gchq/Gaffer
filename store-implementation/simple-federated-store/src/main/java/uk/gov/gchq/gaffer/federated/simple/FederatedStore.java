@@ -221,37 +221,35 @@ public class FederatedStore extends Store {
     /**
      * Change the graph's ID for the specified graph.
      *
-     * @param graphToUpdateId the graph that is to have its ID updated
-     * @param newGraphId the new graph ID
-     * @throws StoreException if the accumulo tables cannot be renamed
-     *
+     * @param graphToUpdateId The graph that is to have its ID updated.
+     * @param newGraphId The new graph ID.
+     * @throws StoreException If the accumulo table cannot be renamed.
+     * @throws CacheOperationException If issue getting existing graph from cache.
      */
-    public void changeGraphId(final String graphToUpdateId, final String newGraphId) throws StoreException {
-        try {
-            final GraphSerialisable graphToUpdate = getGraph(graphToUpdateId);
+    public void changeGraphId(final String graphToUpdateId, final String newGraphId) throws StoreException, CacheOperationException {
+        // Get existing graph and access
+        final Pair<GraphSerialisable, GraphAccess> graphPairToUpdate = getGraphAccessPair(graphToUpdateId);
+        final GraphSerialisable graphToUpdate = graphPairToUpdate.getLeft();
 
-            // Remove from cache
-            removeGraph(graphToUpdateId);
+        // Remove from cache
+        removeGraph(graphToUpdateId);
 
-            if (graphToUpdate.getStoreProperties().getStoreClass().startsWith(AccumuloStore.class.getPackage().getName())) {
-                // Update accumulo tables with new graph ID
-                renameTable((AccumuloProperties) graphToUpdate.getStoreProperties(), graphToUpdateId, newGraphId);
-                // Update id in the original graph
-                graphToUpdate.getConfig().setGraphId(newGraphId);
-                GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder(graphToUpdate)
-                    .config(graphToUpdate.getConfig())
-                    .build();
-                // Add graph with new id back to cache
-                addGraph(updatedGraphSerialisable);
-            } else {
-                // For other stores just re-add with new graph ID
-                graphToUpdate.getConfig().setGraphId(newGraphId);
-                addGraph(graphToUpdate);
-            }
+        // For accumulo update the table with the new graph ID
+        if (graphToUpdate.getStoreProperties().getStoreClass().startsWith(AccumuloStore.class.getPackage().getName())) {
 
-        } catch (final CacheOperationException e) {
-            // Unknown issue getting graph from cache
-            throw new GafferRuntimeException(e.getMessage(), e);
+            renameTable((AccumuloProperties) graphToUpdate.getStoreProperties(), graphToUpdateId, newGraphId);
+
+            // Update id in the original graph
+            graphToUpdate.getConfig().setGraphId(newGraphId);
+            GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder(graphToUpdate)
+                .config(graphToUpdate.getConfig())
+                .build();
+            // Add graph with new id back to cache
+            addGraph(updatedGraphSerialisable, graphPairToUpdate.getRight());
+        } else {
+            // For other stores just re-add with new graph ID
+            graphToUpdate.getConfig().setGraphId(newGraphId);
+            addGraph(graphToUpdate, graphPairToUpdate.getRight());
         }
     }
 
