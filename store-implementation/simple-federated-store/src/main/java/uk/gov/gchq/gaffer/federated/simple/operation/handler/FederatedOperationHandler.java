@@ -70,6 +70,12 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      */
     public static final String OPT_FORWARD_CHAIN = "federated.forwardChain";
 
+    /**
+     * A boolean option to specify if a graph should be skipped if execution
+     * fails on it e.g. continue executing on the rest of the graphs
+     */
+    public static final String OPT_SKIP_FAILED_EXECUTE = "federated.skipGraphOnFail";
+
     @Override
     public Object doOperation(final P operation, final Context context, final Store store) throws OperationException {
         LOGGER.debug("Running operation: {}", operation);
@@ -111,7 +117,16 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
 
         // Execute the operation chain on each graph
         for (final GraphSerialisable gs : graphsToExecute) {
-            gs.getGraph().execute(operation, context.getUser());
+            try {
+                gs.getGraph().execute(operation, context.getUser());
+            } catch (final OperationException | UnsupportedOperationException e) {
+                // Optionally skip this error if user has specified to do so
+                LOGGER.error("Operation failed on graph: {}", gs.getGraphId());
+                if (!Boolean.parseBoolean(operation.getOption(OPT_SKIP_FAILED_EXECUTE, "false"))) {
+                    throw e;
+                }
+            }
+
         }
 
         // Assume no output, we've already checked above

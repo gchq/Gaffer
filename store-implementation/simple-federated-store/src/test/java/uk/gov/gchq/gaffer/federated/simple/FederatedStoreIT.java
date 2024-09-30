@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.federated.simple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSetsPairs;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -32,6 +33,7 @@ import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphInfo
 import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -43,9 +45,11 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils.StoreType;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -150,6 +154,38 @@ class FederatedStoreIT {
         assertThatExceptionOfType(OperationException.class)
             .isThrownBy(() -> federatedStore.execute(mixedChain, new Context()))
             .withMessageContaining("Please submit each type separately");
+    }
+
+    @Test
+    void shouldSkipGraphOnFailureIfSet() throws StoreException, OperationException {
+        // Given
+        String graphId = "graph";
+        FederatedStore federatedStore = new FederatedStore();
+        Context context = new Context();
+
+        federatedStore.initialise("federated", null, new StoreProperties());
+        federatedStore.setDefaultGraphIds(Arrays.asList(graphId));
+
+        final AddGraph addGraph = new AddGraph.Builder()
+                .graphConfig(new GraphConfig(graphId))
+                .schema(new Schema())
+                .properties(new MapStoreProperties().getProperties())
+                .build();
+
+        // Add a graph
+        federatedStore.execute(addGraph, new Context());
+
+        // Run an operation that doesn't exist to the store check the option lets it pass
+        final GetElementsBetweenSetsPairs getOperationNoOps = new GetElementsBetweenSetsPairs();
+        final GetElementsBetweenSetsPairs getOperationWithOps = new GetElementsBetweenSetsPairs.Builder()
+            .option(FederatedOperationHandler.OPT_SKIP_FAILED_EXECUTE, "true")
+            .build();
+
+        // Then
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> federatedStore.execute(getOperationNoOps, context));
+        assertThatNoException()
+            .isThrownBy(() -> federatedStore.execute(getOperationWithOps, context));
     }
 
     @Test

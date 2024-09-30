@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federated.simple.merge.DefaultResultAccumulator;
@@ -37,6 +40,7 @@ import java.util.List;
  */
 public class FederatedOutputHandler<P extends Output<O>, O>
         extends FederatedOperationHandler<P> implements OutputOperationHandler<P, O> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedOutputHandler.class);
 
     @Override
     public O doOperation(final P operation, final Context context, final Store store) throws OperationException {
@@ -49,11 +53,19 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         // Execute the operation chain on each graph
         List<O> graphResults = new ArrayList<>();
         for (final GraphSerialisable gs : graphsToExecute) {
-            graphResults.add(gs.getGraph().execute(operation, context.getUser()));
+            try {
+                graphResults.add(gs.getGraph().execute(operation, context.getUser()));
+            } catch (final OperationException | UnsupportedOperationException e) {
+                // Optionally skip this error if user has specified to do so
+                LOGGER.error("Operation failed on graph: {}", gs.getGraphId());
+                if (!Boolean.parseBoolean(operation.getOption(OPT_SKIP_FAILED_EXECUTE, "false"))) {
+                    throw e;
+                }
+            }
         }
 
         // Not expecting any output so exit since we've executed
-        if (operation.getOutputClass().isAssignableFrom(Void.class)) {
+        if (operation.getOutputClass().isAssignableFrom(Void.class) || graphResults.isEmpty()) {
             return null;
         }
 
