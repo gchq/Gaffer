@@ -146,7 +146,7 @@ class GremlinControllerTest {
     }
 
     @Test
-    void shouldRejectMalformedGremlinQuery() throws Exception {
+    void shouldRejectMalformedGremlinQueryFromExplain() throws Exception {
         // Given
         String gremlinString = "g.V().stepDoesNotExist().toList()";
 
@@ -156,6 +156,25 @@ class GremlinControllerTest {
                         .post(GREMLIN_EXPLAIN_ENDPOINT)
                         .content(gremlinString)
                         .contentType(TEXT_PLAIN_VALUE))
+                .andReturn();
+
+        // Then
+        // Expect a server error response
+        assertThat(result.getResponse().getStatus()).isEqualTo(500);
+    }
+
+    @Test
+    void shouldRejectMalformedGremlinQueryFromExecute() throws Exception {
+        // Given
+        String gremlinString = "g.V().stepDoesNotExist().toList()";
+
+        // When
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post(GREMLIN_EXECUTE_ENDPOINT)
+                        .content(gremlinString)
+                        .contentType(TEXT_PLAIN_VALUE)
+                        .accept(APPLICATION_NDJSON))
                 .andReturn();
 
         // Then
@@ -285,7 +304,7 @@ class GremlinControllerTest {
     }
 
     @Test
-    void shouldRejectMalformedCypherQuery() throws Exception {
+    void shouldRejectMalformedCypherQueryFromExplain() throws Exception {
         // Given
         String cypherString = "MATCH (p:person) WHERE RETURN p";
 
@@ -295,6 +314,25 @@ class GremlinControllerTest {
                         .post(CYPHER_EXPLAIN_ENDPOINT)
                         .content(cypherString)
                         .contentType(TEXT_PLAIN_VALUE))
+                .andReturn();
+
+        // Then
+        // Expect a server error response
+        assertThat(result.getResponse().getStatus()).isEqualTo(500);
+    }
+
+    @Test
+    void shouldRejectMalformedCypherQueryFromExecute() throws Exception {
+        // Given
+        String cypherString = "MATCH (p:person) WHERE RETURN p";
+
+        // When
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post(CYPHER_EXECUTE_ENDPOINT)
+                        .content(cypherString)
+                        .contentType(TEXT_PLAIN_VALUE)
+                        .accept(APPLICATION_NDJSON))
                 .andReturn();
 
         // Then
