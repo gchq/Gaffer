@@ -708,6 +708,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     }
 
     public <T> T execute(final OperationChain<T> opChain) {
+        // Set options at opChain level
+        opChain.setOptions(variables.getOperationOptions());
         for (final Operation operation : opChain.getOperations()) {
             // Set options on operations
             operation.setOptions(variables.getOperationOptions());
