@@ -21,6 +21,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -30,6 +32,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
+import uk.gov.gchq.gaffer.federated.simple.operation.ChangeGraphId;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federated.simple.operation.RemoveGraph;
@@ -39,6 +42,7 @@ import uk.gov.gchq.gaffer.federated.simple.operation.handler.add.AddGraphHandler
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphIdsHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphInfoHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.ChangeGraphIdHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.RemoveGraphHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -74,6 +78,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.renameTable;
 import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_GRAPH_IDS;
 
@@ -90,6 +95,7 @@ public class FederatedStore extends Store {
     public static final String FEDERATED_STORE_SYSTEM_USER = "FederatedStoreSystemUser";
 
     private static final String DEFAULT_CACHE_CLASS_FALLBACK = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    private static final String GRAPH_ID_ERROR = "Graph with Graph ID: %s is not available to this federated store";
 
     // Default graph IDs to execute on
     private List<String> defaultGraphIds = new LinkedList<>();
@@ -102,6 +108,7 @@ public class FederatedStore extends Store {
             new SimpleEntry<>(AddGraph.class, new AddGraphHandler()),
             new SimpleEntry<>(GetAllGraphIds.class, new GetAllGraphIdsHandler()),
             new SimpleEntry<>(GetSchema.class, new GetSchemaHandler()),
+            new SimpleEntry<>(ChangeGraphId.class, new ChangeGraphIdHandler()),
             new SimpleEntry<>(GetAllGraphInfo.class, new GetAllGraphInfoHandler()),
             new SimpleEntry<>(RemoveGraph.class, new RemoveGraphHandler()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -139,7 +146,7 @@ public class FederatedStore extends Store {
     public void removeGraph(final String graphId) {
         if (!graphCache.contains(graphId)) {
             throw new IllegalArgumentException(
-                "Graph with Graph ID: '" + graphId + "' is not available to this federated store");
+                String.format(GRAPH_ID_ERROR, graphId));
         }
         graphCache.deleteFromCache(graphId);
     }
@@ -170,7 +177,7 @@ public class FederatedStore extends Store {
         Pair<GraphSerialisable, GraphAccess> graphAndAccess = graphCache.getFromCache(graphId);
         if (graphAndAccess == null) {
             throw new IllegalArgumentException(
-                    "Graph with Graph ID: '" + graphId + "' is not available to this federated store");
+                String.format(GRAPH_ID_ERROR, graphId));
         }
         return graphAndAccess;
     }
@@ -209,6 +216,43 @@ public class FederatedStore extends Store {
      */
     public void setDefaultGraphIds(final List<String> defaultGraphIds) {
         this.defaultGraphIds = defaultGraphIds;
+    }
+
+    /**
+     * Change the graph's ID for the specified graph.
+     *
+     * @param graphToUpdateId the graph that is to have its ID updated
+     * @param newGraphId the new graph ID
+     * @throws StoreException if the accumulo tables cannot be renamed
+     *
+     */
+    public void changeGraphId(final String graphToUpdateId, final String newGraphId) throws StoreException {
+        try {
+            final GraphSerialisable graphToUpdate = getGraph(graphToUpdateId);
+
+            // Remove from cache
+            removeGraph(graphToUpdateId);
+
+            if (graphToUpdate.getStoreProperties().getStoreClass().startsWith(AccumuloStore.class.getPackage().getName())) {
+                // Update accumulo tables with new graph ID
+                renameTable((AccumuloProperties) graphToUpdate.getStoreProperties(), graphToUpdateId, newGraphId);
+                // Update id in the original graph
+                graphToUpdate.getConfig().setGraphId(newGraphId);
+                GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder(graphToUpdate)
+                    .config(graphToUpdate.getConfig())
+                    .build();
+                // Add graph with new id back to cache
+                addGraph(updatedGraphSerialisable);
+            } else {
+                // For other stores just re-add with new graph ID
+                graphToUpdate.getConfig().setGraphId(newGraphId);
+                addGraph(graphToUpdate);
+            }
+
+        } catch (final CacheOperationException e) {
+            // Unknown issue getting graph from cache
+            throw new GafferRuntimeException(e.getMessage(), e);
+        }
     }
 
     /**
