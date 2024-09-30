@@ -34,10 +34,12 @@ import org.json.JSONObject;
 import org.opencypher.gremlin.server.jsr223.CypherPlugin;
 import org.opencypher.gremlin.translation.CypherAst;
 import org.opencypher.gremlin.translation.translator.Translator;
+import org.opencypher.v9_0.util.SyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,7 +60,6 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -145,16 +146,25 @@ public class GremlinController {
     @io.swagger.v3.oas.annotations.Operation(
         summary = "Run a Gremlin Query",
         description = "Runs a Gremlin Groovy script and outputs the result as GraphSONv3 JSON")
-    public ResponseEntity<StreamingResponseBody> execute(@RequestHeader final HttpHeaders httpHeaders,
+    public ResponseEntity<StreamingResponseBody> execute(
+            @RequestHeader final HttpHeaders httpHeaders,
             @RequestBody final String gremlinQuery) throws IOException {
+        // Set up
         preExecuteSetUp(httpHeaders);
 
-        // Write to output stream for response
-        StreamingResponseBody responseBody = outputStream -> GRAPHSON_V3_WRITER.writeObject(
-                outputStream,
-                runGremlinQuery(gremlinQuery).get0());
+        HttpStatus status = HttpStatus.OK;
+        StreamingResponseBody responseBody;
+        try {
+            Object result = runGremlinQuery(gremlinQuery).get0();
+            // Write to output stream for response
+            responseBody = os -> GRAPHSON_V3_WRITER.writeObject(os, result);
+        } catch (final GafferRuntimeException e) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            responseBody = os -> os.write(
+                new JSONObject().put("simpleMessage", e.getMessage()).toString().getBytes(StandardCharsets.UTF_8));
+        }
 
-        return ResponseEntity.ok()
+        return ResponseEntity.status(status)
                 .contentType(APPLICATION_NDJSON)
                 .body(responseBody);
     }
@@ -198,20 +208,32 @@ public class GremlinController {
         summary = "Run a Cypher Query",
         description = "Translates a Cypher query to Gremlin and executes it returning a GraphSONv3 JSON result." +
                       "Note will always append a '.toList()' to the translation")
-    public ResponseEntity<StreamingResponseBody> cypherExecute(@RequestHeader final HttpHeaders httpHeaders,
+    public ResponseEntity<StreamingResponseBody> cypherExecute(
+            @RequestHeader final HttpHeaders httpHeaders,
             @RequestBody final String cypherQuery) throws IOException {
+        // Set up
         preExecuteSetUp(httpHeaders);
-        final CypherAst ast = CypherAst.parse(cypherQuery);
-        // Translate the cypher to gremlin, always add a .toList() otherwise Gremlin
-        // wont execute it as its lazy
-        final String translation = ast.buildTranslation(Translator.builder().gremlinGroovy().enableCypherExtensions().build()) + ".toList()";
 
-        // Write to output stream for response
-        StreamingResponseBody responseBody = outputStream -> GRAPHSON_V3_WRITER.writeObject(
-                outputStream,
-                runGremlinQuery(translation).get0());
 
-        return ResponseEntity.ok()
+        HttpStatus status = HttpStatus.OK;
+        StreamingResponseBody responseBody;
+        try {
+            final CypherAst ast = CypherAst.parse(cypherQuery);
+            // Translate the cypher to gremlin, always add a .toList() otherwise Gremlin
+            // wont execute it as its lazy
+            final String translation = ast.buildTranslation(
+                Translator.builder().gremlinGroovy().enableCypherExtensions().build()) + ".toList()";
+            // Run Query
+            Object result = runGremlinQuery(translation).get0();
+            // Write to output stream for response
+            responseBody = os -> GRAPHSON_V3_WRITER.writeObject(os, result);
+        } catch (final GafferRuntimeException | SyntaxException e) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            responseBody = os -> os.write(
+                new JSONObject().put("simpleMessage", e.getMessage()).toString().getBytes(StandardCharsets.UTF_8));
+        }
+
+        return ResponseEntity.status(status)
                 .contentType(APPLICATION_NDJSON)
                 .body(responseBody);
     }
@@ -286,7 +308,7 @@ public class GremlinController {
 
         // OpenTelemetry hooks
         Span span = OtelUtil.startSpan(
-            this.getClass().getName(), "Gremlin Request: " + UUID.nameUUIDFromBytes(gremlinQuery.getBytes(Charset.defaultCharset())));
+            this.getClass().getName(), "Gremlin Request: " + UUID.nameUUIDFromBytes(gremlinQuery.getBytes(StandardCharsets.UTF_8)));
         span.setAttribute("gaffer.gremlin.query", gremlinQuery);
 
         // tuple to hold the result and explain
@@ -296,7 +318,7 @@ public class GremlinController {
         try (Scope scope = span.makeCurrent();
                 GremlinExecutor gremlinExecutor = getGremlinExecutor()) {
             // Execute the query
-            Object result = gremlinExecutor.eval(gremlinQuery).join();
+            Object result = gremlinExecutor.eval(gremlinQuery).get();
 
             // Store the result and explain for returning
             pair.put0(result);
@@ -319,6 +341,8 @@ public class GremlinController {
             span.setStatus(StatusCode.ERROR, e.getMessage());
             span.recordException(e);
             throw new GafferRuntimeException(GENERAL_ERROR_MSG + e.getMessage(), e);
+        }  finally {
+            span.end();
         }
 
         return pair;
