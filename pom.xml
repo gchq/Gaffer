@@ -67,7 +67,7 @@
         <koryphe.version>2.5.2</koryphe.version>
         <accumulo.version>2.0.1</accumulo.version>
         <avro.version>1.8.2</avro.version>
-        <hadoop.version>3.3.3</hadoop.version>
+        <hadoop.version>3.4.0</hadoop.version>
         <jackson.version>2.13.5</jackson.version>
 
         <clearspring.version>2.7.0</clearspring.version>
