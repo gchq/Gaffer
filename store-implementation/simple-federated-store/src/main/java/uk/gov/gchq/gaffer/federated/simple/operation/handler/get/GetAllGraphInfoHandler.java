@@ -54,11 +54,16 @@ public class GetAllGraphInfoHandler implements OutputOperationHandler<GetAllGrap
                 // Get the various properties of the individual federated graphs
                 graphInfo.put(DESCRIPTION, graph.getConfig().getDescription());
                 graphInfo.put(HOOKS, graph.getConfig().getHooks());
-                graphInfo.put(PROPERTIES, graph.getStoreProperties().getProperties());
+                graphInfo.put(PROPERTIES, graph.getStoreProperties().getStoreClass());
                 graphInfo.put(OP_DECLARATIONS, graph.getStoreProperties().getOperationDeclarations().getOperations());
                 // Get the access properties
                 graphInfo.put(OWNER, access.getOwner());
                 graphInfo.put(IS_PUBLIC, access.isPublic());
+
+                // Add the full properties if user has write access
+                if (access.hasWriteAccess(context.getUser(), store.getProperties().getAdminAuth())) {
+                    graphInfo.put(PROPERTIES, graph.getStoreProperties().getProperties());
+                }
 
                 // Add the Graph ID and all properties associated with it
                 allGraphInfo.put(graph.getConfig().getGraphId(), graphInfo);
