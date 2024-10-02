@@ -149,7 +149,6 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
             throw new OperationException("Failed to get Graphs from cache", e);
         }
 
-
         // Keep graphs sorted so results returned are predictable between runs
         Collections.sort(graphsToExecute, (g1, g2) -> g1.getGraphId().compareTo(g2.getGraphId()));
 

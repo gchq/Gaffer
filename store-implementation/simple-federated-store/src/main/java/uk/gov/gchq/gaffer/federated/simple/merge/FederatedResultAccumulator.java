@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federated.simple.merge.operator.ElementAggregateOperator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.binaryoperator.And;
@@ -29,6 +28,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.util.Collection;
+import java.util.Properties;
 import java.util.function.BinaryOperator;
 
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_MERGE_ELEMENTS;
@@ -59,7 +59,7 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
         // Construct with defaults
     }
 
-    protected FederatedResultAccumulator(final FederatedStoreProperties properties) {
+    protected FederatedResultAccumulator(final Properties properties) {
         // Use the store properties to configure the merging
         if (properties.containsKey(PROP_MERGE_CLASS_NUMBER)) {
             numberMergeOperator = loadMergeClass(numberMergeOperator, properties.get(PROP_MERGE_CLASS_NUMBER));
@@ -78,7 +78,7 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
         }
         // Should we do element aggregation by default
         if (properties.containsKey(PROP_DEFAULT_MERGE_ELEMENTS)) {
-            setAggregateElements(Boolean.parseBoolean(properties.get(PROP_DEFAULT_MERGE_ELEMENTS)));
+            setAggregateElements(Boolean.parseBoolean((String) properties.get(PROP_DEFAULT_MERGE_ELEMENTS)));
         }
     }
 
@@ -112,10 +112,10 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
     }
 
     @SuppressWarnings("unchecked")
-    private <I> BinaryOperator<I> loadMergeClass(final BinaryOperator<I> originalOperator, final String clazzName) {
+    private <I> BinaryOperator<I> loadMergeClass(final BinaryOperator<I> originalOperator, final Object clazzName) {
         BinaryOperator<I> mergeOperator = originalOperator;
         try {
-            Class<?> clazz = Class.forName(clazzName);
+            Class<?> clazz = Class.forName((String) clazzName);
             mergeOperator = (BinaryOperator<I>) clazz.newInstance();
         } catch (final ClassCastException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             LOGGER.warn("Failed to load alternative merge function: {} The default will be used instead.", clazzName);

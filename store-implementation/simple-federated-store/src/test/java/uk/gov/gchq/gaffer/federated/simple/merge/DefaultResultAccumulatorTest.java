@@ -83,11 +83,11 @@ class DefaultResultAccumulatorTest {
     @MethodSource("customMergeDataArgs")
     <T> void shouldAllowCustomOperatorsForPrimitiveData(T result1, T result2, T expected) {
         // Set properties to update the operators
-        FederatedStoreProperties properties = new FederatedStoreProperties();
-        properties.set(PROP_MERGE_CLASS_NUMBER, Product.class.getName());
-        properties.set(PROP_MERGE_CLASS_STRING, StringDeduplicateConcat.class.getName());
-        properties.set(PROP_MERGE_CLASS_BOOLEAN, Or.class.getName());
-        properties.set(PROP_MERGE_CLASS_COLLECTION, CollectionIntersect.class.getName());
+        java.util.Properties properties = new java.util.Properties();
+        properties.setProperty(PROP_MERGE_CLASS_NUMBER, Product.class.getName());
+        properties.setProperty(PROP_MERGE_CLASS_STRING, StringDeduplicateConcat.class.getName());
+        properties.setProperty(PROP_MERGE_CLASS_BOOLEAN, Or.class.getName());
+        properties.setProperty(PROP_MERGE_CLASS_COLLECTION, CollectionIntersect.class.getName());
 
         // Init the accumulator with custom properties
         FederatedResultAccumulator<T> accumulator = new DefaultResultAccumulator<>(properties);
@@ -113,7 +113,7 @@ class DefaultResultAccumulatorTest {
         properties.set(PROP_DEFAULT_MERGE_ELEMENTS, "true");
 
         // When/Then
-        FederatedResultAccumulator<?> accumulator = new DefaultResultAccumulator<>(properties);
+        FederatedResultAccumulator<?> accumulator = new DefaultResultAccumulator<>(properties.getProperties());
         assertThat(accumulator.aggregateElements()).isTrue();
     }
 

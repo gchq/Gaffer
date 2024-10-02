@@ -19,9 +19,9 @@ package uk.gov.gchq.gaffer.federated.simple.merge;
 import org.apache.commons.collections4.IterableUtils;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 
 import java.util.Collection;
+import java.util.Properties;
 
 /**
  * The default result accumulator for merging results from multiple graphs into one.
@@ -32,7 +32,7 @@ public class DefaultResultAccumulator<T> extends FederatedResultAccumulator<T> {
         super();
     }
 
-    public DefaultResultAccumulator(final FederatedStoreProperties properties) {
+    public DefaultResultAccumulator(final Properties properties) {
         super(properties);
     }
 
