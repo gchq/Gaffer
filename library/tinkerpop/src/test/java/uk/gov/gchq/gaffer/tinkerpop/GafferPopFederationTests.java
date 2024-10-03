@@ -50,7 +50,7 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.VADAS;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.WEIGHT;
 
-public abstract class GafferPopFederationITs {
+public abstract class GafferPopFederationTests {
     protected abstract GafferPopGraph getGraph() throws OperationException;
 
     private final String graphIdOption = "gaffer.federatedstore.operation.graphIds:";

@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernSimpleFederatedTe
 /**
  * Test specific Federated features with Gremlin
  */
-class GafferPopFederatedIT extends GafferPopFederationITs {
+class GafferPopFederatedIT extends GafferPopFederationTests {
 
     @Override
     protected GafferPopGraph getGraph() throws OperationException {
@@ -32,7 +32,7 @@ class GafferPopFederatedIT extends GafferPopFederationITs {
     }
 }
 
-class GafferPopSimpleFederatedIT extends GafferPopFederationITs {
+class GafferPopSimpleFederatedIT extends GafferPopFederationTests {
 
     @Override
     protected GafferPopGraph getGraph() throws OperationException {
