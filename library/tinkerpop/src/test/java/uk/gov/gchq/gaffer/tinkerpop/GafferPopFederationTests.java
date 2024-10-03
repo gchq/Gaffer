@@ -51,11 +51,11 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.WEIGHT;
 
 public abstract class GafferPopFederationTests {
-    protected abstract GafferPopGraph getGraph() throws OperationException;
-
     private final String graphIdOption = "gaffer.federatedstore.operation.graphIds:";
     private final List<String> knowsGraphOptions = Arrays.asList(graphIdOption + KNOWS_GRAPH_ID);
     private final List<String> createdGraphOptions = Arrays.asList(graphIdOption + CREATED_GRAPH_ID);
+
+    protected abstract GafferPopGraph getGraph() throws OperationException;
 
     @Test
     void shouldGetAllVertices() throws OperationException {
@@ -76,7 +76,7 @@ public abstract class GafferPopFederationTests {
     @Test
     void shouldTruncateGetAllVertices() throws OperationException {
         GraphTraversalSource g = getGraph().traversal();
-        final List<Vertex> result = g.with("getAllElementsLimit", 2).V().toList();
+        final List<Vertex> result = g.with("getElementsLimit", 2).V().toList();
 
         assertThat(result)
                 .hasSize(2)
@@ -227,7 +227,7 @@ public abstract class GafferPopFederationTests {
     @Test
     void shouldTruncateGetAllEdges() throws OperationException {
         GraphTraversalSource g = getGraph().traversal();
-        final List<Edge> result = g.with("getAllElementsLimit", 2).E().toList();
+        final List<Edge> result = g.with("getElementsLimit", 2).E().toList();
 
         assertThat(result)
                 .hasSize(2)

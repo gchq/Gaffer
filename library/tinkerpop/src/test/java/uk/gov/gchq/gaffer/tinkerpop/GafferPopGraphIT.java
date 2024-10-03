@@ -89,7 +89,7 @@ class GafferPopGraphIT {
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
     void shouldTruncateGetAllVertices(String graph, GraphTraversalSource g) {
-        final List<Vertex> result = g.with("getAllElementsLimit", 2).V().toList();
+        final List<Vertex> result = g.with("getElementsLimit", 2).V().toList();
 
         assertThat(result)
                 .hasSize(2)
@@ -240,7 +240,7 @@ class GafferPopGraphIT {
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
     void shouldTruncateGetAllEdges(String graph, GraphTraversalSource g) {
-        final List<Edge> result = g.with("getAllElementsLimit", 2).E().toList();
+        final List<Edge> result = g.with("getElementsLimit", 2).E().toList();
 
         assertThat(result)
                 .hasSize(2)

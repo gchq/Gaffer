@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.tinkerpop;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
 import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernFederatedTestUtils;
-import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernSimpleFederatedTestUtils;
 
 /**
  * Test specific Federated features with Gremlin
@@ -29,14 +28,5 @@ class GafferPopFederatedIT extends GafferPopFederationTests {
     @Override
     protected GafferPopGraph getGraph() throws OperationException {
         return GafferPopModernFederatedTestUtils.createModernGraph(GafferPopFederatedIT.class, StoreType.MAP);
-    }
-}
-
-class GafferPopSimpleFederatedIT extends GafferPopFederationTests {
-
-    @Override
-    protected GafferPopGraph getGraph() throws OperationException {
-        return GafferPopModernSimpleFederatedTestUtils.createModernGraph(GafferPopSimpleFederatedIT.class, StoreType.MAP);
-
     }
 }

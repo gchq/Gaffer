@@ -180,14 +180,14 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public static final String OP_OPTIONS = "gaffer.operation.options";
 
     /**
-     * Configuration key for the max number of elements returned by getAllElements
+     * Configuration key for the max number of elements returned by a getElements
      */
-    public static final String GET_ALL_ELEMENTS_LIMIT = "gaffer.elements.getalllimit";
+    public static final String GET_ELEMENTS_LIMIT = "gaffer.elements.getlimit";
 
     /**
-     * Default value for the max number of elements returned by getAllElements
+     * Default value for the max number of elements returned by getElements
      */
-    public static final int DEFAULT_GET_ALL_ELEMENTS_LIMIT = 5000;
+    public static final int DEFAULT_GET_ELEMENTS_LIMIT = 5000;
 
     /**
      * Configuration key for when to apply HasStep filtering
@@ -256,7 +256,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     private final ServiceRegistry serviceRegistry;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraph.class);
-    private static final String GET_ALL_DEBUG_MSG = "Requested a GetAllElements, results will be truncated to: {}.";
+    private static final String GET_DEBUG_MSG = "Requested a GetElements, results will be truncated to: {}.";
     private static final Pattern EDGE_ID_REGEX = Pattern.compile("^\\s*\\[\\s*(?<src>[a-zA-Z0-9|-]*)\\s*(,\\s*(?<label>[a-zA-Z0-9|-]*))?\\s*,\\s*(?<dest>[a-zA-Z0-9|-]*)\\s*\\]\\s*$");
 
     public GafferPopGraph(final Configuration configuration) {
@@ -397,7 +397,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     /**
      * This performs a GetElements operation on Gaffer.
      * If no vertex ids are provided, it performs a GetAllElements operation instead.
-     * The results of GetAllElements will be truncated to a configured max size.
+     * The results of GetElements will be truncated to a configured max size.
      *
      * @param vertexIds vertex ids to query for.
      * Supports input as a {@link Vertex}, {@link Edge}, List of Edge IDs or individual Vertex IDs.
@@ -412,18 +412,19 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         final Iterable<Vertex> orphanVertices;
 
         if (getAll) {
-            LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
+            LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
             getOperation = new Builder()
                     .first(new GetAllElements.Builder()
                             .view(createAllEntitiesView())
                             .build())
-                    .then(new Limit<Element>(variables.getAllElementsLimit(), true))
+                    .then(new Limit<Element>(variables.getElementsLimit(), true))
                     .build();
         } else {
             getOperation = new Builder()
                 .first(new GetElements.Builder()
                     .input(getElementSeeds(Arrays.asList(vertexIds)))
                     .build())
+                .then(new Limit<Element>(variables.getElementsLimit(), true))
                 .build();
         }
         // Run requested chain on the graph
@@ -435,13 +436,13 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(generator::_apply)
                 .filter(Vertex.class::isInstance)
                 .map(e -> (Vertex) e)
-                .limit(variables.getAllElementsLimit())
+                .limit(variables.getElementsLimit())
                 .iterator();
 
-        if (getAll && IterableUtils.size(translatedResults) == variables.getAllElementsLimit()) {
+        if (getAll && IterableUtils.size(translatedResults) == variables.getElementsLimit()) {
             LOGGER.warn(
                 "Result size is equal to configured limit ({}). Results may have been truncated",
-                variables.getAllElementsLimit());
+                variables.getElementsLimit());
         }
 
         // Check for seeds that are not entities but are vertices on an edge (orphan vertices)
@@ -566,12 +567,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         final OperationChain<Iterable<? extends Element>> getOperation;
 
         if (getAll) {
-            LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
+            LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
             getOperation = new Builder()
                 .first(new GetAllElements.Builder()
                         .view(createAllEdgesView())
                         .build())
-                .then(new Limit<>(variables.getAllElementsLimit(), true))
+                .then(new Limit<>(variables.getElementsLimit(), true))
                 .build();
         } else {
 
@@ -590,6 +591,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     .input(getElementSeeds(Arrays.asList(elementIds)))
                     .view(builder.build())
                     .build())
+                .then(new Limit<>(variables.getElementsLimit(), true))
                 .build();
         }
 
@@ -602,13 +604,13 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(generator::_apply)
                 .filter(Edge.class::isInstance)
                 .map(e -> (Edge) e)
-                .limit(variables.getAllElementsLimit())
+                .limit(variables.getElementsLimit())
                 .iterator();
 
-        if (getAll && IterableUtils.size(translatedResults) == variables.getAllElementsLimit()) {
+        if (getAll && IterableUtils.size(translatedResults) == variables.getElementsLimit()) {
             LOGGER.warn(
                 "Result size is equal to configured limit ({}). Results may have been truncated",
-                variables.getAllElementsLimit());
+                variables.getElementsLimit());
         }
         return translatedResults.iterator();
     }
@@ -750,8 +752,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         LOGGER.debug("Resetting graph variables to defaults");
         variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
         variables.set(GafferPopGraphVariables.USER, defaultUser);
-        variables.set(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT,
-                configuration().getInteger(GET_ALL_ELEMENTS_LIMIT, DEFAULT_GET_ALL_ELEMENTS_LIMIT));
+        variables.set(GafferPopGraphVariables.GET_ELEMENTS_LIMIT,
+                configuration().getInteger(GET_ELEMENTS_LIMIT, DEFAULT_GET_ELEMENTS_LIMIT));
         variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
                 configuration().getString(HAS_STEP_FILTER_STAGE, DEFAULT_HAS_STEP_FILTER_STAGE.toString()));
         variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain<Object>());
@@ -782,12 +784,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final OperationChain<Iterable<? extends Element>> getOperation;
         if (getAll) {
-            LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
+            LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
             getOperation = new Builder()
                     .first(new GetAllElements.Builder()
                             .view(entitiesView)
                             .build())
-                    .then(new Limit<>(variables.getAllElementsLimit(), true))
+                    .then(new Limit<>(variables.getElementsLimit(), true))
                     .build();
         } else {
             getOperation = new Builder()
@@ -795,6 +797,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                             .input(seeds)
                             .view(entitiesView)
                             .build())
+                    .then(new Limit<>(variables.getElementsLimit(), true))
                     .build();
 
             if (null == entitiesView || entitiesView.getEntityGroups().contains(ID_LABEL)) {
@@ -815,7 +818,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(generator::_apply)
                 .filter(GafferPopVertex.class::isInstance)
                 .map(e -> (GafferPopVertex) e)
-                .limit(variables.getAllElementsLimit())
+                .limit(variables.getElementsLimit())
                 .iterator();
 
         return translatedResults.iterator();
@@ -865,12 +868,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final OperationChain<Iterable<? extends Element>> getOperation;
         if (getAll) {
-            LOGGER.debug(GET_ALL_DEBUG_MSG, variables.getAllElementsLimit());
+            LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
             getOperation = new Builder()
                     .first(new GetAllElements.Builder()
                             .view(edgesView)
                             .build())
-                    .then(new Limit<>(variables.getAllElementsLimit(), true))
+                    .then(new Limit<>(variables.getElementsLimit(), true))
                     .build();
         } else {
             getOperation = new Builder()
@@ -879,6 +882,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                             .view(edgesView)
                             .inOutType(getInOutType(direction))
                             .build())
+                    .then(new Limit<>(variables.getElementsLimit(), true))
                     .build();
         }
 
@@ -891,7 +895,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(generator::_apply)
                 .filter(Edge.class::isInstance)
                 .map(e -> (Edge) e)
-                .limit(variables.getAllElementsLimit())
+                .limit(variables.getElementsLimit())
                 .iterator();
 
         return translatedResults.iterator();
