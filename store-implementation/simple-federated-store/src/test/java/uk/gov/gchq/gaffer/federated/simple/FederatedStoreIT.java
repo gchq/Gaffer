@@ -237,6 +237,7 @@ class FederatedStoreIT {
                 new SimpleEntry<>(GetAllGraphInfoHandler.DESCRIPTION, graph1.getDescription()),
                 new SimpleEntry<>(GetAllGraphInfoHandler.HOOKS, graph1.getConfig().getHooks()),
                 new SimpleEntry<>(GetAllGraphInfoHandler.OP_DECLARATIONS, graph1.getStoreProperties().getOperationDeclarations().getOperations()),
+                new SimpleEntry<>(GetAllGraphInfoHandler.STORE_CLASS, graph1.getStoreProperties().getStoreClass()),
                 new SimpleEntry<>(GetAllGraphInfoHandler.PROPERTIES, graph1.getStoreProperties().getProperties()),
                 new SimpleEntry<>(GetAllGraphInfoHandler.OWNER, access.getOwner()),
                 new SimpleEntry<>(GetAllGraphInfoHandler.IS_PUBLIC, access.isPublic()))

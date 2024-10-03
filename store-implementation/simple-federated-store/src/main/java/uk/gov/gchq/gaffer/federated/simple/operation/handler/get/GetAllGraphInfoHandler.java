@@ -35,6 +35,7 @@ public class GetAllGraphInfoHandler implements OutputOperationHandler<GetAllGrap
 
     public static final String DESCRIPTION = "graphDescription";
     public static final String HOOKS = "graphHooks";
+    public static final String STORE_CLASS = "storeClass";
     public static final String PROPERTIES = "storeProperties";
     public static final String OP_DECLARATIONS = "operationDeclarations";
     public static final String OWNER = "owner";
@@ -54,13 +55,13 @@ public class GetAllGraphInfoHandler implements OutputOperationHandler<GetAllGrap
                 // Get the various properties of the individual federated graphs
                 graphInfo.put(DESCRIPTION, graph.getConfig().getDescription());
                 graphInfo.put(HOOKS, graph.getConfig().getHooks());
-                graphInfo.put(PROPERTIES, graph.getStoreProperties().getStoreClass());
+                graphInfo.put(STORE_CLASS, graph.getStoreProperties().getStoreClass());
                 graphInfo.put(OP_DECLARATIONS, graph.getStoreProperties().getOperationDeclarations().getOperations());
                 // Get the access properties
                 graphInfo.put(OWNER, access.getOwner());
                 graphInfo.put(IS_PUBLIC, access.isPublic());
 
-                // Add the full properties if user has write access
+                // Only add the full properties if user has write access
                 if (access.hasWriteAccess(context.getUser(), store.getProperties().getAdminAuth())) {
                     graphInfo.put(PROPERTIES, graph.getStoreProperties().getProperties());
                 }
