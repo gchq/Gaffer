@@ -435,6 +435,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(generator::_apply)
                 .filter(Vertex.class::isInstance)
                 .map(e -> (Vertex) e)
+                .limit(variables.getAllElementsLimit())
                 .iterator();
 
         if (getAll && IterableUtils.size(translatedResults) == variables.getAllElementsLimit()) {
@@ -601,6 +602,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(generator::_apply)
                 .filter(Edge.class::isInstance)
                 .map(e -> (Edge) e)
+                .limit(variables.getAllElementsLimit())
                 .iterator();
 
         if (getAll && IterableUtils.size(translatedResults) == variables.getAllElementsLimit()) {
@@ -813,6 +815,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(generator::_apply)
                 .filter(GafferPopVertex.class::isInstance)
                 .map(e -> (GafferPopVertex) e)
+                .limit(variables.getAllElementsLimit())
                 .iterator();
 
         return translatedResults.iterator();
@@ -888,6 +891,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(generator::_apply)
                 .filter(Edge.class::isInstance)
                 .map(e -> (Edge) e)
+                .limit(variables.getAllElementsLimit())
                 .iterator();
 
         return translatedResults.iterator();
