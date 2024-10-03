@@ -326,7 +326,6 @@ public class GremlinController {
 
             // Provide an debug explanation for the query that just ran
             span.addEvent("Request complete");
-            span.setAttribute("gaffer.gremlin.explain", pair.get1().toString());
             LOGGER.debug("{}", pair.get1());
 
             // Reset the vars
