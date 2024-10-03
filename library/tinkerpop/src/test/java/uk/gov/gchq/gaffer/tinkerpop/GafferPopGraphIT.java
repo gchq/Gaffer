@@ -27,7 +27,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
 import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 

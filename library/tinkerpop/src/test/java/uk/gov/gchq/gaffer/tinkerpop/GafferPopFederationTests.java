@@ -288,10 +288,10 @@ public abstract class GafferPopFederationTests {
 
     @Test
     void shouldSeedWithVertexOnlyEdge() throws OperationException {
+        GraphTraversalSource g = getGraph().traversal();
         // Edge has a vertex but not an entity in the graph - Gaffer only feature
         getGraph().addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), "7", getGraph()));
 
-        GraphTraversalSource g = getGraph().traversal();
         List<Vertex> result = g.V("7").toList();
         assertThat(result)
             .extracting(r -> r.id())
@@ -301,10 +301,10 @@ public abstract class GafferPopFederationTests {
 
     @Test
     void shouldTraverseEdgeWithVertexOnlySeed() throws OperationException {
+        GraphTraversalSource g = getGraph().traversal();
         // Edge has a vertex but not an entity in the graph - Gaffer only feature
         getGraph().addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), "7", getGraph()));
 
-        GraphTraversalSource g = getGraph().traversal();
         List<Map<Object, Object>> result = g.V("7").inE().outV().elementMap().toList();
         assertThat(result)
             .containsExactly(MARKO.getPropertyMap());
