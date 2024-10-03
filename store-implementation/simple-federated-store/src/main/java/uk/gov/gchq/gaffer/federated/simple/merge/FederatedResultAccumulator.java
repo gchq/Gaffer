@@ -22,12 +22,15 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federated.simple.merge.operator.ElementAggregateOperator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorMap;
 import uk.gov.gchq.koryphe.impl.binaryoperator.And;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Last;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Properties;
 import java.util.function.BinaryOperator;
 
@@ -35,6 +38,7 @@ import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_BOOLEAN;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_COLLECTION;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_ELEMENTS;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_MAP;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_NUMBER;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_STRING;
 
@@ -51,6 +55,9 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
     protected BinaryOperator<Boolean> booleanMergeOperator = new And();
     protected BinaryOperator<Collection<Object>> collectionMergeOperator = new CollectionConcat<>();
     protected BinaryOperator<Iterable<Element>> elementAggregateOperator = new ElementAggregateOperator();
+    // For map merging define a sub operator for if values are the same
+    protected BinaryOperator<Object> mapValueMergeOperator = new Last();
+    protected BinaryOperator<Map<Object, Object>> mapMergeOperator = new BinaryOperatorMap<>(mapValueMergeOperator);
 
     // Should the element aggregation operator be used, can be slower so disabled by default
     protected boolean aggregateElements = false;
@@ -75,6 +82,10 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
         }
         if (properties.containsKey(PROP_MERGE_CLASS_ELEMENTS)) {
             elementAggregateOperator = loadMergeClass(elementAggregateOperator, properties.get(PROP_MERGE_CLASS_ELEMENTS));
+        }
+        if (properties.containsKey(PROP_MERGE_CLASS_MAP)) {
+            mapValueMergeOperator = loadMergeClass(mapValueMergeOperator, properties.get(PROP_MERGE_CLASS_MAP));
+            mapMergeOperator = new BinaryOperatorMap<>(mapValueMergeOperator);
         }
         // Should we do element aggregation by default
         if (properties.containsKey(PROP_DEFAULT_MERGE_ELEMENTS)) {

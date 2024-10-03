@@ -21,6 +21,7 @@ import org.apache.commons.collections4.IterableUtils;
 import uk.gov.gchq.gaffer.data.element.Element;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -70,6 +71,11 @@ public class DefaultResultAccumulator<T> extends FederatedResultAccumulator<T> {
             return (T) this.collectionMergeOperator.apply((Collection<Object>) update, (Collection<Object>) state);
         }
 
+        // Use configured merger for maps
+        if (update instanceof Map) {
+            return (T) this.mapMergeOperator.apply((Map<Object, Object>) update, (Map<Object, Object>) state);
+        }
+
         // If an iterable try merge them
         if (update instanceof Iterable<?>) {
             Iterable<?> updateIterable = (Iterable<?>) update;
@@ -89,6 +95,7 @@ public class DefaultResultAccumulator<T> extends FederatedResultAccumulator<T> {
             return (T) chained;
         }
 
+        // Fallback just return the update
         return update;
     }
 }

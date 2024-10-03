@@ -47,6 +47,10 @@ public class FederatedStoreProperties extends StoreProperties {
      */
     public static final String PROP_MERGE_CLASS_COLLECTION = "gaffer.store.federated.merge.collection.class";
     /**
+     * Property key for the class to use when merging values of a Map result
+     */
+    public static final String PROP_MERGE_CLASS_MAP = "gaffer.store.federated.merge.map.class";
+    /**
      * Property key for the class to use when merging elements
      */
     public static final String PROP_MERGE_CLASS_ELEMENTS = "gaffer.store.federated.merge.elements.class";

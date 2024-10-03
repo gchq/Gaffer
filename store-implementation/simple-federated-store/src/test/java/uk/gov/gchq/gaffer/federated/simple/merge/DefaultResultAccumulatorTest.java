@@ -30,10 +30,13 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionIntersect;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Or;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Product;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_MERGE_ELEMENTS;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_BOOLEAN;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_COLLECTION;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_MAP;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_NUMBER;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_MERGE_CLASS_STRING;
 
@@ -55,19 +59,33 @@ class DefaultResultAccumulatorTest {
             Arguments.of(
                 new ArrayList<>(Arrays.asList("a", "b")),
                 new ArrayList<>(Arrays.asList("c", "d")),
-                Arrays.asList("a", "b", "c", "d")));
+                Arrays.asList("a", "b", "c", "d")),
+            Arguments.of(
+                Stream.of(new SimpleEntry<String, String>("a", "b"))
+                        .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue)),
+                Stream.of(new SimpleEntry<String, String>("a", "c"))
+                        .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue)),
+                Stream.of(new SimpleEntry<String, String>("a", "c"))
+                        .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue))));
     }
 
     static Stream<Arguments> customMergeDataArgs() {
         return Stream.of(
-                Arguments.of(2, 3, 6),
-                Arguments.of("s1", "s1", "s1"),
-                Arguments.of(true, false, true),
-                Arguments.of(true, true, true),
-                Arguments.of(
-                        new ArrayList<>(Arrays.asList("a", "c")),
-                        new ArrayList<>(Arrays.asList("c", "d")),
-                        Arrays.asList("c")));
+            Arguments.of(2, 3, 6),
+            Arguments.of("s1", "s1", "s1"),
+            Arguments.of(true, false, true),
+            Arguments.of(true, true, true),
+            Arguments.of(
+                new ArrayList<>(Arrays.asList("a", "c")),
+                new ArrayList<>(Arrays.asList("c", "d")),
+                Arrays.asList("c")),
+            Arguments.of(
+                Stream.of(new SimpleEntry<String, String>("a", "b"))
+                        .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue)),
+                Stream.of(new SimpleEntry<String, String>("a", "c"))
+                        .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue)),
+                Stream.of(new SimpleEntry<String, String>("a", "b,c"))
+                        .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue))));
     }
 
     @DisplayName("Should provide default merge methods for common data types")
@@ -88,6 +106,7 @@ class DefaultResultAccumulatorTest {
         properties.setProperty(PROP_MERGE_CLASS_STRING, StringDeduplicateConcat.class.getName());
         properties.setProperty(PROP_MERGE_CLASS_BOOLEAN, Or.class.getName());
         properties.setProperty(PROP_MERGE_CLASS_COLLECTION, CollectionIntersect.class.getName());
+        properties.setProperty(PROP_MERGE_CLASS_MAP, StringConcat.class.getName());
 
         // Init the accumulator with custom properties
         FederatedResultAccumulator<T> accumulator = new DefaultResultAccumulator<>(properties);
