@@ -411,8 +411,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         final OperationChain<Iterable<? extends Element>> getOperation;
         final Iterable<Vertex> orphanVertices;
 
+        LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
         if (getAll) {
-            LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
             getOperation = new Builder()
                     .first(new GetAllElements.Builder()
                             .view(createAllEntitiesView())
@@ -439,9 +439,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .limit(variables.getElementsLimit())
                 .iterator();
 
-        if (getAll && IterableUtils.size(translatedResults) == variables.getElementsLimit()) {
+        if (IterableUtils.size(translatedResults) >= variables.getElementsLimit()) {
             LOGGER.warn(
-                "Result size is equal to configured limit ({}). Results may have been truncated",
+                "Result size is greater than or equal to configured limit ({}). Results may have been truncated",
                 variables.getElementsLimit());
         }
 
@@ -566,8 +566,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         final boolean getAll = null == elementIds || 0 == elementIds.length;
         final OperationChain<Iterable<? extends Element>> getOperation;
 
+        LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
         if (getAll) {
-            LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
             getOperation = new Builder()
                 .first(new GetAllElements.Builder()
                         .view(createAllEdgesView())
@@ -607,9 +607,9 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .limit(variables.getElementsLimit())
                 .iterator();
 
-        if (getAll && IterableUtils.size(translatedResults) == variables.getElementsLimit()) {
+        if (IterableUtils.size(translatedResults) >= variables.getElementsLimit()) {
             LOGGER.warn(
-                "Result size is equal to configured limit ({}). Results may have been truncated",
+                "Result size is greater than or equal to configured limit ({}). Results may have been truncated",
                 variables.getElementsLimit());
         }
         return translatedResults.iterator();
@@ -783,8 +783,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
 
         final OperationChain<Iterable<? extends Element>> getOperation;
+        LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
         if (getAll) {
-            LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
             getOperation = new Builder()
                     .first(new GetAllElements.Builder()
                             .view(entitiesView)
@@ -867,8 +867,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
 
         final OperationChain<Iterable<? extends Element>> getOperation;
+        LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
         if (getAll) {
-            LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
             getOperation = new Builder()
                     .first(new GetAllElements.Builder()
                             .view(edgesView)
