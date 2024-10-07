@@ -203,7 +203,7 @@ class AddGraphTest {
         System.out.print(operation.getReadPredicate());
         federatedStore.execute(operation, new Context());
 
-        final GraphAccess addedAccess = federatedStore.getGraphAccessPair(graphId).getRight();
+        final GraphAccess addedAccess = federatedStore.getGraphAccess(graphId);
 
         // Then
         // Check the access that was added

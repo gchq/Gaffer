@@ -32,7 +32,7 @@ public class ChangeGraphIdHandler implements OperationHandler<ChangeGraphId> {
     public Object doOperation(final ChangeGraphId operation, final Context context, final Store store) throws OperationException {
         try {
             // Check user for write access as we're modifying the graph
-            GraphAccess access = ((FederatedStore) store).getGraphAccessPair(operation.getGraphId()).getRight();
+            GraphAccess access = ((FederatedStore) store).getGraphAccess(operation.getGraphId());
             if (!access.hasWriteAccess(context.getUser(), store.getProperties().getAdminAuth())) {
                 throw new OperationException(
                     "User: '" + context.getUser().getUserId() + "' does not have write permissions for Graph: " + operation.getGraphId());

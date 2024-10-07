@@ -165,6 +165,19 @@ public class FederatedStore extends Store {
     }
 
     /**
+     * Get the {@link GraphAccess} from the given graph ID. The graph
+     * must obviously be known to this federated store to be returned.
+     *
+     * @param graphId The graph ID
+     * @return The {@link GraphAccess} relating to the ID.
+     * @throws CacheOperationException  If issue getting from cache.
+     * @throws IllegalArgumentException If graph not found.
+     */
+    public GraphAccess getGraphAccess(final String graphId) throws CacheOperationException {
+        return getGraphAccessPair(graphId).getRight();
+    }
+
+    /**
      * Gets the {@link Pair} of {@link GraphSerialisable} and
      * {@link GraphAccess} from a given graph ID.
      *
@@ -230,6 +243,7 @@ public class FederatedStore extends Store {
         // Get existing graph and access
         final Pair<GraphSerialisable, GraphAccess> graphPairToUpdate = getGraphAccessPair(graphToUpdateId);
         final GraphSerialisable graphToUpdate = graphPairToUpdate.getLeft();
+        final GraphAccess graphAccess = graphPairToUpdate.getRight();
 
         // Remove from cache
         removeGraph(graphToUpdateId);
@@ -245,11 +259,11 @@ public class FederatedStore extends Store {
                 .config(graphToUpdate.getConfig())
                 .build();
             // Add graph with new id back to cache
-            addGraph(updatedGraphSerialisable, graphPairToUpdate.getRight());
+            addGraph(updatedGraphSerialisable, graphAccess);
         } else {
             // For other stores just re-add with new graph ID
             graphToUpdate.getConfig().setGraphId(newGraphId);
-            addGraph(graphToUpdate, graphPairToUpdate.getRight());
+            addGraph(graphToUpdate, graphAccess);
         }
     }
 
