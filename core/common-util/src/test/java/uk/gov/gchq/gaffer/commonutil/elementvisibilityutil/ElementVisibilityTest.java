@@ -32,6 +32,19 @@ import static uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibil
 class ElementVisibilityTest {
 
     @Test
+    void testIntegerTypeIsAccepted() {      
+        final ElementVisibility ev = new ElementVisibility(1);
+        assertThat(ev).hasToString("[1]");
+    }
+
+    @Test
+    void testCustomObjectIsAccepted() {
+        RandomObject randomObject = new RandomObject("Hello", 1);
+        final ElementVisibility ev = new ElementVisibility(randomObject);
+        assertThat(ev).hasToString("[hello]");
+    }
+
+    @Test
     void testEmptyStringIsValid() {
         final ElementVisibility a = new ElementVisibility(new byte[0]);
         final ElementVisibility b = new ElementVisibility("");
@@ -187,5 +200,20 @@ class ElementVisibilityTest {
                     assertThat(n.end).isEqualTo(end);
                 }
         );
+    }
+
+    class RandomObject {
+        private String randomString;
+        private Integer randomInteger;
+
+        public RandomObject(String randomString, Integer randomInteger) {
+            this.randomString = randomString;
+            this.randomInteger = randomInteger;
+        }
+
+        @Override
+        public String toString() {
+            return "hello";
+        }
     }
 }

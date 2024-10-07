@@ -39,6 +39,11 @@ public class ElementVisibility {
         EMPTY_NODE = new ElementVisibility.Node(ElementVisibility.NodeType.EMPTY, 0);
     }
 
+    public ElementVisibility(final Object expression) {
+        this.node = null;
+        this.validate(convert(expression));
+    }
+
     public ElementVisibility(final String expression) {
         this(expression.getBytes(UTF_8));
     }
@@ -46,6 +51,10 @@ public class ElementVisibility {
     public ElementVisibility(final byte[] expression) {
         this.node = null;
         this.validate(expression);
+    }
+
+    private byte[] convert(Object expression) {
+        return expression.toString().getBytes(UTF_8);
     }
 
     public byte[] getExpression() {
