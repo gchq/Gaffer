@@ -53,7 +53,7 @@ public class ElementVisibility {
         this.validate(expression);
     }
 
-    private byte[] convert(Object expression) {
+    private byte[] convert(final Object expression) {
         return expression.toString().getBytes(UTF_8);
     }
 

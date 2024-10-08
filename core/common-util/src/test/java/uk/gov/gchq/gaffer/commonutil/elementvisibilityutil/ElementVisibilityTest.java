@@ -32,7 +32,7 @@ import static uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibil
 class ElementVisibilityTest {
 
     @Test
-    void testIntegerTypeIsAccepted() {      
+    void testIntegerTypeIsAccepted() {
         final ElementVisibility ev = new ElementVisibility(1);
         assertThat(ev).hasToString("[1]");
     }
@@ -206,7 +206,7 @@ class ElementVisibilityTest {
         private String randomString;
         private Integer randomInteger;
 
-        public RandomObject(String randomString, Integer randomInteger) {
+        RandomObject(String randomString, Integer randomInteger) {
             this.randomString = randomString;
             this.randomInteger = randomInteger;
         }
