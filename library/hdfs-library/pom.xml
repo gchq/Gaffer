@@ -24,6 +24,7 @@
     </parent>
 
     <artifactId>hdfs-library</artifactId>
+    <version>${revision}</version>
 
     <properties>
         <!-- IT is designed to be extended by other classes, cannot be run standalone -->
