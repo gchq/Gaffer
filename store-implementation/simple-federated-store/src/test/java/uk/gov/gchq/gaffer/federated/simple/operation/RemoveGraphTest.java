@@ -19,21 +19,22 @@ package uk.gov.gchq.gaffer.federated.simple.operation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
-import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
-import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
-import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
+import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils;
+import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils.StoreType;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -50,7 +51,7 @@ class RemoveGraphTest {
         // Given
         final String federatedGraphId = "federated";
         final String graphId = "shouldRemoveGraphAndPreserveData";
-        final Graph originalGraph = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId, StoreType.ACCUMULO);
+        final Graph originalGraph = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId, StoreType.ACCUMULO);
 
         // Entity so we can check data still exists
         final Properties graphEntityProps = new Properties();
@@ -67,7 +68,7 @@ class RemoveGraphTest {
         federatedStore.initialise(federatedGraphId, null, new StoreProperties());
 
         // Add the graph and its elements then remove it
-        addGraphWithElements(federatedStore, originalGraph, graphEntity);
+        FederatedTestUtils.addGraphWithElements(federatedStore, originalGraph, graphEntity);
         federatedStore.execute(removeGraph, new Context());
 
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -84,7 +85,7 @@ class RemoveGraphTest {
         // Given
         final String federatedGraphId = "federated";
         final String graphId = "shouldRemoveGraphAndDeleteAllData";
-        final Graph originalGraph = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId, StoreType.ACCUMULO);
+        final Graph originalGraph = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId, StoreType.ACCUMULO);
 
         // Entity so we can check data still exists
         final Properties graphEntityProps = new Properties();
@@ -102,7 +103,7 @@ class RemoveGraphTest {
         federatedStore.initialise(federatedGraphId, null, new StoreProperties());
 
         // Add the graph and its elements then remove it
-        addGraphWithElements(federatedStore, originalGraph, graphEntity);
+        FederatedTestUtils.addGraphWithElements(federatedStore, originalGraph, graphEntity);
         federatedStore.execute(removeGraph, new Context());
 
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -133,31 +134,33 @@ class RemoveGraphTest {
                 .withMessageContaining("not available to this federated store");
     }
 
-    /**
-     * Adds a given graph and elements to a federated store.
-     *
-     * @param store The federated store
-     * @param graph The graph to add
-     * @param elements The elements to add to the graph
-     *
-     * @throws OperationException If fails
-     */
-    private void addGraphWithElements(FederatedStore store, Graph graph, Element... elements) throws OperationException {
-        // Add Graph operation
+    @Test
+    void shouldNotRemoveAccessControlledGraph() throws StoreException, OperationException {
+        final String federatedGraphId = "federated";
+        final String graphId = "shouldNotRemoveAccessControlledGraph";
+
+        final FederatedStore federatedStore = new FederatedStore();
+        federatedStore.initialise(federatedGraphId, null, new StoreProperties());
+
+        // Add a graph that no one can edit
         final AddGraph addGraph = new AddGraph.Builder()
-                .graphConfig(graph.getConfig())
-                .schema(graph.getSchema())
-                .properties(graph.getStoreProperties().getProperties())
+                .graphConfig(new GraphConfig(graphId))
+                .schema(new Schema())
+                .properties(new StoreProperties().getProperties())
+                .writePredicate(new NoAccessPredicate())
                 .build();
 
-        // Add elements operation
-        final AddElements addGraphElements = new AddElements.Builder()
-                .input(elements)
-                .option(FederatedOperationHandler.OPT_GRAPH_IDS, graph.getGraphId())
+        // Remove operation
+        final RemoveGraph removeGraph = new RemoveGraph.Builder()
+                .graphId(graphId)
                 .build();
 
-        // Add the graph and its elements then remove it
-        store.execute(addGraph, new Context());
-        store.execute(addGraphElements, new Context());
+        // When
+        federatedStore.execute(addGraph, new Context());
+
+        // Then
+        assertThatExceptionOfType(OperationException.class)
+            .isThrownBy(() -> federatedStore.execute(removeGraph, new Context()))
+            .withMessageContaining("does not have write permissions");
     }
 }

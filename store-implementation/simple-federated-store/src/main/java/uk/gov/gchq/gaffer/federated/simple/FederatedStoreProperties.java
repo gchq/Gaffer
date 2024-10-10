@@ -27,9 +27,13 @@ public class FederatedStoreProperties extends StoreProperties {
      */
     public static final String PROP_DEFAULT_GRAPH_IDS = "gaffer.store.federated.default.graphIds";
     /**
-     * Property key for setting if the default is to apply element merging or not
+     * Property key for setting if the default is to apply element aggregation or not
      */
-    public static final String PROP_DEFAULT_MERGE_ELEMENTS = "gaffer.store.federated.default.mergeElements";
+    public static final String PROP_DEFAULT_MERGE_ELEMENTS = "gaffer.store.federated.default.aggregateElements";
+    /**
+     * Property key for setting if public graphs can be added to the store or not
+     */
+    public static final String PROP_ALLOW_PUBLIC_GRAPHS = "gaffer.store.federated.allowPublicGraphs";
     /**
      * Property key for the class to use when merging number results
      */

@@ -18,14 +18,21 @@ package uk.gov.gchq.gaffer.federated.simple.util;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
-public final class ModernDatasetUtils {
+public final class FederatedTestUtils {
 
-    private ModernDatasetUtils() {
+    private FederatedTestUtils() {
         // utility class
     }
 
@@ -61,5 +68,37 @@ public final class ModernDatasetUtils {
             default:
                 throw new IllegalArgumentException("Unknown StoreType: " + storeType);
         }
+    }
+
+    /**
+     * Adds a given graph and elements to a federated store.
+     *
+     * @param store The federated store
+     * @param graph The graph to add
+     * @param elements The elements to add to the graph
+     *
+     * @throws OperationException If fails
+     */
+    public static void addGraphWithElements(FederatedStore store, Graph graph, Element... elements) throws OperationException {
+        // Add Graph operation
+        final AddGraph addGraph = new AddGraph.Builder()
+                .graphConfig(graph.getConfig())
+                .schema(graph.getSchema())
+                .properties(graph.getStoreProperties().getProperties())
+                .build();
+
+        // Add the graph
+        store.execute(addGraph, new Context());
+
+        // Add elements if required
+        if (elements.length > 0) {
+            final AddElements addGraphElements = new AddElements.Builder()
+                    .input(elements)
+                    .option(FederatedOperationHandler.OPT_GRAPH_IDS, graph.getGraphId())
+                    .build();
+
+            store.execute(addGraphElements, new Context());
+        }
+
     }
 }

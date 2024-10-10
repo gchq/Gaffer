@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federated.simple.operation.handler.get;
 
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -34,28 +35,40 @@ public class GetAllGraphInfoHandler implements OutputOperationHandler<GetAllGrap
 
     public static final String DESCRIPTION = "graphDescription";
     public static final String HOOKS = "graphHooks";
+    public static final String STORE_CLASS = "storeClass";
     public static final String PROPERTIES = "storeProperties";
     public static final String OP_DECLARATIONS = "operationDeclarations";
+    public static final String OWNER = "owner";
+    public static final String IS_PUBLIC = "isPublic";
 
     @Override
     public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store)
         throws OperationException {
-            // Get all the graphs in the federated store
-            Iterable<GraphSerialisable> graphList = ((FederatedStore) store).getAllGraphs();
-
             Map<String, Object> allGraphInfo = new HashMap<>();
 
-            for (final GraphSerialisable gs : graphList) {
-                // Get the various properties of the individual federated graphs
+            // Get all the graphs in the federated store
+            ((FederatedStore) store).getAllGraphsAndAccess().forEach(pair -> {
                 Map<String, Object> graphInfo = new HashMap<>();
-                graphInfo.put(DESCRIPTION, gs.getConfig().getDescription());
-                graphInfo.put(HOOKS, gs.getConfig().getHooks());
-                graphInfo.put(PROPERTIES, gs.getStoreProperties().getProperties());
-                graphInfo.put(OP_DECLARATIONS, gs.getStoreProperties().getOperationDeclarations().getOperations());
+                GraphSerialisable graph = pair.getLeft();
+                GraphAccess access = pair.getRight();
+
+                // Get the various properties of the individual federated graphs
+                graphInfo.put(DESCRIPTION, graph.getConfig().getDescription());
+                graphInfo.put(HOOKS, graph.getConfig().getHooks());
+                graphInfo.put(STORE_CLASS, graph.getStoreProperties().getStoreClass());
+                graphInfo.put(OP_DECLARATIONS, graph.getStoreProperties().getOperationDeclarations().getOperations());
+                // Get the access properties
+                graphInfo.put(OWNER, access.getOwner());
+                graphInfo.put(IS_PUBLIC, access.isPublic());
+
+                // Only add the full properties if user has write access
+                if (access.hasWriteAccess(context.getUser(), store.getProperties().getAdminAuth())) {
+                    graphInfo.put(PROPERTIES, graph.getStoreProperties().getProperties());
+                }
 
                 // Add the Graph ID and all properties associated with it
-                allGraphInfo.put(gs.getConfig().getGraphId(), graphInfo);
-            }
+                allGraphInfo.put(graph.getConfig().getGraphId(), graphInfo);
+            });
 
             return allGraphInfo;
         }
