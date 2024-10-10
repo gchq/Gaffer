@@ -149,7 +149,7 @@ public final class GetElementsUtil {
                                      final Authorisations authorisations) {
         if (e.getProperty(visibilityProperty) != null) {
             final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator(authorisations);
-            final ElementVisibility elementVisibility = new ElementVisibility((String) e.getProperty(visibilityProperty));
+            final ElementVisibility elementVisibility = new ElementVisibility(e.getProperty(visibilityProperty));
             try {
                 return visibilityEvaluator.evaluate(elementVisibility);
             } catch (final VisibilityParseException visibilityParseException) {
