@@ -174,7 +174,6 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
             span.addEvent("Request complete");
             if (graph instanceof GafferPopGraph) {
                 JSONObject gafferOperationChain = GremlinController.getGafferPopExplanation((GafferPopGraph) graph);
-                span.setAttribute("gaffer.gremlin.explain", gafferOperationChain.toString());
                 LOGGER.debug("{}", gafferOperationChain);
             }
 

@@ -60,7 +60,7 @@ public final class GafferPopTestUtil {
             this.setProperty(GafferPopGraph.DATA_AUTHS, new String[]{AUTH_1, AUTH_2});
             this.setProperty(GafferPopGraph.GRAPH_ID, "Graph1");
             this.setProperty(GafferPopGraph.STORE_PROPERTIES, GafferPopTestUtil.class.getClassLoader().getResource("gaffer/store.properties").getPath());
-            this.setProperty(GafferPopGraph.GET_ALL_ELEMENTS_LIMIT, 1);
+            this.setProperty(GafferPopGraph.GET_ELEMENTS_LIMIT, 1);
             this.setProperty(GafferPopGraph.HAS_STEP_FILTER_STAGE, "POST_TRANSFORM");
         }
     };
