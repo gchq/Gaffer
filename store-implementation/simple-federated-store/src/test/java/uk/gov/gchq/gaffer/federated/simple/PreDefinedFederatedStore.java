@@ -39,10 +39,10 @@ public class PreDefinedFederatedStore extends FederatedStore {
 
         super.initialise(graphId, schema, properties);
 
-        addGraph(new GraphSerialisable(new GraphConfig("AccumuloStoreEntities"),
+        addGraph(new GraphSerialisable(new GraphConfig("graphA"),
                     schema.clone(), STORE_PROPERTIES));
 
-        addGraph(new GraphSerialisable(new GraphConfig("AccumuloStoreEdges"),
+        addGraph(new GraphSerialisable(new GraphConfig("graphB"),
                     schema.clone(), STORE_PROPERTIES));
     }
 }
