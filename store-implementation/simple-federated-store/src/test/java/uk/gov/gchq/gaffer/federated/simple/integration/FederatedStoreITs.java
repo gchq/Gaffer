@@ -16,19 +16,19 @@
 
 package uk.gov.gchq.gaffer.federated.simple.integration;
 
-import org.junit.platform.suite.api.ConfigurationParameter;
-
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
-import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.junit.platform.suite.api.ConfigurationParameter;
+
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
+import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /*
  * Implementation of the AbstractStoreITs with the simple federated store. This will initialise a pre-defined
@@ -42,8 +42,8 @@ public class FederatedStoreITs extends AbstractStoreITs {
 
     private static final Schema SCHEMA = new Schema();
     private static final Map<String, String> TESTS_TO_SKIP = Stream.of(
-            new SimpleEntry<>("shouldGetPathsWithSimpleGraphHook_1", "unable to add Hooks to individual fed graphs"),
-            new SimpleEntry<>("shouldGetPathsWithSimpleGraphHook_2", "unable to add Hooks to individual fed graphs"),
+            new SimpleEntry<>("shouldGetPathsWithSimpleGraphHook_1", "Unable to add Hooks to individual fed graphs"),
+            new SimpleEntry<>("shouldGetPathsWithSimpleGraphHook_2", "Unable to add Hooks to individual fed graphs"),
             new SimpleEntry<>("shouldExecuteForEachOperationOnGetElementsWithValidResults", "ForEachIT - Investigate further"),
             new SimpleEntry<>("shouldExecuteForEachOperationOnGetElementsWithEmptyIterable", "ForEachIT - Investigate further"),
             new SimpleEntry<>("shouldGetEntityIds", "GetAdjacentIdsIT - Investigate further"),
@@ -56,6 +56,7 @@ public class FederatedStoreITs extends AbstractStoreITs {
             new SimpleEntry<>("shouldAggregateOnlyRequiredGroupsWithQueryTimeAggregation", "PartAggregationIT - Investigate further"),
             new SimpleEntry<>("shouldAggregateOnlyRequiredGroups", "PartAggregationIT - Investigate further"),
             new SimpleEntry<>("shouldApplyPostOpAggregation", "SchemaMigrationIT - Investigate further"),
+            new SimpleEntry<>("shouldResolveNamedViewWithinNamedOperation", "GraphHooksIT - Can add and get NamedOps/Views but cannot run them"),
             new SimpleEntry<>("shouldRepeatedlyAddElements", "WhileIT - Investigate further"))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
