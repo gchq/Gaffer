@@ -80,7 +80,8 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                     if ((e instanceof Edge)
                             && (inner instanceof Edge)
                             && ((Edge) e).getSource().equals(((Edge) inner).getSource())
-                            && ((Edge) e).getDestination().equals(((Edge) inner).getDestination())) {
+                            && ((Edge) e).getDestination().equals(((Edge) inner).getDestination())
+                            && ((Edge) e).getDirectedType().equals(((Edge) inner).getDirectedType())) {
                         result = aggregator.apply(inner.shallowClone(), result);
                     }
                 }

@@ -265,9 +265,6 @@ public class FederatedStore extends Store {
 
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
-        if (unused != null) {
-            throw new IllegalArgumentException("Federated store should not be initialised with a Schema");
-        }
         super.initialise(graphId, new Schema(), properties);
 
         // Init the cache for graphs

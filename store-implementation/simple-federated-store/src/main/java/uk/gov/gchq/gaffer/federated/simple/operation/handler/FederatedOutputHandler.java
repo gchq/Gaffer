@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federated.simple.merge.DefaultResultAccumulator;
@@ -37,6 +40,7 @@ import java.util.List;
  */
 public class FederatedOutputHandler<P extends Output<O>, O>
         extends FederatedOperationHandler<P> implements OutputOperationHandler<P, O> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedOutputHandler.class);
 
     @Override
     public O doOperation(final P operation, final Context context, final Store store) throws OperationException {
@@ -53,7 +57,7 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         }
 
         // Not expecting any output so exit since we've executed
-        if (operation.getOutputClass().isAssignableFrom(Void.class)) {
+        if (operation.getOutputClass() == Void.class) {
             return null;
         }
 
@@ -66,6 +70,8 @@ public class FederatedOutputHandler<P extends Output<O>, O>
             resultAccumulator.setAggregateElements(Boolean.parseBoolean(operation.getOption(OPT_AGGREGATE_ELEMENTS)));
         }
         // Should now have a list of <O> objects so need to reduce to just one
+        final Object results = graphResults.stream().reduce(resultAccumulator::apply).orElse(graphResults.get(0));
+        LOGGER.debug("RESULTS ARE: {} ", results);
         return graphResults.stream().reduce(resultAccumulator::apply).orElse(graphResults.get(0));
     }
 
