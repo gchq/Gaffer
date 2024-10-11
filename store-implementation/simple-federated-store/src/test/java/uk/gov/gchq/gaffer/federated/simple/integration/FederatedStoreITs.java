@@ -16,19 +16,19 @@
 
 package uk.gov.gchq.gaffer.federated.simple.integration;
 
-import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
-
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.junit.platform.suite.api.ConfigurationParameter;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 
 /*
  * Implementation of the AbstractStoreITs with the simple federated store. This will initialise a pre-defined
