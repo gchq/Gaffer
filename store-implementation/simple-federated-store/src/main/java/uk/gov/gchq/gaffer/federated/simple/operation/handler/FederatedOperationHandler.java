@@ -169,7 +169,8 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         // If a user has specified to just exclude some graphs then run all but them
         if (operation.containsOption(OPT_EXCLUDE_GRAPH_IDS)) {
             // Get all the IDs
-            graphIds = StreamSupport.stream(store.getAllGraphs().spliterator(), false)
+            graphIds = StreamSupport.stream(store.getAllGraphsAndAccess().spliterator(), false)
+                .map(Pair::getLeft)
                 .map(GraphSerialisable::getGraphId)
                 .collect(Collectors.toList());
 
