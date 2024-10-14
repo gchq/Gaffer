@@ -17,12 +17,15 @@
 package uk.gov.gchq.gaffer.federated.simple.operation.handler.add;
 
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_ALLOW_PUBLIC_GRAPHS;
 
 public class AddGraphHandler implements OperationHandler<AddGraph> {
 
@@ -35,8 +38,28 @@ public class AddGraphHandler implements OperationHandler<AddGraph> {
                 .properties(operation.getProperties())
                 .build();
 
+        // Init the builder with the owner if set
+        GraphAccess.Builder accessBuilder = new GraphAccess.Builder()
+            .owner(operation.getOwner() != null ? operation.getOwner() : context.getUser().getUserId());
+        // Add options to the graph access
+        if (operation.isPublic() != null) {
+            accessBuilder.isPublic(operation.isPublic());
+        }
+        if (operation.getReadPredicate() != null) {
+            accessBuilder.readAccessPredicate(operation.getReadPredicate());
+        }
+        if (operation.getWritePredicate() != null) {
+            accessBuilder.writeAccessPredicate(operation.getWritePredicate());
+        }
+        GraphAccess access = accessBuilder.build();
+
+        // Check if public graphs can be added
+        if (access.isPublic() && !Boolean.parseBoolean(store.getProperties().get(PROP_ALLOW_PUBLIC_GRAPHS, "true"))) {
+            throw new OperationException("Public graphs are not allowed to be added to this store");
+        }
+
         // Add the graph
-        ((FederatedStore) store).addGraph(newGraph);
+        ((FederatedStore) store).addGraph(newGraph, access);
 
         return null;
     }
