@@ -37,23 +37,27 @@ public class FederatedStoreProperties extends StoreProperties {
     /**
      * Property key for the class to use when merging number results
      */
-    public static final String PROP_MERGE_CLASS_NUMBER = "gaffer.store.federated.mergeClass.number";
+    public static final String PROP_MERGE_CLASS_NUMBER = "gaffer.store.federated.merge.number.class";
     /**
      * Property key for the class to use when merging string results
      */
-    public static final String PROP_MERGE_CLASS_STRING = "gaffer.store.federated.mergeClass.string";
+    public static final String PROP_MERGE_CLASS_STRING = "gaffer.store.federated.merge.string.class";
     /**
      * Property key for the class to use when merging boolean results
      */
-    public static final String PROP_MERGE_CLASS_BOOLEAN = "gaffer.store.federated.mergeClass.boolean";
+    public static final String PROP_MERGE_CLASS_BOOLEAN = "gaffer.store.federated.merge.boolean.class";
     /**
      * Property key for the class to use when merging collection results
      */
-    public static final String PROP_MERGE_CLASS_COLLECTION = "gaffer.store.federated.mergeClass.collection";
+    public static final String PROP_MERGE_CLASS_COLLECTION = "gaffer.store.federated.merge.collection.class";
+    /**
+     * Property key for the class to use when merging values of a Map result
+     */
+    public static final String PROP_MERGE_CLASS_MAP = "gaffer.store.federated.merge.map.class";
     /**
      * Property key for the class to use when merging elements
      */
-    public static final String PROP_MERGE_CLASS_ELEMENTS = "gaffer.store.federated.mergeClass.elements";
+    public static final String PROP_MERGE_CLASS_ELEMENTS = "gaffer.store.federated.merge.elements.class";
 
     public FederatedStoreProperties() {
         super(FederatedStore.class);

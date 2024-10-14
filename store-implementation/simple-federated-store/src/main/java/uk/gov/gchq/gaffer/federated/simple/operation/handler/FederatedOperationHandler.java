@@ -39,6 +39,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Main default handler for federated operations. Handles delegation to selected
@@ -59,6 +60,12 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      * operation should be executed on.
      */
     public static final String OPT_SHORT_GRAPH_IDS = "federated.graphIds";
+
+    /**
+     * Graph IDs to exclude from the execution. If this option is set all graphs
+     * except the ones specified are executed on.
+     */
+    public static final String OPT_EXCLUDE_GRAPH_IDS = "federated.excludeGraphIds";
 
     /**
      * The boolean operation option to specify if element merging should be applied or not.
@@ -159,6 +166,17 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
             graphIds = Arrays.asList(operation.getOption(OPT_SHORT_GRAPH_IDS).split(","));
         }
 
+        // If a user has specified to just exclude some graphs then run all but them
+        if (operation.containsOption(OPT_EXCLUDE_GRAPH_IDS)) {
+            // Get all the IDs
+            graphIds = StreamSupport.stream(store.getAllGraphs().spliterator(), false)
+                .map(GraphSerialisable::getGraphId)
+                .collect(Collectors.toList());
+
+            // Exclude the ones the user has specified
+            Arrays.asList(operation.getOption(OPT_EXCLUDE_GRAPH_IDS).split(",")).forEach(graphIds::remove);
+        }
+
         try {
             // Get the corresponding graph serialisable
             for (final String id : graphIds) {
@@ -172,7 +190,6 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         } catch (final CacheOperationException e) {
             throw new OperationException("Failed to get Graphs from cache", e);
         }
-
 
         // Keep graphs sorted so results returned are predictable between runs
         Collections.sort(graphsToExecute, (g1, g2) -> g1.getGraphId().compareTo(g2.getGraphId()));

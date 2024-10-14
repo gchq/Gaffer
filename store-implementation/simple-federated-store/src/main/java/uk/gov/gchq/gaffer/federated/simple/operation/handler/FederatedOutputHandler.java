@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
-import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federated.simple.merge.DefaultResultAccumulator;
 import uk.gov.gchq.gaffer.federated.simple.merge.FederatedResultAccumulator;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -32,6 +31,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * A sub class operation handler for federation that can process operations that have an
@@ -69,9 +69,12 @@ public class FederatedOutputHandler<P extends Output<O>, O>
             return null;
         }
 
+        // Merge the store props with the operation options for setting up the accumulator
+        Properties combinedProps = store.getProperties().getProperties();
+        combinedProps.putAll(operation.getOptions());
+
         // Set up the result accumulator
-        FederatedResultAccumulator<O> resultAccumulator =
-            new DefaultResultAccumulator<>((FederatedStoreProperties) store.getProperties());
+        FederatedResultAccumulator<O> resultAccumulator = new DefaultResultAccumulator<>(combinedProps);
         resultAccumulator.setSchema(((FederatedStore) store).getSchema(graphsToExecute));
 
         if (operation.containsOption(OPT_AGGREGATE_ELEMENTS)) {

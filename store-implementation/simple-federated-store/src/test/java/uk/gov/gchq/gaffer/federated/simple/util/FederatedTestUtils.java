@@ -39,7 +39,7 @@ public final class FederatedTestUtils {
     public static final MapStoreProperties MAP_STORE_PROPERTIES = MapStoreProperties
         .loadStoreProperties("/map-store.properties");
     public static final AccumuloProperties ACCUMULO_STORE_PROPERTIES = AccumuloProperties
-            .loadStoreProperties("/accumulo-store.properties");
+        .loadStoreProperties("/accumulo-store.properties");
 
     public static Graph getBlankGraphWithModernSchema(Class<?> clazz, String graphId, StoreType storeType) {
         return new Graph.Builder()

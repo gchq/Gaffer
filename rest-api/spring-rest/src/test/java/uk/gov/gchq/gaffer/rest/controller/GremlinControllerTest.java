@@ -119,7 +119,7 @@ class GremlinControllerTest {
     void shouldReturnExplainOfValidGremlinQuery() throws Exception {
         // Given
         String gremlinString = "g.V('" + MARKO.getId() + "').toList()";
-        List<String> expectedOperations = Arrays.asList(GetElements.class.getName());
+        List<String> expectedOperations = Arrays.asList(GetElements.class.getName(), Limit.class.getName());
 
         // When
         MvcResult result = mockMvc
@@ -244,7 +244,7 @@ class GremlinControllerTest {
         // Given
         String cypherString = "MATCH (p:person) WHERE ID(p) = '" + MARKO.getId() + "' RETURN p";
 
-        List<String> expectedOperations = Arrays.asList(GetElements.class.getName());
+        List<String> expectedOperations = Arrays.asList(GetElements.class.getName(), Limit.class.getName());
 
         // When
         MvcResult result = mockMvc

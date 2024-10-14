@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetGraphCreatedTime;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -212,7 +213,46 @@ class FederatedStoreIT {
         final Set<String> graphIds = federatedStore.execute(getAllGraphIds, new Context());
 
         assertThat(graphIds).containsExactly(graphId);
+    }
 
+    @Test
+    void shouldExecuteOnAllGraphsExceptExcludedOnes() throws StoreException, OperationException {
+        final String federatedGraphId = "federated";
+        final String graphId1 = "newGraph1";
+        final String graphId2 = "newGraph2";
+        final String graphId3 = "newGraph3";
+
+        // When
+        final FederatedStore federatedStore = new FederatedStore();
+        federatedStore.initialise(federatedGraphId, null, new StoreProperties());
+
+        // AddGraph operations
+        final AddGraph addGraph1 = new AddGraph.Builder()
+                .graphConfig(new GraphConfig(graphId1))
+                .schema(new Schema())
+                .properties(new MapStoreProperties().getProperties())
+                .build();
+        final AddGraph addGraph2 = new AddGraph.Builder()
+                .graphConfig(new GraphConfig(graphId2))
+                .schema(new Schema())
+                .properties(new MapStoreProperties().getProperties())
+                .build();
+        final AddGraph addGraph3 = new AddGraph.Builder()
+                .graphConfig(new GraphConfig(graphId3))
+                .schema(new Schema())
+                .properties(new MapStoreProperties().getProperties())
+                .build();
+
+        federatedStore.execute(addGraph1, new Context());
+        federatedStore.execute(addGraph2, new Context());
+        federatedStore.execute(addGraph3, new Context());
+
+        final GetGraphCreatedTime operation = new GetGraphCreatedTime.Builder()
+            .option(FederatedOperationHandler.OPT_EXCLUDE_GRAPH_IDS, graphId2)
+            .build();
+
+        Map<String, String> result = federatedStore.execute(operation, new Context());
+        assertThat(result).containsOnlyKeys(graphId1, graphId3);
     }
 
     @Test
