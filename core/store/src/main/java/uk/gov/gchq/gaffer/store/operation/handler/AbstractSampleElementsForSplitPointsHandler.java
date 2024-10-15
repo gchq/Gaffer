@@ -27,9 +27,9 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.koryphe.iterable.LimitedIterable;
 
+import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,6 +37,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandler<T, S extends S
     public static final int MAX_SAMPLED_ELEMENTS_DEFAULT = 10000000;
 
     private int maxSampledElements = MAX_SAMPLED_ELEMENTS_DEFAULT;
+    private static SecureRandom secureRandom = new SecureRandom();
 
     @Override
     public List<T> doOperation(final SampleElementsForSplitPoints<T> operation, final Context context, final Store store) throws OperationException {
@@ -53,12 +54,11 @@ public abstract class AbstractSampleElementsForSplitPointsHandler<T, S extends S
         }
 
         final float proportionToSample = operation.getProportionToSample();
-        final Random random = new Random(System.currentTimeMillis());
-
+        secureRandom.setSeed(System.currentTimeMillis());
 
         final Iterable<? extends Element> cleanElements = Iterables.filter(
                 operation.getInput(),
-                e -> null != e && (1 == proportionToSample || random.nextFloat() <= proportionToSample)
+                e -> null != e && (1 == proportionToSample || secureRandom.nextFloat() <= proportionToSample)
         );
 
         final LimitedIterable<? extends Element> limitedElements =

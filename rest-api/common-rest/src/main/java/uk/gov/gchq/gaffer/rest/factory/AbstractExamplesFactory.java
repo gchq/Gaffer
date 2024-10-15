@@ -65,6 +65,7 @@ import javax.annotation.PostConstruct;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -72,7 +73,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BinaryOperator;
 
 import static java.lang.reflect.Modifier.isStatic;
@@ -83,6 +83,8 @@ import static java.lang.reflect.Modifier.isStatic;
 @SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract") //Class is not particularly abstract
 public abstract class AbstractExamplesFactory implements ExamplesFactory {
     private Map<Class<? extends Operation>, Operation> examplesMap;
+
+    private static SecureRandom secureRandom = new SecureRandom();
 
     @PostConstruct
     public void generateExamples() {
@@ -126,8 +128,7 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
                     field.setAccessible(true);
                 }
                 if (!isStatic(field.getModifiers())) {
-                    field.set(operation, getExampleValue(field.getType(), ThreadLocalRandom
-                            .current().nextInt(0, 11)));
+                    field.set(operation, getExampleValue(field.getType(), secureRandom.nextInt(11)));
                 }
             }
             return operation;

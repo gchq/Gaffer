@@ -38,8 +38,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.util.List;
-import java.util.Random;
 
 import static scala.reflect.ClassTag$.MODULE$;
 
@@ -50,7 +50,7 @@ public class SplitStoreFromRDDOfElementsHandler extends AbstractSplitStoreFromRD
     private static final ClassTag<Text> TEXT_CLASS_TAG = MODULE$.apply(Text.class);
     private static final boolean PRESERVE_PARTITIONING = true;
     private static final boolean WITHOUT_REPLACEMENT = false;
-    private static final Random RANDOM = new Random();
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     @Override
     public Void doOperation(final SplitStoreFromRDDOfElements operation, final Context context, final Store store) throws OperationException {

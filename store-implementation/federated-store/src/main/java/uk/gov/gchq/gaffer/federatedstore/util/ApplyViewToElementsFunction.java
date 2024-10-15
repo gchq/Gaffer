@@ -37,12 +37,12 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction<Object, Iterable<Object>, Iterable<Object>> {
@@ -51,7 +51,7 @@ public class ApplyViewToElementsFunction implements ContextSpecificMergeFunction
     public static final String SCHEMA = "schema";
     public static final String USER = "user";
     public static final String TEMP_RESULTS_GRAPH = "temporaryResultsGraph";
-    private static final Random RANDOM = new Random();
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     @JsonProperty("context")
     private Map<String, Object> context;

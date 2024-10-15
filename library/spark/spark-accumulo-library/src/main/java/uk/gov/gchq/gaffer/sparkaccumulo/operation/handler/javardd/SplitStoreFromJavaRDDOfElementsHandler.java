@@ -32,16 +32,18 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.security.SecureRandom;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 import static java.util.Arrays.asList;
+
+
 
 public class SplitStoreFromJavaRDDOfElementsHandler extends AbstractSplitStoreFromRDDOfElementsHandler<SplitStoreFromJavaRDDOfElements> {
 
     private static final boolean WITHOUT_REPLACEMENT = false;
-    private static final Random RANDOM = new Random();
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     @Override
     public Void doOperation(final SplitStoreFromJavaRDDOfElements operation, final Context context, final Store store) throws OperationException {
