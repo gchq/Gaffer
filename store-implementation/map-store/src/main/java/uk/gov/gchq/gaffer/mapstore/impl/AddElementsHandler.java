@@ -150,9 +150,10 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             mapImpl.addIndex(entitySeed, element);
         } else {
             final Edge edge = (Edge) element;
-            edge.setIdentifiers(edge.getSource(), edge.getDestination(), edge.isDirected(), MatchedVertex.SOURCE);
+            final Edge sourceMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(), MatchedVertex.SOURCE, edge.getProperties());
+
             final EntitySeed sourceEntitySeed = new EntitySeed(edge.getSource());
-            mapImpl.addIndex(sourceEntitySeed, edge);
+            mapImpl.addIndex(sourceEntitySeed, sourceMatchedEdge);
 
             final Edge destMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(), MatchedVertex.DESTINATION, edge.getProperties());
             final EntitySeed destinationEntitySeed = new EntitySeed(edge.getDestination());
