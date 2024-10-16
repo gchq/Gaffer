@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.federated.simple;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -40,9 +41,9 @@ public class PreDefinedFederatedStore extends FederatedStore {
         super.initialise(graphId, schema, properties);
 
         addGraph(new GraphSerialisable(new GraphConfig("graphA"),
-                    schema.clone(), STORE_PROPERTIES));
+                    schema.clone(), STORE_PROPERTIES), new GraphAccess());
 
         addGraph(new GraphSerialisable(new GraphConfig("graphB"),
-                    schema.clone(), STORE_PROPERTIES));
+                    schema.clone(), STORE_PROPERTIES), new GraphAccess());
     }
 }
