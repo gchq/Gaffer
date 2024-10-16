@@ -321,9 +321,9 @@ public final class Graph {
         Span span = OtelUtil.startSpan(
             this.getClass().getName(),
             "Graph Request: " + clonedOpChain.toOverviewString());
-        span.setAttribute("gaffer.graphId", getGraphId());
-        span.setAttribute("gaffer.jobId", clonedContext.getJobId());
-        span.setAttribute("gaffer.user", clonedContext.getUser().getUserId());
+        span.setAttribute(OtelUtil.GRAPH_ID_ATTRIBUTE, getGraphId());
+        span.setAttribute(OtelUtil.JOB_ID_ATTRIBUTE, clonedContext.getJobId());
+        span.setAttribute(OtelUtil.USER_ATTRIBUTE, clonedContext.getUser().getUserId());
 
         O result = null;
         // Sets the span to current so parent child spans are auto linked

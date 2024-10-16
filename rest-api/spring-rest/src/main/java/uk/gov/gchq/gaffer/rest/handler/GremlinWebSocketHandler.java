@@ -52,6 +52,7 @@ import uk.gov.gchq.gaffer.rest.controller.GremlinController;
 import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -145,14 +146,16 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
         // OpenTelemetry hooks
         Span span = OtelUtil.startSpan(this.getClass().getName(), "Gremlin Request: " + requestId.toString());
-        span.setAttribute("gaffer.gremlin.query", request.getArgs().get(Tokens.ARGS_GREMLIN).toString());
+        span.setAttribute(OtelUtil.GREMLIN_QUERY_ATTRIBUTE, request.getArgs().get(Tokens.ARGS_GREMLIN).toString());
 
         // Execute the query
         try (Scope scope = span.makeCurrent();
                 GremlinExecutor gremlinExecutor = getGremlinExecutor()) {
             // Set current headers for potential authorisation then set the user
             userFactory.setHttpHeaders(session.getHandshakeHeaders());
-            graph.variables().set(GafferPopGraphVariables.USER, userFactory.createUser());
+            User user = userFactory.createUser();
+            graph.variables().set(GafferPopGraphVariables.USER, user);
+            span.setAttribute(OtelUtil.USER_ATTRIBUTE, user.getUserId());
 
             // Run the query using the gremlin executor service
             Object result = gremlinExecutor.eval(
