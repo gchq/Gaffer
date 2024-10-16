@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -24,14 +27,15 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public final class GafferVertexUtils {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GafferVertexUtils.class);
 
     private GafferVertexUtils() {
         // Utility class
@@ -58,6 +62,7 @@ public final class GafferVertexUtils {
                 .noneMatch(e -> e.equals(id)))
             .collect(Collectors.toList());
 
+        orphanVertexIds.forEach(id -> LOGGER.debug("Getting orphan vertices for vertex {}", id));
         return (orphanVertexIds.isEmpty()) ? Collections.emptyList() : extractOrphanVerticesFromEdges(result, graph, orphanVertexIds);
     }
 
@@ -71,19 +76,18 @@ public final class GafferVertexUtils {
      * @return Iterable of 'orphan' {@link Vertex}'s
      */
     private static Iterable<Vertex> extractOrphanVerticesFromEdges(final Iterable<? extends Element> result, final GafferPopGraph graph, final List<Object> orphanVertexIds) {
-        return StreamSupport.stream(result.spliterator(), false)
+        List<Vertex> orphanVertices = new ArrayList<>();
+        StreamSupport.stream(result.spliterator(), false)
             .filter(Edge.class::isInstance)
             .map(e -> (Edge) e)
-            .map(e -> {
-                if (orphanVertexIds.contains(e.getSource())) {
-                    return new GafferPopVertex(GafferPopGraph.ID_LABEL, GafferCustomTypeFactory.parseForGraphSONv3(e.getSource()), graph);
-                } else if (orphanVertexIds.contains(e.getDestination())) {
-                    return new GafferPopVertex(GafferPopGraph.ID_LABEL, GafferCustomTypeFactory.parseForGraphSONv3(e.getDestination()), graph);
-                } else {
-                    return null;
+            .forEach(e -> {
+                if (orphanVertexIds.contains(e.getSource()) || orphanVertexIds.equals(e.getSource())) {
+                    orphanVertices.add(new GafferPopVertex(GafferPopGraph.ID_LABEL, GafferCustomTypeFactory.parseForGraphSONv3(e.getSource()), graph));
                 }
-            })
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+                if (orphanVertexIds.contains(e.getDestination()) || orphanVertexIds.equals(e.getDestination())) {
+                    orphanVertices.add(new GafferPopVertex(GafferPopGraph.ID_LABEL, GafferCustomTypeFactory.parseForGraphSONv3(e.getDestination()), graph));
+                }
+            });
+        return orphanVertices;
     }
 }
