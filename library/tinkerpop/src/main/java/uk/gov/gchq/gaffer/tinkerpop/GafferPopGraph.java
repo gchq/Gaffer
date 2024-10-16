@@ -529,7 +529,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * This method will not return 'id' vertices, only vertices that exist as entities in Gaffer.
      *
      * @param vertexId  the vertex id to start at.
-     * @param direction the direcMARKO.getId()tion along edges to travel
+     * @param direction the direction along edges to travel
      * @param view      a Gaffer {@link View} containing edge and entity groups.
      * @return iterator of {@link GafferPopVertex}
      */
@@ -834,20 +834,20 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         final Iterable<? extends EntityId> getAdjEntitySeeds = execute(new OperationChain.Builder()
                 .first(new GetAdjacentIds.Builder()
-                        .input(seeds)
-                        .view(view)
-                        .inOutType(getInOutType(direction))
-                        .build())
-                    .build());
+                    .input(seeds)
+                    .view(view)
+                    .inOutType(getInOutType(direction))
+                    .build())
+                .build());
 
         List<EntityId> seedList = StreamSupport.stream(getAdjEntitySeeds.spliterator(), false).collect(Collectors.toList());
 
         // GetAdjacentIds provides list of entity seeds so run a GetElements to get the actual Entities
         final Iterable<? extends Element> result = execute(new OperationChain.Builder()
                 .first(new GetElements.Builder()
-                        .input(seedList)
-                        .build())
-                    .build());
+                    .input(seedList)
+                    .build())
+                .build());
 
         // Translate results to Gafferpop elements
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(this);

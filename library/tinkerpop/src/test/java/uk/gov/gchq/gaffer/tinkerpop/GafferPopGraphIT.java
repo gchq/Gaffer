@@ -308,7 +308,7 @@ class GafferPopGraphIT {
         mapStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), VERTEX_ONLY_ID_STRING, mapStore));
         accumuloStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), VERTEX_ONLY_ID_STRING, accumuloStore));
 
-        List<Vertex> result = g.V("7").toList();
+        List<Vertex> result = g.V(VERTEX_ONLY_ID_STRING).toList();
         assertThat(result)
             .extracting(r -> r.id())
             .contains(VERTEX_ONLY_ID_STRING);
