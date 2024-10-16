@@ -358,7 +358,7 @@ public class FederatedStore extends Store {
         final String namedViewCacheSuffix = getProperties().getCacheServiceNamedViewSuffix(getGraphId());
         final Boolean nestedNamedOpsAllowed = getProperties().isNestedNamedOperationAllow();
 
-        // Add overrides as cache operations could be ran federated or on sub graphs
+        // Add overrides as cache operations could be run locally or on sub graphs
         if (getProperties().getNamedOperationEnabled()) {
             addOperationHandler(NamedOperation.class, new EitherOperationHandler<>(new NamedOperationHandler()));
             addOperationHandler(AddNamedOperation.class, new EitherOperationHandler<>(

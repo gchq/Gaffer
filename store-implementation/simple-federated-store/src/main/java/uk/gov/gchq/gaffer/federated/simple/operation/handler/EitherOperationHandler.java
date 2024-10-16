@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 /**
- * Custom handler for operations that could in theory target the federated store
- * directly or sub graphs.
+ * Custom handler for operations that could in theory target sub graphs or the
+ * federated store directly.
  */
 public class EitherOperationHandler<O extends Operation> implements OperationHandler<O> {
     private static final Logger LOGGER = LoggerFactory.getLogger(EitherOperationHandler.class);

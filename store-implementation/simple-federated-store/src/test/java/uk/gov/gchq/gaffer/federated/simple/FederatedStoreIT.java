@@ -275,7 +275,7 @@ class FederatedStoreIT {
     }
 
     @Test
-    void shouldAddAndExecuteNamedOperationsFromFederatedCache() throws StoreException, OperationException {
+    void shouldAddAndExecuteNamedOperationsFromFederatedCache() throws OperationException {
         // Given
         final String federatedGraphId = "federated";
         final String graphId1 = "newGraph1";
@@ -326,11 +326,12 @@ class FederatedStoreIT {
     }
 
     @Test
-    void shouldAddAndExecuteNamedOperationsFromSubGraphCache() throws StoreException, OperationException {
+    void shouldAddAndExecuteNamedOperationsFromSubGraphCache() throws OperationException {
         // Given
         final String federatedGraphId = "federated";
         final String graphId1 = "newGraph1";
         final String namedOpName = "customOp";
+        final Context context = new Context();
 
         // When
         final Graph federatedGraph = new Graph.Builder()
@@ -375,7 +376,7 @@ class FederatedStoreIT {
         // Then
         assertThat(subGraphResult).containsOnlyKeys(graphId1);
         assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> federatedGraph.execute(runNamedOpOnFederated, new Context()))
+            .isThrownBy(() -> federatedGraph.execute(runNamedOpOnFederated, context))
             .withMessageContaining(namedOpName);
     }
 
