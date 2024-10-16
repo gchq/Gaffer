@@ -34,6 +34,8 @@ import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -133,28 +135,6 @@ class FederatedStoreIT {
 
         // Then
         assertThat(result).extracting(e -> (Element) e).containsOnly(expectedEntity);
-    }
-
-    @Test
-    void shouldPreventMixOfFederatedAndCoreOperationsInChainByDefault() throws StoreException {
-        // Given
-        FederatedStore federatedStore = new FederatedStore();
-        federatedStore.initialise("federated", null, new StoreProperties());
-
-        OperationChain<Iterable<? extends Element>> mixedChain = new OperationChain.Builder()
-            .first(new AddGraph.Builder()
-                .graphConfig(new GraphConfig("dummy"))
-                .schema(new Schema())
-                .properties(new java.util.Properties())
-                .build())
-            .then(new GetAllElements.Builder()
-                .build())
-            .build();
-
-        // When/Then
-        assertThatExceptionOfType(OperationException.class)
-            .isThrownBy(() -> federatedStore.execute(mixedChain, new Context()))
-            .withMessageContaining("Please submit each type separately");
     }
 
     @Test
@@ -292,6 +272,111 @@ class FederatedStoreIT {
             .extracting(g -> g.get(graphId1))
             .usingRecursiveComparison()
             .isEqualTo(graph1InfoExpected);
+    }
+
+    @Test
+    void shouldAddAndExecuteNamedOperationsFromFederatedCache() throws StoreException, OperationException {
+        // Given
+        final String federatedGraphId = "federated";
+        final String graphId1 = "newGraph1";
+        final String namedOpName = "customOp";
+
+        // When
+        final Graph federatedGraph = new Graph.Builder()
+            .config(new GraphConfig(federatedGraphId))
+            .store(new FederatedStore())
+            .storeProperties(new FederatedStoreProperties())
+            .build();
+
+        // AddGraph operation
+        final AddGraph addGraph1 = new AddGraph.Builder()
+                .graphConfig(new GraphConfig(graphId1))
+                .schema(new Schema())
+                .properties(new MapStoreProperties().getProperties())
+                .build();
+
+        federatedGraph.execute(addGraph1, new Context());
+
+        // Add a new named operation to federated store
+        final AddNamedOperation addNamedOp = new AddNamedOperation.Builder()
+            .name(namedOpName)
+            .operationChain(new OperationChain.Builder()
+                .first(new GetGraphCreatedTime())
+                .build())
+            .build();
+
+        // It should be added to the federated cache so its available to all graphs
+        federatedGraph.execute(addNamedOp, new Context());
+
+        // Attempt to execute the named operation it should be resolved before sending to sub graphs
+        final NamedOperation<Void, Map<String, String>> runNamedOpOnSubGraph = new NamedOperation<>();
+        runNamedOpOnSubGraph.setOperationName(namedOpName);
+        runNamedOpOnSubGraph.addOption(FederatedOperationHandler.OPT_GRAPH_IDS, graphId1);
+
+        final NamedOperation<Void, Map<String, String>> runNamedOpOnFederated = new NamedOperation<>();
+        runNamedOpOnFederated.setOperationName(namedOpName);
+
+        // Make sure the named operation can be ran on sub graph or federated store directly
+        Map<String, String> subGraphResult = federatedGraph.execute(runNamedOpOnSubGraph, new Context());
+        Map<String, String> fedStoreResult = federatedGraph.execute(runNamedOpOnFederated, new Context());
+
+        // Then
+        assertThat(subGraphResult).containsOnlyKeys(graphId1);
+        assertThat(fedStoreResult).containsOnlyKeys(federatedGraphId);
+    }
+
+    @Test
+    void shouldAddAndExecuteNamedOperationsFromSubGraphCache() throws StoreException, OperationException {
+        // Given
+        final String federatedGraphId = "federated";
+        final String graphId1 = "newGraph1";
+        final String namedOpName = "customOp";
+
+        // When
+        final Graph federatedGraph = new Graph.Builder()
+                .config(new GraphConfig(federatedGraphId))
+                .store(new FederatedStore())
+                .storeProperties(new FederatedStoreProperties())
+                .build();
+
+        // AddGraph operation
+        final AddGraph addGraph1 = new AddGraph.Builder()
+                .graphConfig(new GraphConfig(graphId1))
+                .schema(new Schema())
+                .properties(new MapStoreProperties().getProperties())
+                .build();
+
+        federatedGraph.execute(addGraph1, new Context());
+
+        // Add a new named operation
+        final AddNamedOperation addNamedOp = new AddNamedOperation.Builder()
+            .option(FederatedOperationHandler.OPT_GRAPH_IDS, graphId1)
+            .name(namedOpName)
+            .operationChain(new OperationChain.Builder()
+                    .first(new GetGraphCreatedTime())
+                    .build())
+            .build();
+
+        // The named op should be added to the sub graph cache only so
+        // the federated store won't be able to resolve it locally
+        federatedGraph.execute(addNamedOp, new Context());
+
+        // Attempt to execute the named operation
+        // It shouldn't be resolved before sending so only specific sub graphs can execute it
+        final NamedOperation<Void, Map<String, String>> runNamedOpOnSubGraph = new NamedOperation<>();
+        runNamedOpOnSubGraph.setOperationName(namedOpName);
+        runNamedOpOnSubGraph.addOption(FederatedOperationHandler.OPT_GRAPH_IDS, graphId1);
+
+        final NamedOperation<Void, Map<String, String>> runNamedOpOnFederated = new NamedOperation<>();
+        runNamedOpOnFederated.setOperationName(namedOpName);
+
+        Map<String, String> subGraphResult = federatedGraph.execute(runNamedOpOnSubGraph, new Context());
+
+        // Then
+        assertThat(subGraphResult).containsOnlyKeys(graphId1);
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> federatedGraph.execute(runNamedOpOnFederated, new Context()))
+            .withMessageContaining(namedOpName);
     }
 
 }
