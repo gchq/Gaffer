@@ -859,7 +859,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         // Check for seeds that are not entities but are vertices on an edge (orphan vertices)
         Iterable<Vertex> chainedIterable = translatedResults;
-        for (EntityId seed : seedList) {
+        for (final EntityId seed : seedList) {
             Iterable<Vertex> orphanVertices = GafferVertexUtils.getOrphanVertices(result, this, seed.getVertex());
             chainedIterable = IterableUtils.chainedIterable(chainedIterable, orphanVertices);
         }

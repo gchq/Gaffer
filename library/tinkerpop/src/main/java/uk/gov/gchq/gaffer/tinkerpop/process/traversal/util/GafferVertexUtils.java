@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.tinkerpop.process.traversal.util;
 
+import org.apache.tinkerpop.gremlin.structure.Vertex;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
