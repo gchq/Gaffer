@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 
 /**
  * Mapper class used for estimating the split points to ensure even distribution of
@@ -40,6 +41,7 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends GafferMapp
 
     private float proportionToSample;
     private AccumuloElementConverter elementConverter;
+    private static SecureRandom secureRandom = new SecureRandom();
 
     @Override
     protected void setup(final Context context) {
@@ -63,7 +65,7 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends GafferMapp
 
     @Override
     protected void map(final Element element, final Context context) throws IOException, InterruptedException {
-        if (Math.random() < proportionToSample) {
+        if (secureRandom.nextDouble() < proportionToSample) {
             context.getCounter("Split points", "Number sampled").increment(1L);
             final Pair<Key, Key> keyPair;
             try {
