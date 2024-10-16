@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation.handler.get;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -33,7 +35,8 @@ public class GetAllGraphIdsHandler implements OutputOperationHandler<GetAllGraph
     @Override
     public Set<String> doOperation(final GetAllGraphIds operation, final Context context, final Store store) throws OperationException {
         // Get all the graphs and convert to a set of just IDs
-        return StreamSupport.stream(((FederatedStore) store).getAllGraphs().spliterator(), false)
+        return StreamSupport.stream(((FederatedStore) store).getAllGraphsAndAccess().spliterator(), false)
+            .map(Pair::getLeft)
             .map(GraphSerialisable::getGraphId)
             .collect(Collectors.toSet());
     }

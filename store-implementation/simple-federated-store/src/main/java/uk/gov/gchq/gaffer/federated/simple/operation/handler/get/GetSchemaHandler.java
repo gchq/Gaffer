@@ -35,7 +35,7 @@ public class GetSchemaHandler extends FederatedOutputHandler<GetSchema, Schema> 
 
     @Override
     public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
-        List<GraphSerialisable> graphsToExecute = this.getGraphsToExecuteOn((FederatedStore) store, operation);
+        List<GraphSerialisable> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
 
         if (graphsToExecute.isEmpty()) {
             return new Schema();
