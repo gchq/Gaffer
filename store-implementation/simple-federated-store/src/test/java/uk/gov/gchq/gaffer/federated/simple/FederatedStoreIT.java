@@ -19,16 +19,18 @@ package uk.gov.gchq.gaffer.federated.simple;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSetsPairs;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphInfoHandler;
-import uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils;
+import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
@@ -44,9 +46,11 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static uk.gov.gchq.gaffer.federated.simple.util.ModernDatasetUtils.StoreType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils.StoreType;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -67,8 +71,8 @@ class FederatedStoreIT {
         final String graphId1 = "graph1";
         final String graphId2 = "graph2";
 
-        final Graph graph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.ACCUMULO);
-        final Graph graph2 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.ACCUMULO);
+        final Graph graph1 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.ACCUMULO);
+        final Graph graph2 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.ACCUMULO);
 
         final String group = "person";
         final String vertex = "1";
@@ -154,6 +158,38 @@ class FederatedStoreIT {
     }
 
     @Test
+    void shouldSkipGraphOnFailureIfSet() throws StoreException, OperationException {
+        // Given
+        String graphId = "graph";
+        FederatedStore federatedStore = new FederatedStore();
+        Context context = new Context();
+
+        federatedStore.initialise("federated", null, new StoreProperties());
+        federatedStore.setDefaultGraphIds(Arrays.asList(graphId));
+
+        final AddGraph addGraph = new AddGraph.Builder()
+                .graphConfig(new GraphConfig(graphId))
+                .schema(new Schema())
+                .properties(new MapStoreProperties().getProperties())
+                .build();
+
+        // Add a graph
+        federatedStore.execute(addGraph, new Context());
+
+        // Run an operation that doesn't exist to the store check the option lets it pass
+        final GetElementsBetweenSetsPairs getOperationNoOps = new GetElementsBetweenSetsPairs();
+        final GetElementsBetweenSetsPairs getOperationWithOps = new GetElementsBetweenSetsPairs.Builder()
+            .option(FederatedOperationHandler.OPT_SKIP_FAILED_EXECUTE, "true")
+            .build();
+
+        // Then
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> federatedStore.execute(getOperationNoOps, context));
+        assertThatNoException()
+            .isThrownBy(() -> federatedStore.execute(getOperationWithOps, context));
+    }
+
+    @Test
     void shouldAddAndGetAllGraphs() throws StoreException, OperationException {
         // Given
         final String federatedGraphId = "federated";
@@ -224,7 +260,8 @@ class FederatedStoreIT {
         // Given
         FederatedStore store = new FederatedStore();
         final String graphId1 = "graph1";
-        final Graph graph1 = ModernDatasetUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
+        final Graph graph1 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
+        final GraphAccess access = new GraphAccess();
 
         // Init store and add graph
         store.initialise("federated", null, new StoreProperties());
@@ -240,7 +277,10 @@ class FederatedStoreIT {
                 new SimpleEntry<>(GetAllGraphInfoHandler.DESCRIPTION, graph1.getDescription()),
                 new SimpleEntry<>(GetAllGraphInfoHandler.HOOKS, graph1.getConfig().getHooks()),
                 new SimpleEntry<>(GetAllGraphInfoHandler.OP_DECLARATIONS, graph1.getStoreProperties().getOperationDeclarations().getOperations()),
-                new SimpleEntry<>(GetAllGraphInfoHandler.PROPERTIES, graph1.getStoreProperties().getProperties()))
+                new SimpleEntry<>(GetAllGraphInfoHandler.STORE_CLASS, graph1.getStoreProperties().getStoreClass()),
+                new SimpleEntry<>(GetAllGraphInfoHandler.PROPERTIES, graph1.getStoreProperties().getProperties()),
+                new SimpleEntry<>(GetAllGraphInfoHandler.OWNER, access.getOwner()),
+                new SimpleEntry<>(GetAllGraphInfoHandler.IS_PUBLIC, access.isPublic()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // When
