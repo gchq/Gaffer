@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.federated.simple.operation.ChangeGraphId;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federated.simple.operation.RemoveGraph;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.EitherOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOutputHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.add.AddGraphHandler;
@@ -45,6 +46,13 @@ import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandle
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.ChangeGraphIdHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.RemoveGraphHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
+import uk.gov.gchq.gaffer.named.view.DeleteNamedView;
+import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -53,6 +61,7 @@ import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetGraphCreatedTime;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
@@ -63,8 +72,17 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetGraphCreatedTimeHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedViewHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedViewsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -81,6 +99,7 @@ import java.util.stream.Stream;
 import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.renameTable;
 import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_GRAPH_CACHE_NAME;
 
 /**
  * The federated store implementation. Provides the set up and required
@@ -290,16 +309,6 @@ public class FederatedStore extends Store {
         }
     }
 
-    /**
-     * Access to getting the operations that have handlers specific to this
-     * store.
-     *
-     * @return The Operation classes handled by this store.
-     */
-    public Set<Class<? extends Operation>> getStoreSpecificOperations() {
-        return storeHandlers.keySet();
-    }
-
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
         if (unused != null) {
@@ -308,7 +317,7 @@ public class FederatedStore extends Store {
         super.initialise(graphId, new Schema(), properties);
 
         // Init the cache for graphs
-        graphCache = new Cache<>("federatedGraphCache-" + graphId);
+        graphCache = new Cache<>(properties.get(PROP_GRAPH_CACHE_NAME, "federatedGraphCache_" + graphId));
 
         // Get and set default graph IDs from properties
         if (properties.containsKey(PROP_DEFAULT_GRAPH_IDS)) {
@@ -344,11 +353,34 @@ public class FederatedStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
         storeHandlers.forEach(this::addOperationHandler);
+
+        final String namedOpCacheSuffix = getProperties().getCacheServiceNamedOperationSuffix(getGraphId());
+        final String namedViewCacheSuffix = getProperties().getCacheServiceNamedViewSuffix(getGraphId());
+        final Boolean nestedNamedOpsAllowed = getProperties().isNestedNamedOperationAllow();
+
+        // Add overrides as cache operations could be ran federated or on sub graphs
+        if (getProperties().getNamedOperationEnabled()) {
+            addOperationHandler(NamedOperation.class, new EitherOperationHandler<>(new NamedOperationHandler()));
+            addOperationHandler(AddNamedOperation.class, new EitherOperationHandler<>(
+                    new AddNamedOperationHandler(namedOpCacheSuffix, nestedNamedOpsAllowed)));
+            addOperationHandler(GetAllNamedOperations.class, new EitherOperationHandler<>(new GetAllNamedOperationsHandler(namedOpCacheSuffix)));
+            addOperationHandler(DeleteNamedOperation.class, new EitherOperationHandler<>(new DeleteNamedOperationHandler(namedOpCacheSuffix)));
+        }
+
+        // Named Views could be either
+        if (getProperties().getNamedViewEnabled()) {
+            addOperationHandler(AddNamedView.class, new EitherOperationHandler<>(new AddNamedViewHandler(namedViewCacheSuffix)));
+            addOperationHandler(GetAllNamedViews.class, new EitherOperationHandler<>(new GetAllNamedViewsHandler(namedViewCacheSuffix)));
+            addOperationHandler(DeleteNamedView.class, new EitherOperationHandler<>(new DeleteNamedViewHandler(namedViewCacheSuffix)));
+        }
+
+        // Misc operations that could be for sub graphs or not
+        addOperationHandler(GetGraphCreatedTime.class, new EitherOperationHandler<>(new GetGraphCreatedTimeHandler()));
     }
 
     @Override
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new FederatedOperationHandler<>();
+        return new EitherOperationHandler<>(new OperationChainHandler<>(getOperationChainValidator(), getOperationChainOptimisers()));
     }
 
     @Override

@@ -128,7 +128,8 @@ public class NamedOperationResolver implements GetFromCacheHook {
                         .getOperationChain(namedOperation.getParameters());
                 // Update the operation inputs and add operation chain to the updated list
                 OperationHandlerUtil.updateOperationInput(namedOperationChain, namedOperation.getInput());
-
+                namedOperationChain.setOptions(namedOperation.getOptions());
+                
                 // Run again to resolve any nested operations in the chain before adding
                 namedOperationChain.updateOperations(resolveNamedOperations(namedOperationChain, user, depth + 1));
                 updatedOperations.add(namedOperationChain);

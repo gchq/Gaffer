@@ -65,7 +65,7 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         }
 
         // Not expecting any output so exit since we've executed
-        if (operation.getOutputClass().isAssignableFrom(Void.class) || graphResults.isEmpty()) {
+        if (operation.getOutputClass() == Void.class || graphResults.isEmpty()) {
             return null;
         }
 

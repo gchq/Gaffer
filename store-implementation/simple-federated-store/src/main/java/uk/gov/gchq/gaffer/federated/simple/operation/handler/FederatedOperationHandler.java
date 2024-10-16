@@ -25,19 +25,16 @@ import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -73,11 +70,6 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
     public static final String OPT_AGGREGATE_ELEMENTS = "federated.aggregateElements";
 
     /**
-     * A boolean option to specify if to forward the whole operation chain to the sub graph or not.
-     */
-    public static final String OPT_FORWARD_CHAIN = "federated.forwardChain";
-
-    /**
      * A boolean option to specify if a graph should be skipped if execution
      * fails on it e.g. continue executing on the rest of the graphs
      */
@@ -86,30 +78,6 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
     @Override
     public Object doOperation(final P operation, final Context context, final Store store) throws OperationException {
         LOGGER.debug("Running operation: {}", operation);
-        // Check inside operation chains in case there are operations that don't require running on sub graphs
-        if (operation instanceof OperationChain) {
-            Set<Class<? extends Operation>> storeSpecificOps = ((FederatedStore) store).getStoreSpecificOperations();
-            List<Class<? extends Operation>> chainOps = ((OperationChain<?>) operation).flatten().stream()
-                .map(Operation::getClass)
-                .collect(Collectors.toList());
-
-            // If all the operations in the chain can be handled by the store then execute them.
-            // Or if told not to forward the whole chain process each operation individually.
-            if (storeSpecificOps.containsAll(chainOps) ||
-                    (!Boolean.parseBoolean(operation.getOption(OPT_FORWARD_CHAIN, "true")))) {
-                // Use default handler
-                return new OperationChainHandler<>(store.getOperationChainValidator(), store.getOperationChainOptimisers())
-                    .doOperation((OperationChain<Object>) operation, context, store);
-            }
-
-            // Check if we have a mix as that is an issue
-            // It's better to keep federated and non federated separate so error and report back
-            if (!Collections.disjoint(storeSpecificOps, chainOps)) {
-                throw new OperationException(
-                    "Chain contains standard Operations alongside federated store specific Operations."
-                        + " Please submit each type separately or set: '" + OPT_FORWARD_CHAIN + "' to: 'false'.");
-            }
-        }
 
         // If the operation has output wrap and return using sub class handler
         if (operation instanceof Output) {
