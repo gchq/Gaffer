@@ -65,7 +65,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -313,10 +312,10 @@ public class GremlinController {
             this.getClass().getName(), "Gremlin Request: " + UUID.nameUUIDFromBytes(gremlinQuery.getBytes(StandardCharsets.UTF_8)));
         span.setAttribute(OtelUtil.GREMLIN_QUERY_ATTRIBUTE, gremlinQuery);
 
-        Optional<Object> userOptional = graph.variables().get(GafferPopGraphVariables.USER);
+        User user = ((GafferPopGraphVariables) gafferPopGraph.variables()).getUser();
         String userId;
-        if (userOptional.isPresent()) {
-            userId = ((User) userOptional.get()).getUserId();
+        if (user != null) {
+            userId = user.getUserId();
         } else {
             LOGGER.warn("Could not find Gaffer user for OTEL. Using default.");
             userId = "unknownGremlinUser";
