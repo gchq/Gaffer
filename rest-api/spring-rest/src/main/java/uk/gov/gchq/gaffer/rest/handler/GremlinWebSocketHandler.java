@@ -145,7 +145,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
         // OpenTelemetry hooks
         Span span = OtelUtil.startSpan(this.getClass().getName(), "Gremlin Request: " + requestId.toString());
-        span.setAttribute("gaffer.gremlin.query", request.getArgs().get(Tokens.ARGS_GREMLIN).toString());
+        span.setAttribute(OtelUtil.GREMLIN_QUERY_ATTRIBUTE, request.getArgs().get(Tokens.ARGS_GREMLIN).toString());
 
         // Execute the query
         try (Scope scope = span.makeCurrent();
