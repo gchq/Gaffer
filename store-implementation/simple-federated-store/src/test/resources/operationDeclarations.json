@@ -1,0 +1,16 @@
+{
+    "operations": [
+        {
+            "operation": "uk.gov.gchq.gaffer.operation.impl.export.localfile.ImportFromLocalFile",
+            "handler": {
+                "class": "uk.gov.gchq.gaffer.store.operation.handler.export.localfile.ImportFromLocalFileHandler"
+            }
+        },
+        {
+            "operation": "uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile",
+            "handler": {
+                "class": "uk.gov.gchq.gaffer.store.operation.handler.export.localfile.ExportToLocalFileHandler"
+            }
+        }
+    ]
+}
