@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.ChangeGraphId;
+import uk.gov.gchq.gaffer.federated.simple.operation.FederatedOperationChainValidator;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federated.simple.operation.RemoveGraph;
@@ -63,9 +64,11 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -349,6 +352,11 @@ public class FederatedStore extends Store {
     @Override
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
         return new FederatedOperationHandler<>();
+    }
+
+    @Override
+    protected OperationChainValidator createOperationChainValidator() {
+        return new FederatedOperationChainValidator(new ViewValidator());
     }
 
     @Override
