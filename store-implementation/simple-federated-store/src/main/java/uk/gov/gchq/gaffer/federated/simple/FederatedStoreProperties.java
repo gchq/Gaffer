@@ -35,6 +35,11 @@ public class FederatedStoreProperties extends StoreProperties {
      */
     public static final String PROP_ALLOW_PUBLIC_GRAPHS = "gaffer.store.federated.allowPublicGraphs";
     /**
+     * Property key for setting a custom name for the graph cache, by default
+     * this will be "federatedGraphCache_" followed by the federated graph ID.
+     */
+    public static final String PROP_GRAPH_CACHE_NAME = "gaffer.store.federated.graphCache.name";
+    /**
      * Property key for the class to use when merging number results
      */
     public static final String PROP_MERGE_CLASS_NUMBER = "gaffer.store.federated.merge.number.class";
