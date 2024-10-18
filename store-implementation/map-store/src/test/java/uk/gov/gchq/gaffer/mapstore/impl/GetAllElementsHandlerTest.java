@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -57,6 +58,7 @@ public class GetAllElementsHandlerTest {
     static final String PROPERTY1 = "property1";
     static final String PROPERTY2 = "property2";
     static final String COUNT = "count";
+    public static final Context CONTEXT = new Context(new User("user"));
     private static final int NUM_LOOPS = 10;
 
     @Test
@@ -510,4 +512,35 @@ public class GetAllElementsHandlerTest {
                 new GetAllElements.Builder().build(),
                 VisibilityTest::elementIterableResultConsumer);
     }
+
+    @Test
+    void getAllElementsOperationShouldNotContainMatchedVertex() throws Exception {
+
+        final Edge edge = new Edge.Builder()
+                .group(BASIC_EDGE1)
+                .source("A")
+                .dest("B")
+                .build();
+
+        Graph mapStoreGraph = getMapStoreGraph();
+
+        mapStoreGraph.execute(new AddElements.Builder()
+                .input(edge)
+                .build(), CONTEXT);
+
+        Iterable<? extends Element> results = mapStoreGraph.execute(new GetAllElements.Builder()
+                .build(), CONTEXT);
+
+        assertThat(results).extracting(e -> (Element) e).containsExactly(edge);
+
+    }
+
+    private Graph getMapStoreGraph() {
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder().graphId("store1").build())
+                .addSchema(getSchema())
+                .storeProperties(new MapStoreProperties())
+                .build();
+    }
+
 }
