@@ -75,12 +75,23 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      */
     public static final String OPT_SKIP_FAILED_EXECUTE = "federated.skipGraphOnFail";
 
+    /**
+     * A boolean option to specify if the results from each graph should be kept
+     * separate. If set this will return a map where each key value is the graph
+     * ID and its respective result.
+     */
+    public static final String OPT_SEPARATE_RESULTS = "federated.separateResults";
+
     @Override
     public Object doOperation(final P operation, final Context context, final Store store) throws OperationException {
         LOGGER.debug("Running operation: {}", operation);
 
         // If the operation has output wrap and return using sub class handler
         if (operation instanceof Output) {
+            // Should we keep the results separate
+            if (Boolean.parseBoolean(operation.getOption(OPT_SEPARATE_RESULTS, "false"))) {
+                return new SeparateOutputHandler<>().doOperation((Output)  operation, context, store);
+            }
             return new FederatedOutputHandler<>().doOperation((Output) operation, context, store);
         }
 

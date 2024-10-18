@@ -170,6 +170,77 @@ class FederatedStoreIT {
     }
 
     @Test
+    void shouldAllowReturningSeparateResults() throws StoreException, OperationException {
+        // Given
+        FederatedStore store = new FederatedStore();
+
+        final String graphId1 = "graph1";
+        final String graphId2 = "graph2";
+
+        final Graph graph1 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1,
+                StoreType.MAP);
+        final Graph graph2 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2,
+                StoreType.MAP);
+
+        final String group = "person";
+        final String vertex = "1";
+
+        // Add the same vertex to different graphs
+        Properties graph1ElementProps = new Properties();
+        graph1ElementProps.put("name", "marko");
+        Entity graph1Entity = new Entity(group, vertex, graph1ElementProps);
+
+        Properties graph2ElementProps = new Properties();
+        graph2ElementProps.put("age", 29);
+        Entity graph2Entity = new Entity(group, vertex, graph2ElementProps);
+
+        // Init store and add graphs
+        store.initialise("federated", null, new StoreProperties());
+        store.execute(
+                new AddGraph.Builder()
+                        .graphConfig(graph1.getConfig())
+                        .schema(graph1.getSchema())
+                        .properties(graph1.getStoreProperties().getProperties()).build(),
+                new Context());
+        store.execute(
+                new AddGraph.Builder()
+                        .graphConfig(graph2.getConfig())
+                        .schema(graph2.getSchema())
+                        .properties(graph2.getStoreProperties().getProperties()).build(),
+                new Context());
+
+        // Add element operations
+        AddElements addGraph1Elements = new AddElements.Builder()
+                .input(graph1Entity)
+                .option(FederatedOperationHandler.OPT_GRAPH_IDS, graphId1)
+                .build();
+        AddElements addGraph2Elements = new AddElements.Builder()
+                .input(graph2Entity)
+                .option(FederatedOperationHandler.OPT_GRAPH_IDS, graphId2)
+                .build();
+
+        // Add data into graphs
+        store.handleOperation(addGraph1Elements, new Context());
+        store.handleOperation(addGraph2Elements, new Context());
+
+        // Run a get all on both graphs specifying that we want separate results
+        OperationChain<Iterable<? extends Element>> getAllElements = new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .build())
+                .option(FederatedOperationHandler.OPT_GRAPH_IDS, graphId1 + "," + graphId2)
+                .option(FederatedOperationHandler.OPT_SEPARATE_RESULTS, "true")
+                .build();
+
+        // Expect the results to be in a map instead
+        Map<String, Iterable<? extends Element>> result = (Map<String, Iterable<? extends Element>>) store.execute(getAllElements, new Context());
+
+        // Then
+        assertThat(result).containsKeys(graphId1, graphId2);
+        assertThat(result.get(graphId1)).extracting(e -> (Element) e).containsOnly(graph1Entity);
+        assertThat(result.get(graphId2)).extracting(e -> (Element) e).containsOnly(graph2Entity);
+    }
+
+    @Test
     void shouldAddAndGetAllGraphs() throws StoreException, OperationException {
         // Given
         final String federatedGraphId = "federated";
