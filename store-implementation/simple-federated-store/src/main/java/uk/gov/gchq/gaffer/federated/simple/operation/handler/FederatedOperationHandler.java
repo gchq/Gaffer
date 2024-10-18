@@ -65,7 +65,7 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
     public static final String OPT_EXCLUDE_GRAPH_IDS = "federated.excludeGraphIds";
 
     /**
-     * A boolean option so specify to use the default graph IDs. The option is
+     * A boolean option to specify to use the default graph IDs. The option is
      * not specifically required as default graph IDs will be used as a
      * fallback, but if set the whole chain will be forwarded rather than each
      * individual operation so can speed things up.
