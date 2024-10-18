@@ -50,7 +50,8 @@ public class EitherOperationHandler<O extends Operation> implements OperationHan
         // If we have graph IDs then run as a federated operation
         if (operation.containsOption(FederatedOperationHandler.OPT_GRAPH_IDS) ||
                 operation.containsOption(FederatedOperationHandler.OPT_SHORT_GRAPH_IDS) ||
-                operation.containsOption(FederatedOperationHandler.OPT_EXCLUDE_GRAPH_IDS)) {
+                operation.containsOption(FederatedOperationHandler.OPT_EXCLUDE_GRAPH_IDS) ||
+                operation.containsOption(FederatedOperationHandler.OPT_USE_DFLT_GRAPH_IDS)) {
             LOGGER.debug("Operation has specified graph IDs, it will be handled by sub graphs");
             return new FederatedOperationHandler<>().doOperation(operation, context, store);
         }
