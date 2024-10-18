@@ -54,6 +54,7 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
  */
 class GafferPopGraphIT {
     private static final String TEST_NAME_FORMAT = "({0}) {displayName}";
+    private static final String VERTEX_ONLY_ID_STRING = "7";
     private static GafferPopGraph mapStore;
     private static GafferPopGraph accumuloStore;
 
@@ -303,28 +304,45 @@ class GafferPopGraphIT {
     @MethodSource("provideTraversals")
     void shouldSeedWithVertexOnlyEdge(String graph, GraphTraversalSource g) {
         // Edge has a vertex but not an entity in the graph - Gaffer only feature
-        String vertexOnlyId = "7";
-        mapStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), vertexOnlyId, mapStore));
-        accumuloStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), vertexOnlyId, accumuloStore));
+        // [1 - knows -> 7]
+        mapStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), VERTEX_ONLY_ID_STRING, mapStore));
+        accumuloStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), VERTEX_ONLY_ID_STRING, accumuloStore));
 
-        List<Vertex> result = g.V("7").toList();
+        List<Vertex> result = g.V(VERTEX_ONLY_ID_STRING).toList();
         assertThat(result)
             .extracting(r -> r.id())
-            .contains(vertexOnlyId);
+            .contains(VERTEX_ONLY_ID_STRING);
         reset();
     }
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    void shouldTraverseEdgeWithVertexOnlySeed(String graph, GraphTraversalSource g) {
-        // Edge has a vertex but not an entity in the graph - Gaffer only feature
-        String vertexOnlyId = "7";
-        mapStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), vertexOnlyId, mapStore));
-        accumuloStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), vertexOnlyId, accumuloStore));
+    void shouldTraverseEdgeWithVertexOnlyEdge(String graph, GraphTraversalSource g) {
+        // Edge has a two vertices with no entities in the graph - Gaffer only feature
+        // [8 - knows -> 7]
+        mapStore.addEdge(new GafferPopEdge("knows", "8", VERTEX_ONLY_ID_STRING, mapStore));
+        accumuloStore.addEdge(new GafferPopEdge("knows", "8", VERTEX_ONLY_ID_STRING, accumuloStore));
 
-        List<Map<Object, Object>> result = g.V("7").inE().outV().elementMap().toList();
+        List<Vertex> result = g.V(VERTEX_ONLY_ID_STRING).inE().inV().toList();
         assertThat(result)
-            .containsExactly(MARKO.getPropertyMap());
+            .extracting(r -> r.id())
+            .contains(VERTEX_ONLY_ID_STRING);
+        List<Vertex> result2 = g.V(VERTEX_ONLY_ID_STRING).inE().outV().toList();
+        assertThat(result2)
+            .extracting(r -> r.id())
+            .contains("8");
+        List<Vertex> result3 = g.V("8").outE().inV().toList();
+        assertThat(result3)
+            .extracting(r -> r.id())
+            .contains(VERTEX_ONLY_ID_STRING);
+        List<Vertex> result4 = g.V("8").outE().outV().toList();
+        assertThat(result4)
+            .extracting(r -> r.id())
+            .contains("8");
+        List<Vertex> resultLabel = g.V("8").out("knows").toList();
+        assertThat(resultLabel)
+            .extracting(r -> r.id())
+            .containsOnly(VERTEX_ONLY_ID_STRING);
         reset();
     }
 
