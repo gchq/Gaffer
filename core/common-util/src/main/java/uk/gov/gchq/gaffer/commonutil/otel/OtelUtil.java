@@ -21,6 +21,12 @@ import io.opentelemetry.api.trace.Span;
 
 public final class OtelUtil {
 
+    public static final String USER_ATTRIBUTE = "enduser.id";
+    public static final String JOB_ID_ATTRIBUTE = "gaffer.jobId";
+    public static final String GRAPH_ID_ATTRIBUTE = "gaffer.graphId";
+    public static final String VIEW_ATTRIBUTE = "gaffer.view";
+    public static final String GREMLIN_QUERY_ATTRIBUTE = "gaffer.gremlin.query";
+
     private static boolean openTelemetryActive = false;
 
     private OtelUtil() {
