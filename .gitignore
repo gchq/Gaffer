@@ -31,3 +31,4 @@ example/real-federated-store/*.properties
 example/real-federated-store/*.json
 example/real-federated-store/*.jar
 .flattened-pom.xml
+dependency-reduced-pom.xml
