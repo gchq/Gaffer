@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- package uk.gov.gchq.gaffer.federated.simple.operation;
+package uk.gov.gchq.gaffer.federated.simple.operation;
 
 import org.junit.jupiter.api.Test;
 

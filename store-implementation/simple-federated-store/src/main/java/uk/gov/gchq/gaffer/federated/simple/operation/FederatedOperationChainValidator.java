@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- package uk.gov.gchq.gaffer.federated.simple.operation;
+package uk.gov.gchq.gaffer.federated.simple.operation;
 
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -27,6 +27,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 
+/**
+ * Extends {@link OperationChainValidator} and uses the {@link FederatedStore} to get
+ * the merged schema based on the operation options.
+ */
 public class FederatedOperationChainValidator extends OperationChainValidator {
 
     public FederatedOperationChainValidator(final ViewValidator viewValidator) {
