@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
- * Extends {@link OperationChainValidator} and uses the {@link FederatedStore} to get
+ * Extends {@link OperationChainValidator} and uses the FederatedStore to get
  * the merged schema based on the operation options.
  */
 public class FederatedOperationChainValidator extends OperationChainValidator {
