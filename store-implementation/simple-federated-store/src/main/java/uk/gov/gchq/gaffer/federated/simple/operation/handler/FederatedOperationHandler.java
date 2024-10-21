@@ -16,11 +16,13 @@
 
 package uk.gov.gchq.gaffer.federated.simple.operation.handler;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -37,6 +39,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Main default handler for federated operations. Handles delegation to selected
@@ -59,6 +62,12 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
     public static final String OPT_SHORT_GRAPH_IDS = "federated.graphIds";
 
     /**
+     * Graph IDs to exclude from the execution. If this option is set all graphs
+     * except the ones specified are executed on.
+     */
+    public static final String OPT_EXCLUDE_GRAPH_IDS = "federated.excludeGraphIds";
+
+    /**
      * The boolean operation option to specify if element merging should be applied or not.
      */
     public static final String OPT_AGGREGATE_ELEMENTS = "federated.aggregateElements";
@@ -67,6 +76,12 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      * A boolean option to specify if to forward the whole operation chain to the sub graph or not.
      */
     public static final String OPT_FORWARD_CHAIN = "federated.forwardChain";
+
+    /**
+     * A boolean option to specify if a graph should be skipped if execution
+     * fails on it e.g. continue executing on the rest of the graphs
+     */
+    public static final String OPT_SKIP_FAILED_EXECUTE = "federated.skipGraphOnFail";
 
     @Override
     public Object doOperation(final P operation, final Context context, final Store store) throws OperationException {
@@ -101,7 +116,7 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
             return new FederatedOutputHandler<>().doOperation((Output) operation, context, store);
         }
 
-        List<GraphSerialisable> graphsToExecute = getGraphsToExecuteOn((FederatedStore) store, operation);
+        List<GraphSerialisable> graphsToExecute = getGraphsToExecuteOn(operation, context, (FederatedStore) store);
         // No-op
         if (graphsToExecute.isEmpty()) {
             return null;
@@ -109,7 +124,16 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
 
         // Execute the operation chain on each graph
         for (final GraphSerialisable gs : graphsToExecute) {
-            gs.getGraph().execute(operation, context.getUser());
+            try {
+                gs.getGraph().execute(operation, context.getUser());
+            } catch (final OperationException | UnsupportedOperationException e) {
+                // Optionally skip this error if user has specified to do so
+                LOGGER.error("Operation failed on graph: {}", gs.getGraphId());
+                if (!Boolean.parseBoolean(operation.getOption(OPT_SKIP_FAILED_EXECUTE, "false"))) {
+                    throw e;
+                }
+            }
+
         }
 
         // Assume no output, we've already checked above
@@ -124,12 +148,15 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      * Returned list will be ordered alphabetically based on graph ID for
      * predicability.
      *
-     * @param store The federated store.
      * @param operation The operation to execute.
+     * @param context The context.
+     * @param store The federated store.
      * @return List of {@link GraphSerialisable}s to execute on.
      * @throws OperationException Fail to get Graphs.
      */
-    protected List<GraphSerialisable> getGraphsToExecuteOn(final FederatedStore store, final Operation operation) throws OperationException {
+    protected List<GraphSerialisable> getGraphsToExecuteOn(final Operation operation, final Context context,
+            final FederatedStore store) throws OperationException {
+        // Use default graph IDs as fallback
         List<String> graphIds = store.getDefaultGraphIds();
         List<GraphSerialisable> graphsToExecute = new LinkedList<>();
         // If user specified graph IDs for this chain parse as comma separated list
@@ -139,21 +166,35 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
             graphIds = Arrays.asList(operation.getOption(OPT_SHORT_GRAPH_IDS).split(","));
         }
 
+        // If a user has specified to just exclude some graphs then run all but them
+        if (operation.containsOption(OPT_EXCLUDE_GRAPH_IDS)) {
+            // Get all the IDs
+            graphIds = StreamSupport.stream(store.getAllGraphsAndAccess().spliterator(), false)
+                .map(Pair::getLeft)
+                .map(GraphSerialisable::getGraphId)
+                .collect(Collectors.toList());
+
+            // Exclude the ones the user has specified
+            Arrays.asList(operation.getOption(OPT_EXCLUDE_GRAPH_IDS).split(",")).forEach(graphIds::remove);
+        }
+
         try {
             // Get the corresponding graph serialisable
             for (final String id : graphIds) {
                 LOGGER.debug("Will execute on Graph: {}", id);
-                graphsToExecute.add(store.getGraph(id));
+                Pair<GraphSerialisable, GraphAccess> pair = store.getGraphAccessPair(id);
+                // Check the user has access to the graph
+                if (pair.getRight().hasReadAccess(context.getUser(), store.getProperties().getAdminAuth())) {
+                    graphsToExecute.add(pair.getLeft());
+                }
             }
         } catch (final CacheOperationException e) {
             throw new OperationException("Failed to get Graphs from cache", e);
         }
-
 
         // Keep graphs sorted so results returned are predictable between runs
         Collections.sort(graphsToExecute, (g1, g2) -> g1.getGraphId().compareTo(g2.getGraphId()));
 
         return graphsToExecute;
     }
-
 }

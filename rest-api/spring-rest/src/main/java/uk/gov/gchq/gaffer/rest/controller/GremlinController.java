@@ -57,6 +57,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
+import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
 import java.io.IOException;
@@ -309,7 +310,17 @@ public class GremlinController {
         // OpenTelemetry hooks
         Span span = OtelUtil.startSpan(
             this.getClass().getName(), "Gremlin Request: " + UUID.nameUUIDFromBytes(gremlinQuery.getBytes(StandardCharsets.UTF_8)));
-        span.setAttribute("gaffer.gremlin.query", gremlinQuery);
+        span.setAttribute(OtelUtil.GREMLIN_QUERY_ATTRIBUTE, gremlinQuery);
+
+        User user = ((GafferPopGraphVariables) gafferPopGraph.variables()).getUser();
+        String userId;
+        if (user != null) {
+            userId = user.getUserId();
+        } else {
+            LOGGER.warn("Could not find Gaffer user for OTEL. Using default.");
+            userId = "unknownGremlinUser";
+        }
+        span.setAttribute(OtelUtil.USER_ATTRIBUTE, userId);
 
         // tuple to hold the result and explain
         Tuple2<Object, JSONObject> pair = new Tuple2<>();
@@ -326,7 +337,6 @@ public class GremlinController {
 
             // Provide an debug explanation for the query that just ran
             span.addEvent("Request complete");
-            span.setAttribute("gaffer.gremlin.explain", pair.get1().toString());
             LOGGER.debug("{}", pair.get1());
 
             // Reset the vars

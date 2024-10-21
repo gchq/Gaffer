@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -39,6 +40,10 @@ public class AddGraph implements Operation {
     private GraphConfig graphConfig;
     private Schema schema;
     private Properties properties;
+    private String owner;
+    private Boolean isPublic;
+    private AccessPredicate readPredicate;
+    private AccessPredicate writePredicate;
     private Map<String, String> options;
 
     // Getters
@@ -70,6 +75,22 @@ public class AddGraph implements Operation {
         return properties;
     }
 
+    public String getOwner() {
+        return owner;
+    }
+
+    public Boolean isPublic() {
+        return isPublic;
+    }
+
+    public AccessPredicate getReadPredicate() {
+        return readPredicate;
+    }
+
+    public AccessPredicate getWritePredicate() {
+        return writePredicate;
+    }
+
     // Setters
 
     /**
@@ -99,6 +120,22 @@ public class AddGraph implements Operation {
         this.properties = properties;
     }
 
+    public void setOwner(final String owner) {
+        this.owner = owner;
+    }
+
+    public void setIsPublic(final Boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
+    public void setReadPredicate(final AccessPredicate readPredicate) {
+        this.readPredicate = readPredicate;
+    }
+
+    public void setWritePredicate(final AccessPredicate writePredicate) {
+        this.writePredicate = writePredicate;
+    }
+
     @Override
     public Map<String, String> getOptions() {
         return options;
@@ -115,6 +152,8 @@ public class AddGraph implements Operation {
                 .graphConfig(graphConfig)
                 .schema(schema)
                 .properties(properties)
+                .readPredicate(readPredicate)
+                .writePredicate(writePredicate)
                 .options(options)
                 .build();
     }
@@ -154,6 +193,26 @@ public class AddGraph implements Operation {
          */
         public Builder properties(final Properties properties) {
             _getOp().setProperties(properties);
+            return _self();
+        }
+
+        public Builder owner(final String owner) {
+            _getOp().setOwner(owner);
+            return _self();
+        }
+
+        public Builder isPublic(final Boolean isPublic) {
+            _getOp().setIsPublic(isPublic);
+            return _self();
+        }
+
+        public Builder readPredicate(final AccessPredicate readPredicate) {
+            _getOp().setReadPredicate(readPredicate);
+            return _self();
+        }
+
+        public Builder writePredicate(final AccessPredicate writePredicate) {
+            _getOp().setWritePredicate(writePredicate);
             return _self();
         }
     }
