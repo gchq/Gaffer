@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federated.simple.operation;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -52,5 +54,20 @@ class FederatedOperationChainValidatorTest {
         verify(store).execute(any(GetSchema.class), any(Context.class));
         // Then
         assertThat(result).isEqualTo(schema);
+    }
+
+    @Test
+    void shouldThrowException() throws OperationException {
+        // Given
+        when(store.execute(any(GetSchema.class), any(Context.class))).thenThrow(GafferRuntimeException.class);
+
+        // When/Then
+        try {
+            validator.getSchema(op, user, store);
+            fail("Exception expected");
+        } catch (final Exception e) {
+            verify(store).execute(any(GetSchema.class), any(Context.class));
+            assertThat(e).isInstanceOf(GafferRuntimeException.class);
+        }
     }
 }
