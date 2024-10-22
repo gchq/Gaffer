@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -51,6 +52,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEdgeGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEntityGenerator;
@@ -80,6 +82,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -540,7 +543,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * Given an iterable of vertex ids, adjacent vertices will be returned.
      * If you provide any optional labels then you must provide edge labels and the vertex
      * labels - any missing labels will cause the elements to be filtered out.
-     * This method will not return 'id' vertices, only vertices that exist as entities in Gaffer.
      *
      * @param vertexIds the iterable of vertex ids to start at.
      * @param direction the direction along edges to travel
@@ -830,16 +832,21 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             throw new UnsupportedOperationException("There could be a lot of vertices, so please add some seeds");
         }
 
-        final Iterable<? extends Element> result = execute(new OperationChain.Builder()
+        final Iterable<? extends EntityId> getAdjEntitySeeds = execute(new OperationChain.Builder()
                 .first(new GetAdjacentIds.Builder()
-                        .input(seeds)
-                        .view(view)
-                        .inOutType(getInOutType(direction))
-                        .build())
-                // GetAdjacentIds provides list of entity seeds so run a GetElements to get the actual Entities
-                .then(new GetElements.Builder()
-                        .view(createAllEntitiesView())
-                        .build())
+                    .input(seeds)
+                    .view(view)
+                    .inOutType(getInOutType(direction))
+                    .build())
+                .build());
+
+        List<EntityId> seedList = StreamSupport.stream(getAdjEntitySeeds.spliterator(), false).collect(Collectors.toList());
+
+        // GetAdjacentIds provides list of entity seeds so run a GetElements to get the actual Entities
+        final Iterable<? extends Element> result = execute(new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                    .input(seedList)
+                    .build())
                 .build());
 
         // Translate results to Gafferpop elements
@@ -850,7 +857,13 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(e -> (Vertex) e)
                 .iterator();
 
-        return translatedResults.iterator();
+        // Check for seeds that are not entities but are vertices on an edge (orphan vertices)
+        Iterable<Vertex> chainedIterable = translatedResults;
+        for (final EntityId seed : seedList) {
+            Iterable<Vertex> orphanVertices = GafferVertexUtils.getOrphanVertices(result, this, seed.getVertex());
+            chainedIterable = IterableUtils.chainedIterable(chainedIterable, orphanVertices);
+        }
+        return chainedIterable.iterator();
     }
 
     private Iterator<Edge> edgesWithSeedsAndView(final List<ElementSeed> seeds, final Direction direction, final View view) {
@@ -922,7 +935,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         View view = null;
         if (null != labels && 0 < labels.length) {
             final View.Builder viewBuilder = new View.Builder();
-            final Schema schema = graph.getSchema();
+            final Schema schema = execute(new OperationChain.Builder()
+                .first(new GetSchema.Builder()
+                    .compact(true)
+                    .build())
+                .options(opOptions)
+                .build());
             for (final String label : labels) {
                 if (schema.isEntity(label)) {
                     viewBuilder.entity(label);
