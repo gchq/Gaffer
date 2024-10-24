@@ -119,6 +119,10 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
                 if (!Boolean.parseBoolean(operation.getOption(OPT_SKIP_FAILED_EXECUTE, "false"))) {
                     throw e;
                 }
+            } catch (final IllegalArgumentException e) {
+                // An operation may fail validation for a sub graph this is not really an error.
+                // We can just continue to execute on the rest of the graphs
+                LOGGER.warn("Operation contained arguments not valid for graph: {}", gs.getGraphId());
             }
 
         }
