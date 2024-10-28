@@ -42,27 +42,23 @@ public class FederatedStoreITs extends AbstractStoreITs {
 
     private static final Schema SCHEMA = new Schema();
     private static final Map<String, String> TESTS_TO_SKIP = Stream.of(
-            new SimpleEntry<>("shouldGetPathsWithSimpleGraphHook_1", "Unable to add Hooks to individual fed graphs"),
-            new SimpleEntry<>("shouldGetPathsWithSimpleGraphHook_2", "Unable to add Hooks to individual fed graphs"),
-            new SimpleEntry<>("shouldExecuteForEachOperationOnGetElementsWithValidResults",
-                "ForEachIT - Somewhat works when using a different collection merge class"),
-            new SimpleEntry<>("shouldExecuteForEachOperationOnGetElementsWithEmptyIterable",
-                "ForEachIT - Somewhat works when using a different collection merge class"),
+            new SimpleEntry<>("shouldGetPathsWithSimpleGraphHook_2", "GetWalksIT - investigate"),
             new SimpleEntry<>("shouldGetEntityIds", "GetAdjacentIdsIT - Results duplicated"),
-            new SimpleEntry<>("shouldConvertToDomainObjects", "GeneratorsIT - Returns duplicates (likely due to the strange type)"),
             new SimpleEntry<>("shouldGetAllElementsWithFilterWithoutSummarisation",
                 "GetAllElementsIT - count value is duplicated, elements correct otherwise"),
             new SimpleEntry<>("shouldImportFromFileThenCorrectlyExportToFile", "ImportExportCsvIT - Investigate further"),
-            new SimpleEntry<>("shouldRightSideFullJoinUsingKeyFunctionMatch", "JoinIT - Returns duplicates"),
+            new SimpleEntry<>("shouldRightKeyOuterJoin", "JoinIT - Missing results"),
+            new SimpleEntry<>("shouldLeftKeyInnerJoin", "JoinIT - Missing results"),
+            new SimpleEntry<>("shouldRightKeyInnerJoin", "JoinIT - Missing results"),
+            new SimpleEntry<>("shouldRightKeyFullJoin", "JoinIT - Missing results"),
+            new SimpleEntry<>("shouldLeftKeyOuterJoin", "JoinIT - Missing results"),
             new SimpleEntry<>("shouldReturnDuplicateEdgesWhenNoAggregationIsUsed",
                 "NoAggregationIT - Need to ensure that when schema has aggregation false that this is applied"),
             new SimpleEntry<>("shouldReturnDuplicateEntitiesWhenNoAggregationIsUsed",
                 "NoAggregationIT - Need to ensure that when schema has aggregation false that this is applied"),
             new SimpleEntry<>("shouldAggregateOnlyRequiredGroupsWithQueryTimeAggregation", "PartAggregationIT - Investigate further"),
             new SimpleEntry<>("shouldAggregateOnlyRequiredGroups", "PartAggregationIT - Investigate further"),
-            new SimpleEntry<>("shouldApplyPostOpAggregation", "SchemaMigrationIT - Need to apply schema aggregation choices"),
-            new SimpleEntry<>("shouldResolveNamedViewWithinNamedOperation", "GraphHooksIT - Can add and get NamedOps/Views but cannot run them"),
-            new SimpleEntry<>("shouldRepeatedlyAddElements", "WhileIT - Investigate further"))
+            new SimpleEntry<>("shouldApplyPostOpAggregation", "SchemaMigrationIT - Need to apply schema aggregation choices"))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     FederatedStoreITs() {

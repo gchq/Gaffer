@@ -24,12 +24,14 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddToCacheHandler;
 
 /**
  * Custom handler for operations that could in theory target sub graphs or the
- * federated store directly.
+ * federated store directly.  Implements the {@link AddToCacheHandler} interface
+ * so that this can also handle operations that add named operations etc.
  */
-public class EitherOperationHandler<O extends Operation> implements OperationHandler<O> {
+public class EitherOperationHandler<O extends Operation> implements AddToCacheHandler<O> {
     private static final Logger LOGGER = LoggerFactory.getLogger(EitherOperationHandler.class);
 
     private final OperationHandler<O> standardHandler;
@@ -58,5 +60,14 @@ public class EitherOperationHandler<O extends Operation> implements OperationHan
 
         // No sub graphs involved just run the handler for this operations on the federated store
         return standardHandler.doOperation(operation, context, store);
+    }
+
+    /**
+     * We might be handling an Operation that extends {@link AddToCacheHandler}
+     * so use the default handler for the suffix.
+     */
+    @Override
+    public String getSuffixCacheName() {
+        return ((AddToCacheHandler<O>) standardHandler).getSuffixCacheName();
     }
 }
