@@ -43,7 +43,8 @@ public class FederatedStoreITs extends AbstractStoreITs {
     private static final Schema SCHEMA = new Schema();
     private static final Map<String, String> TESTS_TO_SKIP = Stream.of(
             new SimpleEntry<>("shouldGetPathsWithSimpleGraphHook_2", "GetWalksIT - investigate"),
-            new SimpleEntry<>("shouldGetEntityIds", "GetAdjacentIdsIT - Results duplicated"),
+            new SimpleEntry<>("shouldGetEntityIds",
+                "GetAdjacentIdsIT - Results duplicated due to returning EntityIds (Iterable) which will not dedup"),
             new SimpleEntry<>("shouldGetAllElementsWithFilterWithoutSummarisation",
                 "GetAllElementsIT - count value is duplicated, elements correct otherwise"),
             new SimpleEntry<>("shouldImportFromFileThenCorrectlyExportToFile", "ImportExportCsvIT - Investigate further"),
