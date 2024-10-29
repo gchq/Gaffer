@@ -57,11 +57,15 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 
 /**
- * This operation federates a payload operation across a given set of graphs and merges the results with a given function.
+ * This operation federates a payload operation across a given set of graphs and
+ * merges the results with a given function.
  *
  * @param <INPUT>  Input type of the payload operation
  * @param <OUTPUT> Output type of the merge function
+ * @deprecated Concept of a FederatedOperation class will not exist from 2.4.0,
+ *             all federation specifics are handled via operation options.
  */
+@Deprecated
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds", "skipFailedFederatedExecution"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("Federates a payload operation across given graphs and merges the results with a given function.")

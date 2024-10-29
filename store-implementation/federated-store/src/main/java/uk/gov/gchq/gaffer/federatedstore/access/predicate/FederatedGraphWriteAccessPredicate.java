@@ -20,6 +20,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.user.FederatedGraphWriteUserPredicate;
 
+/**
+ * @deprecated Marked for removal in 2.4.0 please use standard AccessPredicates
+ *             going forward.
+ */
+@Deprecated
 public class FederatedGraphWriteAccessPredicate extends FederatedGraphAccessPredicate {
 
     @JsonCreator

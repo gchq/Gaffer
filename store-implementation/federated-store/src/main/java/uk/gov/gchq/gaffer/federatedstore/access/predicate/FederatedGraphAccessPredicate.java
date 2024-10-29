@@ -27,6 +27,11 @@ import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.FEDERATED_STORE_SYSTEM_USER;
 
+/**
+ * @deprecated Marked for removal in 2.4.0 please use standard AccessPredicates
+ *             going forward.
+ */
+@Deprecated
 public abstract class FederatedGraphAccessPredicate extends AccessPredicate {
 
     public FederatedGraphAccessPredicate(final Predicate<User> userPredicate) {

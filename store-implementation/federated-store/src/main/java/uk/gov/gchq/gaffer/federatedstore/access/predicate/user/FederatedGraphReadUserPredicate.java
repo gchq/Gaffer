@@ -27,6 +27,11 @@ import java.util.List;
 
 import static java.util.Objects.isNull;
 
+/**
+ * @deprecated Marked for removal in 2.4.0 please use standard
+ *             DefaultUserPredicate going forward.
+ */
+@Deprecated
 public class FederatedGraphReadUserPredicate extends DefaultUserPredicate {
 
     private final boolean isPublic;

@@ -23,6 +23,11 @@ import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+/**
+ * @deprecated Will be removed in 2.4.0, functionality will be merged into the
+ *             AddGraph operation.
+ */
+@Deprecated
 @JsonPropertyOrder(
         value = {"class", "graphId"},
         alphabetic = true

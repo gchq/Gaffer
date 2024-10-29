@@ -25,7 +25,11 @@ import java.util.List;
 
 /**
  * Interface for Operations that uses a selection of graphs to be performed.
+ *
+ * @deprecated Concept of a FederatedOperation class will not exist from 2.4.0,
+ *             all federation specifics are handled via operation options.
  */
+@Deprecated
 @Since("2.0.0")
 public interface IFederatedOperation extends Operation {
 

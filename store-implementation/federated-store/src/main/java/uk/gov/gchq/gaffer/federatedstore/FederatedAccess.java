@@ -71,7 +71,9 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
  * <tr><td> n/a     </td><td> {@code empty} </td><td> F
  * </td><td> F         </td></tr>
  * </table>
+ * @deprecated Will be replaced by a GraphAccess class in 2.4.0.
  */
+@Deprecated
 @JsonDeserialize(builder = FederatedAccess.Builder.class)
 @JsonPropertyOrder(value = {"class", "owningUserId"}, alphabetic = true)
 public class FederatedAccess implements AccessControlledResource {

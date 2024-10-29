@@ -29,7 +29,9 @@ import java.util.function.BiFunction;
  * @param <U> – the type of the second argument to the function
  * @param <R> – the type of the result of the function
  * @see BiFunction
+ * @deprecated Merging will be overhauled in 2.4.0.
  */
+@Deprecated
 public interface ContextSpecificMergeFunction<T, U, R> extends BiFunction<T, U, R> {
     ContextSpecificMergeFunction<T, U, R> createFunctionWithContext(final HashMap<String, Object> context) throws GafferCheckedException;
 

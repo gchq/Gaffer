@@ -26,6 +26,11 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 
+/**
+ * @deprecated Marked for removal in 2.4.0 please use standard
+ *             DefaultUserPredicate going forward.
+ */
+@Deprecated
 public class FederatedGraphWriteUserPredicate extends DefaultUserPredicate {
 
     @JsonCreator
