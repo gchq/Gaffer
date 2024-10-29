@@ -312,6 +312,16 @@ public class FederatedStore extends Store {
         }
     }
 
+    /**
+     * Access to getting the operations that have handlers specific to this
+     * store e.g. operations that should always be handled specially.
+     *
+     * @return The Operation classes handled by this store.
+     */
+    public Set<Class<? extends Operation>> getStoreSpecificOperations() {
+        return storeHandlers.keySet();
+    }
+
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
         if (unused != null) {
