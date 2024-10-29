@@ -37,7 +37,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GetSchemaTest {
+class GetSchemaTest {
 
     @AfterEach
     void reset() {
