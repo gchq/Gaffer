@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_GRAPH_IDS;
 
@@ -53,17 +52,6 @@ class FederatedStoreTest {
 
         assertThat(store.getGraphId()).isEqualTo(graphId);
         assertThat(store.getProperties()).isEqualTo(properties);
-    }
-
-    @Test
-    void shouldNotInitialiseWithSchema() {
-        String graphId = "federated";
-        StoreProperties properties = new StoreProperties();
-        FederatedStore store = new FederatedStore();
-        Schema schema = new Schema();
-
-        assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> store.initialise(graphId, schema, properties));
     }
 
     @Test

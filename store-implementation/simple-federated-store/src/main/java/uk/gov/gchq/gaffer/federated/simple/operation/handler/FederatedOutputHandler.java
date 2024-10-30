@@ -71,7 +71,9 @@ public class FederatedOutputHandler<P extends Output<O>, O>
 
         // Merge the store props with the operation options for setting up the accumulator
         Properties combinedProps = store.getProperties().getProperties();
-        combinedProps.putAll(operation.getOptions());
+        if (operation.getOptions() != null) {
+            combinedProps.putAll(operation.getOptions());
+        }
 
         // Set up the result accumulator
         FederatedResultAccumulator<O> resultAccumulator = new DefaultResultAccumulator<>(combinedProps);
