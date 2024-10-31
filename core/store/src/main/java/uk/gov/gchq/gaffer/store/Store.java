@@ -384,7 +384,6 @@ public abstract class Store {
     public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
         return execute(OperationChain.wrap(operation), context);
     }
-    
     protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
         final O result = (O) handleOperation(operation, context);
         return result;
