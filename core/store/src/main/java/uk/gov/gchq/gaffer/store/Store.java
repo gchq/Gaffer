@@ -387,12 +387,10 @@ public abstract class Store {
 
     
     protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
-        try {
-            final O result = (O) handleOperation(operation, context);
-            return result;
-        } finally {
-        }
+        final O result = (O) handleOperation(operation, context);
+        return result;
     }
+    
 
     /**
      * Executes a given operation job and returns the job detail.
