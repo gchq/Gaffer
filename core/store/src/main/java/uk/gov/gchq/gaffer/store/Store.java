@@ -384,13 +384,11 @@ public abstract class Store {
     public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
         return execute(OperationChain.wrap(operation), context);
     }
-
     
     protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
         final O result = (O) handleOperation(operation, context);
         return result;
     }
-    
 
     /**
      * Executes a given operation job and returns the job detail.
@@ -981,7 +979,6 @@ public abstract class Store {
                 newJobDetail.setRepeat(null);
                 newJobDetail.setSerialisedOperationChain(operationChain);
             }
-    
             if (null == oldJobDetail) {
                 jobTracker.addOrUpdateJob(newJobDetail, context.getUser());
             } else {
