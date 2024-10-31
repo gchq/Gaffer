@@ -61,6 +61,11 @@ public class FederatedOutputHandler<P extends Output<O>, O>
                 if (!Boolean.parseBoolean(operation.getOption(OPT_SKIP_FAILED_EXECUTE, "false"))) {
                     throw e;
                 }
+                LOGGER.info("Continuing operation execution on sub graphs");
+            } catch (final IllegalArgumentException e) {
+                // An operation may fail validation for a sub graph this is not really an error.
+                // We can just continue to execute on the rest of the graphs
+                LOGGER.warn("Operation contained invalid arguments for a sub graph, skipped execution on graph: {}", gs.getGraphId());
             }
         }
 
@@ -71,7 +76,9 @@ public class FederatedOutputHandler<P extends Output<O>, O>
 
         // Merge the store props with the operation options for setting up the accumulator
         Properties combinedProps = store.getProperties().getProperties();
-        combinedProps.putAll(operation.getOptions());
+        if (operation.getOptions() != null) {
+            combinedProps.putAll(operation.getOptions());
+        }
 
         // Set up the result accumulator
         FederatedResultAccumulator<O> resultAccumulator = new DefaultResultAccumulator<>(combinedProps);

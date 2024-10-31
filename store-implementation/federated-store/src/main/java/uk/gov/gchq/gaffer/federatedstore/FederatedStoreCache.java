@@ -26,9 +26,14 @@ import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 /**
- * Wrapper around {@link FederatedStoreCacheTransient} to provide an interface for
+ * Wrapper around {@link FederatedStoreCacheTransient} to provide an interface
+ * for
  * handling {@link Graph}s within a {@link FederatedStore}.
+ *
+ * @deprecated Federated store will use the default cache implementation going
+ *             forward.
  */
+@Deprecated
 public final class FederatedStoreCache {
     private final FederatedStoreCacheTransient cacheTransient;
 
