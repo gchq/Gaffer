@@ -385,25 +385,12 @@ public abstract class Store {
         return execute(OperationChain.wrap(operation), context);
     }
 
-    private boolean isJobOperation(Class<?> operationClass) {
-        return Job.class.isAssignableFrom(operationClass);
-    }
     
     protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
         try {
-            if (isJobOperation(operation.getClass())) {
-                addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
-            }
             final O result = (O) handleOperation(operation, context);
-            if (isJobOperation(operation.getClass())) {
-                addOrUpdateJobDetail(operation, context, null, JobStatus.FINISHED);
-            }
             return result;
-        } catch (final Throwable t) {
-            if (isJobOperation(operation.getClass())) {
-                addOrUpdateJobDetail(operation, context, t.getMessage(), JobStatus.FAILED);
-            }
-            throw t;
+        } finally {
         }
     }
 
@@ -989,10 +976,6 @@ public abstract class Store {
     }
 
     private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
-        if (!isJobOperation(operationChain.getClass())) {
-            return null;
-        }
-    
         final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser(), operationChain, jobStatus, msg);
         if (null != jobTracker) {
             final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context.getUser());
