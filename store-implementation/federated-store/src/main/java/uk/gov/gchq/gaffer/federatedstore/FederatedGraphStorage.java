@@ -49,6 +49,10 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.renameTable;
 
+/**
+ * @deprecated Will be removed in 2.4.0.
+ */
+@Deprecated
 public class FederatedGraphStorage {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE = "Error adding graph, GraphId is known within the cache, but %s is different. GraphId: %s";
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";

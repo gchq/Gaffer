@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,11 @@ import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.FEDERATED_STORE_SYSTEM_USER;
 
+/**
+ * @deprecated Marked for removal in 2.4.0 please use standard AccessPredicates
+ *             going forward.
+ */
+@Deprecated
 public abstract class FederatedGraphAccessPredicate extends AccessPredicate {
 
     public FederatedGraphAccessPredicate(final Predicate<User> userPredicate) {
