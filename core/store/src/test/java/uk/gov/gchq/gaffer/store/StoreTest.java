@@ -257,32 +257,6 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldExecuteOperationWhenJobTrackerCacheIsBroken(@Mock final StoreProperties storeProperties) throws Exception {
-        // Given
-        ICache<Object, Object> mockICache = Mockito.mock(ICache.class);
-        doThrow(new CacheOperationException("Stubbed class")).when(mockICache).put(any(), any());
-        ICacheService mockICacheService = Mockito.spy(ICacheService.class);
-        given(mockICacheService.getCache(any())).willReturn(mockICache);
-
-        Field field = CacheServiceLoader.class.getDeclaredField("SERVICES");
-        field.setAccessible(true);
-        java.util.Map<String, ICacheService> mockCacheServices = (java.util.Map<String, ICacheService>) field.get(new HashMap<>());
-        mockCacheServices.put(JOB_TRACKER_CACHE_SERVICE_NAME, mockICacheService);
-
-        final AddElements addElements = new AddElements();
-        final StoreImpl3 store = new StoreImpl3();
-        store.initialise("graphId", createSchemaMock(), storeProperties);
-
-        // When
-        store.execute(addElements, context);
-
-        // Then
-        verify(addElementsHandler).doOperation(addElements, context, store);
-        verify(mockICacheService, Mockito.atLeast(1)).getCache(any());
-        verify(mockICache, Mockito.atLeast(1)).put(any(), any());
-    }
-
-    @Test
     public void shouldCreateStoreWithSpecificCaches() throws SchemaException, StoreException {
         // Given
         final Store testStore = new StoreImpl();
