@@ -92,6 +92,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetGraphCreatedTime;
 import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -112,6 +113,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.Store.ScheduledJobRunnable;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.HasTrait;
@@ -139,6 +141,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -603,6 +606,7 @@ public class StoreTest {
                         ForEach.class,
                         Reduce.class,
                         CancelScheduledJob.class,
+                        GetGraphCreatedTime.class,
 
                         // Function
                         Filter.class,
@@ -711,6 +715,7 @@ public class StoreTest {
                         ToSingletonList.class,
                         ForEach.class,
                         Reduce.class,
+                        GetGraphCreatedTime.class,
 
                         // Function
                         Filter.class,
@@ -914,6 +919,19 @@ public class StoreTest {
 
         // Then
         assertThat(result).isSameAs(graphLibrary);
+    }
+
+    @Test
+    void shouldGetCreatedTime() {
+        // Given
+        final Store testStore = new StoreImpl();
+
+        // When
+        String storeTime = testStore.getCreatedTime();
+
+        // Then
+        assertThat(storeTime).isInstanceOf(String.class);
+        assertThat(LocalDateTime.parse(storeTime)).isInstanceOf(LocalDateTime.class);
     }
 
     private Schema createSchemaMock() {
@@ -1176,6 +1194,11 @@ public class StoreTest {
         }
 
         @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+            return null;
+        }
+
+        @Override
         protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
             return new GetTraitsHandler(traits);
         }
@@ -1268,6 +1291,11 @@ public class StoreTest {
 
         @Override
         protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
             return null;
         }
 
@@ -1373,6 +1401,11 @@ public class StoreTest {
 
         @Override
         protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
             return null;
         }
 

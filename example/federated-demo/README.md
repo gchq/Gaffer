@@ -71,8 +71,7 @@ To add a Map graph, execute this operation (or run addMapEdgesGraph.sh):
            ]
          }
        }
-     }
-    },
+     },
     "isPublic": true
 }
 ```

@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
+
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -66,9 +67,7 @@ public final class GafferPopModernFederatedTestUtils {
     public static GafferPopGraph createModernGraph(Class<?> clazz, StoreType storeType) throws OperationException {
         CacheServiceLoader.shutdown();
         Graph g = setUpFederatedGraph(clazz, GafferPopTestUtil.getStoreProperties(storeType));
-        GafferPopGraph graph = GafferPopGraph.open(MODERN_CONFIGURATION, g);
-
-        return graph;
+        return GafferPopGraph.open(MODERN_CONFIGURATION, g);
     }
 
     private static Graph setUpFederatedGraph(Class<?> clazz, StoreProperties properties) throws OperationException {

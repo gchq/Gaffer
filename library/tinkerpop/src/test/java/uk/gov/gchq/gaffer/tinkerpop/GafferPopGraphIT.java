@@ -27,9 +27,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
-import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernFederatedTestUtils;
 import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 
 import java.util.List;
@@ -56,23 +54,20 @@ import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.
  */
 class GafferPopGraphIT {
     private static final String TEST_NAME_FORMAT = "({0}) {displayName}";
+    private static final String VERTEX_ONLY_ID_STRING = "7";
     private static GafferPopGraph mapStore;
     private static GafferPopGraph accumuloStore;
-    private static GafferPopGraph federated;
 
     @BeforeAll
-    public static void createGraphs() throws OperationException {
+    public static void createGraphs() {
         mapStore = GafferPopModernTestUtils.createModernGraph(GafferPopGraphIT.class, StoreType.MAP);
         accumuloStore = GafferPopModernTestUtils.createModernGraph(GafferPopGraphIT.class, StoreType.ACCUMULO);
-        // Federated store with subgraphs using a map store
-        federated = GafferPopModernFederatedTestUtils.createModernGraph(GafferPopGraphIT.class, StoreType.MAP);
     }
 
     private static Stream<Arguments> provideTraversals() {
         return Stream.of(
                 Arguments.of("Map Store", mapStore.traversal()),
-                Arguments.of("Accumulo Store", accumuloStore.traversal()),
-                Arguments.of("Federated (Map Store)", federated.traversal())
+                Arguments.of("Accumulo Store", accumuloStore.traversal())
         );
     }
 
@@ -95,7 +90,7 @@ class GafferPopGraphIT {
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
     void shouldTruncateGetAllVertices(String graph, GraphTraversalSource g) {
-        final List<Vertex> result = g.with("getAllElementsLimit", 2).V().toList();
+        final List<Vertex> result = g.with("getElementsLimit", 2).V().toList();
 
         assertThat(result)
                 .hasSize(2)
@@ -246,7 +241,7 @@ class GafferPopGraphIT {
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
     void shouldTruncateGetAllEdges(String graph, GraphTraversalSource g) {
-        final List<Edge> result = g.with("getAllElementsLimit", 2).E().toList();
+        final List<Edge> result = g.with("getElementsLimit", 2).E().toList();
 
         assertThat(result)
                 .hasSize(2)
@@ -283,7 +278,7 @@ class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    void shouldAddV(String graph, GraphTraversalSource g) throws OperationException {
+    void shouldAddV(String graph, GraphTraversalSource g) {
         g.addV(PERSON).property(NAME, "stephen").property(T.id, "test").iterate();
 
         final List<Vertex> result = g.V().toList();
@@ -295,7 +290,7 @@ class GafferPopGraphIT {
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
-    void shouldAddE(String graph, GraphTraversalSource g) throws OperationException {
+    void shouldAddE(String graph, GraphTraversalSource g) {
         g.addE(KNOWS).from(__.V(VADAS.getId())).to(__.V(PETER.getId())).iterate();
 
         final List<Edge> result = g.E().toList();
@@ -305,7 +300,53 @@ class GafferPopGraphIT {
         reset();
     }
 
-    void reset() throws OperationException  {
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldSeedWithVertexOnlyEdge(String graph, GraphTraversalSource g) {
+        // Edge has a vertex but not an entity in the graph - Gaffer only feature
+        // [1 - knows -> 7]
+        mapStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), VERTEX_ONLY_ID_STRING, mapStore));
+        accumuloStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), VERTEX_ONLY_ID_STRING, accumuloStore));
+
+        List<Vertex> result = g.V(VERTEX_ONLY_ID_STRING).toList();
+        assertThat(result)
+            .extracting(r -> r.id())
+            .contains(VERTEX_ONLY_ID_STRING);
+        reset();
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldTraverseEdgeWithVertexOnlyEdge(String graph, GraphTraversalSource g) {
+        // Edge has a two vertices with no entities in the graph - Gaffer only feature
+        // [8 - knows -> 7]
+        mapStore.addEdge(new GafferPopEdge("knows", "8", VERTEX_ONLY_ID_STRING, mapStore));
+        accumuloStore.addEdge(new GafferPopEdge("knows", "8", VERTEX_ONLY_ID_STRING, accumuloStore));
+
+        List<Vertex> result = g.V(VERTEX_ONLY_ID_STRING).inE().inV().toList();
+        assertThat(result)
+            .extracting(r -> r.id())
+            .contains(VERTEX_ONLY_ID_STRING);
+        List<Vertex> result2 = g.V(VERTEX_ONLY_ID_STRING).inE().outV().toList();
+        assertThat(result2)
+            .extracting(r -> r.id())
+            .contains("8");
+        List<Vertex> result3 = g.V("8").outE().inV().toList();
+        assertThat(result3)
+            .extracting(r -> r.id())
+            .contains(VERTEX_ONLY_ID_STRING);
+        List<Vertex> result4 = g.V("8").outE().outV().toList();
+        assertThat(result4)
+            .extracting(r -> r.id())
+            .contains("8");
+        List<Vertex> resultLabel = g.V("8").out("knows").toList();
+        assertThat(resultLabel)
+            .extracting(r -> r.id())
+            .containsOnly(VERTEX_ONLY_ID_STRING);
+        reset();
+    }
+
+    void reset() {
         // reset cache for federation
         CacheServiceLoader.shutdown();
         // recreate the graphs

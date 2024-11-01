@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -86,6 +87,11 @@ public class TestStore extends Store {
 
     @Override
     protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        return null;
+    }
+
+    @Override
+    protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
         return null;
     }
 

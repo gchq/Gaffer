@@ -79,7 +79,7 @@ class GafferPopGraphTest {
         assertThat(variables)
             .hasSize(5)
             .containsEntry(GafferPopGraphVariables.USER, expectedUser)
-            .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, 1)
+            .containsEntry(GafferPopGraphVariables.GET_ELEMENTS_LIMIT, 1)
             .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE, HasStepFilterStage.POST_TRANSFORM.toString())
             .containsKey(GafferPopGraphVariables.OP_OPTIONS);
 
@@ -104,7 +104,7 @@ class GafferPopGraphTest {
         assertThat(variables)
             .hasSize(5)
             .containsEntry(GafferPopGraphVariables.USER, expectedUser)
-            .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT, 2)
+            .containsEntry(GafferPopGraphVariables.GET_ELEMENTS_LIMIT, 2)
             .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE, HasStepFilterStage.POST_AGGREGATION.toString())
             .containsKey(GafferPopGraphVariables.OP_OPTIONS);
 
@@ -128,8 +128,8 @@ class GafferPopGraphTest {
         assertThat(variables)
             .hasSize(5)
             .containsEntry(GafferPopGraphVariables.USER, expectedUser)
-            .containsEntry(GafferPopGraphVariables.GET_ALL_ELEMENTS_LIMIT,
-                    GafferPopGraph.DEFAULT_GET_ALL_ELEMENTS_LIMIT)
+            .containsEntry(GafferPopGraphVariables.GET_ELEMENTS_LIMIT,
+                    GafferPopGraph.DEFAULT_GET_ELEMENTS_LIMIT)
             .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
                     GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE.toString())
             .containsKey(GafferPopGraphVariables.OP_OPTIONS);

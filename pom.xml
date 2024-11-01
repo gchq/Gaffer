@@ -38,7 +38,7 @@
 
     <properties>
         <!-- CI/CD revision variable -->
-        <revision>2.3.0</revision>
+        <revision>2.3.1</revision>
 
         <disable.forking>false</disable.forking>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -73,7 +73,7 @@
         <clearspring.version>2.7.0</clearspring.version>
         <datasketches.version>4.0.0</datasketches.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <commons-io.version>2.11.0</commons-io.version>
+        <commons-io.version>2.14.0</commons-io.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
         <commons-math.version>2.2</commons-math.version>

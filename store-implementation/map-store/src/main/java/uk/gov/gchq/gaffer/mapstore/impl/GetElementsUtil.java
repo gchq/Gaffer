@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,34 +89,28 @@ public final class GetElementsUtil {
                         && ((Edge) e).isDirected()
                         && (EdgeId.MatchedVertex.DESTINATION == ((Edge) e).getMatchedVertex()));
             }
+
             // Remove Edges if searching with EntityId and View has no Edges
             if (view.hasEntities() && !view.hasEdges()) {
-                isFiltered = isFiltered.or(e -> e instanceof Edge);
+                isFiltered = isFiltered.or(Edge.class::isInstance);
             }
         } else {
-            relevantElements = new HashSet<>();
-
             final EdgeId edgeId = (EdgeId) elementId;
 
-            if (DirectedType.isEither(edgeId.getDirectedType())) {
-                relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), false)));
-                relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), true)));
-            } else {
-                relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), edgeId.getDirectedType())));
-            }
+            relevantElements = getRelevantElements(mapImpl, edgeId);
 
             mapImpl.lookup(new EntitySeed(edgeId.getSource()))
                     .stream()
-                    .filter(e -> e instanceof Entity)
+                    .filter(Entity.class::isInstance)
                     .forEach(relevantElements::add);
             mapImpl.lookup(new EntitySeed(edgeId.getDestination()))
                     .stream()
-                    .filter(e -> e instanceof Entity)
+                    .filter(Entity.class::isInstance)
                     .forEach(relevantElements::add);
 
             // Remove Entities if searching with EdgeId and View has no Entities
             if (view.hasEdges() && !view.hasEntities()) {
-                isFiltered = isFiltered.or(e -> e instanceof Entity);
+                isFiltered = isFiltered.or(Entity.class::isInstance);
             }
         }
 
@@ -131,6 +125,19 @@ public final class GetElementsUtil {
         return relevantElements;
     }
 
+    private static Set<Element> getRelevantElements(final MapImpl mapImpl, final EdgeId edgeId) {
+        final Set<Element> relevantElements = new HashSet<>();
+
+        if (DirectedType.isEither(edgeId.getDirectedType())) {
+            relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), false)));
+            relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), true)));
+        } else {
+            relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), edgeId.getDirectedType())));
+        }
+
+        return relevantElements;
+    }
+
     public static Stream<Element> applyVisibilityFilter(final Stream<Element> elements, final Schema schema,
                                                         final User user) {
         final Set<String> dataAuths = user.getDataAuths();
@@ -142,7 +149,7 @@ public final class GetElementsUtil {
                                      final Authorisations authorisations) {
         if (e.getProperty(visibilityProperty) != null) {
             final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator(authorisations);
-            final ElementVisibility elementVisibility = new ElementVisibility((String) e.getProperty(visibilityProperty));
+            final ElementVisibility elementVisibility = new ElementVisibility(e.getProperty(visibilityProperty));
             try {
                 return visibilityEvaluator.evaluate(elementVisibility);
             } catch (final VisibilityParseException visibilityParseException) {
