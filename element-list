@@ -61,6 +61,15 @@ uk.gov.gchq.gaffer.data.graph.entity
 uk.gov.gchq.gaffer.data.graph.function.walk
 uk.gov.gchq.gaffer.exception
 uk.gov.gchq.gaffer.federated
+uk.gov.gchq.gaffer.federated.simple
+uk.gov.gchq.gaffer.federated.simple.access
+uk.gov.gchq.gaffer.federated.simple.merge
+uk.gov.gchq.gaffer.federated.simple.merge.operator
+uk.gov.gchq.gaffer.federated.simple.operation
+uk.gov.gchq.gaffer.federated.simple.operation.handler
+uk.gov.gchq.gaffer.federated.simple.operation.handler.add
+uk.gov.gchq.gaffer.federated.simple.operation.handler.get
+uk.gov.gchq.gaffer.federated.simple.operation.handler.misc
 uk.gov.gchq.gaffer.federatedstore
 uk.gov.gchq.gaffer.federatedstore.access.predicate
 uk.gov.gchq.gaffer.federatedstore.access.predicate.user
