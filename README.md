@@ -24,23 +24,38 @@ Gaffer offers:
  - Retrieval of graph data into Apache Spark for fast and flexible analysis
  - A fully-featured REST API
 
-To get going with Gaffer, visit our getting started pages ([1.x](https://gchq.github.io/gaffer-doc/v1docs/summaries/getting-started.html), [2.x](https://gchq.github.io/gaffer-doc/latest/getting-started/quickstart/)).
+To get going with Gaffer, visit our getting started pages ([1.x](https://gchq.github.io/gaffer-doc/v1docs/summaries/getting-started.html), [2.x](https://gchq.github.io/gaffer-doc/latest/administration-guide/gaffer-deployment/quickstart)).
+We also have a demo available to try that is based around a small uk road use dataset. See the example/road-traffic [README](https://github.com/gchq/Gaffer/blob/master/example/road-traffic/README.md) to try it out.
 
 Gaffer is under active development. Version 1.0 of Gaffer was released in October 2017, version 2.0 was released in May 2023.
 
-## Getting Started
+## Contributing
 
-### Try it out
+We welcome contributions to the project.
 
-We have a demo available to try that is based around a small uk road use dataset. See the example/road-traffic [README](https://github.com/gchq/Gaffer/blob/master/example/road-traffic/README.md) to try it out.
-
-### Building and Deploying
+### Quickstart
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/gchq/Gaffer?quickstart=1)
 
+To quickly and easily get access to an environment with everything installed and setup correctly you can use GitHub Codespaces, or alternatively GitLab GitPod.
+These provide remote coding environments using VS Code with the required plugins, Java version and Maven preinstalled.
+
+Our Javadoc can be found [here](http://gchq.github.io/Gaffer/). Gaffer's documentation is kept in the [gaffer-doc](https://github.com/gchq/gaffer-doc) repository and [published on GitHub pages (gchq.github.io)](https://gchq.github.io/gaffer-doc/latest/).
+
+### Local Requirements
+
+For building Gaffer locally you need Java 8 or 11 and Maven installed locally in a *nix environment. MS Windows will work for most purposes, but is not recommended because tests utilising Hadoop fail due to limited Hadoop support on Windows.
+Gaffer will compile with newer versions of Java, but some tests will fail because of a lack of support for newer Java in certain external dependencies.
+
 To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This will build all of Gaffer's core libraries and some examples of how to load and query data.
 
-See our [Store](https://gchq.github.io/gaffer-doc/latest/reference/stores-guide/stores/) documentation page for a list of available Gaffer Stores to chose from and the relevant documentation for each.
+### Contribution Process
+
+Detailed information on our ways of working can be found [in our developer docs](https://gchq.github.io/gaffer-doc/latest/development-guide/ways-of-working). In brief:
+
+- Sign the [GCHQ Contributor Licence Agreement](https://cla-assistant.io/gchq/Gaffer)
+- Push your changes to a fork
+- Submit a pull request
 
 ### Inclusion in other projects
 
@@ -62,12 +77,6 @@ To use Gaffer from the Java API the only required dependencies are the Gaffer gr
 ```
 
 This will include all other mandatory dependencies. Other (optional) components can be added to your project as required.
-
-### Documentation
-
-Our Javadoc can be found [here](http://gchq.github.io/Gaffer/). Gaffer's documentation is kept in the [gaffer-doc](https://github.com/gchq/gaffer-doc) repository and [published on GitHub pages (gchq.github.io)](https://gchq.github.io/gaffer-doc/latest/). 
-
-We have some user guides in our documentation ([1.x](https://gchq.github.io/gaffer-doc/v1docs/getting-started/user-guide/contents.html), [2.x](https://gchq.github.io/gaffer-doc/latest/getting-started/guide/guide/)).
 
 ## Related repositories
 
@@ -97,11 +106,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-
-## Contributing
-
-We welcome contributions to the project. Detailed information on our ways of working can be found [in our developer docs](https://gchq.github.io/gaffer-doc/latest/dev/ways-of-working/). In brief:
-
-- Sign the [GCHQ Contributor Licence Agreement](https://cla-assistant.io/gchq/Gaffer)
-- Push your changes to a fork
-- Submit a pull request

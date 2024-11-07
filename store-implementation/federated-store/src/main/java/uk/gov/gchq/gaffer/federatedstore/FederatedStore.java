@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.NoAccessUserPredicate;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -47,12 +48,14 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeG
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphIdHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphInfoHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedJoinHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedNoOutputHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphAndDeleteAllDataHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedWhileHandler;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.federatedstore.util.ApplyViewToElementsFunction;
 import uk.gov.gchq.gaffer.federatedstore.util.MergeSchema;
@@ -60,13 +63,16 @@ import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
+import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.Context;
@@ -75,6 +81,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
@@ -104,7 +111,10 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreCacheTransient.FEDERATED_STORE_CACHE_SERVICE_NAME;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.FEDERATED_STORE_SYSTEM_USER;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.getCacheServiceFederatedStoreSuffix;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
@@ -507,6 +517,10 @@ public class FederatedStore extends Store {
         addOperationHandler(Transform.class, new FederatedDelegateToHandler(new TransformHandler()));
         addOperationHandler(Validate.class, new FederatedDelegateToHandler(new ValidateHandler()));
 
+        //override with Federated safe version.
+        addOperationHandler(While.class, new FederatedWhileHandler());
+        addOperationHandler(Join.class, new FederatedJoinHandler());
+
         //FederationOperations
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
@@ -536,11 +550,20 @@ public class FederatedStore extends Store {
     }
 
     @Override
+    protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        return new FederatedNoOutputHandler<>();
+    }
+
+    @Override
+    protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+        return new FederatedNoOutputHandler<>();
+    }
+
+    @Override
     protected OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
         return new FederatedOutputIterableHandler<>();
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new FederatedNoOutputHandler<>();
@@ -559,14 +582,18 @@ public class FederatedStore extends Store {
 
     @Override
     protected void startCacheServiceLoader(final StoreProperties properties) {
-        //this line sets the property map with the default value if required.
-        properties.setCacheServiceClass(properties.getCacheServiceClass(FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT));
-        super.startCacheServiceLoader(properties);
-        try {
-            graphStorage.startCacheServiceLoader();
-        } catch (final Exception e) {
-            throw new RuntimeException("Error occurred while starting cache. " + e.getMessage(), e);
+        final String federatedStoreCacheClass = ((FederatedStoreProperties) properties).getFederatedStoreCacheServiceClass();
+        final String defaultCacheClass = properties.getDefaultCacheServiceClass();
+        if (federatedStoreCacheClass != null) {
+            CacheServiceLoader.initialise(FEDERATED_STORE_CACHE_SERVICE_NAME, federatedStoreCacheClass, properties.getProperties());
+        } else if (defaultCacheClass != null) {
+            CacheServiceLoader.initialise(DEFAULT_SERVICE_NAME, defaultCacheClass, properties.getProperties());
+        } else {
+            LOGGER.warn("Federated Store Properties did not include a cache class, using '{}' as default", CACHE_SERVICE_CLASS_DEFAULT);
+            properties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
+            startCacheServiceLoader(properties);
         }
+        super.startCacheServiceLoader(properties);
     }
 
     private void loadCustomPropertiesAuthFromProperties(final FederatedStoreProperties properties) {

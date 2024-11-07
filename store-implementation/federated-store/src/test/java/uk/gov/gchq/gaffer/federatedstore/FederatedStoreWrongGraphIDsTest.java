@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextBlankUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.entityBasic;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
@@ -56,7 +57,6 @@ public class FederatedStoreWrongGraphIDsTest {
     public static final String THERE_SHOULD_BE_ONE_ELEMENT = "There should be one expected element";
     public static final String INTEGER = "Integer";
     public static final String WRONG_GRAPH_ID = "x";
-    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private FederatedStore federatedStore;
 
     @AfterAll
@@ -70,8 +70,7 @@ public class FederatedStoreWrongGraphIDsTest {
 
         federatedStore = new FederatedStore();
 
-        FederatedStoreProperties fedProps = new FederatedStoreProperties();
-        fedProps.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        FederatedStoreProperties fedProps = getFederatedStorePropertiesWithHashMapCache();
 
         federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, fedProps);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ import java.util.List;
  *
  * @see uk.gov.gchq.gaffer.graph.GraphConfig.Builder
  */
-@JsonPropertyOrder(value = {"description", "graphId"}, alphabetic = true)
+@JsonPropertyOrder(value = {"description", "graphId", "otelActive"}, alphabetic = true)
 public final class GraphConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphConfig.class);
 
@@ -75,6 +75,7 @@ public final class GraphConfig {
     private GraphLibrary library;
     private String description;
     private final List<GraphHook> hooks = new ArrayList<>();
+    private Boolean otelActive;
 
     public GraphConfig() {
     }
@@ -131,6 +132,22 @@ public final class GraphConfig {
         } else {
             hooks.forEach(this::addHook);
         }
+    }
+
+    /**
+     * Is OpenTelemtery logging set to be active
+     * @return True if active
+     */
+    public Boolean getOtelActive() {
+        return otelActive;
+    }
+
+    /**
+     * Set OpenTelemetry logging to be active
+     * @param otelActive is active
+     */
+    public void setOtelActive(final Boolean otelActive) {
+        this.otelActive = otelActive;
     }
 
     /**
@@ -277,6 +294,7 @@ public final class GraphConfig {
                 .append("view", getView())
                 .append("library", library)
                 .append("hooks", hooks)
+                .append("otelActive", otelActive)
                 .toString();
     }
 
@@ -340,6 +358,9 @@ public final class GraphConfig {
             if (config.getDescription() != null) {
                 this.config.setDescription(config.getDescription());
             }
+            if (config.getOtelActive() != null) {
+                this.config.setOtelActive(config.getOtelActive());
+            }
             this.config.getHooks().addAll(config.getHooks());
 
             return this;
@@ -357,6 +378,11 @@ public final class GraphConfig {
 
         public Builder description(final String description) {
             this.config.setDescription(description);
+            return this;
+        }
+
+        public Builder otelActive(final Boolean active) {
+            this.config.setOtelActive(active);
             return this;
         }
 

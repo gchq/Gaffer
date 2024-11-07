@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,17 +30,16 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This test class is copied from org.apache.accumulo.core.util.ByteByfferUtilTest.
  */
-public class ByteBufferUtilTest {
+class ByteBufferUtilTest {
 
     private static final byte[] TEST_DATA_STRING = "0123456789".getBytes(UTF_8);
 
     @Test
-    public void testNonZeroArrayOffset() {
+    void testNonZeroArrayOffset() {
         final ByteBuffer bb1 = ByteBuffer.wrap(TEST_DATA_STRING, 3, 4);
 
         // create a ByteBuffer with a non-zero array offset
@@ -49,9 +48,9 @@ public class ByteBufferUtilTest {
         // The purpose of this test is to ensure ByteBufferUtil code works when arrayOffset is non-zero. The following asserts are not to test ByteBuffer, but
         // ensure the behaviour of slice() is as expected.
 
-        assertEquals(3, bb2.arrayOffset());
-        assertEquals(0, bb2.position());
-        assertEquals(4, bb2.limit());
+        assertThat(bb2.arrayOffset()).isEqualTo(3);
+        assertThat(bb2.position()).isZero();
+        assertThat(bb2.limit()).isEqualTo(4);
 
         // start test with non zero arrayOffset
         assertByteBufferEquals("3456", bb2);
@@ -62,21 +61,21 @@ public class ByteBufferUtilTest {
     }
 
     @Test
-    public void testZeroArrayOffsetAndNonZeroPosition() {
+    void testZeroArrayOffsetAndNonZeroPosition() {
         final ByteBuffer bb = ByteBuffer.wrap(TEST_DATA_STRING, 3, 4);
 
         assertByteBufferEquals("3456", bb);
     }
 
     @Test
-    public void testZeroArrayOffsetAndPosition() {
+    void testZeroArrayOffsetAndPosition() {
         final ByteBuffer bb = ByteBuffer.wrap(TEST_DATA_STRING, 0, 4);
 
         assertByteBufferEquals("0123", bb);
     }
 
     @Test
-    public void testDirectByteBuffer() {
+    void testDirectByteBuffer() {
         // allocate direct so it does not have a backing array
         final ByteBuffer bb = ByteBuffer.allocateDirect(10);
         bb.put(TEST_DATA_STRING);
@@ -90,15 +89,14 @@ public class ByteBufferUtilTest {
     }
 
     private static void assertByteBufferEquals(final String expected, final ByteBuffer bb) {
-        assertEquals(expected, ByteBufferUtil.toString(bb));
-        assertEquals(expected, new String(ByteBufferUtil.toBytes(bb), UTF_8));
-        assertEquals(expected, ByteBufferUtil.toString(bb));
+        assertThat(ByteBufferUtil.toString(bb)).isEqualTo(expected);
+        assertThat(new String(ByteBufferUtil.toBytes(bb), UTF_8)).isEqualTo(expected);
 
         List<byte[]> bal = ByteBufferUtil.toBytesList(Collections.singletonList(bb));
         assertThat(bal).hasSize(1);
-        assertEquals(expected, new String(bal.get(0), UTF_8));
+        assertThat(new String(bal.get(0), UTF_8)).isEqualTo(expected);
 
-        assertEquals(new ArrayByteSequence(expected), new ArrayByteSequence(bb));
+        assertThat(new ArrayByteSequence(bb)).isEqualTo(new ArrayByteSequence(expected));
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
@@ -109,13 +107,13 @@ public class ByteBufferUtilTest {
             throw new RuntimeException(e);
         }
 
-        assertEquals(expected, new String(baos.toByteArray(), UTF_8));
+        assertThat(new String(baos.toByteArray(), UTF_8)).isEqualTo(expected);
 
         ByteArrayInputStream bais = ByteBufferUtil.toByteArrayInputStream(bb);
         byte[] buffer = new byte[expected.length()];
         try {
             bais.read(buffer);
-            assertEquals(expected, new String(buffer, UTF_8));
+            assertThat(new String(buffer, UTF_8)).isEqualTo(expected);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

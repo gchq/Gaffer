@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,17 @@
 
 package uk.gov.gchq.gaffer.store.integration;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -33,6 +36,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -49,6 +53,10 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
 public class StoreIT {
+    @BeforeEach
+    void before() {
+        CacheServiceLoader.shutdown();
+    }
 
     @Test
     public void shouldCreateStoreAndValidateSchemas() throws SchemaException, StoreException {
@@ -75,6 +83,40 @@ public class StoreIT {
         assertThat(testStore.getSchema().validate().isValid()).isTrue();
     }
 
+    @Test
+    public void shouldCreateStoreWithSpecifiedCaches() throws SchemaException, StoreException {
+        // Given
+        final Store testStore = new TestStore();
+
+        // When
+        testStore.initialise("testGraph", new Schema(), StoreProperties.loadStoreProperties("allCaches.properties"));
+
+        // Then
+        assertThat(CacheServiceLoader.isDefaultEnabled()).isFalse();
+        assertThat(CacheServiceLoader.isEnabled("JobTracker")).isTrue();
+        assertThat(CacheServiceLoader.isEnabled("NamedView")).isTrue();
+        assertThat(CacheServiceLoader.isEnabled("NamedOperation")).isTrue();
+    }
+
+    @Test
+    public void shouldCreateStoreWithoutAnyCaches() throws SchemaException, StoreException {
+        // Given
+        final Store testStore = new TestStore();
+        final StoreProperties properties = new StoreProperties();
+        properties.setJobTrackerEnabled(false);
+        properties.setNamedViewEnabled(false);
+        properties.setNamedOperationEnabled(false);
+
+        // When
+        testStore.initialise("testGraph", new Schema(), properties);
+
+        // Then
+        assertThat(CacheServiceLoader.isDefaultEnabled()).isFalse();
+        assertThat(CacheServiceLoader.isEnabled("JobTracker")).isFalse();
+        assertThat(CacheServiceLoader.isEnabled("NamedView")).isFalse();
+        assertThat(CacheServiceLoader.isEnabled("NamedOperation")).isFalse();
+    }
+
     private class TestStore extends Store {
         private final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION));
 
@@ -99,6 +141,16 @@ public class StoreIT {
 
         @Override
         protected OperationHandler<? extends AddElements> getAddElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
             return null;
         }
 

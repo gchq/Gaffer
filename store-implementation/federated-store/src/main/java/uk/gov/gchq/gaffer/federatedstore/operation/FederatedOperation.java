@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,11 +57,15 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 
 /**
- * This operation federates a payload operation across a given set of graphs and merges the results with a given function.
+ * This operation federates a payload operation across a given set of graphs and
+ * merges the results with a given function.
  *
  * @param <INPUT>  Input type of the payload operation
  * @param <OUTPUT> Output type of the merge function
+ * @deprecated Concept of a FederatedOperation class will not exist from 2.4.0,
+ *             all federation specifics are handled via operation options.
  */
+@Deprecated
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds", "skipFailedFederatedExecution"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("Federates a payload operation across given graphs and merges the results with a given function.")
@@ -104,7 +108,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @Override
     @JsonIgnore
     public Collection<Operation> getOperations() {
-        return OperationChain.wrap(payloadOperation).getOperations();
+        return OperationChain.wrap(getPayloadOperation()).getOperations();
     }
 
     public FederatedOperation<INPUT, OUTPUT> mergeFunction(final BiFunction mergeFunction) {

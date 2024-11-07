@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,9 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
  * <tr><td> n/a     </td><td> {@code empty} </td><td> F
  * </td><td> F         </td></tr>
  * </table>
+ * @deprecated Will be replaced by a GraphAccess class in 2.4.0.
  */
+@Deprecated
 @JsonDeserialize(builder = FederatedAccess.Builder.class)
 @JsonPropertyOrder(value = {"class", "owningUserId"}, alphabetic = true)
 public class FederatedAccess implements AccessControlledResource {

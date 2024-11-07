@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,11 @@ import static java.util.Objects.nonNull;
  * the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView}s for a Gaffer graph.
  */
 public class NamedViewCache extends Cache<String, NamedViewDetail> {
-
     public static final String CACHE_SERVICE_NAME_PREFIX = "NamedView";
+    public static final String NAMED_VIEW_CACHE_SERVICE_NAME = "NamedView";
 
     public NamedViewCache(final String suffixNamedViewCacheName) {
-        super(getCacheNameFrom(suffixNamedViewCacheName));
+        super(getCacheNameFrom(suffixNamedViewCacheName), NAMED_VIEW_CACHE_SERVICE_NAME);
     }
 
     public static String getCacheNameFrom(final String suffixNamedViewCacheName) {
@@ -132,16 +132,11 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
      */
     public Iterable<NamedViewDetail> getAllNamedViews(final User user, final String adminAuth)
             throws CacheOperationException {
-        final Set<String> keys = super.getAllKeys();
         final Set<NamedViewDetail> views = new HashSet<>();
-        for (final String key : keys) {
-            try {
-                final NamedViewDetail namedViewDetail = getFromCache(key);
-                if (namedViewDetail.hasReadAccess(user, adminAuth)) {
-                    views.add(namedViewDetail);
-                }
-            } catch (final CacheOperationException e) {
-                throw e;
+        for (final String key : super.getAllKeys()) {
+            final NamedViewDetail namedViewDetail = getFromCache(key);
+            if (namedViewDetail.hasReadAccess(user, adminAuth)) {
+                views.add(namedViewDetail);
             }
         }
         return views;
@@ -155,8 +150,7 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
      *                  name
      * @throws CacheOperationException if the add operation fails
      */
-    public void addToCache(final NamedViewDetail namedView, final boolean overwrite)
-            throws CacheOperationException {
+    public void addToCache(final NamedViewDetail namedView, final boolean overwrite) throws CacheOperationException {
         super.addToCache(namedView.getName(), namedView, overwrite);
     }
 
@@ -167,6 +161,7 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
      * @return the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail}
      * @throws CacheOperationException if the get operation fails, or the name does not exist in cache
      */
+    @Override
     public NamedViewDetail getFromCache(final String name) throws CacheOperationException {
         if (null != name) {
             final NamedViewDetail namedViewFromCache = super.getFromCache(name);
@@ -197,32 +192,20 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
     public void addNamedView(final NamedViewDetail namedViewDetail, final boolean overwrite, final User user,
                              final String adminAuth)
             throws CacheOperationException {
-        if (namedViewDetail.getName() == null) {
+        String name = namedViewDetail.getName();
+        if (name == null) {
             throw new CacheOperationException("NamedView name cannot be null");
         }
 
-        if (!overwrite) {
-            addToCache(namedViewDetail, false);
-            return;
-        }
-
-        NamedViewDetail existing;
-
-        try {
-            existing = getFromCache(namedViewDetail.getName());
-        } catch (final CacheOperationException e) {
-            // if there is no existing NamedView add one
-            addToCache(namedViewDetail, false);
-            return;
-        }
-        if (nonNull(user)) {
-            if (existing.hasWriteAccess(user, adminAuth)) {
-                addToCache(namedViewDetail, true);
+        if (overwrite && contains(name)) {
+            if (getFromCache(name).hasWriteAccess(user, adminAuth)) {
+                addToCache(namedViewDetail, overwrite);
             } else {
                 throw new CacheOperationException(String.format("User %s does not have permission to overwrite", user.getUserId()));
             }
+        } else {
+            addToCache(namedViewDetail, overwrite);
         }
-        addToCache(namedViewDetail, true);
     }
 
     /**
@@ -239,19 +222,19 @@ public class NamedViewCache extends Cache<String, NamedViewDetail> {
         if (Objects.isNull(name)) {
             throw new IllegalArgumentException("NamedView name cannot be null");
         }
+
         NamedViewDetail existing;
         try {
             existing = getFromCache(name);
         } catch (final CacheOperationException e) {
+            // Unable to find the requested entry to delete
             return;
         }
-        if (nonNull(user)) {
-            if (existing.hasWriteAccess(user, adminAuth)) {
-                deleteFromCache(name);
-            } else {
-                throw new CacheOperationException(String.format("User %s does not have permission to delete named view: %s", user, name));
-            }
+
+        if (user == null || (existing != null && existing.hasWriteAccess(user, adminAuth))) {
+            deleteFromCache(name);
+        } else {
+            throw new CacheOperationException(String.format("User %s does not have permission to delete named view: %s", user, name));
         }
-        deleteFromCache(name);
     }
 }

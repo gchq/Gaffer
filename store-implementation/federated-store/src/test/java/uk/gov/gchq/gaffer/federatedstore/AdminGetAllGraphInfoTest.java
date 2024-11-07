@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
@@ -60,7 +61,7 @@ public class AdminGetAllGraphInfoTest {
         resetForFederatedTests();
         access = new FederatedAccess(singleton(AUTH_1), AUTH_USER_ID, false);
         store = new FederatedStore();
-        final StoreProperties storeProperties = new StoreProperties();
+        final FederatedStoreProperties storeProperties = getFederatedStorePropertiesWithHashMapCache();
         storeProperties.set(StoreProperties.ADMIN_AUTH, ADMIN_AUTH);
         store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, storeProperties);
     }

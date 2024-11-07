@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2023 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,9 +76,7 @@ public class GetAllNamedOperationsHandlerTest {
     @BeforeEach
     public void before() {
         given(store.getProperties()).willReturn(new StoreProperties());
-        final StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties.getProperties());
+        CacheServiceLoader.initialise("uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
     }
 
     @Test
@@ -120,6 +118,7 @@ public class GetAllNamedOperationsHandlerTest {
                 .name(expectedOperationDetailWithInputType.getOperationName())
                 .description(expectedOperationDetailWithInputType.getDescription())
                 .operationChain(expectedOperationDetailWithInputType.getOperationChainWithDefaultParams())
+                .overwrite(true)
                 .build();
 
         addNamedOperationHandler.doOperation(addNamedOperation, context, store);

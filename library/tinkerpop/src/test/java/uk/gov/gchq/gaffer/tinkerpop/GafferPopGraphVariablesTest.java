@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Crown Copyright
+ * Copyright 2023-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,16 @@
 
 package uk.gov.gchq.gaffer.tinkerpop;
 
-import org.apache.tinkerpop.gremlin.structure.Graph.Variables;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -38,22 +39,36 @@ public class GafferPopGraphVariablesTest {
         given(graph.variables()).willReturn(variables);
 
         // When
-        graph.variables().remove(GafferPopGraphVariables.SCHEMA);
+        graph.variables().remove(GafferPopGraphVariables.USER_ID);
 
         // Then
         assertThat(graph.variables().asMap()).hasSize(2);
     }
 
     @Test
-    void shouldThrowErrorWhenTryRemoveVariables() {
+    void shouldAllowSettingGafferPopVariables() {
         // Given
         given(graph.variables()).willReturn(variables);
+        final String testUserId = "testUserId";
+        final String[] testDataAuths = {"auth1", "auth2"};
+        final User testUser = new User.Builder()
+                .userId(testUserId)
+                .dataAuths(testDataAuths)
+                .build();
+        final List<String> testOpOptions = Arrays.asList("graphId:graph1", "other:other");
+        final GafferPopGraphVariables graphVariables = (GafferPopGraphVariables) graph.variables();
+
+        // When
+        graphVariables.set(GafferPopGraphVariables.USER, testUser);
+        graphVariables.set(GafferPopGraphVariables.DATA_AUTHS, testDataAuths);
+        graphVariables.set(GafferPopGraphVariables.OP_OPTIONS, testOpOptions);
 
         // Then
-        final Variables graphVariables = graph.variables();
-
-        assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> graphVariables.set("key1", "value1"));
+        assertThat(graphVariables.getUser().getUserId()).isEqualTo(testUserId);
+        assertThat(graphVariables.getUser().getDataAuths()).containsExactlyInAnyOrder(testDataAuths);
+        assertThat(graphVariables.getOperationOptions()).containsOnly(
+            entry("graphId", "graph1"),
+            entry("other", "other"));
     }
 
     @Test
@@ -69,8 +84,8 @@ public class GafferPopGraphVariablesTest {
     private GafferPopGraphVariables createVariables() {
         final ConcurrentHashMap<String, Object> variablesMap = new ConcurrentHashMap<>();
         variablesMap.put(GafferPopGraphVariables.OP_OPTIONS, new String[] {"key1:value1", "key2:value2" });
-        variablesMap.put(GafferPopGraphVariables.USER, "user");
-        variablesMap.put(GafferPopGraphVariables.SCHEMA, new Schema());
+        variablesMap.put(GafferPopGraphVariables.USER_ID, "user");
+        variablesMap.put(GafferPopGraphVariables.DATA_AUTHS, "dataauth1,dataauth2");
         return new GafferPopGraphVariables(variablesMap);
     }
 

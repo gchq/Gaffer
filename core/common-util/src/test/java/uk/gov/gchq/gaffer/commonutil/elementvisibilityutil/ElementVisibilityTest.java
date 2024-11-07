@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,68 +23,80 @@ import java.util.Arrays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility.quote;
 
 /**
  * This test class is copied from org.apache.accumulo.core.security.ColumnVisibilityTest.
  */
 
-public class ElementVisibilityTest {
+class ElementVisibilityTest {
 
     @Test
-    public void testEmptyStringIsValid() {
-        final ElementVisibility a = new ElementVisibility(new byte[0]);
-        final ElementVisibility b = new ElementVisibility("");
-
-        assertEquals(a, b);
+    void testIntegerTypeIsAccepted() {
+        final ElementVisibility ev = new ElementVisibility(1);
+        assertThat(ev).hasToString("[1]");
     }
 
     @Test
-    public void testCharactersOnly() {
+    void testCustomObjectIsAccepted() {
+        RandomObject randomObject = new RandomObject("Hello", 1);
+        final ElementVisibility ev = new ElementVisibility(randomObject);
+        assertThat(ev).hasToString("[hello]");
+    }
+
+    @Test
+    void testEmptyStringIsValid() {
+        final ElementVisibility a = new ElementVisibility(new byte[0]);
+        final ElementVisibility b = new ElementVisibility("");
+
+        assertThat(b).isEqualTo(a);
+    }
+
+    @Test
+    void testCharactersOnly() {
         getBytesShouldNotThrowIAX("test", "words");
     }
 
     @Test
-    public void testCompound() {
+    void testCompound() {
         getBytesShouldNotThrowIAX("a|b", "a&b", "ab&bc", "_&-&:", "A&B&C&D&E", "A|B|C|D|E", "(A|B|C)", "(A)|B|(C)", "A&(B)&(C)", "A&B&(L)");
     }
 
     @Test
-    public void testBadCharacters() {
+    void testBadCharacters() {
         getBytesShouldThrowIAX("=", "*", "^", "%", "@", "a*b");
     }
 
     @Test
-    public void testComplexCompound() {
+    void testComplexCompound() {
         getBytesShouldNotThrowIAX("(a|b)&(x|y)", "a&(x|y)", "(a|b)&(x|y)", "A&(L|M)", "B&(L|M)", "A&B&(L|M)");
         getBytesShouldNotThrowIAX("A&FOO&(L|M)", "(A|B)&FOO&(L|M)", "A&B&(L|M|FOO)", "((A|B|C)|foo)&bar");
         getBytesShouldNotThrowIAX("(one&two)|(foo&bar)", "(one|foo)&three", "one|foo|bar", "(one|foo)|bar", "((one|foo)|bar)&two");
     }
 
     @Test
-    public void testDanglingOperators() {
+    void testDanglingOperators() {
         getBytesShouldThrowIAX("a|b&", "(|a)", "|", "a|", "|a", "|", "&");
         getBytesShouldThrowIAX("&(five)", "|(five)", "(five)&", "five|", "a|(b)&", "(&five)", "(five|)");
     }
 
     @Test
-    public void testMissingSeparators() {
+    void testMissingSeparators() {
         getBytesShouldThrowIAX("one(five)", "(five)one", "(one)(two)", "a|(b(c))");
     }
 
     @Test
-    public void testMismatchedParentheses() {
+    void testMismatchedParentheses() {
         getBytesShouldThrowIAX("(", ")", "(a&b", "b|a)", "A|B)");
     }
 
     @Test
-    public void testMixedOperators() {
+    void testMixedOperators() {
         getBytesShouldThrowIAX("(A&B)|(C&D)&(E)", "a|b&c", "A&B&C|D", "(A&B)|(C&D)&(E)");
     }
 
     @Test
-    public void testQuotes() {
+    void testQuotes() {
         getBytesShouldThrowIAX("\"\"", "\"A\"A", "\"A\"\"B\"", "(A)\"B\"", "\"A\"(B)");
         getBytesShouldThrowIAX("\"A", "\"", "\"B", "A&\"B", "A&\"B\\'");
 
@@ -92,21 +104,21 @@ public class ElementVisibilityTest {
     }
 
     @Test
-    public void testToStringSimpleCharacter() {
+    void testToStringSimpleCharacter() {
         final ElementVisibility cv = new ElementVisibility(quote("a"));
 
-        assertEquals("[a]", cv.toString());
+        assertThat(cv).hasToString("[a]");
     }
 
     @Test
-    public void testToStringMultiByte() {
+    void testToStringMultiByte() {
         final ElementVisibility cv = new ElementVisibility(quote("五"));
 
-        assertEquals("[\"五\"]", cv.toString());
+        assertThat(cv).hasToString("[\"五\"]");
     }
 
     @Test
-    public void testParseTree() {
+    void testParseTree() {
         final ElementVisibility.Node node = parse("(W)|(U&V)");
 
         assertNode(node, ElementVisibility.NodeType.OR, 0, 9);
@@ -115,14 +127,14 @@ public class ElementVisibilityTest {
     }
 
     @Test
-    public void testParseTreeWithNoChildren() {
+    void testParseTreeWithNoChildren() {
         final ElementVisibility.Node node = parse("ABC");
 
         assertNode(node, ElementVisibility.NodeType.TERM, 0, 3);
     }
 
     @Test
-    public void testParseTreeWithTwoChildren() {
+    void testParseTreeWithTwoChildren() {
         final ElementVisibility.Node node = parse("ABC|DEF");
 
         assertNode(node, ElementVisibility.NodeType.OR, 0, 7);
@@ -131,7 +143,7 @@ public class ElementVisibilityTest {
     }
 
     @Test
-    public void testParseTreeWithParenthesesAndTwoChildren() {
+    void testParseTreeWithParenthesesAndTwoChildren() {
         final ElementVisibility.Node node = parse("(ABC|DEF)");
 
         assertNode(node, ElementVisibility.NodeType.OR, 1, 8);
@@ -140,7 +152,7 @@ public class ElementVisibilityTest {
     }
 
     @Test
-    public void testParseTreeWithParenthesizedChildren() {
+    void testParseTreeWithParenthesizedChildren() {
         final ElementVisibility.Node node = parse("ABC|(DEF&GHI)");
 
         assertNode(node, ElementVisibility.NodeType.OR, 0, 13);
@@ -151,7 +163,7 @@ public class ElementVisibilityTest {
     }
 
     @Test
-    public void testParseTreeWithMoreParentheses() {
+    void testParseTreeWithMoreParentheses() {
         final ElementVisibility.Node node = parse("(W)|(U&V)");
 
         assertNode(node, ElementVisibility.NodeType.OR, 0, 9);
@@ -188,5 +200,20 @@ public class ElementVisibilityTest {
                     assertThat(n.end).isEqualTo(end);
                 }
         );
+    }
+
+    class RandomObject {
+        private String randomString;
+        private Integer randomInteger;
+
+        RandomObject(String randomString, Integer randomInteger) {
+            this.randomString = randomString;
+            this.randomInteger = randomInteger;
+        }
+
+        @Override
+        public String toString() {
+            return "hello";
+        }
     }
 }

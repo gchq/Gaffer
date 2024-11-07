@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -36,7 +35,6 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,9 +82,7 @@ public class NamedOperationCacheTest {
 
     @BeforeAll
     public static void setUp() {
-        final Properties properties = new Properties();
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        CacheServiceLoader.initialise(properties);
+        CacheServiceLoader.initialise(HashMapCacheService.class.getName());
         cache = new NamedOperationCache(SUFFIX_CACHE_NAME);
     }
 
@@ -106,30 +102,34 @@ public class NamedOperationCacheTest {
     @Test
     public void shouldThrowExceptionIfNamedOperationAlreadyExists() throws CacheOperationException {
         cache.addNamedOperation(standard, false, standardUser);
-        assertThatExceptionOfType(OverwritingException.class).isThrownBy(() -> cache.addNamedOperation(alternative, false, advancedUser));
+        assertThatExceptionOfType(OverwritingException.class)
+            .isThrownBy(() -> cache.addNamedOperation(alternative, false, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionWhenDeletingIfKeyIsNull() throws CacheOperationException { // needs work
         cache.addNamedOperation(standard, false, standardUser);
-        assertThatExceptionOfType(CacheOperationException.class).isThrownBy(() -> cache.deleteNamedOperation(null, advancedUser));
+        assertThatExceptionOfType(CacheOperationException.class)
+            .isThrownBy(() -> cache.deleteNamedOperation(null, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionWhenGettingIfKeyIsNull() throws CacheOperationException {
-        assertThatExceptionOfType(CacheOperationException.class).isThrownBy(() -> cache.getNamedOperation(null, advancedUser));
+        assertThatExceptionOfType(CacheOperationException.class)
+            .isThrownBy(() -> cache.getNamedOperation(null, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionIfNamedOperationIsNull() throws CacheOperationException {
-        assertThatExceptionOfType(CacheOperationException.class).isThrownBy(() -> cache.addNamedOperation(null, false, standardUser));
+        assertThatExceptionOfType(CacheOperationException.class)
+            .isThrownBy(() -> cache.addNamedOperation(null, false, standardUser));
     }
 
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToReadOperation() throws CacheOperationException {
         cache.addNamedOperation(standard, false, standardUser);
         assertThatExceptionOfType(CacheOperationException.class)
-                .isThrownBy(() -> cache.getNamedOperation(OPERATION_NAME, new User()));
+            .isThrownBy(() -> cache.getNamedOperation(OPERATION_NAME, new User()));
     }
 
     @Test

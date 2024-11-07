@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2023 Crown Copyright
+  ~ Copyright 2016-2024 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,11 +19,12 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>2.1.1-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>store-implementation</artifactId>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -31,5 +32,6 @@
         <module>map-store</module>
         <module>proxy-store</module>
         <module>federated-store</module>
+        <module>simple-federated-store</module>
     </modules>
 </project>

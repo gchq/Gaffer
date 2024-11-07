@@ -38,6 +38,20 @@ jobs:
       - name: Run Spotless copyright check
         run: mvn -ntp spotless:check -T0.5C
 
+  check-markdown-links:
+    name: Check Markdown Links
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run linkspector
+        uses: umbrelladocs/action-linkspector@v1
+        with:
+          filter_mode: nofilter
+          reporter: github-pr-annotations
+          fail_on_error: true
+
   build-javadoc:
     name: Build Javadoc
     runs-on: ubuntu-latest
@@ -48,7 +62,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '8'
+          java-version: '11'
 
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -80,7 +94,7 @@ jobs:
           - name: Accumulo
             values: :accumulo-store,:accumulo-rest
           - name: Federated-And-Map
-            values: :integration-test,:federated-store,:map-store,:map-rest
+            values: :integration-test,:federated-store,:map-store,:map-rest,:simple-federated-store
           - name: REST
             values: :rest-api,:common-rest,:spring-rest,:core-rest,:store-implementation,:proxy-store
           - name: Examples

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -26,28 +25,28 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import java.util.Set;
-
-import static java.util.Objects.isNull;
-
 /**
- * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
- * handling the {@link Graph}s within a {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
+ * Wrapper around {@link FederatedStoreCacheTransient} to provide an interface
+ * for
+ * handling {@link Graph}s within a {@link FederatedStore}.
+ *
+ * @deprecated Federated store will use the default cache implementation going
+ *             forward.
  */
-public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, FederatedAccess>> {
+@Deprecated
+public final class FederatedStoreCache {
     private final FederatedStoreCacheTransient cacheTransient;
 
     public FederatedStoreCache(final String suffixFederatedStoreCacheName) {
-        super(null);
         cacheTransient = new FederatedStoreCacheTransient(suffixFederatedStoreCacheName);
     }
 
     /**
      * Get all the ID's related to the {@link Graph}'s stored in the cache.
      *
-     * @return all the Graph ID's within the cache as unmodifiable set.
+     * @return all the Graph ID's within the cache.
      */
-    public Set<String> getAllGraphIds() {
+    public Iterable<String> getAllGraphIds() {
         return cacheTransient.getAllGraphIds();
     }
 
@@ -55,11 +54,13 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
      * Add the specified {@link Graph} to the cache.
      *
      * @param graph     the {@link Graph} to be added
-     * @param overwrite if true, overwrite any graphs already in the cache with the same ID
+     * @param overwrite if true, overwrite any graphs already in the cache with the
+     *                  same ID
      * @param access    Access for the graph being stored.
-     * @throws CacheOperationException if there was an error trying to add to the cache
+     * @throws CacheOperationException if issues adding to cache
      */
-    public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
+    public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite)
+            throws CacheOperationException {
         try {
             cacheTransient.addGraphToCache(graph, JSONSerialiser.serialise(access), overwrite);
         } catch (final SerialisationException e) {
@@ -72,11 +73,13 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
      *
      * @param graphSerialisable the serialised {@link Graph} to be added
      * @param access            Access for the graph being stored.
-     * @param overwrite         if true, overwrite any graphs already in the cache with the same ID
-     * @throws CacheOperationException if there was an error trying to add to the cache
+     * @param overwrite         if true, overwrite any graphs already in the cache
+     *                          with the same ID
+     * @throws CacheOperationException if issues adding to cache
      */
     @SuppressWarnings("PMD.PreserveStackTrace") //False positive
-    public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
+    public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite)
+            throws CacheOperationException {
         try {
             cacheTransient.addGraphToCache(graphSerialisable, JSONSerialiser.serialise(access), overwrite);
         } catch (final SerialisationException e) {
@@ -120,13 +123,12 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
     public FederatedAccess getAccessFromCache(final String graphId) {
         try {
             final byte[] accessFromCache = cacheTransient.getAccessFromCache(graphId);
-            return (isNull(accessFromCache)) ? null : JSONSerialiser.deserialise(accessFromCache, FederatedAccess.class);
+            return accessFromCache == null ? null : JSONSerialiser.deserialise(accessFromCache, FederatedAccess.class);
         } catch (final Exception e) {
             throw new GafferRuntimeException(String.format("Error Getting Access from Cache for graphId:%s", graphId), e);
         }
     }
 
-    @Override
     public Pair<GraphSerialisable, FederatedAccess> getFromCache(final String key) {
         try {
             final Pair<GraphSerialisable, byte[]> fromCache = cacheTransient.getFromCache(key);
@@ -136,32 +138,26 @@ public class FederatedStoreCache extends Cache<String, Pair<GraphSerialisable, F
         }
     }
 
-    @Override
     public String getCacheName() {
         return cacheTransient.getCacheName();
     }
 
-    @Override
-    public Set<String> getAllKeys() {
+    public Iterable<String> getAllKeys() {
         return cacheTransient.getAllKeys();
     }
 
-    @Override
     public void clearCache() throws CacheOperationException {
         cacheTransient.clearCache();
     }
 
-    @Override
     public boolean contains(final String graphId) {
         return cacheTransient.contains(graphId);
     }
 
-    @Override
     public void deleteFromCache(final String key) {
         cacheTransient.deleteFromCache(key);
     }
 
-    @Override
     public ICache getCache() {
         return cacheTransient.getCache();
     }

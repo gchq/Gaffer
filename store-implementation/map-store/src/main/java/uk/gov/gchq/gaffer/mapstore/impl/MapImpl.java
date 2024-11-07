@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.RepeatItemIterable;
@@ -137,8 +138,17 @@ public class MapImpl {
         }
     }
 
-    Collection<Element> lookup(final EntityId entitId) {
-        Collection<Element> results = entityIdToElements.get(entitId);
+    void deleteAggElement(final Element elementWithGroupByProperties) {
+        aggElements.get(elementWithGroupByProperties.getGroup())
+            .remove(elementWithGroupByProperties);
+    }
+
+    void deleteNonAggElement(final Element element) {
+        nonAggElements.get(element.getGroup()).remove(element);
+    }
+
+    Collection<Element> lookup(final EntityId entityId) {
+        Collection<Element> results = entityIdToElements.get(entityId);
         if (null == results) {
             results = Collections.emptySet();
         }
@@ -210,6 +220,14 @@ public class MapImpl {
 
     void addIndex(final EdgeSeed edgeSeed, final Element element) {
         edgeIdToElements.put(edgeSeed, element);
+    }
+
+    void removeEntityIndex(final EntitySeed entitySeed, final Element element) {
+        entityIdToElements.remove(entitySeed, element);
+    }
+
+    void removeEdgeIndex(final EdgeSeed edgeSeed, final Element element) {
+        edgeIdToElements.remove(edgeSeed, element);
     }
 
     boolean isMaintainIndex() {

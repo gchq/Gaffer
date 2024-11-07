@@ -1,21 +1,22 @@
 name: Full Release
 
 on:
-  milestone:
-    types:
-    - closed
+  pull_request:
+    branches:
+        - master
+    types: [closed]
 
 env:
   artifactId: gaffer2
   MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
 
-
 jobs:
-  create-release-tag:
+  deploy-release:
+    if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
 
     outputs:
-      branch_name: ${{ steps.branch.outputs.branch_name }}
+      release_version: ${{ steps.release-version.outputs.release_version }}
 
     steps:
     - name: Setup JDK
@@ -36,103 +37,15 @@ jobs:
         git config user.name github-actions[bot]
         git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
-    - name: Set release version
-      run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }} | cut -c 2-)" >> $GITHUB_ENV
-
-    - name: Set branch name
-      run: echo "BRANCH_NAME=$(git branch -a | grep $RELEASE_VERSION | tail -n 1 | cut -c 18-)" >> $GITHUB_ENV
-
-    - name: Output branch name
-      id: branch
-      run: echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
-
-    - name: Fail if branch output missing (no branch found)
-      if: ${{ !steps.branch.outputs.branch_name }}
-      run: exit 1
-
-    - name: Merge release into master
+    - name: Output release version
+      id: release-version
       run: |
-        git checkout ${{ env.BRANCH_NAME }}
-        git checkout master
-        git merge ${{ env.BRANCH_NAME }}
-
-    - name: Push changes
-      run: |
-        git tag $artifactId-$RELEASE_VERSION
-        git push origin $artifactId-$RELEASE_VERSION
-        git push
-
-  update-develop:
-    runs-on: ubuntu-latest
-    needs:
-    - create-release-tag
-
-    steps:
-    - name: Checkout develop
-      uses: actions/checkout@v4
-      with:
-        ref: develop
-        token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
-        fetch-depth: 0
-
-    - name: Set up Github credentials
-      run: |
-        git config user.name github-actions[bot]
-        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-
-    - name: Setup JDK
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'zulu'
-        java-version: '8'
-
-    - name: Merge release into develop
-      run: |
-        git checkout ${{ needs.create-release-tag.outputs.branch_name }}
-        git checkout develop
-        git merge ${{ needs.create-release-tag.outputs.branch_name }} --strategy-option theirs
-
-    - name: Update develop branch
-      run: |
-        git checkout develop
-        mvn release:update-versions -B
-        NEW_GAFFER_VERSION=$(mvn -q help:evaluate -DforceStdout -Dexpression=pom.version)
-        sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$NEW_GAFFER_VERSION/" rest-api/common-rest/src/main/resources/version.properties
-        git commit -a -m "prepare for next development iteration"
-        git push
-
-  update-github-releases:
-    runs-on: ubuntu-latest
-    needs:
-    - create-release-tag
-
-    steps:
-    - name: Checkout Master
-      uses: actions/checkout@v4
-      with:
-        ref: master
-
-    - name: Create Release Notes
-      uses: docker://decathlon/release-notes-generator-action:2.1.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Set version
-      run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }} | cut -c 2-)" >> $GITHUB_ENV
-
-    - name: Upload notes
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ env.artifactId }}-${{ env.RELEASE_VERSION }}
-        name: Gaffer ${{ env.RELEASE_VERSION }}
-        body_path: release_file.md
+        echo "release_version=$(mvn -q help:evaluate -DforceStdout -Dexpression=pom.version)" >> $GITHUB_OUTPUT
 
   generate-javadoc:
     runs-on: ubuntu-latest
     needs:
-    - create-release-tag
+    - deploy-release
 
     steps:
     - name: Checkout Master
@@ -153,7 +66,7 @@ jobs:
         java-version: '11'
 
     - name: Set version
-      run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }} | cut -c 2-)" >> $GITHUB_ENV
+      run: echo "RELEASE_VERSION=$(echo ${{ needs.deploy-release.outputs.release_version }})" >> $GITHUB_ENV
 
     - name: Upload Javadoc
       run: |
@@ -165,7 +78,7 @@ jobs:
         rm -rf uk
         rm -rf jquery
         rm -rf resources
-        mv target/site/apidocs/* .
+        cp -rlf target/site/apidocs/* .
         git add .
         git commit -a -m "Updated javadoc - $RELEASE_VERSION"
         git push
@@ -173,7 +86,7 @@ jobs:
   release-to-nexus:
     runs-on: ubuntu-latest
     needs:
-    - create-release-tag
+    - deploy-release
 
     steps:
     - name: Setup JDK
@@ -181,12 +94,12 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: '8'
-    
+
     - name: Checkout release
       uses: actions/checkout@v4
       with:
-        ref: ${{ needs.create-release-tag.outputs.branch_name }}
-    
+        ref: master
+
     - name: Decode CodeSigning key
       env:
         CODE_SIGNING_KEY: ${{ secrets.CODE_SIGNING_KEY }}
@@ -202,4 +115,65 @@ jobs:
         GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         OSS_NEXUS_USERNAME: ${{ secrets.OSS_NEXUS_USERNAME }}
         OSS_NEXUS_PASSWORD: ${{ secrets.OSS_NEXUS_PASSWORD }}
-      run: mvn deploy -P quick,ossrh-release --settings cd/mvnsettings.xml -B
+      run:
+        mvn deploy -P quick,ossrh-release --settings cd/mvnsettings.xml -B
+
+  update-github-releases:
+    runs-on: ubuntu-latest
+    needs:
+    - deploy-release
+
+    steps:
+    - name: Checkout Master
+      uses: actions/checkout@v4
+      with:
+        ref: master
+
+    - name: Set version
+      run: echo "RELEASE_VERSION=$(echo ${{ needs.deploy-release.outputs.release_version }})" >> $GITHUB_ENV
+
+    - name: Create github release
+      uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.artifactId }}-${{ env.RELEASE_VERSION }}
+        name: Gaffer ${{ env.RELEASE_VERSION }}
+
+  update-develop:
+    runs-on: ubuntu-latest
+    needs:
+    - deploy-release
+
+    steps:
+    - name: Checkout develop
+      uses: actions/checkout@v4
+      with:
+        ref: develop
+        token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Set up Github credentials
+      run: |
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+    - name: Setup JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '8'
+
+    - name: Merge master into develop
+      run: |
+        git merge origin/master
+
+    - name: Update develop branch
+      run: |
+        git checkout develop
+        mvn versions:set-property -Dproperty=revision -DnewVersion=$(echo ${{ needs.deploy-release.outputs.release_version }})-SNAPSHOT
+        mvn build-helper:parse-version versions:set-property \
+            -Dproperty=revision \
+            -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT
+        git commit -a -m "prepare for next development iteration"
+        git push

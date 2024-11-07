@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId.MatchedVertex;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -149,11 +150,12 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             mapImpl.addIndex(entitySeed, element);
         } else {
             final Edge edge = (Edge) element;
-            edge.setIdentifiers(edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeSeed.MatchedVertex.SOURCE);
-            final EntitySeed sourceEntitySeed = new EntitySeed(edge.getSource());
-            mapImpl.addIndex(sourceEntitySeed, edge);
+            final Edge sourceMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(), MatchedVertex.SOURCE, edge.getProperties());
 
-            final Edge destMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeSeed.MatchedVertex.DESTINATION, edge.getProperties());
+            final EntitySeed sourceEntitySeed = new EntitySeed(edge.getSource());
+            mapImpl.addIndex(sourceEntitySeed, sourceMatchedEdge);
+
+            final Edge destMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(), MatchedVertex.DESTINATION, edge.getProperties());
             final EntitySeed destinationEntitySeed = new EntitySeed(edge.getDestination());
             mapImpl.addIndex(destinationEntitySeed, destMatchedEdge);
 

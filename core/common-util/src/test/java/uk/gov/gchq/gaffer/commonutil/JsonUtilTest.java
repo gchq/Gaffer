@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,94 +13,69 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.commonutil;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class JsonUtilTest {
+import java.util.stream.Stream;
+
+class JsonUtilTest {
 
     @Test
-    public void shouldReturnTrueWhenJsonObjectsAreEqualButInADifferentOrder() {
+    void shouldReturnTrueWhenJsonObjectsAreEqualButInADifferentOrder() {
         final String json1 = "{\"a\": 1, \"b\": 2}";
         final String json2 = "{\"b\": 2, \"a\": 1}";
 
-        assertTrue(JsonUtil.equals(json1, json2));
-        assertTrue(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
+        assertThat(JsonUtil.equals(json1, json2)).isTrue();
+        assertThat(JsonUtil.equals(json1.getBytes(), json2.getBytes())).isTrue();
 
         JsonAssert.assertEquals(json1, json2);
         JsonAssert.assertEquals(json1.getBytes(), json2.getBytes());
     }
 
     @Test
-    public void shouldReturnFalseWhenJsonObjectsAreDifferentSizes() {
-        final String json1 = "{\"a\": 1, \"b\": 2}";
-        final String json2 = "{\"a\": 1, \"b\": 2, \"c\": 3}";
-
-        assertFalse(JsonUtil.equals(json1, json2));
-        assertFalse(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
-
-        JsonAssert.assertNotEqual(json1, json2);
-        JsonAssert.assertNotEqual(json1.getBytes(), json2.getBytes());
-    }
-
-    @Test
-    public void shouldReturnFalseWhenJsonObjectsAreNotEqual() {
-        final String json1 = "{\"a\": 1, \"b\": 2}";
-        final String json2 = "{\"a\": 1, \"b\": 3}";
-
-        assertFalse(JsonUtil.equals(json1, json2));
-        assertFalse(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
-
-        JsonAssert.assertNotEqual(json1, json2);
-        JsonAssert.assertNotEqual(json1.getBytes(), json2.getBytes());
-    }
-
-    @Test
-    public void shouldReturnTrueWhenJsonArraysAreEqual() {
+    void shouldReturnTrueWhenJsonArraysAreEqual() {
         final String json1 = "[1,2,3]";
         final String json2 = "[1,2,3]";
 
-        assertTrue(JsonUtil.equals(json1, json2));
-        assertTrue(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
+        assertThat(JsonUtil.equals(json1, json2)).isTrue();
+        assertThat(JsonUtil.equals(json1.getBytes(), json2.getBytes())).isTrue();
 
         JsonAssert.assertEquals(json1, json2);
         JsonAssert.assertEquals(json1.getBytes(), json2.getBytes());
     }
 
-    @Test
-    public void shouldReturnFalseWhenJsonArraysAreNotEqual() {
-        // Given
-        final String json1 = "[1,2,3]";
-        final String json2 = "[1,2,4]";
-
-        assertFalse(JsonUtil.equals(json1, json2));
-        assertFalse(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
+    @ParameterizedTest
+    @MethodSource("provideJSONStrings")
+    void shouldReturnFalse(String json1, String json2) {
+        assertThat(JsonUtil.equals(json1, json2)).isFalse();
+        assertThat(JsonUtil.equals(json1.getBytes(), json2.getBytes())).isFalse();
 
         JsonAssert.assertNotEqual(json1, json2);
         JsonAssert.assertNotEqual(json1.getBytes(), json2.getBytes());
     }
 
-    @Test
-    public void shouldReturnFalseWhenJsonArraysAreDifferentSizes() {
-        final String json1 = "[1,2,3]";
-        final String json2 = "[1,2,3,4]";
-
-        assertFalse(JsonUtil.equals(json1, json2));
-        assertFalse(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
-
-        JsonAssert.assertNotEqual(json1, json2);
-        JsonAssert.assertNotEqual(json1.getBytes(), json2.getBytes());
+    private static Stream<Arguments> provideJSONStrings() {
+        return Stream.of(
+            Arguments.of("{\"a\": 1, \"b\": 2}", "{\"a\": 1, \"b\": 2, \"c\": 3}"),
+            Arguments.of("{\"a\": 1, \"b\": 2}", "{\"a\": 1, \"b\": 3}"),
+            Arguments.of("[1,2,3]", "[1,2,4]"),
+            Arguments.of("[1,2,3]", "[1,2,3,4]")
+        );
     }
 
     @Test
-    public void shouldReturnFalseWhenActualObjectIsNull() {
+    void shouldReturnFalseWhenActualObjectIsNull() {
         final String json1 = "{\"a\": 1, \"b\": 2}";
 
-        assertFalse(JsonUtil.equals(json1, null));
-        assertFalse(JsonUtil.equals(json1.getBytes(), null));
+        assertThat(JsonUtil.equals(json1, null)).isFalse();
+        assertThat(JsonUtil.equals(json1.getBytes(), null)).isFalse();
 
         JsonAssert.assertNotEqual(json1, null);
         JsonAssert.assertNotEqual(json1.getBytes(), null);

@@ -1,11 +1,9 @@
 name: Create Release Branch
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release Branch Version'
-        required: false
+  milestone:
+    types:
+    - closed
 
 env:
   artifactId: gaffer2
@@ -23,28 +21,11 @@ jobs:
         token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
         fetch-depth: 0
 
-    - name: Set version from input
-      if: ${{ github.event.inputs.version }}
-      run: echo "RELEASE_VERSION=$(echo ${{ github.event.inputs.version }} | sed 's/^v//')" >> $GITHUB_ENV
-
-    - name: Get latest tag
-      if: ${{ !github.event.inputs.version }}
-      uses: actions-ecosystem/action-get-latest-tag@v1
-      id: get-latest-tag
-
-    - name: Format latest tag
-      if: ${{ !github.event.inputs.version }}
-      run: echo "CURRENT_VERSION=$(echo ${{ steps.get-latest-tag.outputs.tag }} | sed 's/^gaffer2-//')" >> $GITHUB_ENV
-
-    - name: Bump latest tag variable version
-      if: ${{ !github.event.inputs.version }}
-      run: echo "RELEASE_VERSION=$(echo ${{ env.CURRENT_VERSION }} | sed -r 's/([0-9]+)\.([0-9]+)\.([0-9]+)/echo \1.$((\2+1)).0/' | sh)" >> $GITHUB_ENV
-
-    - name: Verify version regex
-      run: echo ${{ env.RELEASE_VERSION }} | grep -E '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
+    - name: Set version from milestone
+      run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }})" >> $GITHUB_ENV
 
     - name: Set release branch
-      run: echo "BRANCH_NAME=$(echo release/${{ env.RELEASE_VERSION }} )" >> $GITHUB_ENV
+      run: echo "BRANCH_NAME=$(echo release/"${{ env.RELEASE_VERSION }}" )" >> $GITHUB_ENV
 
     - name: Set up Github credentials
       run: |
@@ -53,11 +34,21 @@ jobs:
 
     - name: Update versions
       run: |
-        mvn versions:set -DnewVersion=$RELEASE_VERSION -DgenerateBackupPoms=false
-        sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$RELEASE_VERSION/" rest-api/common-rest/src/main/resources/version.properties
+        mvn versions:set-property -Dproperty=revision -DnewVersion=${RELEASE_VERSION} -DgenerateBackupPoms=false
 
     - name: Push to release branch
       run: |
         git checkout -b $BRANCH_NAME
         git commit -a -m "prepare release $artifactId-$RELEASE_VERSION"
         git push --set-upstream origin $BRANCH_NAME
+
+    - name: Tag release branch
+      run: |
+        git tag gaffer2-$RELEASE_VERSION
+        git push origin --tags
+
+    - name: Create PR to master
+      run: |
+        gh pr create -B master -H $BRANCH_NAME --title 'Merge release into master branch' --body 'Created by GH Action'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

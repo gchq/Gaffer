@@ -72,6 +72,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.VALUE_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.VALUE_2;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextTestUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.property;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
@@ -108,7 +109,7 @@ public class FederatedStoreSchemaTest {
         resetForFederatedTests();
 
         federatedStore = new FederatedStore();
-        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, new FederatedStoreProperties());
+        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, getFederatedStorePropertiesWithHashMapCache());
 
         testUser = testUser();
         testContext = contextTestUser();

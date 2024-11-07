@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 public class OneOrMoreTest {
 
     @Test
@@ -70,6 +69,32 @@ public class OneOrMoreTest {
         assertThat(collection)
                 .hasSize(2)
                 .containsExactly(1, 2);
+    }
+
+    @Test
+    void testSizeWithNonNullCollection() {
+        final boolean deduplicate = true;
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
+        collection.add(2);
+        collection.add(3);
+
+        assertThat(collection).hasSize(3);
+    }
+
+    @Test
+    void testSizeWithSingleItem() {
+        final boolean deduplicate = true;
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
+
+        assertThat(collection).hasSize(1);
+    }
+
+    @Test
+    void testSizeWithNullCollectionAndSingleItem() {
+        final boolean deduplicate = true;
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, null);
+
+        assertThat(collection).isEmpty();
     }
 
     @Test

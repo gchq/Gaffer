@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.impl.AddElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.CountAllElementsDefaultViewHandler;
+import uk.gov.gchq.gaffer.mapstore.impl.DeleteAllDataHandler;
+import uk.gov.gchq.gaffer.mapstore.impl.DeleteElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetElementsHandler;
@@ -32,6 +34,7 @@ import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.mapstore.optimiser.CountAllElementsOperationChainOptimiser;
 import uk.gov.gchq.gaffer.mapstore.utils.SchemaOptimiserMapStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.ExportToLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.export.localfile.ImportFromLocalFile;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -43,6 +46,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -169,6 +173,16 @@ public class MapStore extends Store {
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new AddElementsHandler();
+    }
+
+    @Override
+    protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        return new DeleteElementsHandler();
+    }
+
+    @Override
+    protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
+        return new DeleteAllDataHandler();
     }
 
     @Override

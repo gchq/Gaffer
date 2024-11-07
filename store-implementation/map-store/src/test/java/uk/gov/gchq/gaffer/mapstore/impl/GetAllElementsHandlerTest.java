@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -57,10 +58,11 @@ public class GetAllElementsHandlerTest {
     static final String PROPERTY1 = "property1";
     static final String PROPERTY2 = "property2";
     static final String COUNT = "count";
+    public static final Context CONTEXT = new Context(new User("user"));
     private static final int NUM_LOOPS = 10;
 
     @Test
-    public void testAddAndGetAllElementsNoAggregation() throws StoreException, OperationException {
+    void testAddAndGetAllElementsNoAggregation() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -85,7 +87,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testAddAndGetAllElementsWithAggregation() throws StoreException, OperationException {
+    void testAddAndGetAllElementsWithAggregation() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -138,7 +140,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsWithViewRestrictedByGroup() throws OperationException {
+    void testGetAllElementsWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -165,7 +167,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
+    void testGetAllElementsWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -197,7 +199,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
+    void testGetAllElementsWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -230,7 +232,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsWithAndWithEntities() throws OperationException {
+    void testGetAllElementsWithAndWithEntities() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -275,7 +277,7 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsDirectedTypeOption() throws OperationException {
+    void testGetAllElementsDirectedTypeOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -505,9 +507,40 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+    void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
         VisibilityTest.executeOperation(
                 new GetAllElements.Builder().build(),
                 VisibilityTest::elementIterableResultConsumer);
     }
+
+    @Test
+    void getAllElementsOperationShouldNotContainMatchedVertex() throws Exception {
+
+        final Edge edge = new Edge.Builder()
+                .group(BASIC_EDGE1)
+                .source("A")
+                .dest("B")
+                .build();
+
+        Graph mapStoreGraph = getMapStoreGraph();
+
+        mapStoreGraph.execute(new AddElements.Builder()
+                .input(edge)
+                .build(), CONTEXT);
+
+        Iterable<? extends Element> results = mapStoreGraph.execute(new GetAllElements.Builder()
+                .build(), CONTEXT);
+
+        assertThat(results).extracting(e -> (Element) e).containsExactly(edge);
+
+    }
+
+    private Graph getMapStoreGraph() {
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder().graphId("store1").build())
+                .addSchema(getSchema())
+                .storeProperties(new MapStoreProperties())
+                .build();
+    }
+
 }

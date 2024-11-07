@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
         assertEquals(obj.getView(), deserialisedObj.getView());
         assertEquals(obj.getLibrary().getClass(), deserialisedObj.getLibrary().getClass());
         assertEquals(obj.getDescription(), deserialisedObj.getDescription());
+        assertEquals(obj.getOtelActive(), deserialisedObj.getOtelActive());
         assertEquals((List) obj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()), (List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
     }
 
@@ -142,6 +143,7 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
                 .graphId(graphId)
                 .library(library)
                 .description("testGraphConfig")
+                .otelActive(true)
                 .addHook(hook1)
                 .addHook(hook2)
                 .view(view)

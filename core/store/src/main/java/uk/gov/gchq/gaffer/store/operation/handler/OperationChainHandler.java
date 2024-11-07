@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,14 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.context.Scope;
+
+import uk.gov.gchq.gaffer.commonutil.otel.OtelUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
@@ -45,8 +50,20 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
 
         Object result = null;
         for (final Operation op : preparedOperationChain.getOperations()) {
-            updateOperationInput(op, result);
-            result = store.handleOperation(op, context);
+            // OpenTelemetry hooks
+            Span span = OtelUtil.startSpan(this.getClass().getName(), op.getClass().getName());
+            span.setAttribute(OtelUtil.JOB_ID_ATTRIBUTE, context.getJobId());
+            if (op instanceof OperationView && ((OperationView) op).getView() != null) {
+                span.setAttribute(OtelUtil.VIEW_ATTRIBUTE, ((OperationView) op).getView().toString());
+            }
+
+            // Sets the span to current so parent child spans are auto linked
+            try (Scope scope = span.makeCurrent()) {
+                updateOperationInput(op, result);
+                result = store.handleOperation(op, context);
+            } finally {
+                span.end();
+            }
         }
 
         return (OUT) result;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,10 +193,10 @@ public class JcsCacheServiceTest {
         service.putInCache(TEST_REGION, "test3", 3);
         service.putInCache(TEST_REGION, "duplicate", 3);
 
-        assertEquals(4, service.sizeOfCache(TEST_REGION));
-        assertEquals(4, service.getAllValuesFromCache(TEST_REGION).size());
-
-        assertThat(service.getAllValuesFromCache(TEST_REGION)).contains(1, 2, 3);
+        assertThat(service.sizeOfCache(TEST_REGION)).isEqualTo(4);
+        assertThat(service.getAllValuesFromCache(TEST_REGION))
+            .hasSize(4)
+            .contains(1, 2, 3);
     }
 
     @Test

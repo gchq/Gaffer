@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2023 Crown Copyright
+ * Copyright 2018-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,10 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 
 import java.util.Collections;
 import java.util.Locale;
-import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.cache.CacheServiceLoader.DEFAULT_SERVICE_NAME;
 
 /**
  * Type safe cache, adding and getting is guaranteed to be same type.
@@ -31,43 +32,67 @@ import static java.util.Objects.nonNull;
  * @param <V> The type of values to add and get.
  */
 public class Cache<K, V> {
-    public static final String ERROR_ADDING_KEY_TO_CACHE_KEY_S = "Error adding key to cache. key: %s";
     protected String cacheName;
+    private final String serviceName;
+
+    public Cache(final String cacheName, final String serviceName) {
+        this.cacheName = cacheName;
+        // Use the supplied cache service name if it exists, otherwise
+        // fallback to the default cache service name
+        if (CacheServiceLoader.isEnabled(serviceName)) {
+            this.serviceName = serviceName;
+        } else {
+            this.serviceName = DEFAULT_SERVICE_NAME;
+        }
+    }
 
     public Cache(final String cacheName) {
         this.cacheName = cacheName;
+        this.serviceName = DEFAULT_SERVICE_NAME;
     }
 
+    /**
+     * Gets the requested value from the cache
+     * @param key Key to the value
+     * @return The value associated with the key
+     * @throws CacheOperationException if issue getting from cache
+     */
     public V getFromCache(final String key) throws CacheOperationException {
-        return CacheServiceLoader.getService().getFromCache(cacheName, key);
+        return CacheServiceLoader.getService(serviceName).getFromCache(cacheName, key);
     }
 
     public String getCacheName() {
         return cacheName;
     }
 
+
+    /**
+     * Adds key value to the cache using the configured Cache Service.
+     *
+     * @param key       The key
+     * @param value     The value
+     * @param overwrite overwrite any existing key or not
+     * @throws CacheOperationException if there was an error trying to add to
+     *                                 cache
+     */
     protected void addToCache(final K key, final V value, final boolean overwrite) throws CacheOperationException {
-        try {
-            final ICacheService service = CacheServiceLoader.getService();
-            if (overwrite) {
-                service.putInCache(getCacheName(), key, value);
-            } else {
-                service.putSafeInCache(getCacheName(), key, value);
-            }
-        } catch (final CacheOperationException e) {
-            throw new CacheOperationException(String.format(ERROR_ADDING_KEY_TO_CACHE_KEY_S, key), e);
+        final ICacheService service = CacheServiceLoader.getService(serviceName);
+        if (overwrite) {
+            service.putInCache(getCacheName(), key, value);
+        } else {
+            service.putSafeInCache(getCacheName(), key, value);
         }
     }
 
-    public Set<K> getAllKeys() {
+    public Iterable<K> getAllKeys() {
         try {
-            final Set<K> allKeysFromCache;
-            if (CacheServiceLoader.isEnabled()) {
-                allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
+            final Iterable<K> allKeysFromCache;
+            if (CacheServiceLoader.isEnabled(serviceName)) {
+                allKeysFromCache = CacheServiceLoader.getService(serviceName).getAllKeysFromCache(cacheName);
             } else {
-                throw new GafferRuntimeException("Cache is not enabled, check it was Initialised");
+                throw new GafferRuntimeException(String.format("Cache '%s' is not enabled, check it was initialised", serviceName));
             }
-            return (null == allKeysFromCache) ? Collections.emptySet() : Collections.unmodifiableSet(allKeysFromCache);
+            return (null == allKeysFromCache) ? Collections.emptySet() : allKeysFromCache;
         } catch (final Exception e) {
             throw new GafferRuntimeException("Error getting all keys", e);
         }
@@ -79,11 +104,12 @@ public class Cache<K, V> {
      * @throws CacheOperationException if there was an error trying to clear the cache
      */
     public void clearCache() throws CacheOperationException {
-        CacheServiceLoader.getService().clearCache(cacheName);
+        CacheServiceLoader.getService(serviceName).clearCache(cacheName);
     }
 
     public boolean contains(final String graphId) {
-        return getAllKeys().contains(graphId);
+        return StreamSupport.stream(getAllKeys().spliterator(), false)
+            .anyMatch(graphId::equals);
     }
 
     /**
@@ -92,7 +118,7 @@ public class Cache<K, V> {
      * @param key the ID of the key to be deleted
      */
     public void deleteFromCache(final String key) {
-        CacheServiceLoader.getService().removeFromCache(cacheName, key);
+        CacheServiceLoader.getService(serviceName).removeFromCache(cacheName, key);
     }
 
     /**
@@ -100,9 +126,9 @@ public class Cache<K, V> {
      *
      * @return ICache
      */
-    public ICache getCache() {
-        if (CacheServiceLoader.getService() != null) {
-            return CacheServiceLoader.getService().getCache(cacheName);
+    public ICache<K, V> getCache() {
+        if (CacheServiceLoader.isEnabled(serviceName)) {
+            return CacheServiceLoader.getService(serviceName).getCache(cacheName);
         } else {
             return null;
         }

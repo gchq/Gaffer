@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.federatedstore.access.predicate.user;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -27,6 +28,11 @@ import java.util.List;
 
 import static java.util.Objects.isNull;
 
+/**
+ * @deprecated Marked for removal in 2.4.0 please use standard
+ *             DefaultUserPredicate going forward.
+ */
+@Deprecated
 public class FederatedGraphReadUserPredicate extends DefaultUserPredicate {
 
     private final boolean isPublic;

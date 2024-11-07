@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
 
 /**
  * This test was created for gh-3129 and ensures the dynamic schema
@@ -129,7 +130,7 @@ public class FederatedStoreFileGraphLibraryIT {
     static Graph getFederatedGraphUsingFileGraphLibrary() {
         FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
-        federatedStoreProperties.setCacheServiceClass("uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        federatedStoreProperties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(libraryPath.toString());
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()

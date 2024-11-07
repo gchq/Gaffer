@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,8 @@ import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.DefaultExamplesFactory;
 import uk.gov.gchq.gaffer.rest.factory.ExamplesFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
-import uk.gov.gchq.gaffer.rest.factory.UserFactory;
+import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
+import uk.gov.gchq.gaffer.rest.factory.spring.UnknownUserFactory;
 
 import javax.annotation.PostConstruct;
 
@@ -41,6 +42,8 @@ import java.util.Set;
 public class FactoryConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FactoryConfig.class);
+
+    public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
 
     private Environment environment;
 
@@ -77,7 +80,7 @@ public class FactoryConfig {
     }
 
     @Bean
-    public UserFactory createUserFactory() throws IllegalAccessException, InstantiationException {
+    public AbstractUserFactory createUserFactory() throws IllegalAccessException, InstantiationException {
         return getDefaultUserFactory().newInstance();
     }
 
@@ -98,13 +101,12 @@ public class FactoryConfig {
         }
     }
 
-    private Class<? extends UserFactory> getDefaultUserFactory() {
-        final String userFactoryClass = System.getProperty(SystemProperty.USER_FACTORY_CLASS,
-                SystemProperty.USER_FACTORY_CLASS_DEFAULT);
+    private Class<? extends AbstractUserFactory> getDefaultUserFactory() {
+        final String userFactoryClass = System.getProperty(SystemProperty.USER_FACTORY_CLASS, USER_FACTORY_CLASS_DEFAULT);
 
         try {
             return Class.forName(userFactoryClass)
-                    .asSubclass(UserFactory.class);
+                    .asSubclass(AbstractUserFactory.class);
         } catch (final ClassNotFoundException e) {
             throw new IllegalArgumentException("Unable to create user factory from class: " + userFactoryClass, e);
         }
