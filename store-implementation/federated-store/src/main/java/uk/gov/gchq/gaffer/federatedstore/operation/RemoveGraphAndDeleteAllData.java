@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,11 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+/**
+ * @deprecated Will be removed in 2.4.0, functionality will be merged into the
+ *             RemoveGraph operation.
+ */
+@Deprecated
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("Used to tell a graph to delete all data, before being removed.")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,14 +36,13 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.CACHE_SERVICE_CLASS_STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.EDGES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ENTITIES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
@@ -64,10 +63,7 @@ public class FederatedStoreAuthTest {
         resetForFederatedTests();
 
         federatedStore = new FederatedStore();
-
-        FederatedStoreProperties federatedStoreProperties;
-        federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        FederatedStoreProperties federatedStoreProperties = getFederatedStorePropertiesWithHashMapCache();
 
         federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, federatedStoreProperties);
 
@@ -120,9 +116,8 @@ public class FederatedStoreAuthTest {
 
         addGraphWith(AUTH_1, schema, blankUser());
 
-        final OperationException e = assertThrows(OperationException.class, () -> addGraphWith("nonMatchingAuth", schema, testUser()));
-
-        assertThat(e).message()
+        assertThatThrownBy(() -> addGraphWith("nonMatchingAuth", schema, testUser())).isInstanceOf(OperationException.class)
+                .message()
                 .contains("Error adding graph " + GRAPH_ID_ACCUMULO + " to storage due to:")
                 .contains("User is attempting to overwrite a graph within FederatedStore. GraphId: " + GRAPH_ID_ACCUMULO)
                 .withFailMessage("error message should not contain details about schema")
@@ -130,7 +125,7 @@ public class FederatedStoreAuthTest {
                 .doesNotContain(groupEdge)
                 .doesNotContain(groupEnt);
 
-        assertTrue(federatedStore.getGraphs(testUser(), null, mock).isEmpty());
+        assertThat(federatedStore.getGraphs(testUser(), null, mock)).isEmpty();
     }
 
     private void addGraphWith(final String auth, final Schema schema, final User user) throws OperationException {

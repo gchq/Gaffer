@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class StreamIterableTest {
+class StreamIterableTest {
 
     @Test
-    public void shouldDelegateIteratorToIterable(@Mock final StreamSupplier<Object> streamSupplier,
+    void shouldDelegateIteratorToIterable(@Mock final StreamSupplier<Object> streamSupplier,
                                                  @Mock final Stream<Object> stream,
                                                  @Mock final Iterator<Object> iterator) {
         // Given
@@ -58,7 +58,7 @@ public class StreamIterableTest {
     }
 
     @Test
-    public void shouldDelegateCloseToStreamIterable(@Mock final StreamSupplier<Object> streamSupplier)
+    void shouldDelegateCloseToStreamIterable(@Mock final StreamSupplier<Object> streamSupplier)
             throws IOException {
         // Given
         final StreamIterable<Object> streamIterable = new StreamIterable<>(streamSupplier);

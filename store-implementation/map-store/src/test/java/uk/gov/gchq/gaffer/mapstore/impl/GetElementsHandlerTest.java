@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,6 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -51,11 +51,11 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class GetElementsHandlerTest {
+class GetElementsHandlerTest {
     private static final int NUM_LOOPS = 10;
 
     @Test
-    public void testGetElementsByNonExistentEntityId() throws OperationException {
+    void testGetElementsByNonExistentEntityId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -76,7 +76,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsWhenNoEntityIdsProvided() throws OperationException {
+    void testGetElementsWhenNoIdsAreProvided() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -97,7 +97,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByNonExistentEdgeId() throws OperationException {
+    void testGetElementsByNonExistentEdgeId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -118,28 +118,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsWhenNoEdgeIdsProvided() throws OperationException {
-        // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
-        graph.execute(addElements, new User());
-
-        // When
-        final GetElements getElements = new GetElements.Builder()
-                .input(new EmptyIterable<>())
-                .build();
-        final Iterable<? extends Element> results = graph.execute(getElements, new User());
-
-        // Then
-        final Set<Element> resultsSet = new HashSet<>();
-        Streams.toStream(results).forEach(resultsSet::add);
-        assertThat(resultsSet).isEmpty();
-    }
-
-    @Test
-    public void testGetElementsByEntityId() throws OperationException {
+    void testGetElementsByEntityId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -176,7 +155,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEdgeId() throws OperationException {
+    void testGetElementsByEdgeId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -302,7 +281,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testAddAndGetAllElementsNoAggregationAndDuplicateElements() throws StoreException, OperationException {
+    void testAddAndGetAllElementsNoAggregationAndDuplicateElements() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraphNoAggregation();
         final AddElements addElements = new AddElements.Builder()
@@ -337,7 +316,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEntityIdWithViewRestrictedByGroup() throws OperationException {
+    void testGetElementsByEntityIdWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -373,7 +352,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEdgeIdWithViewRestrictedByGroup() throws OperationException {
+    void testGetElementsByEdgeIdWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -410,7 +389,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
+    void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -452,7 +431,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEdgeIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
+    void testGetElementsByEdgeIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -495,7 +474,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter()
+    void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter()
             throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
@@ -538,7 +517,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEdgeIdWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
+    void testGetElementsByEdgeIdWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -590,7 +569,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEntityIdWithViewRestrictedByGroupAndATransform() throws OperationException {
+    void testGetElementsByEntityIdWithViewRestrictedByGroupAndATransform() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -638,7 +617,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEdgeIdWithViewRestrictedByGroupAndATransform() throws OperationException {
+    void testGetElementsByEdgeIdWithViewRestrictedByGroupAndATransform() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -687,7 +666,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPostTransformFilter() throws OperationException {
+    void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPostTransformFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -733,7 +712,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEdgeSeedWithViewRestrictedByGroupAndAPostTransformFilter() throws OperationException {
+    void testGetElementsByEdgeSeedWithViewRestrictedByGroupAndAPostTransformFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -787,7 +766,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsIncludeEntitiesOption() throws OperationException {
+    void testGetElementsIncludeEntitiesOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -847,7 +826,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsDirectedTypeOption() throws OperationException {
+    void testGetElementsDirectedTypeOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -959,7 +938,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsInOutTypeOption() throws OperationException {
+    void testGetElementsInOutTypeOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -1053,7 +1032,7 @@ public class GetElementsHandlerTest {
 
     // Test equivalent for seedMatching
     @Test
-    public void testGetElementsSeedMatchingTypeOption() throws OperationException {
+    void testGetElementsSeedMatchingTypeOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -1131,7 +1110,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsWhenNotMaintainingIndices() throws OperationException {
+    void testGetElementsWhenNotMaintainingIndices() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraphNoIndices();
         final AddElements addElements = new AddElements.Builder()
@@ -1150,7 +1129,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testElementsAreClonedBeforeBeingReturned() throws OperationException {
+    void testElementsAreClonedBeforeBeingReturned() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -1209,7 +1188,7 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+    void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
         VisibilityTest.executeOperation(
                 new GetElements.Builder()
                         .input(new EntitySeed(VisibilityTest.VERTEX_1), new EntitySeed(VisibilityTest.VERTEX_2))

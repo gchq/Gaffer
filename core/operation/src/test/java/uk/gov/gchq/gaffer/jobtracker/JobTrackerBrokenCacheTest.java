@@ -29,12 +29,15 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
+import static uk.gov.gchq.gaffer.jobtracker.JobTracker.JOB_TRACKER_CACHE_SERVICE_NAME;
 
 public class JobTrackerBrokenCacheTest {
     @BeforeAll
@@ -44,9 +47,10 @@ public class JobTrackerBrokenCacheTest {
         ICacheService mockICacheService = Mockito.spy(ICacheService.class);
         given(mockICacheService.getCache(any())).willReturn(mockICache);
 
-        Field field = CacheServiceLoader.class.getDeclaredField("service");
+        Field field = CacheServiceLoader.class.getDeclaredField("SERVICES");
         field.setAccessible(true);
-        field.set(null, mockICacheService);
+        Map<String, ICacheService> mockCacheServices = (Map<String, ICacheService>) field.get(new HashMap<>());
+        mockCacheServices.put(JOB_TRACKER_CACHE_SERVICE_NAME, mockICacheService);
     }
 
     @Test

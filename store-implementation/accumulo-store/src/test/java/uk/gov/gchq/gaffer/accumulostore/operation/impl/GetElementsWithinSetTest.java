@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +25,16 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 
 import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet> {
+class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet> {
 
     @Test
-    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
+    void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
                 .input(AccumuloTestData.SEED_SOURCE_1,
@@ -65,15 +63,18 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
         final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder()
                 .input(AccumuloTestData.SEED_A)
                 .directedType(DirectedType.DIRECTED)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
                         .edge("testEdgegroup")
                         .build())
                 .build();
-        assertEquals("true", getElementsWithinSet.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertEquals(DirectedType.DIRECTED, getElementsWithinSet.getDirectedType());
+
+        assertThat(getElementsWithinSet.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY)).isEqualTo("true");
+        assertThat(getElementsWithinSet.getDirectedType()).isEqualTo(DirectedType.DIRECTED);
+        assertThat(getElementsWithinSet.getIncludeIncomingOutGoing()).isEqualTo(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING);
         assertThat(getElementsWithinSet.getInput().iterator().next()).isEqualTo(AccumuloTestData.SEED_A);
-        assertNotNull(getElementsWithinSet.getView());
+        assertThat(getElementsWithinSet.getView()).isNotNull();
     }
 
     @Test
@@ -86,6 +87,7 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
         final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder()
                 .input(AccumuloTestData.SEED_A)
                 .directedType(DirectedType.DIRECTED)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(view)
                 .build();
@@ -94,25 +96,22 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
         final GetElementsWithinSet clone = getElementsWithinSet.shallowClone();
 
         // Then
-        assertNotSame(getElementsWithinSet, clone);
-        assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
+        assertThat(clone).isNotSameAs(getElementsWithinSet);
+        assertThat(clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY)).isEqualTo("true");
+        assertThat(clone.getIncludeIncomingOutGoing()).isEqualTo(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING);
         assertThat(clone.getInput().iterator().next()).isEqualTo(AccumuloTestData.SEED_A);
-        assertEquals(view, clone.getView());
+        assertThat(clone.getView()).isEqualTo(view);
     }
 
     @Test
-    public void shouldCreateInputFromVertices() {
+    void shouldCreateInputFromVertices() {
         // When
         final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
                 .input(AccumuloTestData.SEED_B, AccumuloTestData.SEED_B1.getVertex())
                 .build();
 
         // Then
-        assertEquals(
-                Lists.newArrayList(AccumuloTestData.SEED_B, AccumuloTestData.SEED_B1),
-                Lists.newArrayList(op.getInput())
-        );
+        assertThat(Lists.newArrayList(op.getInput())).isEqualTo(Lists.newArrayList(AccumuloTestData.SEED_B, AccumuloTestData.SEED_B1));
     }
 
     @Override

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2023 Crown Copyright
+  ~ Copyright 2016-2024 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>${revision}</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -37,6 +37,9 @@
     </modules>
 
     <properties>
+        <!-- CI/CD revision variable -->
+        <revision>2.3.2-SNAPSHOT</revision>
+
         <disable.forking>false</disable.forking>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.surefire.tests>false</skip.surefire.tests>
@@ -70,7 +73,7 @@
         <clearspring.version>2.7.0</clearspring.version>
         <datasketches.version>4.0.0</datasketches.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <commons-io.version>2.11.0</commons-io.version>
+        <commons-io.version>2.14.0</commons-io.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
         <commons-math.version>2.2</commons-math.version>
@@ -94,14 +97,18 @@
         <swagger.version>1.6.6</swagger.version>
         <zookeeper.version>3.4.14</zookeeper.version>
         <mockserver.version>5.15.0</mockserver.version>
+        <opentelemetry.version>1.36.0</opentelemetry.version>
+        <tinkerpop.version>3.7.1</tinkerpop.version>
+        <!-- Note later versions require scala version 2.12.x -->
+        <cypher-gremlin.version>1.0.0</cypher-gremlin.version>
 
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
         <compiler.plugin.verson>3.9.0</compiler.plugin.verson>
-        <dependency.plugin.version>3.5.0</dependency.plugin.version>
+        <dependency.plugin.version>3.6.1</dependency.plugin.version>
         <depgraph.plugin.version>4.0.2</depgraph.plugin.version>
         <spotbugs.plugin.version>4.7.3.4</spotbugs.plugin.version>
-        <pmd.plugin.version>3.20.0</pmd.plugin.version>
+        <pmd.plugin.version>3.21.0</pmd.plugin.version>
         <spotless.plugin.version>2.30.0</spotless.plugin.version>
         <war.plugin.version>3.2.3</war.plugin.version>
         <gpg.plugin.version>3.1.0</gpg.plugin.version>
@@ -123,6 +130,7 @@
         <enforcer.plugin.version>3.1.0</enforcer.plugin.version>
         <site.plugin.version>3.12.1</site.plugin.version>
         <info.plugin.version>3.4.1</info.plugin.version>
+        <flatten.plugin.version>1.5.0</flatten.plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>
@@ -773,6 +781,13 @@
                 <artifactId>jersey-core</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1075,6 +1090,35 @@
                     <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
                 </configuration>
             </plugin>
+            <!-- Flatten plugin to expand CI/CD properties -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>${flatten.plugin.version}</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <!-- Only flatten the CI/CD revision property -->
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <!-- enable flattening -->
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <!-- ensure proper cleanup -->
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -1124,6 +1168,8 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>${pmd.plugin.version}</version>
                 <configuration>
+                    <linkXRef>false</linkXRef>
+                    <analysisCache>true</analysisCache>
                     <printFailingErrors>true</printFailingErrors>
                     <rulesets>
                         <ruleset>code-style/pmd-ruleset.xml</ruleset>

@@ -19,14 +19,13 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>2.1.1-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>tinkerpop</artifactId>
 
     <properties>
-        <tinkerpop.version>3.7.1</tinkerpop.version>
         <google-guice.version>4.2.3</google-guice.version>
         <cucumber.version>7.15.0</cucumber.version>
 
@@ -47,6 +46,17 @@
             <groupId>org.apache.tinkerpop</groupId>
             <artifactId>gremlin-core</artifactId>
             <version>${tinkerpop.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tinkerpop</groupId>
+            <artifactId>gremlin-server</artifactId>
+            <version>${tinkerpop.version}</version>
+        </dependency>
+        <!-- Cypher translator -->
+        <dependency>
+            <groupId>org.opencypher.gremlin</groupId>
+            <artifactId>translation</artifactId>
+            <version>${cypher-gremlin.version}</version>
         </dependency>
 
         <!-- Runtime dependencies -->
@@ -95,6 +105,18 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>federated-store</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>simple-federated-store</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- For standard gremlin test suites -->
         <dependency>
             <groupId>org.apache.tinkerpop</groupId>
@@ -134,6 +156,18 @@
                                 </descriptorRef>
                             </descriptorRefs>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Build the test jar so can be reused for testing the rest API -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

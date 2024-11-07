@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,16 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -44,8 +49,13 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
+
 @RestController
-public class GraphConfigurationController implements IGraphConfigurationController {
+@Tag(name = "config")
+@RequestMapping("/rest/graph/config")
+public class GraphConfigurationController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphConfigurationController.class);
 
@@ -56,32 +66,44 @@ public class GraphConfigurationController implements IGraphConfigurationControll
         this.graphFactory = graphFactory;
     }
 
-    @Override
+    @GetMapping(path = "/schema", produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Gets the schema")
     public Schema getSchema() {
         return graphFactory.getGraph().getSchema();
     }
 
-    @Override
+    @GetMapping(path = "/description", produces = TEXT_PLAIN_VALUE)
+    @Operation(summary = "Gets the graph description")
     public String getDescription() {
         return graphFactory.getGraph().getDescription();
     }
 
-    @Override
+    @GetMapping(path = "/graphId", produces = TEXT_PLAIN_VALUE)
+    @Operation(summary = "Gets the graph Id")
     public String getGraphId() {
         return graphFactory.getGraph().getGraphId();
     }
 
-    @Override
+    @GetMapping(path = "/graphCreatedTime", produces = TEXT_PLAIN_VALUE)
+    @Operation(summary = "Gets the creation time for the store associated with this REST API")
+    public String getGraphCreatedTime() {
+        return graphFactory.getGraph().getCreatedTime();
+    }
+
+    @GetMapping(path = "/filterFunctions", produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Gets the available filter functions")
     public Set<Class> getFilterFunctions() {
         return ReflectionUtil.getSubTypes(Predicate.class);
     }
 
-    @Override
+    @GetMapping(path = "/elementGenerators", produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Gets the available element generators")
     public Set<Class> getElementGenerators() {
         return ReflectionUtil.getSubTypes(ElementGenerator.class);
     }
 
-    @Override
+    @GetMapping(path = "/filterFunctions/{inputClass}", produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Gets the available filter functions for a given input class")
     public Set<Class> getFilterFunctions(@PathVariable("inputClass") final String inputClass) {
         if (StringUtils.isEmpty(inputClass)) {
             return getFilterFunctions();
@@ -119,29 +141,32 @@ public class GraphConfigurationController implements IGraphConfigurationControll
         return applicablePredicates;
     }
 
-    @Override
+    @GetMapping(path = "/objectGenerators", produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Gets the available object generators")
     public Set<Class> getObjectGenerators() {
         return ReflectionUtil.getSubTypes(ObjectGenerator.class);
     }
 
-
-    @Override
+    @GetMapping(path = "/serialisedFields/{className}", produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Gets the serialised fields for a given class")
     public Set<String> getSerialisedFields(@PathVariable("className") final String className) {
         return JsonSerialisationUtil.getSerialisedFieldClasses(className).keySet();
     }
 
-
-    @Override
+    @GetMapping(path = "/serialisedFields/{className}/classes", produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Gets the serialised fields and their classes for a given class")
     public Map<String, String> getSerialisedFieldClasses(@PathVariable("className") final String className) {
         return JsonSerialisationUtil.getSerialisedFieldClasses(className);
     }
 
-    @Override
+    @GetMapping(path = "/storeType", produces = TEXT_PLAIN_VALUE)
+    @Operation(summary = "Gets the store type")
     public String getStoreType() {
         return graphFactory.getGraph().getStoreProperties().getStoreClass();
     }
 
-    @Override
+    @GetMapping(path = "/storeTraits", produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Gets all store traits supported by this store")
     public Set<StoreTrait> getStoreTraits() {
         try {
             return graphFactory.getGraph().execute(new GetTraits.Builder().currentTraits(false).build(), new Context());
@@ -150,12 +175,14 @@ public class GraphConfigurationController implements IGraphConfigurationControll
         }
     }
 
-    @Override
+    @GetMapping(path = "/transformFunctions", produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Gets the available transform functions")
     public Set<Class> getTransformFunctions() {
         return ReflectionUtil.getSubTypes(Function.class);
     }
 
-    @Override
+    @GetMapping(path = "/aggregationFunctions", produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Gets the available aggregation functions")
     public Set<Class> getAggregationFunctions() {
         return ReflectionUtil.getSubTypes(BinaryOperator.class);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,11 @@ public class ElementVisibility {
         EMPTY_NODE = new ElementVisibility.Node(ElementVisibility.NodeType.EMPTY, 0);
     }
 
+    public ElementVisibility(final Object expression) {
+        this.node = null;
+        this.validate(convert(expression));
+    }
+
     public ElementVisibility(final String expression) {
         this(expression.getBytes(UTF_8));
     }
@@ -46,6 +51,10 @@ public class ElementVisibility {
     public ElementVisibility(final byte[] expression) {
         this.node = null;
         this.validate(expression);
+    }
+
+    private byte[] convert(final Object expression) {
+        return expression.toString().getBytes(UTF_8);
     }
 
     public byte[] getExpression() {

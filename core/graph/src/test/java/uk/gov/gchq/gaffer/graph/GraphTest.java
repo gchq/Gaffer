@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.otel.OtelUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -65,6 +66,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -79,6 +81,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.DeleteAllData;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -102,6 +105,8 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -115,6 +120,7 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -1512,25 +1518,25 @@ public class GraphTest {
 
         // When
         final Graph graph = new Graph.Builder()
-                .config(StreamUtil.graphConfig(getClass()))
-                .storeProperties(storeProperties)
-                .addSchemas(StreamUtil.schemas(getClass()))
-                .build();
+            .config(StreamUtil.graphConfig(getClass()))
+            .storeProperties(storeProperties)
+            .addSchemas(StreamUtil.schemas(getClass()))
+            .build();
 
         // Then
-        assertEquals("graphId1", graph.getGraphId());
-        assertEquals(new View.Builder()
-                .globalElements(new GlobalViewElementDefinition.Builder()
-                        .groupBy()
-                        .build())
-                .build(), graph.getView());
-        assertEquals(HashMapGraphLibrary.class, graph.getGraphLibrary().getClass());
-        assertThat(graph.getGraphHooks())
-            .containsExactlyInAnyOrder(
-                NamedViewResolver.class,
-                OperationChainLimiter.class,
-                AddOperationsToChain.class,
-                FunctionAuthoriser.class);
+        assertThat(graph.getGraphId()).isEqualTo("graphId1");
+        assertThat(OtelUtil.getOpenTelemetryActive()).isTrue();
+        assertThat(graph.getView()).isEqualTo(new View.Builder()
+            .globalElements(new GlobalViewElementDefinition.Builder()
+                .groupBy()
+                .build())
+            .build());
+        assertThat(graph.getGraphLibrary().getClass()).isEqualTo(HashMapGraphLibrary.class);
+        assertThat(graph.getGraphHooks()).containsExactlyInAnyOrder(
+            NamedViewResolver.class,
+            OperationChainLimiter.class,
+            AddOperationsToChain.class,
+            FunctionAuthoriser.class);
     }
 
     @Test
@@ -2685,6 +2691,31 @@ public class GraphTest {
         assertNotNull(mergedView.getGlobalEdges().get(0).getPostAggregationFilter());
 
     }
+    @Test
+    void shouldGetGraphCreatedTime() {
+        // Given
+        final Store store = new TestStoreImpl();
+        final Schema schema = new Schema.Builder().build();
+        Graph graph = new Graph.Builder()
+        .config(new GraphConfig.Builder()
+                .graphId(GRAPH_ID)
+                .build())
+        .storeProperties(StreamUtil.storeProps(getClass()))
+        .store(store)
+        .addSchema(schema)
+        .build();
+
+        // When
+        String graphCreatedTime = graph.getCreatedTime();
+
+        // Then
+        assertThat(graphCreatedTime)
+                .isNotNull()
+                .isInstanceOf(String.class);
+        assertThat(LocalDateTime.parse(graphCreatedTime))
+                .isInstanceOf(LocalDateTime.class)
+                .isCloseTo(LocalDateTime.now(), within(20, ChronoUnit.SECONDS));
+    }
 
     public static class TestStoreImpl extends Store {
         @Override
@@ -2709,6 +2740,16 @@ public class GraphTest {
 
         @Override
         protected OperationHandler<? extends AddElements> getAddElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<DeleteAllData> getDeleteAllDataHandler() {
             return null;
         }
 

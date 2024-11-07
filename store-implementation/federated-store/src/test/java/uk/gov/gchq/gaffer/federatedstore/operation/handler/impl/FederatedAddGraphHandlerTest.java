@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.SCHEMA_EDGE_BASIC_JSON;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.getFederatedStorePropertiesWithHashMapCache;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadSchemaFromJson;
 import static uk.gov.gchq.gaffer.store.StoreProperties.OPERATION_DECLARATIONS_JSON;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
@@ -82,8 +83,7 @@ public class FederatedAddGraphHandlerTest {
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         this.store = new FederatedStore();
-        federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties = getFederatedStorePropertiesWithHashMapCache();
 
         testUser = testUser();
         authUser = authUser();
@@ -397,7 +397,7 @@ public class FederatedAddGraphHandlerTest {
         final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         final AccumuloProperties properties = new AccumuloProperties();
         properties.setProperties(PROPERTIES.getProperties());
-        properties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
+        properties.setDefaultCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()

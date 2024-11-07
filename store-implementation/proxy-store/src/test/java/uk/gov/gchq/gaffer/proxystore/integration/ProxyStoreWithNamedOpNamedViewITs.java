@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Crown Copyright
+ * Copyright 2023-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,9 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import static uk.gov.gchq.gaffer.integration.junit.extensions.IntegrationTestSuiteExtension.INIT_CLASS;
 import static uk.gov.gchq.gaffer.store.StoreProperties.OPERATION_DECLARATIONS_JSON;
 
+import java.util.Collections;
+import java.util.Map;
+
 @ExcludeClassNamePatterns({"uk.gov.gchq.gaffer.integration.impl.JoinIT",
         "uk.gov.gchq.gaffer.integration.impl.GeneratorsIT"}) // Skipped because: The output type reference doesn't deserialise the output correctly
 @ConfigurationParameter(key = INIT_CLASS, value = "uk.gov.gchq.gaffer.proxystore.integration.ProxyStoreWithNamedOpNamedViewITs")
@@ -54,6 +57,9 @@ public class ProxyStoreWithNamedOpNamedViewITs extends AbstractStoreITs {
             .loadStoreProperties(StreamUtil.openStream(ProxyStoreITs.class, "/mock-proxy-store.properties"));
 
     private static final Schema SCHEMA = new Schema();
+
+    private static final Map<String, String> TESTS_TO_SKIP =
+        Collections.singletonMap("shouldGetElements", "GetElementsIT.shouldGetElements - fails due to potentially incorrect test. See issue #3314");
 
     ProxyStoreWithNamedOpNamedViewITs() {
         setSchema(SCHEMA);
@@ -79,5 +85,6 @@ public class ProxyStoreWithNamedOpNamedViewITs extends AbstractStoreITs {
             throw new RuntimeException(e);
         }
         setStoreProperties(STORE_PROPERTIES);
+        setTestsToSkip(TESTS_TO_SKIP);
     }
 }

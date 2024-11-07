@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,14 +43,13 @@ import java.time.ZonedDateTime;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
-public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTest<RBMBackedTimestampSet> {
+class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTest<RBMBackedTimestampSet> {
 
     @Test
-    public void testSerialiser() throws SerialisationException {
+    void testSerialiser() throws SerialisationException {
         // Given
         final RBMBackedTimestampSet rbmBackedTimestampSet = getExampleValue();
 
@@ -59,7 +58,7 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
         final RBMBackedTimestampSet deserialised = serialiser.deserialise(serialised);
 
         // Then
-        assertEquals(rbmBackedTimestampSet, deserialised);
+        assertThat(deserialised).isEqualTo(rbmBackedTimestampSet);
     }
 
     private RBMBackedTimestampSet getExampleValue() {
@@ -70,13 +69,13 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
     }
 
     @Test
-    public void testCanHandle() throws SerialisationException {
-        assertTrue(serialiser.canHandle(RBMBackedTimestampSet.class));
-        assertFalse(serialiser.canHandle(String.class));
+    void testCanHandle() {
+        assertThat(serialiser.canHandle(RBMBackedTimestampSet.class)).isTrue();
+        assertThat(serialiser.canHandle(String.class)).isFalse();
     }
 
     @Test
-    public void testSerialisationSizesQuotedInJavadoc() throws SerialisationException {
+    void testSerialisationSizesQuotedInJavadoc() throws SerialisationException {
         // Given
         final Random random = new Random(123456789L);
         final Instant instant = ZonedDateTime.of(2017, 1, 1, 1, 1, 1, 0, ZoneId.of("UTC")).toInstant();
@@ -99,13 +98,13 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
         final int lengthSet3 = serialiser.serialise(rbmBackedTimestampSet3).length;
 
         // Then
-        assertTrue(200 < lengthSet1 && lengthSet1 < 220);
-        assertTrue(72000 < lengthSet2 && lengthSet2 < 74000);
-        assertTrue(3900000 < lengthSet3 && lengthSet3 < 4100000);
+        assertThat(lengthSet1).isBetween(200, 220);
+        assertThat(lengthSet2).isBetween(72000, 74000);
+        assertThat(lengthSet3).isBetween(3900000, 4100000);
     }
 
     @Test
-    public void shouldSerialiserStringRBMBackedTimestampSet() throws SerialisationException {
+    void shouldSerialiserStringRBMBackedTimestampSet() throws SerialisationException {
         // Given
         final Serialiser<CustomMap, byte[]> customMapSerialiser = new CustomMapSerialiser();
         final RBMBackedTimestampSet timestampSet1 = new RBMBackedTimestampSet.Builder()
@@ -126,43 +125,48 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
 
         // When
         final CustomMap deserialise = customMapSerialiser.deserialise(customMapSerialiser.serialise(expected));
+
         // Then
         detailedEquals(expected, deserialise, String.class, RBMBackedTimestampSet.class, new StringSerialiser(), new RBMBackedTimestampSetSerialiser());
     }
 
     private void detailedEquals(final CustomMap expected, final CustomMap actual, final Class expectedKClass, final Class expectedVClass, final ToBytesSerialiser kS, final ToBytesSerialiser vS) {
-        try {
-            assertEquals(expected, actual);
-        } catch (AssertionError e) {
-            //Serialiser
-            assertEquals(kS, expected.getKeySerialiser());
-            assertEquals(kS, actual.getKeySerialiser());
-            assertEquals(vS, expected.getValueSerialiser());
-            assertEquals(vS, actual.getValueSerialiser());
-            assertEquals(expected.getKeySerialiser(), actual.getKeySerialiser());
-            //Key element
-            assertEquals(expectedKClass, expected.keySet().iterator().next().getClass());
-            assertEquals(expectedKClass, actual.keySet().iterator().next().getClass());
-            //Value element
-            assertEquals(expectedVClass, expected.values().iterator().next().getClass());
-            assertEquals(expectedVClass, actual.values().iterator().next().getClass());
-            //ketSets
-            assertEquals(expected.keySet(), actual.keySet());
+        Throwable thrown = catchThrowable(() -> assertThat(actual).isEqualTo(expected));
+
+        if (thrown != null) {
+            // Serialiser
+            assertThat(expected.getKeySerialiser()).isEqualTo(kS);
+            assertThat(actual.getKeySerialiser()).isEqualTo(kS);
+            assertThat(expected.getValueSerialiser()).isEqualTo(vS);
+            assertThat(actual.getValueSerialiser()).isEqualTo(vS);
+            assertThat(actual.getKeySerialiser()).isEqualTo(expected.getKeySerialiser());
+
+            // Key element
+            assertThat(expected.keySet().iterator().next().getClass()).isEqualTo(expectedKClass);
+            assertThat(actual.keySet().iterator().next().getClass()).isEqualTo(expectedKClass);
+
+            // Value element
+            assertThat(expected.values().iterator().next().getClass()).isEqualTo(expectedVClass);
+            assertThat(actual.values().iterator().next().getClass()).isEqualTo(expectedVClass);
+
+            // keySets
+            assertThat(actual.keySet()).isEqualTo(expected.keySet());
+
             //values
             for (Object k : expected.keySet()) {
                 final Object expectedV = expected.get(k);
                 final Object actualV = actual.get(k);
-                assertEquals(expectedV.getClass(), actualV.getClass());
-                assertEquals(expectedVClass, actualV.getClass());
-                assertEquals(expectedVClass, expectedV.getClass());
-                assertEquals(expectedV, actualV);
+                assertThat(actualV.getClass()).isEqualTo(expectedV.getClass());
+                assertThat(actualV.getClass()).isEqualTo(expectedVClass);
+                assertThat(expectedV.getClass()).isEqualTo(expectedVClass);
+                assertThat(actualV).isEqualTo(expectedV);
             }
-            assertEquals(expected, actual);
+            assertThat(actual).isEqualTo(expected);
         }
     }
 
     @Test
-    public void shouldJSONSerialiseFloatRDM() throws IOException {
+    void shouldJSONSerialiseFloatRDM() throws IOException {
         //given
         System.setProperty(JSONSerialiser.JSON_SERIALISER_MODULES, BitmapJsonModules.class.getCanonicalName());
 
@@ -188,8 +192,8 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
         final CustomMap deserialiseMap = JSONSerialiser.deserialise(serialise, CustomMap.class);
 
         //then
-        assertEquals(jsonMap, deserialiseMap, "The expected map from Json doesn't match");
-        assertEquals(expectedMap, deserialiseMap, "The expected map doesn't match");
+        assertThat(jsonMap).isEqualTo(expectedMap);
+        assertThat(deserialiseMap).isEqualTo(expectedMap);
     }
 
     protected String jsonFromFile(final String path) throws IOException {

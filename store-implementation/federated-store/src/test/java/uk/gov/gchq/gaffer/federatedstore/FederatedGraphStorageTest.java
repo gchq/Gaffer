@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.ICacheService;
-import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -40,7 +38,6 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import static java.util.Collections.singleton;
@@ -48,9 +45,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreCacheTransient.getCacheNameFrom;
@@ -97,9 +91,7 @@ public class FederatedGraphStorageTest {
     @BeforeEach
     public void setUp() throws Exception {
         resetForFederatedTests();
-        FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
-        CacheServiceLoader.initialise(federatedStoreProperties.getProperties());
+        CacheServiceLoader.initialise(CACHE_SERVICE_CLASS_DEFAULT);
         graphStorage = new FederatedGraphStorage(CACHE_NAME_SUFFIX);
     }
 
@@ -302,7 +294,7 @@ public class FederatedGraphStorageTest {
         final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser(), false);
         final Collection<GraphSerialisable> graphs = graphStorage.getAll(testUser());
         //when
-        assertTrue(remove);
+        assertThat(remove).isTrue();
         assertThat(graphs).isEmpty();
     }
 
@@ -314,7 +306,7 @@ public class FederatedGraphStorageTest {
         final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser(), false);
         final Collection<GraphSerialisable> graphs = graphStorage.getAll(testUser());
         //then
-        assertFalse(remove);
+        assertThat(remove).isFalse();
         assertThat(graphs).containsExactly(graphSerialisableA);
     }
 
@@ -325,7 +317,7 @@ public class FederatedGraphStorageTest {
         //when
         final boolean remove = graphStorage.remove(GRAPH_ID_A, authUser(), false);
         //then
-        assertFalse(remove);
+        assertThat(remove).isFalse();
     }
 
     @Test
@@ -335,7 +327,7 @@ public class FederatedGraphStorageTest {
         //when
         final boolean remove = graphStorage.remove(GRAPH_ID_A, blankUser(), false);
         //then
-        assertFalse(remove);
+        assertThat(remove).isFalse();
     }
 
     @Test
@@ -345,7 +337,7 @@ public class FederatedGraphStorageTest {
         //when
         final boolean remove = graphStorage.remove(GRAPH_ID_A, blankUser(), false);
         //then
-        assertTrue(remove);
+        assertThat(remove).isTrue();
     }
 
     @Test
@@ -535,47 +527,35 @@ public class FederatedGraphStorageTest {
                 .build();
     }
 
-
     @Test
     public void shouldAddGraphWithCacheEnabled() throws StorageException {
         //given
-        final Properties serviceLoaderProperties = new Properties();
-        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        CacheServiceLoader.initialise(serviceLoaderProperties);
-        graphStorage.startCacheServiceLoader();
-        final ICacheService cacheService = CacheServiceLoader.getService();
+        final ICacheService cacheService = CacheServiceLoader.getDefaultService();
 
         //when
         graphStorage.put(graphSerialisableA, auth1Access);
         final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
         //then
-        assertEquals(1, cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues().size());
-        assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID_A, allIds.iterator().next());
-
+        assertThat(cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues()).hasSize(1);
+        assertThat(allIds).hasSize(1);
+        assertThat(allIds.iterator().next()).isEqualTo(GRAPH_ID_A);
     }
 
     @Test
     public void shouldAddGraphReplicatedBetweenInstances() throws StorageException {
         //given
-        final Properties serviceLoaderProperties = new Properties();
-        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        CacheServiceLoader.initialise(serviceLoaderProperties);
-        final ICacheService cacheService = CacheServiceLoader.getService();
+        final ICacheService cacheService = CacheServiceLoader.getDefaultService();
         final FederatedGraphStorage otherGraphStorage = new FederatedGraphStorage(CACHE_NAME_SUFFIX);
-        graphStorage.startCacheServiceLoader();
 
         //when
-        otherGraphStorage.startCacheServiceLoader();
         otherGraphStorage.put(graphSerialisableA, auth1Access);
         final Collection<String> allIds = graphStorage.getAllIds(authUser());
 
         //then
-        assertEquals(1, cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues().size());
-        assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID_A, allIds.iterator().next());
-
+        assertThat(cacheService.getCache(getCacheNameFrom(CACHE_NAME_SUFFIX)).getAllValues()).hasSize(1);
+        assertThat(allIds).hasSize(1);
+        assertThat(allIds.iterator().next()).isEqualTo(GRAPH_ID_A);
     }
 
 }

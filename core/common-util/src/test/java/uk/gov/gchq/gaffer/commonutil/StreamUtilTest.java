@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.commonutil;
 
 import org.junit.jupiter.api.Test;
@@ -23,12 +24,12 @@ import java.net.URI;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class StreamUtilTest {
+class StreamUtilTest {
 
     public static final String FILE_NAME = "URLSchema.json";
 
     @Test
-    public void testOpenStreamsURLNotEmpty() throws Exception {
+    void testOpenStreamsURLNotEmpty() throws Exception {
         final URI resource = getClass().getClassLoader().getResource(FILE_NAME).toURI();
         if (null == resource) {
             fail("Test json file not found:" + FILE_NAME);
@@ -37,8 +38,8 @@ public class StreamUtilTest {
         final InputStream[] inputStreams = StreamUtil.openStreams(resource);
 
         assertThat(inputStreams)
-                .isNotEmpty()
-                .overridingErrorMessage("InputStreams length is %s", 0);
+                .overridingErrorMessage("InputStreams length is %s", 0)
+                .isNotEmpty();
 
         StreamUtil.closeStreams(inputStreams);
     }

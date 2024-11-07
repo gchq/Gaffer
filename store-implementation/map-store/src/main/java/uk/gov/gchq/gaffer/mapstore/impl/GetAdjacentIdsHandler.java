@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
@@ -52,8 +53,7 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
 
     private Iterable<EntityId> doOperation(final GetAdjacentIds operation,
                                            final Context context,
-                                           final MapStore mapStore)
-            throws OperationException {
+                                           final MapStore mapStore) {
         if (isNull(operation.getInput()) || !operation.getInput().iterator().hasNext()) {
             return new EmptyIterable<>();
         }

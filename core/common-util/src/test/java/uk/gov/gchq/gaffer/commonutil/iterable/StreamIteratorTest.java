@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ import java.util.stream.Stream;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class StreamIteratorTest {
+class StreamIteratorTest {
 
     @Test
-    public void shouldDelegateCloseToWrappedIterator(@Mock final Stream<Object> stream) {
+    void shouldDelegateCloseToWrappedIterator(@Mock final Stream<Object> stream) {
         final StreamIterator<Object> streamIterator = new StreamIterator<>(stream);
 
         streamIterator.close();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,12 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Lists;
-import org.apache.accumulo.core.client.Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
@@ -33,11 +31,7 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.jobtracker.JobTracker;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
-import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -49,12 +43,16 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.getConnector;
-import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
+import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.renameTable;
 
+/**
+ * @deprecated Will be removed in 2.4.0.
+ */
+@Deprecated
 public class FederatedGraphStorage {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE = "Error adding graph, GraphId is known within the cache, but %s is different. GraphId: %s";
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
@@ -66,12 +64,6 @@ public class FederatedGraphStorage {
 
     public FederatedGraphStorage(final String suffixFederatedStoreCacheName) {
         federatedStoreCache = new FederatedStoreCache(suffixFederatedStoreCacheName);
-    }
-
-    protected void startCacheServiceLoader() throws StorageException {
-        if (!CacheServiceLoader.isEnabled()) {
-            throw new StorageException("Cache is not enabled for the FederatedStore, Set a value in StoreProperties for " + CACHE_SERVICE_CLASS);
-        }
     }
 
     /**
@@ -200,25 +192,18 @@ public class FederatedGraphStorage {
     }
 
     private void removeGraphCaches(final String graphId) {
-        if (CacheServiceLoader.isEnabled()) {
-            try {
-                final GraphSerialisable graphFromCache = federatedStoreCache.getGraphFromCache(graphId);
-                final StoreProperties storeProperties = graphFromCache.getStoreProperties();
-                final ArrayList<String> cacheNames = Lists.newArrayList(
-                        NamedViewCache.getCacheNameFrom(storeProperties.getCacheServiceNamedViewSuffix(graphId)),
-                        NamedOperationCache.getCacheNameFrom(storeProperties.getCacheServiceNamedOperationSuffix(graphId)),
-                        JobTracker.getCacheNameFrom(storeProperties.getCacheServiceJobTrackerSuffix(graphId)));
-                for (final String cacheName : cacheNames) {
-                    final ICache<Object, Object> cache = CacheServiceLoader.getService().getCache(cacheName);
-                    if (nonNull(cache)) {
-                        cache.clear();
-                    } else {
-                        LOGGER.debug(String.format("No cache found graphId:%s with cacheName:%s", graphId, cacheName));
-                    }
+        try {
+            final GraphSerialisable graphFromCache = federatedStoreCache.getGraphFromCache(graphId);
+            for (final Cache<?, ?> cacheInstance : graphFromCache.getGraph().getCaches()) {
+                final ICache<?, ?> cache = cacheInstance.getCache();
+                if (nonNull(cache)) {
+                    cache.clear();
+                } else {
+                    LOGGER.debug(String.format("No cache found graphId:%s with cacheName:%s", graphId, cacheInstance.getCacheName()));
                 }
-            } catch (final CacheOperationException e) {
-                throw new GafferRuntimeException(String.format("Error clearing Cache while removing graphId: %s", graphId), e);
             }
+        } catch (final CacheOperationException e) {
+            throw new GafferRuntimeException(String.format("Error clearing Cache while removing graphId: %s", graphId), e);
         }
     }
 
@@ -270,7 +255,7 @@ public class FederatedGraphStorage {
     }
 
     private void validateExisting(final String graphId) throws StorageException {
-        boolean exists = federatedStoreCache.getAllGraphIds().contains(graphId);
+        boolean exists = federatedStoreCache.contains(graphId);
         if (exists) {
             throw new StorageException(new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, graphId))));
         }
@@ -296,16 +281,16 @@ public class FederatedGraphStorage {
     private Stream<GraphSerialisable> getStream(final User user, final Collection<String> graphIds) {
         Stream<GraphSerialisable> rtn;
         if (isNull(graphIds)) {
-            rtn = federatedStoreCache.getAllGraphIds().stream()
-                    .map(g -> federatedStoreCache.getFromCache(g))
+            rtn = StreamSupport.stream(federatedStoreCache.getAllGraphIds().spliterator(), false)
+                    .map(federatedStoreCache::getFromCache)
                     .filter(pair -> isValidToView(user, pair.getSecond()))
-                    .map(pair -> pair.getFirst());
+                    .map(Pair::getFirst);
         } else {
-            rtn = federatedStoreCache.getAllGraphIds().stream()
-                    .map(g -> federatedStoreCache.getFromCache(g))
+            rtn = StreamSupport.stream(federatedStoreCache.getAllGraphIds().spliterator(), false)
+                    .map(federatedStoreCache::getFromCache)
                     .filter(pair -> isValidToView(user, pair.getSecond()))
                     .filter(pair -> graphIds.contains(pair.getFirst().getGraphId()))
-                    .map(pair -> pair.getFirst());
+                    .map(Pair::getFirst);
         }
         return rtn;
     }
@@ -315,10 +300,10 @@ public class FederatedGraphStorage {
      * @return a stream of graphs the user has visibility for.
      */
     private Stream<GraphSerialisable> getUserGraphStream(final Predicate<FederatedAccess> readAccessPredicate) {
-        return federatedStoreCache.getAllGraphIds().stream()
-                .map(graphId -> federatedStoreCache.getFromCache(graphId))
-                .filter(pair -> readAccessPredicate.test(pair.getSecond()))
-                .map(Pair::getFirst);
+        return StreamSupport.stream(federatedStoreCache.getAllGraphIds().spliterator(), false)
+            .map(federatedStoreCache::getFromCache)
+            .filter(pair -> readAccessPredicate.test(pair.getSecond()))
+            .map(Pair::getFirst);
     }
 
     @SuppressWarnings("PMD.PreserveStackTrace") //Not Required
@@ -365,17 +350,17 @@ public class FederatedGraphStorage {
     }
 
     private Map<String, Object> getAllGraphsAndAccess(final List<String> graphIds, final Predicate<FederatedAccess> accessPredicate) {
-        return federatedStoreCache.getAllGraphIds().stream()
-                .map(graphId -> federatedStoreCache.getFromCache(graphId))
-                //filter on FederatedAccess
-                .filter(pair -> accessPredicate.test(pair.getSecond()))
-                //filter on if graph required?
-                .filter(pair -> {
-                    final boolean isGraphIdRequested = nonNull(graphIds) && graphIds.contains(pair.getFirst().getGraphId());
-                    final boolean isAllGraphIdsRequired = isNull(graphIds) || graphIds.isEmpty();
-                    return isGraphIdRequested || isAllGraphIdsRequired;
-                })
-                .collect(Collectors.toMap(pair -> pair.getFirst().getGraphId(), Pair::getSecond));
+        return StreamSupport.stream(federatedStoreCache.getAllGraphIds().spliterator(), false)
+            .map(federatedStoreCache::getFromCache)
+            // filter on FederatedAccess
+            .filter(pair -> accessPredicate.test(pair.getSecond()))
+            // filter on if graph required?
+            .filter(pair -> {
+                final boolean isGraphIdRequested = nonNull(graphIds) && graphIds.contains(pair.getFirst().getGraphId());
+                final boolean isAllGraphIdsRequired = isNull(graphIds) || graphIds.isEmpty();
+                return isGraphIdRequested || isAllGraphIdsRequired;
+            })
+            .collect(Collectors.toMap(pair -> pair.getFirst().getGraphId(), Pair::getSecond));
     }
 
     public boolean changeGraphAccess(final String graphId, final FederatedAccess newFederatedAccess, final User requestingUser) throws StorageException {
@@ -426,11 +411,12 @@ public class FederatedGraphStorage {
         final GraphSerialisable graphToUpdate = getGraphToUpdate(graphId, accessPredicate);
 
         if (nonNull(graphToUpdate)) {
-            //get access before removing old graphId.
+            // Get access before removing old graphId.
             FederatedAccess access = federatedStoreCache.getAccessFromCache(graphId);
-            //Removed first, to stop a sync issue when sharing the cache with another store.
+            // Remove first, to stop a sync issue when sharing the cache with another store.
             remove(graphId, federatedAccess -> true, false);
-
+            // For Accumulo derived stores the table name must be updated to match the graph's new id. These stores are:
+            // uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore, MiniAccumuloStore, SingleUseMiniAccumuloStore]
             updateTablesWithNewGraphId(newGraphId, graphToUpdate);
 
             updateCacheWithNewGraphId(newGraphId, graphToUpdate, access);
@@ -458,25 +444,11 @@ public class FederatedGraphStorage {
     }
 
     private void updateTablesWithNewGraphId(final String newGraphId, final GraphSerialisable graphToUpdate) throws StorageException {
-        //Update Tables
         String graphId = graphToUpdate.getGraphId();
         String storeClass = graphToUpdate.getStoreProperties().getStoreClass();
         if (nonNull(storeClass) && storeClass.startsWith(AccumuloStore.class.getPackage().getName())) {
-            /*
-             * This logic is only for Accumulo derived stores Only.
-             * For updating table names to match graphs names.
-             *
-             * uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore,
-             * MiniAccumuloStore, SingleUseMiniAccumuloStore]
-             */
             try {
-                Connector connection = getConnector((AccumuloProperties) graphToUpdate.getStoreProperties());
-
-                if (connection.tableOperations().exists(graphId)) {
-                    connection.tableOperations().offline(graphId);
-                    connection.tableOperations().rename(graphId, newGraphId);
-                    connection.tableOperations().online(newGraphId);
-                }
+                renameTable((AccumuloProperties) graphToUpdate.getStoreProperties(), graphToUpdate.getGraphId(), newGraphId);
             } catch (final Exception e) {
                 LOGGER.error("Error trying to update tables for graphID:{} graphUpdate:{}, Error:{}", graphId, graphToUpdate, e.getMessage());
             }

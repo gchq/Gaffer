@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,11 @@ import java.util.Set;
 
 import static java.util.Collections.emptyList;
 
+/**
+ * @deprecated Marked for removal in 2.4.0 please use standard AccessPredicates
+ *             going forward.
+ */
+@Deprecated
 public class FederatedGraphReadAccessPredicate extends FederatedGraphAccessPredicate {
 
     public FederatedGraphReadAccessPredicate(final String creatingUserId, final Set<String> auths, final boolean isPublic) {

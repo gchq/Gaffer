@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Crown Copyright
+ * Copyright 2023-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,10 @@ import uk.gov.gchq.gaffer.tinkerpop.GafferPopElement;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 
-public class GafferPopElementGeneratorTest {
+class GafferPopElementGeneratorTest {
 
     @Test
-    public void shouldReturnAGafferPopVertex() {
+    void shouldReturnAGafferPopVertex() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final Element element = new Entity.Builder().group(TestGroups.ENTITY).build();
@@ -49,10 +49,15 @@ public class GafferPopElementGeneratorTest {
     }
 
     @Test
-    public void shouldReturnAGafferPopEdge() {
+    void shouldReturnAGafferPopEdge() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
-        final Element element = new Edge.Builder().group(TestGroups.EDGE).build();
+        final String source = "source";
+        final String dest = "dest";
+        final Element element = new Edge.Builder()
+            .group(TestGroups.EDGE)
+            .source(source)
+            .dest(dest).build();
 
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph, true);
 
@@ -66,7 +71,7 @@ public class GafferPopElementGeneratorTest {
     }
 
     @Test
-    public void shouldThrowExceptionForInvalidElement() {
+    void shouldThrowExceptionForInvalidElement() {
         // Given
         final GafferPopGraph graph = mock(GafferPopGraph.class);
         final Element element = mock(Element.class);

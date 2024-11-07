@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopEdge;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
-
-import java.util.Map.Entry;
+import uk.gov.gchq.gaffer.tinkerpop.process.traversal.util.GafferCustomTypeFactory;
 
 public class GafferPopEdgeGenerator implements OneToOneObjectGenerator<GafferPopEdge> {
     private final GafferPopGraph graph;
@@ -48,14 +47,19 @@ public class GafferPopEdgeGenerator implements OneToOneObjectGenerator<GafferPop
         }
 
         final Edge edge = ((Edge) element);
-        final GafferPopEdge gafferPopEdge = new GafferPopEdge(edge.getGroup(),
-                edge.getSource(), edge.getDestination(), graph);
+        final GafferPopEdge gafferPopEdge = new GafferPopEdge(
+            edge.getGroup(),
+            GafferCustomTypeFactory.parseForGraphSONv3(edge.getSource()),
+            GafferCustomTypeFactory.parseForGraphSONv3(edge.getDestination()),
+            graph);
 
-        for (final Entry<String, Object> entry : edge.getProperties().entrySet()) {
-            if (null != entry.getValue()) {
-                gafferPopEdge.propertyWithoutUpdate(entry.getKey(), entry.getValue());
+        // Add the properties
+        edge.getProperties().forEach((k, v) -> {
+            if (v != null) {
+                gafferPopEdge.propertyWithoutUpdate(k, GafferCustomTypeFactory.parseForGraphSONv3(v));
             }
-        }
+        });
+
         if (gafferPopReadOnly) {
             gafferPopEdge.setReadOnly();
         }

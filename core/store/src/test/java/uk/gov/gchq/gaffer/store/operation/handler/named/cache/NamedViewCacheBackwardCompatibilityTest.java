@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import java.util.Properties;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache.NAMED_VIEW_CACHE_SERVICE_NAME;
 
 public class NamedViewCacheBackwardCompatibilityTest {
     private static final String BACKWARDS_COMPATABILITY_2_0_0 = "backwards_compatability_2.0.0";
@@ -43,11 +44,10 @@ public class NamedViewCacheBackwardCompatibilityTest {
     public static void setUp() {
         CacheServiceLoader.shutdown();
         final Properties properties = new Properties();
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, JcsCacheService.class.getName());
         // Note that this config causes a binary resource file containing data to be loaded into the cache
         // This data includes ADDING_USER and VIEW_NAME
         properties.setProperty(CacheProperties.CACHE_CONFIG_FILE, GAFFER_2_0_0_CACHE_CACHE_CCF);
-        CacheServiceLoader.initialise(properties);
+        CacheServiceLoader.initialise(NAMED_VIEW_CACHE_SERVICE_NAME, JcsCacheService.class.getName(), properties);
         viewCache = new NamedViewCache(BACKWARDS_COMPATABILITY_2_0_0);
     }
 

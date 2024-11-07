@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,13 +74,8 @@ public class JcsCache<K, V> implements ICache<K, V> {
 
     @Override
     public Collection<V> getAllValues() {
-        ArrayList<V> values = new ArrayList<V>();
-        Set<K> keys = getAllKeys();
-
-        for (final K key : keys) {
-            values.add(get(key));
-        }
-
+        ArrayList<V> values = new ArrayList<>();
+        getAllKeys().forEach(k -> values.add(get(k)));
         return values;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
@@ -33,7 +32,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
-import java.util.Properties;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,9 +75,7 @@ public class NamedViewCacheTest {
 
     @BeforeAll
     public static void setUp() {
-        final Properties properties = new Properties();
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        CacheServiceLoader.initialise(properties);
+        CacheServiceLoader.initialise(HashMapCacheService.class.getName());
         cache = new NamedViewCache(SUFFIX_CACHE_NAME);
     }
 
@@ -104,8 +100,9 @@ public class NamedViewCacheTest {
     @Test
     public void shouldThrowExceptionIfNamedViewAlreadyExists() throws CacheOperationException {
         cache.addNamedView(viewDetailA, false);
-        assertThatExceptionOfType(OverwritingException.class).isThrownBy(() -> cache.addNamedView(viewDetailA, false))
-                .withMessage(String.format("Cache entry already exists for key: %s", VIEW_NAME_A));
+        assertThatExceptionOfType(OverwritingException.class)
+            .isThrownBy(() -> cache.addNamedView(viewDetailA, false))
+            .withMessageContaining(String.format("Cache entry already exists for key: %s", VIEW_NAME_A));
     }
 
     @Test

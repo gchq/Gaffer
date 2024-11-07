@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,12 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
+import java.util.stream.StreamSupport;
 
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for handling
@@ -39,9 +39,10 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationCache.class);
     public static final String CACHE_SERVICE_NAME_PREFIX = "NamedOperation";
     public static final String NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX = "NamedOperation Cache was made with Null or Empty suffix, This is very likely a mistake. GraphId or a supplied suffix is normal";
+    public static final String NAMED_OPERATION_CACHE_SERVICE_NAME = "NamedOperation";
 
     public NamedOperationCache(final String suffixNamedOperationCacheName) {
-        super(getCacheNameFrom(suffixNamedOperationCacheName));
+        super(getCacheNameFrom(suffixNamedOperationCacheName), NAMED_OPERATION_CACHE_SERVICE_NAME);
         if (Strings.isNullOrEmpty(suffixNamedOperationCacheName)) {
             LOGGER.error(NAMED_OPERATION_CACHE_WAS_MADE_WITH_NULL_OR_EMPTY_SUFFIX);
         }
@@ -150,19 +151,21 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
         if (namedOperation == null) {
             throw new CacheOperationException("NamedOperation cannot be null");
         }
-        String name = namedOperation.getOperationName();
-        if (contains(name) && overwrite) {
-            final boolean doesUserHavePermissionToWrite = getFromCache(name).hasWriteAccess(user, adminAuth);
-            if (doesUserHavePermissionToWrite) {
-                addToCache(name, namedOperation, true);
+        try {
+            String name = namedOperation.getOperationName();
+            if (overwrite && contains(name)) {
+                final boolean doesUserHavePermissionToWrite = getFromCache(name).hasWriteAccess(user, adminAuth);
+                if (doesUserHavePermissionToWrite) {
+                    addToCache(name, namedOperation, true);
+                } else {
+                    throw new CacheOperationException(String.format("User %s does not have permission to overwrite", user.getUserId()));
+                }
             } else {
-                throw new CacheOperationException(String.format("User %s does not have permission to overwrite", user.getUserId()));
+                addToCache(name, namedOperation, overwrite);
             }
-        } else {
-            addToCache(name, namedOperation, overwrite);
+        } catch (final GafferRuntimeException e) {
+            throw new CacheOperationException(e);
         }
-
-
     }
 
     /**
@@ -179,9 +182,17 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
         if (Objects.isNull(name)) {
             throw new CacheOperationException("NamedOperation name cannot be null");
         }
-        final NamedOperationDetail existing = getFromCache(name);
+
+        NamedOperationDetail existing;
+        try {
+            existing = getFromCache(name);
+        } catch (final CacheOperationException e) {
+            // Unable to find the requested entry to delete
+            return;
+        }
+
         if (existing.hasWriteAccess(user, adminAuth)) {
-            deleteFromCache(name);
+            super.deleteFromCache(name);
         } else {
             throw new CacheOperationException(String.format("User %s does not have authority to delete named operation: %s", user, name));
         }
@@ -217,19 +228,17 @@ public class NamedOperationCache extends Cache<String, NamedOperationDetail> {
      * @return a {@link Iterable} containing the named operation details
      */
     public Iterable<NamedOperationDetail> getAllNamedOperations(final User user, final String adminAuth) {
-        final Set<String> keys = getAllKeys();
-        final Set<NamedOperationDetail> executables = new HashSet<>();
-        for (final String key : keys) {
-            try {
-                final NamedOperationDetail op = getFromCache(key);
-                if (op.hasReadAccess(user, adminAuth)) {
-                    executables.add(op);
+        return () -> StreamSupport.stream(getAllKeys().spliterator(), false)
+            .map(key -> {
+                try {
+                    return getFromCache(key);
+                } catch (final CacheOperationException e) {
+                    LOGGER.error(e.getMessage(), e);
+                    return null;
                 }
-            } catch (final CacheOperationException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-
-        }
-        return executables;
+            })
+            .filter(Objects::nonNull)
+            .filter(op -> op.hasReadAccess(user, adminAuth))
+            .iterator();
     }
 }
