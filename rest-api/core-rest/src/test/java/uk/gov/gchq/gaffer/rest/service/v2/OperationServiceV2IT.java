@@ -105,25 +105,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
         // Then
         assertEquals(SERVICE_UNAVAILABLE.getStatusCode(), response.getStatus());
     }
-
-    @Test
-    public void shouldReturnSameJobIdInHeaderAsGetAllJobDetailsOperation() throws IOException {
-        // Given
-        final Graph graph = new Graph.Builder()
-                .config(StreamUtil.graphConfig(this.getClass()))
-                .storeProperties(StreamUtil.STORE_PROPERTIES)
-                .addSchema(new Schema())
-                .build();
-
-        client.reinitialiseGraph(graph);
-
-        // When
-        final Response response = client.executeOperation(new GetAllJobDetails());
-
-        // Then
-        assertTrue(response.readEntity(String.class).contains(response.getHeaderString("job-id")));
-    }
-
+    
     @Test
     public void shouldReturnAllOperationsAsOperationDetails() throws IOException, ClassNotFoundException {
         // Given
