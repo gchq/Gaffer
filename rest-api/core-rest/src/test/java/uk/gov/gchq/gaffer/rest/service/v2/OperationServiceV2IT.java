@@ -105,7 +105,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
         // Then
         assertEquals(SERVICE_UNAVAILABLE.getStatusCode(), response.getStatus());
     }
-    
+
     @Test
     public void shouldReturnAllOperationsAsOperationDetails() throws IOException, ClassNotFoundException {
         // Given
