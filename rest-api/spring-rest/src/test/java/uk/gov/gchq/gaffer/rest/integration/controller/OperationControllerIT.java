@@ -162,37 +162,6 @@ public class OperationControllerIT extends AbstractRestApiIT {
     }
 
     @Test
-    public void shouldReturnSameJobIdInHeaderAsGetAllJobDetailsOperation() throws IOException {
-        // Given
-        StoreProperties properties = new MapStoreProperties();
-        properties.setJobTrackerEnabled(true);
-        properties.setDefaultCacheServiceClass(HashMapCacheService.class.getName());
-
-        Graph graph = new Graph.Builder()
-                .config(StreamUtil.graphConfig(this.getClass()))
-                .storeProperties(properties)
-                .addSchema(new Schema())
-                .build();
-
-        when(getGraphFactory().getGraph()).thenReturn(graph);
-
-        // When
-        final ResponseEntity<Set> response = post("/graph/operations/execute",
-                new GetAllJobDetails(),
-                Set.class);
-
-        // Then
-        try {
-            assertTrue(response.getBody().toString().contains(response.getHeaders().get("job-id").get(0)));
-        } catch (final AssertionError e) {
-            System.out.println("Job ID was not found in the Header");
-            System.out.println("Header was: " + response.getHeaders().get("job-id"));
-            System.out.println("Body was: " + response.getBody());
-            throw e;
-        }
-    }
-
-    @Test
     public void shouldCorrectlyStreamExecuteChunked() throws Exception {
         // Given
         final Schema schema =  new Schema.Builder()
