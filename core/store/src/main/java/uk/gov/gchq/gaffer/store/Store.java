@@ -981,7 +981,8 @@ public abstract class Store {
             if (null == oldJobDetail) {
                 jobTracker.addOrUpdateJob(newJobDetail, context.getUser());
             } else {
-                jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context.getUser());
+                jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context
+                .getUser());
             }
         }
         return newJobDetail;
