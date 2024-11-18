@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -29,6 +31,7 @@ import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,7 +39,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -497,7 +499,7 @@ public class ViewUtilTest {
     }
 
     @Test
-    public void shouldCreateAnIdenticalObjectWhenCloned() {
+    public void shouldCreateAnIdenticalObjectWhenCloned() throws IOException{
         // Given
         final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
         final ViewElementDefinition edgeDef2 = new ViewElementDefinition();
@@ -521,8 +523,13 @@ public class ViewUtilTest {
         final byte[] viewJson = view.toCompactJson();
         final byte[] cloneJson = clone.toCompactJson();
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode treeView = objectMapper.readTree(viewJson);
+        JsonNode treeClone = objectMapper.readTree(cloneJson);
+
         // Check that JSON representations of the objects are equal
-        assertArrayEquals(viewJson, cloneJson);
+        assertThat(treeView).isEqualTo(treeClone);
+
 
         final View viewFromJson = new View.Builder().json(viewJson).build();
         final View cloneFromJson = new View.Builder().json(cloneJson).build();
