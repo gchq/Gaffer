@@ -47,7 +47,7 @@ public final class PropertiesUtil {
      * @return boolean if name is valid
      */
     public static boolean isValidName(final String property) {        
-        return (!PROPERTY_ALLOWED_CHARACTERS.matcher(property).matches()) ? false : true;
+        return (!PROPERTY_ALLOWED_CHARACTERS.matcher(property).matches());
     }
 
      public static String stripInvalidCharacters(final String property) {
