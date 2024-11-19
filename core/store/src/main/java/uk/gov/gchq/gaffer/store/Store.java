@@ -972,7 +972,7 @@ public abstract class Store {
 
     private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
         final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser(), operationChain, jobStatus, msg);
-        if (null != jobTracker) {
+        if (nonNull(jobTracker)) {
             final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context.getUser());
             if (newJobDetail.getStatus().equals(JobStatus.SCHEDULED_PARENT)) {
                 newJobDetail.setRepeat(null);
