@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
  * (GafferPop) g.V().out() = [v2, v3, v4, v5]
  * </pre>
  */
-public class GafferPopVertexStep<E extends Element> extends FlatMapStep<Iterable<Vertex>, E>
+public class GafferPopVertexStep<E extends Element> extends FlatMapStep<List<Vertex>, E>
         implements AutoCloseable, Configuring {
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopVertexStep.class);
 
@@ -77,6 +77,7 @@ public class GafferPopVertexStep<E extends Element> extends FlatMapStep<Iterable
         this.edgeLabels = originalVertexStep.getEdgeLabels();
         this.returnClass = originalVertexStep.getReturnClass();
         this.traversal = originalVertexStep.getTraversal();
+        this.labels = originalVertexStep.getLabels();
     }
 
     @Override
@@ -90,7 +91,7 @@ public class GafferPopVertexStep<E extends Element> extends FlatMapStep<Iterable
     }
 
     @Override
-    protected Iterator<E> flatMap(final Traverser.Admin<Iterable<Vertex>> traverser) {
+    protected Iterator<E> flatMap(final Traverser.Admin<List<Vertex>> traverser) {
         return Vertex.class.isAssignableFrom(returnClass) ?
             (Iterator<E>) this.vertices(traverser.get()) :
             (Iterator<E>) this.edges(traverser.get());

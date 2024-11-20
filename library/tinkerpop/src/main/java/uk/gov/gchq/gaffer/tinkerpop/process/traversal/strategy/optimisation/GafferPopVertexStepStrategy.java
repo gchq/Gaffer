@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.tinkerpop.process.traversal.strategy.optimisation;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal.Admin;
 import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategy;
+import org.apache.tinkerpop.gremlin.process.traversal.step.map.FoldStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.VertexStep;
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.AbstractTraversalStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalHelper;
@@ -27,7 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.GafferPopVertexStep;
-import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.LazyFoldStep;
+
+import java.util.List;
 
 /**
  * Optimisation strategy to reduce the number of Gaffer operations performed.
@@ -49,14 +51,13 @@ public final class GafferPopVertexStepStrategy
             LOGGER.debug("Inserting FoldStep and replacing VertexStep");
 
             // Replace vertex step
-            final GafferPopVertexStep<? extends Element> listVertexStep = new GafferPopVertexStep<>(
-                    originalVertexStep);
+            final GafferPopVertexStep<? extends Element> listVertexStep = new GafferPopVertexStep<>(originalVertexStep);
             TraversalHelper.replaceStep(originalVertexStep, listVertexStep, traversal);
 
             // Add in a fold step before the new VertexStep so that the input is the list of
             // all vertices
-            LazyFoldStep<Vertex> lazyFoldStep = new LazyFoldStep<>(originalVertexStep.getTraversal());
-            TraversalHelper.insertBeforeStep(lazyFoldStep, listVertexStep, traversal);
+            FoldStep<Vertex, List<Vertex>> foldStep = new FoldStep<>(originalVertexStep.getTraversal());
+            TraversalHelper.insertBeforeStep(foldStep, listVertexStep, traversal);
         });
     }
 
