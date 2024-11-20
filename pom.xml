@@ -1326,6 +1326,10 @@
                 </plugins>
             </build>
         </profile>
+        <properties>
+            <sonar.organization>ms9698</sonar.organization>
+            <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        </properties>
         <profile>
             <id>integration-test</id>
             <properties>
