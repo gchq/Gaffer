@@ -77,7 +77,7 @@ public class GafferPopVertexStep<E extends Element> extends FlatMapStep<List<Ver
         this.edgeLabels = originalVertexStep.getEdgeLabels();
         this.returnClass = originalVertexStep.getReturnClass();
         this.traversal = originalVertexStep.getTraversal();
-        this.labels = originalVertexStep.getLabels();
+        originalVertexStep.getLabels().forEach(this::addLabel);
     }
 
     @Override

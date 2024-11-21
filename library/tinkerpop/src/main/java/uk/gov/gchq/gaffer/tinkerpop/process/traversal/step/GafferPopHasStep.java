@@ -37,7 +37,7 @@ public class GafferPopHasStep<S extends Element> extends HasStep<S> {
     public GafferPopHasStep(final HasStep<S> originalHasStep) {
         super(originalHasStep.getTraversal());
         LOGGER.debug("Running custom HasStep on GafferPopGraph");
-        this.labels = originalHasStep.getLabels();
+        originalHasStep.getLabels().forEach(this::addLabel);
         originalHasStep.getHasContainers().forEach(this::addHasContainer);
     }
 

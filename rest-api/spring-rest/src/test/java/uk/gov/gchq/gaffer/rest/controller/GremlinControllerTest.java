@@ -274,7 +274,7 @@ class GremlinControllerTest {
     @Test
     void shouldReturnExplainOfCypherQueryWithExtensions() throws Exception {
         // Given (uses the toInteger custom function)
-        String cypherString = "MATCH (p:person) WHERE p.age > toInteger(22) RETURN p.name";
+        String cypherString = "MATCH (p:person) WHERE p.age > toInteger(22) RETURN p";
 
         List<String> expectedOperations = Arrays.asList(GetAllElements.class.getName(), Limit.class.getName());
 

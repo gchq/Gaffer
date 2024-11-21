@@ -69,7 +69,7 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
     public GafferPopGraphStep(final GraphStep<S, E> originalGraphStep) {
         super(originalGraphStep.getTraversal(), originalGraphStep.getReturnClass(), originalGraphStep.isStartStep(), originalGraphStep.getIds());
         LOGGER.debug("Running custom GraphStep on GafferPopGraph");
-        this.labels = originalGraphStep.getLabels();
+        originalGraphStep.getLabels().forEach(this::addLabel);
 
         // Save reference to the graph
         GafferPopGraph graph = (GafferPopGraph) originalGraphStep.getTraversal().getGraph().get();
