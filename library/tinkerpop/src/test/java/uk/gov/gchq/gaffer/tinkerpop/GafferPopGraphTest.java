@@ -507,7 +507,7 @@ class GafferPopGraphTest {
         final Iterator<Edge> edges = graph.edges();
 
         // Then
-        assertThat(edges).toIterable().containsExactly(createdEdge, knowsEdge);
+        assertThat(edges).toIterable().containsExactlyInAnyOrder(createdEdge, knowsEdge);
     }
 
     @Test

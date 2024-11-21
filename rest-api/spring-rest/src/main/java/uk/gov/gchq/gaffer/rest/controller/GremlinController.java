@@ -181,13 +181,14 @@ public class GremlinController {
     @PostMapping(path = "/cypher/explain", consumes = TEXT_PLAIN_VALUE, produces = APPLICATION_JSON_VALUE)
     @io.swagger.v3.oas.annotations.Operation(
         summary = "Explain a Cypher Query Executed via Gremlin",
-        description = "Translates a Cypher query to Gremlin and outputs an explanation of what Gaffer operations" +
+        description = "Translates a Cypher query to Gremlin and outputs an explanation of what Gaffer operations " +
                       "were executed on the graph, note will always append a '.toList()' to the translation")
     public String cypherExplain(@RequestHeader final HttpHeaders httpHeaders, @RequestBody final String cypherQuery) {
 
         final CypherAst ast = CypherAst.parse(cypherQuery);
         // Translate the cypher to gremlin, always add a .toList() otherwise Gremlin wont execute it as its lazy
-        final String translation = ast.buildTranslation(Translator.builder().gremlinGroovy().enableCypherExtensions().build()) + ".toList()";
+        final String translation = ast.buildTranslation(
+            Translator.builder().gremlinGroovy().enableCypherExtensions().build()) + ".toList()";
 
         JSONObject response = runGremlinQuery(translation).get1();
         response.put(EXPLAIN_GREMLIN_KEY, translation);
@@ -207,7 +208,7 @@ public class GremlinController {
     @PostMapping(path = "/cypher/execute", consumes = TEXT_PLAIN_VALUE, produces = APPLICATION_NDJSON_VALUE)
     @io.swagger.v3.oas.annotations.Operation(
         summary = "Run a Cypher Query",
-        description = "Translates a Cypher query to Gremlin and executes it returning a GraphSONv3 JSON result." +
+        description = "Translates a Cypher query to Gremlin and executes it returning a GraphSONv3 JSON result. " +
                       "Note will always append a '.toList()' to the translation")
     public ResponseEntity<StreamingResponseBody> cypherExecute(
             @RequestHeader final HttpHeaders httpHeaders,

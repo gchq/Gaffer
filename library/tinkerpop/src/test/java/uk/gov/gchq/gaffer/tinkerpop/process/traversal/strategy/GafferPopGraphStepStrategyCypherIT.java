@@ -45,7 +45,7 @@ class GafferPopGraphStepStrategyCypherIT {
 
     @BeforeAll
     public static void beforeAll() {
-        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopGraphStepStrategyCypherIT.class, StoreType.MAP);
+        GafferPopGraph gafferPopGraph = GafferPopModernTestUtils.createModernGraph(GafferPopGraphStepStrategyCypherIT.class, StoreType.ACCUMULO);
         g = gafferPopGraph.traversal();
     }
 
