@@ -199,7 +199,7 @@ public final class GafferPopGraphVariables implements Graph.Variables {
         return (OperationChain) variables.get(LAST_OPERATION_CHAIN);
     }
 
-    public Boolean getIncludeOrphanedVertices() {
+    public boolean getIncludeOrphanedVertices() {
         return Boolean.parseBoolean(variables.get(INCLUDE_ORPHANED_VERTICES).toString());
     }
 
