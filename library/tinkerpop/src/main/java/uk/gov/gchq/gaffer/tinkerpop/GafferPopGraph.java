@@ -198,7 +198,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public static final String HAS_STEP_FILTER_STAGE = "gaffer.elements.hasstepfilterstage";
 
     /**
-     * COnfiguration key to set if orphaned vertices (e.g. vertices without an entity)
+     * Configuration key to set if orphaned vertices (e.g. vertices without an entity)
      * should be included in the result by default
      */
     public static final String INCLUDE_ORPHANED_VERTICES = "gaffer.includeOrphanedVertices";
