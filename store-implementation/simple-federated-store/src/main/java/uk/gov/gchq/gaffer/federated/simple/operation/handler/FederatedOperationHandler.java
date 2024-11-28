@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.FederatedUtils;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -112,20 +113,15 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         // Execute the operation chain on each graph
         for (final GraphSerialisable gs : graphsToExecute) {
             try {
-                gs.getGraph().execute(operation, context.getUser());
-            } catch (final OperationException | UnsupportedOperationException e) {
+                gs.getGraph().execute(FederatedUtils.getValidOperationForGraph(operation, gs, 0), context.getUser());
+            } catch (final OperationException | UnsupportedOperationException | IllegalArgumentException e) {
                 // Optionally skip this error if user has specified to do so
                 LOGGER.error("Operation failed on graph: {}", gs.getGraphId());
                 if (!Boolean.parseBoolean(operation.getOption(OPT_SKIP_FAILED_EXECUTE, "false"))) {
                     throw e;
                 }
                 LOGGER.info("Continuing operation execution on sub graphs");
-            } catch (final IllegalArgumentException e) {
-                // An operation may fail validation for a sub graph this is not really an error.
-                // We can just continue to execute on the rest of the graphs
-                LOGGER.warn("Operation contained invalid arguments for a sub graph, skipped execution on graph: {}", gs.getGraphId());
             }
-
         }
 
         // Assume no output, we've already checked above

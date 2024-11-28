@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.FederatedUtils;
 import uk.gov.gchq.gaffer.federated.simple.merge.DefaultResultAccumulator;
 import uk.gov.gchq.gaffer.federated.simple.merge.FederatedResultAccumulator;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -54,7 +55,8 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         List<O> graphResults = new ArrayList<>();
         for (final GraphSerialisable gs : graphsToExecute) {
             try {
-                graphResults.add(gs.getGraph().execute(operation, context.getUser()));
+                graphResults.add((O) gs.getGraph().execute(
+                    FederatedUtils.getValidOperationForGraph(operation, gs, 0), context.getUser()));
             } catch (final OperationException | UnsupportedOperationException e) {
                 // Optionally skip this error if user has specified to do so
                 LOGGER.error("Operation failed on graph: {}", gs.getGraphId());
@@ -84,9 +86,15 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         FederatedResultAccumulator<O> resultAccumulator = new DefaultResultAccumulator<>(combinedProps);
         resultAccumulator.setSchema(((FederatedStore) store).getSchema(graphsToExecute));
 
+        // Check if user has specified to aggregate
         if (operation.containsOption(OPT_AGGREGATE_ELEMENTS)) {
             resultAccumulator.setAggregateElements(Boolean.parseBoolean(operation.getOption(OPT_AGGREGATE_ELEMENTS)));
         }
+        // Turn aggregation off if there are no shared groups
+        if (!FederatedUtils.doGraphsShareGroups(graphsToExecute)) {
+            resultAccumulator.setAggregateElements(false);
+        }
+
         // Should now have a list of <O> objects so need to reduce to just one
         return graphResults.stream().reduce(resultAccumulator::apply).orElse(graphResults.get(0));
     }
