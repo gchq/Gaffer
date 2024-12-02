@@ -52,6 +52,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.tinkerpop.generator.GafferEdgeGenerator;
@@ -85,6 +86,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables.DEFAULT_GET_ELEMENTS_LIMIT;
+import static uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables.DEFAULT_HAS_STEP_FILTER_STAGE;
+
 
 /**
  * A <code>GafferPopGraph</code> is an implementation of
@@ -188,28 +193,24 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public static final String GET_ELEMENTS_LIMIT = "gaffer.elements.getlimit";
 
     /**
-     * Default value for the max number of elements returned by getElements
-     */
-    public static final int DEFAULT_GET_ELEMENTS_LIMIT = 5000;
-
-    /**
      * Configuration key for when to apply HasStep filtering
      */
     public static final String HAS_STEP_FILTER_STAGE = "gaffer.elements.hasstepfilterstage";
 
-    public enum HasStepFilterStage {
-        PRE_AGGREGATION,
-        POST_AGGREGATION,
-        POST_TRANSFORM
-    }
+    /**
+     * Configuration key to set if orphaned vertices (e.g. vertices without an entity)
+     * should be included in the result by default
+     */
+    public static final String INCLUDE_ORPHANED_VERTICES = "gaffer.includeOrphanedVertices";
 
     /**
-     * Default to pre-aggregation filtering for HasStep predicates
+     * Set default user ID to use if not set by the user factory.
      */
-    public static final HasStepFilterStage DEFAULT_HAS_STEP_FILTER_STAGE = HasStepFilterStage.PRE_AGGREGATION;
-
     public static final String USER_ID = "gaffer.userId";
 
+    /**
+     * Set default data auths if not set by the user factory.
+     */
     public static final String DATA_AUTHS = "gaffer.dataAuths";
 
     /**
@@ -410,27 +411,41 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      */
     @Override
     public Iterator<Vertex> vertices(final Object... vertexIds) {
-        final boolean getAll = null == vertexIds || 0 == vertexIds.length;
-        final OperationChain<Iterable<? extends Element>> getOperation;
-
         LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
+        final boolean getAll = null == vertexIds || 0 == vertexIds.length;
+        final Output<Iterable<? extends Element>> getOperation;
+
         if (getAll) {
-            getOperation = new Builder()
-                    .first(new GetAllElements.Builder()
-                            .view(createAllEntitiesView())
-                            .build())
-                    .then(new Limit<Element>(variables.getElementsLimit(), true))
-                    .build();
+            final GetAllElements.Builder builder = new GetAllElements.Builder();
+            // If we are not including orphans then apply the all entities view
+            if (!variables.getIncludeOrphanedVertices()) {
+                builder.view(createAllEntitiesView());
+            }
+            getOperation = builder.build();
+
         } else {
-            getOperation = new Builder()
-                .first(new GetElements.Builder()
-                    .input(getElementSeeds(Arrays.asList(vertexIds)))
-                    .build())
-                .then(new Limit<Element>(variables.getElementsLimit(), true))
-                .build();
+            final GetElements.Builder builder = new GetElements.Builder()
+                .input(getElementSeeds(Arrays.asList(vertexIds)));
+            // If we are not including orphans then apply the all entities view
+            if (!variables.getIncludeOrphanedVertices()) {
+                builder.view(createAllEntitiesView());
+            }
+            getOperation = builder.build();
         }
+
         // Run requested chain on the graph and buffer result to set to avoid reusing iterator
-        final Set<Element> result = new HashSet<>(IterableUtils.toList(execute(getOperation)));
+        final OperationChain<Iterable<? extends Element>> chain = new Builder()
+                .first(getOperation)
+                .then(new Limit<>(variables.getElementsLimit(), true))
+                .build();
+        final Set<Element> result = new HashSet<>(IterableUtils.toList(execute(chain)));
+
+        // Warn of truncation
+        if (result.size() >= variables.getElementsLimit()) {
+            LOGGER.warn(
+                "Result size is greater than or equal to configured limit ({}). Results may have been truncated",
+                variables.getElementsLimit());
+        }
 
         // Translate results to Gafferpop elements
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(this);
@@ -438,17 +453,12 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(generator::_apply)
                 .filter(Vertex.class::isInstance)
                 .map(e -> (Vertex) e)
-                .limit(variables.getElementsLimit())
                 .collect(Collectors.toSet());
 
-        if (translatedResults.size() >= variables.getElementsLimit()) {
-            LOGGER.warn(
-                "Result size is greater than or equal to configured limit ({}). Results may have been truncated",
-                variables.getElementsLimit());
-        }
-
         // Check for seeds that are not entities but are vertices on an edge (orphan vertices)
-        translatedResults.addAll(GafferVertexUtils.getOrphanVertices(result, this, vertexIds));
+        if (variables.getIncludeOrphanedVertices()) {
+            translatedResults.addAll(GafferVertexUtils.getOrphanVertices(result, this, vertexIds));
+        }
 
         return translatedResults.iterator();
     }
@@ -756,6 +766,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 configuration().getInteger(GET_ELEMENTS_LIMIT, DEFAULT_GET_ELEMENTS_LIMIT));
         variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
                 configuration().getString(HAS_STEP_FILTER_STAGE, DEFAULT_HAS_STEP_FILTER_STAGE.toString()));
+        variables.set(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES,
+                configuration().getBoolean(INCLUDE_ORPHANED_VERTICES, false));
         variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain<Object>());
     }
 
@@ -782,24 +794,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                     .build();
         }
 
-        final OperationChain<Iterable<? extends Element>> getOperation;
+        final Output<Iterable<? extends Element>> getOperation;
         LOGGER.debug(GET_DEBUG_MSG, variables.getElementsLimit());
         if (getAll) {
-            getOperation = new Builder()
-                    .first(new GetAllElements.Builder()
-                            .view(entitiesView)
-                            .build())
-                    .then(new Limit<>(variables.getElementsLimit(), true))
-                    .build();
+            getOperation = new GetAllElements.Builder().view(entitiesView).build();
         } else {
-            getOperation = new Builder()
-                    .first(new GetElements.Builder()
-                            .input(seeds)
-                            .view(entitiesView)
-                            .build())
-                    .then(new Limit<>(variables.getElementsLimit(), true))
-                    .build();
-
+            getOperation = new GetElements.Builder()
+                .input(seeds)
+                .view(entitiesView)
+                .build();
             if (null == entitiesView || entitiesView.getEntityGroups().contains(ID_LABEL)) {
                 seeds.forEach(seed -> {
                     if (seed instanceof EntitySeed) {
@@ -810,7 +813,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
 
         // Run operation on graph buffer to set to avoid reusing iterator
-        final Set<Element> result = new HashSet<>(IterableUtils.toList(execute(getOperation)));
+        final OperationChain<Iterable<? extends Element>> chain = new Builder()
+                .first(getOperation)
+                .then(new Limit<>(variables.getElementsLimit(), true))
+                .build();
+        final Set<Element> result = new HashSet<>(IterableUtils.toList(execute(chain)));
 
         // Translate results to Gafferpop elements
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(this);
@@ -818,7 +825,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .map(generator::_apply)
                 .filter(GafferPopVertex.class::isInstance)
                 .map(e -> (GafferPopVertex) e)
-                .limit(variables.getElementsLimit())
                 .collect(Collectors.toSet());
 
         return translatedResults.iterator();
@@ -829,7 +835,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
             throw new UnsupportedOperationException("There could be a lot of vertices, so please add some seeds");
         }
 
-        final Iterable<? extends EntityId> getAdjEntitySeeds = execute(new OperationChain.Builder()
+        final Iterable<? extends EntityId> getAdjEntitySeeds = execute(
+            new OperationChain.Builder()
                 .first(new GetAdjacentIds.Builder()
                     .input(seeds)
                     .view(view)
@@ -839,13 +846,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         List<? extends EntityId> seedList = IterableUtils.toList(getAdjEntitySeeds);
 
+        final GetElements.Builder builder = new GetElements.Builder().input(seedList);
+        // If we are not including orphans then apply the all entities view
+        if (!variables.getIncludeOrphanedVertices()) {
+            builder.view(createAllEntitiesView());
+        }
+
         // GetAdjacentIds provides list of entity seeds so run a GetElements to get the actual Entities
         final Set<Element> result = new HashSet<>(IterableUtils.toList(
-            execute(new OperationChain.Builder()
-                    .first(new GetElements.Builder()
-                        .input(seedList)
-                        .build())
-                    .build())));
+            execute(new OperationChain.Builder().first(builder.build()).build())));
 
         // Translate results to Gafferpop elements
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(this);
@@ -856,9 +865,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .collect(Collectors.toSet());
 
         // Check for seeds that are not entities but are vertices on an edge (orphan vertices)
-        for (final EntityId seed : seedList) {
-            translatedResults.addAll(GafferVertexUtils.getOrphanVertices(result, this, seed.getVertex()));
+        if (variables.getIncludeOrphanedVertices()) {
+            translatedResults.addAll(
+                GafferVertexUtils.getOrphanVertices(result, this, seedList.stream().map(EntityId::getVertex).toArray(Object[]::new)));
         }
+
         return translatedResults.iterator();
     }
 

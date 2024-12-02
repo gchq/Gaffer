@@ -292,7 +292,8 @@ public abstract class GafferPopFederationTests {
         // Edge has a vertex but not an entity in the graph - Gaffer only feature
         getGraph().addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), "7", getGraph()));
 
-        List<Vertex> result = g.V("7").toList();
+        // Need to enable orphaned vertices on the query
+        List<Vertex> result = g.with(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES, "true").V("7").toList();
         assertThat(result)
             .extracting(r -> r.id())
             .contains("7");
@@ -305,9 +306,12 @@ public abstract class GafferPopFederationTests {
         // Edge has a vertex but not an entity in the graph - Gaffer only feature
         getGraph().addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), "7", getGraph()));
 
-        List<Map<Object, Object>> result = g.V("7").inE().outV().elementMap().toList();
-        assertThat(result)
-            .containsExactly(MARKO.getPropertyMap());
+        // Need to enable orphaned vertices on the query
+        List<Map<Object, Object>> result = g.with(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES, "true")
+            .V("7").inE().outV().elementMap().toList();
+
+        assertThat(result).containsExactly(MARKO.getPropertyMap());
+
         reset();
     }
 
