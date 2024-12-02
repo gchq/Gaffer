@@ -83,31 +83,15 @@ public final class FederatedUtils {
         LOGGER.debug("Creating valid operation for graph, depth is: {}", depth);
         final Collection<Operation> updatedOperations = new ArrayList<>();
 
-        final Schema schema = graphSerialisable.getSchema();
-
         // Fix the view so it will pass schema validation
         if (operation instanceof OperationView
                 && ((OperationView) operation).getView() != null
                 && ((OperationView) operation).getView().hasGroups()) {
 
-            View view = ((OperationView) operation).getView();
-            // Figure out all the groups relevant to the graph
-            final Set<String> validEntities = new HashSet<>(view.getEntityGroups());
-            final Set<String> validEdges = new HashSet<>(view.getEdgeGroups());
-            validEntities.retainAll(schema.getEntityGroups());
-            validEdges.retainAll(schema.getEdgeGroups());
+            // Update the view for the graph
+            ((OperationView) operation).setView(
+                getValidViewForGraph(((OperationView) operation).getView(), graphSerialisable));
 
-            if (!validEntities.equals(view.getEntityGroups()) || !validEdges.equals(view.getEdgeGroups())) {
-                // Need to make changes to the view so start by cloning the view
-                // and clearing all the edges and entities
-                final View.Builder builder = new View.Builder()
-                        .merge(view)
-                        .entities(Collections.emptyMap())
-                        .edges(Collections.emptyMap());
-                validEntities.forEach(e -> builder.entity(e, view.getEntity(e)));
-                validEdges.forEach(e -> builder.edge(e, view.getEdge(e)));
-                ((OperationView) operation).setView(builder.build());
-            }
             updatedOperations.add(operation);
 
         // Recursively go into operation chains to make sure everything is fixed
@@ -117,7 +101,7 @@ public final class FederatedUtils {
                 if (depth < 5) {
                     updatedOperations.addAll(getValidOperationForGraph(op, graphSerialisable, depth + 1).getOperations());
                 } else {
-                    LOGGER.warn("Hit depth limit of 5 whilst creating a valid View. The View may be invalid for Graph: {}", graphSerialisable.getGraphId());
+                    LOGGER.warn("Hit depth limit of 5 whilst making the operation valid for graph. The View may be invalid for Graph: {}", graphSerialisable.getGraphId());
                     updatedOperations.add(op);
                 }
             }
@@ -133,5 +117,37 @@ public final class FederatedUtils {
         return newChain;
     }
 
+    /**
+     * Returns a {@link View} that contains groups only relevant to the graph. If
+     * the supplied view does not require modification it will just be returned.
+     *
+     * @param view The view to make valid.
+     * @param graphSerialisable The relevant graph.
+     * @return A version of the view valid for the graph.
+     */
+    public static View getValidViewForGraph(final View view, final GraphSerialisable graphSerialisable) {
+        final Schema schema = graphSerialisable.getSchema();
+
+        // Figure out all the groups relevant to the graph
+        final Set<String> validEntities = new HashSet<>(view.getEntityGroups());
+        final Set<String> validEdges = new HashSet<>(view.getEdgeGroups());
+        validEntities.retainAll(schema.getEntityGroups());
+        validEdges.retainAll(schema.getEdgeGroups());
+
+        if (!validEntities.equals(view.getEntityGroups()) || !validEdges.equals(view.getEdgeGroups())) {
+            // Need to make changes to the view so start by cloning the view
+            // and clearing all the edges and entities
+            final View.Builder builder = new View.Builder()
+                    .merge(view)
+                    .entities(Collections.emptyMap())
+                    .edges(Collections.emptyMap());
+            validEntities.forEach(e -> builder.entity(e, view.getEntity(e)));
+            validEdges.forEach(e -> builder.edge(e, view.getEdge(e)));
+            return builder.build();
+        }
+
+        // Nothing to do return unmodified view
+        return view;
+    }
 
 }
