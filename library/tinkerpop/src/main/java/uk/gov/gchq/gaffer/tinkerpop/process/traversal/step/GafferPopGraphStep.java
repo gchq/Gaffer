@@ -36,8 +36,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinitio
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables.HasStepFilterStage;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.util.GafferPopHasContainer;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
@@ -248,8 +248,8 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
             hasStepFilterStage = HasStepFilterStage.valueOf(filterStage);
         } catch (final IllegalArgumentException e) {
             LOGGER.warn("Unknown hasStepFilterStage: {}. Defaulting to {}",
-                filterStage, GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE);
-            hasStepFilterStage = GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE;
+                filterStage, GafferPopGraphVariables.DEFAULT_HAS_STEP_FILTER_STAGE);
+            hasStepFilterStage = GafferPopGraphVariables.DEFAULT_HAS_STEP_FILTER_STAGE;
         }
 
         switch (hasStepFilterStage) {
