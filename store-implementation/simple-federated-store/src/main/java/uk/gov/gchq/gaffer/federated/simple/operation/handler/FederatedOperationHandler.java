@@ -91,9 +91,16 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      */
     public static final String OPT_SEPARATE_RESULTS = "federated.separateResults";
 
+    /**
+     * Depth should go to when making an operation chain relevant to specified
+     * graphs e.g. fix the View.
+     */
+    public static final String OPT_FIX_OP_LIMIT = "federated.fixOperationLimit";
+
     @Override
     public Object doOperation(final P operation, final Context context, final Store store) throws OperationException {
         LOGGER.debug("Running operation: {}", operation);
+        final int fixLimit = Integer.parseInt(operation.getOption(OPT_FIX_OP_LIMIT, "5"));
 
         // If the operation has output wrap and return using sub class handler
         if (operation instanceof Output) {
@@ -113,7 +120,9 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         // Execute the operation chain on each graph
         for (final GraphSerialisable gs : graphsToExecute) {
             try {
-                gs.getGraph().execute(FederatedUtils.getValidOperationForGraph(operation, gs, 0), context.getUser());
+                gs.getGraph().execute(
+                    FederatedUtils.getValidOperationForGraph(operation, gs, 0, fixLimit),
+                    context.getUser());
             } catch (final OperationException | UnsupportedOperationException | IllegalArgumentException e) {
                 // Optionally skip this error if user has specified to do so
                 LOGGER.error("Operation failed on graph: {}", gs.getGraphId());

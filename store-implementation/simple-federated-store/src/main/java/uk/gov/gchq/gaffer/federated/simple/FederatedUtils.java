@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -77,9 +78,10 @@ public final class FederatedUtils {
      * @param operation The operation.
      * @param graphSerialisable The graph.
      * @param depth Current recursion depth of this method.
+     * @param depthLimit Limit to the recursion depth.
      * @return A valid version of the operation chain.
      */
-    public static OperationChain getValidOperationForGraph(final Operation operation, final GraphSerialisable graphSerialisable, final int depth) {
+    public static OperationChain getValidOperationForGraph(final Operation operation, final GraphSerialisable graphSerialisable, final int depth, final int depthLimit) {
         LOGGER.debug("Creating valid operation for graph, depth is: {}", depth);
         final Collection<Operation> updatedOperations = new ArrayList<>();
 
@@ -98,10 +100,13 @@ public final class FederatedUtils {
         } else if (operation instanceof OperationChain) {
             for (final Operation op : ((OperationChain<?>) operation).getOperations()) {
                 // Resolve if haven't hit the depth limit for validation
-                if (depth < 5) {
-                    updatedOperations.addAll(getValidOperationForGraph(op, graphSerialisable, depth + 1).getOperations());
+                if (depth < depthLimit) {
+                    updatedOperations.addAll(getValidOperationForGraph(op, graphSerialisable, depth + 1, depthLimit).getOperations());
                 } else {
-                    LOGGER.warn("Hit depth limit of 5 whilst making the operation valid for graph. The View may be invalid for Graph: {}", graphSerialisable.getGraphId());
+                    LOGGER.warn(
+                        "Hit depth limit of {} making the operation valid for graph. The View may be invalid for Graph: {}",
+                        depthLimit,
+                        graphSerialisable.getGraphId());
                     updatedOperations.add(op);
                 }
             }
@@ -138,11 +143,20 @@ public final class FederatedUtils {
             // Need to make changes to the view so start by cloning the view
             // and clearing all the edges and entities
             final View.Builder builder = new View.Builder()
-                    .merge(view)
-                    .entities(Collections.emptyMap())
-                    .edges(Collections.emptyMap());
+                .merge(view)
+                .entities(Collections.emptyMap())
+                .edges(Collections.emptyMap());
             validEntities.forEach(e -> builder.entity(e, view.getEntity(e)));
             validEdges.forEach(e -> builder.edge(e, view.getEdge(e)));
+            final View newView = builder.build();
+            // If the View has no groups left after fixing then this is likely an issue so throw
+            if (!newView.hasEntities() && !newView.hasEdges()) {
+                throw new IllegalArgumentException(String.format(
+                    "No groups specified in View are relevant to Graph: '%1$s'. " +
+                    "Please refine your Graphs/View or specify following option to skip execution on offending Graph: '%2$s'   ",
+                    graphSerialisable.getGraphId(),
+                    FederatedOperationHandler.OPT_SKIP_FAILED_EXECUTE));
+            }
             return builder.build();
         }
 

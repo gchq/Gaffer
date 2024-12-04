@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -65,6 +66,25 @@ class FederatedUtilsTest {
     }
 
     @Test
+    void shouldPreventExecutionIfNoGroupsInViewAreRelevant() {
+        // Given
+        View testView = new View.Builder()
+                .entity("entityNotInSchema")
+                .edge("edgeNotInSchema")
+                .build();
+        GraphSerialisable graph = new GraphSerialisable(
+                new GraphConfig("test"),
+                new Schema.Builder()
+                        .entity("entityInSchema", new SchemaEntityDefinition())
+                        .edge("edgeInSchema", new SchemaEdgeDefinition()).build(),
+                new StoreProperties());
+
+        // When
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> FederatedUtils.getValidViewForGraph(testView, graph));
+    }
+
+    @Test
     void shouldChangeViewsOfNestedOperations() {
         String entityInSchema = "entityInSchema";
         String edgeInSchema = "edgeInSchema";
@@ -95,7 +115,7 @@ class FederatedUtilsTest {
             .build();
 
         // Get a fixed operation chain
-        List<Operation> newChain = FederatedUtils.getValidOperationForGraph(nestedViewChain, graph, 0).flatten();
+        List<Operation> newChain = FederatedUtils.getValidOperationForGraph(nestedViewChain, graph, 0, 5).flatten();
         List<OperationView> fixedOperations = newChain.stream()
             .filter(op -> op instanceof OperationView)
             .map(op -> (OperationView) op)
