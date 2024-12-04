@@ -157,7 +157,7 @@ public final class FederatedUtils {
                     graphSerialisable.getGraphId(),
                     FederatedOperationHandler.OPT_SKIP_FAILED_EXECUTE));
             }
-            return builder.build();
+            return newView;
         }
 
         // Nothing to do return unmodified view
