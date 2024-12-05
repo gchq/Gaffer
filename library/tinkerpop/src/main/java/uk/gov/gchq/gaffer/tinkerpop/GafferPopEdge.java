@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.tinkerpop;
 
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Property;
@@ -36,6 +37,7 @@ import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -215,8 +217,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
                         .build())
                 .build();
 
-        Iterable<? extends Element> result = graph().execute(findBasedOnID);
-
+        final Set<Element> result = new HashSet<>(IterableUtils.toList(graph().execute(findBasedOnID)));
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph());
 
         Optional<Vertex> foundEntity = StreamSupport.stream(result.spliterator(), false)
