@@ -178,7 +178,7 @@ public class Entity extends Element implements EntityId {
             return this;
         }
 
-        public Builder properties(final Map<String, String> properties) {
+        public Builder properties(final Map<String, Object> properties) {
             if (isNull(properties)) {
                 properties.clear();
             } else {
