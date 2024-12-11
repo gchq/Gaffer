@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
+import uk.gov.gchq.gaffer.federated.simple.operation.ChangeGraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.ChangeGraphId;
 import uk.gov.gchq.gaffer.federated.simple.operation.FederatedOperationChainValidator;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
@@ -44,6 +45,7 @@ import uk.gov.gchq.gaffer.federated.simple.operation.handler.add.AddGraphHandler
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphIdsHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetAllGraphInfoHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.ChangeGraphAccessHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.ChangeGraphIdHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.RemoveGraphHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -132,7 +134,8 @@ public class FederatedStore extends Store {
             new SimpleEntry<>(GetSchema.class, new GetSchemaHandler()),
             new SimpleEntry<>(ChangeGraphId.class, new ChangeGraphIdHandler()),
             new SimpleEntry<>(GetAllGraphInfo.class, new GetAllGraphInfoHandler()),
-            new SimpleEntry<>(RemoveGraph.class, new RemoveGraphHandler()))
+            new SimpleEntry<>(RemoveGraph.class, new RemoveGraphHandler()),
+            new SimpleEntry<>(ChangeGraphAccess.class, new ChangeGraphAccessHandler()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     /**
@@ -287,6 +290,22 @@ public class FederatedStore extends Store {
             graphToUpdate.getConfig().setGraphId(newGraphId);
             addGraph(graphToUpdate, graphAccess);
         }
+    }
+
+    /**
+     * Updates a graph access by overwriting the access for that graph
+     * stored in the cache.
+     *
+     * @param graphId The graph ID to update.
+     * @param newAccess The new graph access.
+     * @throws CacheOperationException If issue updating the cache.
+     */
+    public void changeGraphAccess(final String graphId, final GraphAccess newAccess) throws CacheOperationException {
+        final GraphSerialisable graph = getGraph(graphId);
+        // Create the new pair
+        final Pair<GraphSerialisable, GraphAccess> graphAndAccessPair = new ImmutablePair<>(graph, newAccess);
+        // Add to the cache this will overwrite any existing value
+        graphCache.getCache().put(graphId, graphAndAccessPair);
     }
 
     /**
