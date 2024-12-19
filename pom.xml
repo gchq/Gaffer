@@ -59,10 +59,10 @@
         <mockito.version>4.11.0</mockito.version>
         <slf4j.api.version>1.7.36</slf4j.api.version>
 
-        <scala.minor.version>2.11</scala.minor.version>
+        <scala.minor.version>2.12</scala.minor.version>
         <scala.version>${scala.minor.version}.12</scala.version>
-        <spark.minor.version>2.4</spark.minor.version>
-        <spark.version>${spark.minor.version}.5</spark.version>
+        <spark.minor.version>3.3</spark.minor.version>
+        <spark.version>${spark.minor.version}.4</spark.version>
 
         <koryphe.version>2.5.2</koryphe.version>
         <accumulo.version>2.0.1</accumulo.version>
@@ -1133,7 +1133,7 @@
                             <rules>
                                 <bannedDependencies>
                                     <excludes>
-                                        <exclude>*log4j*:*log4j*</exclude>
+                                        <!-- <exclude>*log4j*:*log4j*</exclude> -->
                                         <exclude>org.slf4j:slf4j-log4j12</exclude>
                                     </excludes>
                                     <message>Log4j conflicts with reload4j, add an exclusion</message>

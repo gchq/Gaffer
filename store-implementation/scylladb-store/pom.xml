@@ -35,11 +35,11 @@
         </dependency>
 
         <!-- External libraries -->
-        <dependency>
+        <!-- <dependency>
             <groupId>com.scylladb</groupId>
             <artifactId>scylla-driver-core</artifactId>
             <version>3.11.2.0</version>
-        </dependency>
+        </dependency> -->
 
         <!-- <dependency>
             <groupId>com.scylladb</groupId>
@@ -47,7 +47,7 @@
             <version>3.11.2.0</version>
         </dependency> -->
 
-        <dependency>
+        <!-- <dependency>
             <groupId>com.scylladb</groupId>
             <artifactId>scylla-driver-extras</artifactId>
             <version>3.11.2.0</version>
@@ -69,12 +69,67 @@
             <groupId>com.scylladb</groupId>
             <artifactId>java-driver-query-builder</artifactId>
             <version>4.18.0.1</version>
-        </dependency>
+        </dependency> -->
 
-        <dependency>
+        <!-- <dependency>
             <groupId>com.scylladb</groupId>
             <artifactId>java-driver-mapper-runtime</artifactId>
             <version>4.18.0.1</version>
+        </dependency> -->
+
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_${scala.minor.version}</artifactId>
+            <version>${spark.version}</version>
+            <exclusions>
+                <!-- Conflicts with Reload4j -->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <!-- <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-core</artifactId>
+                </exclusion> -->
+                <!-- <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
+                </exclusion> -->
+                <!-- <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j2-impl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-1.2-api</artifactId>
+                </exclusion> -->
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-graphx_2.12</artifactId>
+            <version>3.5.3</version>
+        </dependency> -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_${scala.minor.version}</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.iceberg</groupId>
+            <artifactId>iceberg-spark-runtime-3.3_${scala.minor.version}</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-scala_${scala.minor.version}</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
