@@ -1,20 +1,17 @@
-package uk.gov.gchq.gaffer.scylladbstore;
+package uk.gov.gchq.gaffer.cassandra;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.DataType;
-import com.datastax.driver.core.PlainTextAuthProvider;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.schemabuilder.Create;
-import com.datastax.driver.core.schemabuilder.SchemaBuilder;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
+import com.datastax.oss.driver.api.core.type.DataTypes;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
+import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
 import com.datastax.oss.driver.api.querybuilder.insert.InsertInto;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -38,55 +35,48 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-public class ScyllaDbStore  extends Store {
+public class CassandraStore  extends Store {
 
     public static final String KEYSPACE_NAME = "my_graphs";
 
-    public Session getClusterConnection() {
-        Cluster cluster = Cluster.builder()
-            .addContactPointsWithPorts(new InetSocketAddress("localhost", 8090))
-            .withAuthProvider(new PlainTextAuthProvider("scylla", "awesome-password"))
+    public CqlSession getClusterConnection() {
+        return CqlSession.builder()
+            .addContactPoint(new InetSocketAddress("localhost", 8090))
             .build();
-
-        return cluster.connect();
     }
 
     public void createTableForGraph(final String graphId, final Schema schema) {
         Map<String, Object> replicationOptions = new HashMap<>();
             replicationOptions.put("class", "NetworkTopologyStrategy");
             replicationOptions.put("replication_factor", "3");
-        Session session = getClusterConnection();
+        CqlSession session = getClusterConnection();
 
         String createKeyspaceQuery = SchemaBuilder.createKeyspace(KEYSPACE_NAME)
-                .ifNotExists()
-                .with()
-                .replication(replicationOptions)
-                .durableWrites(true)
-                .getQueryString();
-
-        Create createTableBuilder = SchemaBuilder.createTable(KEYSPACE_NAME, graphId)
-                .ifNotExists();
+            .ifNotExists()
+            .withReplicationOptions(replicationOptions)
+            .asCql();
 
         // Map the gaffer schema to the table
         // This can be adapted but generally should allow ID to be byte array
-        // The direction plays a part in the key as encoded int: 1=entity, 2=source, 3=dest, 4=undirected
-        // Family is for clustering on edge or entity: 1=entity, 2=edge
-        createTableBuilder
-            .addPartitionKey("id", DataType.blob())
-            .addPartitionKey("direction", DataType.tinyint())
-            .addClusteringColumn("family", DataType.tinyint())
-            .addColumn("group", DataType.text())
-            .addColumn("visibility", DataType.text())
-            .addColumn("properties", DataType.map(DataType.text(), DataType.blob()))
-            .addColumn("timestamp", DataType.timestamp());
+        // The direction plays a part in the key as encoded int: 1=entity, 2=source,
+        // 3=dest, 4=undirected
+        String createTableBuilder = SchemaBuilder.createTable(KEYSPACE_NAME, graphId)
+            .ifNotExists()
+            .withPartitionKey("id", DataTypes.BLOB)
+            .withClusteringColumn("direction", DataTypes.TINYINT)
+            .withColumn("group", DataTypes.TEXT)
+            .withColumn("visibility", DataTypes.TEXT)
+            .withColumn("properties", DataTypes.mapOf(DataTypes.TEXT, DataTypes.BLOB))
+            .withColumn("timestamp", DataTypes.TIMESTAMP)
+            .asCql();
 
         session.execute(createKeyspaceQuery);
-        session.execute(createTableBuilder.getQueryString());
+        session.execute(createTableBuilder);
     }
 
 
     public void insertIntoTable(final String graphId, final Element element) throws SerialisationException {
-        Session session = getClusterConnection();
+        CqlSession session = getClusterConnection();
 
         InsertInto insertInto = QueryBuilder.insertInto(KEYSPACE_NAME, graphId);
         if (element instanceof Entity) {
@@ -95,7 +85,6 @@ public class ScyllaDbStore  extends Store {
             SimpleStatement query = insertInto
                 .value("id", QueryBuilder.literal(JSONSerialiser.serialise(entity.getVertex())))
                 .value("direction", QueryBuilder.literal(1))
-                .value("family", QueryBuilder.literal(1))
                 .value("group", QueryBuilder.literal(entity.getGroup()))
                 .value("visibility", QueryBuilder.literal("n/a"))
                 .value("properties", QueryBuilder.literal(entity.getProperties()))
@@ -106,7 +95,7 @@ public class ScyllaDbStore  extends Store {
     }
 
     public Element getById(final String graphId, final Object id) throws SerialisationException {
-        Session session = getClusterConnection();
+        CqlSession session = getClusterConnection();
 
         SimpleStatement query = QueryBuilder.selectFrom(KEYSPACE_NAME, graphId)
             .all().whereColumn("id").isEqualTo(QueryBuilder.literal(JSONSerialiser.serialise(id)))
@@ -114,14 +103,14 @@ public class ScyllaDbStore  extends Store {
 
         ResultSet result = session.execute(query.getQuery());
 
-        if (result.isExhausted()) {
+        if (!result.iterator().hasNext()) {
             return null;
         }
 
         Row row = result.one();
 
         return new Entity.Builder()
-            .vertex(JSONSerialiser.deserialise(row.getBytes("id").array(), Object.class))
+            .vertex(JSONSerialiser.deserialise(row.getByteBuffer("id").array(), Object.class))
             .group(row.getString("group"))
             .properties(row.getMap("properties", String.class, Object.class))
             .build();

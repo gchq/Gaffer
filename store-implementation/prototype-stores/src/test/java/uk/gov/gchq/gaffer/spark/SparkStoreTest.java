@@ -32,7 +32,9 @@ class SparkStoreTest {
 
             // Create the dataframe of the graph
             Dataset<Row> graphDataFrame = spark.createDataFrame(sparkContext.emptyRDD(), graphStruct);
+
             //graphDataFrame.write().mode("overwrite").format("iceberg").saveAsTable(graphId);
+            
             graphDataFrame.write().mode("overwrite").format("json").saveAsTable(graphId);
         }
     }

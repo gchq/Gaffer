@@ -24,7 +24,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>scylladb-store</artifactId>
+    <artifactId>prototype-stores</artifactId>
 
     <dependencies>
         <!-- Gaffer dependencies -->
@@ -34,49 +34,24 @@
             <version>${project.parent.version}</version>
         </dependency>
 
-        <!-- External libraries -->
-        <!-- <dependency>
-            <groupId>com.scylladb</groupId>
-            <artifactId>scylla-driver-core</artifactId>
-            <version>3.11.2.0</version>
-        </dependency> -->
-
-        <!-- <dependency>
-            <groupId>com.scylladb</groupId>
-            <artifactId>scylla-driver-mapping</artifactId>
-            <version>3.11.2.0</version>
-        </dependency> -->
-
-        <!-- <dependency>
-            <groupId>com.scylladb</groupId>
-            <artifactId>scylla-driver-extras</artifactId>
-            <version>3.11.2.0</version>
-        </dependency>
-
         <dependency>
-            <groupId>com.scylladb</groupId>
-            <artifactId>java-driver-query-builder</artifactId>
-            <version>4.18.0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.scylladb</groupId>
+            <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-core</artifactId>
-            <version>4.18.0.1</version>
+            <version>4.17.0</version>
         </dependency>
 
         <dependency>
-            <groupId>com.scylladb</groupId>
+            <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-query-builder</artifactId>
-            <version>4.18.0.1</version>
-        </dependency> -->
+            <version>4.17.0</version>
+        </dependency>
 
-        <!-- <dependency>
-            <groupId>com.scylladb</groupId>
+        <dependency>
+            <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-mapper-runtime</artifactId>
-            <version>4.18.0.1</version>
-        </dependency> -->
-
+            <version>4.17.0</version>
+        </dependency>
+    
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.minor.version}</artifactId>
