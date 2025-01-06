@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,6 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.FORBIDDEN;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
-import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
-import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_FOUND;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_IMPLEMENTED;
@@ -91,7 +89,6 @@ public interface IOperationServiceV2 {
             produces = (APPLICATION_JSON + "," + TEXT_PLAIN),
             response = Object.class,
             responseHeaders = {
-                    @ResponseHeader(name = JOB_ID_HEADER, description = JOB_ID_HEADER_DESCRIPTION),
                     @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
             })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK, response = Object.class),

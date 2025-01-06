@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 Crown Copyright
+ * Copyright 2016-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -274,7 +274,7 @@ public class StoreTest {
         store.initialise("graphId", createSchemaMock(), storeProperties);
 
         // When
-        store.execute(addElements, context);
+        store.executeJob(addElements, context);
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);

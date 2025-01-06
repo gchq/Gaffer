@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2021 Crown Copyright
+ * Copyright 2015-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,25 +51,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
 
 public class OperationServiceV2IT extends OperationServiceIT {
 
     @Test
-    public void shouldReturnJobIdHeader() throws IOException {
+    void shouldReturnNotJobIdHeader() throws IOException {
         // When
         final Response response = client.executeOperation(new GetAllElements());
 
         // Then
-        assertNotNull(response.getHeaderString(ServiceConstants.JOB_ID_HEADER));
+        assertThat(response.getHeaderString(ServiceConstants.JOB_ID_HEADER)).isNull();
     }
 
     @Test
-    public void shouldReturn403WhenUnauthorised() throws IOException {
+    void shouldReturn403WhenUnauthorised() throws IOException {
         // Given
         final Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))
@@ -82,11 +78,11 @@ public class OperationServiceV2IT extends OperationServiceIT {
         final Response response = client.executeOperation(new GetAllElements());
 
         // Then
-        assertEquals(403, response.getStatus());
+        assertThat(response.getStatus()).isEqualTo(403);
     }
 
     @Test
-    public void shouldPropagateStatusInformationContainedInOperationExceptionsThrownByOperationHandlers()
+    void shouldPropagateStatusInformationContainedInOperationExceptionsThrownByOperationHandlers()
             throws IOException {
         // Given
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.STORE_PROPERTIES);
@@ -103,11 +99,11 @@ public class OperationServiceV2IT extends OperationServiceIT {
         final Response response = client.executeOperation(new GetAllJobDetails());
 
         // Then
-        assertEquals(SERVICE_UNAVAILABLE.getStatusCode(), response.getStatus());
+        assertThat(response.getStatus()).isEqualTo(SERVICE_UNAVAILABLE.getStatusCode());
     }
 
     @Test
-    public void shouldReturnSameJobIdInHeaderAsGetAllJobDetailsOperation() throws IOException {
+    void shouldNotHaveJobIdInHeader() throws IOException {
         // Given
         final Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))
@@ -121,11 +117,12 @@ public class OperationServiceV2IT extends OperationServiceIT {
         final Response response = client.executeOperation(new GetAllJobDetails());
 
         // Then
-        assertTrue(response.readEntity(String.class).contains(response.getHeaderString("job-id")));
+        assertThat(response.getHeaders()).isNotEmpty();
+        assertThat(response.readEntity(String.class)).doesNotContain("job-id");
     }
 
     @Test
-    public void shouldReturnAllOperationsAsOperationDetails() throws IOException, ClassNotFoundException {
+    void shouldReturnAllOperationsAsOperationDetails() throws IOException, ClassNotFoundException {
         // Given
         final Set<Class<? extends Operation>> expectedOperations = client.getDefaultGraphFactory().getGraph()
                 .getSupportedOperations();
@@ -146,7 +143,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
     }
 
     @Test
-    public void shouldReturnOperationDetailSummaryOfClass() throws Exception {
+    void shouldReturnOperationDetailSummaryOfClass() throws Exception {
         // Given
         final String expectedSummary = "\"summary\":\"Gets elements related to provided seeds\"";
 
@@ -154,11 +151,11 @@ public class OperationServiceV2IT extends OperationServiceIT {
         final Response response = client.getOperationDetails(GetElements.class);
 
         // Then
-        assertTrue(response.readEntity(String.class).contains(expectedSummary));
+        assertThat(response.readEntity(String.class)).contains(expectedSummary);
     }
 
     @Test
-    public void shouldReturnOutputClassForOperationWithOutput() throws Exception {
+    void shouldReturnOutputClassForOperationWithOutput() throws Exception {
         // Given
         final String expectedOutputString = "\"outputClassName\":\"java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>\"";
 
@@ -166,11 +163,11 @@ public class OperationServiceV2IT extends OperationServiceIT {
         final Response response = client.getOperationDetails(GetElements.class);
 
         // Then
-        assertTrue(response.readEntity(String.class).contains(expectedOutputString));
+        assertThat(response.readEntity(String.class)).contains(expectedOutputString);
     }
 
     @Test
-    public void shouldNotIncludeAnyOutputClassForOperationWithoutOutput() throws Exception {
+    void shouldNotIncludeAnyOutputClassForOperationWithoutOutput() throws Exception {
         // Given
         final String outputClassNameString = "\"outputClassName\"";
 
@@ -178,11 +175,11 @@ public class OperationServiceV2IT extends OperationServiceIT {
         final Response response = client.getOperationDetails(DiscardOutput.class);
 
         // Then
-        assertFalse(response.readEntity(String.class).contains(outputClassNameString));
+        assertThat(response.readEntity(String.class)).doesNotContain(outputClassNameString);
     }
 
     @Test
-    public void shouldReturnOptionsAndSummariesForEnumFields() throws Exception {
+    void shouldReturnOptionsAndSummariesForEnumFields() throws Exception {
         // When
         final Response response = client.getOperationDetails(GetElements.class);
 
@@ -197,11 +194,11 @@ public class OperationServiceV2IT extends OperationServiceIT {
                 new OperationFieldPojo("directedType", "java.lang.String", false, "Is the Edge directed?", Sets.newHashSet("DIRECTED", "UNDIRECTED", "EITHER")),
                 new OperationFieldPojo("views", "java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>", false, null, null)
         );
-        assertEquals(fields, opDetails.getFields());
+        assertThat(opDetails.getFields()).isEqualTo(fields);
     }
 
     @Test
-    public void shouldAllowUserWithAuthThroughHeaders() throws IOException {
+    void shouldAllowUserWithAuthThroughHeaders() throws IOException {
         // Given
         System.setProperty(SystemProperty.USER_FACTORY_CLASS, TestUserFactory.class.getName());
         client.stopServer();
@@ -220,12 +217,12 @@ public class OperationServiceV2IT extends OperationServiceIT {
         // When
         final Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain, "ListUser");
 
-        // Then
-        assertEquals(200, response.getStatus());
+        // Then]
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
-    public void shouldNotAllowUserWithNoAuthThroughHeaders() throws IOException {
+    void shouldNotAllowUserWithNoAuthThroughHeaders() throws IOException {
         // Given
         System.setProperty(SystemProperty.USER_FACTORY_CLASS, TestUserFactory.class.getName());
         client.stopServer();
@@ -246,7 +243,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
                 "BasicUser");
 
         // Then
-        assertEquals(500, response.getStatus());
+        assertThat(response.getStatus()).isEqualTo(500);
     }
 
     @Override
