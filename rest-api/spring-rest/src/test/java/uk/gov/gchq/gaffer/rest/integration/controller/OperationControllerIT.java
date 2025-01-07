@@ -45,7 +45,6 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
