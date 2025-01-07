@@ -136,7 +136,7 @@ class OperationControllerIT extends AbstractRestApiIT {
     }
 
     @Test
-    void shouldPropagateStatusInformationContainedInOperationExceptionsThrownByOperationHandlers() throws IOException {
+    void shouldPropagateStatusInformationContainedInOperationExceptionsThrownByOperationHandlers() {
         // Given
         final StoreProperties storeProperties = new MapStoreProperties();
         storeProperties.set(StoreProperties.JOB_TRACKER_ENABLED, Boolean.FALSE.toString());

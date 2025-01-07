@@ -256,7 +256,7 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldNotCreateJobWhenExecutingOperation(@Mock final StoreProperties storeProperties) throws Exception {
+    void shouldNotCreateJobWhenExecutingOperation(@Mock final StoreProperties storeProperties) throws Exception {
         // Given
         ICache<Object, Object> mockICache = Mockito.mock(ICache.class);
         ICacheService mockICacheService = Mockito.spy(ICacheService.class);
