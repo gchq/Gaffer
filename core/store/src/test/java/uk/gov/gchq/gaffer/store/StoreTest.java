@@ -31,7 +31,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.ICacheService;
-import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -164,7 +163,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -262,6 +260,11 @@ public class StoreTest {
         // Given
         ICache<Object, Object> mockICache = Mockito.mock(ICache.class);
         ICacheService mockICacheService = Mockito.spy(ICacheService.class);
+
+        Field field = CacheServiceLoader.class.getDeclaredField("SERVICES");
+        field.setAccessible(true);
+        java.util.Map<String, ICacheService> mockCacheServices = (java.util.Map<String, ICacheService>) field.get(new HashMap<>());
+        mockCacheServices.put(JOB_TRACKER_CACHE_SERVICE_NAME, mockICacheService);
 
         final AddElements addElements = new AddElements();
         final StoreImpl3 store = new StoreImpl3();
