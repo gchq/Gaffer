@@ -308,7 +308,8 @@ class GafferPopGraphIT {
         mapStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), VERTEX_ONLY_ID_STRING, mapStore));
         accumuloStore.addEdge(new GafferPopEdge("knows", GafferPopModernTestUtils.MARKO.getId(), VERTEX_ONLY_ID_STRING, accumuloStore));
 
-        List<Vertex> result = g.V(VERTEX_ONLY_ID_STRING).toList();
+        // Must enable orphaned vertices for this traversal
+        List<Vertex> result = g.with(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES, "true").V(VERTEX_ONLY_ID_STRING).toList();
         assertThat(result)
             .extracting(r -> r.id())
             .contains(VERTEX_ONLY_ID_STRING);
@@ -318,28 +319,31 @@ class GafferPopGraphIT {
     @ParameterizedTest(name = TEST_NAME_FORMAT)
     @MethodSource("provideTraversals")
     void shouldTraverseEdgeWithVertexOnlyEdge(String graph, GraphTraversalSource g) {
+        // Must enable orphaned vertices for this traversal
+        GraphTraversalSource gWithOption = g.with(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES, "true");
         // Edge has a two vertices with no entities in the graph - Gaffer only feature
         // [8 - knows -> 7]
         mapStore.addEdge(new GafferPopEdge("knows", "8", VERTEX_ONLY_ID_STRING, mapStore));
         accumuloStore.addEdge(new GafferPopEdge("knows", "8", VERTEX_ONLY_ID_STRING, accumuloStore));
 
-        List<Vertex> result = g.V(VERTEX_ONLY_ID_STRING).inE().inV().toList();
+
+        List<Vertex> result = gWithOption.V(VERTEX_ONLY_ID_STRING).inE().inV().toList();
         assertThat(result)
             .extracting(r -> r.id())
             .contains(VERTEX_ONLY_ID_STRING);
-        List<Vertex> result2 = g.V(VERTEX_ONLY_ID_STRING).inE().outV().toList();
+        List<Vertex> result2 = gWithOption.V(VERTEX_ONLY_ID_STRING).inE().outV().toList();
         assertThat(result2)
             .extracting(r -> r.id())
             .contains("8");
-        List<Vertex> result3 = g.V("8").outE().inV().toList();
+        List<Vertex> result3 = gWithOption.V("8").outE().inV().toList();
         assertThat(result3)
             .extracting(r -> r.id())
             .contains(VERTEX_ONLY_ID_STRING);
-        List<Vertex> result4 = g.V("8").outE().outV().toList();
+        List<Vertex> result4 = gWithOption.V("8").outE().outV().toList();
         assertThat(result4)
             .extracting(r -> r.id())
             .contains("8");
-        List<Vertex> resultLabel = g.V("8").out("knows").toList();
+        List<Vertex> resultLabel = gWithOption.V("8").out("knows").toList();
         assertThat(resultLabel)
             .extracting(r -> r.id())
             .containsOnly(VERTEX_ONLY_ID_STRING);
