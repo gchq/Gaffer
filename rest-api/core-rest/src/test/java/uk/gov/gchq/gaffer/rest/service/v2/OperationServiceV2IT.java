@@ -56,7 +56,7 @@ import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
 public class OperationServiceV2IT extends OperationServiceIT {
 
     @Test
-    void shouldReturnNotJobIdHeader() throws IOException {
+    void shouldNotReturnJobIdHeader() throws IOException {
         // When
         final Response response = client.executeOperation(new GetAllElements());
 
