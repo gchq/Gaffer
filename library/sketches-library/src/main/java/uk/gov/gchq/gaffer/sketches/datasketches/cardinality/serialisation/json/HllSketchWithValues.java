@@ -44,7 +44,7 @@ public class HllSketchWithValues {
 
     private byte[] bytes = null;
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "class")
     private List<Object> values = new ArrayList<>();
 
     public int getLogK() {

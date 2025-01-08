@@ -44,7 +44,7 @@ import static java.util.Objects.requireNonNull;
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public abstract class CardinalityEntityGenerator<T> implements OneToManyElementGenerator<Element> {
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "class")
     private Function<Object, Object> vertexValueConverter;
 
     private String group = "Cardinality";

@@ -29,7 +29,7 @@ import java.io.Serializable;
  * An {@code ElementId} is an interface describing the core methods that are required
  * in order to identify an {@link uk.gov.gchq.gaffer.data.element.Element}.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
 @JsonSimpleClassName(includeSubtypes = true)
 public interface ElementId extends Serializable {
     Matches isRelated(final ElementId that);

@@ -33,7 +33,7 @@ import java.util.function.BinaryOperator;
 @Summary("Merges 2 CustomMaps by applying a binary operator to each of the values")
 public class CustomMapAggregator<K, V> extends KorypheBinaryOperator<CustomMap<K, V>> {
     @JsonTypeInfo(
-            use = Id.CLASS,
+            use = Id.NAME,
             include = As.PROPERTY,
             property = "class"
     )
