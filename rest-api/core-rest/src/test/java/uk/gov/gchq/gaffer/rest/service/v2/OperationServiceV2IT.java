@@ -217,7 +217,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
         // When
         final Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain, "ListUser");
 
-        // Then]
+        // Then
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
