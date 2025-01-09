@@ -29,9 +29,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddToCacheHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Custom handler for operations that could in theory target sub graphs or the
@@ -59,9 +59,9 @@ public class EitherOperationHandler<O extends Operation> implements AddToCacheHa
         // Check inside operation chain for if all the operations are handled by a federated store
         if (operation instanceof OperationChain) {
             Set<Class<? extends Operation>> storeSpecificOps = ((FederatedStore) store).getStoreSpecificOperations();
-            List<Class<? extends Operation>> chainOps = ((OperationChain<?>) operation).flatten().stream()
-                .map(Operation::getClass)
-                .collect(Collectors.toList());
+            List<Class<? extends Operation>> chainOps = new ArrayList<>();
+            ((OperationChain<?>) operation).flatten().forEach(op -> chainOps.add(op.getClass()));
+
             if (storeSpecificOps.containsAll(chainOps)) {
                 return new OperationChainHandler<>(store.getOperationChainValidator(), store.getOperationChainOptimisers())
                     .doOperation((OperationChain<Object>) operation, context, store);

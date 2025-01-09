@@ -75,6 +75,11 @@ public class FederatedOutputHandler<P extends Output<O>, O>
             return null;
         }
 
+        // If only one result we can exit early as no merging to do
+        if (graphResults.size() <= 1) {
+            return graphResults.get(0);
+        }
+
         // Merge the store props with the operation options for setting up the accumulator
         Properties combinedProps = store.getProperties().getProperties();
         if (operation.getOptions() != null) {
@@ -85,7 +90,7 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         FederatedResultAccumulator<O> resultAccumulator = getResultAccumulator((FederatedStore) store, operation, graphsToExecute);
 
         // Should now have a list of <O> objects so need to reduce to just one
-        return graphResults.stream().reduce(resultAccumulator::apply).orElse(graphResults.get(0));
+        return graphResults.stream().reduce(graphResults.get(0), resultAccumulator::apply);
     }
 
 
@@ -108,7 +113,7 @@ public class FederatedOutputHandler<P extends Output<O>, O>
 
         // Set up the result accumulator
         FederatedResultAccumulator<O> resultAccumulator = new DefaultResultAccumulator<>(combinedProps);
-        resultAccumulator.setSchema(store.getSchema(graphsToExecute));
+        resultAccumulator.setSchema(FederatedUtils.getSchema(graphsToExecute));
 
         // Check if user has specified to aggregate
         if (operation.containsOption(OPT_AGGREGATE_ELEMENTS)) {

@@ -32,12 +32,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * Main default handler for federated operations. Handles delegation to selected
@@ -140,7 +138,7 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
 
     /**
      * Extract the graph IDs from the operation and process the option.
-     * Will default to the store configured graph IDs if no option present.
+     * Will use the store configured default graphs if no option present.
      * <p>
      * Returned list will be ordered alphabetically based on graph ID for
      * predicability.
@@ -153,40 +151,44 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      */
     protected List<GraphSerialisable> getGraphsToExecuteOn(final Operation operation, final Context context,
             final FederatedStore store) throws OperationException {
-        // Use default graph IDs as fallback
-        List<String> graphIds = store.getDefaultGraphIds();
-        List<GraphSerialisable> graphsToExecute = new LinkedList<>();
+
+        List<String> specifiedGraphIds = new ArrayList<>();
+        List<GraphSerialisable> graphsToExecute = new ArrayList<>();
+
         // If user specified graph IDs for this chain parse as comma separated list
         if (operation.containsOption(OPT_GRAPH_IDS)) {
-            graphIds = Arrays.asList(operation.getOption(OPT_GRAPH_IDS).split(","));
+            specifiedGraphIds = Arrays.asList(operation.getOption(OPT_GRAPH_IDS).split(","));
         } else if (operation.containsOption(OPT_SHORT_GRAPH_IDS)) {
-            graphIds = Arrays.asList(operation.getOption(OPT_SHORT_GRAPH_IDS).split(","));
+            specifiedGraphIds = Arrays.asList(operation.getOption(OPT_SHORT_GRAPH_IDS).split(","));
         }
 
         // If a user has specified to just exclude some graphs then run all but them
         if (operation.containsOption(OPT_EXCLUDE_GRAPH_IDS)) {
-            // Get all the IDs
-            graphIds = StreamSupport.stream(store.getAllGraphsAndAccess().spliterator(), false)
-                .map(Pair::getLeft)
-                .map(GraphSerialisable::getGraphId)
-                .collect(Collectors.toList());
+            List<String> allIds = new ArrayList<>();
+            store.getAllGraphsAndAccess().forEach(pair -> allIds.add(pair.getLeft().getGraphId()));
 
             // Exclude the ones the user has specified
-            Arrays.asList(operation.getOption(OPT_EXCLUDE_GRAPH_IDS).split(",")).forEach(graphIds::remove);
+            Arrays.asList(operation.getOption(OPT_EXCLUDE_GRAPH_IDS).split(",")).forEach(allIds::remove);
+            specifiedGraphIds = allIds;
         }
 
-        try {
-            // Get the corresponding graph serialisable
-            for (final String id : graphIds) {
-                LOGGER.debug("Will execute on Graph: {}", id);
+        // Get the corresponding graph serialisables
+        for (final String id : specifiedGraphIds) {
+            try {
                 Pair<GraphSerialisable, GraphAccess> pair = store.getGraphAccessPair(id);
                 // Check the user has access to the graph
                 if (pair.getRight().hasReadAccess(context.getUser(), store.getProperties().getAdminAuth())) {
+                    LOGGER.debug("Will execute on Graph: {}", id);
                     graphsToExecute.add(pair.getLeft());
                 }
+            } catch (final CacheOperationException e) {
+                throw new OperationException("Failed to get Graph from cache: '" + id + "'", e);
             }
-        } catch (final CacheOperationException e) {
-            throw new OperationException("Failed to get Graphs from cache", e);
+        }
+
+        // Use default graph IDs as a fallback
+        if (specifiedGraphIds.isEmpty()) {
+            graphsToExecute = store.getDefaultGraphs();
         }
 
         // Keep graphs sorted so results returned are predictable between runs

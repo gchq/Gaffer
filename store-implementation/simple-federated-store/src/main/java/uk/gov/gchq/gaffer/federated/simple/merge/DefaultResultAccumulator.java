@@ -16,9 +16,8 @@
 
 package uk.gov.gchq.gaffer.federated.simple.merge;
 
-import org.apache.commons.collections4.IterableUtils;
-
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -90,9 +89,7 @@ public class DefaultResultAccumulator<T> extends FederatedResultAccumulator<T> {
             }
 
             // By default just chain iterables together
-            // (need to use the iterator to make sure the FluentIterable under the hood serialises correctly)
-            Iterable<Object> chained = () -> IterableUtils.chainedIterable((Iterable<?>) state, updateIterable).iterator();
-            return (T) chained;
+            return (T) new ChainedIterable<>((Iterable<?>) state, updateIterable);
         }
 
         // Fallback just return the update
