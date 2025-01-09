@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddToCacheHandler;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,13 +57,14 @@ public class EitherOperationHandler<O extends Operation> implements AddToCacheHa
     public Object doOperation(final O operation, final Context context, final Store store) throws OperationException {
         LOGGER.debug("Checking if Operation should be handled locally or on sub graphs: {}", operation);
 
-        // Check inside operation chain for if all the operations are handled by a federated store
+        // Check inside operation chain for if any operations are handled locally by a federated store
         if (operation instanceof OperationChain) {
             Set<Class<? extends Operation>> storeSpecificOps = ((FederatedStore) store).getStoreSpecificOperations();
             List<Class<? extends Operation>> chainOps = ((OperationChain<?>) operation).flatten().stream()
                 .map(Operation::getClass)
                 .collect(Collectors.toList());
-            if (storeSpecificOps.containsAll(chainOps)) {
+            // Use default chain handler to handle each operation rather than forwarding the whole chain
+            if (!Collections.disjoint(storeSpecificOps, chainOps)) {
                 return new OperationChainHandler<>(store.getOperationChainValidator(), store.getOperationChainOptimisers())
                     .doOperation((OperationChain<Object>) operation, context, store);
             }

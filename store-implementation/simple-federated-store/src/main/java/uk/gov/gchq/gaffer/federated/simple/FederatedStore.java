@@ -59,6 +59,7 @@ import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -77,6 +78,7 @@ import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.GetGraphCreatedTimeHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -135,7 +137,8 @@ public class FederatedStore extends Store {
             new SimpleEntry<>(ChangeGraphId.class, new ChangeGraphIdHandler()),
             new SimpleEntry<>(GetAllGraphInfo.class, new GetAllGraphInfoHandler()),
             new SimpleEntry<>(RemoveGraph.class, new RemoveGraphHandler()),
-            new SimpleEntry<>(ChangeGraphAccess.class, new ChangeGraphAccessHandler()))
+            new SimpleEntry<>(ChangeGraphAccess.class, new ChangeGraphAccessHandler()),
+            new SimpleEntry<>(GetWalks.class, new GetWalksHandler()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     /**
