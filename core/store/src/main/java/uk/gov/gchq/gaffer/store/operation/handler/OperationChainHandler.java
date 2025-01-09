@@ -41,6 +41,9 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
  * @param <OUT> the output type of the operation chain
  */
 public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT> {
+    /**
+     * Context variable to apply the operation options on the chain to all sub operations
+     */
     public static final String APPLY_CHAIN_OPS_TO_ALL = "applyChainOptionsToAll";
     private final OperationChainValidator opChainValidator;
     private final List<OperationChainOptimiser> opChainOptimisers;
@@ -84,7 +87,7 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
             optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
         }
         // Optionally apply the chain level options to all sub operations too
-        if(Boolean.parseBoolean(context.getVariable(APPLY_CHAIN_OPS_TO_ALL).toString())) {
+        if (context.getVariable(APPLY_CHAIN_OPS_TO_ALL) != null) {
             Map<String, String> options = operationChain.getOptions();
             operationChain.getOperations().forEach(op -> op.setOptions(options));
         }
