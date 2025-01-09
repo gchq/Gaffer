@@ -65,8 +65,9 @@ public class EitherOperationHandler<O extends Operation> implements AddToCacheHa
                 .collect(Collectors.toList());
             // Use default chain handler to handle each operation rather than forwarding the whole chain
             if (!Collections.disjoint(storeSpecificOps, chainOps)) {
-                return new OperationChainHandler<>(store.getOperationChainValidator(), store.getOperationChainOptimisers())
-                    .doOperation((OperationChain<Object>) operation, context, store);
+                LOGGER.debug("Operation chain contains some operations that should not be forwarded");
+                context.setVariable(OperationChainHandler.APPLY_CHAIN_OPS_TO_ALL, true);
+                return standardHandler.doOperation(operation, context, store);
             }
         }
 
