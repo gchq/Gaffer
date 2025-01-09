@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,14 +35,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class JobServiceV2IT extends AbstractRestApiV2IT {
+class JobServiceV2IT extends AbstractRestApiV2IT {
 
     @Test
-    public void shouldCorrectlyDoAndThenCancelScheduledJob() throws IOException, InterruptedException {
+    void shouldCorrectlyDoAndThenCancelScheduledJob() throws IOException, InterruptedException {
         // When
         final Repeat repeat = new Repeat(1, 2, TimeUnit.SECONDS);
         Job job = new Job(repeat, new OperationChain.Builder().first(new GetAllElements()).build());
@@ -52,7 +50,7 @@ public class JobServiceV2IT extends AbstractRestApiV2IT {
         });
 
         // Then
-        assertEquals(201, jobSchedulingResponse.getStatus());
+        assertThat(jobSchedulingResponse.getStatus()).isEqualTo(201);
         String parentJobId = jobSchedulingDetail.getJobId();
 
         // Wait for first scheduled to run
@@ -65,10 +63,10 @@ public class JobServiceV2IT extends AbstractRestApiV2IT {
 
         for (JobDetail jobDetail : jobDetails) {
             if (null != jobDetail.getParentJobId() && jobDetail.getParentJobId().equals(parentJobId)) {
-                assertEquals(JobStatus.FINISHED, jobDetail.getStatus());
+                assertThat(jobDetail.getStatus()).isEqualTo(JobStatus.FINISHED);
             }
             if (jobDetail.getJobId().equals(parentJobId)) {
-                assertEquals(JobStatus.SCHEDULED_PARENT, jobDetail.getStatus());
+                assertThat(jobDetail.getStatus()).isEqualTo(JobStatus.SCHEDULED_PARENT);
             }
         }
 
@@ -81,13 +79,13 @@ public class JobServiceV2IT extends AbstractRestApiV2IT {
 
         for (JobDetail jobDetail : jobDetailsAfterCancelled) {
             if (parentJobId.equals(jobDetail.getJobId())) {
-                assertEquals(JobStatus.CANCELLED, jobDetail.getStatus());
+                assertThat(jobDetail.getStatus()).isEqualTo(JobStatus.CANCELLED);
             }
         }
     }
 
     @Test
-    public void shouldNotKeepScheduledJobsRunningAfterRestartWhenUsingInMemoryCache() throws IOException {
+    void shouldNotKeepScheduledJobsRunningAfterRestartWhenUsingInMemoryCache() throws IOException {
         // Given - schedule Job
         final Repeat repeat = new Repeat(1, 2, TimeUnit.SECONDS);
         Job job = new Job(repeat, new OperationChain.Builder().first(new GetAllElements()).build());
@@ -104,8 +102,8 @@ public class JobServiceV2IT extends AbstractRestApiV2IT {
         });
 
         // then - assert parent is of Scheduled parent
-        assertEquals(JobStatus.SCHEDULED_PARENT,
-                allJobDetails.stream().filter(jobDetail -> jobDetail.getJobId().equals(parentJobId)).findFirst().get().getStatus());
+        JobStatus jobStatus = allJobDetails.stream().filter(jobDetail -> jobDetail.getJobId().equals(parentJobId)).findFirst().get().getStatus();
+        assertThat(jobStatus).isEqualTo(JobStatus.SCHEDULED_PARENT);
 
         // Restart server to check Job still scheduled
         client.stopServer();
@@ -119,15 +117,15 @@ public class JobServiceV2IT extends AbstractRestApiV2IT {
                 });
 
         // Then - assert parent job id is not present
-        assertTrue(allJobDetails2.stream().noneMatch(jobDetail -> jobDetail.getJobId().equals(parentJobId)));
+        assertThat(allJobDetails2.stream().noneMatch(jobDetail -> jobDetail.getJobId().equals(parentJobId))).isTrue();
     }
 
     @Test
-    public void shouldReturnJobIdHeader() throws IOException {
+    void shouldNotReturnJobIdHeader() throws IOException {
         // When
         final Response response = client.executeOperation(new GetAllElements());
 
         // Then
-        assertNotNull(response.getHeaderString(ServiceConstants.JOB_ID_HEADER));
+        assertThat(response.getHeaders().toString()).doesNotContain(ServiceConstants.JOB_ID_HEADER);
     }
 }

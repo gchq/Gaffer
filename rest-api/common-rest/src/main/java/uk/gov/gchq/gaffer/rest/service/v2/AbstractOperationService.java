@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.rest.service.v2;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.graph.GraphRequest;
@@ -97,7 +96,7 @@ public abstract class AbstractOperationService {
     }
 
     @SuppressWarnings({"ThrowFromFinallyBlock", "PMD.UseTryWithResources"})
-    protected <O> Pair<O, String> _execute(final Operation operation, final Context context) {
+    protected <O> O _execute(final Operation operation, final Context context) {
 
         OperationChain<O> opChain = (OperationChain<O>) OperationChain.wrap(operation);
 
@@ -119,7 +118,7 @@ public abstract class AbstractOperationService {
             }
         }
 
-        return new Pair<>(result.getResult(), result.getContext().getJobId());
+        return result.getResult();
     }
 
     protected Operation generateExampleJson(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {

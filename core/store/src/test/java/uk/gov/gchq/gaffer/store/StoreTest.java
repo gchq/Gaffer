@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 Crown Copyright
+ * Copyright 2016-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.ICacheService;
-import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -164,12 +163,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static uk.gov.gchq.gaffer.jobtracker.JobTracker.JOB_TRACKER_CACHE_SERVICE_NAME;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
@@ -257,12 +256,10 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldExecuteOperationWhenJobTrackerCacheIsBroken(@Mock final StoreProperties storeProperties) throws Exception {
+    void shouldNotCreateJobWhenExecutingOperation(@Mock final StoreProperties storeProperties) throws Exception {
         // Given
         ICache<Object, Object> mockICache = Mockito.mock(ICache.class);
-        doThrow(new CacheOperationException("Stubbed class")).when(mockICache).put(any(), any());
         ICacheService mockICacheService = Mockito.spy(ICacheService.class);
-        given(mockICacheService.getCache(any())).willReturn(mockICache);
 
         Field field = CacheServiceLoader.class.getDeclaredField("SERVICES");
         field.setAccessible(true);
@@ -278,8 +275,7 @@ public class StoreTest {
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);
-        verify(mockICacheService, Mockito.atLeast(1)).getCache(any());
-        verify(mockICache, Mockito.atLeast(1)).put(any(), any());
+        verifyNoInteractions(mockICacheService, mockICache);
     }
 
     @Test
