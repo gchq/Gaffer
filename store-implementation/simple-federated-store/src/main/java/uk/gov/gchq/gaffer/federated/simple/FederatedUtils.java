@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -33,7 +34,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Utility class with static methods to help support the federated store.
@@ -46,22 +46,29 @@ public final class FederatedUtils {
     }
 
     /**
+     * Gets a merged schema based on the graphs specified.
+     *
+     * @param graphs The graphs to get the schemas from.
+     * @return A merged {@link Schema}
+     */
+    public static Schema getSchema(final List<GraphSerialisable> graphs) {
+        List<Schema> schemasToMerge = new ArrayList<>();
+        graphs.forEach(g -> schemasToMerge.add(g.getSchema()));
+        return GetSchemaHandler.getMergedSchema(schemasToMerge);
+    }
+
+    /**
      * Checks if graphs share any groups between their schemas.
      *
      * @param graphs Graphs to check.
      * @return Do they share groups.
      */
     public static boolean doGraphsShareGroups(final List<GraphSerialisable> graphs) {
-        // Check if any of the graphs have common groups in their schemas
-        List<Schema> schemas = graphs.stream()
-            .map(GraphSerialisable::getSchema)
-            .collect(Collectors.toList());
-
         // Compare all schemas against each other
-        for (int i = 0; i < schemas.size() - 1; i++) {
-            for (int j = i + 1; j < schemas.size(); j++) {
+        for (int i = 0; i < graphs.size() - 1; i++) {
+            for (int j = i + 1; j < graphs.size(); j++) {
                 // Compare each schema against the others to see if common groups
-                if (!Collections.disjoint(schemas.get(i).getGroups(), schemas.get(j).getGroups())) {
+                if (!Collections.disjoint(graphs.get(i).getSchema().getGroups(), graphs.get(j).getSchema().getGroups())) {
                     LOGGER.debug("Found common schema groups between requested graphs");
                     return true;
                 }

@@ -93,7 +93,6 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -122,7 +121,7 @@ public class FederatedStore extends Store {
     private static final String GRAPH_ID_ERROR = "Graph with Graph ID: %s is not available to this federated store";
 
     // Default graph IDs to execute on
-    private List<String> defaultGraphIds = new LinkedList<>();
+    private List<String> defaultGraphIds = new ArrayList<>();
 
     // Gaffer cache of available graphs
     private Cache<String, Pair<GraphSerialisable, GraphAccess>> graphCache;
@@ -248,6 +247,28 @@ public class FederatedStore extends Store {
     }
 
     /**
+     * Get the list of {@link GraphSerialisable}s relating to the
+     * default graph IDs.
+     *
+     * @return The default graphs.
+     */
+    public List<GraphSerialisable> getDefaultGraphs() {
+        List<GraphSerialisable> defaultGraphs = new ArrayList<>();
+        defaultGraphIds.forEach(id -> {
+            try {
+                GraphSerialisable graphSerialisable = getGraph(id);
+                if (graphSerialisable != null) {
+                    defaultGraphs.add(graphSerialisable);
+                }
+            } catch (final IllegalArgumentException | CacheOperationException e) {
+                LOGGER.warn("Default Graph was not found: {}", id);
+            }
+        });
+
+        return defaultGraphs;
+    }
+
+    /**
      * Set the default list of graph IDs for this federated store.
      *
      * @param defaultGraphIds Default list to set.
@@ -309,29 +330,6 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * Gets a merged schema based on the graphs specified.
-     *
-     * @param graphs The graphs to get the schemas from.
-     * @return A merged {@link Schema}
-     */
-    public Schema getSchema(final List<GraphSerialisable> graphs) {
-        try {
-            // Get the graph IDs we care about
-            List<String> graphIds = new ArrayList<>();
-            graphs.forEach(gs -> graphIds.add(gs.getGraphId()));
-
-            // Create and run a get schema operation with relevant IDs
-            GetSchema operation = new GetSchema.Builder()
-                    .option(FederatedOperationHandler.OPT_SHORT_GRAPH_IDS, String.join(",", graphIds))
-                    .build();
-            return (Schema) this.handleOperation(operation, new Context());
-
-        } catch (final OperationException e) {
-            throw new GafferRuntimeException(e.getMessage(), e);
-        }
-    }
-
-    /**
      * Access to getting the operations that have handlers specific to this
      * store e.g. operations that should always be handled specially.
      *
@@ -361,12 +359,8 @@ public class FederatedStore extends Store {
         if (defaultGraphIds.isEmpty()) {
             return new Schema();
         }
-
-        try {
-            return (Schema) this.handleOperation(new GetSchema(), new Context());
-        } catch (final OperationException e) {
-            throw new GafferRuntimeException(e.getMessage(), e);
-        }
+        // Return the merged schema of the default graph IDs
+        return FederatedUtils.getSchema(getDefaultGraphs());
     }
 
     @Override

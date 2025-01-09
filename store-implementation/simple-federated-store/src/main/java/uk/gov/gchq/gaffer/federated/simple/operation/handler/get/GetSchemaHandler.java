@@ -53,11 +53,22 @@ public class GetSchemaHandler extends FederatedOutputHandler<GetSchema, Schema> 
             graphResults.add(gs.getGraph().execute(operation, context.getUser()));
         }
 
+        return getMergedSchema(graphResults);
+    }
+
+    /**
+     * Merges all the supplied graph schemas together and returns the result.
+     *
+     * @param schemas The list of schemas
+     * @return The merged schema
+     */
+    public static Schema getMergedSchema(final List<Schema> schemas) {
         // Merge schemas using schema builder
         boolean wipeVisabilityProperty = false;
         boolean wipeVertexSerialiser = false;
         Schema.Builder mergeSchema = new Schema.Builder();
-        for (final Schema schema : graphResults) {
+
+        for (final Schema schema : schemas) {
             try {
                 mergeSchema.merge(schema);
             } catch (final VisibilityPropertySchemaException e) {
