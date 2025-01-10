@@ -89,7 +89,7 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         // Optionally apply the chain level options to all sub operations too
         if (context.getVariable(APPLY_CHAIN_OPS_TO_ALL) != null) {
             Map<String, String> options = operationChain.getOptions();
-            operationChain.getOperations().forEach(op -> op.setOptions(options));
+            optimisedOperationChain.getOperations().forEach(op -> op.setOptions(options));
         }
         return optimisedOperationChain;
     }
