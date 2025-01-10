@@ -24,6 +24,8 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.AddGraph;
 import uk.gov.gchq.gaffer.federated.simple.operation.GetAllGraphIds;
@@ -38,8 +40,12 @@ import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetGraphCreatedTime;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -50,8 +56,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils.StoreType;
+import static uk.gov.gchq.gaffer.federated.simple.util.FederatedModernTestUtil.setUpSimpleFederatedGraph;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -451,4 +459,66 @@ class FederatedStoreIT {
             .withMessageContaining(namedOpName);
     }
 
+    @Test
+    void shouldGetWalksAcrossFederatedGraphs() throws OperationException {
+        // Given
+        final Graph federatedGraph = setUpSimpleFederatedGraph(FederatedStoreIT.class, new MapStoreProperties());
+
+        final GetWalks getWalks = new GetWalks.Builder()
+            .operations(new GetElements.Builder()
+                            .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                            .view(new View.Builder().allEdges(true).build())
+                            .build(),
+                    new GetElements.Builder()
+                            .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                            .view(new View.Builder().allEdges(true).build())
+                            .build())
+            .input(new EntitySeed("1"))
+            .build();
+
+        // When
+        OperationChain<Iterable<Walk>> getAllElements = new OperationChain.Builder()
+                .first(getWalks)
+                .option(FederatedOperationHandler.OPT_GRAPH_IDS, "createdGraph,knowsGraph")
+                .build();
+
+        // Then
+        final Iterable<Walk> res = federatedGraph.execute(getAllElements, new Context());
+        final ArrayList<String> walkList = new ArrayList<>();
+        for(final Walk walk : res) {
+            walkList.add(walk.getVerticesOrdered().stream().map(Object::toString).collect(Collectors.joining("")));
+        }
+        assertThat(walkList).containsExactly("143", "145");
+    }
+
+    @Test
+    void shouldGetWalksUsingDefaultGraphIds() throws OperationException {
+        // Given
+        final Graph federatedGraph = setUpSimpleFederatedGraph(FederatedStoreIT.class, new MapStoreProperties());
+
+        final GetWalks getWalks = new GetWalks.Builder()
+            .operations(new GetElements.Builder()
+                            .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                            .view(new View.Builder().allEdges(true).build())
+                            .build(),
+                    new GetElements.Builder()
+                            .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                            .view(new View.Builder().allEdges(true).build())
+                            .build())
+            .input(new EntitySeed("1"))
+            .build();
+
+        // When
+        OperationChain<Iterable<Walk>> getAllElements = new OperationChain.Builder()
+                .first(getWalks)
+                .build();
+
+        // Then
+        final Iterable<Walk> res = federatedGraph.execute(getAllElements, new Context());
+        final ArrayList<String> walkList = new ArrayList<>();
+        for(final Walk walk : res) {
+            walkList.add(walk.getVerticesOrdered().stream().map(Object::toString).collect(Collectors.joining("")));
+        }
+        assertThat(walkList).containsExactly("143", "145");
+    }
 }
