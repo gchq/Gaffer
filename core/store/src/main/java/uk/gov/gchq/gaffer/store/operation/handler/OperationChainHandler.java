@@ -75,12 +75,7 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
     }
 
     public <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context, final Store store) {
-        // Optionally apply the chain level options to all sub operations too
-        if (context.getVariable(APPLY_CHAIN_OPS_TO_ALL) != null) {
-            Map<String, String> options = operationChain.getOptions();
-            operationChain.getOperations().forEach(op -> op.setOptions(options));
-        }
-
+        Map<String, String> options = operationChain.getOptions();
         final ValidationResult validationResult = opChainValidator.validate(operationChain, context
                 .getUser(), store);
         if (!validationResult.isValid()) {
@@ -91,6 +86,11 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         OperationChain<O> optimisedOperationChain = operationChain;
         for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
             optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
+        }
+
+        // Optionally re-apply the chain level options to all sub operations too
+        if (context.getVariable(APPLY_CHAIN_OPS_TO_ALL) != null) {
+            optimisedOperationChain.getOperations().forEach(op -> op.setOptions(options));
         }
 
         return optimisedOperationChain;
