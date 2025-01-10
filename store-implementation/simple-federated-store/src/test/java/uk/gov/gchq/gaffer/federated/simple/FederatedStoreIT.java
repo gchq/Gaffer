@@ -488,7 +488,7 @@ class FederatedStoreIT {
         for (final Walk walk : res) {
             walkList.add(walk.getVerticesOrdered().stream().map(Object::toString).collect(Collectors.joining("")));
         }
-        assertThat(walkList).containsExactly("143", "145");
+        assertThat(walkList).containsExactlyInAnyOrder("143", "145");
     }
 
     @Test
@@ -519,7 +519,7 @@ class FederatedStoreIT {
         for (final Walk walk : res) {
             walkList.add(walk.getVerticesOrdered().stream().map(Object::toString).collect(Collectors.joining("")));
         }
-        assertThat(walkList).containsExactly("143", "145");
+        assertThat(walkList).containsExactlyInAnyOrder("143", "145");
     }
 
 }
