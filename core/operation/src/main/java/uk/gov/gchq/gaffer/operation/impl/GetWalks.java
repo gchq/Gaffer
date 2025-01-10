@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,7 +172,7 @@ public class GetWalks implements
             hops += getNumberOfGetEdgeOperations(((Operations<?>) op).getOperations());
         } else if (op instanceof GetElements) {
             final GetElements getElements = (GetElements) op;
-            if (null != getElements.getView() && getElements.getView().hasEdges()) {
+            if (null != getElements.getView() && (getElements.getView().hasEdges() || getElements.getView().isAllEdges())) {
                 hops += 1;
             }
         }
@@ -193,7 +193,7 @@ public class GetWalks implements
             hops += getNumberOfGetEdgeOperationsWithoutRepeats(((Operations<?>) op).getOperations());
         } else if (op instanceof GetElements) {
             final GetElements getElements = (GetElements) op;
-            if (null != getElements.getView() && getElements.getView().hasEdges()) {
+            if (null != getElements.getView() && (getElements.getView().hasEdges() || getElements.getView().isAllEdges())) {
                 hops += 1;
             }
         }
