@@ -41,6 +41,7 @@ import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -151,6 +152,11 @@ public class GetWalks implements
         }
 
         return result;
+    }
+
+    @Override
+    public List<Operation> flatten() {
+        return Arrays.asList(this);
     }
 
     @JsonIgnore
