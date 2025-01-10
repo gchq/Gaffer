@@ -52,6 +52,7 @@ import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 import uk.gov.gchq.koryphe.iterable.LimitedIterable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -98,6 +99,7 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
 public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterable<Walk>> {
     private Integer maxHops = null;
     private boolean prune = true;
+    private java.util.Map<String, String> operationOptions = new HashMap<>();
 
     @Override
     public Iterable<Walk> doOperation(final GetWalks getWalks, final Context context, final Store store) throws OperationException {
@@ -113,6 +115,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
         final Integer resultLimit = getWalks.getResultsLimit();
         final int hops = getWalks.getNumberOfGetEdgeOperations();
+        operationOptions = getWalks.getOptions();
 
 
         final LimitedIterable limitedInputItr = new LimitedIterable<>(getWalks.getInput(), 0, resultLimit, false);
@@ -134,14 +137,24 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         for (final OperationChain<Iterable<Element>> operation : getWalks.getOperations()) {
             if (isWhileOperation(operation)) {
                 seeds = executeWhileOperation(
-                        operation, seeds, resultLimit,
-                        context, store, hops, adjacencyMaps, entityMaps
-                );
+                    (While) operation.getOperations().get(0),
+                    seeds,
+                    resultLimit,
+                    context,
+                    store,
+                    hops,
+                    adjacencyMaps,
+                    entityMaps);
             } else {
                 seeds = executeOperation(
-                        operation, seeds, resultLimit,
-                        context, store, hops, adjacencyMaps, entityMaps
-                );
+                    operation,
+                    seeds,
+                    resultLimit,
+                    context,
+                    store,
+                    hops,
+                    adjacencyMaps,
+                    entityMaps);
             }
         }
 
@@ -181,7 +194,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
                 && operation.getOperations().get(0) instanceof While;
     }
 
-    private List<?> executeWhileOperation(final OperationChain<Iterable<Element>> operation,
+    private List<?> executeWhileOperation(final While<?, Iterable<Element>> whileOp,
                                           final List<?> seeds,
                                           final Integer resultLimit,
                                           final Context context,
@@ -190,7 +203,6 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
                                           final AdjacencyMaps adjacencyMaps,
                                           final EntityMaps entityMaps) throws OperationException {
         List<?> resultSeeds = seeds;
-        final While whileOp = (While) operation.getOperations().get(0);
         if (null != whileOp.getOperation()) {
             validateWhileOperation(whileOp);
             final OperationHandler opHandler = store.getOperationHandler(While.class);
@@ -277,6 +289,8 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
                         .build())
                 .then(OperationChain.wrap(operation))
                 .build();
+
+        convertedOp.setOptions(operationOptions);
 
         // Execute an the operation chain on the supplied store and cache
         // the seeds in memory using an ArrayList.
