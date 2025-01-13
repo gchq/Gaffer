@@ -113,15 +113,18 @@ public class FederatedOutputHandler<P extends Output<O>, O>
 
         // Set up the result accumulator
         FederatedResultAccumulator<O> resultAccumulator = new DefaultResultAccumulator<>(combinedProps);
-        resultAccumulator.setSchema(FederatedUtils.getSchema(graphsToExecute));
 
         // Check if user has specified to aggregate
         if (operation.containsOption(OPT_AGGREGATE_ELEMENTS)) {
             resultAccumulator.setAggregateElements(Boolean.parseBoolean(operation.getOption(OPT_AGGREGATE_ELEMENTS)));
         }
         // Turn aggregation off if there are no shared groups
-        if (!FederatedUtils.doGraphsShareGroups(graphsToExecute)) {
+        if (resultAccumulator.aggregateElements() && !FederatedUtils.doGraphsShareGroups(graphsToExecute)) {
             resultAccumulator.setAggregateElements(false);
+        }
+        // Set the merged schema if we are aggregating
+        if (resultAccumulator.aggregateElements()) {
+            resultAccumulator.setSchema(FederatedUtils.getSchema(graphsToExecute));
         }
 
         return resultAccumulator;

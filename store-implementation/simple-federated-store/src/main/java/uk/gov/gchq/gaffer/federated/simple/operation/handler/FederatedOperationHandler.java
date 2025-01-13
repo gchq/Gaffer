@@ -156,20 +156,21 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         List<GraphSerialisable> graphsToExecute = new ArrayList<>();
 
         // If user specified graph IDs for this chain parse as comma separated list
-        if (operation.containsOption(OPT_GRAPH_IDS)) {
-            specifiedGraphIds = Arrays.asList(operation.getOption(OPT_GRAPH_IDS).split(","));
-        } else if (operation.containsOption(OPT_SHORT_GRAPH_IDS)) {
-            specifiedGraphIds = Arrays.asList(operation.getOption(OPT_SHORT_GRAPH_IDS).split(","));
+        if (operation.containsOption(OPT_SHORT_GRAPH_IDS)) {
+            specifiedGraphIds.addAll(Arrays.asList(operation.getOption(OPT_SHORT_GRAPH_IDS).split(",")));
+        // Check legacy option
+        } else if (operation.containsOption(OPT_GRAPH_IDS)) {
+            specifiedGraphIds.addAll(Arrays.asList(operation.getOption(OPT_GRAPH_IDS).split(",")));
+        // If a user has specified to just exclude some graphs then run all but them
+        } else if (operation.containsOption(OPT_EXCLUDE_GRAPH_IDS)) {
+            store.getAllGraphsAndAccess().forEach(pair -> specifiedGraphIds.add(pair.getLeft().getGraphId()));
+            // Exclude the ones the user has specified
+            Arrays.asList(operation.getOption(OPT_EXCLUDE_GRAPH_IDS).split(",")).forEach(specifiedGraphIds::remove);
         }
 
-        // If a user has specified to just exclude some graphs then run all but them
-        if (operation.containsOption(OPT_EXCLUDE_GRAPH_IDS)) {
-            List<String> allIds = new ArrayList<>();
-            store.getAllGraphsAndAccess().forEach(pair -> allIds.add(pair.getLeft().getGraphId()));
-
-            // Exclude the ones the user has specified
-            Arrays.asList(operation.getOption(OPT_EXCLUDE_GRAPH_IDS).split(",")).forEach(allIds::remove);
-            specifiedGraphIds = allIds;
+        // Use default graph IDs as a fallback
+        if (specifiedGraphIds.isEmpty()) {
+            specifiedGraphIds.addAll(store.getDefaultGraphIds());
         }
 
         // Get the corresponding graph serialisables
@@ -178,17 +179,12 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
                 Pair<GraphSerialisable, GraphAccess> pair = store.getGraphAccessPair(id);
                 // Check the user has access to the graph
                 if (pair.getRight().hasReadAccess(context.getUser(), store.getProperties().getAdminAuth())) {
-                    LOGGER.debug("Will execute on Graph: {}", id);
+                    LOGGER.debug("User has access, will execute on Graph: {}", id);
                     graphsToExecute.add(pair.getLeft());
                 }
             } catch (final CacheOperationException e) {
                 throw new OperationException("Failed to get Graph from cache: '" + id + "'", e);
             }
-        }
-
-        // Use default graph IDs as a fallback
-        if (specifiedGraphIds.isEmpty()) {
-            graphsToExecute = store.getDefaultGraphs();
         }
 
         // Keep graphs sorted so results returned are predictable between runs
