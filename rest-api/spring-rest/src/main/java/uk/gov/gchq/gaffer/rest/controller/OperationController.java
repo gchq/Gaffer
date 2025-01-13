@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Crown Copyright
+ * Copyright 2020-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -56,7 +55,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
-import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
 
 @RestController
 @Tag(name = "operations")
@@ -211,11 +209,10 @@ public class OperationController extends AbstractOperationService {
             }))
             @RequestBody final Operation operation) {
         userFactory.setHttpHeaders(httpHeaders);
-        final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
+        final Object result = _execute(operation, userFactory.createContext());
         return ResponseEntity.ok()
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .header(JOB_ID_HEADER, resultAndJobId.getSecond())
-                .body(resultAndJobId.getFirst());
+                .body(result);
     }
 
     @PostMapping(path = "/execute/chunked", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -227,8 +224,7 @@ public class OperationController extends AbstractOperationService {
         userFactory.setHttpHeaders(httpHeaders);
         final StreamingResponseBody responseBody = response -> {
             try {
-                final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
-                final Object result = resultAndJobId.getFirst();
+                final Object result = _execute(operation, userFactory.createContext());
                 if (result instanceof Iterable) {
                     final Iterable itr = (Iterable) result;
                     try {

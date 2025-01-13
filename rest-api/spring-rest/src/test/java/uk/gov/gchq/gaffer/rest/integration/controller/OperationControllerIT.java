@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Crown Copyright
+ * Copyright 2020-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,21 +45,17 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 
-public class OperationControllerIT extends AbstractRestApiIT {
+class OperationControllerIT extends AbstractRestApiIT {
 
     @Autowired
     private GraphFactory graphFactory; // This will be a Mock (see application-test.properties)
@@ -70,7 +66,7 @@ public class OperationControllerIT extends AbstractRestApiIT {
 
 
     @Test
-    public void shouldReturnHelpfulErrorMessageIfJsonIsIncorrect() {
+    void shouldReturnHelpfulErrorMessageIfJsonIsIncorrect() {
         // Given
         Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))
@@ -83,7 +79,7 @@ public class OperationControllerIT extends AbstractRestApiIT {
         // When
         String request = "{\"class\"\"GetAllElements\"}";
 
-        LinkedMultiValueMap headers = new LinkedMultiValueMap();
+        LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
         headers.add("Content-Type", "application/json;charset=utf-8");
 
         final ResponseEntity<Error> response = post("/graph/operations/execute",
@@ -91,13 +87,13 @@ public class OperationControllerIT extends AbstractRestApiIT {
                 Error.class);
 
         // Then
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals(400, response.getBody().getStatusCode());
-        assertTrue(response.getBody().getSimpleMessage().contains("was expecting a colon to separate field name and value"));
+        assertThat(response.getStatusCode().value()).isEqualTo(400);
+        assertThat(response.getBody().getStatusCode()).isEqualTo(400);
+        assertThat(response.getBody().getSimpleMessage()).contains("was expecting a colon to separate field name and value");
     }
 
     @Test
-    public void shouldReturnHelpfulErrorMessageIfOperationIsUnsupported() {
+    void shouldReturnHelpfulErrorMessageIfOperationIsUnsupported() {
         // Given
         Graph graph = new Graph.Builder()
             .config(StreamUtil.graphConfig(this.getClass()))
@@ -113,13 +109,12 @@ public class OperationControllerIT extends AbstractRestApiIT {
             Error.class);
 
         // Then
-
-        assertNotNull(response.getBody().getSimpleMessage());
-        assertTrue(response.getBody().getSimpleMessage().contains("GetAllGraphIds is not supported by the MapStore"));
+        assertThat(response.getBody().getSimpleMessage()).isNotNull();
+        assertThat(response.getBody().getSimpleMessage()).contains("GetAllGraphIds is not supported by the MapStore");
     }
 
     @Test
-    public void shouldReturn403WhenUnauthorised() throws IOException {
+    void shouldReturn403WhenUnauthorised() {
         // Given
         Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))
@@ -135,12 +130,12 @@ public class OperationControllerIT extends AbstractRestApiIT {
                 Error.class);
 
         // Then
-        assertEquals(403, response.getStatusCode().value());
-        assertEquals(403, response.getBody().getStatusCode());
+        assertThat(response.getStatusCode().value()).isEqualTo(403);
+        assertThat(response.getBody().getStatusCode()).isEqualTo(403);
     }
 
     @Test
-    public void shouldPropagateStatusInformationContainedInOperationExceptionsThrownByOperationHandlers() throws IOException {
+    void shouldPropagateStatusInformationContainedInOperationExceptionsThrownByOperationHandlers() {
         // Given
         final StoreProperties storeProperties = new MapStoreProperties();
         storeProperties.set(StoreProperties.JOB_TRACKER_ENABLED, Boolean.FALSE.toString());
@@ -158,11 +153,11 @@ public class OperationControllerIT extends AbstractRestApiIT {
                 new GetAllJobDetails(),
                 Error.class);
         // Then
-        assertEquals(SERVICE_UNAVAILABLE.getStatusCode(), response.getStatusCode().value());
+        assertThat(response.getStatusCode().value()).isEqualTo(SERVICE_UNAVAILABLE.getStatusCode());
     }
 
     @Test
-    public void shouldReturnSameJobIdInHeaderAsGetAllJobDetailsOperation() throws IOException {
+    void shouldNotReturnJobIdInHeader() {
         // Given
         StoreProperties properties = new MapStoreProperties();
         properties.setJobTrackerEnabled(true);
@@ -182,18 +177,11 @@ public class OperationControllerIT extends AbstractRestApiIT {
                 Set.class);
 
         // Then
-        try {
-            assertTrue(response.getBody().toString().contains(response.getHeaders().get("job-id").get(0)));
-        } catch (final AssertionError e) {
-            System.out.println("Job ID was not found in the Header");
-            System.out.println("Header was: " + response.getHeaders().get("job-id"));
-            System.out.println("Body was: " + response.getBody());
-            throw e;
-        }
+        assertThat(response.getHeaders().toString()).doesNotContain("job-id");
     }
 
     @Test
-    public void shouldCorrectlyStreamExecuteChunked() throws Exception {
+    void shouldCorrectlyStreamExecuteChunked() throws Exception {
         // Given
         final Schema schema =  new Schema.Builder()
                 .entity("g1", new SchemaEntityDefinition.Builder()
@@ -241,11 +229,11 @@ public class OperationControllerIT extends AbstractRestApiIT {
 
         // Then
         String expected = mapper.writeValueAsString(ent1) + "\r\n" + mapper.writeValueAsString(ent2) + "\r\n";
-        assertEquals(expected, response.getBody());
+        assertThat(response.getBody()).isEqualTo(expected);
     }
 
     @Test
-    public void shouldCorrectlySerialiseAllOperationDetails() throws IOException {
+    void shouldCorrectlySerialiseAllOperationDetails() {
         // Given
         final Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))
