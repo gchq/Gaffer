@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,12 @@ import uk.gov.gchq.gaffer.user.User;
 
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStore.FEDERATED_STORE_SYSTEM_USER;
 
+import java.io.Serializable;
+
 /**
  * Access control for a Graph that as been added through a federated store.
  */
-public class GraphAccess implements AccessControlledResource  {
+public class GraphAccess implements AccessControlledResource, Serializable {
     // Default accesses applied to a graph can be overridden using builder
     private boolean isPublic = true;
     private String owner = User.UNKNOWN_USER_ID;

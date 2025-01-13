@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -153,6 +154,11 @@ public class GetWalks implements
         return result;
     }
 
+    @Override
+    public List<Operation> flatten() {
+        return Arrays.asList(this);
+    }
+
     @JsonIgnore
     public int getNumberOfGetEdgeOperations() {
         return getNumberOfGetEdgeOperations(operations);
@@ -166,7 +172,7 @@ public class GetWalks implements
             hops += getNumberOfGetEdgeOperations(((Operations<?>) op).getOperations());
         } else if (op instanceof GetElements) {
             final GetElements getElements = (GetElements) op;
-            if (null != getElements.getView() && getElements.getView().hasEdges()) {
+            if (null != getElements.getView() && (getElements.getView().hasEdges() || getElements.getView().isAllEdges())) {
                 hops += 1;
             }
         }
@@ -187,7 +193,7 @@ public class GetWalks implements
             hops += getNumberOfGetEdgeOperationsWithoutRepeats(((Operations<?>) op).getOperations());
         } else if (op instanceof GetElements) {
             final GetElements getElements = (GetElements) op;
-            if (null != getElements.getView() && getElements.getView().hasEdges()) {
+            if (null != getElements.getView() && (getElements.getView().hasEdges() || getElements.getView().isAllEdges())) {
                 hops += 1;
             }
         }

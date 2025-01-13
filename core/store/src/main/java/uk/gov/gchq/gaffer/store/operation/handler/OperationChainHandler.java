@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 Crown Copyright
+ * Copyright 2017-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.List;
+import java.util.Map;
 
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
 
@@ -40,6 +41,10 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
  * @param <OUT> the output type of the operation chain
  */
 public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT> {
+    /**
+     * Context variable to apply the operation options on the chain to all sub operations
+     */
+    public static final String APPLY_CHAIN_OPS_TO_ALL = "applyChainOptionsToAll";
     private final OperationChainValidator opChainValidator;
     private final List<OperationChainOptimiser> opChainOptimisers;
 
@@ -70,6 +75,7 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
     }
 
     public <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context, final Store store) {
+        Map<String, String> options = operationChain.getOptions();
         final ValidationResult validationResult = opChainValidator.validate(operationChain, context
                 .getUser(), store);
         if (!validationResult.isValid()) {
@@ -81,6 +87,12 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
             optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
         }
+
+        // Optionally re-apply the chain level options to all sub operations too
+        if (context.getVariable(APPLY_CHAIN_OPS_TO_ALL) != null) {
+            optimisedOperationChain.getOperations().forEach(op -> op.setOptions(options));
+        }
+
         return optimisedOperationChain;
     }
 
