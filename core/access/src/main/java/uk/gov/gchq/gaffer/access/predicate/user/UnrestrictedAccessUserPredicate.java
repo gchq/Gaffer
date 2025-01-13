@@ -20,9 +20,11 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
+import java.io.Serializable;
+
 @Since("1.13.1")
 @Summary("A predicate which always allows a user access")
-public class UnrestrictedAccessUserPredicate extends KoryphePredicate<User> {
+public class UnrestrictedAccessUserPredicate extends KoryphePredicate<User> implements Serializable {
     @Override
     public boolean test(final User user) {
         return true;
