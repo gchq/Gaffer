@@ -286,7 +286,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         // Set the graph variables to current config
         variables = new GafferPopGraphVariables();
-        setDefaultVariables(false);
+        setDefaultVariables();
 
         serviceRegistry = new ServiceRegistry();
         serviceRegistry.registerService(new GafferPopNamedOperationServiceFactory(this));
@@ -297,6 +297,16 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 GafferPopHasStepStrategy.instance(),
                 GafferPopVertexStepStrategy.instance());
         GlobalCache.registerStrategies(this.getClass(), traversalStrategies);
+    }
+
+    /**
+     * Return a new instance of the graph  usually so a different set
+     * of graph variables can be used for a query.
+     *
+     * @return Identical instance this graph.
+     */
+    public GafferPopGraph newInstance() {
+        return new GafferPopGraph(configuration, graph);
     }
 
     private static Graph createGraph(final Configuration configuration) {
@@ -745,6 +755,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         try {
             LOGGER.info("GafferPop operation chain called: {}", opChain.toOverviewString());
+            LOGGER.info("USER IS: " + variables.getUser().getUserId());
             return graph.execute(opChain, variables.getUser());
         } catch (final Exception e) {
             LOGGER.error("Operation chain failed: {}", e.getMessage());
@@ -756,15 +767,10 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * Sets the {@link GafferPopGraphVariables} to default values for this
      * graph
      *
-     * @param preserveUser optionally preserve the graph User as it may have been set
-     * externally
      */
-    public void setDefaultVariables(final boolean preserveUser) {
+    public void setDefaultVariables() {
         LOGGER.debug("Resetting graph variables to defaults");
-        if (!preserveUser) {
-            LOGGER.debug("Resetting graph user variable");
-            variables.set(GafferPopGraphVariables.USER, defaultUser);
-        }
+        variables.set(GafferPopGraphVariables.USER, defaultUser);
         variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
         variables.set(GafferPopGraphVariables.GET_ELEMENTS_LIMIT,
                 configuration().getInteger(GET_ELEMENTS_LIMIT, DEFAULT_GET_ELEMENTS_LIMIT));

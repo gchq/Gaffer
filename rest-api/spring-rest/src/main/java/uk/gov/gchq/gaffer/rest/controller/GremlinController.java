@@ -98,30 +98,19 @@ public class GremlinController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GremlinController.class);
     private static final String GENERAL_ERROR_MSG = "Gremlin query failed: ";
 
-    private final ConcurrentBindings bindings = new ConcurrentBindings();
-    private final ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(1));
-    private final GremlinExecutor gremlinExecutor;
+    private final ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(8));
     private final AbstractUserFactory userFactory;
+    private final Long requestTimeout;
     private final GafferPopGraph graph;
     private final Map<String, Map<String, Object>> plugins = new HashMap<>();
 
     @Autowired
-    public GremlinController(final GraphTraversalSource g, final AbstractUserFactory userFactory, final Long requestTimeout) {
-        // Check we actually have a graph instance to use
-        if (g.getGraph() instanceof GafferPopGraph) {
-            graph = (GafferPopGraph) g.getGraph();
-        } else {
-            throw new GafferRuntimeException("There is no GafferPop Graph configured");
-        }
-        bindings.putIfAbsent("g", g);
+    public GremlinController(final GafferPopGraph graph, final AbstractUserFactory userFactory, final Long requestTimeout) {
+        this.graph = graph;
         this.userFactory = userFactory;
+        this.requestTimeout = requestTimeout;
         // Add cypher plugin so cypher functions can be used in queries
         plugins.put(CypherPlugin.class.getName(), new HashMap<>());
-        gremlinExecutor = GremlinExecutor.build()
-                .addPlugins("gremlin-groovy", plugins)
-                .evaluationTimeout(requestTimeout)
-                .executorService(executorService)
-                .globalBindings(bindings).create();
     }
 
     /**
@@ -136,8 +125,7 @@ public class GremlinController {
         summary = "Explain a Gremlin Query",
         description = "Runs a Gremlin query and outputs an explanation of what Gaffer operations were executed on the graph")
     public String explain(@RequestHeader final HttpHeaders httpHeaders, @RequestBody final String gremlinQuery) {
-        preExecuteSetUp(httpHeaders);
-        return runGremlinQuery(gremlinQuery).get1().toString();
+        return runGremlinQuery(gremlinQuery, httpHeaders).get1().toString();
     }
 
     /**
@@ -157,13 +145,11 @@ public class GremlinController {
     public ResponseEntity<StreamingResponseBody> execute(
             @RequestHeader final HttpHeaders httpHeaders,
             @RequestBody final String gremlinQuery) throws IOException {
-        // Set up
-        preExecuteSetUp(httpHeaders);
 
         HttpStatus status = HttpStatus.OK;
         StreamingResponseBody responseBody;
         try {
-            Object result = runGremlinQuery(gremlinQuery).get0();
+            Object result = runGremlinQuery(gremlinQuery, httpHeaders).get0();
             // Write to output stream for response
             responseBody = os -> GRAPHSON_V3_WRITER.writeObject(os, result);
         } catch (final Exception e) {
@@ -197,7 +183,7 @@ public class GremlinController {
         final String translation = ast.buildTranslation(
             Translator.builder().gremlinGroovy().enableCypherExtensions().build()) + ".toList()";
 
-        JSONObject response = runGremlinQuery(translation).get1();
+        JSONObject response = runGremlinQuery(translation, httpHeaders).get1();
         response.put(EXPLAIN_GREMLIN_KEY, translation);
         return response.toString();
     }
@@ -220,9 +206,6 @@ public class GremlinController {
     public ResponseEntity<StreamingResponseBody> cypherExecute(
             @RequestHeader final HttpHeaders httpHeaders,
             @RequestBody final String cypherQuery) throws IOException {
-        // Set up
-        preExecuteSetUp(httpHeaders);
-
 
         HttpStatus status = HttpStatus.OK;
         StreamingResponseBody responseBody;
@@ -233,7 +216,7 @@ public class GremlinController {
             final String translation = ast.buildTranslation(
                 Translator.builder().gremlinGroovy().enableCypherExtensions().build()) + ".toList()";
             // Run Query
-            Object result = runGremlinQuery(translation).get0();
+            Object result = runGremlinQuery(translation, httpHeaders).get0();
             // Write to output stream for response
             responseBody = os -> GRAPHSON_V3_WRITER.writeObject(os, result);
         } catch (final Exception e) {
@@ -290,13 +273,19 @@ public class GremlinController {
      * Do some basic pre execute set up so the graph is ready for the gremlin
      * request to be executed.
      *
-     * @param httpHeaders Headers for user auth
+     * @param GafferPopGraph The graph structure to use
      */
-    private void preExecuteSetUp(final HttpHeaders httpHeaders) {
-        graph.setDefaultVariables(false);
-        // Hooks for user auth
-        userFactory.setHttpHeaders(httpHeaders);
-        graph.variables().set(GafferPopGraphVariables.USER, userFactory.createUser());
+    private GremlinExecutor setUpExecutor(final GafferPopGraph graphInstance) {
+        final ConcurrentBindings bindings = new ConcurrentBindings();
+        final GraphTraversalSource g = graphInstance.traversal();
+
+        // Set up the executor
+        bindings.putIfAbsent("g", g);
+        return GremlinExecutor.build()
+                .addPlugins("gremlin-groovy", plugins)
+                .evaluationTimeout(requestTimeout)
+                .executorService(executorService)
+                .globalBindings(bindings).create();
     }
 
     /**
@@ -305,13 +294,21 @@ public class GremlinController {
      * @param gremlinQuery The Gremlin groovy query.
      * @return A pair tuple with result and explain in.
      */
-    private Tuple2<Object, JSONObject> runGremlinQuery(final String gremlinQuery) {
+    private Tuple2<Object, JSONObject> runGremlinQuery(final String gremlinQuery, final HttpHeaders httpHeaders) {
+        // We can't reuse the existing graph instance as we need to set variables
+        // specific to this query only.
+        final GafferPopGraph graphInstance = graph.newInstance();
+
+        // Hooks for user auth
+        userFactory.setHttpHeaders(httpHeaders);
+        User user = userFactory.createUser();
+        graph.variables().set(GafferPopGraphVariables.USER, user);
+
         // OpenTelemetry hooks
         Span span = OtelUtil.startSpan(
             this.getClass().getName(), "Gremlin Request: " + UUID.nameUUIDFromBytes(gremlinQuery.getBytes(StandardCharsets.UTF_8)));
         span.setAttribute(OtelUtil.GREMLIN_QUERY_ATTRIBUTE, gremlinQuery);
 
-        User user = ((GafferPopGraphVariables) graph.variables()).getUser();
         if (user != null) {
             span.setAttribute(OtelUtil.USER_ATTRIBUTE, user.getUserId());
         } else {
@@ -323,7 +320,8 @@ public class GremlinController {
         Tuple2<Object, JSONObject> pair = new Tuple2<>();
         pair.put1(new JSONObject());
 
-        try (Scope scope = span.makeCurrent()) {
+        try (Scope scope = span.makeCurrent();
+                GremlinExecutor gremlinExecutor = setUpExecutor(graphInstance)) {
             // Execute the query
             Object result = gremlinExecutor.eval(gremlinQuery).get();
 
@@ -334,10 +332,6 @@ public class GremlinController {
             // Provide an debug explanation for the query that just ran
             span.addEvent("Request complete");
             LOGGER.debug("{}", pair.get1());
-
-            // Reset the vars
-            graph.setDefaultVariables(false);
-
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             span.setStatus(StatusCode.ERROR, e.getMessage());
@@ -350,8 +344,9 @@ public class GremlinController {
         } catch (final Exception e) {
             span.setStatus(StatusCode.ERROR, e.getMessage());
             span.recordException(e);
-            throw e;
+            throw new GafferRuntimeException(GENERAL_ERROR_MSG + e.getMessage(), e);
         } finally {
+            graphInstance.setDefaultVariables();
             span.end();
         }
 

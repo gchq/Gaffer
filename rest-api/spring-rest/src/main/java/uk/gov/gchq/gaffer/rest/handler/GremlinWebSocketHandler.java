@@ -47,7 +47,6 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import uk.gov.gchq.gaffer.commonutil.otel.OtelUtil;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.rest.controller.GremlinController;
 import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
@@ -87,10 +86,9 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
             new SimpleEntry<>(SerTokens.MIME_JSON, new GraphSONMessageSerializerV3()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    private final ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(1));
-    private final GremlinExecutor gremlinExecutor;
-    private final ConcurrentBindings bindings = new ConcurrentBindings();
+    private final ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(8));
     private final AbstractUserFactory userFactory;
+    private final Long requestTimeout;
     private final GafferPopGraph graph;
     private final Map<String, Map<String, Object>> plugins = new HashMap<>();
 
@@ -101,22 +99,12 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      * @param userFactory The user factory
      * @param requestTimeout The timeout for gremlin requests
      */
-    public GremlinWebSocketHandler(final GraphTraversalSource g, final AbstractUserFactory userFactory, final Long requestTimeout) {
-        // Check we actually have a graph instance to use
-        if (g.getGraph() instanceof GafferPopGraph) {
-            graph = (GafferPopGraph) g.getGraph();
-        } else {
-            throw new GafferRuntimeException("There is no GafferPop Graph configured");
-        }
-        bindings.putIfAbsent("g", g);
+    public GremlinWebSocketHandler(final GafferPopGraph graph, final AbstractUserFactory userFactory, final Long requestTimeout) {
+        this.graph = graph;
         this.userFactory = userFactory;
+        this.requestTimeout = requestTimeout;
         // Add cypher plugin so cypher functions can be used in queries
         plugins.put(CypherPlugin.class.getName(), new HashMap<>());
-        gremlinExecutor = GremlinExecutor.build()
-            .addPlugins("gremlin-groovy", plugins)
-            .evaluationTimeout(requestTimeout)
-            .executorService(executorService)
-            .globalBindings(bindings).create();
     }
 
     @Override
@@ -140,6 +128,25 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
     }
 
     /**
+     * Do some basic pre execute set up so the graph is ready for the gremlin
+     * request to be executed.
+     *
+     * @param GafferPopGraph The graph structure to use
+     */
+    private GremlinExecutor setUpExecutor(final GafferPopGraph graphInstance) {
+        final ConcurrentBindings bindings = new ConcurrentBindings();
+        final GraphTraversalSource g = graphInstance.traversal();
+
+        // Set up the executor
+        bindings.putIfAbsent("g", g);
+        return GremlinExecutor.build()
+                .addPlugins("gremlin-groovy", plugins)
+                .evaluationTimeout(requestTimeout)
+                .executorService(executorService)
+                .globalBindings(bindings).create();
+    }
+
+    /**
      * Extracts the relevant information from a {@link RequestMessage} and validates
      * the Gremlin query requested before executing on the current graph. Formulates
      * the result into a {@link ResponseMessage} to be sent back to the client.
@@ -152,13 +159,17 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
         final UUID requestId = request.getRequestId();
         ResponseMessage responseMessage;
         LOGGER.info("QUERY IS: {} ", request.getArgs().get(Tokens.ARGS_GREMLIN));
+        // We can't reuse the existing graph instance as we need to set variables
+        // specific to this query only.
+        final GafferPopGraph graphInstance = graph.newInstance();
 
         // OpenTelemetry hooks
         Span span = OtelUtil.startSpan(this.getClass().getName(), "Gremlin Request: " + requestId.toString());
         span.setAttribute(OtelUtil.GREMLIN_QUERY_ATTRIBUTE, request.getArgs().get(Tokens.ARGS_GREMLIN).toString());
 
         // Execute the query
-        try (Scope scope = span.makeCurrent()) {
+        try (Scope scope = span.makeCurrent();
+                GremlinExecutor gremlinExecutor = setUpExecutor(graph)) {
             // Set current headers for potential authorisation then set the user
             userFactory.setHttpHeaders(session.getHandshakeHeaders());
             User user = userFactory.createUser();
@@ -187,9 +198,6 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
                 JSONObject gafferOperationChain = GremlinController.getGafferPopExplanation(graph);
                 LOGGER.debug("{}", gafferOperationChain);
             }
-            // Reset the vars as request is complete
-            graph.setDefaultVariables(false);
-
             // Build the response
             responseMessage = ResponseMessage.build(requestId)
                     .code(ResponseStatusCode.SUCCESS)
@@ -209,6 +217,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
             span.setStatus(StatusCode.ERROR, e.getMessage());
             span.recordException(e);
         } finally {
+            graphInstance.setDefaultVariables();
             span.end();
         }
 

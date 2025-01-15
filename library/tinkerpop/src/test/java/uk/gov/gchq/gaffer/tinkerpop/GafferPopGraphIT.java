@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.tinkerpop;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,12 +27,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import io.opentelemetry.context.Context;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
 import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -77,7 +82,7 @@ class GafferPopGraphIT {
         final List<Vertex> result = g.V().toList();
 
         assertThat(result)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsExactlyInAnyOrder(
                         MARKO.getId(),
                         VADAS.getId(),
@@ -94,7 +99,7 @@ class GafferPopGraphIT {
 
         assertThat(result)
                 .hasSize(2)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsAnyOf(
                         MARKO.getId(),
                         VADAS.getId(),
@@ -110,7 +115,7 @@ class GafferPopGraphIT {
         final List<Vertex> result = g.V(MARKO.getId(), RIPPLE.getId()).toList();
 
         assertThat(result)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsExactlyInAnyOrder(MARKO.getId(), RIPPLE.getId());
     }
 
@@ -132,7 +137,7 @@ class GafferPopGraphIT {
         final List<Vertex> result = g.V().hasLabel(PERSON).toList();
 
         assertThat(result)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsExactlyInAnyOrder(
                     MARKO.getId(),
                     VADAS.getId(),
@@ -147,7 +152,7 @@ class GafferPopGraphIT {
         final List<Edge> result = g.V(MARKO.getId()).outE().toList();
 
         assertThat(result)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .containsExactlyInAnyOrder(
                 MARKO.knows(VADAS),
                 MARKO.knows(JOSH),
@@ -228,7 +233,7 @@ class GafferPopGraphIT {
         final List<Edge> result = g.E().toList();
 
         assertThat(result)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsExactlyInAnyOrder(
                         MARKO.knows(JOSH),
                         MARKO.knows(VADAS),
@@ -245,7 +250,7 @@ class GafferPopGraphIT {
 
         assertThat(result)
                 .hasSize(2)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsAnyOf(
                         MARKO.knows(JOSH),
                         MARKO.knows(VADAS),
@@ -271,7 +276,7 @@ class GafferPopGraphIT {
 
             assertThat(result)
                 .withFailMessage("(%s) Edge ID: %s returned %s", graph, id, result)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsExactlyInAnyOrder(MARKO.knows(VADAS));
         });
     }
@@ -295,7 +300,7 @@ class GafferPopGraphIT {
 
         final List<Edge> result = g.E().toList();
         assertThat(result)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .contains(VADAS.knows(PETER));
         reset();
     }
@@ -311,7 +316,7 @@ class GafferPopGraphIT {
         // Must enable orphaned vertices for this traversal
         List<Vertex> result = g.with(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES, "true").V(VERTEX_ONLY_ID_STRING).toList();
         assertThat(result)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .contains(VERTEX_ONLY_ID_STRING);
         reset();
     }
@@ -329,26 +334,64 @@ class GafferPopGraphIT {
 
         List<Vertex> result = gWithOption.V(VERTEX_ONLY_ID_STRING).inE().inV().toList();
         assertThat(result)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .contains(VERTEX_ONLY_ID_STRING);
         List<Vertex> result2 = gWithOption.V(VERTEX_ONLY_ID_STRING).inE().outV().toList();
         assertThat(result2)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .contains("8");
         List<Vertex> result3 = gWithOption.V("8").outE().inV().toList();
         assertThat(result3)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .contains(VERTEX_ONLY_ID_STRING);
         List<Vertex> result4 = gWithOption.V("8").outE().outV().toList();
         assertThat(result4)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .contains("8");
         List<Vertex> resultLabel = gWithOption.V("8").out("knows").toList();
         assertThat(resultLabel)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .containsOnly(VERTEX_ONLY_ID_STRING);
         reset();
     }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldPreserveExternallySetUser(String graph, GraphTraversalSource g) {
+        ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(2));
+
+        User testUser = new User("shouldPreserveExternallySetUser");
+        User testUser2 = new User("shouldPreserveExternallySetUser2");
+
+        executorService.submit(() -> {
+            GraphTraversalSource g2 = ((GafferPopGraph) g.getGraph()).newInstance().traversal();
+            g2.getGraph().variables().set(GafferPopGraphVariables.USER, testUser);
+            g2.V().toList();
+            assertThat(((GafferPopGraphVariables) g.getGraph().variables()).getUser()).isEqualTo(testUser);
+        });
+
+        executorService.submit(() -> {
+            GraphTraversalSource g2 = ((GafferPopGraph) g.getGraph()).newInstance().traversal();
+            g2.getGraph().variables().set(GafferPopGraphVariables.USER, testUser2);
+            g2.V().toList();
+            assertThat(((GafferPopGraphVariables) g.getGraph().variables()).getUser()).isEqualTo(testUser2);
+        });
+
+        // Set the user
+        // g.getGraph().variables().set(GafferPopGraphVariables.USER, testUser);
+
+        // // Run a Query
+        // g.V().toList();
+
+        // Ensure user is still set
+        //assertThat(((GafferPopGraphVariables) g.getGraph().variables()).getUser()).isEqualTo(testUser);
+
+        // Reset vars
+        ((GafferPopGraph) g.getGraph()).setDefaultVariables();
+        assertThat(((GafferPopGraphVariables) g.getGraph().variables()).getUser()).isNotEqualTo(testUser);
+        reset();
+    }
+
 
     void reset() {
         // reset cache for federation

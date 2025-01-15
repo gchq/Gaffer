@@ -19,8 +19,6 @@ package uk.gov.gchq.gaffer.rest.config;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -49,10 +47,9 @@ public class GremlinConfig {
     private static final String REQUEST_TIMEOUT_KEY = "gaffer.rest.timeout";
 
     @Bean
-    public GraphTraversalSource graphTraversalSource(final GraphFactory graphFactory) {
-        // Obtain the graph traversal
-        Graph graph = GafferPopGraph.open(findPropertiesFile(graphFactory), graphFactory.getGraph());
-        return graph.traversal();
+    public GafferPopGraph gafferPopGraph(final GraphFactory graphFactory) {
+        // Obtain the graph
+        return GafferPopGraph.open(findPropertiesFile(graphFactory), graphFactory.getGraph());
     }
 
     @Bean
