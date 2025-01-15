@@ -24,17 +24,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.tinkerpop.gremlin.groovy.engine.GremlinExecutor;
 import org.apache.tinkerpop.gremlin.jsr223.ConcurrentBindings;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONMapper;
 import org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONVersion;
 import org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONWriter;
 import org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONXModuleV3;
-import org.apache.tinkerpop.gremlin.structure.util.empty.EmptyGraph;
 import org.json.JSONObject;
 import org.opencypher.gremlin.server.jsr223.CypherPlugin;
 import org.opencypher.gremlin.translation.CypherAst;
 import org.opencypher.gremlin.translation.translator.Translator;
-import org.opencypher.v9_0.util.SyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +63,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -98,23 +96,32 @@ public class GremlinController {
     public static final String EXPLAIN_GREMLIN_KEY = "gremlin";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GremlinController.class);
-    private static final String GENERAL_ERROR_MSG = "Failed to evaluate Gremlin query: ";
+    private static final String GENERAL_ERROR_MSG = "Gremlin query failed: ";
 
     private final ConcurrentBindings bindings = new ConcurrentBindings();
-    private final ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(4));
-    private final Long requestTimeout;
+    private final ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(1));
+    private final GremlinExecutor gremlinExecutor;
     private final AbstractUserFactory userFactory;
-    private final Graph graph;
+    private final GafferPopGraph graph;
     private final Map<String, Map<String, Object>> plugins = new HashMap<>();
 
     @Autowired
     public GremlinController(final GraphTraversalSource g, final AbstractUserFactory userFactory, final Long requestTimeout) {
+        // Check we actually have a graph instance to use
+        if (g.getGraph() instanceof GafferPopGraph) {
+            graph = (GafferPopGraph) g.getGraph();
+        } else {
+            throw new GafferRuntimeException("There is no GafferPop Graph configured");
+        }
         bindings.putIfAbsent("g", g);
-        graph = g.getGraph();
         this.userFactory = userFactory;
-        this.requestTimeout = requestTimeout;
         // Add cypher plugin so cypher functions can be used in queries
         plugins.put(CypherPlugin.class.getName(), new HashMap<>());
+        gremlinExecutor = GremlinExecutor.build()
+                .addPlugins("gremlin-groovy", plugins)
+                .evaluationTimeout(requestTimeout)
+                .executorService(executorService)
+                .globalBindings(bindings).create();
     }
 
     /**
@@ -159,7 +166,7 @@ public class GremlinController {
             Object result = runGremlinQuery(gremlinQuery).get0();
             // Write to output stream for response
             responseBody = os -> GRAPHSON_V3_WRITER.writeObject(os, result);
-        } catch (final GafferRuntimeException e) {
+        } catch (final Exception e) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
             responseBody = os -> os.write(
                 new JSONObject().put("simpleMessage", e.getMessage()).toString().getBytes(StandardCharsets.UTF_8));
@@ -229,7 +236,7 @@ public class GremlinController {
             Object result = runGremlinQuery(translation).get0();
             // Write to output stream for response
             responseBody = os -> GRAPHSON_V3_WRITER.writeObject(os, result);
-        } catch (final GafferRuntimeException | SyntaxException e) {
+        } catch (final Exception e) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
             responseBody = os -> os.write(
                 new JSONObject().put("simpleMessage", e.getMessage()).toString().getBytes(StandardCharsets.UTF_8));
@@ -286,14 +293,7 @@ public class GremlinController {
      * @param httpHeaders Headers for user auth
      */
     private void preExecuteSetUp(final HttpHeaders httpHeaders) {
-        // Check we actually have a graph instance to use
-        GafferPopGraph gafferPopGraph;
-        if (graph instanceof EmptyGraph) {
-            throw new GafferRuntimeException("There is no GafferPop Graph configured");
-        } else {
-            gafferPopGraph = (GafferPopGraph) graph;
-        }
-        gafferPopGraph.setDefaultVariables((GafferPopGraphVariables) gafferPopGraph.variables());
+        graph.setDefaultVariables(false);
         // Hooks for user auth
         userFactory.setHttpHeaders(httpHeaders);
         graph.variables().set(GafferPopGraphVariables.USER, userFactory.createUser());
@@ -306,71 +306,55 @@ public class GremlinController {
      * @return A pair tuple with result and explain in.
      */
     private Tuple2<Object, JSONObject> runGremlinQuery(final String gremlinQuery) {
-        GafferPopGraph gafferPopGraph = (GafferPopGraph) graph;
-
         // OpenTelemetry hooks
         Span span = OtelUtil.startSpan(
             this.getClass().getName(), "Gremlin Request: " + UUID.nameUUIDFromBytes(gremlinQuery.getBytes(StandardCharsets.UTF_8)));
         span.setAttribute(OtelUtil.GREMLIN_QUERY_ATTRIBUTE, gremlinQuery);
 
-        User user = ((GafferPopGraphVariables) gafferPopGraph.variables()).getUser();
-        String userId;
+        User user = ((GafferPopGraphVariables) graph.variables()).getUser();
         if (user != null) {
-            userId = user.getUserId();
+            span.setAttribute(OtelUtil.USER_ATTRIBUTE, user.getUserId());
         } else {
             LOGGER.warn("Could not find Gaffer user for OTEL. Using default.");
-            userId = "unknownGremlinUser";
+            span.setAttribute(OtelUtil.USER_ATTRIBUTE, "unknownGremlinUser");
         }
-        span.setAttribute(OtelUtil.USER_ATTRIBUTE, userId);
 
         // tuple to hold the result and explain
         Tuple2<Object, JSONObject> pair = new Tuple2<>();
         pair.put1(new JSONObject());
 
-        try (Scope scope = span.makeCurrent();
-                GremlinExecutor gremlinExecutor = getGremlinExecutor()) {
+        try (Scope scope = span.makeCurrent()) {
             // Execute the query
             Object result = gremlinExecutor.eval(gremlinQuery).get();
 
             // Store the result and explain for returning
             pair.put0(result);
-            pair.put1(getGafferPopExplanation(gafferPopGraph));
+            pair.put1(getGafferPopExplanation(graph));
 
             // Provide an debug explanation for the query that just ran
             span.addEvent("Request complete");
             LOGGER.debug("{}", pair.get1());
 
             // Reset the vars
-            gafferPopGraph.setDefaultVariables((GafferPopGraphVariables) gafferPopGraph.variables());
+            graph.setDefaultVariables(false);
 
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             span.setStatus(StatusCode.ERROR, e.getMessage());
             span.recordException(e);
             throw new GafferRuntimeException(GENERAL_ERROR_MSG + e.getMessage(), e);
+        } catch (final ExecutionException e) {
+            span.setStatus(StatusCode.ERROR, e.getCause().getMessage());
+            span.recordException(e.getCause());
+            throw new GafferRuntimeException(GENERAL_ERROR_MSG + e.getCause().getMessage(), e);
         } catch (final Exception e) {
             span.setStatus(StatusCode.ERROR, e.getMessage());
             span.recordException(e);
-            throw new GafferRuntimeException(GENERAL_ERROR_MSG + e.getMessage(), e);
-        }  finally {
+            throw e;
+        } finally {
             span.end();
         }
 
         return pair;
     }
-
-    /**
-     * Returns a new gremlin executor. It's the responsibility of the caller to
-     * ensure it is closed.
-     *
-     * @return Gremlin executor.
-     */
-    private GremlinExecutor getGremlinExecutor() {
-        return GremlinExecutor.build()
-                .addPlugins("gremlin-groovy", plugins)
-                .evaluationTimeout(requestTimeout)
-                .executorService(executorService)
-                .globalBindings(bindings).create();
-    }
-
 }

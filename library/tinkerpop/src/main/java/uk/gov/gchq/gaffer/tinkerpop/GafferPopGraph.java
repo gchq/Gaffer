@@ -286,7 +286,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         // Set the graph variables to current config
         variables = new GafferPopGraphVariables();
-        setDefaultVariables(variables);
+        setDefaultVariables(false);
 
         serviceRegistry = new ServiceRegistry();
         serviceRegistry.registerService(new GafferPopNamedOperationServiceFactory(this));
@@ -756,12 +756,16 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
      * Sets the {@link GafferPopGraphVariables} to default values for this
      * graph
      *
-     * @param variables The variables
+     * @param preserveUser optionally preserve the graph User as it may have been set
+     * externally
      */
-    public void setDefaultVariables(final GafferPopGraphVariables variables) {
+    public void setDefaultVariables(final boolean preserveUser) {
         LOGGER.debug("Resetting graph variables to defaults");
+        if (!preserveUser) {
+            LOGGER.debug("Resetting graph user variable");
+            variables.set(GafferPopGraphVariables.USER, defaultUser);
+        }
         variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
-        variables.set(GafferPopGraphVariables.USER, defaultUser);
         variables.set(GafferPopGraphVariables.GET_ELEMENTS_LIMIT,
                 configuration().getInteger(GET_ELEMENTS_LIMIT, DEFAULT_GET_ELEMENTS_LIMIT));
         variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
