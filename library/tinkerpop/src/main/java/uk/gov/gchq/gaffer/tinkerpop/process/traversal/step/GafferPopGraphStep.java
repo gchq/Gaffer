@@ -73,6 +73,8 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
         // Save reference to the graph
         GafferPopGraph graph = (GafferPopGraph) originalGraphStep.getTraversal().getGraph().get();
+        // Reset vars on the graph but preserving the user in case it was set externally
+        graph.setDefaultVariables(true);
 
         // Find any options on the traversal
         Optional<OptionsStrategy> optionsStrategy = originalGraphStep.getTraversal().getStrategies().getStrategy(OptionsStrategy.class);

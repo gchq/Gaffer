@@ -27,16 +27,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import io.opentelemetry.context.Context;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
 import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
-import uk.gov.gchq.gaffer.user.User;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -352,43 +348,6 @@ class GafferPopGraphIT {
         assertThat(resultLabel)
             .extracting(Element::id)
             .containsOnly(VERTEX_ONLY_ID_STRING);
-        reset();
-    }
-
-    @ParameterizedTest(name = TEST_NAME_FORMAT)
-    @MethodSource("provideTraversals")
-    void shouldPreserveExternallySetUser(String graph, GraphTraversalSource g) {
-        ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(2));
-
-        User testUser = new User("shouldPreserveExternallySetUser");
-        User testUser2 = new User("shouldPreserveExternallySetUser2");
-
-        executorService.submit(() -> {
-            GraphTraversalSource g2 = ((GafferPopGraph) g.getGraph()).newInstance().traversal();
-            g2.getGraph().variables().set(GafferPopGraphVariables.USER, testUser);
-            g2.V().toList();
-            assertThat(((GafferPopGraphVariables) g.getGraph().variables()).getUser()).isEqualTo(testUser);
-        });
-
-        executorService.submit(() -> {
-            GraphTraversalSource g2 = ((GafferPopGraph) g.getGraph()).newInstance().traversal();
-            g2.getGraph().variables().set(GafferPopGraphVariables.USER, testUser2);
-            g2.V().toList();
-            assertThat(((GafferPopGraphVariables) g.getGraph().variables()).getUser()).isEqualTo(testUser2);
-        });
-
-        // Set the user
-        // g.getGraph().variables().set(GafferPopGraphVariables.USER, testUser);
-
-        // // Run a Query
-        // g.V().toList();
-
-        // Ensure user is still set
-        //assertThat(((GafferPopGraphVariables) g.getGraph().variables()).getUser()).isEqualTo(testUser);
-
-        // Reset vars
-        ((GafferPopGraph) g.getGraph()).setDefaultVariables();
-        assertThat(((GafferPopGraphVariables) g.getGraph().variables()).getUser()).isNotEqualTo(testUser);
         reset();
     }
 

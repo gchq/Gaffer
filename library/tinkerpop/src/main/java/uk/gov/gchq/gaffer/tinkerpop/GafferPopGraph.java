@@ -457,7 +457,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 variables.getElementsLimit());
         }
 
-        // Translate results to Gafferpop elements
+        // Translate results to GafferPop elements
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(this);
         final Set<Vertex> translatedResults = StreamSupport.stream(result.spliterator(), false)
                 .map(generator::_apply)
@@ -677,6 +677,77 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         return edgesWithView(Collections.singletonList(id), direction, view);
     }
 
+    public <T> T execute(final OperationChain<T> opChain) {
+        // Set options at opChain level
+        opChain.setOptions(variables.getOperationOptions());
+        for (final Operation operation : opChain.getOperations()) {
+            // Set options on operations
+            operation.setOptions(variables.getOperationOptions());
+            // Debug logging
+            if (LOGGER.isDebugEnabled() && operation instanceof Input) {
+                Object input = ((Input) operation).getInput();
+                if (input instanceof MappedIterable) {
+                    ((MappedIterable) input).forEach(item -> LOGGER.debug("GafferPop operation input: {}", item));
+                } else {
+                    LOGGER.debug("GafferPop operation input: {}", input);
+                }
+            }
+        }
+
+        // Add the current chain to the list of chains ran so far for this query (it is reset by the graph step)
+        List<Operation> currentChain = variables.getLastOperationChain().getOperations();
+        currentChain.add(opChain);
+        variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain<>(currentChain));
+
+        try {
+            LOGGER.info("GafferPop operation chain called: {}", opChain.toOverviewString());
+            LOGGER.info("USER IS: " + variables.getUser().getUserId());
+            return graph.execute(opChain, variables.getUser());
+        } catch (final Exception e) {
+            LOGGER.error("Operation chain failed: {}", e.getMessage());
+            throw new RuntimeException("GafferPop operation failed: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Sets the {@link GafferPopGraphVariables} to default values for this
+     * graph optionally preserving the previous user.
+     *
+     * @param preserveUser keep the current set user.
+     */
+    public void setDefaultVariables(final boolean preserveUser) {
+        LOGGER.debug("Resetting graph variables to defaults");
+        if (!preserveUser) {
+            LOGGER.debug("Resetting graph user to default");
+            variables.set(GafferPopGraphVariables.USER, defaultUser);
+        }
+        variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
+        variables.set(GafferPopGraphVariables.GET_ELEMENTS_LIMIT,
+                configuration().getInteger(GET_ELEMENTS_LIMIT, DEFAULT_GET_ELEMENTS_LIMIT));
+        variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
+                configuration().getString(HAS_STEP_FILTER_STAGE, DEFAULT_HAS_STEP_FILTER_STAGE.toString()));
+        variables.set(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES,
+                configuration().getBoolean(INCLUDE_ORPHANED_VERTICES, false));
+        variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain<Object>());
+    }
+
+    /**
+     * Sets the {@link GafferPopGraphVariables} to default values for this
+     * graph.
+     */
+    public void setDefaultVariables() {
+        setDefaultVariables(false);
+    }
+
+    /**
+     * Get the underlying Gaffer graph this GafferPop graph is connected to.
+     *
+     * @return The Gaffer Graph.
+     */
+    public Graph getGafferGraph() {
+        return graph;
+    }
+
     /**
      * This performs a GetElements operation filtering edges by direction and view.
      *
@@ -729,65 +800,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     @Override
     public Features features() {
         return features;
-    }
-
-    public <T> T execute(final OperationChain<T> opChain) {
-        // Set options at opChain level
-        opChain.setOptions(variables.getOperationOptions());
-        for (final Operation operation : opChain.getOperations()) {
-            // Set options on operations
-            operation.setOptions(variables.getOperationOptions());
-            // Debug logging
-            if (LOGGER.isDebugEnabled() && operation instanceof Input) {
-                Object input = ((Input) operation).getInput();
-                if (input instanceof MappedIterable) {
-                    ((MappedIterable) input).forEach(item -> LOGGER.debug("GafferPop operation input: {}", item));
-                } else {
-                    LOGGER.debug("GafferPop operation input: {}", input);
-                }
-            }
-        }
-
-        // Add the current chain to the list of chains ran so far for this query (it is reset by the graph step)
-        List<Operation> currentChain = variables.getLastOperationChain().getOperations();
-        currentChain.add(opChain);
-        variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain<>(currentChain));
-
-        try {
-            LOGGER.info("GafferPop operation chain called: {}", opChain.toOverviewString());
-            LOGGER.info("USER IS: " + variables.getUser().getUserId());
-            return graph.execute(opChain, variables.getUser());
-        } catch (final Exception e) {
-            LOGGER.error("Operation chain failed: {}", e.getMessage());
-            throw new RuntimeException("GafferPop operation failed: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Sets the {@link GafferPopGraphVariables} to default values for this
-     * graph
-     *
-     */
-    public void setDefaultVariables() {
-        LOGGER.debug("Resetting graph variables to defaults");
-        variables.set(GafferPopGraphVariables.USER, defaultUser);
-        variables.set(GafferPopGraphVariables.OP_OPTIONS, Collections.unmodifiableMap(opOptions));
-        variables.set(GafferPopGraphVariables.GET_ELEMENTS_LIMIT,
-                configuration().getInteger(GET_ELEMENTS_LIMIT, DEFAULT_GET_ELEMENTS_LIMIT));
-        variables.set(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
-                configuration().getString(HAS_STEP_FILTER_STAGE, DEFAULT_HAS_STEP_FILTER_STAGE.toString()));
-        variables.set(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES,
-                configuration().getBoolean(INCLUDE_ORPHANED_VERTICES, false));
-        variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain<Object>());
-    }
-
-    /**
-     * Get the underlying Gaffer graph this GafferPop graph is connected to.
-     *
-     * @return The Gaffer Graph.
-     */
-    public Graph getGafferGraph() {
-        return graph;
     }
 
     private Iterator<GafferPopVertex> verticesWithSeedsAndView(final List<ElementSeed> seeds, final View view) {
