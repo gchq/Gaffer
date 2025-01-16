@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
@@ -50,12 +49,12 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
 
     @Override
     public Iterable<Element> apply(final Iterable<Element> update, final Iterable<Element> state) {
-        // Just append the state and update so we can loop over it to do accurate merging
-        // We can't use the original iterators directly in case they close or become exhausted so save to a Set first.
-        Set<Element> chainedResult = new HashSet<>(IterableUtils.toList(IterableUtils.chainedIterable(update, state)));
+        // Just append the state and update so we can loop over it to do accurate merging.
+        // We can't use the original iterators directly in case they close or become exhausted so save to a list first.
+        List<Element> chainedResult = IterableUtils.toList(IterableUtils.chainedIterable(update, state));
 
-        // Iterate over the chained result to merge the elements with each other
-        // Collect to a set to ensure deduplication
+        // Iterate over the chained result to merge the elements with each other.
+        // Final deduplication is required as we might have merged both ways.
         return chainedResult.stream()
             .map(e -> {
                 Element result = e;
@@ -66,18 +65,17 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                 }
                 // Compare the current element with all others to do a full merge
                 for (final Element inner : chainedResult) {
-                    // No merge required if not in same group
+                    // No merge required if not in same group or already identical
                     if (!e.getGroup().equals(inner.getGroup()) || e.equals(inner)) {
                         continue;
                     }
 
+                    // Merge if they are the same but have different properties
                     if ((e instanceof Entity)
                             && (inner instanceof Entity)
                             && ((Entity) e).getVertex().equals(((Entity) inner).getVertex())) {
                         result = aggregator.apply(inner.shallowClone(), result).shallowClone();
-                    }
-
-                    if ((e instanceof Edge)
+                    } else if ((e instanceof Edge)
                             && (inner instanceof Edge)
                             && ((Edge) e).getSource().equals(((Edge) inner).getSource())
                             && ((Edge) e).getDestination().equals(((Edge) inner).getDestination())
@@ -87,7 +85,8 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                 }
                 return result;
             })
-            .collect(Collectors.toSet());
+            .distinct()
+            .collect(Collectors.toList());
     }
 
 }
