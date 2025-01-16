@@ -57,6 +57,33 @@ public class GetSchemaHandler extends FederatedOutputHandler<GetSchema, Schema> 
     }
 
     /**
+     * Shortcut to running the operation if you already have the graphs you want
+     * to run on.
+     *
+     * @param operation The operation.
+     * @param context The context.
+     * @param graphsToExecute The list of graphs to execute on.
+     * @return The merged schema.
+     * @throws OperationException If issue.
+     */
+    public Schema doOperationOnGraphs(
+            final GetSchema operation,
+            final Context context,
+            final List<GraphSerialisable> graphsToExecute) throws OperationException {
+        if (graphsToExecute.isEmpty()) {
+            return new Schema();
+        }
+
+        // Execute the operation chain on each graph
+        List<Schema> graphResults = new ArrayList<>();
+        for (final GraphSerialisable gs : graphsToExecute) {
+            graphResults.add(gs.getGraph().execute(operation, context.getUser()));
+        }
+
+        return getMergedSchema(graphResults);
+    }
+
+    /**
      * Merges all the supplied graph schemas together and returns the result.
      *
      * @param schemas The list of schemas
