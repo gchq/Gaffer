@@ -21,6 +21,8 @@ import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.tinkerpop.gremlin.groovy.engine.GremlinExecutor;
 import org.apache.tinkerpop.gremlin.jsr223.ConcurrentBindings;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -55,7 +57,6 @@ import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -125,7 +126,7 @@ public class GremlinController {
         summary = "Explain a Gremlin Query",
         description = "Runs a Gremlin query and outputs an explanation of what Gaffer operations were executed on the graph")
     public String explain(@RequestHeader final HttpHeaders httpHeaders, @RequestBody final String gremlinQuery) {
-        return runGremlinQuery(gremlinQuery, httpHeaders).get1().toString();
+        return runGremlinQuery(gremlinQuery, httpHeaders).getRight().toString();
     }
 
     /**
@@ -149,7 +150,7 @@ public class GremlinController {
         HttpStatus status = HttpStatus.OK;
         StreamingResponseBody responseBody;
         try {
-            Object result = runGremlinQuery(gremlinQuery, httpHeaders).get0();
+            Object result = runGremlinQuery(gremlinQuery, httpHeaders).getLeft();
             // Write to output stream for response
             responseBody = os -> GRAPHSON_V3_WRITER.writeObject(os, result);
         } catch (final Exception e) {
@@ -183,7 +184,7 @@ public class GremlinController {
         final String translation = ast.buildTranslation(
             Translator.builder().gremlinGroovy().enableCypherExtensions().build()) + ".toList()";
 
-        JSONObject response = runGremlinQuery(translation, httpHeaders).get1();
+        JSONObject response = runGremlinQuery(translation, httpHeaders).getRight();
         response.put(EXPLAIN_GREMLIN_KEY, translation);
         return response.toString();
     }
@@ -216,7 +217,7 @@ public class GremlinController {
             final String translation = ast.buildTranslation(
                 Translator.builder().gremlinGroovy().enableCypherExtensions().build()) + ".toList()";
             // Run Query
-            Object result = runGremlinQuery(translation, httpHeaders).get0();
+            Object result = runGremlinQuery(translation, httpHeaders).getLeft();
             // Write to output stream for response
             responseBody = os -> GRAPHSON_V3_WRITER.writeObject(os, result);
         } catch (final Exception e) {
@@ -238,15 +239,15 @@ public class GremlinController {
      * query may be absent from the operation chains in the explain as it may have
      * been done in the Tinkerpop framework instead.
      *
-     * @param graph The GafferPop graph
+     * @param graphInstance The GafferPop graph instance.
      * @return A JSON payload with an overview and full JSON representation of the
      *         chain in.
      */
-    public static JSONObject getGafferPopExplanation(final GafferPopGraph graph) {
+    public static JSONObject getGafferPopExplanation(final GafferPopGraph graphInstance) {
         JSONObject result = new JSONObject();
         // Get the last operation chain that ran
         LinkedList<Operation> operations = new LinkedList<>();
-        ((GafferPopGraphVariables) graph.variables())
+        ((GafferPopGraphVariables) graphInstance.variables())
                 .getLastOperationChain()
                 .getOperations()
                 .forEach(op -> {
@@ -273,7 +274,8 @@ public class GremlinController {
      * Do some basic pre execute set up so the graph is ready for the gremlin
      * request to be executed.
      *
-     * @param GafferPopGraph The graph structure to use
+     * @param graphInstance The graph instance to bind the traversal to.
+     * @return The set-up {@link GremlinExecutor}.
      */
     private GremlinExecutor setUpExecutor(final GafferPopGraph graphInstance) {
         final ConcurrentBindings bindings = new ConcurrentBindings();
@@ -289,12 +291,15 @@ public class GremlinController {
     }
 
     /**
-     * Executes a given Gremlin query and returns the result along with an explanation.
+     * Executes a given Gremlin query and returns the result along with an
+     * explanation.
      *
      * @param gremlinQuery The Gremlin groovy query.
-     * @return A pair tuple with result and explain in.
+     * @param httpHeaders  The headers from the request for the
+     *                     {@link AbstractUserFactory}.
+     * @return A pair with result left and explain right.
      */
-    private Tuple2<Object, JSONObject> runGremlinQuery(final String gremlinQuery, final HttpHeaders httpHeaders) {
+    private Pair<Object, JSONObject> runGremlinQuery(final String gremlinQuery, final HttpHeaders httpHeaders) {
         // We can't reuse the existing graph instance as we need to set variables
         // specific to this query only.
         final GafferPopGraph graphInstance = graph.newInstance();
@@ -302,7 +307,7 @@ public class GremlinController {
         // Hooks for user auth
         userFactory.setHttpHeaders(httpHeaders);
         User user = userFactory.createUser();
-        graph.variables().set(GafferPopGraphVariables.USER, user);
+        graphInstance.variables().set(GafferPopGraphVariables.USER, user);
 
         // OpenTelemetry hooks
         Span span = OtelUtil.startSpan(
@@ -316,9 +321,8 @@ public class GremlinController {
             span.setAttribute(OtelUtil.USER_ATTRIBUTE, "unknownGremlinUser");
         }
 
-        // tuple to hold the result and explain
-        Tuple2<Object, JSONObject> pair = new Tuple2<>();
-        pair.put1(new JSONObject());
+        // Pair to hold the result and explain
+        MutablePair<Object, JSONObject> pair = new MutablePair<>(null, new JSONObject());
 
         try (Scope scope = span.makeCurrent();
                 GremlinExecutor gremlinExecutor = setUpExecutor(graphInstance)) {
@@ -326,12 +330,14 @@ public class GremlinController {
             Object result = gremlinExecutor.eval(gremlinQuery).get();
 
             // Store the result and explain for returning
-            pair.put0(result);
-            pair.put1(getGafferPopExplanation(graph));
+            pair.setLeft(result);
+            pair.setRight(getGafferPopExplanation(graphInstance));
 
             // Provide an debug explanation for the query that just ran
             span.addEvent("Request complete");
-            LOGGER.debug("{}", pair.get1());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("{}", pair.getRight());
+            }
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             span.setStatus(StatusCode.ERROR, e.getMessage());

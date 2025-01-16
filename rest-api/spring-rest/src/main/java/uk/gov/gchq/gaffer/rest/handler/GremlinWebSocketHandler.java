@@ -95,9 +95,10 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
     /**
      * Constructor
      *
-     * @param g The graph traversal source
-     * @param userFactory The user factory
-     * @param requestTimeout The timeout for gremlin requests
+     * @param graph The {@link GafferPopGraph} this is initialised to use the
+     * correct underlying Gaffer graph.
+     * @param userFactory The user factory.
+     * @param requestTimeout The timeout for gremlin requests.
      */
     public GremlinWebSocketHandler(final GafferPopGraph graph, final AbstractUserFactory userFactory, final Long requestTimeout) {
         this.graph = graph;
@@ -131,7 +132,8 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      * Do some basic pre execute set up so the graph is ready for the gremlin
      * request to be executed.
      *
-     * @param GafferPopGraph The graph structure to use
+     * @param graphInstance The graph instance to bind the traversal to.
+     * @return The set-up {@link GremlinExecutor}.
      */
     private GremlinExecutor setUpExecutor(final GafferPopGraph graphInstance) {
         final ConcurrentBindings bindings = new ConcurrentBindings();
@@ -169,11 +171,11 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
 
         // Execute the query
         try (Scope scope = span.makeCurrent();
-                GremlinExecutor gremlinExecutor = setUpExecutor(graph)) {
+                GremlinExecutor gremlinExecutor = setUpExecutor(graphInstance)) {
             // Set current headers for potential authorisation then set the user
             userFactory.setHttpHeaders(session.getHandshakeHeaders());
             User user = userFactory.createUser();
-            graph.variables().set(GafferPopGraphVariables.USER, user);
+            graphInstance.variables().set(GafferPopGraphVariables.USER, user);
             span.setAttribute(OtelUtil.USER_ATTRIBUTE, user.getUserId());
 
             // Run the query using the gremlin executor service
@@ -195,7 +197,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
             // Provide an debug explanation for the query that just ran
             span.addEvent("Request complete");
             if (LOGGER.isDebugEnabled()) {
-                JSONObject gafferOperationChain = GremlinController.getGafferPopExplanation(graph);
+                JSONObject gafferOperationChain = GremlinController.getGafferPopExplanation(graphInstance);
                 LOGGER.debug("{}", gafferOperationChain);
             }
             // Build the response

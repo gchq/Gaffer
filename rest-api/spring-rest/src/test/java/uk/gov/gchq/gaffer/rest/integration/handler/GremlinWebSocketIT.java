@@ -19,8 +19,6 @@ package uk.gov.gchq.gaffer.rest.integration.handler;
 import org.apache.tinkerpop.gremlin.driver.Client;
 import org.apache.tinkerpop.gremlin.driver.Cluster;
 import org.apache.tinkerpop.gremlin.driver.Result;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.util.ser.GraphSONMessageSerializerV3;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +35,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.rest.factory.spring.UnknownUserFactory;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil.StoreType;
 import uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils;
 
@@ -70,9 +69,8 @@ class GremlinWebSocketIT {
 
         @Bean
         @Profile("test")
-        public GraphTraversalSource g() {
-            Graph graph = GafferPopModernTestUtils.createModernGraph(TestConfig.class, StoreType.MAP);
-            return graph.traversal();
+        public GafferPopGraph graph() {
+            return GafferPopModernTestUtils.createModernGraph(TestConfig.class, StoreType.MAP);
         }
 
         @Bean
@@ -92,7 +90,7 @@ class GremlinWebSocketIT {
     private Integer port;
 
     @Autowired
-    private GraphTraversalSource g;
+    private GafferPopGraph graph;
 
     private Client client;
 
@@ -161,7 +159,7 @@ class GremlinWebSocketIT {
 
         // Then
         assertThat(results)
-            .map(result -> result.getObject())
+            .map(Result::getObject)
             .containsExactlyInAnyOrder(
                 String.valueOf(MARKO.getAge()),
                 String.valueOf(VADAS.getAge()),
