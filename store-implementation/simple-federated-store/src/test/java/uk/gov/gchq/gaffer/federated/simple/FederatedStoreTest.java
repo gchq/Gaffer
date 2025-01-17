@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,14 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
+import uk.gov.gchq.gaffer.federated.simple.operation.ChangeDefaultGraphIds;
 import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils;
 import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils.StoreType;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -35,6 +38,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import static uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties.PROP_DEFAULT_GRAPH_IDS;
+
+import java.util.Arrays;
 
 class FederatedStoreTest {
 
@@ -55,7 +60,7 @@ class FederatedStoreTest {
     }
 
     @Test
-    void shouldNotSetDefaultGraphIdsIfGraphDoesNotExist() throws StoreException {
+    void shouldNotReturnDefaultGraphsThatDoNotExist() throws StoreException {
         final String graphId = "federated";
         final String graphId1 = "graph1";
         final String graphId2 = "graph2";
@@ -66,11 +71,12 @@ class FederatedStoreTest {
         FederatedStore store = new FederatedStore();
         store.initialise(graphId, null, properties);
 
+        // Make sure ones that don't exist are not returned when asked for
         assertThat(store.getDefaultGraphIds()).isEmpty();
     }
 
     @Test
-    void shouldSetDefaultGraphIdsIfGraphsExist() throws StoreException {
+    void shouldReturnDefaultGraphIdsThatExist() throws StoreException {
         final String graphId = "federated";
         final String graphId1 = "graph1";
         final String graphId2 = "graph2";
@@ -86,6 +92,31 @@ class FederatedStoreTest {
                 new GraphAccess());
 
         assertThat(store.getDefaultGraphIds()).containsExactly(graphId1, graphId2);
+    }
+
+    @Test
+    void shouldAllowSettingDefaultGraphIdsUsingOperation() throws StoreException, OperationException {
+        final String graphId = "federated";
+        final String graphId1 = "graph1";
+        final String graphId2 = "graph2";
+        final FederatedStore store = new FederatedStore();
+        final FederatedStoreProperties properties = new FederatedStoreProperties();
+
+        // Set the defaults to graph1
+        properties.set(PROP_DEFAULT_GRAPH_IDS, graphId1);
+        store.initialise(graphId, null, properties);
+        store.addGraph(new GraphSerialisable(new GraphConfig(graphId1), new Schema(), new StoreProperties()),
+                new GraphAccess());
+        store.addGraph(new GraphSerialisable(new GraphConfig(graphId2), new Schema(), new StoreProperties()),
+                new GraphAccess());
+
+        assertThat(store.getDefaultGraphIds()).containsExactly(graphId1);
+
+        // Update via operation
+        ChangeDefaultGraphIds operation = new ChangeDefaultGraphIds.Builder().graphIds(Arrays.asList(graphId2)).build();
+        store.execute(operation, new Context());
+
+        assertThat(store.getDefaultGraphIds()).containsExactly(graphId2);
     }
 
     @Test
