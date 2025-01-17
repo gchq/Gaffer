@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.tinkerpop.gremlin.groovy.engine.GremlinExecutor;
 import org.apache.tinkerpop.gremlin.jsr223.ConcurrentBindings;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONMapper;
 import org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONVersion;
 import org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONWriter;
@@ -60,8 +59,9 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -98,7 +98,7 @@ public class GremlinController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GremlinController.class);
     private static final String GENERAL_ERROR_MSG = "Gremlin query failed: ";
-
+    // Shared thread pool for executing gremlin queries in
     private final ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(8));
     private final AbstractUserFactory userFactory;
     private final Long requestTimeout;
@@ -246,7 +246,7 @@ public class GremlinController {
     public static JSONObject getGafferPopExplanation(final GafferPopGraph graphInstance) {
         JSONObject result = new JSONObject();
         // Get the last operation chain that ran
-        LinkedList<Operation> operations = new LinkedList<>();
+        List<Operation> operations = new ArrayList<>();
         ((GafferPopGraphVariables) graphInstance.variables())
                 .getLastOperationChain()
                 .getOperations()
@@ -279,10 +279,9 @@ public class GremlinController {
      */
     private GremlinExecutor setUpExecutor(final GafferPopGraph graphInstance) {
         final ConcurrentBindings bindings = new ConcurrentBindings();
-        final GraphTraversalSource g = graphInstance.traversal();
 
         // Set up the executor
-        bindings.putIfAbsent("g", g);
+        bindings.putIfAbsent("g", graphInstance.traversal());
         return GremlinExecutor.build()
                 .addPlugins("gremlin-groovy", plugins)
                 .evaluationTimeout(requestTimeout)
@@ -335,9 +334,8 @@ public class GremlinController {
 
             // Provide an debug explanation for the query that just ran
             span.addEvent("Request complete");
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("{}", pair.getRight());
-            }
+            LOGGER.debug("{}", pair.getRight());
+
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             span.setStatus(StatusCode.ERROR, e.getMessage());

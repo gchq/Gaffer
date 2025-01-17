@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 Crown Copyright
+ * Copyright 2016-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -253,11 +253,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     private final Graph graph;
     private final Configuration configuration;
-    private final GafferPopGraphVariables variables;
-    private final GafferPopGraphFeatures features;
-    private final Map<String, String> opOptions;
     private final User defaultUser;
-    private final ServiceRegistry serviceRegistry;
+    private final GafferPopGraphVariables variables = new GafferPopGraphVariables();
+    private final GafferPopGraphFeatures features = new GafferPopGraphFeatures();
+    private final Map<String, String> opOptions = new HashMap<>();
+    private final ServiceRegistry serviceRegistry = new ServiceRegistry();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraph.class);
     private static final String GET_DEBUG_MSG = "Requested a GetElements, results will be truncated to: {}.";
@@ -270,8 +270,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
     public GafferPopGraph(final Configuration configuration, final Graph graph) {
         this.configuration = configuration;
         this.graph = graph;
-        features = new GafferPopGraphFeatures();
-        opOptions = new HashMap<>();
         if (configuration().containsKey(OP_OPTIONS)) {
             for (final String option : configuration().getStringArray(OP_OPTIONS)) {
                 final String[] parts = option.split(":");
@@ -285,10 +283,8 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .build();
 
         // Set the graph variables to current config
-        variables = new GafferPopGraphVariables();
         setDefaultVariables();
 
-        serviceRegistry = new ServiceRegistry();
         serviceRegistry.registerService(new GafferPopNamedOperationServiceFactory(this));
 
         // Add and register custom traversals
@@ -363,21 +359,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         } else {
             idValue = ElementHelper.getIdValue(keyValues).orElseThrow(() -> new IllegalArgumentException("ID is required"));
         }
-
-        /*
-         * TODO: Check the ID type is relevant for the group (a.k.a label) in the schema and auto convert
-         *     as the some Standard tinkerpop tests add data for the same group but with a different
-         *     Object type for the ID. Using a String ID manager might be the most flexible for these
-         *     tests.
-         * Basic idea of auto converting the type is below:
-         *
-         * String idSchemaType = graph.getSchema().getEntity(label).getVertex();
-         * String idTypeName = graph.getSchema().getType(idSchemaType).getFullClassString();
-         * if (!idTypeName.equals(idValue.getClass().getName())) {
-         *     LOGGER.warn("Vertex ID is not the correct type for the schema: " + idValue);
-         *     idValue = graph.getSchema().getType(idSchemaType).getClazz().cast(idValue);
-         * }
-         */
 
         final GafferPopVertex vertex = new GafferPopVertex(label, idValue, this);
         ElementHelper.attachProperties(vertex, VertexProperty.Cardinality.list, keyValues);
@@ -701,7 +682,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         try {
             LOGGER.info("GafferPop operation chain called: {}", opChain.toOverviewString());
-            LOGGER.info("USER IS: " + variables.getUser().getUserId());
             return graph.execute(opChain, variables.getUser());
         } catch (final Exception e) {
             LOGGER.error("Operation chain failed: {}", e.getMessage());
@@ -711,7 +691,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
     /**
      * Sets the {@link GafferPopGraphVariables} to default values for this
-     * graph optionally preserving the previous user.
+     * graph.
+     */
+    public void setDefaultVariables() {
+        setDefaultVariables(false);
+    }
+
+    /**
+     * Sets the {@link GafferPopGraphVariables} to default values for this
+     * graph optionally preserving the current user.
      *
      * @param preserveUser keep the current set user.
      */
@@ -729,14 +717,6 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         variables.set(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES,
                 configuration().getBoolean(INCLUDE_ORPHANED_VERTICES, false));
         variables.set(GafferPopGraphVariables.LAST_OPERATION_CHAIN, new OperationChain<Object>());
-    }
-
-    /**
-     * Sets the {@link GafferPopGraphVariables} to default values for this
-     * graph.
-     */
-    public void setDefaultVariables() {
-        setDefaultVariables(false);
     }
 
     /**

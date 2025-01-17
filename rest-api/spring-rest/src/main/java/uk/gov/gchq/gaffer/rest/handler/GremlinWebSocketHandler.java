@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
             new SimpleEntry<>(SerTokens.MIME_GRAPHSON_V3, new GraphSONMessageSerializerV3()),
             new SimpleEntry<>(SerTokens.MIME_JSON, new GraphSONMessageSerializerV3()))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
+    // Shared thread pool for executing gremlin queries in
     private final ExecutorService executorService = Context.taskWrapping(Executors.newFixedThreadPool(8));
     private final AbstractUserFactory userFactory;
     private final Long requestTimeout;
@@ -137,10 +137,9 @@ public class GremlinWebSocketHandler extends BinaryWebSocketHandler {
      */
     private GremlinExecutor setUpExecutor(final GafferPopGraph graphInstance) {
         final ConcurrentBindings bindings = new ConcurrentBindings();
-        final GraphTraversalSource g = graphInstance.traversal();
 
         // Set up the executor
-        bindings.putIfAbsent("g", g);
+        bindings.putIfAbsent("g", graphInstance.traversal());
         return GremlinExecutor.build()
                 .addPlugins("gremlin-groovy", plugins)
                 .evaluationTimeout(requestTimeout)
