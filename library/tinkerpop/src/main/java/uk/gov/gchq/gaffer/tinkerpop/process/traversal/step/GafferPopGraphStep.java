@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,9 +73,8 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
         // Save reference to the graph
         GafferPopGraph graph = (GafferPopGraph) originalGraphStep.getTraversal().getGraph().get();
-
-        // Restore variables to defaults before parsing options
-        graph.setDefaultVariables((GafferPopGraphVariables) graph.variables());
+        // Reset vars on the graph but preserving the user in case it was set externally
+        graph.setDefaultVariables(true);
 
         // Find any options on the traversal
         Optional<OptionsStrategy> optionsStrategy = originalGraphStep.getTraversal().getStrategies().getStrategy(OptionsStrategy.class);
