@@ -429,7 +429,7 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .first(getOperation)
                 .then(new Limit<>(variables.getElementsLimit(), true))
                 .build();
-        final Set<Element> result = new HashSet<>(IterableUtils.toList(execute(chain)));
+        final List<? extends Element> result = IterableUtils.toList(execute(chain));
 
         // Warn of truncation
         if (result.size() >= variables.getElementsLimit()) {
@@ -440,11 +440,11 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
 
         // Translate results to GafferPop elements
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(this);
-        final Set<Vertex> translatedResults = StreamSupport.stream(result.spliterator(), false)
+        final List<Vertex> translatedResults = StreamSupport.stream(result.spliterator(), false)
                 .map(generator::_apply)
                 .filter(Vertex.class::isInstance)
                 .map(e -> (Vertex) e)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         // Check for seeds that are not entities but are vertices on an edge (orphan vertices)
         if (variables.getIncludeOrphanedVertices()) {
@@ -597,16 +597,16 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
 
         // Run requested chain on the graph and buffer to set to avoid reusing iterator
-        final Set<Element> result = new HashSet<>(IterableUtils.toList(execute(getOperation)));
+        final List<? extends Element> result = IterableUtils.toList(execute(getOperation));
 
         // Translate results to Gafferpop elements
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(this);
-        final Set<Edge> translatedResults = StreamSupport.stream(result.spliterator(), false)
+        final List<Edge> translatedResults = StreamSupport.stream(result.spliterator(), false)
                 .map(generator::_apply)
                 .filter(Edge.class::isInstance)
                 .map(e -> (Edge) e)
                 .limit(variables.getElementsLimit())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         if (translatedResults.size() >= variables.getElementsLimit()) {
             LOGGER.warn(
@@ -819,15 +819,15 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
                 .first(getOperation)
                 .then(new Limit<>(variables.getElementsLimit(), true))
                 .build();
-        final Set<Element> result = new HashSet<>(IterableUtils.toList(execute(chain)));
+        final List<? extends Element> result = IterableUtils.toList(execute(chain));
 
         // Translate results to Gafferpop elements
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(this);
-        final Set<GafferPopVertex> translatedResults = StreamSupport.stream(result.spliterator(), false)
+        final List<GafferPopVertex> translatedResults = StreamSupport.stream(result.spliterator(), false)
                 .map(generator::_apply)
                 .filter(GafferPopVertex.class::isInstance)
                 .map(e -> (GafferPopVertex) e)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         return translatedResults.iterator();
     }
@@ -855,16 +855,16 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
 
         // GetAdjacentIds provides list of entity seeds so run a GetElements to get the actual Entities
-        final Set<Element> result = new HashSet<>(IterableUtils.toList(
-            execute(new OperationChain.Builder().first(builder.build()).build())));
+        final List<? extends Element> result = IterableUtils.toList(
+            execute(new OperationChain.Builder().first(builder.build()).build()));
 
         // Translate results to Gafferpop elements
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(this);
-        final Set<Vertex> translatedResults = StreamSupport.stream(result.spliterator(), false)
+        final List<Vertex> translatedResults = StreamSupport.stream(result.spliterator(), false)
                 .map(generator::_apply)
                 .filter(Vertex.class::isInstance)
                 .map(e -> (Vertex) e)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         // Check for seeds that are not entities but are vertices on an edge (orphan vertices)
         if (variables.getIncludeOrphanedVertices()) {
@@ -909,16 +909,16 @@ public class GafferPopGraph implements org.apache.tinkerpop.gremlin.structure.Gr
         }
 
         // Run requested chain on the graph
-        final Set<Element> result = new HashSet<>(IterableUtils.toList(execute(getOperation)));
+        final List<? extends Element> result = IterableUtils.toList(execute(getOperation));
 
         // Translate results to Gafferpop elements
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(this, true);
-        final Set<Edge> translatedResults = StreamSupport.stream(result.spliterator(), false)
+        final List<Edge> translatedResults = StreamSupport.stream(result.spliterator(), false)
                 .map(generator::_apply)
                 .filter(Edge.class::isInstance)
                 .map(e -> (Edge) e)
                 .limit(variables.getElementsLimit())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
         return translatedResults.iterator();
     }
