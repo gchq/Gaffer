@@ -23,12 +23,14 @@ import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.FederatedUtils;
 import uk.gov.gchq.gaffer.federated.simple.merge.DefaultResultAccumulator;
 import uk.gov.gchq.gaffer.federated.simple.merge.FederatedResultAccumulator;
+import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.ArrayList;
@@ -87,7 +89,7 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         }
 
         // Set up the result accumulator
-        FederatedResultAccumulator<O> resultAccumulator = getResultAccumulator((FederatedStore) store, operation, graphsToExecute);
+        FederatedResultAccumulator<O> resultAccumulator = getResultAccumulator(operation, context, (FederatedStore) store, graphsToExecute);
 
         // Should now have a list of <O> objects so need to reduce to just one
         return graphResults.stream().reduce(graphResults.get(0), resultAccumulator::apply);
@@ -98,12 +100,18 @@ public class FederatedOutputHandler<P extends Output<O>, O>
      * Sets up a {@link FederatedResultAccumulator} for the specified operation
      * and graphs.
      *
-     * @param store The federated store.
      * @param operation The original operation.
+     * @param store The federated store.
+     * @param context The context.
      * @param graphsToExecute The graphs executed on.
      * @return A set up accumulator.
+     * @throws OperationException If issue setting up schema.
      */
-    protected FederatedResultAccumulator<O> getResultAccumulator(final FederatedStore store, final P operation, final List<GraphSerialisable> graphsToExecute) {
+    protected FederatedResultAccumulator<O> getResultAccumulator(
+            final P operation,
+            final Context context,
+            final FederatedStore store,
+            final List<GraphSerialisable> graphsToExecute) throws OperationException {
         // Merge the store props with the operation options for setting up the
         // accumulator
         Properties combinedProps = store.getProperties().getProperties();
@@ -124,7 +132,8 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         }
         // Set the merged schema if we are aggregating
         if (resultAccumulator.aggregateElements()) {
-            resultAccumulator.setSchema(FederatedUtils.getSchema(graphsToExecute));
+            resultAccumulator.setSchema(
+                new GetSchemaHandler().doOperationOnGraphs(new GetSchema(), context, graphsToExecute));
         }
 
         return resultAccumulator;

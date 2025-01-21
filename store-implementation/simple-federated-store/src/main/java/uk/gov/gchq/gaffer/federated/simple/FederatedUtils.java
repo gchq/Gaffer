@@ -19,17 +19,12 @@ package uk.gov.gchq.gaffer.federated.simple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
-import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
-import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.ArrayList;
@@ -47,21 +42,6 @@ public final class FederatedUtils {
 
     private FederatedUtils() {
         // utility class
-    }
-
-    /**
-     * Gets a merged schema based on the graphs specified.
-     *
-     * @param graphs The graphs to get the schemas from.
-     * @return A merged {@link Schema}
-     */
-    public static Schema getSchema(final List<GraphSerialisable> graphs) {
-        try {
-            // The serialised version may not have the schemas attached so use the operation
-            return new GetSchemaHandler().doOperationOnGraphs(new GetSchema(), new Context(), graphs);
-        } catch (final OperationException e) {
-            throw new GafferRuntimeException(e.getMessage(), e);
-        }
     }
 
     /**

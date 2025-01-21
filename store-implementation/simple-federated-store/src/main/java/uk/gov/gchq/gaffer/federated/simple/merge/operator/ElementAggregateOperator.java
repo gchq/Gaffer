@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Operator for aggregating two iterables of {@link Element}s together, this
@@ -51,7 +52,9 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
     public Iterable<Element> apply(final Iterable<Element> update, final Iterable<Element> state) {
         // Just append the state and update so we can loop over it to do accurate merging.
         // We can't use the original iterators directly in case they close or become exhausted so save to a list first.
-        List<Element> chainedResult = IterableUtils.toList(IterableUtils.chainedIterable(update, state));
+        List<Element> chainedResult = StreamSupport.stream(IterableUtils.chainedIterable(update, state).spliterator(), false)
+            .distinct()
+            .collect(Collectors.toList());
 
         // Iterate over the chained result to merge the elements with each other.
         // Final deduplication is required as we might have merged both ways.

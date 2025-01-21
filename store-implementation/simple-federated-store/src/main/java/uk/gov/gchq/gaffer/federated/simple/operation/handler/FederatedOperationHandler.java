@@ -179,8 +179,10 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
                 Pair<GraphSerialisable, GraphAccess> pair = store.getGraphAccessPair(id);
                 // Check the user has access to the graph
                 if (pair.getRight().hasReadAccess(context.getUser(), store.getProperties().getAdminAuth())) {
-                    LOGGER.debug("User has access, will execute on Graph: {}", id);
+                    LOGGER.info("User has access, will execute on Graph: '{}'", id);
                     graphsToExecute.add(pair.getLeft());
+                } else {
+                    LOGGER.warn("User does not have access, to Graph: '{}' it will be skipped", id);
                 }
             } catch (final CacheOperationException e) {
                 throw new OperationException("Failed to get Graph from cache: '" + id + "'", e);
