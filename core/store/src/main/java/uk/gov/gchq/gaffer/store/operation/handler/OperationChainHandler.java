@@ -58,8 +58,16 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
             // OpenTelemetry hooks
             Span span = OtelUtil.startSpan(this.getClass().getName(), op.getClass().getName());
             span.setAttribute(OtelUtil.JOB_ID_ATTRIBUTE, context.getJobId());
+            span.setAttribute(OtelUtil.OP_OPTIONS_ATTRIBUTE, (op.getOptions() != null) ? op.getOptions().toString() : "[]");
+            // Extract the view
             if (op instanceof OperationView && ((OperationView) op).getView() != null) {
-                span.setAttribute(OtelUtil.VIEW_ATTRIBUTE, ((OperationView) op).getView().toString());
+                String strView = ((OperationView) op).getView().toString();
+                // Truncate the view if its too long
+                if (strView.length() > 2048) {
+                    span.setAttribute(OtelUtil.VIEW_ATTRIBUTE, strView.substring(0, 2048));
+                } else {
+                    span.setAttribute(OtelUtil.VIEW_ATTRIBUTE, strView);
+                }
             }
 
             // Sets the span to current so parent child spans are auto linked

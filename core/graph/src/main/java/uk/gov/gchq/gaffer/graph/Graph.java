@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 Crown Copyright
+ * Copyright 2017-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -320,10 +320,11 @@ public final class Graph {
         // OpenTelemetry hooks
         Span span = OtelUtil.startSpan(
             this.getClass().getName(),
-            "Graph Request: " + clonedOpChain.toOverviewString());
+            "Graph Request: " + clonedContext.getJobId());
         span.setAttribute(OtelUtil.GRAPH_ID_ATTRIBUTE, getGraphId());
         span.setAttribute(OtelUtil.JOB_ID_ATTRIBUTE, clonedContext.getJobId());
         span.setAttribute(OtelUtil.USER_ATTRIBUTE, clonedContext.getUser().getUserId());
+        span.setAttribute(OtelUtil.OP_OPTIONS_ATTRIBUTE, clonedOpChain.getOptions().toString());
 
         O result = null;
         // Sets the span to current so parent child spans are auto linked

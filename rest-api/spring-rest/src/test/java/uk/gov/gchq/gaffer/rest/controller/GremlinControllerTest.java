@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -65,9 +63,8 @@ class GremlinControllerTest {
     @TestConfiguration
     static class TestConfig {
         @Bean
-        public GraphTraversalSource g() {
-            Graph graph = GafferPopModernTestUtils.createModernGraph(TestConfig.class, StoreType.MAP);
-            return graph.traversal();
+        public GafferPopGraph graph() {
+            return GafferPopModernTestUtils.createModernGraph(TestConfig.class, StoreType.MAP);
         }
 
         @Bean
@@ -85,7 +82,7 @@ class GremlinControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private GraphTraversalSource g;
+    private GafferPopGraph graph;
 
     @Test
     void shouldExecuteValidGremlinQuery() throws Exception {
@@ -93,7 +90,7 @@ class GremlinControllerTest {
 
         // Create the expected output
         OutputStream expectedOutput = new ByteArrayOutputStream();
-        GremlinController.GRAPHSON_V3_WRITER.writeObject(expectedOutput, Arrays.asList(MARKO.toVertex((GafferPopGraph) g.getGraph())));
+        GremlinController.GRAPHSON_V3_WRITER.writeObject(expectedOutput, Arrays.asList(MARKO.toVertex((GafferPopGraph) graph)));
 
         // When
         MvcResult result = mockMvc
