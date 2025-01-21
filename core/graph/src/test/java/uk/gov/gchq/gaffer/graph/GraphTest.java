@@ -1537,8 +1537,7 @@ public class GraphTest {
 
     @Test
     public void shouldBuildGraphFromConfigAndMergeConfigWithExistingConfig(@Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
-                                                                           @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3)
-            {
+                                                                           @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3) {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1587,8 +1586,7 @@ public class GraphTest {
 
     @Test
     public void shouldBuildGraphFromConfigAndOverrideFields(@Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
-                                                            @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3)
-            {
+                                                            @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3) {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
