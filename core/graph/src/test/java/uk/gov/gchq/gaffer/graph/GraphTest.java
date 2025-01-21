@@ -1253,7 +1253,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfGraphIdIsInvalid(@Mock final StoreProperties properties) {
+    void shouldThrowExceptionIfGraphIdIsInvalid(@Mock final StoreProperties properties) {
         try {
             new Graph.Builder()
                     .config(new GraphConfig.Builder()
@@ -1507,7 +1507,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldBuildGraphFromConfigFile() {
+    void shouldBuildGraphFromConfigFile() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1638,7 +1638,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldReturnClonedViewFromConfig() {
+    void shouldReturnClonedViewFromConfig() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1836,7 +1836,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteWithANullContext(@Mock final OperationChain opChain) {
+    void shouldThrowExceptionOnExecuteWithANullContext(@Mock final OperationChain opChain) {
         // Given
         final Context context = null;
 
@@ -1855,7 +1855,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobWithANullContext(@Mock final OperationChain opChain) {
+    void shouldThrowExceptionOnExecuteJobWithANullContext(@Mock final OperationChain opChain) {
         // Given
         final Context context = null;
 
@@ -1874,7 +1874,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteWithANullUser(@Mock final OperationChain opChain) {
+    void shouldThrowExceptionOnExecuteWithANullUser(@Mock final OperationChain opChain) {
         // Given
         final User user = null;
 
@@ -1893,7 +1893,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobWithANullUser(@Mock final OperationChain opChain) {
+    void shouldThrowExceptionOnExecuteJobWithANullUser(@Mock final OperationChain opChain) {
         // Given
         final User user = null;
 
@@ -1912,7 +1912,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullContext(@Mock final OperationChain opChain) {
+    void shouldThrowExceptionOnExecuteJobUsingJobWithANullContext(@Mock final OperationChain opChain) {
         // Given
         final Context context = null;
 
@@ -1933,7 +1933,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullOperation() {
+    void shouldThrowExceptionOnExecuteJobUsingJobWithANullOperation() {
         // Given
         final Context context = new Context();
 
@@ -1954,7 +1954,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullJob() {
+    void shouldThrowExceptionOnExecuteJobUsingJobWithANullJob() {
         // Given
         final Context context = new Context();
 
@@ -1975,7 +1975,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullUser(@Mock final OperationChain opChain) {
+    void shouldThrowExceptionOnExecuteJobUsingJobWithANullUser(@Mock final OperationChain opChain) {
         // Given
         final User user = null;
 
