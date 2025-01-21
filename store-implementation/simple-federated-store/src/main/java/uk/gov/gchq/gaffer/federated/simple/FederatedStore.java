@@ -441,8 +441,8 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
-        return new FederatedOperationHandler<>();
+    protected OutputOperationHandler<DeleteElements, Long> getDeleteElementsHandler() {
+        return new FederatedOutputHandler<>();
     }
 
     @Override

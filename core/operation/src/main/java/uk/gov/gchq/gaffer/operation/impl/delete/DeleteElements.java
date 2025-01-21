@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl.delete;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -25,7 +27,10 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
@@ -50,7 +55,8 @@ import java.util.Map;
 @Summary("Deletes elements")
 public class DeleteElements implements
         Validatable,
-        MultiInput<Element> {
+        MultiInput<Element>,
+        InputOutput<Iterable<? extends Element>, Long> {
     private boolean validate = true;
     private boolean skipInvalidElements;
     private Iterable<? extends Element> elements;
@@ -90,6 +96,11 @@ public class DeleteElements implements
     @Override
     public void setInput(final Iterable<? extends Element> elements) {
         this.elements = elements;
+    }
+
+    @Override
+    public TypeReference<Long> getOutputTypeReference() {
+        return new TypeReferenceImpl.Long();
     }
 
     @Override
@@ -154,7 +165,7 @@ public class DeleteElements implements
 
     public static class Builder extends Operation.BaseBuilder<DeleteElements, Builder>
             implements Validatable.Builder<DeleteElements, Builder>,
-            MultiInput.Builder<DeleteElements, Element, Builder> {
+            MultiInput.Builder<DeleteElements, Element, Builder>, InputOutput.Builder<DeleteElements, Iterable<? extends Element>, Long, Builder> {
         public Builder() {
             super(new DeleteElements());
         }

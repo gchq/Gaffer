@@ -86,7 +86,7 @@ public class FederatedDeleteElementsTest {
     @Test
     void shouldDeleteEntityFromSingleGraphWithMapStore() throws Exception {
         // When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("1"))
                         .view(new View.Builder().entity(GROUP_BASIC_ENTITY).build())
@@ -108,7 +108,7 @@ public class FederatedDeleteElementsTest {
     @Test
     void shouldDeleteEdgeFromSingleGraphWithMapStore() throws Exception {
         // When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EdgeSeed("1", "2"))
                         .view(new View.Builder().edge(GROUP_BASIC_EDGE).build())
@@ -130,7 +130,7 @@ public class FederatedDeleteElementsTest {
     @Test
     void shouldDeleteEntityAndEdgesFromSingleGraphhWithMapStore() throws Exception {
         // Given/When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("2"))
                         .build())
@@ -152,7 +152,7 @@ public class FederatedDeleteElementsTest {
     @Test
     void shouldDeleteEntityFromBothGraphsWithMapStore() throws Exception {
         // When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("1"))
                         .view(new View.Builder().entity(GROUP_BASIC_ENTITY).build())
@@ -174,7 +174,7 @@ public class FederatedDeleteElementsTest {
     @Test
     void shouldDeleteEdgeFromBothGraphsWithMapStore() throws Exception {
         // When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EdgeSeed("1", "2"))
                         .view(new View.Builder().edge(GROUP_BASIC_EDGE).build())
@@ -196,7 +196,7 @@ public class FederatedDeleteElementsTest {
     @Test
     void shouldDeleteEntityAndEdgesFromBothGraphshWithMapStore() throws Exception {
         // Given/When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("3"))
                         .build())
@@ -217,7 +217,7 @@ public class FederatedDeleteElementsTest {
     @Test
     void shouldDeleteEntityFromSingleGraphWithAccumuloStore() throws Exception {
         // When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("1"))
                         .view(new View.Builder().entity(GROUP_BASIC_ENTITY).build())
@@ -239,7 +239,7 @@ public class FederatedDeleteElementsTest {
     @Test
     void shouldDeleteEdgeFromSingleGraphWithAccumuloStore() throws Exception {
         // When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EdgeSeed("1", "2"))
                         .view(new View.Builder().edge(GROUP_BASIC_EDGE).build())
@@ -261,7 +261,7 @@ public class FederatedDeleteElementsTest {
     @Test
     void shouldDeleteEntityAndEdgesFromSingleGraphhWithAccumuloStore() throws Exception {
         // Given/When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("2"))
                         .build())
@@ -283,7 +283,7 @@ public class FederatedDeleteElementsTest {
     @Test
     void shouldDeleteEntityFromBothGraphsWithAccumuloStore() throws Exception {
         // When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("1"))
                         .view(new View.Builder().entity(GROUP_BASIC_ENTITY).build())
@@ -305,7 +305,7 @@ public class FederatedDeleteElementsTest {
     @Test
     void shouldDeleteEdgeFromBothGraphsWithAccumuloStore() throws Exception {
         // When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EdgeSeed("1", "2"))
                         .view(new View.Builder().edge(GROUP_BASIC_EDGE).build())
@@ -327,7 +327,7 @@ public class FederatedDeleteElementsTest {
     @Test
     void shouldDeleteEntityAndEdgesFromBothGraphshWithAccumuloStore() throws Exception {
         // Given/When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("3"))
                         .build())

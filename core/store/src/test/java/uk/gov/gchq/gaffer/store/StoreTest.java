@@ -1185,7 +1185,7 @@ public class StoreTest {
 
 
         @Override
-        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        protected OutputOperationHandler<DeleteElements, Long> getDeleteElementsHandler() {
             return null;
         }
 
@@ -1286,7 +1286,7 @@ public class StoreTest {
 
 
         @Override
-        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        protected OutputOperationHandler<DeleteElements, Long> getDeleteElementsHandler() {
             return null;
         }
 
@@ -1396,7 +1396,7 @@ public class StoreTest {
         }
 
         @Override
-        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        protected OutputOperationHandler<DeleteElements, Long> getDeleteElementsHandler() {
             return null;
         }
 

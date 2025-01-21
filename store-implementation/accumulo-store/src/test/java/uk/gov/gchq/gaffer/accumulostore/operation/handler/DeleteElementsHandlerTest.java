@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.ValidatedElements;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyIterable;
@@ -45,7 +46,8 @@ class DeleteElementsHandlerTest {
                 .build();
 
         AccumuloStore store = Mockito.mock(AccumuloStore.class);
-        handler.doOperation(op, new Context(), store);
+        final Object elementCount = handler.doOperation(op, new Context(), store);
+        assertThat(elementCount).isEqualTo("Elements deleted: 1");
 
         verify(store).deleteElements(any(ValidatedElements.class));
     }
@@ -60,7 +62,8 @@ class DeleteElementsHandlerTest {
                 .build();
 
         AccumuloStore store = Mockito.mock(AccumuloStore.class);
-        handler.doOperation(op, new Context(), store);
+        final Object elementCount = handler.doOperation(op, new Context(), store);
+        assertThat(elementCount).isEqualTo("Elements deleted: 1");
 
         verify(store).deleteElements(anyIterable());
     }

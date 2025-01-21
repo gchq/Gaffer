@@ -899,7 +899,7 @@ public abstract class Store {
      *
      * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements}
      */
-    protected abstract OperationHandler<? extends DeleteElements> getDeleteElementsHandler();
+    protected abstract OutputOperationHandler<DeleteElements, Long> getDeleteElementsHandler();
 
     /**
      * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.DeleteAllData}.

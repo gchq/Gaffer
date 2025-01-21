@@ -114,7 +114,7 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
         assertElements((Iterable) elements, resultBefore);
 
         // When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("1"))
                         .build())

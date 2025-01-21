@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2024 Crown Copyright
+ * Copyright 2018-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -288,7 +288,7 @@ public class FederatedGetTraitsHandlerTest {
         }
 
         @Override
-        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        protected OutputOperationHandler<DeleteElements, Long> getDeleteElementsHandler() {
             return null;
         }
 
