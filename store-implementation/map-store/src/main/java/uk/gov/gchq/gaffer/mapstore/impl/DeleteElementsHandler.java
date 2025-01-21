@@ -64,8 +64,8 @@ public class DeleteElementsHandler implements OutputOperationHandler<DeleteEleme
         final List<String> elementsToDelete = new ArrayList<>();
         for (final Element el : elements) {
             elementsToDelete.add(el.toString());
-            elementCount++;
         }
+        elementCount = (long) elementsToDelete.size();
 
         LOGGER.debug("Deleting elements: {}", elementsToDelete);
 
