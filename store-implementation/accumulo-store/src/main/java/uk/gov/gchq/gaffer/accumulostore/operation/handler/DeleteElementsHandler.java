@@ -34,17 +34,16 @@ import java.util.List;
 
 public class DeleteElementsHandler implements OutputOperationHandler<DeleteElements, Long> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteElementsHandler.class);
-    private Long elementCount = 0L;
+    final List<String> deletedElements = new ArrayList<>();
 
     @Override
     public Long doOperation(final DeleteElements operation,
             final Context context, final Store store)
             throws OperationException {
-        deleteElements(operation, (AccumuloStore) store);
-        return elementCount;
+        return (long) deleteElements(operation, (AccumuloStore) store).size();
     }
 
-    private Long deleteElements(final DeleteElements operation, final AccumuloStore store)
+    private List<String> deleteElements(final DeleteElements operation, final AccumuloStore store)
             throws OperationException {
         try {
             final Iterable<? extends Element> validatedElements;
@@ -55,18 +54,16 @@ public class DeleteElementsHandler implements OutputOperationHandler<DeleteEleme
                 validatedElements = operation.getInput();
             }
 
-            final List<String> elementsToDelete = new ArrayList<>();
             for (final Element el : validatedElements) {
-                elementsToDelete.add(el.toString());
+                deletedElements.add(el.toString());
             }
-            LOGGER.debug("Deleting elements: {}", elementsToDelete);
-            elementCount = (long) elementsToDelete.size();
+            LOGGER.debug("Deleting elements: {}", deletedElements);
 
             store.deleteElements(validatedElements);
         } catch (final StoreException e) {
             throw new OperationException("Failed to delete elements", e);
         }
 
-        return elementCount;
+        return deletedElements;
     }
 }

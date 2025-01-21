@@ -44,7 +44,7 @@ import java.util.List;
 */
 public class DeleteElementsHandler implements OutputOperationHandler<DeleteElements, Long> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteElementsHandler.class);
-    private Long elementCount = 0L;
+    final List<String> deletedElements = new ArrayList<>();
 
     @Override
     public Long doOperation(final DeleteElements deleteElements, final Context context, final Store store) {
@@ -53,21 +53,17 @@ public class DeleteElementsHandler implements OutputOperationHandler<DeleteEleme
             elements = new ValidatedElements(elements, store.getSchema(), deleteElements.isSkipInvalidElements());
         }
 
-        deleteElements(elements, (MapStore) store);
-        return elementCount;
+        return (long) deleteElements(elements, (MapStore) store).size();
     }
 
-    private Long deleteElements(final Iterable<? extends Element> elements, final MapStore mapStore) {
+    private List<String> deleteElements(final Iterable<? extends Element> elements, final MapStore mapStore) {
         final MapImpl mapImpl = mapStore.getMapImpl();
         final Schema schema = mapStore.getSchema();
 
-        final List<String> elementsToDelete = new ArrayList<>();
         for (final Element el : elements) {
-            elementsToDelete.add(el.toString());
+            deletedElements.add(el.toString());
         }
-        elementCount = (long) elementsToDelete.size();
-
-        LOGGER.debug("Deleting elements: {}", elementsToDelete);
+        LOGGER.debug("Deleting elements: {}", deletedElements);
 
         final int bufferSize = mapStore.getProperties().getIngestBufferSize();
 
@@ -80,7 +76,7 @@ public class DeleteElementsHandler implements OutputOperationHandler<DeleteEleme
             Streams.toBatches(elements, bufferSize).forEach(batch -> deleteBatch(mapImpl, schema, AggregatorUtil.ingestAggregate(batch, schema)));
         }
 
-        return elementCount;
+        return deletedElements;
     }
 
     private void deleteBatch(final MapImpl mapImpl, final Schema schema, final Iterable<? extends Element> elements) {
