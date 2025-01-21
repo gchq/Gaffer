@@ -420,7 +420,7 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfOperationChainIsInvalid(@Mock final StoreProperties properties) throws OperationException, StoreException {
+    public void shouldThrowExceptionIfOperationChainIsInvalid(@Mock final StoreProperties properties) throws StoreException {
         // Given
         final Schema schema = createSchemaMock();
         final OperationChain<?> opChain = new OperationChain<>();
@@ -806,7 +806,7 @@ public class StoreTest {
 
     @Test
     public void shouldExecuteOperationJobAndWrapJobOperationInChain(@Mock final StoreProperties properties)
-            throws OperationException, InterruptedException, StoreException, SerialisationException {
+            throws OperationException, InterruptedException, StoreException {
         // Given
         final Operation operation = new GetVariables.Builder().variableNames(Lists.newArrayList()).build();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
