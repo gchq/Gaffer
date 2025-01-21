@@ -47,7 +47,7 @@ class DeleteElementsHandlerTest {
 
         AccumuloStore store = Mockito.mock(AccumuloStore.class);
         final Object elementCount = handler.doOperation(op, new Context(), store);
-        assertThat(elementCount).isEqualTo("Elements deleted: 1");
+        assertThat(elementCount).isEqualTo(1L);
 
         verify(store).deleteElements(any(ValidatedElements.class));
     }
@@ -63,7 +63,7 @@ class DeleteElementsHandlerTest {
 
         AccumuloStore store = Mockito.mock(AccumuloStore.class);
         final Object elementCount = handler.doOperation(op, new Context(), store);
-        assertThat(elementCount).isEqualTo("Elements deleted: 1");
+        assertThat(elementCount).isEqualTo(1L);
 
         verify(store).deleteElements(anyIterable());
     }

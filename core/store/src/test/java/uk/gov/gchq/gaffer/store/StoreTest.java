@@ -439,7 +439,7 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldCallDoUnhandledOperationWhenDoOperationWithUnknownOperationClass(@Mock final StoreProperties properties) throws Exception {
+    void shouldCallDoUnhandledOperationWhenDoOperationWithUnknownOperationClass(@Mock final StoreProperties properties) throws Exception {
         // Given
         final Schema schema = createSchemaMock();
         final Operation operation = new SetVariable.Builder().variableName("aVariable").input("inputString").build();
