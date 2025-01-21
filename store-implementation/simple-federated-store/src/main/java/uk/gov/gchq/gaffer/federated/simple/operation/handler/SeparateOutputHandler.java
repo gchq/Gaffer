@@ -20,7 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
-import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.federated.simple.FederatedUtils;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
@@ -39,7 +41,8 @@ public class SeparateOutputHandler<P extends Output<O>, O> extends FederatedOper
 
     @Override
     public Map<String, O> doOperation(final P operation, final Context context, final Store store) throws OperationException {
-        List<GraphSerialisable> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
+        final int fixLimit = Integer.parseInt(operation.getOption(OPT_FIX_OP_LIMIT, "5"));
+        List<Graph> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
 
         if (graphsToExecute.isEmpty()) {
             return new HashMap<>();
@@ -48,12 +51,13 @@ public class SeparateOutputHandler<P extends Output<O>, O> extends FederatedOper
         // Execute the operation chain on each graph
         LOGGER.debug("Returning separated graph results");
         Map<String, O> results = new HashMap<>();
-        for (final GraphSerialisable gs : graphsToExecute) {
+        for (final Graph graph : graphsToExecute) {
             try {
-                results.put(gs.getGraphId(), gs.getGraph().execute(operation, context.getUser()));
+                OperationChain<O> fixedChain = FederatedUtils.getValidOperationForGraph(operation, graph, 0, fixLimit);
+                results.put(graph.getGraphId(), graph.execute(fixedChain, context.getUser()));
             } catch (final OperationException | UnsupportedOperationException e) {
                 // Optionally skip this error if user has specified to do so
-                LOGGER.error("Operation failed on graph: {}", gs.getGraphId());
+                LOGGER.error("Operation failed on graph: {}", graph.getGraphId());
                 if (!Boolean.parseBoolean(operation.getOption(OPT_SKIP_FAILED_EXECUTE, "false"))) {
                     throw e;
                 }

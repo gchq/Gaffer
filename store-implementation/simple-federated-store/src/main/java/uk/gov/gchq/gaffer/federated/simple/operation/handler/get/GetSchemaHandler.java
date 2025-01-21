@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOutputHandler;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -41,7 +42,7 @@ public class GetSchemaHandler extends FederatedOutputHandler<GetSchema, Schema> 
 
     @Override
     public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
-        List<GraphSerialisable> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
+        List<Graph> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
 
         if (graphsToExecute.isEmpty()) {
             return new Schema();
@@ -49,8 +50,8 @@ public class GetSchemaHandler extends FederatedOutputHandler<GetSchema, Schema> 
 
         // Execute the operation chain on each graph
         List<Schema> graphResults = new ArrayList<>();
-        for (final GraphSerialisable gs : graphsToExecute) {
-            graphResults.add(gs.getGraph().execute(operation, context.getUser()));
+        for (final Graph graph : graphsToExecute) {
+            graphResults.add(graph.execute(operation, context.getUser()));
         }
 
         return getMergedSchema(graphResults);

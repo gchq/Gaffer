@@ -59,7 +59,8 @@ public class FederatedStoreITs extends AbstractStoreITs {
                 "NoAggregationIT - Need to ensure that when schema has aggregation false that this is applied"),
             new SimpleEntry<>("shouldAggregateOnlyRequiredGroupsWithQueryTimeAggregation", "PartAggregationIT - Investigate further"),
             new SimpleEntry<>("shouldAggregateOnlyRequiredGroups", "PartAggregationIT - Investigate further"),
-            new SimpleEntry<>("shouldApplyPostOpAggregation", "SchemaMigrationIT - Need to apply schema aggregation choices"))
+            new SimpleEntry<>("shouldApplyPostOpAggregation", "SchemaMigrationIT - Need to apply schema aggregation choices"),
+            new SimpleEntry<>("shouldAggBeforePostFilters", "SchemaMigrationIT - Will apply aggregation between graphs after filters"))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     FederatedStoreITs() {

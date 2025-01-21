@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@ package uk.gov.gchq.gaffer.federated.simple;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
@@ -50,13 +51,13 @@ class FederatedUtilsTest {
             .edge(edgeInSchema)
             .edge("edgeNotInSchema")
             .build();
-        GraphSerialisable graph = new GraphSerialisable(
-            new GraphConfig("test"),
-            new Schema.Builder()
+        Graph graph = new Graph.Builder()
+            .config(new GraphConfig("test"))
+            .addSchema(new Schema.Builder()
                 .entity(entityInSchema, new SchemaEntityDefinition())
-                .edge(edgeInSchema, new SchemaEdgeDefinition()).build(),
-            new StoreProperties());
-
+                .edge(edgeInSchema, new SchemaEdgeDefinition()).build())
+            .storeProperties(new StoreProperties())
+            .build();
         // When
         View fixedView =  FederatedUtils.getValidViewForGraph(testView, graph);
 
@@ -72,12 +73,13 @@ class FederatedUtilsTest {
                 .entity("entityNotInSchema")
                 .edge("edgeNotInSchema")
                 .build();
-        GraphSerialisable graph = new GraphSerialisable(
-                new GraphConfig("test"),
-                new Schema.Builder()
-                        .entity("entityInSchema", new SchemaEntityDefinition())
-                        .edge("edgeInSchema", new SchemaEdgeDefinition()).build(),
-                new StoreProperties());
+        Graph graph = new Graph.Builder()
+            .config(new GraphConfig("test"))
+            .addSchema(new Schema.Builder()
+                .entity("entityInSchema", new SchemaEntityDefinition())
+                .edge("edgeInSchema", new SchemaEdgeDefinition()).build())
+            .storeProperties(new MapStoreProperties())
+            .build();
 
         // When
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -88,12 +90,13 @@ class FederatedUtilsTest {
     void shouldChangeViewsOfNestedOperations() {
         String entityInSchema = "entityInSchema";
         String edgeInSchema = "edgeInSchema";
-        GraphSerialisable graph = new GraphSerialisable(
-            new GraphConfig("test"),
-            new Schema.Builder()
+        Graph graph = new Graph.Builder()
+            .config(new GraphConfig("test"))
+            .addSchema(new Schema.Builder()
                 .entity(entityInSchema, new SchemaEntityDefinition())
-                .edge(edgeInSchema, new SchemaEdgeDefinition()).build(),
-            new StoreProperties());
+                .edge(edgeInSchema, new SchemaEdgeDefinition()).build())
+            .storeProperties(new MapStoreProperties())
+            .build();
 
         // View with some mixed groups in
         View testView = new View.Builder()
@@ -117,7 +120,7 @@ class FederatedUtilsTest {
         // Get a fixed operation chain
         List<Operation> newChain = FederatedUtils.getValidOperationForGraph(nestedViewChain, graph, 0, 5).flatten();
         List<OperationView> fixedOperations = newChain.stream()
-            .filter(op -> op instanceof OperationView)
+            .filter(OperationView.class::isInstance)
             .map(op -> (OperationView) op)
             .collect(Collectors.toList());
 
@@ -135,18 +138,21 @@ class FederatedUtilsTest {
         // Given
         String sharedGroup = "sharedGroup";
 
-        GraphSerialisable graph1 = new GraphSerialisable(
-                new GraphConfig("graph1"),
-                new Schema.Builder().entity(sharedGroup, new SchemaEntityDefinition()).build(),
-                new StoreProperties());
-        GraphSerialisable graph2 = new GraphSerialisable(
-                new GraphConfig("graph2"),
-                new Schema.Builder().entity(sharedGroup, new SchemaEntityDefinition()).build(),
-                new StoreProperties());
-        GraphSerialisable graph3 = new GraphSerialisable(
-                new GraphConfig("graph3"),
-                new Schema.Builder().entity("notShared", new SchemaEntityDefinition()).build(),
-                new StoreProperties());
+        Graph graph1 = new Graph.Builder()
+                .config(new GraphConfig("graph1"))
+                .addSchema(new Schema.Builder().entity(sharedGroup, new SchemaEntityDefinition()).build())
+                .storeProperties(new MapStoreProperties())
+                .build();
+        Graph graph2 = new Graph.Builder()
+                .config(new GraphConfig("graph2"))
+                .addSchema(new Schema.Builder().entity(sharedGroup, new SchemaEntityDefinition()).build())
+                .storeProperties(new MapStoreProperties())
+                .build();
+        Graph graph3 = new Graph.Builder()
+                .config(new GraphConfig("graph3"))
+                .addSchema(new Schema.Builder().entity("notShared", new SchemaEntityDefinition()).build())
+                .storeProperties(new MapStoreProperties())
+                .build();
 
         // When/Then
         assertThat(FederatedUtils.doGraphsShareGroups(Arrays.asList(graph1, graph2))).isTrue();

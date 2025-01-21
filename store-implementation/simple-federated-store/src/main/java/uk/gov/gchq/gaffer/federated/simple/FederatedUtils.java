@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
-import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
@@ -50,7 +50,7 @@ public final class FederatedUtils {
      * @param graphs Graphs to check.
      * @return Do they share groups.
      */
-    public static boolean doGraphsShareGroups(final List<GraphSerialisable> graphs) {
+    public static boolean doGraphsShareGroups(final List<Graph> graphs) {
         // Compare all schemas against each other
         for (int i = 0; i < graphs.size() - 1; i++) {
             for (int j = i + 1; j < graphs.size(); j++) {
@@ -70,12 +70,12 @@ public final class FederatedUtils {
      * the sub graph end as there is no universal way to skip validation.
      *
      * @param operation The operation.
-     * @param graphSerialisable The graph.
+     * @param graph The graph.
      * @param depth Current recursion depth of this method.
      * @param depthLimit Limit to the recursion depth.
      * @return A valid version of the operation chain.
      */
-    public static OperationChain getValidOperationForGraph(final Operation operation, final GraphSerialisable graphSerialisable, final int depth, final int depthLimit) {
+    public static OperationChain getValidOperationForGraph(final Operation operation, final Graph graph, final int depth, final int depthLimit) {
         LOGGER.debug("Creating valid operation for graph, depth is: {}", depth);
         final Collection<Operation> updatedOperations = new ArrayList<>();
 
@@ -86,7 +86,7 @@ public final class FederatedUtils {
 
             // Update the view for the graph
             ((OperationView) operation).setView(
-                getValidViewForGraph(((OperationView) operation).getView(), graphSerialisable));
+                getValidViewForGraph(((OperationView) operation).getView(), graph));
 
             updatedOperations.add(operation);
 
@@ -95,12 +95,12 @@ public final class FederatedUtils {
             for (final Operation op : ((OperationChain<?>) operation).getOperations()) {
                 // Resolve if haven't hit the depth limit for validation
                 if (depth < depthLimit) {
-                    updatedOperations.addAll(getValidOperationForGraph(op, graphSerialisable, depth + 1, depthLimit).getOperations());
+                    updatedOperations.addAll(getValidOperationForGraph(op, graph, depth + 1, depthLimit).getOperations());
                 } else {
                     LOGGER.warn(
                         "Hit depth limit of {} making the operation valid for graph. The View may be invalid for Graph: {}",
                         depthLimit,
-                        graphSerialisable.getGraphId());
+                        graph.getGraphId());
                     updatedOperations.add(op);
                 }
             }
@@ -121,11 +121,11 @@ public final class FederatedUtils {
      * the supplied view does not require modification it will just be returned.
      *
      * @param view The view to make valid.
-     * @param graphSerialisable The relevant graph.
+     * @param graph The relevant graph.
      * @return A version of the view valid for the graph.
      */
-    public static View getValidViewForGraph(final View view, final GraphSerialisable graphSerialisable) {
-        final Schema schema = graphSerialisable.getSchema();
+    public static View getValidViewForGraph(final View view, final Graph graph) {
+        final Schema schema = graph.getSchema();
 
         // Figure out all the groups relevant to the graph
         final Set<String> validEntities = new HashSet<>(view.getEntityGroups());
@@ -148,7 +148,7 @@ public final class FederatedUtils {
                 throw new IllegalArgumentException(String.format(
                     "No groups specified in View are relevant to Graph: '%1$s'. " +
                     "Please refine your Graphs/View or specify following option to skip execution on offending Graph: '%2$s'   ",
-                    graphSerialisable.getGraphId(),
+                    graph.getGraphId(),
                     FederatedOperationHandler.OPT_SKIP_FAILED_EXECUTE));
             }
             return newView;

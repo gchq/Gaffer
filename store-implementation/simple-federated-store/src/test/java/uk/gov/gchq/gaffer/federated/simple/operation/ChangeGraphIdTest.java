@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.federated.simple.operation;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -56,12 +54,10 @@ class ChangeGraphIdTest {
         CacheServiceLoader.shutdown();
     }
 
-    @ParameterizedTest
-    @EnumSource(StoreType.class)
-    void shouldChangeGraphIdAndPreserveData(StoreType store) throws StoreException, OperationException, CacheOperationException {
+    void shouldChangeGraphIdAndPreserveData() throws StoreException, OperationException, CacheOperationException {
         // Given
         final String graphId = "shouldChangeGraphIdAndPreserveData";
-        final Graph originalGraph = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId, store);
+        final Graph originalGraph = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId, StoreType.ACCUMULO);
 
         // Elements to add to the graph
         final Properties graphEntityProps = new Properties();

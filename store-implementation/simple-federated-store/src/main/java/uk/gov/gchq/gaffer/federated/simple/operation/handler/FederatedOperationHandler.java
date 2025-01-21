@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.FederatedUtils;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -109,21 +110,21 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
             return new FederatedOutputHandler<>().doOperation((Output) operation, context, store);
         }
 
-        List<GraphSerialisable> graphsToExecute = getGraphsToExecuteOn(operation, context, (FederatedStore) store);
+        List<Graph> graphsToExecute = getGraphsToExecuteOn(operation, context, (FederatedStore) store);
         // No-op
         if (graphsToExecute.isEmpty()) {
             return null;
         }
 
         // Execute the operation chain on each graph
-        for (final GraphSerialisable gs : graphsToExecute) {
+        for (final Graph graph : graphsToExecute) {
             try {
-                gs.getGraph().execute(
-                    FederatedUtils.getValidOperationForGraph(operation, gs, 0, fixLimit),
+                graph.execute(
+                    FederatedUtils.getValidOperationForGraph(operation, graph, 0, fixLimit),
                     context.getUser());
             } catch (final OperationException | UnsupportedOperationException | IllegalArgumentException e) {
                 // Optionally skip this error if user has specified to do so
-                LOGGER.error("Operation failed on graph: {}", gs.getGraphId());
+                LOGGER.error("Operation failed on graph: {}", graph.getGraphId());
                 if (!Boolean.parseBoolean(operation.getOption(OPT_SKIP_FAILED_EXECUTE, "false"))) {
                     throw e;
                 }
@@ -146,14 +147,14 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      * @param operation The operation to execute.
      * @param context The context.
      * @param store The federated store.
-     * @return List of {@link GraphSerialisable}s to execute on.
+     * @return List of {@link Graph}s to execute on.
      * @throws OperationException Fail to get Graphs.
      */
-    protected List<GraphSerialisable> getGraphsToExecuteOn(final Operation operation, final Context context,
+    protected List<Graph> getGraphsToExecuteOn(final Operation operation, final Context context,
             final FederatedStore store) throws OperationException {
 
         List<String> specifiedGraphIds = new ArrayList<>();
-        List<GraphSerialisable> graphsToExecute = new ArrayList<>();
+        List<Graph> graphsToExecute = new ArrayList<>();
 
         // If user specified graph IDs for this chain parse as comma separated list
         if (operation.containsOption(OPT_SHORT_GRAPH_IDS)) {
@@ -177,10 +178,18 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         for (final String id : specifiedGraphIds) {
             try {
                 Pair<GraphSerialisable, GraphAccess> pair = store.getGraphAccessPair(id);
+
                 // Check the user has access to the graph
                 if (pair.getRight().hasReadAccess(context.getUser(), store.getProperties().getAdminAuth())) {
-                    LOGGER.info("User has access, will execute on Graph: '{}'", id);
-                    graphsToExecute.add(pair.getLeft());
+                    LOGGER.debug("User has access, will execute on Graph: '{}'", id);
+                    GraphSerialisable gs = pair.getLeft();
+                    // Create a new graph object from the serialised info
+                    graphsToExecute.add(new Graph.Builder()
+                            .config(gs.getConfig())
+                            .addSchema(gs.getSchema())
+                            .storeProperties(gs.getStoreProperties())
+                            .addToLibrary(false)
+                            .build());
                 } else {
                     LOGGER.warn("User does not have access, to Graph: '{}' it will be skipped", id);
                 }
