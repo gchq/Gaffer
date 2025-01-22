@@ -408,10 +408,10 @@ public final class Graph {
                 } else if (opView.isAllEdges() || opView.isAllEntities()) {
                     View.Builder opViewBuilder = new View.Builder()
                             .merge(opView);
-                    if (opView.isAllEdges()) {
+                    if (!store.isDelegateStore() && opView.isAllEdges()) {
                         opViewBuilder.edges(getSchema().getEdgeGroups());
                     }
-                    if (opView.isAllEntities()) {
+                    if (!store.isDelegateStore() && opView.isAllEntities()) {
                         opViewBuilder.entities(getSchema().getEntityGroups());
                     }
                     opView = opViewBuilder.build();

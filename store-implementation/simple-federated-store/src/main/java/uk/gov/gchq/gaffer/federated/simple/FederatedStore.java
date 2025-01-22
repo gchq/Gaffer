@@ -247,7 +247,17 @@ public class FederatedStore extends Store {
             throw new IllegalArgumentException(
                 String.format(GRAPH_ID_ERROR, graphId));
         }
-        return new ImmutablePair<>(graphAndAccess.getLeft().getGraph(), graphAndAccess.getRight());
+        // Save to quick access for next time
+        Graph graph = new Graph.Builder()
+            .config(graphAndAccess.getLeft().getConfig())
+            .addSchema(graphAndAccess.getLeft().getSchema())
+            .storeProperties(graphAndAccess.getLeft().getStoreProperties())
+            .addToLibrary(false)
+            .build();
+        Pair<Graph, GraphAccess> pair = new ImmutablePair<>(graph, graphAndAccess.getRight());
+        quickAccessGraphs.putIfAbsent(graphId, pair);
+
+        return pair;
     }
 
     /**
@@ -267,14 +277,16 @@ public class FederatedStore extends Store {
      */
     public List<String> getDefaultGraphIds() {
         // Only return the graphs that actually exist
-        return defaultGraphIds.stream().filter(id -> {
-            try {
-                return Objects.nonNull(getGraph(id));
-            } catch (final IllegalArgumentException | CacheOperationException e) {
-                LOGGER.warn("Default Graph was not found: {}", id);
-                return false;
-            }
-        }).collect(Collectors.toList());
+        return defaultGraphIds.stream()
+            .filter(id -> {
+                try {
+                    return Objects.nonNull(getGraph(id));
+                } catch (final IllegalArgumentException | CacheOperationException e) {
+                    LOGGER.warn("Default Graph was not found: {}", id);
+                    return false;
+                }
+            })
+            .collect(Collectors.toList());
     }
 
     /**
@@ -390,6 +402,11 @@ public class FederatedStore extends Store {
         } catch (final OperationException e) {
             throw new GafferRuntimeException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public boolean isDelegateStore() {
+        return true;
     }
 
     @Override

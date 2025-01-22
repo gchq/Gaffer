@@ -85,10 +85,9 @@ public final class FederatedUtils {
                 && ((OperationView) operation).getView().hasGroups()) {
 
             // Update the view for the graph
-            ((OperationView) operation).setView(
-                getValidViewForGraph(((OperationView) operation).getView(), graph));
-
-            updatedOperations.add(operation);
+            OperationView fixedOp = (OperationView) operation.shallowClone();
+            fixedOp.setView(getValidViewForGraph(fixedOp.getView(), graph));
+            updatedOperations.add((Operation) fixedOp);
 
         // Recursively go into operation chains to make sure everything is fixed
         } else if (operation instanceof OperationChain) {

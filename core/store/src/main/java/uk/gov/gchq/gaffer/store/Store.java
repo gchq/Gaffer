@@ -565,6 +565,16 @@ public abstract class Store {
     }
 
     /**
+     * Does the store delegate operations to other instances e.g. it does not
+     * have actual storage attached directly so may have sub graphs.
+     *
+     * @return If delegates.
+     */
+    public boolean isDelegateStore() {
+        return false;
+    }
+
+    /**
      * @param operationClass the operation class to check
      * @return true if the provided operation is supported.
      */
