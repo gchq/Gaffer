@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.FederatedUtils;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -182,19 +181,13 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         // Get the corresponding graph serialisables
         for (final String id : specifiedGraphIds) {
             try {
-                Pair<GraphSerialisable, GraphAccess> pair = store.getGraphAccessPair(id);
+                Pair<Graph, GraphAccess> pair = store.getGraphAccessPair(id);
 
                 // Check the user has access to the graph
                 if (pair.getRight().hasReadAccess(context.getUser(), store.getProperties().getAdminAuth())) {
                     LOGGER.debug("User has access, will execute on Graph: '{}'", id);
-                    GraphSerialisable gs = pair.getLeft();
                     // Create a new graph object from the serialised info
-                    graphsToExecute.add(new Graph.Builder()
-                            .config(gs.getConfig())
-                            .addSchema(gs.getSchema())
-                            .storeProperties(gs.getStoreProperties())
-                            .addToLibrary(false)
-                            .build());
+                    graphsToExecute.add(pair.getLeft());
                 } else {
                     LOGGER.warn("User does not have access, to Graph: '{}' it will be skipped", id);
                 }

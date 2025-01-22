@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationH
 import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -54,8 +54,9 @@ class ChangeGraphIdTest {
         CacheServiceLoader.shutdown();
     }
 
+    @Test
     void shouldChangeGraphIdAndPreserveData() throws StoreException, OperationException, CacheOperationException {
-        // Given
+        // Given (only possible on accumulo stores)
         final String graphId = "shouldChangeGraphIdAndPreserveData";
         final Graph originalGraph = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId, StoreType.ACCUMULO);
 
@@ -69,7 +70,7 @@ class ChangeGraphIdTest {
         federatedStore.initialise(FED_STORE_ID, null, new StoreProperties());
         // Add elements to the graph
         FederatedTestUtils.addGraphWithElements(federatedStore, originalGraph, graphEntity);
-        GraphSerialisable expectedGraphSerialisable = federatedStore.getGraph(graphId);
+        Graph expectedGraph = federatedStore.getGraph(graphId);
 
         // Change graph ID operation
         final ChangeGraphId changeGraphId = new ChangeGraphId.Builder()
@@ -79,15 +80,16 @@ class ChangeGraphIdTest {
         federatedStore.execute(changeGraphId, new Context());
 
         // Check that the config + properties remains the same
+        // Note the original graphConfig is modified so can't compare some fields
         assertThat(federatedStore.getGraph(NEW_GRAPH_ID))
             .satisfies(gs -> {
                 assertThat(gs.getConfig())
                     .usingRecursiveComparison()
-                    .ignoringFields("graphId")
-                    .isEqualTo(expectedGraphSerialisable.getConfig());
+                    .ignoringFields("graphId", "hooks")
+                    .isEqualTo(expectedGraph.getConfig());
 
                 assertThat(gs.getStoreProperties())
-                    .isEqualTo(expectedGraphSerialisable.getStoreProperties());
+                    .isEqualTo(expectedGraph.getStoreProperties());
             });
 
         // Ensure that there are no references to the 'old' graph ID
@@ -137,7 +139,7 @@ class ChangeGraphIdTest {
         final AddGraph addGraph = new AddGraph.Builder()
                 .graphConfig(new GraphConfig(graphId))
                 .schema(new Schema())
-                .properties(new StoreProperties().getProperties())
+                .properties(new MapStoreProperties().getProperties())
                 .writePredicate(new NoAccessPredicate())
                 .build();
 

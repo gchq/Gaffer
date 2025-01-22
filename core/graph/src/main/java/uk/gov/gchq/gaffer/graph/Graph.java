@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 Crown Copyright
+ * Copyright 2017-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -467,6 +467,15 @@ public final class Graph {
             return Collections.emptyList();
         }
         return config.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList());
+    }
+
+    /**
+     * Returns the {@link Store} for this graph.
+     *
+     * @return The store
+     */
+    public Store getStore() {
+        return store;
     }
 
     /**

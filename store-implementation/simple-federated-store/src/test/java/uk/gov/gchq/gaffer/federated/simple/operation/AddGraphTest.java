@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -64,14 +65,14 @@ class AddGraphTest {
         final GraphSerialisable expectedSerialisable = new GraphSerialisable.Builder()
                 .config(new GraphConfig(graphId))
                 .schema(new Schema())
-                .properties(new Properties())
+                .properties(new MapStoreProperties().getProperties())
                 .build();
 
         // Build operation
         final AddGraph operation = new AddGraph.Builder()
                 .graphConfig(new GraphConfig(graphId))
                 .schema(new Schema())
-                .properties(new Properties())
+                .properties(new MapStoreProperties().getProperties())
                 .build();
 
         // When
@@ -79,7 +80,7 @@ class AddGraphTest {
         federatedStore.initialise(federatedGraphId, null, new StoreProperties());
 
         federatedStore.execute(operation, new Context());
-        final GraphSerialisable addedGraph = federatedStore.getGraph(graphId);
+        final Graph addedGraph = federatedStore.getGraph(graphId);
 
         // Then
         assertThat(addedGraph.getConfig().getGraphId())
@@ -108,6 +109,7 @@ class AddGraphTest {
             .put("class", "uk.gov.gchq.gaffer.federated.simple.operation.AddGraph")
             .put("graphConfig", new JSONObject()
                 .put("graphId", graphId))
+            .put("schema", new JSONObject())
             .put("properties", new JSONObject()
                 .put("gaffer.store.class", "uk.gov.gchq.gaffer.mapstore.MapStore")
                 .put("gaffer.store.properties.class", "uk.gov.gchq.gaffer.mapstore.MapStoreProperties"));
@@ -119,11 +121,11 @@ class AddGraphTest {
         final AddGraph operation = JSONSerialiser.deserialise(jsonOperation.toString(), AddGraph.class);
         federatedStore.execute(operation, new Context());
 
-        final GraphSerialisable addedGraph = federatedStore.getGraph(graphId);
+        final Graph addedGraph = federatedStore.getGraph(graphId);
 
         // Then
         assertThat(addedGraph.getGraphId()).isEqualTo(expectedSerialisable.getGraphId());
-        assertThat(addedGraph.getSchema()).isEqualTo(expectedSerialisable.getSchema());
+        assertThat(addedGraph.getSchema()).isEqualTo(new Schema());
         assertThat(addedGraph.getStoreProperties().getProperties())
             .isEqualTo(expectedSerialisable.getStoreProperties().getProperties());
     }
@@ -157,7 +159,7 @@ class AddGraphTest {
         AddGraph operation = new AddGraph.Builder()
                 .graphConfig(new GraphConfig(graphId))
                 .schema(new Schema())
-                .properties(new Properties())
+                .properties(new MapStoreProperties().getProperties())
                 .build();
 
         // Add same graph twice expect fail second time
@@ -183,6 +185,7 @@ class AddGraphTest {
                 .put("class", "uk.gov.gchq.gaffer.federated.simple.operation.AddGraph")
                 .put("graphConfig", new JSONObject()
                         .put("graphId", graphId))
+                .put("schema", new JSONObject())
                 .put("properties", new JSONObject()
                         .put("gaffer.store.class", "uk.gov.gchq.gaffer.mapstore.MapStore")
                         .put("gaffer.store.properties.class", "uk.gov.gchq.gaffer.mapstore.MapStoreProperties"))
@@ -232,7 +235,7 @@ class AddGraphTest {
         final AddGraph operation = new AddGraph.Builder()
                 .graphConfig(new GraphConfig(graphId))
                 .schema(new Schema())
-                .properties(new Properties())
+                .properties(new MapStoreProperties().getProperties())
                 .isPublic(true)
                 .build();
 

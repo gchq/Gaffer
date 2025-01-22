@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,11 @@ public class GraphSerialisable implements Serializable {
     private transient GraphConfig config;
 
     private transient Graph graph;
+
+    public GraphSerialisable(final Graph graph) {
+        this(graph.getConfig(), graph.getSchema(), graph.getStoreProperties());
+        this.graph = graph;
+    }
 
     public GraphSerialisable(final GraphConfig config, final Schema schema, final StoreProperties storeProperties) {
         this(config, schema, storeProperties.getProperties());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -54,7 +55,7 @@ class ChangeGraphAccessTest {
         final AddGraph addGraph = new AddGraph.Builder()
                 .graphConfig(new GraphConfig(graphId))
                 .schema(new Schema())
-                .properties(new StoreProperties().getProperties())
+                .properties(new MapStoreProperties().getProperties())
                 .owner("oldOwner")
                 .isPublic(true)
                 .readPredicate(new UnrestrictedAccessPredicate())
@@ -95,7 +96,7 @@ class ChangeGraphAccessTest {
         final AddGraph addGraph = new AddGraph.Builder()
                 .graphConfig(new GraphConfig(graphId))
                 .schema(new Schema())
-                .properties(new StoreProperties().getProperties())
+                .properties(new MapStoreProperties().getProperties())
                 .isPublic(false)
                 .writePredicate(new NoAccessPredicate())
                 .build();

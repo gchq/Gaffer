@@ -258,7 +258,7 @@ class FederatedStoreIT {
         final AddGraph addGraph = new AddGraph.Builder()
                 .graphConfig(new GraphConfig(graphId))
                 .schema(new Schema())
-                .properties(new java.util.Properties())
+                .properties(new MapStoreProperties().getProperties())
                 .build();
 
         // GetAllGraphIds operation
@@ -350,6 +350,7 @@ class FederatedStoreIT {
         assertThat(graphInfo)
             .extracting(g -> g.get(graphId1))
             .usingRecursiveComparison()
+            .ignoringFields("graphHooks")
             .isEqualTo(graph1InfoExpected);
     }
 

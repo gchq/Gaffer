@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -40,10 +40,19 @@ public class PreDefinedFederatedStore extends FederatedStore {
 
         super.initialise(graphId, schema, properties);
 
-        addGraph(new GraphSerialisable(new GraphConfig("graphA"),
-                    schema.clone(), STORE_PROPERTIES), new GraphAccess());
-
-        addGraph(new GraphSerialisable(new GraphConfig("graphB"),
-                    schema.clone(), STORE_PROPERTIES), new GraphAccess());
+        addGraph(
+            new Graph.Builder()
+                .config(new GraphConfig("graphA"))
+                .addSchema(schema.clone())
+                .storeProperties(STORE_PROPERTIES)
+                .build(),
+            new GraphAccess());
+        addGraph(
+            new Graph.Builder()
+                .config(new GraphConfig("graphB"))
+                .addSchema(schema.clone())
+                .storeProperties(STORE_PROPERTIES)
+                .build(),
+            new GraphAccess());
     }
 }

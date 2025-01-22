@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils;
 import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils.StoreType;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -146,7 +147,7 @@ class RemoveGraphTest {
         final AddGraph addGraph = new AddGraph.Builder()
                 .graphConfig(new GraphConfig(graphId))
                 .schema(new Schema())
-                .properties(new StoreProperties().getProperties())
+                .properties(new MapStoreProperties().getProperties())
                 .writePredicate(new NoAccessPredicate())
                 .build();
 
