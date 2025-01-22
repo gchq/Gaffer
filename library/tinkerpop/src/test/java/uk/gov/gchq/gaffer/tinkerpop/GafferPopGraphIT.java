@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 Crown Copyright
+ * Copyright 2017-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.tinkerpop;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.BeforeAll;
@@ -77,7 +78,7 @@ class GafferPopGraphIT {
         final List<Vertex> result = g.V().toList();
 
         assertThat(result)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsExactlyInAnyOrder(
                         MARKO.getId(),
                         VADAS.getId(),
@@ -94,7 +95,7 @@ class GafferPopGraphIT {
 
         assertThat(result)
                 .hasSize(2)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsAnyOf(
                         MARKO.getId(),
                         VADAS.getId(),
@@ -110,7 +111,7 @@ class GafferPopGraphIT {
         final List<Vertex> result = g.V(MARKO.getId(), RIPPLE.getId()).toList();
 
         assertThat(result)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsExactlyInAnyOrder(MARKO.getId(), RIPPLE.getId());
     }
 
@@ -132,7 +133,7 @@ class GafferPopGraphIT {
         final List<Vertex> result = g.V().hasLabel(PERSON).toList();
 
         assertThat(result)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsExactlyInAnyOrder(
                     MARKO.getId(),
                     VADAS.getId(),
@@ -147,7 +148,7 @@ class GafferPopGraphIT {
         final List<Edge> result = g.V(MARKO.getId()).outE().toList();
 
         assertThat(result)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .containsExactlyInAnyOrder(
                 MARKO.knows(VADAS),
                 MARKO.knows(JOSH),
@@ -228,7 +229,7 @@ class GafferPopGraphIT {
         final List<Edge> result = g.E().toList();
 
         assertThat(result)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsExactlyInAnyOrder(
                         MARKO.knows(JOSH),
                         MARKO.knows(VADAS),
@@ -245,7 +246,7 @@ class GafferPopGraphIT {
 
         assertThat(result)
                 .hasSize(2)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsAnyOf(
                         MARKO.knows(JOSH),
                         MARKO.knows(VADAS),
@@ -271,7 +272,7 @@ class GafferPopGraphIT {
 
             assertThat(result)
                 .withFailMessage("(%s) Edge ID: %s returned %s", graph, id, result)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .containsExactlyInAnyOrder(MARKO.knows(VADAS));
         });
     }
@@ -295,7 +296,7 @@ class GafferPopGraphIT {
 
         final List<Edge> result = g.E().toList();
         assertThat(result)
-                .extracting(r -> r.id())
+                .extracting(Element::id)
                 .contains(VADAS.knows(PETER));
         reset();
     }
@@ -311,7 +312,7 @@ class GafferPopGraphIT {
         // Must enable orphaned vertices for this traversal
         List<Vertex> result = g.with(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES, "true").V(VERTEX_ONLY_ID_STRING).toList();
         assertThat(result)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .contains(VERTEX_ONLY_ID_STRING);
         reset();
     }
@@ -329,26 +330,27 @@ class GafferPopGraphIT {
 
         List<Vertex> result = gWithOption.V(VERTEX_ONLY_ID_STRING).inE().inV().toList();
         assertThat(result)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .contains(VERTEX_ONLY_ID_STRING);
         List<Vertex> result2 = gWithOption.V(VERTEX_ONLY_ID_STRING).inE().outV().toList();
         assertThat(result2)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .contains("8");
         List<Vertex> result3 = gWithOption.V("8").outE().inV().toList();
         assertThat(result3)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .contains(VERTEX_ONLY_ID_STRING);
         List<Vertex> result4 = gWithOption.V("8").outE().outV().toList();
         assertThat(result4)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .contains("8");
         List<Vertex> resultLabel = gWithOption.V("8").out("knows").toList();
         assertThat(resultLabel)
-            .extracting(r -> r.id())
+            .extracting(Element::id)
             .containsOnly(VERTEX_ONLY_ID_STRING);
         reset();
     }
+
 
     void reset() {
         // reset cache for federation

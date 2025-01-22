@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ public final class OtelUtil {
     public static final String JOB_ID_ATTRIBUTE = "gaffer.jobId";
     public static final String GRAPH_ID_ATTRIBUTE = "gaffer.graphId";
     public static final String VIEW_ATTRIBUTE = "gaffer.view";
+    public static final String OP_OPTIONS_ATTRIBUTE = "gaffer.operation.options";
     public static final String GREMLIN_QUERY_ATTRIBUTE = "gaffer.gremlin.query";
 
     private static boolean openTelemetryActive = false;

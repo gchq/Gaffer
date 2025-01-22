@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,31 +31,39 @@ import uk.gov.gchq.gaffer.operation.impl.delete.DeleteElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.ValidatedElements;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
-    * An {@link OperationHandler} for the {@link DeleteElements} operation on the
-    * {@link MapStore}.
+    * An {@link OutputOperationHandler} for the {@link DeleteElements} operation on the
+    * {@link MapStore}. Returns a string of how many elements have been deleted.
 */
-public class DeleteElementsHandler implements OperationHandler<DeleteElements> {
+public class DeleteElementsHandler implements OutputOperationHandler<DeleteElements, Long> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteElementsHandler.class);
 
     @Override
-    public Object doOperation(final DeleteElements deleteElements, final Context context, final Store store) {
+    public Long doOperation(final DeleteElements deleteElements, final Context context, final Store store) {
         Iterable<? extends Element> elements = deleteElements.getInput();
         if (deleteElements.isValidate()) {
             elements = new ValidatedElements(elements, store.getSchema(), deleteElements.isSkipInvalidElements());
         }
 
-        deleteElements(elements, (MapStore) store);
-        return null;
+        return deleteElements(elements, (MapStore) store);
     }
 
-    private void deleteElements(final Iterable<? extends Element> elements, final MapStore mapStore) {
+    private Long deleteElements(final Iterable<? extends Element> elements, final MapStore mapStore) {
         final MapImpl mapImpl = mapStore.getMapImpl();
         final Schema schema = mapStore.getSchema();
+        final List<String> deletedElements = new ArrayList<>();
+
+        for (final Element el : elements) {
+            deletedElements.add(el.toString());
+        }
+        LOGGER.debug("Deleting elements: {}", deletedElements);
 
         final int bufferSize = mapStore.getProperties().getIngestBufferSize();
 
@@ -67,6 +75,8 @@ public class DeleteElementsHandler implements OperationHandler<DeleteElements> {
             // Stream of lists that gets each batch
             Streams.toBatches(elements, bufferSize).forEach(batch -> deleteBatch(mapImpl, schema, AggregatorUtil.ingestAggregate(batch, schema)));
         }
+
+        return (long) deletedElements.size();
     }
 
     private void deleteBatch(final MapImpl mapImpl, final Schema schema, final Iterable<? extends Element> elements) {

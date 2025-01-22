@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 Crown Copyright
+ * Copyright 2016-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -342,7 +342,7 @@ public class GraphTest {
 
     @Test
     public void shouldCreateNewContextInstanceWhenExecuteOutputOperation(@Mock final Store store)
-            throws OperationException, IOException {
+            throws OperationException {
         // Given
         final Schema schema = new Schema();
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -365,7 +365,7 @@ public class GraphTest {
 
     @Test
     public void shouldCreateNewContextInstanceWhenExecuteJob(@Mock final Store store)
-            throws OperationException, IOException {
+            throws OperationException {
         // Given
         final Schema schema = new Schema();
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -1065,7 +1065,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfStoreClassPropertyIsNotSet() throws OperationException {
+    public void shouldThrowExceptionIfStoreClassPropertyIsNotSet() {
         try {
             new Graph.Builder()
                     .config(new GraphConfig.Builder()
@@ -1097,15 +1097,10 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfSchemaIsInvalid() throws OperationException {
+    public void shouldThrowExceptionIfSchemaIsInvalid() {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
-        try {
-            new Graph.Builder()
-                    .config(new GraphConfig.Builder()
-                            .graphId(GRAPH_ID)
-                            .build())
-                    .addSchema(new Schema.Builder()
+        final Schema invalidSchema = new Schema.Builder()
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
@@ -1126,13 +1121,17 @@ public class GraphTest {
                                     .vertex("string")
                                     .property("p2", "int")
                                     .build())
-                            .build())
+                            .build();
+            final GraphConfig config = new GraphConfig.Builder()
+                            .graphId(GRAPH_ID)
+                            .build();
+        assertThatExceptionOfType(SchemaException.class)
+            .isThrownBy(() -> new Graph.Builder()
+                    .config(config)
+                    .addSchema(invalidSchema)
                     .storeProperties(storeProperties)
-                    .build();
-            fail("exception expected");
-        } catch (final SchemaException e) {
-            assertNotNull(e.getMessage());
-        }
+                    .build())
+                    .withMessageContaining("Schema is not valid");
     }
 
     @Test
@@ -1254,7 +1253,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfGraphIdIsInvalid(@Mock final StoreProperties properties) throws Exception {
+    void shouldThrowExceptionIfGraphIdIsInvalid(@Mock final StoreProperties properties) {
         try {
             new Graph.Builder()
                     .config(new GraphConfig.Builder()
@@ -1355,8 +1354,7 @@ public class GraphTest {
 
     @Test
     public void shouldAddHooksVarArgsAndGetGraphHooks(@Mock final GraphHook graphHook1,
-                                                      @Mock final Log4jLogger graphHook2)
-            throws Exception {
+                                                      @Mock final Log4jLogger graphHook2) {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1382,8 +1380,7 @@ public class GraphTest {
 
     @Test
     public void shouldAddHookAndGetGraphHooks(@Mock final GraphHook graphHook1,
-                                              @Mock final Log4jLogger graphHook3)
-            throws Exception {
+                                              @Mock final Log4jLogger graphHook3) {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
@@ -1417,8 +1414,7 @@ public class GraphTest {
 
     @Test
     public void shouldAddNamedViewResolverHookAfterNamedOperationResolver(@Mock final GraphHook graphHook1,
-                                                                          @Mock final Log4jLogger graphHook2)
-            throws Exception {
+                                                                          @Mock final Log4jLogger graphHook2) {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
@@ -1511,7 +1507,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldBuildGraphFromConfigFile() throws Exception {
+    void shouldBuildGraphFromConfigFile() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1541,8 +1537,7 @@ public class GraphTest {
 
     @Test
     public void shouldBuildGraphFromConfigAndMergeConfigWithExistingConfig(@Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
-                                                                           @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3)
-            throws Exception {
+                                                                           @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3) {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1591,8 +1586,7 @@ public class GraphTest {
 
     @Test
     public void shouldBuildGraphFromConfigAndOverrideFields(@Mock final GraphLibrary library1, @Mock final GraphLibrary library2,
-                                                            @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3)
-            throws Exception {
+                                                            @Mock final GraphHook hook1, @Mock final GraphHook hook2, @Mock final GraphHook hook3) {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1642,7 +1636,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldReturnClonedViewFromConfig() throws Exception {
+    void shouldReturnClonedViewFromConfig() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1840,8 +1834,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteWithANullContext(@Mock final OperationChain opChain)
-            throws OperationException {
+    void shouldThrowExceptionOnExecuteWithANullContext(@Mock final OperationChain opChain) {
         // Given
         final Context context = null;
 
@@ -1860,8 +1853,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobWithANullContext(@Mock final OperationChain opChain)
-            throws OperationException {
+    void shouldThrowExceptionOnExecuteJobWithANullContext(@Mock final OperationChain opChain) {
         // Given
         final Context context = null;
 
@@ -1880,8 +1872,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteWithANullUser(@Mock final OperationChain opChain)
-            throws OperationException {
+    void shouldThrowExceptionOnExecuteWithANullUser(@Mock final OperationChain opChain) {
         // Given
         final User user = null;
 
@@ -1900,8 +1891,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobWithANullUser(@Mock final OperationChain opChain)
-            throws OperationException {
+    void shouldThrowExceptionOnExecuteJobWithANullUser(@Mock final OperationChain opChain) {
         // Given
         final User user = null;
 
@@ -1920,8 +1910,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullContext(@Mock final OperationChain opChain)
-            throws OperationException {
+    void shouldThrowExceptionOnExecuteJobUsingJobWithANullContext(@Mock final OperationChain opChain) {
         // Given
         final Context context = null;
 
@@ -1942,7 +1931,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullOperation() throws OperationException {
+    void shouldThrowExceptionOnExecuteJobUsingJobWithANullOperation() {
         // Given
         final Context context = new Context();
 
@@ -1963,7 +1952,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullJob() throws OperationException {
+    void shouldThrowExceptionOnExecuteJobUsingJobWithANullJob() {
         // Given
         final Context context = new Context();
 
@@ -1984,8 +1973,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullUser(@Mock final OperationChain opChain)
-            throws OperationException {
+    void shouldThrowExceptionOnExecuteJobUsingJobWithANullUser(@Mock final OperationChain opChain) {
         // Given
         final User user = null;
 
@@ -2744,7 +2732,7 @@ public class GraphTest {
         }
 
         @Override
-        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        protected OutputOperationHandler<DeleteElements, Long> getDeleteElementsHandler() {
             return null;
         }
 

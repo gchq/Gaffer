@@ -40,7 +40,6 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
@@ -420,7 +419,7 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfOperationChainIsInvalid(@Mock final StoreProperties properties) throws OperationException, StoreException {
+    public void shouldThrowExceptionIfOperationChainIsInvalid(@Mock final StoreProperties properties) throws StoreException {
         // Given
         final Schema schema = createSchemaMock();
         final OperationChain<?> opChain = new OperationChain<>();
@@ -440,7 +439,7 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldCallDoUnhandledOperationWhenDoOperationWithUnknownOperationClass(@Mock final StoreProperties properties) throws Exception {
+    void shouldCallDoUnhandledOperationWhenDoOperationWithUnknownOperationClass(@Mock final StoreProperties properties) throws Exception {
         // Given
         final Schema schema = createSchemaMock();
         final Operation operation = new SetVariable.Builder().variableName("aVariable").input("inputString").build();
@@ -806,7 +805,7 @@ public class StoreTest {
 
     @Test
     public void shouldExecuteOperationJobAndWrapJobOperationInChain(@Mock final StoreProperties properties)
-            throws OperationException, InterruptedException, StoreException, SerialisationException {
+            throws OperationException, InterruptedException, StoreException {
         // Given
         final Operation operation = new GetVariables.Builder().variableNames(Lists.newArrayList()).build();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -1185,7 +1184,7 @@ public class StoreTest {
 
 
         @Override
-        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        protected OutputOperationHandler<DeleteElements, Long> getDeleteElementsHandler() {
             return null;
         }
 
@@ -1286,7 +1285,7 @@ public class StoreTest {
 
 
         @Override
-        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        protected OutputOperationHandler<DeleteElements, Long> getDeleteElementsHandler() {
             return null;
         }
 
@@ -1396,7 +1395,7 @@ public class StoreTest {
         }
 
         @Override
-        protected OperationHandler<? extends DeleteElements> getDeleteElementsHandler() {
+        protected OutputOperationHandler<DeleteElements, Long> getDeleteElementsHandler() {
             return null;
         }
 
