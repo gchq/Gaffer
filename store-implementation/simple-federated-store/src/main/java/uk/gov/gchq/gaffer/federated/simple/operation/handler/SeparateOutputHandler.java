@@ -41,7 +41,7 @@ public class SeparateOutputHandler<P extends Output<O>, O> extends FederatedOper
 
     @Override
     public Map<String, O> doOperation(final P operation, final Context context, final Store store) throws OperationException {
-        final int fixLimit = Integer.parseInt(operation.getOption(OPT_FIX_OP_LIMIT, "5"));
+        final int fixLimit = Integer.parseInt(operation.getOption(OPT_FIX_OP_LIMIT, String.valueOf(DFLT_FIX_OP_LIMIT)));
         List<Graph> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
 
         if (graphsToExecute.isEmpty()) {

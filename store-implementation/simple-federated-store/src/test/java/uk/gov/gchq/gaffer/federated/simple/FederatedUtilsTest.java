@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -45,6 +44,10 @@ class FederatedUtilsTest {
         // Given
         String entityInSchema = "entityInSchema";
         String edgeInSchema = "edgeInSchema";
+        String stringTypeName = "string";
+        SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
+                .vertex(stringTypeName)
+                .build();
         View testView = new View.Builder()
             .entity(entityInSchema)
             .entity("entityNotInSchema")
@@ -54,9 +57,13 @@ class FederatedUtilsTest {
         Graph graph = new Graph.Builder()
             .config(new GraphConfig("test"))
             .addSchema(new Schema.Builder()
-                .entity(entityInSchema, new SchemaEntityDefinition())
-                .edge(edgeInSchema, new SchemaEdgeDefinition()).build())
-            .storeProperties(new StoreProperties())
+                .type(stringTypeName, String.class)
+                .entity(entityInSchema, entityDef)
+                .edge(edgeInSchema, new SchemaEdgeDefinition.Builder()
+                    .source(stringTypeName)
+                    .destination(stringTypeName)
+                    .build()).build())
+            .storeProperties(new MapStoreProperties())
             .build();
         // When
         View fixedView =  FederatedUtils.getValidViewForGraph(testView, graph);
@@ -69,6 +76,10 @@ class FederatedUtilsTest {
     @Test
     void shouldPreventExecutionIfNoGroupsInViewAreRelevant() {
         // Given
+        String stringTypeName = "string";
+        SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
+                .vertex(stringTypeName)
+                .build();
         View testView = new View.Builder()
                 .entity("entityNotInSchema")
                 .edge("edgeNotInSchema")
@@ -76,8 +87,12 @@ class FederatedUtilsTest {
         Graph graph = new Graph.Builder()
             .config(new GraphConfig("test"))
             .addSchema(new Schema.Builder()
-                .entity("entityInSchema", new SchemaEntityDefinition())
-                .edge("edgeInSchema", new SchemaEdgeDefinition()).build())
+                .type(stringTypeName, String.class)
+                .entity("entityInSchema", entityDef)
+                .edge("edgeInSchema", new SchemaEdgeDefinition.Builder()
+                    .source(stringTypeName)
+                    .destination(stringTypeName)
+                    .build()).build())
             .storeProperties(new MapStoreProperties())
             .build();
 
@@ -90,11 +105,19 @@ class FederatedUtilsTest {
     void shouldChangeViewsOfNestedOperations() {
         String entityInSchema = "entityInSchema";
         String edgeInSchema = "edgeInSchema";
+        String stringTypeName = "string";
+        SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
+            .vertex(stringTypeName)
+            .build();
         Graph graph = new Graph.Builder()
             .config(new GraphConfig("test"))
             .addSchema(new Schema.Builder()
-                .entity(entityInSchema, new SchemaEntityDefinition())
-                .edge(edgeInSchema, new SchemaEdgeDefinition()).build())
+                .type(stringTypeName, String.class)
+                .entity(entityInSchema, entityDef)
+                .edge(edgeInSchema, new SchemaEdgeDefinition.Builder()
+                    .source(stringTypeName)
+                    .destination(stringTypeName)
+                    .build()).build())
             .storeProperties(new MapStoreProperties())
             .build();
 
@@ -137,22 +160,31 @@ class FederatedUtilsTest {
     void shouldDetectIfGraphsShareGroups() {
         // Given
         String sharedGroup = "sharedGroup";
-
+        String stringTypeName = "string";
+        SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
+                .vertex(stringTypeName)
+                .build();
         Graph graph1 = new Graph.Builder()
-                .config(new GraphConfig("graph1"))
-                .addSchema(new Schema.Builder().entity(sharedGroup, new SchemaEntityDefinition()).build())
-                .storeProperties(new MapStoreProperties())
-                .build();
+            .config(new GraphConfig("graph1"))
+            .addSchema(new Schema.Builder()
+                .type(stringTypeName, String.class)
+                .entity(sharedGroup, entityDef).build())
+            .storeProperties(new MapStoreProperties())
+            .build();
         Graph graph2 = new Graph.Builder()
-                .config(new GraphConfig("graph2"))
-                .addSchema(new Schema.Builder().entity(sharedGroup, new SchemaEntityDefinition()).build())
-                .storeProperties(new MapStoreProperties())
-                .build();
+            .config(new GraphConfig("graph2"))
+            .addSchema(new Schema.Builder()
+                .type(stringTypeName, String.class)
+                .entity(sharedGroup, entityDef).build())
+            .storeProperties(new MapStoreProperties())
+            .build();
         Graph graph3 = new Graph.Builder()
-                .config(new GraphConfig("graph3"))
-                .addSchema(new Schema.Builder().entity("notShared", new SchemaEntityDefinition()).build())
-                .storeProperties(new MapStoreProperties())
-                .build();
+            .config(new GraphConfig("graph3"))
+            .addSchema(new Schema.Builder()
+                .type(stringTypeName, String.class)
+                .entity("notShared", entityDef).build())
+            .storeProperties(new MapStoreProperties())
+            .build();
 
         // When/Then
         assertThat(FederatedUtils.doGraphsShareGroups(Arrays.asList(graph1, graph2))).isTrue();

@@ -96,10 +96,15 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      */
     public static final String OPT_FIX_OP_LIMIT = "federated.fixOperationLimit";
 
+    /**
+     * Default depth limit for fixing an operation chain.
+     */
+    public static final int DFLT_FIX_OP_LIMIT = 5;
+
     @Override
     public Object doOperation(final P operation, final Context context, final Store store) throws OperationException {
         LOGGER.debug("Running operation: {}", operation);
-        final int fixLimit = Integer.parseInt(operation.getOption(OPT_FIX_OP_LIMIT, "5"));
+        final int fixLimit = Integer.parseInt(operation.getOption(OPT_FIX_OP_LIMIT, String.valueOf(DFLT_FIX_OP_LIMIT)));
 
         // If the operation has output wrap and return using sub class handler
         if (operation instanceof Output) {

@@ -49,7 +49,7 @@ public class FederatedOutputHandler<P extends Output<O>, O>
 
     @Override
     public O doOperation(final P operation, final Context context, final Store store) throws OperationException {
-        final int fixLimit = Integer.parseInt(operation.getOption(OPT_FIX_OP_LIMIT, "5"));
+        final int fixLimit = Integer.parseInt(operation.getOption(OPT_FIX_OP_LIMIT, String.valueOf(DFLT_FIX_OP_LIMIT)));
         List<Graph> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
 
         // No-op
@@ -90,7 +90,7 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         }
 
         // Set up the result accumulator
-        FederatedResultAccumulator<O> resultAccumulator = getResultAccumulator(operation, context, (FederatedStore) store, graphsToExecute);
+        FederatedResultAccumulator<O> resultAccumulator = getResultAccumulator(operation, (FederatedStore) store, graphsToExecute);
 
         // Should now have a list of <O> objects so need to reduce to just one
         return graphResults.stream().reduce(graphResults.get(0), resultAccumulator::apply);
@@ -103,14 +103,12 @@ public class FederatedOutputHandler<P extends Output<O>, O>
      *
      * @param operation The original operation.
      * @param store The federated store.
-     * @param context The context.
      * @param graphsToExecute The graphs executed on.
      * @return A set up accumulator.
      * @throws OperationException If issue setting up schema.
      */
     protected FederatedResultAccumulator<O> getResultAccumulator(
             final P operation,
-            final Context context,
             final FederatedStore store,
             final List<Graph> graphsToExecute) throws OperationException {
         // Merge the store props with the operation options for setting up the
