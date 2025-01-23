@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
@@ -50,7 +50,7 @@ public final class FederatedUtils {
      * @param graphs Graphs to check.
      * @return Do they share groups.
      */
-    public static boolean doGraphsShareGroups(final List<Graph> graphs) {
+    public static boolean doGraphsShareGroups(final List<GraphSerialisable> graphs) {
         // Compare all schemas against each other
         for (int i = 0; i < graphs.size() - 1; i++) {
             for (int j = i + 1; j < graphs.size(); j++) {
@@ -75,7 +75,7 @@ public final class FederatedUtils {
      * @param depthLimit Limit to the recursion depth.
      * @return A valid version of the operation chain.
      */
-    public static OperationChain getValidOperationForGraph(final Operation operation, final Graph graph, final int depth, final int depthLimit) {
+    public static OperationChain getValidOperationForGraph(final Operation operation, final GraphSerialisable graph, final int depth, final int depthLimit) {
         LOGGER.debug("Creating valid operation for graph, depth is: {}", depth);
         final Collection<Operation> updatedOperations = new ArrayList<>();
 
@@ -123,7 +123,7 @@ public final class FederatedUtils {
      * @param graph The relevant graph.
      * @return A version of the view valid for the graph.
      */
-    public static View getValidViewForGraph(final View view, final Graph graph) {
+    public static View getValidViewForGraph(final View view, final GraphSerialisable graph) {
         final Schema schema = graph.getSchema();
 
         // Figure out all the groups relevant to the graph

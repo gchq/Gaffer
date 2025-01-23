@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils.StoreType;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -86,20 +85,10 @@ class FederatedStoreTest {
         // Set the defaults to graphs and make sure to add them
         properties.set(PROP_DEFAULT_GRAPH_IDS, graphId1 + "," + graphId2);
         store.initialise(graphId, null, properties);
-        store.addGraph(
-            new Graph.Builder()
-                .config(new GraphConfig(graphId1))
-                .addSchema(new Schema())
-                .storeProperties(new MapStoreProperties())
-                .build(),
-            new GraphAccess());
-        store.addGraph(
-            new Graph.Builder()
-                .config(new GraphConfig(graphId2))
-                .addSchema(new Schema())
-                .storeProperties(new MapStoreProperties())
-                .build(),
-            new GraphAccess());
+        store.addGraph(new GraphSerialisable(new GraphConfig(graphId1), new Schema(), new StoreProperties()),
+                new GraphAccess());
+        store.addGraph(new GraphSerialisable(new GraphConfig(graphId2), new Schema(), new StoreProperties()),
+                new GraphAccess());
 
         assertThat(store.getDefaultGraphIds()).containsExactly(graphId1, graphId2);
     }
@@ -115,20 +104,10 @@ class FederatedStoreTest {
         // Set the defaults to graph1
         properties.set(PROP_DEFAULT_GRAPH_IDS, graphId1);
         store.initialise(graphId, null, properties);
-        store.addGraph(
-            new Graph.Builder()
-                .config(new GraphConfig(graphId1))
-                .addSchema(new Schema())
-                .addStoreProperties(new MapStoreProperties())
-                .build(),
-            new GraphAccess());
-        store.addGraph(
-            new Graph.Builder()
-                .config(new GraphConfig(graphId2))
-                .addSchema(new Schema())
-                .addStoreProperties(new MapStoreProperties())
-                .build(),
-            new GraphAccess());
+        store.addGraph(new GraphSerialisable(new GraphConfig(graphId1), new Schema(), new StoreProperties()),
+                new GraphAccess());
+        store.addGraph(new GraphSerialisable(new GraphConfig(graphId2), new Schema(), new StoreProperties()),
+                new GraphAccess());
 
         assertThat(store.getDefaultGraphIds()).containsExactly(graphId1);
 
@@ -152,24 +131,21 @@ class FederatedStoreTest {
         final GraphSerialisable graph1Serialisable = new GraphSerialisable(graph1.getConfig(), graph1.getSchema(), graph1.getStoreProperties());
         final GraphSerialisable graph2Serialisable = new GraphSerialisable(graph2.getConfig(), graph2.getSchema(), graph2.getStoreProperties());
 
-        final Graph expectedGraph1 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId1, StoreType.MAP);
-        final Graph expectedGraph2 = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId2, StoreType.MAP);
-
         // When
         FederatedStore store = new FederatedStore();
         store.initialise(federatedGraphId, null, new StoreProperties());
-        store.addGraph(graph1Serialisable.getGraph(), new GraphAccess());
-        store.addGraph(graph2Serialisable.getGraph(), new GraphAccess());
+        store.addGraph(graph1Serialisable, new GraphAccess());
+        store.addGraph(graph2Serialisable, new GraphAccess());
 
         // Then
-        Graph addedGraph1 = store.getGraph(graphId1);
-        Graph addedGraph2 = store.getGraph(graphId2);
+        GraphSerialisable addedGraph1 = store.getGraph(graphId1);
+        GraphSerialisable addedGraph2 = store.getGraph(graphId2);
 
-        assertThat(addedGraph1.getGraphId()).isEqualTo(expectedGraph1.getGraphId());
-        assertThat(addedGraph1.getSchema()).isEqualTo(expectedGraph1.getSchema());
-        assertThat(addedGraph1.getStoreProperties()).isEqualTo(expectedGraph1.getStoreProperties());
-        assertThat(addedGraph2.getGraphId()).isEqualTo(expectedGraph2.getGraphId());
-        assertThat(addedGraph2.getSchema()).isEqualTo(expectedGraph2.getSchema());
-        assertThat(addedGraph2.getStoreProperties()).isEqualTo(expectedGraph2.getStoreProperties());
+        assertThat(addedGraph1.getConfig()).isEqualTo(graph1Serialisable.getConfig());
+        assertThat(addedGraph1.getSchema()).isEqualTo(graph1Serialisable.getSchema());
+        assertThat(addedGraph1.getStoreProperties()).isEqualTo(graph1Serialisable.getStoreProperties());
+        assertThat(addedGraph2.getConfig()).isEqualTo(graph2Serialisable.getConfig());
+        assertThat(addedGraph2.getSchema()).isEqualTo(graph2Serialisable.getSchema());
+        assertThat(addedGraph2.getStoreProperties()).isEqualTo(graph2Serialisable.getStoreProperties());
     }
 }

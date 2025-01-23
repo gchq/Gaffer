@@ -59,7 +59,7 @@ public class AddGraphHandler implements OperationHandler<AddGraph> {
         }
 
         // Add the graph
-        ((FederatedStore) store).addGraph(newGraph.getGraph(), access);
+        ((FederatedStore) store).addGraph(newGraph, access);
 
         return null;
     }

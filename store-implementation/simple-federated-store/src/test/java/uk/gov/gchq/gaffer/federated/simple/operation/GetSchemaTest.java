@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationHandler;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
@@ -60,18 +60,10 @@ class GetSchemaTest {
         federatedStore.initialise("federated", null, new FederatedStoreProperties());
 
         federatedStore.addGraph(
-            new Graph.Builder()
-                .config(new GraphConfig(graphId1))
-                .addSchema(schema1)
-                .storeProperties(new MapStoreProperties())
-                .build(),
+            new GraphSerialisable(new GraphConfig(graphId1), schema1, new MapStoreProperties()),
             new GraphAccess());
         federatedStore.addGraph(
-            new Graph.Builder()
-                .config(new GraphConfig(graphId2))
-                .addSchema(schema2)
-                .storeProperties(new MapStoreProperties())
-                .build(),
+            new GraphSerialisable(new GraphConfig(graphId2), schema2, new MapStoreProperties()),
             new GraphAccess());
 
         GetSchema getOp = new GetSchema.Builder()
@@ -100,18 +92,10 @@ class GetSchemaTest {
         federatedStore.initialise("federated", null, new FederatedStoreProperties());
 
         federatedStore.addGraph(
-            new Graph.Builder()
-                .config(new GraphConfig(graphId1))
-                .addSchema(schema1)
-                .storeProperties(new MapStoreProperties())
-                .build(),
+            new GraphSerialisable(new GraphConfig(graphId1), schema1, new MapStoreProperties()),
             new GraphAccess());
         federatedStore.addGraph(
-            new Graph.Builder()
-                .config(new GraphConfig(graphId2))
-                .addSchema(schema2)
-                .storeProperties(new MapStoreProperties())
-                .build(),
+            new GraphSerialisable(new GraphConfig(graphId2), schema2, new MapStoreProperties()),
             new GraphAccess());
 
         GetSchema getOp = new GetSchema.Builder()

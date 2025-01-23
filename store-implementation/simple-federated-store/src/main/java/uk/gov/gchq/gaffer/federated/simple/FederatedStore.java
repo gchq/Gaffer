@@ -50,11 +50,7 @@ import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.ChangeDefaultG
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.ChangeGraphAccessHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.ChangeGraphIdHandler;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.misc.RemoveGraphHandler;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.graph.hook.GraphHook;
-import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
-import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
@@ -134,7 +130,7 @@ public class FederatedStore extends Store {
 
     // Quick access in memory cache of graphs added to this instance whist it was running.
     // Will use this first then resort to the full graph cache if not found.
-    private final Map<String, Pair<Graph, GraphAccess>> quickAccessGraphs = new HashMap<>();
+    private final Map<String, Pair<GraphSerialisable, GraphAccess>> quickAccessGraphs = new HashMap<>();
 
     // Gaffer cache of available graphs
     private Cache<String, Pair<GraphSerialisable, GraphAccess>> graphCache;
@@ -160,21 +156,20 @@ public class FederatedStore extends Store {
      *
      * @throws IllegalArgumentException If there is already a graph with the supplied ID
      */
-    public void addGraph(final Graph graph, final GraphAccess graphAccess) {
+    public void addGraph(final GraphSerialisable graph, final GraphAccess graphAccess) {
         String graphId = graph.getGraphId();
         LOGGER.debug("Adding Graph: '{}'", graphId);
         // Pair the graph with its access
-        Pair<Graph, GraphAccess> graphAndAccessPair = new ImmutablePair<>(graph, graphAccess);
-        Pair<GraphSerialisable, GraphAccess> gsAndAccessPair = new ImmutablePair<>(new GraphSerialisable(graph), graphAccess);
+        Pair<GraphSerialisable, GraphAccess> graphAndAccessPair = new ImmutablePair<>(graph, graphAccess);
         try {
             // Add safely to the cache
-            graphCache.getCache().putSafe(graphId, gsAndAccessPair);
+            graphCache.getCache().putSafe(graphId, graphAndAccessPair);
             // Add to quick access
             if (quickAccessGraphs.containsKey(graphId)) {
                 throw new OverwritingException("Graph with ID: '" + graphId + "' already exists");
+            } else {
+                quickAccessGraphs.put(graphId, graphAndAccessPair);
             }
-
-            quickAccessGraphs.put(graphId, graphAndAccessPair);
         } catch (final CacheOperationException e) {
             // Unknown issue adding to cache
             throw new GafferRuntimeException(e.getMessage(), e);
@@ -211,7 +206,7 @@ public class FederatedStore extends Store {
      * @throws CacheOperationException If issue getting from cache.
      * @throws IllegalArgumentException If graph not found.
      */
-    public Graph getGraph(final String graphId) throws CacheOperationException {
+    public GraphSerialisable getGraph(final String graphId) throws CacheOperationException {
         return getGraphAccessPair(graphId).getLeft();
     }
 
@@ -237,7 +232,7 @@ public class FederatedStore extends Store {
      * @throws CacheOperationException  If issue getting from cache.
      * @throws IllegalArgumentException If graph not found.
      */
-    public Pair<Graph, GraphAccess> getGraphAccessPair(final String graphId) throws CacheOperationException {
+    public Pair<GraphSerialisable, GraphAccess> getGraphAccessPair(final String graphId) throws CacheOperationException {
         if (quickAccessGraphs.containsKey(graphId)) {
             return quickAccessGraphs.get(graphId);
         }
@@ -248,16 +243,9 @@ public class FederatedStore extends Store {
                 String.format(GRAPH_ID_ERROR, graphId));
         }
         // Save to quick access for next time
-        Graph graph = new Graph.Builder()
-            .config(graphAndAccess.getLeft().getConfig())
-            .addSchema(graphAndAccess.getLeft().getSchema())
-            .storeProperties(graphAndAccess.getLeft().getStoreProperties())
-            .addToLibrary(false)
-            .build();
-        Pair<Graph, GraphAccess> pair = new ImmutablePair<>(graph, graphAndAccess.getRight());
-        quickAccessGraphs.putIfAbsent(graphId, pair);
+        quickAccessGraphs.putIfAbsent(graphId, graphAndAccess);
 
-        return pair;
+        return graphAndAccess;
     }
 
     /**
@@ -308,8 +296,8 @@ public class FederatedStore extends Store {
      */
     public void changeGraphId(final String graphToUpdateId, final String newGraphId) throws StoreException, CacheOperationException {
         // Get existing graph and access
-        final Pair<Graph, GraphAccess> graphPairToUpdate = getGraphAccessPair(graphToUpdateId);
-        final Graph graphToUpdate = graphPairToUpdate.getLeft();
+        final Pair<GraphSerialisable, GraphAccess> graphPairToUpdate = getGraphAccessPair(graphToUpdateId);
+        final GraphSerialisable graphToUpdate = graphPairToUpdate.getLeft();
         final GraphAccess graphAccess = graphPairToUpdate.getRight();
 
         // Remove from cache
@@ -318,28 +306,18 @@ public class FederatedStore extends Store {
         // For accumulo update the table with the new graph ID
         if (graphToUpdate.getStoreProperties().getStoreClass().startsWith(AccumuloStore.class.getPackage().getName())) {
             renameTable((AccumuloProperties) graphToUpdate.getStoreProperties(), graphToUpdateId, newGraphId);
+            // Update id in the original graph
+            graphToUpdate.getConfig().setGraphId(newGraphId);
+            GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder(graphToUpdate)
+                    .config(graphToUpdate.getConfig())
+                    .build();
+            // Add graph with new id back to cache
+            addGraph(updatedGraphSerialisable, graphAccess);
+        } else {
+            // For other stores just re-add with new graph ID
+            graphToUpdate.getConfig().setGraphId(newGraphId);
+            addGraph(graphToUpdate, graphAccess);
         }
-
-        // Need to remove old cache hooks in the config so the hooks update with the correct suffix
-        List<GraphHook> graphHooks = new ArrayList<>(graphToUpdate
-            .getConfig()
-            .getHooks());
-        graphHooks.removeIf(NamedViewResolver.class::isInstance);
-        graphHooks.removeIf(NamedOperationResolver.class::isInstance);
-        graphToUpdate.getConfig().setHooks(null);
-        graphToUpdate.getConfig().setHooks(graphHooks);
-
-        // Re-initialise so the store reference gets updated with the new ID
-        graphToUpdate.getConfig().setGraphId(newGraphId);
-        Graph updatedGraph = new Graph.Builder()
-            .config(graphToUpdate.getConfig())
-            .addSchema(graphToUpdate.getSchema())
-            .storeProperties(graphToUpdate.getStoreProperties())
-            .store(graphToUpdate.getStore())
-            .build();
-
-        // Add graph with new id back to cache
-        addGraph(updatedGraph, graphAccess);
     }
 
     /**
@@ -351,12 +329,10 @@ public class FederatedStore extends Store {
      * @throws CacheOperationException If issue updating the cache.
      */
     public void changeGraphAccess(final String graphId, final GraphAccess newAccess) throws CacheOperationException {
-        final Graph graph = getGraph(graphId);
         // Create the new pairs
-        final Pair<Graph, GraphAccess> graphAndAccessPair = new ImmutablePair<>(graph, newAccess);
-        final Pair<GraphSerialisable, GraphAccess> gsAndAccessPair = new ImmutablePair<>(new GraphSerialisable(graph), newAccess);
+        final Pair<GraphSerialisable, GraphAccess> graphAndAccessPair = new ImmutablePair<>(getGraph(graphId), newAccess);
         // Add to the cache this will overwrite any existing value
-        graphCache.getCache().put(graphId, gsAndAccessPair);
+        graphCache.getCache().put(graphId, graphAndAccessPair);
         // Add to quick access
         quickAccessGraphs.put(graphId, graphAndAccessPair);
     }

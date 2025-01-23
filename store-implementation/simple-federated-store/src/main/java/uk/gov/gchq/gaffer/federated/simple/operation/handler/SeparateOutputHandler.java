@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.FederatedUtils;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -42,7 +42,7 @@ public class SeparateOutputHandler<P extends Output<O>, O> extends FederatedOper
     @Override
     public Map<String, O> doOperation(final P operation, final Context context, final Store store) throws OperationException {
         final int fixLimit = Integer.parseInt(operation.getOption(OPT_FIX_OP_LIMIT, String.valueOf(DFLT_FIX_OP_LIMIT)));
-        List<Graph> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
+        List<GraphSerialisable> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
 
         if (graphsToExecute.isEmpty()) {
             return new HashMap<>();
@@ -51,10 +51,10 @@ public class SeparateOutputHandler<P extends Output<O>, O> extends FederatedOper
         // Execute the operation chain on each graph
         LOGGER.debug("Returning separated graph results");
         Map<String, O> results = new HashMap<>();
-        for (final Graph graph : graphsToExecute) {
+        for (final GraphSerialisable graph : graphsToExecute) {
             try {
                 OperationChain<O> fixedChain = FederatedUtils.getValidOperationForGraph(operation, graph, 0, fixLimit);
-                results.put(graph.getGraphId(), graph.execute(fixedChain, context.getUser()));
+                results.put(graph.getGraphId(), graph.getGraph().execute(fixedChain, context.getUser()));
             } catch (final OperationException | UnsupportedOperationException e) {
                 // Optionally skip this error if user has specified to do so
                 LOGGER.error("Operation failed on graph: {}", graph.getGraphId());

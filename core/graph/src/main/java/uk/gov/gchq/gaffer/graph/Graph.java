@@ -471,15 +471,6 @@ public final class Graph {
     }
 
     /**
-     * Returns the {@link Store} for this graph.
-     *
-     * @return The store
-     */
-    public Store getStore() {
-        return store;
-    }
-
-    /**
      * @return a collection of all the supported {@link Operation}s.
      */
     public Set<Class<? extends Operation>> getSupportedOperations() {

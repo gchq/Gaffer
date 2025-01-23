@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -80,7 +79,7 @@ class AddGraphTest {
         federatedStore.initialise(federatedGraphId, null, new StoreProperties());
 
         federatedStore.execute(operation, new Context());
-        final Graph addedGraph = federatedStore.getGraph(graphId);
+        final GraphSerialisable addedGraph = federatedStore.getGraph(graphId);
 
         // Then
         assertThat(addedGraph.getConfig().getGraphId())
@@ -121,7 +120,7 @@ class AddGraphTest {
         final AddGraph operation = JSONSerialiser.deserialise(jsonOperation.toString(), AddGraph.class);
         federatedStore.execute(operation, new Context());
 
-        final Graph addedGraph = federatedStore.getGraph(graphId);
+        final GraphSerialisable addedGraph = federatedStore.getGraph(graphId);
 
         // Then
         assertThat(addedGraph.getGraphId()).isEqualTo(expectedSerialisable.getGraphId());

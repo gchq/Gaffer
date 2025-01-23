@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.federated.simple.FederatedUtils;
 import uk.gov.gchq.gaffer.federated.simple.merge.DefaultResultAccumulator;
 import uk.gov.gchq.gaffer.federated.simple.merge.FederatedResultAccumulator;
 import uk.gov.gchq.gaffer.federated.simple.operation.handler.get.GetSchemaHandler;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -50,7 +50,7 @@ public class FederatedOutputHandler<P extends Output<O>, O>
     @Override
     public O doOperation(final P operation, final Context context, final Store store) throws OperationException {
         final int fixLimit = Integer.parseInt(operation.getOption(OPT_FIX_OP_LIMIT, String.valueOf(DFLT_FIX_OP_LIMIT)));
-        List<Graph> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
+        List<GraphSerialisable> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
 
         // No-op
         if (graphsToExecute.isEmpty()) {
@@ -59,10 +59,10 @@ public class FederatedOutputHandler<P extends Output<O>, O>
 
         // Execute the operation chain on each graph
         List<O> graphResults = new ArrayList<>();
-        for (final Graph graph : graphsToExecute) {
+        for (final GraphSerialisable graph : graphsToExecute) {
             try {
                 OperationChain<O> fixedChain = FederatedUtils.getValidOperationForGraph(operation, graph, 0, fixLimit);
-                graphResults.add(graph.execute(fixedChain, context.getUser()));
+                graphResults.add(graph.getGraph().execute(fixedChain, context.getUser()));
             } catch (final OperationException | UnsupportedOperationException | IllegalArgumentException e) {
                 // Optionally skip this error if user has specified to do so
                 LOGGER.error("Operation failed on graph: {}", graph.getGraphId());
@@ -110,7 +110,7 @@ public class FederatedOutputHandler<P extends Output<O>, O>
     protected FederatedResultAccumulator<O> getResultAccumulator(
             final P operation,
             final FederatedStore store,
-            final List<Graph> graphsToExecute) throws OperationException {
+            final List<GraphSerialisable> graphsToExecute) throws OperationException {
         // Merge the store props with the operation options for setting up the
         // accumulator
         Properties combinedProps = store.getProperties().getProperties();
@@ -131,7 +131,7 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         }
         // Set the merged schema if we are aggregating
         if (resultAccumulator.aggregateElements()) {
-            List<Schema> schemas = graphsToExecute.stream().map(Graph::getSchema).collect(Collectors.toList());
+            List<Schema> schemas = graphsToExecute.stream().map(GraphSerialisable::getSchema).collect(Collectors.toList());
             resultAccumulator.setSchema(GetSchemaHandler.getMergedSchema(schemas));
         }
 

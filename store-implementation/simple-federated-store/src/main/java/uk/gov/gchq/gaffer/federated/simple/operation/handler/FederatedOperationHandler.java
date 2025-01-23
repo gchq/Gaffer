@@ -24,8 +24,9 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
 import uk.gov.gchq.gaffer.federated.simple.FederatedUtils;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
@@ -114,18 +115,17 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
             return new FederatedOutputHandler<>().doOperation((Output) operation, context, store);
         }
 
-        List<Graph> graphsToExecute = getGraphsToExecuteOn(operation, context, (FederatedStore) store);
+        List<GraphSerialisable> graphsToExecute = getGraphsToExecuteOn(operation, context, (FederatedStore) store);
         // No-op
         if (graphsToExecute.isEmpty()) {
             return null;
         }
 
         // Execute the operation chain on each graph
-        for (final Graph graph : graphsToExecute) {
+        for (final GraphSerialisable graph : graphsToExecute) {
             try {
-                graph.execute(
-                    FederatedUtils.getValidOperationForGraph(operation, graph, 0, fixLimit),
-                    context.getUser());
+                OperationChain<Void> fixedChain = FederatedUtils.getValidOperationForGraph(operation, graph, 0, fixLimit);
+                graph.getGraph().execute(fixedChain, context.getUser());
             } catch (final OperationException | UnsupportedOperationException | IllegalArgumentException e) {
                 // Optionally skip this error if user has specified to do so
                 LOGGER.error("Operation failed on graph: {}", graph.getGraphId());
@@ -154,11 +154,11 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      * @return List of {@link Graph}s to execute on.
      * @throws OperationException Fail to get Graphs.
      */
-    protected List<Graph> getGraphsToExecuteOn(final Operation operation, final Context context,
+    protected List<GraphSerialisable> getGraphsToExecuteOn(final Operation operation, final Context context,
             final FederatedStore store) throws OperationException {
 
         List<String> specifiedGraphIds = new ArrayList<>();
-        List<Graph> graphsToExecute = new ArrayList<>();
+        List<GraphSerialisable> graphsToExecute = new ArrayList<>();
 
         // If user specified graph IDs for this chain parse as comma separated list
         if (operation.containsOption(OPT_SHORT_GRAPH_IDS)) {
@@ -181,7 +181,7 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         // Get the corresponding graph serialisables
         for (final String id : specifiedGraphIds) {
             try {
-                Pair<Graph, GraphAccess> pair = store.getGraphAccessPair(id);
+                Pair<GraphSerialisable, GraphAccess> pair = store.getGraphAccessPair(id);
 
                 // Check the user has access to the graph
                 if (pair.getRight().hasReadAccess(context.getUser(), store.getProperties().getAdminAuth())) {

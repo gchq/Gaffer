@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.federated.simple.operation;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -30,6 +32,7 @@ import uk.gov.gchq.gaffer.federated.simple.operation.handler.FederatedOperationH
 import uk.gov.gchq.gaffer.federated.simple.util.FederatedTestUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -54,11 +57,12 @@ class ChangeGraphIdTest {
         CacheServiceLoader.shutdown();
     }
 
-    @Test
-    void shouldChangeGraphIdAndPreserveData() throws StoreException, OperationException, CacheOperationException {
-        // Given (only possible on accumulo stores)
+    @ParameterizedTest
+    @EnumSource(StoreType.class)
+    void shouldChangeGraphIdAndPreserveData(StoreType store) throws StoreException, OperationException, CacheOperationException {
+        // Given
         final String graphId = "shouldChangeGraphIdAndPreserveData";
-        final Graph originalGraph = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId, StoreType.ACCUMULO);
+        final Graph originalGraph = FederatedTestUtils.getBlankGraphWithModernSchema(this.getClass(), graphId, store);
 
         // Elements to add to the graph
         final Properties graphEntityProps = new Properties();
@@ -70,7 +74,7 @@ class ChangeGraphIdTest {
         federatedStore.initialise(FED_STORE_ID, null, new StoreProperties());
         // Add elements to the graph
         FederatedTestUtils.addGraphWithElements(federatedStore, originalGraph, graphEntity);
-        Graph expectedGraph = federatedStore.getGraph(graphId);
+        GraphSerialisable expectedGraphSerialisable = federatedStore.getGraph(graphId);
 
         // Change graph ID operation
         final ChangeGraphId changeGraphId = new ChangeGraphId.Builder()
@@ -85,11 +89,11 @@ class ChangeGraphIdTest {
             .satisfies(gs -> {
                 assertThat(gs.getConfig())
                     .usingRecursiveComparison()
-                    .ignoringFields("graphId", "hooks")
-                    .isEqualTo(expectedGraph.getConfig());
+                    .ignoringFields("graphId")
+                    .isEqualTo(expectedGraphSerialisable.getConfig());
 
                 assertThat(gs.getStoreProperties())
-                    .isEqualTo(expectedGraph.getStoreProperties());
+                    .isEqualTo(expectedGraphSerialisable.getStoreProperties());
             });
 
         // Ensure that there are no references to the 'old' graph ID
