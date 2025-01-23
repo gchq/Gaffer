@@ -362,22 +362,12 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * As a federated store technically has no schema this will just return the
-     * merged schema of any default sub graphs set, otherwise it will just
-     * return a blank schema.
+     * As a federated store technically has no schema this will just return a
+     * blank schema.
      */
     @Override
     public Schema getSchema() {
-        // Return a blank schema if we have no default graphs
-        if (defaultGraphIds.isEmpty()) {
-            return new Schema();
-        }
-        // Return the merged schema of the default graph IDs
-        try {
-            return (Schema) this.handleOperation(new GetSchema(), new Context());
-        } catch (final OperationException e) {
-            throw new GafferRuntimeException(e.getMessage(), e);
-        }
+        return new Schema();
     }
 
     @Override
