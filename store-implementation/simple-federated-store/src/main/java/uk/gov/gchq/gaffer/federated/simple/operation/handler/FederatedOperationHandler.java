@@ -177,8 +177,6 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
             specifiedGraphIds.addAll(store.getDefaultGraphIds());
         }
 
-        LOGGER.info("specified graph ids: {}", specifiedGraphIds);
-
         // Get the corresponding graph serialisables
         for (final String id : specifiedGraphIds) {
             try {
