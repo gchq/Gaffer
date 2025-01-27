@@ -16,12 +16,12 @@
 
 package uk.gov.gchq.gaffer.access.predicate.user;
 
-import java.io.Serializable;
-
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
+
+import java.io.Serializable;
 
 @Since("1.13.1")
 @Summary("Predicate which never allows user access")
