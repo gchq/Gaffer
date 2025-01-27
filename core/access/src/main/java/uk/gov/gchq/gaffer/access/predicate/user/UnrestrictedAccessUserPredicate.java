@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.access.predicate.user;
+
+import java.io.Serializable;
 
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.Since;
@@ -22,7 +25,7 @@ import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 @Since("1.13.1")
 @Summary("A predicate which always allows a user access")
-public class UnrestrictedAccessUserPredicate extends KoryphePredicate<User> {
+public class UnrestrictedAccessUserPredicate extends KoryphePredicate<User> implements Serializable {
     @Override
     public boolean test(final User user) {
         return true;

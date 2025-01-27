@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,10 +91,9 @@ public final class FederatedUtils {
                 && ((OperationView) operation).getView().hasGroups()) {
 
             // Update the view for the graph
-            ((OperationView) operation).setView(
-                getValidViewForGraph(((OperationView) operation).getView(), graphSerialisable));
-
-            updatedOperations.add(operation);
+            OperationView fixedOp = (OperationView) operation.shallowClone();
+            fixedOp.setView(getValidViewForGraph(fixedOp.getView(), graphSerialisable));
+            updatedOperations.add((Operation) fixedOp);
 
         // Recursively go into operation chains to make sure everything is fixed
         } else if (operation instanceof OperationChain) {
