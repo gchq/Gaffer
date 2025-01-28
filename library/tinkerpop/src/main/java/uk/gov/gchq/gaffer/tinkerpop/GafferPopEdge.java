@@ -132,11 +132,11 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
     public Iterator<Vertex> vertices(final Direction direction) {
         switch (direction) {
             case OUT:
-                return IteratorUtils.of(outVertex());
+                return IteratorUtils.of(getCompleteOutVertex());
             case IN:
-                return IteratorUtils.of(inVertex());
+                return IteratorUtils.of(getCompleteInVertex());
             default:
-                return IteratorUtils.of(outVertex(), inVertex());
+                return IteratorUtils.of(getCompleteOutVertex(), getCompleteInVertex());
         }
     }
 
@@ -156,13 +156,32 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
         return StringFactory.edgeString(this);
     }
 
+
     @Override
     public Vertex outVertex() {
+        return outVertex;
+    }
+
+    /**
+     * Performs a lookup for the outgoing vertex for this edge.
+     * The returned vertex will include all properties but incurs lookup cost
+     * @return The complete outgoing vertex
+     */
+    public Vertex getCompleteOutVertex() {
         return getVertex(outVertex);
     }
 
     @Override
     public Vertex inVertex() {
+        return inVertex;
+    }
+
+    /**
+     * Perform a full lookup for the incoming vertex for this edge.
+     * The returned vertex will include all properties but incurs lookup cost
+     * @return The complete incoming vertex
+     */
+    public Vertex getCompleteInVertex() {
         return getVertex(inVertex);
     }
 
