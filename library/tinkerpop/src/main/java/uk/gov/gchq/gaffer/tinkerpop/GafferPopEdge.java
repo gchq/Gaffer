@@ -163,7 +163,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
      * Gets the outgoing vertex of the edge.
      *
      * Note: the returned vertex will not have any properties set - only the ID
-     * if you need the 'full' vertex use {@link #vertices(Direction.OUT)}
+     * if you need the 'full' vertex use {@link #vertices(Direction)}
      */
     @Override
     public Vertex outVertex() {
@@ -174,7 +174,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
      * Gets the incoming vertex of the edge.
      *
      * Note: the returned vertex will not have any properties set - only the ID
-     * if you need the 'full' vertex use {@link #vertices(Direction.IN)}
+     * if you need the 'full' vertex use {@link #vertices(Direction)}
      */
     @Override
     public Vertex inVertex() {
