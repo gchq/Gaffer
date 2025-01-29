@@ -128,15 +128,17 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
         return newProperty;
     }
 
+    // This is the method TinkerPop uses when traversing edges
+    // lookup the 'full' vertices rather than returning the 'dummy' ID vertices
     @Override
     public Iterator<Vertex> vertices(final Direction direction) {
         switch (direction) {
             case OUT:
-                return IteratorUtils.of(getCompleteOutVertex());
+                return IteratorUtils.of(lookupVertex(outVertex));
             case IN:
-                return IteratorUtils.of(getCompleteInVertex());
+                return IteratorUtils.of(lookupVertex(inVertex));
             default:
-                return IteratorUtils.of(getCompleteOutVertex(), getCompleteInVertex());
+                return IteratorUtils.of(lookupVertex(outVertex), lookupVertex(inVertex));
         }
     }
 
@@ -157,32 +159,26 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
     }
 
 
+    /**
+     * Gets the outgoing vertex of the edge.
+     *
+     * Note: the returned vertex will not have any properties set - only the ID
+     * if you need the 'full' vertex use {@link #vertices(Direction.OUT)}
+     */
     @Override
     public Vertex outVertex() {
         return outVertex;
     }
 
     /**
-     * Performs a lookup for the outgoing vertex for this edge.
-     * The returned vertex will include all properties but incurs lookup cost
-     * @return The complete outgoing vertex
+     * Gets the incoming vertex of the edge.
+     *
+     * Note: the returned vertex will not have any properties set - only the ID
+     * if you need the 'full' vertex use {@link #vertices(Direction.IN)}
      */
-    public Vertex getCompleteOutVertex() {
-        return getVertex(outVertex);
-    }
-
     @Override
     public Vertex inVertex() {
         return inVertex;
-    }
-
-    /**
-     * Perform a full lookup for the incoming vertex for this edge.
-     * The returned vertex will include all properties but incurs lookup cost
-     * @return The complete incoming vertex
-     */
-    public Vertex getCompleteInVertex() {
-        return getVertex(inVertex);
     }
 
     /**
@@ -228,7 +224,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
      * @param vertex The vertex object or ID
      * @return A valid Vertex based on the supplied object or ID.
      */
-    private Vertex getVertex(final GafferPopVertex vertex) {
+    private Vertex lookupVertex(final GafferPopVertex vertex) {
         OperationChain<Iterable<? extends Element>> findBasedOnID = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(vertex.id()))
