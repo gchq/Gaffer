@@ -40,6 +40,7 @@ public class GetAllGraphInfoHandler implements OutputOperationHandler<GetAllGrap
     public static final String OP_DECLARATIONS = "operationDeclarations";
     public static final String OWNER = "owner";
     public static final String IS_PUBLIC = "isPublic";
+    public static final String DEFAULT_GRAPH_IDS = "defaultGraphIds";
 
     @Override
     public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store)
@@ -69,6 +70,8 @@ public class GetAllGraphInfoHandler implements OutputOperationHandler<GetAllGrap
                 // Add the Graph ID and all properties associated with it
                 allGraphInfo.put(graph.getConfig().getGraphId(), graphInfo);
             });
+
+            allGraphInfo.put(DEFAULT_GRAPH_IDS, ((FederatedStore) store).getDefaultGraphIds());
 
             return allGraphInfo;
         }
