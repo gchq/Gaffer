@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,15 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Operator for aggregating two iterables of {@link Element}s together, this
@@ -37,7 +41,7 @@ import java.util.stream.Collectors;
 public class ElementAggregateOperator implements BinaryOperator<Iterable<Element>> {
 
     // The schema to use for pulling aggregation functions from
-    private Schema schema;
+    protected Schema schema;
 
     /**
      * Set the schema to use for aggregating elements of the same group
@@ -50,44 +54,65 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
 
     @Override
     public Iterable<Element> apply(final Iterable<Element> update, final Iterable<Element> state) {
-        // Just append the state and update so we can loop over it to do accurate merging
-        // We can't use the original iterators directly in case they close or become exhausted so save to a Set first.
-        Set<Element> chainedResult = new HashSet<>(IterableUtils.toList(IterableUtils.chainedIterable(update, state)));
+        // Just append the state and update so we can loop over it to do accurate
+        // merging
+        // We can't use the original iterators directly in case they close or become
+        // exhausted so save to a List first.
+        final List<Element> chained = IterableUtils.toList(IterableUtils.chainedIterable(update, state));
 
-        // Iterate over the chained result to merge the elements with each other
-        // Collect to a set to ensure deduplication
-        return chainedResult.stream()
-            .map(e -> {
-                Element result = e;
-                // Set up the aggregator for this group based on the schema
-                ElementAggregator aggregator = new ElementAggregator();
-                if (schema != null) {
-                    aggregator = schema.getElement(e.getGroup()).getIngestAggregator();
-                }
-                // Compare the current element with all others to do a full merge
-                for (final Element inner : chainedResult) {
-                    // No merge required if not in same group
-                    if (!e.getGroup().equals(inner.getGroup()) || e.equals(inner)) {
-                        continue;
+        // Group the elements into lists
+        final Map<String, List<Element>> groupedElements = chained
+                .stream()
+                .collect(Collectors.groupingBy(this::getElementKey));
+
+        // If the elements for a group should be aggregated, do so
+        // Otherwise keep all the elements
+        return groupedElements.values().parallelStream()
+                .map(elements -> {
+                    // No merging needed
+                    if (elements.size() <= 1) {
+                        return elements;
                     }
 
-                    if ((e instanceof Entity)
-                            && (inner instanceof Entity)
-                            && ((Entity) e).getVertex().equals(((Entity) inner).getVertex())) {
-                        result = aggregator.apply(inner.shallowClone(), result).shallowClone();
+                    // Merge Elements in these smaller lists
+                    final String group = elements.get(0).getGroup();
+                    final ElementAggregator aggregator;
+                    boolean shouldMergeGroup = false;
+                    if (schema != null) {
+                        final SchemaElementDefinition elementDefinition = schema.getElement(group);
+                        aggregator = elementDefinition.getIngestAggregator();
+                        shouldMergeGroup = elementDefinition.isAggregate();
+                    } else {
+                        aggregator = new ElementAggregator();
                     }
 
-                    if ((e instanceof Edge)
-                            && (inner instanceof Edge)
-                            && ((Edge) e).getSource().equals(((Edge) inner).getSource())
-                            && ((Edge) e).getDestination().equals(((Edge) inner).getDestination())
-                            && ((Edge) e).getDirectedType().equals(((Edge) inner).getDirectedType())) {
-                        result = aggregator.apply(inner.shallowClone(), result);
+                    // dedup
+                    final Stream<Element> stream = elements.stream().distinct();
+
+                    if (shouldMergeGroup) {
+                        return Collections.singletonList(stream.reduce(aggregator::apply).get());
                     }
-                }
-                return result;
-            })
-            .collect(Collectors.toSet());
+
+                    return stream.collect(Collectors.toList());
+                })
+                .flatMap(Collection::stream) // Flatten list of lists
+                .collect(Collectors.toList());
+    }
+
+    // So we can group Elements that are the same but with different properties
+    private String getElementKey(final Element e) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(e.getGroup());
+
+        if (e instanceof Entity) {
+            builder.append(((Entity) e).getVertex().toString());
+        } else if (e instanceof Edge) {
+            builder.append(((Edge) e).getSource().toString());
+            builder.append(((Edge) e).getDestination().toString());
+            builder.append(((Edge) e).getDirectedType().toString());
+        }
+
+        return builder.toString();
     }
 
 }
