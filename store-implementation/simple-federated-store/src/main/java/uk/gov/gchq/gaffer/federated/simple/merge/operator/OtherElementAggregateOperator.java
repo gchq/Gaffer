@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federated.simple.merge.operator;
 
+import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,14 +40,14 @@ public class OtherElementAggregateOperator extends ElementAggregateOperator {
         for (Element element : stateList) {
             // Set up the aggregator for this group based on the schema
             ElementAggregator aggregator = new ElementAggregator();
-            boolean shouldMerge = false;
+            boolean shouldMergeGroup = false;
             if (schema != null) {
                 SchemaElementDefinition elementDefinition = schema.getElement(element.getGroup());
                 aggregator = elementDefinition.getIngestAggregator();
-                shouldMerge = elementDefinition.isAggregate();
+                shouldMergeGroup = elementDefinition.isAggregate();
             }
 
-            if (!shouldMerge) {
+            if (!shouldMergeGroup) {
                 merged.add(element);
             }
 
@@ -57,25 +58,10 @@ public class OtherElementAggregateOperator extends ElementAggregateOperator {
                     continue;
                 }
 
-                if (element.equals(otherElement)) {
+                if(element.equals(otherElement)) {
                     deleted.add(otherElement);
-                }
-
-                if ((element instanceof Entity)
-                        && (otherElement instanceof Entity)
-                        && ((Entity) element).getVertex().equals(((Entity) otherElement).getVertex())) {
+                } else if (canMerge(element, otherElement)) {
                     Element result = aggregator.apply(otherElement.shallowClone(), element).shallowClone();
-                    merged.add(result);
-                    hasMerged = true;
-                    deleted.add(otherElement);
-                }
-
-                if ((element instanceof Edge)
-                        && (otherElement instanceof Edge)
-                        && ((Edge) element).getSource().equals(((Edge) otherElement).getSource())
-                        && ((Edge) element).getDestination().equals(((Edge) otherElement).getDestination())
-                        && ((Edge) element).getDirectedType().equals(((Edge) otherElement).getDirectedType())) {
-                    Element result = aggregator.apply(otherElement.shallowClone(), element);
                     merged.add(result);
                     hasMerged = true;
                     deleted.add(otherElement);
@@ -93,6 +79,24 @@ public class OtherElementAggregateOperator extends ElementAggregateOperator {
         // These must be elements that aren't in the first list
         merged.addAll(updateList);
         return merged;
+    }
+
+    private boolean canMerge(Element element, Element otherElement) {
+        return canMergeEdge(element, otherElement) || canMergeEntity(element, otherElement);
+    }
+
+    private boolean canMergeEntity(Element element, Element otherElement) {
+        return (element instanceof Entity)
+                && (otherElement instanceof Entity)
+                && ((Entity) element).getVertex().equals(((Entity) otherElement).getVertex());
+    }
+
+    private boolean canMergeEdge(Element element, Element otherElement) {
+        return (element instanceof Edge)
+                && (otherElement instanceof Edge)
+                && ((Edge) element).getSource().equals(((Edge) otherElement).getSource())
+                && ((Edge) element).getDestination().equals(((Edge) otherElement).getDestination())
+                && ((Edge) element).getDirectedType().equals(((Edge) otherElement).getDirectedType());
     }
 
 }
