@@ -32,49 +32,43 @@ public class OtherElementAggregateOperator extends ElementAggregateOperator {
 
     @Override
     public Iterable<Element> apply(final Iterable<Element> update, final Iterable<Element> state) {
-        final List<Element> stateList = IterableUtils.toList(state);
-        final List<Element> updateList = IterableUtils.toList(update);
+        final List<Element> result = IterableUtils.toList(update);
+        final List<Element> elementsToMerge = IterableUtils.toList(state);
 
-        for (final Element element : stateList) {
+        for (final Element element : result) {
             // Set up the aggregator for this group based on the schema
-            ElementAggregator aggregator = new ElementAggregator();
+            final ElementAggregator aggregator;
             boolean shouldMergeGroup = false;
             if (schema != null) {
                 final SchemaElementDefinition elementDefinition = schema.getElement(element.getGroup());
                 aggregator = elementDefinition.getIngestAggregator();
                 shouldMergeGroup = elementDefinition.isAggregate();
+            } else {
+                aggregator = new ElementAggregator();
             }
 
             if (!shouldMergeGroup) {
                 continue;
             }
 
-            final Collection<Element> deleted = new ArrayList<>();
-            for (final Element otherElement : updateList) {
-                if (!element.getGroup().equals(otherElement.getGroup())) {
-                    continue;
-                }
-
-                if (element.equals(otherElement)) {
-                    deleted.add(otherElement);
-                } else if (canMerge(element, otherElement)) {
-                    // Mutates element
-                    aggregator.apply(element, otherElement);
-                    deleted.add(otherElement);
-                }
-            }
-
-            updateList.removeAll(deleted);
+            final Collection<Element> merged = new ArrayList<>();
+            elementsToMerge.stream()
+                .filter(e -> canMerge(element, e))
+                .forEach(e -> {
+                aggregator.apply(element, e);
+                merged.add(e);
+            });
+            elementsToMerge.removeAll(merged);
         }
 
-        // Add anything left in the other List
-        // These must be elements that aren't in the first list
-        stateList.addAll(updateList);
-        return stateList;
+        // Concat any remaining Elements
+        // These are the Elements that couldn't be merged
+        result.addAll(elementsToMerge);
+        return result;
     }
 
     private boolean canMerge(final Element element, final Element otherElement) {
-        return canMergeEdge(element, otherElement) || canMergeEntity(element, otherElement);
+        return element.getGroup().equals(otherElement.getGroup()) && (canMergeEdge(element, otherElement) || canMergeEntity(element, otherElement));
     }
 
     private boolean canMergeEntity(final Element element, final Element otherElement) {
