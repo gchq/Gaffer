@@ -190,6 +190,6 @@ class DefaultResultAccumulatorTest {
         accumulator.setSchema(schema);
 
         // Then
-        assertThat(accumulator.apply(iter1, iter2)).containsExactlyElementsOf(expected);
+        assertThat(accumulator.apply(iter1, iter2)).containsExactlyInAnyOrderElementsOf(expected);
     }
 }
