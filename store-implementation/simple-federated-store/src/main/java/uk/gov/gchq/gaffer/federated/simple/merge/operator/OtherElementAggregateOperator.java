@@ -16,11 +16,6 @@
 
 package uk.gov.gchq.gaffer.federated.simple.merge.operator;
 
-import java.lang.annotation.ElementType;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.commons.collections4.IterableUtils;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -29,69 +24,66 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class OtherElementAggregateOperator extends ElementAggregateOperator {
 
     @Override
-    public Iterable<Element> apply(Iterable<Element> update, Iterable<Element> state) {
-        List<Element> stateList = IterableUtils.toList(state);
-        List<Element> updateList = IterableUtils.toList(update);
+    public Iterable<Element> apply(final Iterable<Element> update, final Iterable<Element> state) {
+        final List<Element> stateList = IterableUtils.toList(state);
+        final List<Element> updateList = IterableUtils.toList(update);
 
-        List<Element> merged = new ArrayList<>();
-        for (Element element : stateList) {
+        for (final Element element : stateList) {
             // Set up the aggregator for this group based on the schema
             ElementAggregator aggregator = new ElementAggregator();
             boolean shouldMergeGroup = false;
             if (schema != null) {
-                SchemaElementDefinition elementDefinition = schema.getElement(element.getGroup());
+                final SchemaElementDefinition elementDefinition = schema.getElement(element.getGroup());
                 aggregator = elementDefinition.getIngestAggregator();
                 shouldMergeGroup = elementDefinition.isAggregate();
             }
 
             if (!shouldMergeGroup) {
-                merged.add(element);
+                continue;
             }
 
-            boolean hasMerged = false;
-            Collection<Element> deleted = new ArrayList<>();
-            for (Element otherElement : updateList) {
+            final Collection<Element> deleted = new ArrayList<>();
+            for (final Element otherElement : updateList) {
                 if (!element.getGroup().equals(otherElement.getGroup())) {
                     continue;
                 }
 
-                if(element.equals(otherElement)) {
+                if (element.equals(otherElement)) {
                     deleted.add(otherElement);
                 } else if (canMerge(element, otherElement)) {
-                    Element result = aggregator.apply(otherElement.shallowClone(), element).shallowClone();
-                    merged.add(result);
-                    hasMerged = true;
+                    // Mutates element
+                    aggregator.apply(element, otherElement);
                     deleted.add(otherElement);
                 }
             }
 
             updateList.removeAll(deleted);
-
-            if (!hasMerged) {
-                merged.add(element);
-            }
         }
 
         // Add anything left in the other List
         // These must be elements that aren't in the first list
-        merged.addAll(updateList);
-        return merged;
+        stateList.addAll(updateList);
+        return stateList;
     }
 
-    private boolean canMerge(Element element, Element otherElement) {
+    private boolean canMerge(final Element element, final Element otherElement) {
         return canMergeEdge(element, otherElement) || canMergeEntity(element, otherElement);
     }
 
-    private boolean canMergeEntity(Element element, Element otherElement) {
+    private boolean canMergeEntity(final Element element, final Element otherElement) {
         return (element instanceof Entity)
                 && (otherElement instanceof Entity)
                 && ((Entity) element).getVertex().equals(((Entity) otherElement).getVertex());
     }
 
-    private boolean canMergeEdge(Element element, Element otherElement) {
+    private boolean canMergeEdge(final Element element, final Element otherElement) {
         return (element instanceof Edge)
                 && (otherElement instanceof Edge)
                 && ((Edge) element).getSource().equals(((Edge) otherElement).getSource())
