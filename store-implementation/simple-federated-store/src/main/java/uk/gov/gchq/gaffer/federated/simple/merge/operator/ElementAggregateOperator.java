@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 public class ElementAggregateOperator implements BinaryOperator<Iterable<Element>> {
 
     // The schema to use for pulling aggregation functions from
-    protected Schema schema;
+    private Schema schema;
 
     /**
      * Set the schema to use for aggregating elements of the same group
