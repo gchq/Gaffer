@@ -26,11 +26,10 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AnotherElementAggregateOperator extends ElementAggregateOperator {
 
@@ -40,15 +39,9 @@ public class AnotherElementAggregateOperator extends ElementAggregateOperator {
         List<Element> chained = IterableUtils.toList(IterableUtils.chainedIterable(update, state));
 
         // Group the elements into lists
-        final Map<String, Set<Element>> groupedElements = chained
-                .parallelStream()
-                .collect(Collectors.toConcurrentMap(
-                        this::getIdString,
-                        e -> new HashSet<>(Collections.singleton(e)),
-                        (existing, replacement) -> {
-                            existing.addAll(replacement);
-                            return existing;
-                        }));
+        final Map<String, List<Element>> groupedElements = chained
+                .stream()
+                .collect(Collectors.groupingBy(this::getIdString));
 
         // If the elements for a group should be aggregated, do so
         // Otherwise keep all the elements
@@ -58,7 +51,7 @@ public class AnotherElementAggregateOperator extends ElementAggregateOperator {
                         return elements;
                     }
 
-                    Element e = elements.stream().findAny().get();
+                    Element e = elements.get(0);
                     final ElementAggregator aggregator;
                     boolean shouldMergeGroup = false;
                     if (schema != null) {
@@ -70,12 +63,14 @@ public class AnotherElementAggregateOperator extends ElementAggregateOperator {
                         aggregator = new ElementAggregator();
                     }
 
+                    Stream<Element> stream = elements.stream().distinct();
+
                     if (shouldMergeGroup) {
-                        return Collections.singletonList(elements.stream()
-                                .reduce((a, b) -> aggregator.apply(a.shallowClone(), b.shallowClone())).get());
+                        return Collections.singletonList(
+                                stream.reduce((a, b) -> aggregator.apply(a.shallowClone(), b.shallowClone())).get());
                     }
 
-                    return elements;
+                    return stream.collect(Collectors.toList());
                 })
                 .flatMap(Collection::stream) // Flatten list of lists
                 .collect(Collectors.toList());

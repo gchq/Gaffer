@@ -55,7 +55,9 @@ public class OtherElementAggregateOperator extends ElementAggregateOperator {
             elementsToMerge.stream()
                     .filter(e -> canMerge(element, e))
                     .forEach(e -> {
-                        aggregator.apply(element, e);
+                        if(!e.equals(element)) {
+                            aggregator.apply(element, e);
+                        }
                         merged.add(e);
                     });
             elementsToMerge.removeAll(merged);

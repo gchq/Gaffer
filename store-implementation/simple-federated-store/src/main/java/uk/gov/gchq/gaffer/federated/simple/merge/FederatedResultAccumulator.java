@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federated.simple.merge.operator.AnotherElementAggregateOperator;
 import uk.gov.gchq.gaffer.federated.simple.merge.operator.ElementAggregateOperator;
+import uk.gov.gchq.gaffer.federated.simple.merge.operator.OtherElementAggregateOperator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorMap;
 import uk.gov.gchq.koryphe.impl.binaryoperator.And;
