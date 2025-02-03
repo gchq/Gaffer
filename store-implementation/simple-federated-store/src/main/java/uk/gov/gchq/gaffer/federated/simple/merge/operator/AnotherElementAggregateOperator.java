@@ -41,8 +41,8 @@ public class AnotherElementAggregateOperator extends ElementAggregateOperator {
 
         // Group the elements into lists
         final Map<String, Set<Element>> groupedElements = chained
-                .stream()
-                .collect(Collectors.toMap(
+                .parallelStream()
+                .collect(Collectors.toConcurrentMap(
                         this::getIdString,
                         e -> new HashSet<>(Collections.singleton(e)),
                         (existing, replacement) -> {
@@ -52,7 +52,7 @@ public class AnotherElementAggregateOperator extends ElementAggregateOperator {
 
         // If the elements for a group should be aggregated, do so
         // Otherwise keep all the elements
-        return groupedElements.values().stream()
+        return groupedElements.values().parallelStream()
                 .map(elements -> {
                     if (elements.size() <= 1) {
                         return elements;
