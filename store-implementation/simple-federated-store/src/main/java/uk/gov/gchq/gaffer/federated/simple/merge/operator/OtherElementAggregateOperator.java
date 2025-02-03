@@ -53,11 +53,11 @@ public class OtherElementAggregateOperator extends ElementAggregateOperator {
 
             final Collection<Element> merged = new ArrayList<>();
             elementsToMerge.stream()
-                .filter(e -> canMerge(element, e))
-                .forEach(e -> {
-                aggregator.apply(element, e);
-                merged.add(e);
-            });
+                    .filter(e -> canMerge(element, e))
+                    .forEach(e -> {
+                        aggregator.apply(element, e);
+                        merged.add(e);
+                    });
             elementsToMerge.removeAll(merged);
         }
 
@@ -68,7 +68,8 @@ public class OtherElementAggregateOperator extends ElementAggregateOperator {
     }
 
     private boolean canMerge(final Element element, final Element otherElement) {
-        return element.getGroup().equals(otherElement.getGroup()) && (canMergeEdge(element, otherElement) || canMergeEntity(element, otherElement));
+        return !element.equals(otherElement) && element.getGroup().equals(otherElement.getGroup())
+                && (canMergeEdge(element, otherElement) || canMergeEntity(element, otherElement));
     }
 
     private boolean canMergeEntity(final Element element, final Element otherElement) {
@@ -84,5 +85,4 @@ public class OtherElementAggregateOperator extends ElementAggregateOperator {
                 && ((Edge) element).getDestination().equals(((Edge) otherElement).getDestination())
                 && ((Edge) element).getDirectedType().equals(((Edge) otherElement).getDirectedType());
     }
-
 }

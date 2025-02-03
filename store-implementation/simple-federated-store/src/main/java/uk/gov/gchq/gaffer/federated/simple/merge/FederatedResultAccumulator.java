@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.federated.simple.merge.operator.AnotherElementAggregateOperator;
 import uk.gov.gchq.gaffer.federated.simple.merge.operator.ElementAggregateOperator;
-import uk.gov.gchq.gaffer.federated.simple.merge.operator.OtherElementAggregateOperator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorMap;
 import uk.gov.gchq.koryphe.impl.binaryoperator.And;
@@ -55,7 +55,7 @@ public abstract class FederatedResultAccumulator<T> implements BinaryOperator<T>
     protected BinaryOperator<String> stringMergeOperator = new StringConcat();
     protected BinaryOperator<Boolean> booleanMergeOperator = new And();
     protected BinaryOperator<Collection<Object>> collectionMergeOperator = new CollectionConcat<>();
-    protected BinaryOperator<Iterable<Element>> elementAggregateOperator = new OtherElementAggregateOperator();
+    protected BinaryOperator<Iterable<Element>> elementAggregateOperator = new AnotherElementAggregateOperator();
     // For map merging define a sub operator for if values are the same
     protected BinaryOperator<Object> mapValueMergeOperator = new Last();
     protected BinaryOperator<Map<Object, Object>> mapMergeOperator = new BinaryOperatorMap<>(mapValueMergeOperator);
