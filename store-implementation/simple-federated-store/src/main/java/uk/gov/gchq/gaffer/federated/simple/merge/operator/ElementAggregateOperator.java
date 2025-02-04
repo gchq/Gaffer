@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                 // Compare the current element with all others to do a full merge
                 for (final Element inner : chainedResult) {
                     // No merge required if not in same group
-                    if (!e.getGroup().equals(inner.getGroup()) || e.equals(inner)) {
+                    if (!e.getGroup().equals(inner.getGroup()) || e.equals(inner) || !schema.getElement(e.getGroup()).isAggregate()) {
                         continue;
                     }
 
