@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.AGE;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.CREATED;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.JOSH;
 import static uk.gov.gchq.gaffer.tinkerpop.util.modern.GafferPopModernTestUtils.KNOWS;
@@ -275,6 +276,38 @@ class GafferPopGraphIT {
                 .extracting(Element::id)
                 .containsExactlyInAnyOrder(MARKO.knows(VADAS));
         });
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldLookupInVertex(String graph, GraphTraversalSource g) {
+        final List<Vertex> result = g.E("[1,knows,2]").inV().toList();
+
+        assertThat(result)
+                .hasSize(1);
+
+        // Check that properties are set on the returned vertex
+        // i.e. a vertex lookup has been performed
+        Vertex vadas = result.get(0);
+        assertThat(vadas.id()).isEqualTo(VADAS.getId());
+        assertThat(vadas.property(NAME).value()).isEqualTo(VADAS.getName());
+        assertThat(vadas.property(AGE).value()).isEqualTo(VADAS.getAge());
+    }
+
+    @ParameterizedTest(name = TEST_NAME_FORMAT)
+    @MethodSource("provideTraversals")
+    void shouldLookupOutVertex(String graph, GraphTraversalSource g) {
+        final List<Vertex> result = g.E("[1,knows,2]").outV().toList();
+
+        assertThat(result)
+                .hasSize(1);
+
+        // Check that properties are set on the returned vertex
+        // i.e. a vertex lookup has been performed
+        Vertex marko = result.get(0);
+        assertThat(marko.id()).isEqualTo(MARKO.getId());
+        assertThat(marko.property(NAME).value()).isEqualTo(MARKO.getName());
+        assertThat(marko.property(AGE).value()).isEqualTo(MARKO.getAge());
     }
 
     @ParameterizedTest(name = TEST_NAME_FORMAT)

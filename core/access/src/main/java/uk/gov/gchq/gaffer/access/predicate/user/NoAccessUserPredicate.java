@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,11 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
+import java.io.Serializable;
+
 @Since("1.13.1")
 @Summary("Predicate which never allows user access")
-public class NoAccessUserPredicate extends KoryphePredicate<User> {
+public class NoAccessUserPredicate extends KoryphePredicate<User> implements Serializable {
     @Override
     public boolean test(final User user) {
         return false;
