@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Operator for aggregating two iterables of {@link Element}s together, this
@@ -99,15 +98,12 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                         aggregator = new ElementAggregator();
                     }
 
-                    // dedup
-                    final Stream<Element> stream = elements.stream().distinct();
-
                     if (shouldMergeGroup) {
-                        return Collections
-                                .singletonList(stream.reduce((a, b) -> aggregator.apply(a.shallowClone(), b)).get());
+                        return Collections.singletonList(
+                                elements.stream().reduce((a, b) -> aggregator.apply(a.shallowClone(), b)).get());
                     }
 
-                    return stream.collect(Collectors.toList());
+                    return elements;
                 })
                 .flatMap(Collection::stream) // Flatten list of lists
                 .collect(Collectors.toList());
