@@ -66,47 +66,40 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                 .stream()
                 .collect(Collectors.groupingBy(this::getElementKey));
 
-        stateList.forEach(e -> {
-            String key = getElementKey(e);
-            List<Element> existing = groupedElements.get(key);
-            if (existing == null) {
-                groupedElements.put(key, new ArrayList<>(Collections.singleton(e)));
-            } else if (!existing.contains(e)) {
-                existing.add(e);
-                groupedElements.put(key, existing);
-            }
-        });
+        stateList.forEach(e -> groupedElements.computeIfAbsent(getElementKey(e), k -> new ArrayList<>()).add(e));
 
         // If the elements for a group should be aggregated, do so
         // Otherwise keep all the elements
-        return groupedElements.values().parallelStream()
-                .map(elements -> {
-                    // No merging needed
-                    if (elements.size() <= 1) {
-                        return elements;
-                    }
+        List<Element> merged = new ArrayList<>();
+        for (List<Element> elementsInGroup : groupedElements.values()) {
+            if (elementsInGroup.size() <= 1) {
+                merged.addAll(elementsInGroup);
+                continue;
+            }
 
-                    // Merge Elements in these smaller lists
-                    final String group = elements.get(0).getGroup();
-                    final ElementAggregator aggregator;
-                    boolean shouldMergeGroup = false;
-                    if (schema != null) {
-                        final SchemaElementDefinition elementDefinition = schema.getElement(group);
-                        aggregator = elementDefinition.getIngestAggregator();
-                        shouldMergeGroup = elementDefinition.isAggregate();
-                    } else {
-                        aggregator = new ElementAggregator();
-                    }
+            // Merge Elements in these smaller lists
+            final String group = elementsInGroup.get(0).getGroup();
+            final ElementAggregator aggregator;
+            boolean shouldMergeGroup = false;
+            if (schema != null) {
+                final SchemaElementDefinition elementDefinition = schema.getElement(group);
+                aggregator = elementDefinition.getIngestAggregator();
+                shouldMergeGroup = elementDefinition.isAggregate();
+            } else {
+                aggregator = new ElementAggregator();
+            }
 
-                    if (shouldMergeGroup) {
-                        return Collections.singletonList(
-                                elements.stream().reduce((a, b) -> aggregator.apply(a.shallowClone(), b)).get());
-                    }
-
-                    return elements;
-                })
-                .flatMap(Collection::stream) // Flatten list of lists
-                .collect(Collectors.toList());
+            if (shouldMergeGroup) {
+                Element m = null;
+                for (Element e : elementsInGroup) {
+                    m = aggregator.apply(m, e);
+                }
+                merged.add(m);
+            } else {
+                merged.addAll(elementsInGroup);
+            }
+        }
+        return merged;
     }
 
     // So we can group Elements that are the same but with different properties
