@@ -79,7 +79,7 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
 
         // If the elements for a group should be aggregated, do so
         // Otherwise keep all the elements
-        return groupedElements.values().stream()
+        return groupedElements.values().parallelStream()
                 .map(elements -> {
                     // No merging needed
                     if (elements.size() <= 1) {
