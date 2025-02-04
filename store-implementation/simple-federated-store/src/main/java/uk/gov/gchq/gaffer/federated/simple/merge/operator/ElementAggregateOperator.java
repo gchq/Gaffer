@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -58,16 +59,28 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
         // merging
         // We can't use the original iterators directly in case they close or become
         // exhausted so save to a List first.
-        final List<Element> chained = IterableUtils.toList(IterableUtils.chainedIterable(update, state));
+        List<Element> updateList = IterableUtils.toList(update);
+        List<Element> stateList = IterableUtils.toList(state);
 
         // Group the elements into lists
-        final Map<String, List<Element>> groupedElements = chained
+        final Map<String, List<Element>> groupedElements = updateList
                 .stream()
                 .collect(Collectors.groupingBy(this::getElementKey));
 
+        stateList.forEach(e -> {
+            String key = getElementKey(e);
+            List<Element> existing = groupedElements.get(key);
+            if (existing == null) {
+                groupedElements.put(key, new ArrayList<>(Collections.singleton(e)));
+            } else if (!existing.contains(e)) {
+                existing.add(e);
+                groupedElements.put(key, existing);
+            }
+        });
+
         // If the elements for a group should be aggregated, do so
         // Otherwise keep all the elements
-        return groupedElements.values().parallelStream()
+        return groupedElements.values().stream()
                 .map(elements -> {
                     // No merging needed
                     if (elements.size() <= 1) {
@@ -90,7 +103,8 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                     final Stream<Element> stream = elements.stream().distinct();
 
                     if (shouldMergeGroup) {
-                        return Collections.singletonList(stream.reduce(aggregator::apply).get());
+                        return Collections
+                                .singletonList(stream.reduce((a, b) -> aggregator.apply(a.shallowClone(), b)).get());
                     }
 
                     return stream.collect(Collectors.toList());
