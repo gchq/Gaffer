@@ -38,7 +38,7 @@
 
     <properties>
         <!-- CI/CD revision variable -->
-        <revision>2.3.2</revision>
+        <revision>2.3.3-SNAPSHOT</revision>
 
         <disable.forking>false</disable.forking>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
