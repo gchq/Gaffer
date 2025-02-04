@@ -27,8 +27,8 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopVertex;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,18 +42,19 @@ public final class GafferVertexUtils {
     }
 
     /**
-     * Util method to extract vertices that are vertices on an edge but do not have an
+     * Util method to extract vertices that are vertices on an edge but do not have
+     * an
      * associated {@link Vertex} or {@link Entity} the current graph.
      * These vertices exist only on an edge.
      *
      *
-     * @param result The results from a Gaffer query
-     * @param graph The GafferPop graph being queried
+     * @param result    The results from a Gaffer query
+     * @param graph     The GafferPop graph being queried
      * @param vertexIds The vertexIds that have been used as seeds in the query
-     * @return Iterable of 'orphan' {@link Vertex}'s
+     * @return {@link Collection} of 'orphan' {@link Vertex}'s
      */
 
-    public static Iterable<Vertex> getOrphanVertices(final Iterable<? extends Element> result, final GafferPopGraph graph, final Object... vertexIds) {
+    public static Collection<Vertex> getOrphanVertices(final Iterable<? extends Element> result, final GafferPopGraph graph, final Object... vertexIds) {
         // Check for any vertex ID seeds that are not returned as Entities
         List<Object> orphanVertexIds = Arrays.stream(vertexIds)
             .filter(id -> StreamSupport.stream(result.spliterator(), false)
@@ -73,21 +74,23 @@ public final class GafferVertexUtils {
      * @param result The results of a Gaffer query
      * @param graph The GafferPop graph being queried
      * @param orphanVertexIds Any seeds that were not found to have an entity
-     * @return Iterable of 'orphan' {@link Vertex}'s
+     * @return {@link Collection} of 'orphan' {@link Vertex}'s
      */
-    private static Iterable<Vertex> extractOrphanVerticesFromEdges(final Iterable<? extends Element> result, final GafferPopGraph graph, final List<Object> orphanVertexIds) {
-        List<Vertex> orphanVertices = new ArrayList<>();
-        StreamSupport.stream(result.spliterator(), false)
-            .filter(Edge.class::isInstance)
-            .map(e -> (Edge) e)
-            .forEach(e -> {
-                if (orphanVertexIds.contains(e.getSource()) || orphanVertexIds.equals(e.getSource())) {
-                    orphanVertices.add(new GafferPopVertex(GafferPopGraph.ID_LABEL, GafferCustomTypeFactory.parseForGraphSONv3(e.getSource()), graph));
-                }
-                if (orphanVertexIds.contains(e.getDestination()) || orphanVertexIds.equals(e.getDestination())) {
-                    orphanVertices.add(new GafferPopVertex(GafferPopGraph.ID_LABEL, GafferCustomTypeFactory.parseForGraphSONv3(e.getDestination()), graph));
-                }
-            });
-        return orphanVertices;
+    private static Collection<Vertex> extractOrphanVerticesFromEdges(final Iterable<? extends Element> result, final GafferPopGraph graph, final List<Object> orphanVertexIds) {
+    return StreamSupport.stream(result.spliterator(), false)
+        .filter(Edge.class::isInstance)
+        .map(e -> (Edge) e)
+        .map(e -> {
+            if (orphanVertexIds.contains(e.getSource()) || orphanVertexIds.equals(e.getSource())) {
+                return new GafferPopVertex(GafferPopGraph.ID_LABEL, GafferCustomTypeFactory.parseForGraphSONv3(e.getSource()), graph);
+            }
+            if (orphanVertexIds.contains(e.getDestination()) || orphanVertexIds.equals(e.getDestination())) {
+                return new GafferPopVertex(GafferPopGraph.ID_LABEL, GafferCustomTypeFactory.parseForGraphSONv3(e.getDestination()), graph);
+            }
+            return e;
+        })
+        .filter(Vertex.class::isInstance)
+        .map(v -> (Vertex) v)
+        .collect(Collectors.toSet());
     }
 }

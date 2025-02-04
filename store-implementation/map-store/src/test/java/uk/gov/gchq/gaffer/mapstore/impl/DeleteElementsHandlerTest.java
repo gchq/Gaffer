@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ public class DeleteElementsHandlerTest {
         // Given/When
 
         // Delete Vertex A
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("A"))
                         .view(ENTITY_VIEW)
@@ -84,7 +84,8 @@ public class DeleteElementsHandlerTest {
                 .then(new DeleteElements())
                 .build();
 
-        aggregatedGraph.execute(chain, USER);
+        final Object deletedCount = aggregatedGraph.execute(chain, USER);
+        assertThat(deletedCount).isEqualTo(1L);
 
         // Then
 
@@ -111,7 +112,7 @@ public class DeleteElementsHandlerTest {
         // Given/When
 
         // Delete Edge B->C
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EdgeSeed("B", "C"))
                         .view(EDGE_VIEW)
@@ -119,7 +120,8 @@ public class DeleteElementsHandlerTest {
                 .then(new DeleteElements())
                 .build();
 
-        aggregatedGraph.execute(chain, USER);
+        final Object elementCount = aggregatedGraph.execute(chain, USER);
+        assertThat(elementCount).isEqualTo(1L);
 
         // Then
 
@@ -146,7 +148,7 @@ public class DeleteElementsHandlerTest {
         // Given/When
 
         // Delete Vertex A
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("A"))
                         .view(ENTITY_VIEW)
@@ -154,7 +156,8 @@ public class DeleteElementsHandlerTest {
                 .then(new DeleteElements())
                 .build();
 
-        nonAggregatedGraph.execute(chain, USER);
+        final Object elementCount = nonAggregatedGraph.execute(chain, USER);
+        assertThat(elementCount).isEqualTo(1L);
 
         // Then
 
@@ -182,7 +185,7 @@ public class DeleteElementsHandlerTest {
         // When
 
         // Delete Edge B->C
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EdgeSeed("B", "C"))
                         .view(EDGE_VIEW)
@@ -190,7 +193,8 @@ public class DeleteElementsHandlerTest {
                 .then(new DeleteElements())
                 .build();
 
-        nonAggregatedGraph.execute(chain, USER);
+        final Object elementCount = nonAggregatedGraph.execute(chain, USER);
+        assertThat(elementCount).isEqualTo(1L);
 
         // Then
 
@@ -217,14 +221,15 @@ public class DeleteElementsHandlerTest {
         // Given/When
 
         // Delete Vertex A and its edges
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("A"))
                         .build())
                 .then(new DeleteElements())
                 .build();
 
-        aggregatedGraph.execute(chain, USER);
+        final Object elementCount = aggregatedGraph.execute(chain, USER);
+        assertThat(elementCount).isEqualTo(2L);
 
         // Then
 
@@ -249,14 +254,15 @@ public class DeleteElementsHandlerTest {
         // Given/When
 
         // Delete Vertex A and its edges
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("A"))
                         .build())
                 .then(new DeleteElements())
                 .build();
 
-        nonAggregatedGraph.execute(chain, USER);
+        final Object elementCount = nonAggregatedGraph.execute(chain, USER);
+        assertThat(elementCount).isEqualTo(2L);
 
         // Then
 
@@ -281,14 +287,15 @@ public class DeleteElementsHandlerTest {
         // Given/When
 
         // Delete Vertex B and its edges
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("B"))
                         .build())
                 .then(new DeleteElements())
                 .build();
 
-        aggregatedGraph.execute(chain, USER);
+        final Object elementCount = aggregatedGraph.execute(chain, USER);
+        assertThat(elementCount).isEqualTo(3L);
 
         // Then
 
@@ -313,14 +320,15 @@ public class DeleteElementsHandlerTest {
         // Given/When
 
         // Delete Vertex B and its edges
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("B"))
                         .build())
                 .then(new DeleteElements())
                 .build();
 
-        nonAggregatedGraph.execute(chain, USER);
+        final Object elementCount = nonAggregatedGraph.execute(chain, USER);
+        assertThat(elementCount).isEqualTo(3L);
 
         // Then
 
@@ -345,13 +353,14 @@ public class DeleteElementsHandlerTest {
         // Given/When
 
         // Delete all
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetAllElements.Builder()
                         .build())
                 .then(new DeleteElements())
                 .build();
 
-        aggregatedGraph.execute(chain, USER);
+        final Object elementCount = aggregatedGraph.execute(chain, USER);
+        assertThat(elementCount).isEqualTo(5L);
 
         // Then
 
@@ -384,7 +393,7 @@ public class DeleteElementsHandlerTest {
         // When
 
         // Delete all
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetAllElements.Builder()
                         .build())
                 .then(new DeleteElements())

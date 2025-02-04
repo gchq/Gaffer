@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2024 Crown Copyright
+ * Copyright 2018-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
         assertElements((Iterable) elements, resultBefore);
 
         // When
-        final OperationChain<Void> chain = new OperationChain.Builder()
+        final OperationChain<Long> chain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("1"))
                         .build())

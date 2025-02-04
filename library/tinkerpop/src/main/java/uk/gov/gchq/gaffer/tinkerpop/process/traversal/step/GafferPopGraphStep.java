@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinitio
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
-import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
 import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables.HasStepFilterStage;
 import uk.gov.gchq.gaffer.tinkerpop.process.traversal.step.util.GafferPopHasContainer;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
@@ -73,9 +73,8 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
 
         // Save reference to the graph
         GafferPopGraph graph = (GafferPopGraph) originalGraphStep.getTraversal().getGraph().get();
-
-        // Restore variables to defaults before parsing options
-        graph.setDefaultVariables((GafferPopGraphVariables) graph.variables());
+        // Reset vars on the graph but preserving the user in case it was set externally
+        graph.setDefaultVariables(true);
 
         // Find any options on the traversal
         Optional<OptionsStrategy> optionsStrategy = originalGraphStep.getTraversal().getStrategies().getStrategy(OptionsStrategy.class);
@@ -248,8 +247,8 @@ public class GafferPopGraphStep<S, E extends Element> extends GraphStep<S, E> im
             hasStepFilterStage = HasStepFilterStage.valueOf(filterStage);
         } catch (final IllegalArgumentException e) {
             LOGGER.warn("Unknown hasStepFilterStage: {}. Defaulting to {}",
-                filterStage, GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE);
-            hasStepFilterStage = GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE;
+                filterStage, GafferPopGraphVariables.DEFAULT_HAS_STEP_FILTER_STAGE);
+            hasStepFilterStage = GafferPopGraphVariables.DEFAULT_HAS_STEP_FILTER_STAGE;
         }
 
         switch (hasStepFilterStage) {

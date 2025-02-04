@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 Crown Copyright
+ * Copyright 2017-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -45,7 +44,6 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
-import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
 
 /**
  * An implementation of {@link IOperationServiceV2}. By default it will use a singleton
@@ -85,10 +83,9 @@ public class OperationServiceV2 extends AbstractOperationService implements IOpe
 
     @Override
     public Response execute(final Operation operation) {
-        final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
-        return Response.ok(resultAndJobId.getFirst())
+        final Object result = _execute(operation, userFactory.createContext());
+        return Response.ok(result)
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .header(JOB_ID_HEADER, resultAndJobId.getSecond())
                 .build();
     }
 
@@ -109,7 +106,7 @@ public class OperationServiceV2 extends AbstractOperationService implements IOpe
         // create thread to write chunks to the chunked output object
         Thread thread = new Thread(() -> {
             try {
-                final Object result = _execute(opChain, context).getFirst();
+                final Object result = _execute(opChain, context);
                 chunkResult(result, output);
             } catch (final Exception e) {
                 throw new RuntimeException(e);

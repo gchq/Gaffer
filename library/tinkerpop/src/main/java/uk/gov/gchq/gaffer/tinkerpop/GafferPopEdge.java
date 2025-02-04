@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 Crown Copyright
+ * Copyright 2016-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.tinkerpop;
 
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Property;
@@ -36,6 +37,7 @@ import uk.gov.gchq.gaffer.tinkerpop.generator.GafferPopElementGenerator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -126,15 +128,17 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
         return newProperty;
     }
 
+    // This is the method TinkerPop uses when traversing edges
+    // lookup the 'full' vertices rather than returning the 'dummy' ID vertices
     @Override
     public Iterator<Vertex> vertices(final Direction direction) {
         switch (direction) {
             case OUT:
-                return IteratorUtils.of(outVertex());
+                return IteratorUtils.of(lookupVertex(outVertex));
             case IN:
-                return IteratorUtils.of(inVertex());
+                return IteratorUtils.of(lookupVertex(inVertex));
             default:
-                return IteratorUtils.of(outVertex(), inVertex());
+                return IteratorUtils.of(lookupVertex(outVertex), lookupVertex(inVertex));
         }
     }
 
@@ -154,14 +158,27 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
         return StringFactory.edgeString(this);
     }
 
+
+    /**
+     * Gets the outgoing vertex of the edge.
+     *
+     * Note: the returned vertex will not have any properties set - only the ID
+     * if you need the 'full' vertex use {@link #vertices(Direction)}
+     */
     @Override
     public Vertex outVertex() {
-        return getVertex(outVertex);
+        return outVertex;
     }
 
+    /**
+     * Gets the incoming vertex of the edge.
+     *
+     * Note: the returned vertex will not have any properties set - only the ID
+     * if you need the 'full' vertex use {@link #vertices(Direction)}
+     */
     @Override
     public Vertex inVertex() {
-        return getVertex(inVertex);
+        return inVertex;
     }
 
     /**
@@ -207,7 +224,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
      * @param vertex The vertex object or ID
      * @return A valid Vertex based on the supplied object or ID.
      */
-    private Vertex getVertex(final GafferPopVertex vertex) {
+    private Vertex lookupVertex(final GafferPopVertex vertex) {
         OperationChain<Iterable<? extends Element>> findBasedOnID = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(vertex.id()))
@@ -215,8 +232,7 @@ public final class GafferPopEdge extends GafferPopElement implements Edge {
                         .build())
                 .build();
 
-        Iterable<? extends Element> result = graph().execute(findBasedOnID);
-
+        final Set<Element> result = new HashSet<>(IterableUtils.toList(graph().execute(findBasedOnID)));
         final GafferPopElementGenerator generator = new GafferPopElementGenerator(graph());
 
         Optional<Vertex> foundEntity = StreamSupport.stream(result.spliterator(), false)

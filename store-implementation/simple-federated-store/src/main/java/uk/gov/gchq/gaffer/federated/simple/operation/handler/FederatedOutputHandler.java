@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.FederatedUtils;
 import uk.gov.gchq.gaffer.federated.simple.merge.DefaultResultAccumulator;
 import uk.gov.gchq.gaffer.federated.simple.merge.FederatedResultAccumulator;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
@@ -44,8 +46,10 @@ public class FederatedOutputHandler<P extends Output<O>, O>
 
     @Override
     public O doOperation(final P operation, final Context context, final Store store) throws OperationException {
+        final int fixLimit = Integer.parseInt(operation.getOption(OPT_FIX_OP_LIMIT, String.valueOf(DFLT_FIX_OP_LIMIT)));
         List<GraphSerialisable> graphsToExecute = this.getGraphsToExecuteOn(operation, context, (FederatedStore) store);
 
+        // No-op
         if (graphsToExecute.isEmpty()) {
             return null;
         }
@@ -54,18 +58,15 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         List<O> graphResults = new ArrayList<>();
         for (final GraphSerialisable gs : graphsToExecute) {
             try {
-                graphResults.add(gs.getGraph().execute(operation, context.getUser()));
-            } catch (final OperationException | UnsupportedOperationException e) {
+                OperationChain<O> fixedChain = FederatedUtils.getValidOperationForGraph(operation, gs, 0, fixLimit);
+                graphResults.add(gs.getGraph().execute(fixedChain, context.getUser()));
+            } catch (final OperationException | UnsupportedOperationException | IllegalArgumentException e) {
                 // Optionally skip this error if user has specified to do so
                 LOGGER.error("Operation failed on graph: {}", gs.getGraphId());
                 if (!Boolean.parseBoolean(operation.getOption(OPT_SKIP_FAILED_EXECUTE, "false"))) {
                     throw e;
                 }
                 LOGGER.info("Continuing operation execution on sub graphs");
-            } catch (final IllegalArgumentException e) {
-                // An operation may fail validation for a sub graph this is not really an error.
-                // We can just continue to execute on the rest of the graphs
-                LOGGER.warn("Operation contained invalid arguments for a sub graph, skipped execution on graph: {}", gs.getGraphId());
             }
         }
 
@@ -81,14 +82,44 @@ public class FederatedOutputHandler<P extends Output<O>, O>
         }
 
         // Set up the result accumulator
-        FederatedResultAccumulator<O> resultAccumulator = new DefaultResultAccumulator<>(combinedProps);
-        resultAccumulator.setSchema(((FederatedStore) store).getSchema(graphsToExecute));
+        FederatedResultAccumulator<O> resultAccumulator = getResultAccumulator((FederatedStore) store, operation, graphsToExecute);
 
+        // Should now have a list of <O> objects so need to reduce to just one
+        return graphResults.stream().reduce(resultAccumulator::apply).orElse(graphResults.get(0));
+    }
+
+
+    /**
+     * Sets up a {@link FederatedResultAccumulator} for the specified operation
+     * and graphs.
+     *
+     * @param store The federated store.
+     * @param operation The original operation.
+     * @param graphsToExecute The graphs executed on.
+     * @return A set up accumulator.
+     */
+    protected FederatedResultAccumulator<O> getResultAccumulator(final FederatedStore store, final P operation, final List<GraphSerialisable> graphsToExecute) {
+        // Merge the store props with the operation options for setting up the
+        // accumulator
+        Properties combinedProps = store.getProperties().getProperties();
+        if (operation.getOptions() != null) {
+            combinedProps.putAll(operation.getOptions());
+        }
+
+        // Set up the result accumulator
+        FederatedResultAccumulator<O> resultAccumulator = new DefaultResultAccumulator<>(combinedProps);
+        resultAccumulator.setSchema(store.getSchema(graphsToExecute));
+
+        // Check if user has specified to aggregate
         if (operation.containsOption(OPT_AGGREGATE_ELEMENTS)) {
             resultAccumulator.setAggregateElements(Boolean.parseBoolean(operation.getOption(OPT_AGGREGATE_ELEMENTS)));
         }
-        // Should now have a list of <O> objects so need to reduce to just one
-        return graphResults.stream().reduce(resultAccumulator::apply).orElse(graphResults.get(0));
+        // Turn aggregation off if there are no shared groups
+        if (!FederatedUtils.doGraphsShareGroups(graphsToExecute)) {
+            resultAccumulator.setAggregateElements(false);
+        }
+
+        return resultAccumulator;
     }
 
 }

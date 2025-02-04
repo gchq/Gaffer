@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.federated.simple.FederatedStore;
+import uk.gov.gchq.gaffer.federated.simple.FederatedUtils;
 import uk.gov.gchq.gaffer.federated.simple.access.GraphAccess;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -31,12 +32,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * Main default handler for federated operations. Handles delegation to selected
@@ -90,9 +89,21 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      */
     public static final String OPT_SEPARATE_RESULTS = "federated.separateResults";
 
+    /**
+     * Depth should go to when making an operation chain relevant to specified
+     * graphs e.g. fix the View.
+     */
+    public static final String OPT_FIX_OP_LIMIT = "federated.fixOperationLimit";
+
+    /**
+     * Default depth limit for fixing an operation chain.
+     */
+    public static final int DFLT_FIX_OP_LIMIT = 5;
+
     @Override
     public Object doOperation(final P operation, final Context context, final Store store) throws OperationException {
         LOGGER.debug("Running operation: {}", operation);
+        final int fixLimit = Integer.parseInt(operation.getOption(OPT_FIX_OP_LIMIT, String.valueOf(DFLT_FIX_OP_LIMIT)));
 
         // If the operation has output wrap and return using sub class handler
         if (operation instanceof Output) {
@@ -112,20 +123,17 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
         // Execute the operation chain on each graph
         for (final GraphSerialisable gs : graphsToExecute) {
             try {
-                gs.getGraph().execute(operation, context.getUser());
-            } catch (final OperationException | UnsupportedOperationException e) {
+                gs.getGraph().execute(
+                    FederatedUtils.getValidOperationForGraph(operation, gs, 0, fixLimit),
+                    context.getUser());
+            } catch (final OperationException | UnsupportedOperationException | IllegalArgumentException e) {
                 // Optionally skip this error if user has specified to do so
                 LOGGER.error("Operation failed on graph: {}", gs.getGraphId());
                 if (!Boolean.parseBoolean(operation.getOption(OPT_SKIP_FAILED_EXECUTE, "false"))) {
                     throw e;
                 }
                 LOGGER.info("Continuing operation execution on sub graphs");
-            } catch (final IllegalArgumentException e) {
-                // An operation may fail validation for a sub graph this is not really an error.
-                // We can just continue to execute on the rest of the graphs
-                LOGGER.warn("Operation contained invalid arguments for a sub graph, skipped execution on graph: {}", gs.getGraphId());
             }
-
         }
 
         // Assume no output, we've already checked above
@@ -148,40 +156,43 @@ public class FederatedOperationHandler<P extends Operation> implements Operation
      */
     protected List<GraphSerialisable> getGraphsToExecuteOn(final Operation operation, final Context context,
             final FederatedStore store) throws OperationException {
-        // Use default graph IDs as fallback
-        List<String> graphIds = store.getDefaultGraphIds();
-        List<GraphSerialisable> graphsToExecute = new LinkedList<>();
+        List<String> specifiedGraphIds = new ArrayList<>();
+        List<GraphSerialisable> graphsToExecute = new ArrayList<>();
+
         // If user specified graph IDs for this chain parse as comma separated list
-        if (operation.containsOption(OPT_GRAPH_IDS)) {
-            graphIds = Arrays.asList(operation.getOption(OPT_GRAPH_IDS).split(","));
-        } else if (operation.containsOption(OPT_SHORT_GRAPH_IDS)) {
-            graphIds = Arrays.asList(operation.getOption(OPT_SHORT_GRAPH_IDS).split(","));
-        }
-
+        if (operation.containsOption(OPT_SHORT_GRAPH_IDS)) {
+            specifiedGraphIds.addAll(Arrays.asList(operation.getOption(OPT_SHORT_GRAPH_IDS).split(",")));
+        // Check legacy option
+        } else if (operation.containsOption(OPT_GRAPH_IDS)) {
+            specifiedGraphIds.addAll(Arrays.asList(operation.getOption(OPT_GRAPH_IDS).split(",")));
         // If a user has specified to just exclude some graphs then run all but them
-        if (operation.containsOption(OPT_EXCLUDE_GRAPH_IDS)) {
-            // Get all the IDs
-            graphIds = StreamSupport.stream(store.getAllGraphsAndAccess().spliterator(), false)
-                .map(Pair::getLeft)
-                .map(GraphSerialisable::getGraphId)
-                .collect(Collectors.toList());
-
+        } else if (operation.containsOption(OPT_EXCLUDE_GRAPH_IDS)) {
+            store.getAllGraphsAndAccess().forEach(pair -> specifiedGraphIds.add(pair.getLeft().getGraphId()));
             // Exclude the ones the user has specified
-            Arrays.asList(operation.getOption(OPT_EXCLUDE_GRAPH_IDS).split(",")).forEach(graphIds::remove);
+            Arrays.asList(operation.getOption(OPT_EXCLUDE_GRAPH_IDS).split(",")).forEach(specifiedGraphIds::remove);
         }
 
-        try {
-            // Get the corresponding graph serialisable
-            for (final String id : graphIds) {
-                LOGGER.debug("Will execute on Graph: {}", id);
+        // Use default graph IDs as a fallback
+        if (specifiedGraphIds.isEmpty()) {
+            specifiedGraphIds.addAll(store.getDefaultGraphIds());
+        }
+
+        // Get the corresponding graph serialisables
+        for (final String id : specifiedGraphIds) {
+            try {
                 Pair<GraphSerialisable, GraphAccess> pair = store.getGraphAccessPair(id);
+
                 // Check the user has access to the graph
                 if (pair.getRight().hasReadAccess(context.getUser(), store.getProperties().getAdminAuth())) {
+                    LOGGER.debug("User has access, will execute on Graph: '{}'", id);
+                    // Create a new graph object from the serialised info
                     graphsToExecute.add(pair.getLeft());
+                } else {
+                    LOGGER.warn("User does not have access, to Graph: '{}' it will be skipped", id);
                 }
+            } catch (final CacheOperationException e) {
+                throw new OperationException("Failed to get Graph from cache: '" + id + "'", e);
             }
-        } catch (final CacheOperationException e) {
-            throw new OperationException("Failed to get Graphs from cache", e);
         }
 
         // Keep graphs sorted so results returned are predictable between runs

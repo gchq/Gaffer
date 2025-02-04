@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.Lists;
@@ -255,11 +256,12 @@ public class MapHandlerTest {
         // Given
         final MapHandler<Iterable<Iterable<Integer>>, Iterable<Integer>> handler = new MapHandler<>();
 
+        final Function<? extends Iterable<? extends Iterable<Integer>>, Iterable<Integer>> iterableConcat = new IterableConcat<>();
         final Map<Iterable<Iterable<Integer>>, Iterable<Integer>> operation = new Map.Builder<Iterable<Iterable<Integer>>>()
                 .input(Arrays.asList(
                         Arrays.asList(1, 2),
                         Arrays.asList(3, 4)))
-                .first(new IterableConcat<>())
+                .first((Function<Iterable<Iterable<Integer>>, Iterable<Integer>>) iterableConcat)
                 .build();
 
         // When

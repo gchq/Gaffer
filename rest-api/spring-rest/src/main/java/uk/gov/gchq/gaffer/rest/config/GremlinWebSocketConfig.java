@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Crown Copyright
+ * Copyright 2024-2025 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.rest.config;
 
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -25,25 +24,26 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 
 import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
 import uk.gov.gchq.gaffer.rest.handler.GremlinWebSocketHandler;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph;
 
 @Configuration
 @EnableWebSocket
 public class GremlinWebSocketConfig implements WebSocketConfigurer {
 
-    private final GraphTraversalSource g;
+    private final GafferPopGraph graph;
     private final AbstractUserFactory userFactory;
     private final Long requestTimeout;
 
     @Autowired
-    public GremlinWebSocketConfig(final GraphTraversalSource g, final AbstractUserFactory userFactory, final Long requestTimeout) {
-        this.g = g;
+    public GremlinWebSocketConfig(final GafferPopGraph graph, final AbstractUserFactory userFactory, final Long requestTimeout) {
+        this.graph = graph;
         this.userFactory = userFactory;
         this.requestTimeout = requestTimeout;
     }
 
     @Override
     public void registerWebSocketHandlers(final WebSocketHandlerRegistry registry) {
-        registry.addHandler(new GremlinWebSocketHandler(g, userFactory, requestTimeout), "/gremlin");
+        registry.addHandler(new GremlinWebSocketHandler(graph, userFactory, requestTimeout), "/gremlin");
     }
 
 }

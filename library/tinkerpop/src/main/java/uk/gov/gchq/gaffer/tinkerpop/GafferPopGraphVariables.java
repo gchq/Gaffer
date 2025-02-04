@@ -33,6 +33,8 @@ public final class GafferPopGraphVariables implements Graph.Variables {
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferPopGraphVariables.class);
     private static final String VAR_UPDATE_ERROR_STRING = "Ignoring update variable: {}, incorrect value type: {}";
 
+    // KEYS
+
     /**
      * Variable key for the {@link Map} of Gaffer operation options.
      */
@@ -54,7 +56,8 @@ public final class GafferPopGraphVariables implements Graph.Variables {
     public static final String USER = "user";
 
     /**
-     * The max number of elements that can be returned by GetElements
+     * The max number of elements that can be returned by a single GetElements
+     * or GetAllElements
      */
     public static final String GET_ELEMENTS_LIMIT = "getElementsLimit";
 
@@ -73,6 +76,29 @@ public final class GafferPopGraphVariables implements Graph.Variables {
      */
     public static final String LAST_OPERATION_CHAIN = "lastOperation";
 
+    /**
+     * The key to set if orphaned vertices (e.g. vertices without an entity)
+     * should be included in the result
+     */
+    public static final String INCLUDE_ORPHANED_VERTICES = "includeOrphanedVertices";
+
+    // DEFAULTS
+
+    /**
+     * Default value for the max number of elements returned by getElements
+     */
+    public static final int DEFAULT_GET_ELEMENTS_LIMIT = 20000;
+
+    /**
+     * Default to pre-aggregation filtering for HasStep predicates
+     */
+    public static final HasStepFilterStage DEFAULT_HAS_STEP_FILTER_STAGE = HasStepFilterStage.PRE_AGGREGATION;
+
+    public enum HasStepFilterStage {
+        PRE_AGGREGATION,
+        POST_AGGREGATION,
+        POST_TRANSFORM
+    }
 
     private final Map<String, Object> variables;
 
@@ -121,6 +147,10 @@ public final class GafferPopGraphVariables implements Graph.Variables {
                 }
                 break;
 
+            case INCLUDE_ORPHANED_VERTICES:
+                variables.put(key, Boolean.valueOf(value.toString()));
+                break;
+
             default:
                 variables.put(key, value);
                 break;
@@ -167,6 +197,10 @@ public final class GafferPopGraphVariables implements Graph.Variables {
 
     public OperationChain<?> getLastOperationChain() {
         return (OperationChain) variables.get(LAST_OPERATION_CHAIN);
+    }
+
+    public boolean getIncludeOrphanedVertices() {
+        return Boolean.parseBoolean(variables.get(INCLUDE_ORPHANED_VERTICES).toString());
     }
 
     public String toString() {

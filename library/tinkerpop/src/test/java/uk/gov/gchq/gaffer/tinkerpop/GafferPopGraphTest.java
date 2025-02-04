@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraph.HasStepFilterStage;
+import uk.gov.gchq.gaffer.tinkerpop.GafferPopGraphVariables.HasStepFilterStage;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTestUtil;
 import uk.gov.gchq.gaffer.tinkerpop.util.GafferPopTstvTestUtils;
 import uk.gov.gchq.gaffer.user.User;
@@ -77,10 +77,11 @@ class GafferPopGraphTest {
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables)
-            .hasSize(5)
+            .hasSize(6)
             .containsEntry(GafferPopGraphVariables.USER, expectedUser)
             .containsEntry(GafferPopGraphVariables.GET_ELEMENTS_LIMIT, 1)
             .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE, HasStepFilterStage.POST_TRANSFORM.toString())
+            .containsEntry(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES, false)
             .containsKey(GafferPopGraphVariables.OP_OPTIONS);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
@@ -102,10 +103,11 @@ class GafferPopGraphTest {
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables)
-            .hasSize(5)
+            .hasSize(6)
             .containsEntry(GafferPopGraphVariables.USER, expectedUser)
             .containsEntry(GafferPopGraphVariables.GET_ELEMENTS_LIMIT, 2)
             .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE, HasStepFilterStage.POST_AGGREGATION.toString())
+            .containsEntry(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES, true)
             .containsKey(GafferPopGraphVariables.OP_OPTIONS);
 
         final Map<String, String> opOptions = (Map<String, String>) variables.get(GafferPopGraphVariables.OP_OPTIONS);
@@ -126,12 +128,13 @@ class GafferPopGraphTest {
         // Then
         final Map<String, Object> variables = graph.variables().asMap();
         assertThat(variables)
-            .hasSize(5)
+            .hasSize(6)
             .containsEntry(GafferPopGraphVariables.USER, expectedUser)
             .containsEntry(GafferPopGraphVariables.GET_ELEMENTS_LIMIT,
-                    GafferPopGraph.DEFAULT_GET_ELEMENTS_LIMIT)
+                    GafferPopGraphVariables.DEFAULT_GET_ELEMENTS_LIMIT)
+            .containsEntry(GafferPopGraphVariables.INCLUDE_ORPHANED_VERTICES, false)
             .containsEntry(GafferPopGraphVariables.HAS_STEP_FILTER_STAGE,
-                    GafferPopGraph.DEFAULT_HAS_STEP_FILTER_STAGE.toString())
+                    GafferPopGraphVariables.DEFAULT_HAS_STEP_FILTER_STAGE.toString())
             .containsKey(GafferPopGraphVariables.OP_OPTIONS);
 
 
@@ -507,7 +510,7 @@ class GafferPopGraphTest {
         final Iterator<Edge> edges = graph.edges();
 
         // Then
-        assertThat(edges).toIterable().containsExactly(createdEdge, knowsEdge);
+        assertThat(edges).toIterable().containsExactlyInAnyOrder(createdEdge, knowsEdge);
     }
 
     @Test
