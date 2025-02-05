@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BinaryOperator;
@@ -87,12 +88,12 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                         aggregator = elementDefinition.getIngestAggregator();
                     }
 
-                    Element e = elements.get(0);
-                    for (int i = 1; i < elements.size(); i++) {
-                        if(!elementDefinition.isAggregate() || e.equals(elements.get(i))) {
-                            continue;
+                    if (elementDefinition.isAggregate()) {
+                        Element e = elements.get(0);
+                        for (int i = 1; i < elements.size(); i++) {
+                            e = aggregator.apply(e.shallowClone(), elements.get(i));
                         }
-                        e = aggregator.apply(e.shallowClone(), elements.get(i));
+                        return Collections.singletonList(e);
                     }
 
                     return elements;
