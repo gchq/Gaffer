@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BinaryOperator;
@@ -82,28 +81,24 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                     }
 
                     // Merge Elements in these smaller lists
-                    final String group = elements.get(0).getGroup();
-                    final ElementAggregator aggregator;
-                    boolean shouldMergeGroup = false;
+                    ElementAggregator aggregator = new ElementAggregator();
+                    final SchemaElementDefinition elementDefinition = schema.getElement(elements.get(0).getGroup());
                     if (schema != null) {
-                        final SchemaElementDefinition elementDefinition = schema.getElement(group);
                         aggregator = elementDefinition.getIngestAggregator();
-                        shouldMergeGroup = elementDefinition.isAggregate();
-                    } else {
-                        aggregator = new ElementAggregator();
                     }
 
-                    if (shouldMergeGroup) {
-                        Element e = elements.get(0);
-                        for (int i = 1; i < elements.size(); i++) {
-                            e = aggregator.apply(e.shallowClone(), elements.get(i));
+                    Element e = elements.get(0);
+                    for (int i = 1; i < elements.size(); i++) {
+                        if(!elementDefinition.isAggregate() || e.equals(elements.get(i))) {
+                            continue;
                         }
-                        return Collections.singletonList(e);
+                        e = aggregator.apply(e.shallowClone(), elements.get(i));
                     }
 
                     return elements;
                 })
-                .collect(ArrayList::new, (resultList, currentList) -> currentList.forEach(resultList::add), ArrayList::addAll);
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     // So we can group Elements that are the same but with different properties
