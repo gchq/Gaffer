@@ -103,7 +103,7 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
 
                     return elements;
                 })
-                .collect(ArrayList::new, (list, collection) -> collection.forEach(list::add), ArrayList::addAll);
+                .collect(ArrayList::new, (resultList, currentList) -> currentList.forEach(resultList::add), ArrayList::addAll);
     }
 
     // So we can group Elements that are the same but with different properties
