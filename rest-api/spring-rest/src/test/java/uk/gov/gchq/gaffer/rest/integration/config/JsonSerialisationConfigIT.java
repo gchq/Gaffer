@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Crown Copyright
+ * Copyright 2020-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,40 +21,73 @@ import com.google.common.collect.Sets;
 
 import org.apache.datasketches.hll.HllSketch;
 import org.assertj.core.data.Percentage;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
-import uk.gov.gchq.gaffer.rest.integration.controller.AbstractRestApiIT;
+import uk.gov.gchq.gaffer.rest.factory.spring.AbstractUserFactory;
+import uk.gov.gchq.gaffer.rest.factory.spring.UnknownUserFactory;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.List;
-import java.util.Map;
+import javax.ws.rs.core.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@TestPropertySource(
-    properties = "gaffer.graph.factory.class=uk.gov.gchq.gaffer.rest.integration.config.JsonSerialisationConfigIT$SerialisationGraphFactory"
-)
-public class JsonSerialisationConfigIT extends AbstractRestApiIT {
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@Import(JsonSerialisationConfigIT.TestConfig.class)
+@ActiveProfiles("test")
+class JsonSerialisationConfigIT {
+
+    @TestConfiguration
+    static class TestConfig {
+
+        @Bean
+        @Primary
+        @Profile("test")
+        public GraphFactory createTestGraphFactory() {
+            return new SerialisationGraphFactory();
+        }
+
+        @Bean
+        @Profile("test")
+        public AbstractUserFactory userFactory() {
+            return new UnknownUserFactory();
+        }
+    }
+
     @Autowired
     private GraphFactory graphFactory;
 
+    @Autowired
+    private MockMvc mockMvc;
+
     @Test
-    public void shouldSerialiseHyperLogLogPlussesWhenSerialiserModulesConfigured() throws OperationException {
+    public void shouldSerialiseHyperLogLogPlussesWhenSerialiserModulesConfigured() throws Exception {
         // Given
         final HyperLogLogPlus hllp = new HyperLogLogPlus(5, 5);
         hllp.offer(1);
@@ -68,25 +101,44 @@ public class JsonSerialisationConfigIT extends AbstractRestApiIT {
                 .build())
             .build(), new User());
 
-        // When
-        final GetElements getElements = new GetElements.Builder()
-                .input("vertex1")
-                .view(new View.Builder()
-                        .entity("CardinalityHllp")
-                        .build())
-                .build();
-        final ResponseEntity<List> elements = post("/graph/operations/execute", getElements, List.class);
-        final Map<String, Object> result = ((List<Map<String, Object>>) elements.getBody()).get(0);
-        final Map<String, Object> hllpJson = ((Map<String, Map<String, Map<String, Map<String, Object>>>>) result.get("properties")).get("hllp").get(HyperLogLogPlus.class.getName()).get("hyperLogLogPlus");
+        final JSONObject expectedHllpProperty = new JSONObject()
+            .put("com.clearspring.analytics.stream.cardinality.HyperLogLogPlus", new JSONObject()
+                .put("hyperLogLogPlus", new JSONObject()
+                    .put("hyperLogLogPlusSketchBytes", "/////gUFAQL7C4AJ")
+                    .put("cardinality", 2)));
 
-        assertThat(hllpJson)
-                .isNotNull()
-                .containsKey("cardinality")
-                .containsEntry("cardinality", 2);
+        // When
+        final JSONObject jsonQuery = new JSONObject()
+            .put("class", "GetElements")
+            .put("input", new JSONArray()
+                .put(new JSONObject()
+                    .put("class", "EntitySeed")
+                    .put("vertex", "vertex1")))
+            .put("view", new JSONObject()
+                .put("entities", new JSONObject()
+                    .put("CardinalityHllp", new JSONObject())));
+
+
+         // When
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders
+                .post("/rest/graph/operations/execute")
+                .content(jsonQuery.toString())
+                .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+
+        // Get and check response
+        JSONArray jsonResponse = new JSONArray(result.getResponse().getContentAsString());
+
+        assertThat(jsonResponse).hasSize(1);
+        JSONObject hllpProp = jsonResponse.getJSONObject(0).getJSONObject("properties").getJSONObject("hllp");
+        assertThat(hllpProp.toMap()).isEqualTo(expectedHllpProperty.toMap());
     }
 
     @Test
-    public void shouldSerialiseHllSketchWhenSerialiserModulesConfigured() throws OperationException {
+    public void shouldSerialiseHllSketchWhenSerialiserModulesConfigured() throws Exception {
         // Given
         final HllSketch hllSketch = new HllSketch(10);
         hllSketch.update(1);
@@ -101,21 +153,39 @@ public class JsonSerialisationConfigIT extends AbstractRestApiIT {
             .build(), new User());
 
         // When
-        final GetElements getElements = new GetElements.Builder()
-                .input("vertex1")
-                .view(new View.Builder()
-                        .entity("CardinalityHllSketch")
-                        .build())
-                .build();
-        final ResponseEntity<List> elements = post("/graph/operations/execute", getElements, List.class);
-        final Map<String, Object> result = ((List<Map<String, Object>>) elements.getBody()).get(0);
-        final Map<String, Object> hllSketchJson = ((Map<String, Map<String, Map<String, Object>>>) result.get("properties")).get("hllSketch").get(HllSketch.class.getName());
+        final JSONObject jsonQuery = new JSONObject()
+            .put("class", "GetElements")
+            .put("input", new JSONArray()
+                .put(new JSONObject()
+                    .put("class", "EntitySeed")
+                    .put("vertex", "vertex1")))
+            .put("view", new JSONObject()
+                .put("entities", new JSONObject()
+                    .put("CardinalityHllSketch", new JSONObject())));
 
-        assertThat(hllSketchJson)
-                .isNotNull()
-                .containsKey("cardinality");
+        // When
+        MvcResult result = mockMvc
+            .perform(MockMvcRequestBuilders
+                .post("/rest/graph/operations/execute")
+                .content(jsonQuery.toString())
+                .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
 
-        assertThat((double) hllSketchJson.get("cardinality")).isCloseTo(2, Percentage.withPercentage(0.001));
+        // When
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+
+        // Get and check response
+        JSONArray jsonResponse = new JSONArray(result.getResponse().getContentAsString());
+
+        assertThat(jsonResponse).hasSize(1);
+
+        JSONObject hllpSketch = jsonResponse.getJSONObject(0)
+            .getJSONObject("properties")
+            .getJSONObject("hllSketch")
+            .getJSONObject(HllSketch.class.getName());
+
+        assertThat(hllpSketch.toMap()).containsKey("cardinality");
+        assertThat(hllpSketch.getDouble("cardinality")).isCloseTo(2, Percentage.withPercentage(0.001));
     }
 
 

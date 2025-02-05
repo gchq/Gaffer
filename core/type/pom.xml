@@ -34,14 +34,14 @@
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
-            <classifier>jdk8</classifier>
+            <classifier>${koryphe.classifer}</classifier>
         </dependency>
 
         <!-- Test dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
-            <classifier>tests-jdk8</classifier>
+            <classifier>${koryphe.test.classifer}</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

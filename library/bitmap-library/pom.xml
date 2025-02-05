@@ -24,6 +24,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>bitmap-library</artifactId>
+    <version>${revision}</version>
 
     <dependencies>
         <dependency>
@@ -34,7 +35,7 @@
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
-            <classifier>jdk8</classifier>
+            <classifier>${koryphe.classifer}</classifier>
         </dependency>
         <dependency>
             <groupId>org.roaringbitmap</groupId>
@@ -45,7 +46,7 @@
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
-            <classifier>tests-jdk8</classifier>
+            <classifier>${koryphe.test.classifer}</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

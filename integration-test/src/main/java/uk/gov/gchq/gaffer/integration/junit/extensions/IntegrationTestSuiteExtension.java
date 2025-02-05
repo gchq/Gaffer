@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Crown Copyright
+ * Copyright 2022-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,6 @@ import java.util.Optional;
 
 import static org.junit.platform.commons.support.ReflectionSupport.tryToLoadClass;
 import static org.junit.platform.commons.util.AnnotationUtils.findAnnotatedFields;
-import static org.junit.platform.commons.util.ReflectionUtils.makeAccessible;
 import static org.junit.platform.commons.util.ReflectionUtils.newInstance;
 
 /**
@@ -271,8 +271,11 @@ public class IntegrationTestSuiteExtension implements ParameterResolver, BeforeA
                 LOGGER.debug("Field [{}] requires injecting", annotatedField);
                 final Object object = getObject(annotatedField.getType());
                 LOGGER.debug("Object [{}] found for the field", object);
-                makeAccessible(annotatedField).set(instance, object);
-            } catch (final Throwable t) {
+                if (!Modifier.isPublic(annotatedField.getModifiers()) || !Modifier.isPublic(annotatedField.getDeclaringClass().getModifiers())) {
+                    annotatedField.setAccessible(true);
+                    annotatedField.set(instance, object);
+                }
+            } catch (final Exception t) {
                 throw new RuntimeException("Error accessing the field object", t);
             }
         }
