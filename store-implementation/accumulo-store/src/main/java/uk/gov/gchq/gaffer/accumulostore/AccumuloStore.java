@@ -339,6 +339,10 @@ public class AccumuloStore extends Store {
         }
     }
 
+    public void updateGroups(AccumuloStore store) throws StoreException{
+        TableUtils.setLocalityGroups(store);
+    }
+
     @Override
     protected SchemaOptimiser createSchemaOptimiser() {
         return new SchemaOptimiser(new AccumuloSerialisationFactory());
