@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Operator for aggregating two iterables of {@link Element}s together, this
@@ -57,15 +58,14 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
         // merging
         // We can't use the original iterators directly in case they close or become
         // exhausted so save to a List first.
-        final List<Element> updateList = IterableUtils.toList(update);
-        final List<Element> stateList = IterableUtils.toList(state);
+        // final List<Element> updateList = IterableUtils.toList(update);
+        // final List<Element> stateList = IterableUtils.toList(state);
 
         // Group the elements into lists
-        final Map<String, List<Element>> groupedElements = updateList
-                .stream()
+        final Map<String, List<Element>> groupedElements = StreamSupport.stream(update.spliterator(), false)
                 .collect(Collectors.groupingBy(this::getElementKey));
 
-        stateList.forEach(e -> {
+        StreamSupport.stream(state.spliterator(), false).forEach(e -> {
             final List<Element> existing = groupedElements.computeIfAbsent(getElementKey(e), k -> new ArrayList<>());
             if (!existing.contains(e)) {
                 existing.add(e);
