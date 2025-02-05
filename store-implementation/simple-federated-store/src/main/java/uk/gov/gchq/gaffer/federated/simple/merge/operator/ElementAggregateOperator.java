@@ -26,8 +26,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BinaryOperator;
@@ -58,20 +56,25 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
         // merging
         // We can't use the original iterators directly in case they close or become
         // exhausted so save to a List first.
-        List<Element> updateList = IterableUtils.toList(update);
-        List<Element> stateList = IterableUtils.toList(state);
+        final List<Element> updateList = IterableUtils.toList(update);
+        final List<Element> stateList = IterableUtils.toList(state);
 
         // Group the elements into lists
         final Map<String, List<Element>> groupedElements = updateList
                 .stream()
                 .collect(Collectors.groupingBy(this::getElementKey));
 
-        stateList.forEach(e -> groupedElements.computeIfAbsent(getElementKey(e), k -> new ArrayList<>()).add(e));
+        stateList.forEach(e -> {
+            final List<Element> existing = groupedElements.computeIfAbsent(getElementKey(e), k -> new ArrayList<>());
+            if (!existing.contains(e)) {
+                existing.add(e);
+            }
+        });
 
         // If the elements for a group should be aggregated, do so
         // Otherwise keep all the elements
-        List<Element> merged = new ArrayList<>();
-        for (List<Element> elementsInGroup : groupedElements.values()) {
+        final List<Element> merged = new ArrayList<>();
+        for (final List<Element> elementsInGroup : groupedElements.values()) {
             if (elementsInGroup.size() <= 1) {
                 merged.addAll(elementsInGroup);
                 continue;
@@ -91,8 +94,8 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
 
             if (shouldMergeGroup) {
                 Element m = null;
-                for (Element e : elementsInGroup) {
-                    m = aggregator.apply(m, e);
+                for (final Element e : elementsInGroup) {
+                    m = aggregator.apply(m == null ? m : m.shallowClone(), e);
                 }
                 merged.add(m);
             } else {
