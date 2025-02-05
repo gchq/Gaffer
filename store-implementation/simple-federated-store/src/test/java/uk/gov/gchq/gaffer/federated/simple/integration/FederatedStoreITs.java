@@ -42,24 +42,17 @@ public class FederatedStoreITs extends AbstractStoreITs {
 
     private static final Schema SCHEMA = new Schema();
     private static final Map<String, String> TESTS_TO_SKIP = Stream.of(
-            new SimpleEntry<>("shouldGetPathsWithSimpleGraphHook_2", "GetWalksIT - investigate"),
             new SimpleEntry<>("shouldGetEntityIds",
                 "GetAdjacentIdsIT - Results duplicated due to returning EntityIds (Iterable) which will not dedup"),
             new SimpleEntry<>("shouldGetAllElementsWithFilterWithoutSummarisation",
-                "GetAllElementsIT - count value is duplicated, elements correct otherwise"),
-            new SimpleEntry<>("shouldImportFromFileThenCorrectlyExportToFile", "ImportExportCsvIT - Investigate further"),
-            new SimpleEntry<>("shouldRightKeyOuterJoin", "JoinIT - Missing results"),
-            new SimpleEntry<>("shouldLeftKeyInnerJoin", "JoinIT - Missing results"),
-            new SimpleEntry<>("shouldRightKeyInnerJoin", "JoinIT - Missing results"),
-            new SimpleEntry<>("shouldRightKeyFullJoin", "JoinIT - Missing results"),
-            new SimpleEntry<>("shouldLeftKeyOuterJoin", "JoinIT - Missing results"),
-            // new SimpleEntry<>("shouldReturnDuplicateEdgesWhenNoAggregationIsUsed",
-            //     "NoAggregationIT - Need to ensure that when schema has aggregation false that this is applied"),
-            // new SimpleEntry<>("shouldReturnDuplicateEntitiesWhenNoAggregationIsUsed",
-            //     "NoAggregationIT - Need to ensure that when schema has aggregation false that this is applied"),
-            new SimpleEntry<>("shouldAggregateOnlyRequiredGroupsWithQueryTimeAggregation", "PartAggregationIT - Investigate further"),
-            new SimpleEntry<>("shouldAggregateOnlyRequiredGroups", "PartAggregationIT - Investigate further"),
-            new SimpleEntry<>("shouldApplyPostOpAggregation", "SchemaMigrationIT - Need to apply schema aggregation choices"))
+                "GetAllElementsIT - half what expect"),
+            new SimpleEntry<>("shouldImportFromFileThenCorrectlyExportToFile",
+                "ImportExportCsvIT - Correct results but not merged due to return type not deduping"),
+            new SimpleEntry<>("shouldAggregateOnlyRequiredGroups",
+                "PartAggregationIT - Investigate further"),
+            new SimpleEntry<>("shouldApplyPostOpAggregation",
+                "SchemaMigrationIT - Need to apply schema aggregation choices"),
+            new SimpleEntry<>("shouldAggBeforePostFilters", "SchemaMigrationIT - investigate"))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     FederatedStoreITs() {

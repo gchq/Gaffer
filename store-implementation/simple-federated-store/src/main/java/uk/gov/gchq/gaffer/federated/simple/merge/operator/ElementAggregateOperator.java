@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BinaryOperator;
@@ -73,36 +74,36 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
 
         // If the elements for a group should be aggregated, do so
         // Otherwise keep all the elements
-        final List<Element> merged = new ArrayList<>();
-        for (final List<Element> elementsInGroup : groupedElements.values()) {
-            if (elementsInGroup.size() <= 1) {
-                merged.addAll(elementsInGroup);
-                continue;
-            }
+        return groupedElements.values().stream()
+                .map(elements -> {
+                    // No merging needed
+                    if (elements.size() <= 1) {
+                        return elements;
+                    }
 
-            // Merge Elements in these smaller lists
-            final String group = elementsInGroup.get(0).getGroup();
-            final ElementAggregator aggregator;
-            boolean shouldMergeGroup = false;
-            if (schema != null) {
-                final SchemaElementDefinition elementDefinition = schema.getElement(group);
-                aggregator = elementDefinition.getIngestAggregator();
-                shouldMergeGroup = elementDefinition.isAggregate();
-            } else {
-                aggregator = new ElementAggregator();
-            }
+                    // Merge Elements in these smaller lists
+                    final String group = elements.get(0).getGroup();
+                    final ElementAggregator aggregator;
+                    boolean shouldMergeGroup = false;
+                    if (schema != null) {
+                        final SchemaElementDefinition elementDefinition = schema.getElement(group);
+                        aggregator = elementDefinition.getIngestAggregator();
+                        shouldMergeGroup = elementDefinition.isAggregate();
+                    } else {
+                        aggregator = new ElementAggregator();
+                    }
 
-            if (shouldMergeGroup) {
-                Element m = null;
-                for (final Element e : elementsInGroup) {
-                    m = aggregator.apply(m == null ? m : m.shallowClone(), e);
-                }
-                merged.add(m);
-            } else {
-                merged.addAll(elementsInGroup);
-            }
-        }
-        return merged;
+                    if (shouldMergeGroup) {
+                        Element e = elements.get(0);
+                        for (int i = 1; i < elements.size(); i++) {
+                            e = aggregator.apply(e.shallowClone(), elements.get(i));
+                        }
+                        return Collections.singletonList(e);
+                    }
+
+                    return elements;
+                })
+                .collect(ArrayList::new, (list, collection) -> collection.forEach(list::add), ArrayList::addAll);
     }
 
     // So we can group Elements that are the same but with different properties
