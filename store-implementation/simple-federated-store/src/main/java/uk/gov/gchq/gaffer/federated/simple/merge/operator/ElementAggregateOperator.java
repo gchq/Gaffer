@@ -44,6 +44,8 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
     // The schema to use for pulling aggregation functions from
     private Schema schema;
 
+    private final Map<String, SchemaElementDefinition> elementDefinitionsCache = new HashMap<>();
+
     /**
      * Set the schema to use for aggregating elements of the same group
      *
@@ -88,7 +90,7 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                     boolean shouldMergeGroup = false;
                     ElementAggregator aggregator = new ElementAggregator();
                     if (schema != null) {
-                        final SchemaElementDefinition elementDefinition = schema.getElement(e.getGroup());
+                        final SchemaElementDefinition elementDefinition = elementDefinitionsCache.get(e.getGroup());
                         aggregator = elementDefinition.getFullAggregator();
                         shouldMergeGroup = elementDefinition.isAggregate();
                     }
@@ -106,7 +108,6 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                 .collect(Collectors.toList());
     }
 
-    private final Map<String, SchemaElementDefinition> defs = new HashMap<>();
 
     // So we can group Elements that are the same but with different properties
     private String getElementKey(final Element e) {
@@ -114,7 +115,7 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
         builder.append(e.getGroup());
 
         if (schema != null) {
-            final SchemaElementDefinition def = defs.computeIfAbsent(e.getGroup(), k -> schema.getElement(k));
+            final SchemaElementDefinition def = elementDefinitionsCache.computeIfAbsent(e.getGroup(), k -> schema.getElement(k));
             final Set<String> groupBy = def.getGroupBy();
             groupBy.forEach(g -> {
                 final Object p = e.getProperty(g);
