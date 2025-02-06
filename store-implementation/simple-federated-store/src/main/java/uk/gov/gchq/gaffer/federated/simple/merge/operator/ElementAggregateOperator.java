@@ -27,8 +27,10 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
@@ -82,14 +84,16 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                     }
 
                     // Merge Elements in these smaller lists
+                    Element e = elements.get(0);
+                    boolean shouldMergeGroup = false;
                     ElementAggregator aggregator = new ElementAggregator();
-                    final SchemaElementDefinition elementDefinition = schema.getElement(elements.get(0).getGroup());
                     if (schema != null) {
-                        aggregator = elementDefinition.getIngestAggregator();
+                        final SchemaElementDefinition elementDefinition = schema.getElement(e.getGroup());
+                        aggregator = elementDefinition.getFullAggregator();
+                        shouldMergeGroup = elementDefinition.isAggregate();
                     }
 
-                    if (elementDefinition.isAggregate()) {
-                        Element e = elements.get(0);
+                    if (shouldMergeGroup) {
                         for (int i = 1; i < elements.size(); i++) {
                             e = aggregator.apply(e.shallowClone(), elements.get(i));
                         }
@@ -102,10 +106,23 @@ public class ElementAggregateOperator implements BinaryOperator<Iterable<Element
                 .collect(Collectors.toList());
     }
 
+    private final Map<String, SchemaElementDefinition> defs = new HashMap<>();
+
     // So we can group Elements that are the same but with different properties
     private String getElementKey(final Element e) {
         final StringBuilder builder = new StringBuilder();
         builder.append(e.getGroup());
+
+        if (schema != null) {
+            final SchemaElementDefinition def = defs.computeIfAbsent(e.getGroup(), k -> schema.getElement(k));
+            final Set<String> groupBy = def.getGroupBy();
+            groupBy.forEach(g -> {
+                final Object p = e.getProperty(g);
+                if (p != null) {
+                    builder.append(p.toString());
+                }
+            });
+        }
 
         if (e instanceof Entity) {
             builder.append(((Entity) e).getVertex().toString());
