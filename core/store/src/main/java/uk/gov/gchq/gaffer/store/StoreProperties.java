@@ -66,7 +66,7 @@ import static uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperation
  * All StoreProperties classes must be JSON serialisable.
  * </p>
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "storePropertiesClassName")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "storePropertiesClassName")
 public class StoreProperties implements Cloneable {
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";

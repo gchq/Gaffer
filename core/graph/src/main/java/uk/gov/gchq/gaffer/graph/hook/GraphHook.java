@@ -38,7 +38,7 @@ import uk.gov.gchq.gaffer.store.Context;
  * be modified.
  * </p>
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface GraphHook {
     /**
      * Called from {@link uk.gov.gchq.gaffer.graph.Graph} before an {@link OperationChain}
