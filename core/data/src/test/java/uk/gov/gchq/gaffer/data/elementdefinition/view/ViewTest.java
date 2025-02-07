@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 Crown Copyright
+ * Copyright 2016-2024 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
@@ -30,6 +32,7 @@ import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
 import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -384,7 +387,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
     }
 
     @Test
-    public void shouldCreateAnIdenticalObjectWhenCloned() {
+    public void shouldCreateAnIdenticalObjectWhenCloned() throws IOException {
         // Given
         final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
         final ViewElementDefinition edgeDef2 = new ViewElementDefinition();
@@ -408,8 +411,11 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final byte[] viewJson = view.toCompactJson();
         final byte[] cloneJson = clone.toCompactJson();
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode treeView = objectMapper.readTree(viewJson);
+        JsonNode treeClone = objectMapper.readTree(cloneJson);
         // Check that JSON representations of the objects are equal
-        assertThat(cloneJson).containsExactly(viewJson);
+        assertThat(treeClone).isEqualTo(treeView);
 
         final View viewFromJson = new View.Builder().json(viewJson).build();
         final View cloneFromJson = new View.Builder().json(cloneJson).build();
