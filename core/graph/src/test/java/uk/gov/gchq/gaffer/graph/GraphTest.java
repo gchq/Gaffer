@@ -928,8 +928,8 @@ public class GraphTest {
 
         // Then
         assertNotSame(schema, resultView);
-        assertArrayEquals(entities.keySet().toArray(), resultView.getEntityGroups().toArray());
-        assertArrayEquals(edges.keySet().toArray(), resultView.getEdgeGroups().toArray());
+        assertThat(entities.keySet()).isEqualTo(resultView.getEntityGroups());
+        assertThat(edges.keySet()).isEqualTo(resultView.getEdgeGroups());
 
         for (final ViewElementDefinition resultElementDef : resultView.getEntities().values()) {
             assertNotNull(resultElementDef);
