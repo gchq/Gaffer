@@ -28,7 +28,7 @@ import java.util.Map;
  * {@code FreqMap} extends {@link HashMap} with String keys and Long values, adding an upsert operation.
  */
 @JsonSimpleClassName
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "class")
 public class FreqMap extends HashMap<String, Long> {
     private static final long serialVersionUID = -851105369975081220L;
 

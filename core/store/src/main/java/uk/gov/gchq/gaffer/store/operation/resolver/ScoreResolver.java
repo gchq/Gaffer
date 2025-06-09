@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
  *
  * @param <T> the {@link Operation} type
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface ScoreResolver<T extends Operation> {
     /**
      * Should return a (nullable) score for a given operation.

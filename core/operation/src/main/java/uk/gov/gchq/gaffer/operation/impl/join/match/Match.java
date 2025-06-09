@@ -22,7 +22,7 @@ import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.util.List;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "class")
 @JsonSimpleClassName(includeSubtypes = true)
 public interface Match {
 

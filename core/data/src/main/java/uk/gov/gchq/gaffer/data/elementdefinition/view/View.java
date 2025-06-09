@@ -65,7 +65,7 @@ import java.util.function.Function;
  * @see uk.gov.gchq.gaffer.data.element.function.ElementTransformer
  */
 @JsonDeserialize(builder = View.Builder.class)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.EXISTING_PROPERTY, property = "class", defaultImpl = View.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = As.EXISTING_PROPERTY, property = "class", defaultImpl = View.class)
 @JsonPropertyOrder(value = {"class", "edges", "entities", "allEdges", "allEntities", "globalElements", "globalEntities", "globalEdges"}, alphabetic = true)
 @JsonSimpleClassName(includeSubtypes = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)

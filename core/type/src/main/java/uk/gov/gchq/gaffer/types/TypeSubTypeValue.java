@@ -32,7 +32,7 @@ import java.util.Comparator;
  * sub-types and associated values.
  */
 @JsonSimpleClassName
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "class")
 public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializable {
 
     private static Comparator<String> stringComparator = Comparator

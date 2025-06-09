@@ -39,7 +39,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
  * admin role. If not it uses a predicate to determine if the user can access a resource.
  */
 @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "Gets serialised by the JSC cache")
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "class")
 public class AccessPredicate implements BiPredicate<User, String>, Serializable {
 
     private final Predicate<User> userPredicate;
