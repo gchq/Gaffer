@@ -25,23 +25,24 @@
     </parent>
 
     <artifactId>accumulo-store</artifactId>
+    <version>${revision}</version>
 
     <dependencies>
         <!-- Gaffer dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>hdfs-library</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>sketches-library</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- External libraries -->
@@ -104,69 +105,69 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>store</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>data</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>operation</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-util</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>integration-test</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>integration-test</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>serialisation</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>hdfs-library</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>map-store</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -175,14 +176,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-suite</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
-            <version>${mockito.version}</version>
+            <version>${mockito-inline.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

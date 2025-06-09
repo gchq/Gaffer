@@ -49,29 +49,32 @@
         <shaded.jar.phase>package</shaded.jar.phase>
         <war.classifier />
         <append.shaded.classifier />
+        <koryphe.classifer />
+        <koryphe.test.classifer>tests</koryphe.test.classifer>
 
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
 
         <!-- Dependency version properties -->
-        <junit.version>5.9.3</junit.version>
-        <junit-suite.version>1.9.3</junit-suite.version>
-        <assertj.version>3.24.2</assertj.version>
-        <mockito.version>4.11.0</mockito.version>
+        <junit.version>5.10.3</junit.version>
+        <junit-platform.version>1.10.3</junit-platform.version>
+        <assertj.version>3.26.3</assertj.version>
+        <mockito.version>5.12.0</mockito.version>
+        <mockito-inline.version>5.2.0</mockito-inline.version>
         <slf4j.api.version>1.7.36</slf4j.api.version>
 
-        <scala.minor.version>2.11</scala.minor.version>
-        <scala.version>${scala.minor.version}.12</scala.version>
-        <spark.minor.version>2.4</spark.minor.version>
-        <spark.version>${spark.minor.version}.5</spark.version>
+        <scala.minor.version>2.12</scala.minor.version>
+        <scala.version>${scala.minor.version}.15</scala.version>
+        <spark.minor.version>3.0</spark.minor.version>
+        <spark.version>${spark.minor.version}.3</spark.version>
 
         <koryphe.version>2.6.0</koryphe.version>
         <accumulo.version>2.0.1</accumulo.version>
         <avro.version>1.8.2</avro.version>
         <hadoop.version>3.3.3</hadoop.version>
-        <jackson.version>2.13.5</jackson.version>
+        <jackson.version>2.17.2</jackson.version>
 
-        <clearspring.version>2.7.0</clearspring.version>
-        <datasketches.version>4.0.0</datasketches.version>
+        <clearspring.version>2.9.8</clearspring.version>
+        <datasketches.version>6.0.0</datasketches.version>
         <commons-codec.version>1.15</commons-codec.version>
         <commons-io.version>2.14.0</commons-io.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
@@ -82,7 +85,7 @@
         <commons-collections.version>4.4</commons-collections.version>
         <commons-text.version>1.10.0</commons-text.version>
         <curator.version>2.13.0</curator.version>
-        <guava.version>30.1.1-jre</guava.version>
+        <guava.version>33.2.1-jre</guava.version>
         <javassist.version>3.29.2-GA</javassist.version>
         <javax-activation.version>1.1.1</javax-activation.version>
         <javax-annotation.version>1.3.2</javax-annotation.version>
@@ -99,8 +102,7 @@
         <mockserver.version>5.15.0</mockserver.version>
         <opentelemetry.version>1.36.0</opentelemetry.version>
         <tinkerpop.version>3.7.1</tinkerpop.version>
-        <!-- Note later versions require scala version 2.12.x -->
-        <cypher-gremlin.version>1.0.0</cypher-gremlin.version>
+        <cypher-gremlin.version>1.0.4</cypher-gremlin.version>
 
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
@@ -122,15 +124,16 @@
         <nexus.plugin.version>1.6.8</nexus.plugin.version>
         <release.plugin.version>3.0.0-M5</release.plugin.version>
         <scm.plugin.version>3.1.0</scm.plugin.version>
-        <shade.plugin.version>3.2.4</shade.plugin.version>
+        <shade.plugin.version>3.6.0</shade.plugin.version>
         <source.plugin.version>3.2.1</source.plugin.version>
-        <surefire.plugin.version>3.1.2</surefire.plugin.version>
+        <surefire.plugin.version>3.3.1</surefire.plugin.version>
         <failsafe.plugin.version>3.1.2</failsafe.plugin.version>
         <cargo.plugin.version>1.9.10</cargo.plugin.version>
         <enforcer.plugin.version>3.1.0</enforcer.plugin.version>
         <site.plugin.version>3.12.1</site.plugin.version>
         <info.plugin.version>3.4.1</info.plugin.version>
         <flatten.plugin.version>1.5.0</flatten.plugin.version>
+        <dependency-check.plugin.version>10.0.3</dependency-check.plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>
@@ -186,13 +189,13 @@
                 <groupId>uk.gov.gchq.koryphe</groupId>
                 <artifactId>core</artifactId>
                 <version>${koryphe.version}</version>
-                <classifier>jdk8</classifier>
+                <classifier>${koryphe.classifer}</classifier>
             </dependency>
             <dependency>
                 <groupId>uk.gov.gchq.koryphe</groupId>
                 <artifactId>core</artifactId>
                 <version>${koryphe.version}</version>
-                <classifier>tests-jdk8</classifier>
+                <classifier>${koryphe.test.classifer}</classifier>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
@@ -204,6 +207,11 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
@@ -744,7 +752,17 @@
             <dependency>
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-suite</artifactId>
-                <version>${junit-suite.version}</version>
+                <version>${junit-platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-suite-api</artifactId>
+                <version>${junit-platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-commons</artifactId>
+                <version>${junit-platform.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
@@ -839,6 +857,11 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>${dependency-check.plugin.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
@@ -1636,41 +1659,34 @@
                 </property>
             </activation>
             <properties>
+                <java.version>1.8</java.version>
                 <war.classifier>legacy</war.classifier>
                 <append.shaded.classifier>-legacy</append.shaded.classifier>
+                <koryphe.classifer>jdk8</koryphe.classifer>
+                <koryphe.test.classifer>tests-jdk8</koryphe.test.classifer>
 
                 <accumulo.version>1.9.3</accumulo.version>
                 <hadoop.version>2.6.5</hadoop.version>
                 <guava.version>13.0.1</guava.version>
+                <jackson.version>2.13.5</jackson.version>
+                <clearspring.version>2.7.0</clearspring.version>
+                <datasketches.version>4.0.0</datasketches.version>
+                <cypher-gremlin.version>1.0.0</cypher-gremlin.version>
+
+                <spark.minor.version>2.4</spark.minor.version>
+                <spark.version>${spark.minor.version}.5</spark.version>
+                <scala.minor.version>2.11</scala.minor.version>
+                <scala.version>${scala.minor.version}.12</scala.version>
+
+                <junit.version>5.9.3</junit.version>
+                <junit-platform.version>1.9.3</junit-platform.version>
+                <assertj.version>3.24.2</assertj.version>
+                <mockito.version>4.11.0</mockito.version>
+                <mockito-inline.version>4.11.0</mockito-inline.version>
 
                 <!-- Required due to Maven install plugin Bug (MINSTALL-151) -->
                 <install.plugin.version>2.5.2</install.plugin.version>
-            </properties>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-war-plugin</artifactId>
-                            <configuration>
-                                <classifier>${war.classifier}</classifier>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-        <profile>
-            <id>java11</id>
-            <activation>
-                <jdk>11</jdk>
-            </activation>
-            <properties>
-                <java.version>11</java.version>
-                <spark.minor.version>3.0</spark.minor.version>
-                <spark.version>${spark.minor.version}.3</spark.version>
-                <scala.minor.version>2.12</scala.minor.version>
-                <scala.version>${scala.minor.version}.15</scala.version>
+                <shade.plugin.version>3.2.4</shade.plugin.version>
             </properties>
             <build>
                 <pluginManagement>
@@ -1680,48 +1696,19 @@
                             <artifactId>maven-compiler-plugin</artifactId>
                             <version>${compiler.plugin.verson}</version>
                             <configuration>
-                                <release>${java.version}</release>
+                                <source>${java.version}</source>
+                                <target>${java.version}</target>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-war-plugin</artifactId>
+                            <configuration>
+                                <classifier>${war.classifier}</classifier>
                             </configuration>
                         </plugin>
                     </plugins>
                 </pluginManagement>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${javadoc.plugin.version}</version>
-                        <configuration>
-                            <additionalOptions>
-                                <additionalOption>--frames</additionalOption>
-                            </additionalOptions>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>${enforcer.plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>enforce-compatible-hadoop</id>
-                                <goals>
-                                    <goal>enforce</goal>
-                                </goals>
-                                <configuration>
-                                    <rules>
-                                        <bannedDependencies>
-                                            <excludes>
-                                                <exclude>org.apache.hadoop:*:(,2.9.9]</exclude>
-                                            </excludes>
-                                            <message>
-                                                Hadoop versions below 3.3.0 are incompatible with JDK 11, JDK 8 must be used with the legacy profile
-                                            </message>
-                                        </bannedDependencies>
-                                    </rules>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
             </build>
         </profile>
     </profiles>

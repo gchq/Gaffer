@@ -87,7 +87,7 @@ public abstract class AbstractRestApiIT {
     }
 
     protected String getBaseURl() {
-        return "http://localhost:" + port + "/" + getContextPath();
+        return "http://localhost:" + port + getContextPath();
     }
 
     protected <T> ResponseEntity<T> get(final String path, final Class<T> responseBodyClass) {
